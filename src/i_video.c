@@ -48,6 +48,8 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
+#include "crlcore.h"
+
 // Lookup table for mapping ASCII characters to their equivalent when
 // shift is pressed on an American layout keyboard:
 
@@ -288,6 +290,10 @@ static void ApplyWindowResize(unsigned int w, unsigned int h);
 
 static boolean MouseShouldBeGrabbed()
 {
+	// GhostlyDeath -- Do not grab in brute force
+	if (CRLBruteForce)
+		return false;	
+	
     // never grab the mouse when in screensaver mode
    
     if (screensaver_mode)
@@ -1143,6 +1149,8 @@ void I_ReadScreen (byte* scr)
 void I_SetPalette (byte *doompalette)
 {
     int i;
+    
+    CRL_SetColors(doompalette);
 
     for (i=0; i<256; ++i)
     {
@@ -1332,6 +1340,10 @@ static boolean AutoAdjustFullscreen(void)
     screen_mode_t *screen_mode;
     int diff, best_diff;
     int i;
+    
+    // GhostlyDeath -- Never fullscreen in brute mode, force failure
+    if (CRLBruteForce)
+    	return false;
 
     modes = SDL_ListModes(NULL, SDL_FULLSCREEN);
 
@@ -1455,7 +1467,11 @@ static void AutoAdjustColorDepth(void)
         }
     }
 
-    if (fullscreen)
+	// Never fullscreen when brute forcing
+	if (CRLBruteForce)
+		flags = 0;
+	
+    else if (fullscreen && !CRLBruteForce)
     {
         flags = SDL_FULLSCREEN;
     }
@@ -1504,11 +1520,11 @@ static void I_AutoAdjustSettings(void)
 
     // If we are running fullscreen, try to autoadjust to a valid fullscreen
     // mode.  If this is impossible, switch to windowed.
-
-    if (fullscreen && !AutoAdjustFullscreen())
-    {
-        fullscreen = 0;
-    }
+	
+	if (fullscreen && !CRLBruteForce && !AutoAdjustFullscreen())
+	{
+	    fullscreen = 0;
+	}
 
     // If we are running windowed, pick a valid window size.
 
@@ -1881,7 +1897,8 @@ static void SetVideoMode(screen_mode_t *mode, int w, int h)
         flags |= SDL_HWPALETTE;
     }
 
-    if (fullscreen)
+	// Never fullscreen when brute forcing
+    if (fullscreen && !CRLBruteForce)
     {
         flags |= SDL_FULLSCREEN;
     }

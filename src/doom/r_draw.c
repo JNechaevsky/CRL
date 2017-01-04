@@ -36,6 +36,8 @@
 // State.
 #include "doomstat.h"
 
+#include "crlcore.h"
+
 
 // ?
 #define MAXWIDTH			1120
@@ -92,6 +94,9 @@ byte*			dc_source;
 // just for profiling 
 int			dccount;
 
+// GhostlyDeath -- CRL
+visplane_t* dc_visplaneused = NULL;
+
 //
 // A column is a vertical slice/span from a wall texture that,
 //  given the DOOM style restrictions on the view orientation,
@@ -134,6 +139,11 @@ void R_DrawColumn (void)
     // This is as fast as it gets.
     do 
     {
+
+	// GhostlyDeath -- Possibly mark visplane
+	if (dc_visplaneused != NULL)
+		CRL_MarkPixelP(CRLPlaneSurface, dc_visplaneused, dest);
+	
 	// Re-map color indices from wall texture column
 	//  using a lighting/special effects LUT.
 	*dest = dc_colormap[dc_source[(frac>>FRACBITS)&127]];
@@ -242,6 +252,14 @@ void R_DrawColumnLow (void)
     do 
     {
 	// Hack. Does not work corretly.
+	
+	// GhostlyDeath -- Possibly mark visplane
+	if (dc_visplaneused != NULL)
+	{
+		CRL_MarkPixelP(CRLPlaneSurface, dc_visplaneused, dest);
+		CRL_MarkPixelP(CRLPlaneSurface, dc_visplaneused, dest2);
+	}
+	
 	*dest2 = *dest = dc_colormap[dc_source[(frac>>FRACBITS)&127]];
 	dest += SCREENWIDTH;
 	dest2 += SCREENWIDTH;
@@ -624,16 +642,20 @@ void R_DrawSpan (void)
 
     do
     {
-	// Calculate current texture index in u,v.
-        ytemp = (position >> 4) & 0x0fc0;
-        xtemp = (position >> 26);
-        spot = xtemp | ytemp;
+		// Calculate current texture index in u,v.
+		ytemp = (position >> 4) & 0x0fc0;
+		xtemp = (position >> 26);
+		spot = xtemp | ytemp;
 
-	// Lookup pixel from flat texture tile,
-	//  re-index using light/colormap.
-	*dest++ = ds_colormap[ds_source[spot]];
+		// GhostlyDeath -- Possibly mark visplane
+		if (dc_visplaneused != NULL)
+			CRL_MarkPixelP(CRLPlaneSurface, dc_visplaneused, dest);
 
-        position += step;
+		// Lookup pixel from flat texture tile,
+		//  re-index using light/colormap.
+		*dest++ = ds_colormap[ds_source[spot]];
+
+		position += step;
 
     } while (count--);
 }
@@ -756,9 +778,19 @@ void R_DrawSpanLow (void)
         xtemp = (position >> 26);
         spot = xtemp | ytemp;
 
+
+	// GhostlyDeath -- Possibly mark visplane
+	if (dc_visplaneused != NULL)
+		CRL_MarkPixelP(CRLPlaneSurface, dc_visplaneused, dest);
+
 	// Lowres/blocky mode does it twice,
 	//  while scale is adjusted appropriately.
 	*dest++ = ds_colormap[ds_source[spot]];
+	
+	// GhostlyDeath -- Possibly mark visplane
+	if (dc_visplaneused != NULL)
+		CRL_MarkPixelP(CRLPlaneSurface, dc_visplaneused, dest);
+	
 	*dest++ = ds_colormap[ds_source[spot]];
 
 	position += step;

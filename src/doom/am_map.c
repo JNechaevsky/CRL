@@ -45,22 +45,26 @@
 
 #include "am_map.h"
 
+#include "crlcore.h"
+
+#define MAYBEBLAND(x) (blandcolor == 0 ? (x) : 0)
+#define LIMRANGE(x) (blandcolor == 0 ? (x) : 1)
 
 // For use if I do walls with outsides/insides
-#define REDS		(256-5*16)
-#define REDRANGE	16
-#define BLUES		(256-4*16+8)
-#define BLUERANGE	8
-#define GREENS		(7*16)
-#define GREENRANGE	16
-#define GRAYS		(6*16)
-#define GRAYSRANGE	16
-#define BROWNS		(4*16)
-#define BROWNRANGE	16
-#define YELLOWS		(256-32+7)
-#define YELLOWRANGE	1
-#define BLACK		0
-#define WHITE		(256-47)
+#define REDS		MAYBEBLAND(256-5*16)
+#define REDRANGE	LIMRANGE(16)
+#define BLUES		MAYBEBLAND(256-4*16+8)
+#define BLUERANGE	LIMRANGE(8)
+#define GREENS		MAYBEBLAND(7*16)
+#define GREENRANGE	LIMRANGE(16)
+#define GRAYS		MAYBEBLAND(6*16)
+#define GRAYSRANGE	LIMRANGE(16)
+#define BROWNS		MAYBEBLAND(4*16)
+#define BROWNRANGE	LIMRANGE(16)
+#define YELLOWS		MAYBEBLAND(256-32+7)
+#define YELLOWRANGE	LIMRANGE(1)
+#define BLACK		MAYBEBLAND(0)
+#define WHITE		MAYBEBLAND(256-47)
 
 // Automap colors
 #define BACKGROUND	BLACK
@@ -133,7 +137,8 @@ typedef struct
     fixed_t slp, islp;
 } islope_t;
 
-
+// GhostlyDeath -- Bland color drawing
+static boolean blandcolor = false;
 
 //
 // The vector graphics for the automap.
@@ -197,7 +202,7 @@ static int 	grid = 0;
 
 static int 	leveljuststarted = 1; 	// kluge until AM_LevelInit() is called
 
-boolean    	automapactive = false;
+int    	automapactive = false;
 static int 	finit_width = SCREENWIDTH;
 static int 	finit_height = SCREENHEIGHT - 32;
 
@@ -649,9 +654,14 @@ AM_Responder
         }
         else if (key == key_map_toggle)
         {
-            bigstate = 0;
-            viewactive = true;
-            AM_Stop ();
+        	if (automapactive == 1)
+        		automapactive = 2;
+        	else
+        	{
+		        bigstate = 0;
+		        viewactive = true;
+		        AM_Stop ();
+		    }
         }
         else if (key == key_map_maxzoom)
         {
@@ -1247,7 +1257,7 @@ void AM_drawPlayers(void)
 {
     int		i;
     player_t*	p;
-    static int 	their_colors[] = { GREENS, GRAYS, BROWNS, REDS };
+    int 	their_colors[] = { GREENS, GRAYS, BROWNS, REDS };
     int		their_color = -1;
     int		color;
 
@@ -1335,11 +1345,36 @@ void AM_drawCrosshair(int color)
 
 }
 
+void AM_CRLFLine(int __col, int __x1, int __y1, int __x2, int __y2)
+{
+	fline_t mt = {{__x1, __y1}, {__x2, __y2}};
+	AM_drawFline(&mt, __col);
+}
+
+void AM_CRLMLine(int __col, int __x1, int __y1, int __x2, int __y2)
+{
+	mline_t mt = {{__x1, __y1}, {__x2, __y2}};
+	AM_drawMline(&mt, __col);
+}
+
 void AM_Drawer (void)
 {
+	CRL_Option_t* op;
+	int i, dm;	
+	
     if (!automapactive) return;
+    
+    // Force bland if > 0 ? Because the normal colors could screw with the
+    // very bright and shiny CRL colors
+	op = &CRLOptionSet[CRL_MAPMODE];
+	dm = op->curvalue;
+	if (automapactive == 2 && dm > 0)
+		blandcolor = true;
+	else
+		blandcolor = false;
 
-    AM_clearFB(BACKGROUND);
+	if (automapactive == 1)
+		AM_clearFB(BACKGROUND);
     if (grid)
 	AM_drawGrid(GRIDCOLORS);
     AM_drawWalls();
@@ -1352,4 +1387,8 @@ void AM_Drawer (void)
 
     V_MarkRect(f_x, f_y, f_w, f_h);
 
+	// CRL
+	if (automapactive == 2)
+		CRL_DrawMap(AM_CRLFLine, AM_CRLMLine);
 }
+

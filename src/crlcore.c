@@ -1,0 +1,1194 @@
+// -*- Mode: C; indent-tabs-mode: t; c-basic-offset: 4; tab-width: 4 -*-
+// ----------------------------------------------------------------------------
+// Chocorenderlimits 2.0 <http://remood.org/?page=chocorenderlimits>
+//   Copyright (C) 2014-2015 GhostlyDeath <ghostlydeath@remood.org>
+//     For more credits, see AUTHORS.
+// ----------------------------------------------------------------------------
+// CRL is under the GNU General Public License v2 (or later), see COPYING.
+// ----------------------------------------------------------------------------
+
+///////////////////////////////////////////////////////////////////////////////
+#if !defined(CHOCORENDERLIMITS_MAGIC_INCLUDE)
+
+#include <string.h>
+#include <stdlib.h>
+#include <stdlib.h>
+
+#include "crlcore.h"
+
+#include "z_zone.h"
+
+#include "v_video.h"
+
+#include "m_argv.h"
+
+/** Backup. */
+jmp_buf CRLJustIncaseBuf;
+
+/**
+ * Stat values.
+ */
+CRL_Value_t CRLStatSet[] =
+{
+	{
+		"Full",
+	},
+	{
+		"Overflows",
+	},
+	{
+		"None",
+	}
+};
+
+/**
+ * Visplane values.
+ */
+CRL_Value_t CRLVisplaneSet[] =
+{
+	{
+		"None",
+	},
+	{
+		"Fill",
+	},
+	{
+		"OverFill",
+	},
+	{
+		"Border",
+	},
+	{
+		"OverBorder",
+	},
+};
+
+/**
+ * Merging visplanes.
+ */
+CRL_Value_t CRLMergeVisplaneSet[] =
+{
+	{
+		"Default"
+	},
+	{
+		"No CHK"
+	},
+	{
+		"No FND"
+	},
+	{
+		"No CHK+FND"
+	},
+};
+
+/**
+ * Visplane limit.
+ */
+CRL_Value_t CRLVisplaneLimitSet[] =
+{
+	{
+		"128 (Vanilla)"
+	},
+	{
+		"4096 (CRL)"
+	}
+};
+
+/**
+ * Automap set.
+ */
+CRL_Value_t CRLMapSet[] =
+{
+	{
+		"None",
+	},
+	{
+		"Visplane Floor",
+	},
+	{
+		"Visplane Ceil",
+	},
+};
+
+/**
+ * CRL Option menu and their values.
+ */
+CRL_Option_t CRLOptionSet[NUM_CRL_OPTIONS] =
+{
+	/** Stats. */
+	{
+		"Draw Stats",
+		NUM_CRL_STAT,
+		CRLStatSet
+	},
+	
+	/** Visplanes. */
+	{
+		"VisPlanes",
+		NUM_CRL_VIS,
+		CRLVisplaneSet
+	},
+	
+	/** Merge visplanes. */
+	{
+		"Merge VisPlanes",
+		NUM_CRL_MERGE,
+		CRLMergeVisplaneSet
+	},
+	
+	/** Maximum visplane limit. */
+	{
+		"Max VisPlanes",
+		NUM_CRL_MAXVISPLANES,
+		CRLVisplaneLimitSet
+	},
+	
+	/** Automap mode. */
+	{
+		"Automap Mode",
+		NUM_CRL_MAP,
+		CRLMapSet
+	},
+};
+
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+
+/* V_ColorEntry_t -- HSV table */
+typedef union V_ColorEntry_s
+{
+	struct
+	{
+		uint8_t R;
+		uint8_t G;
+		uint8_t B;
+	} RGB;
+	
+	struct
+	{
+		uint8_t H;
+		uint8_t S;
+		uint8_t V;
+	} HSV;
+} V_ColorEntry_t;
+
+static V_ColorEntry_t _rgbgamecolors[256];
+static V_ColorEntry_t _hsvgamecolors[256];
+
+/* V_HSVtoRGB() -- Convert HSV to RGB */
+V_ColorEntry_t V_HSVtoRGB(const V_ColorEntry_t HSV)
+{
+	int R, G, B, H, S, V, P, Q, T, F;
+	V_ColorEntry_t Ret;
+	
+	/* Get inital values */
+	H = HSV.HSV.H;
+	S = HSV.HSV.S;
+	V = HSV.HSV.V;
+	
+	/* Gray Color? */
+	if (!S)
+	{
+		R = G = B = V;
+	}
+	
+	/* Real Color */
+	else
+	{
+		// Calculate Hue Shift
+		F = ((H % 60) * 255) / 60;
+		H /= 60;
+		
+		// Calculate channel values
+		P = (V * (256 - S)) / 256;
+		Q = (V * (256 - (S * F) / 256)) / 256;
+		T = (V * (256 - (S * (256 - F)) / 256)) / 256;
+		
+		switch (H)
+		{
+			case 0:
+				R = V;
+				G = T;
+				B = P;
+				break;
+				
+			case 1:
+				R = Q;
+				G = V;
+				B = P;
+				break;
+				
+			case 2:
+				R = P;
+				G = V;
+				B = T;
+				break;
+				
+			case 3:
+				R = P;
+				G = Q;
+				B = V;
+				break;
+				
+			case 4:
+				R = T;
+				G = P;
+				B = V;
+				break;
+				
+			default:
+				R = V;
+				G = P;
+				B = Q;
+				break;
+		}
+	}
+	
+	/* Set Return */
+	Ret.RGB.R = R;
+	Ret.RGB.G = G;
+	Ret.RGB.B = B;
+	
+	/* Return */
+	return Ret;
+}
+
+/* V_RGBtoHSV() -- Convert RGB to HSV */
+V_ColorEntry_t V_RGBtoHSV(const V_ColorEntry_t RGB)
+{
+	V_ColorEntry_t Ret;
+	uint8_t rMin, rMax, rDif;
+	
+	// Get min/max
+	rMin = 255;
+	rMax = 0;
+	
+	// Get RGB minimum
+	if (RGB.RGB.R < rMin)
+		rMin = RGB.RGB.R;
+	if (RGB.RGB.G < rMin)
+		rMin = RGB.RGB.G;
+	if (RGB.RGB.B < rMin)
+		rMin = RGB.RGB.B;
+		
+	// Get RGB maximum
+	if (RGB.RGB.R > rMax)
+		rMax = RGB.RGB.R;
+	if (RGB.RGB.G > rMax)
+		rMax = RGB.RGB.G;
+	if (RGB.RGB.B > rMax)
+		rMax = RGB.RGB.B;
+		
+	// Obtain value
+	Ret.HSV.V = rMax;
+	
+	// Short circuit?
+	if (Ret.HSV.V == 0)
+	{
+		Ret.HSV.H = Ret.HSV.S = 0;
+		return Ret;
+	}
+	// Obtain difference
+	rDif = rMax - rMin;
+	
+	// Obtain saturation
+	Ret.HSV.S = (uint8_t)(((uint32_t)255 * (uint32_t)rDif) / (uint32_t)Ret.HSV.V);
+	
+	// Short circuit?
+	if (Ret.HSV.S == 0)
+	{
+		Ret.HSV.H = 0;
+		return Ret;
+	}
+	
+	/* Obtain hue */
+	if (rMax == RGB.RGB.R)
+		Ret.HSV.H = 43 * (RGB.RGB.G - RGB.RGB.B) / rMax;
+	else if (rMax == RGB.RGB.G)
+		Ret.HSV.H = 85 + (43 * (RGB.RGB.B - RGB.RGB.R) / rMax);
+	else
+		Ret.HSV.H = 171 + (43 * (RGB.RGB.R - RGB.RGB.G) / rMax);
+		
+	return Ret;
+}
+
+/* V_BestHSVMatch() -- Best match between HSV for tables */
+static size_t V_BestHSVMatch(const V_ColorEntry_t* const Table, const V_ColorEntry_t HSV)
+{
+	size_t i, Best;
+	V_ColorEntry_t tRGB, iRGB;
+	int32_t BestSqr, ThisSqr, Dr, Dg, Db;
+	
+	/* Check */
+	if (!Table)
+		return 0;
+		
+	/* Convert input to RGB */
+	iRGB = V_HSVtoRGB(HSV);
+	
+	/* Loop colors */
+	for (Best = 0, BestSqr = 0x7FFFFFFFUL, i = 0; i < 256; i++)
+	{
+		// Convert table entry to RGB
+		tRGB = V_HSVtoRGB(Table[i]);
+		
+		// Perfect match?
+		if (iRGB.RGB.R == tRGB.RGB.R && iRGB.RGB.B == tRGB.RGB.B && iRGB.RGB.G == tRGB.RGB.G)
+			return i;
+			
+		// Distance of colors
+		Dr = tRGB.RGB.R - iRGB.RGB.R;
+		Dg = tRGB.RGB.G - iRGB.RGB.G;
+		Db = tRGB.RGB.B - iRGB.RGB.B;
+		ThisSqr = (Dr * Dr) + (Dg * Dg) + (Db * Db);
+		
+		// Closer?
+		if (ThisSqr < BestSqr)
+		{
+			Best = i;
+			BestSqr = ThisSqr;
+		}
+	}
+	
+	/* Fail */
+	return Best;
+}
+
+/**
+ * Returns the best RGB color match.
+ *
+ * @param __r Red.
+ * @param __g Green.
+ * @param __b Blue.
+ * @return The best matching color.
+ * @since 2015/12/17
+ */
+int CRL_BestRGBMatch(int __r, int __g, int __b)
+{
+	V_ColorEntry_t rgb, hsv;
+	
+	// Setup color request
+	rgb.RGB.R = __r;
+	rgb.RGB.G = __g;
+	rgb.RGB.B = __b;
+	
+	// Convert to HSV
+	hsv = V_RGBtoHSV(rgb);
+	
+	// Find best match
+	return (int)V_BestHSVMatch(_hsvgamecolors, hsv);
+}
+
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+
+CRL_Data_t CRLData;
+
+uint8_t* CRLSurface = NULL;
+
+void** CRLPlaneSurface = NULL;
+
+static size_t _planesize;
+
+static int _didcolors;
+
+#define MAXSHADES 16
+#define DARKSHADE 8
+#define DARKMASK 7
+static uint8_t _colormap[MAXSHADES][256];
+
+static int* _usecolors;
+
+static int _numcolors;
+
+/** Visplane storage. */
+#define MAXCOUNTPLANES 4096
+static void* _planelist[MAXCOUNTPLANES];
+static int _numplanes;
+
+static int _maxplanes;
+
+static int _frame;
+
+static int _pulse;
+static int _pulsewas;
+static int _pulsestage;
+
+/** HOM color table. */
+#define HOMCOUNT 256
+#define HOMQUAD (HOMCOUNT / 4)
+static int _homtable[HOMCOUNT];
+
+/** Brute force? The value here is the precision. */
+int CRLBruteForce = 0;
+
+/**
+ * Initializes things.
+ */
+void CRL_Init(int* __colorset, int __numcolors, int __pllim)
+{
+	int na;	
+	
+	// Make plane surface
+	_planesize = SCREENAREA * sizeof(*CRLPlaneSurface);
+	CRLPlaneSurface = Z_Malloc(_planesize, PU_STATIC, NULL);
+	memset(CRLPlaneSurface, 0, _planesize);
+	
+	// Set colors
+	_usecolors = __colorset;
+	_numcolors = __numcolors;
+	
+	// Limits
+	_maxplanes = __pllim;
+	
+	// Brute forcing?
+	CRLBruteForce = 0;
+	if ((na = M_CheckParm("-brute")) > 0)
+	{
+		// Passed in
+		if (na + 1 < myargc)
+			CRLBruteForce = strtol(myargv[na + 1], NULL, 10);
+		
+		// Use some default value
+		if (CRLBruteForce <= 0)
+			CRLBruteForce = 16;
+		
+		// Note it
+		printf("Enabled brute force with granularity: %d\n", CRLBruteForce);
+	}
+}
+
+/**
+ * Sets the game colors.
+ *
+ * @param __colors Colors to use, RGB.
+ */
+void CRL_SetColors(uint8_t* colors)
+{
+	int i, j, darksplit, idx, hueoff, count, mi, bb, k;
+	int qr, qg, qb;
+	uint8_t* x;
+	V_ColorEntry_t vc;
+	
+	// Only if no colors were set
+	if (!_didcolors)
+	{
+		// Do no more
+		_didcolors = 1;
+		
+		// go through them all
+		x = colors;
+		for (i = 0; i < 256; i++)
+		{
+			// Get colors
+			vc.RGB.R = *(x++);
+			vc.RGB.G = *(x++);
+			vc.RGB.B = *(x++);
+			
+			// Set RGB
+			_rgbgamecolors[i] = vc;
+			_hsvgamecolors[i] = V_RGBtoHSV(vc);
+		}
+		
+		// Find best hue colors for bright and dark
+		darksplit = _numcolors >> 1;
+		hueoff = 0;
+		count = 0;
+		for (i = 0; i < 256; i++)
+		{
+			// Dark color hue up
+			for (j = 0; j < 2; j++)
+			{
+				// Get the index used here
+				idx = _usecolors[(j * darksplit) + (i % darksplit)];
+				vc = _hsvgamecolors[idx];
+				
+				// Increase count
+				if (count++ >= darksplit)
+				{
+					hueoff += 16;
+					count = 0;
+				}
+				
+				// Do not mess with color
+				if (hueoff == 0)
+					_colormap[DARKSHADE * j][i] = idx;
+				
+				// Otherwise shift it slightly
+				else
+				{
+					// Move hue over
+					vc.HSV.H = ((int)vc.HSV.H + hueoff) & 0xFF;
+					
+					_colormap[DARKSHADE * j][i] = V_BestHSVMatch(_hsvgamecolors, vc);
+				}
+			}
+			
+			// Make it more red
+			for (j = 1; j < DARKSHADE; j++)
+				for (k = 0; k < 2; k++)
+				{
+					// Get major index to modify
+					bb = DARKSHADE * k;
+					mi = bb + j;
+					
+					// Get the color index
+					idx = _colormap[bb][i];
+					
+					// Get base color used
+					vc = _hsvgamecolors[idx];
+					
+					// Make it a pulsing red
+					vc.HSV.H = 0;
+					
+					// Move color around a bit
+					double inv = (255.0 * ((double)j * (1.0 / (double)DARKSHADE)));
+					if (inv < 0.0)
+						inv = 0.0;
+					else if (inv > 255.0)
+					{
+						inv = 255.0;
+						
+					}
+					vc.HSV.V = (int)inv;
+					
+					// Set new color
+					_colormap[mi][i] = V_BestHSVMatch(_hsvgamecolors, vc);
+				}
+		}
+	}
+	
+	// Initialize hom colors
+	for (i = 0, k = 0; i < HOMCOUNT; k++)
+		for (j = 0; j < HOMQUAD; j++)
+		{
+			// Use specific color ranges
+			qr = (k == 0 || k == 3 ?
+				((int)(255.0 * ((double)(j)) / ((double)(HOMQUAD)))) : 0);
+			qg = (k == 1 || k == 3 ?
+				((int)(255.0 * ((double)(j)) / ((double)(HOMQUAD)))) : 0);
+			qb = (k == 2 ?
+				((int)(255.0 * ((double)(j)) / ((double)(HOMQUAD)))) : 0);
+			
+			// Find it and put it in
+			_homtable[i++] = CRL_BestRGBMatch(qr, qg, qb);
+		}
+}
+
+/**
+ * Starts the rendering of a new CRL, resetting any values.
+ *
+ * @param __err Frame error, 0 starts, < 0 ends OK, else renderer crashed.
+ */
+void CRL_ChangeFrame(int __err)
+{
+	CRL_Data_t old;	
+	int fact, lim;
+	
+	// Clear state on zero
+	if (__err == 0)
+	{
+		// Old for max stats
+		memmove(&old, &CRLData, sizeof(CRLData));
+		memset(&CRLData, 0, sizeof(CRLData));
+		
+		// Clear old plane surface
+		memset(CRLPlaneSurface, 0, _planesize);
+		
+		// Plane set
+		memset(_planelist, 0, sizeof(_planelist));
+		_numplanes = 0;
+		
+		// Frame up
+		int ntframe = (_frame++) >> 1;
+		
+		// Change pulse
+		if (_pulsestage == 0)
+		{
+			if (ntframe > _pulsewas + 35)
+			{
+				_pulsewas = ntframe;
+				_pulse = 0;
+				_pulsestage++;
+			}
+		}
+	
+		// Pulse up or down
+		else if (_pulsestage == 1 || _pulsestage == 2)
+		{
+			if (_pulsestage == 1)
+			{
+				fact = 1;
+				lim = DARKMASK;
+			}
+			else
+			{
+				fact = -1;
+				lim = 0;
+			}
+			
+			// Will change color
+			if (ntframe > _pulsewas + 4)
+			{
+				_pulsewas = ntframe;
+				_pulse += fact;
+				if (_pulse == lim)
+					_pulsestage++;
+				if (_pulsestage == 3)
+				{
+					_pulsestage = 0;
+					_pulsewas = ntframe;
+				}
+			}
+		}
+	}
+}
+
+/**
+ * Draws CRL stats.
+ *
+ * @param __dt Draw text.
+ * @param __wi String width.
+ * @param __fh Font height.
+ */
+void CRL_StatDrawer(void (*__dt)(int, int, const char*),
+	int (*__wi)(const char*), int __fh, int __lh)
+{
+#define MAXLINE 256
+	char line[MAXLINE];
+	CRL_Option_t* op;
+	int dm;
+	int i, j, k, l;
+	int x, y;
+	
+	// Get current draw mode option
+	op = &CRLOptionSet[CRL_DRAWSTATS];
+	dm = op->curvalue;
+	
+	// Not drawing anything
+	if (dm == CRL_STAT_NONE)
+		return;
+	
+	// X and y position
+	x = 5;
+	y = __lh - __fh;
+	
+	// Visplanes
+	if (1)
+	{
+		// Visplane total
+		i = CRLData.numcheckplanes + CRLData.numfindplanes;
+		snprintf(line, MAXLINE, "VIS: %d = %d CHK + %d FND", i,
+			CRLData.numcheckplanes, CRLData.numfindplanes);
+			
+		// Draw
+		__dt(x, y, line);
+		y -= __fh;
+	}
+}
+
+/**
+ * Mark pixel that was drawn.
+ *
+ * @param __surface Target surface that gets it.
+ * @param __what What was drawn here.
+ * @param __drawp Where it was drawn.
+ */
+void CRL_MarkPixelP(void** __surface, void* __what, void* __drawp)
+{
+	// Set surface to what
+	__surface[(uintptr_t)__drawp - (uintptr_t)CRLSurface] = __what;
+}
+
+/**
+ * Colorize the current plane for same color on the view and the automap.
+ *
+ * @param __pl Plane to colorize.
+ * @return Plane color
+ */
+static int CRL_ColorizeThisPlane(CRLPlaneData_t* __pl)
+{
+	// Initial color
+	int shade = DARKSHADE * __pl->isf;
+	
+	// Above plane limit
+	if (__pl->id >= _maxplanes)
+		shade += _pulse & DARKMASK;
+	
+	// Return color
+	return _colormap[shade][__pl->id & 0xFF];
+}
+
+/**
+ * Draw visplanes (underlay or overlay).
+ */
+void CRL_DrawVisPlanes(int __over)
+{
+	CRL_Option_t* op;
+	int dm, isover, x, y, i, isbord, m, c;
+	void* is;
+	CRLPlaneData_t pd;
+	int qqc, qqf, qqz;
+	
+	// Get visplane drawing mode
+	op = &CRLOptionSet[CRL_DRAWPLANES];
+	dm = op->curvalue;
+	
+	// Drawing nothing
+	if (dm == 0)
+		return;
+	
+	// Overlay but not overlaying?
+	isover = (dm == CRL_VIS_FILL_OVERLAY || dm == CRL_VIS_BORDER_OVERLAY);
+	if (__over != isover)
+		return;
+	
+	// Border colors
+	isbord = (dm == CRL_VIS_BORDER || dm == CRL_VIS_BORDER_OVERLAY);
+	
+	// Go through all pixels and draw visplane if one is there
+	memset(&pd, 0, sizeof(pd));
+	qqc = qqf = 0;
+	for (i = 0, x = 0, y = 0; i < SCREENAREA; i++, x++)
+	{
+		// Increase y
+		if (x >= SCREENWIDTH)
+		{
+			x = 0;
+			y++;
+		}
+		
+		// Get plane drawn here
+		if (!(is = CRLPlaneSurface[i]))
+			continue;
+		
+		// Border check
+		if (isbord)
+			if (x > 0 && x < SCREENWIDTH - 1 && y > 0 && y < SCREENHEIGHT - 1
+				&& (is == CRLPlaneSurface[i - 1] &&
+				is == CRLPlaneSurface[i + 1] &&
+				is == CRLPlaneSurface[i - SCREENWIDTH] &&
+				is == CRLPlaneSurface[i + SCREENWIDTH]))
+			continue;
+		
+		// Get plane identity
+		GAME_IdentifyPlane(is, &pd);
+		
+		// Color the plane
+		c = CRL_ColorizeThisPlane(&pd);
+		
+		// Draw plane colors
+		CRLSurface[i] = c;
+	}
+}
+
+/**
+ * Draws the automap.
+ *
+ * @param __fl Normal line.
+ * @param __ml Map line.
+ */
+void CRL_DrawMap(void (*__fl)(int, int, int, int, int),
+	void (*__ml)(int, int, int, int, int))
+{
+	CRL_Option_t* op;
+	int i, dm, c, j;
+	CRLPlaneData_t pd;
+	CRLSegData_t sd;
+	CRLSubData_t ud;
+	
+	op = &CRLOptionSet[CRL_MAPMODE];
+	dm = op->curvalue;
+	
+	// Visplane emitting segs
+	if (dm == CRL_MAP_VPFLOOR || dm == CRL_MAP_VPCEIL)
+	{
+		// Go through all planes
+		for (i = 0; i < _numplanes; i++)
+		{
+			// Identify this plane
+			GAME_IdentifyPlane(_planelist[i], &pd);
+			
+			// Floor/ceiling mismatch
+			if ((!!(dm == CRL_MAP_VPFLOOR)) != (!!pd.onfloor))
+				continue;
+			
+			// Color the plane
+			c = CRL_ColorizeThisPlane(&pd);
+			
+			// Has an emitting line
+			if (pd.emitline)
+			{
+				// Identify it
+				GAME_IdentifySeg(pd.emitline, &sd);
+				
+				// Draw its position as some color
+				__ml(c, sd.coords[0], sd.coords[1],
+					sd.coords[2], sd.coords[3]);
+			}
+			
+			// Has an emitting subsector, but no line
+			else if (pd.emitsub)
+			{
+				// ID it
+				GAME_IdentifySubSector(pd.emitsub, &ud);
+				
+				// Draw the subsector seg lines, the non implicit edges that
+				// is.
+				for (j = 0; j < ud.numlines; j++)
+				{
+					// Id seg
+					GAME_IdentifySeg(ud.lines[j], &sd);
+					
+					// Draw it
+					__ml(c, sd.coords[0], sd.coords[1],
+						sd.coords[2], sd.coords[3]);
+				}
+			}
+		}
+	}
+}
+
+/**
+ * Draw view.
+ */
+void CRL_ViewDrawer()
+{
+	// Do not really care if brute forcing
+	if (CRLBruteForce)
+		return;
+	
+	// Draw visplanes if overlayed
+	CRL_DrawVisPlanes(1);
+}
+
+/**
+ * Counts visplane.
+ *
+ * @param __key Visplane ID.
+ * @param __chorf 0 = R_CheckPlane, 1 = R_FindPlane
+ * @param __id ID Number.
+ */
+void CRL_CountPlane(void* __key, int __chorf, int __id)
+{
+	// Update count
+	if (__chorf == 0)
+		CRLData.numcheckplanes++;
+	else
+		CRLData.numfindplanes++;
+	
+	// Add to global list
+	if (_numplanes < MAXCOUNTPLANES)
+		_planelist[_numplanes++] = __key;
+}
+
+/**
+ * Returns the maximum number of visplanes.
+ *
+ * @return The visplane limit.
+ * @since 2015/12/17
+ */
+int CRL_MaxVisPlanes(void)
+{
+	if (CRLOptionSet[CRL_MAXVISPLANES].curvalue == CRL_VISLIMIT_VANILLA)
+		return 128;
+	return 4096;
+}
+
+/**
+ * Draws the HOM detection background.
+ *
+ * @param __x X position.
+ * @param __y Y position,
+ * @param __w Width.
+ * @param __h Height.
+ * @since 2015/12/17
+ */
+void CRL_DrawHOMBack(int __x, int __y, int __w, int __h)
+{
+	static int tic;
+	int usecolor;
+	
+	// Do not really care if brute forcing
+	if (CRLBruteForce)
+		return;
+	
+	// Color to use
+	usecolor = _homtable[(++tic) & (HOMCOUNT - 1)];
+	
+	// Draw it
+	V_DrawFilledBox(__x, __y, __w, __h, usecolor);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+#else
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+// This is the magical include area so that the various different games with
+// vastly different data structures can share the same code.
+
+// For progress
+#include <time.h>
+
+// Just in case
+#include "crlcore.h"
+
+// This across all ports has all the render stuff visible
+#include "r_local.h"
+
+// eye dee sawftwear kan speil
+#define numvertices numvertexes
+
+/**
+ * Returns the larger of two fixed_t.
+ *
+ * @param __a A.
+ * @param __b B.
+ * @return The larger value.
+ * @since 2015/12/19
+ */
+static fixed_t CRL_MaxFixed(fixed_t __a, fixed_t __b)
+{
+	if (__a > __b)
+		return __a;
+	return __b;
+}
+/**
+ * Returns the smaller of two fixed_t.
+ *
+ * @param __a A.
+ * @param __b B.
+ * @return The smaller value.
+ * @since 2015/12/19
+ */
+static fixed_t CRL_MinFixed(fixed_t __a, fixed_t __b)
+{
+	if (__a < __b)
+		return __a;
+	return __b;
+}
+
+/**
+ * Returns a subsector but only if it is in an actual sector.
+ *
+ * Taken from Doom Legacy.
+ *
+ * @since 2015/12/20
+ */
+subsector_t* CRL_IsPointInSubsector(fixed_t x, fixed_t y)
+{
+	node_t* node;
+	int side;
+	int nodenum, i;
+	subsector_t* ret;
+	
+	// single subsector is a special case
+	if (!numnodes)
+		return subsectors;
+		
+	nodenum = numnodes - 1;
+	
+	while (!(nodenum & NF_SUBSECTOR))
+	{
+		node = &nodes[nodenum];
+		side = R_PointOnSide(x, y, node);
+		nodenum = node->children[side];
+	}
+	
+	ret = &subsectors[nodenum & ~NF_SUBSECTOR];
+	for (i = 0; i < ret->numlines; i++)
+	{
+		if (R_PointOnSegSide(x, y, &segs[ret->firstline + i]))
+			return 0;
+	}
+	
+	return ret;
+}
+
+/**
+ * Returns the size of the current map.
+ *
+ * @return The current map size.
+ * @since 2015/12/19
+ */
+CRLRect_t CRL_MapSize(void)
+{
+	CRLRect_t rv;
+	int i;
+	fixed_t x1, y1, x2, y2;
+	
+	// Start with bad values that are way out of range
+	x1 = y1 = 2147483647;
+	x2 = y2 = -2147483647;
+	
+	// Go through all level vertices
+	for (i = 0; i < numvertices; i++)
+	{
+		vertex_t* v = &vertexes[i];
+		
+		// Update X
+		x1 = CRL_MinFixed(v->x, x1);
+		x2 = CRL_MaxFixed(v->x, x2);
+		
+		// Update Y
+		y1 = CRL_MinFixed(v->y, y1);
+		y2 = CRL_MaxFixed(v->y, y2);
+	}
+	
+	// Setup return value
+	rv.x = x1;
+	rv.y = y1;
+	rv.w = (x2 - x1);
+	rv.h = (y2 - y1);
+	
+	// Return it
+	return rv;
+}
+
+/**
+ * This is the brute force loop.
+ *
+ * @since 2015/12/19
+ */
+void CRL_BruteForceLoop(void)
+{
+#define EVERY 64
+	CRLRect_t mapdim;
+	fixed_t addi;
+	fixed_t x, y, ex, ey;
+	int i, firsttime, a;
+	subsector_t* ss;
+	sector_t* sect;
+	int drawnpos, explorecount, totalcount;
+	int starttime, nowtime, timediff, eta;
+	
+	// Get the size of the map
+	mapdim = CRL_MapSize();
+	
+	// Granularity addition
+	addi = (fixed_t)CRLBruteForce << FRACBITS;
+	
+	// End positions
+	ex = mapdim.x + mapdim.w;
+	ey = mapdim.y + mapdim.h;
+	
+	// Use fullscreen
+	R_ExecuteSetViewSize();
+	
+	// There is always a first time for everything
+	// Otherwise crashes will occur when R_RenderPlayerView is called without
+	// a D_Display calling it.
+	firsttime = 1;
+	
+	// Positions drawn
+	drawnpos = 0;
+	
+	// Guess exploration size
+	explorecount = 0;
+	totalcount = ((mapdim.w >> FRACBITS) / CRLBruteForce) *
+		((mapdim.h >> FRACBITS) / CRLBruteForce);
+	
+	// Start time
+	starttime = I_GetTimeMS();
+	
+	// Go through the map
+	i = 0;
+	for (y = mapdim.y; y < ey; y += addi)
+		for (x = mapdim.x; x < ex; x += addi, i++)
+		{
+			// If this position is not in any subsector (well technically a
+			// position will always be in a subsector) then do not bother at
+			// all because the player will usually never be in said position
+			// unless they glide out of the level or the map developer is bad
+			// at making maps.
+			ss = CRL_IsPointInSubsector(x, y);
+			
+			// Explored this area
+			explorecount++;
+			
+			// Not in one, so stop
+			if (ss == NULL)
+			{
+				i--;
+				continue;
+			}
+			
+			// Get sector
+			sect = ss->sector;
+			
+			// If the sector ceiling is below or at the floor, do not bother
+			if (sect->ceilingheight <= sect->floorheight)
+				continue;
+			
+			// Move player to this position
+			players[consoleplayer].mo->x = x;
+			players[consoleplayer].mo->y = y;
+			
+			// Place the player position in the middle
+			players[consoleplayer].mo->z = FixedDiv(
+				sect->ceilingheight + sect->floorheight, 2 << FRACBITS);
+			
+			// Viewheight to player Z
+			players[consoleplayer].viewheight = players[consoleplayer].mo->z;
+			
+			// Look in all 4 directions
+			for (a = 0; a < 4; a++)
+			{
+				// Set angle
+				players[consoleplayer].mo->angle = ANG90 * (angle_t)a;
+			
+				// The first frame must be a D_Display, otherwise boom
+				if (firsttime)
+				{
+					D_Display();
+					firsttime = 0;
+				}
+				
+				// Just render
+				else
+				{
+					// Render
+					R_RenderPlayerView(&players[consoleplayer]);
+					
+					// Print progress
+					if (i >= EVERY)
+					{
+						// Later on
+						i = -1;
+						
+						// Get the current time
+						nowtime = I_GetTimeMS();
+						
+						// Time difference
+						timediff = nowtime - starttime;
+						
+						// Estimated end time
+						eta = 0;
+					
+						// Progress helps, and stderr also has no buffering
+						fprintf(stderr, "Drawn %-12d (%12d of %-12d) %12dms, "
+							"ETA %12dms\r",
+							drawnpos, explorecount, totalcount, timediff, eta);
+					}
+				}
+				
+				// Drew it so count it
+				drawnpos++;
+			}
+		}
+#undef EVERY
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+#endif /* CHOCORENDERLIMITS_MAGIC_INCLUDE */
+

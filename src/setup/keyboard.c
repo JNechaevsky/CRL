@@ -51,9 +51,10 @@ static int *controls[] = { &key_left, &key_right, &key_up, &key_down,
                            &key_arti_invulnerability,
                            &key_prevweapon, &key_nextweapon, NULL };
 
-static int *menu_nav[] = { &key_menu_activate, &key_menu_up, &key_menu_down,
-                           &key_menu_left, &key_menu_right, &key_menu_back,
-                           &key_menu_forward, NULL };
+static int *menu_nav[] = { &key_crl_menu,
+	&key_menu_activate, &key_menu_up, &key_menu_down,
+	&key_menu_left, &key_menu_right, &key_menu_back,
+	&key_menu_forward, NULL };
 
 static int *shortcuts[] = { &key_menu_help, &key_menu_save, &key_menu_load,
                             &key_menu_volume, &key_menu_detail, &key_menu_qsave,
@@ -282,6 +283,7 @@ static void OtherKeysDialog(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(unused))
 
     AddSectionLabel(table, "Menu navigation", false);
 
+	AddKeyControl(table, "Enable CRL Control Menu", &key_crl_menu);
     AddKeyControl(table, "Activate menu",         &key_menu_activate);
     AddKeyControl(table, "Move cursor up",        &key_menu_up);
     AddKeyControl(table, "Move cursor down",      &key_menu_down);

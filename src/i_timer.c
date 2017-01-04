@@ -21,6 +21,8 @@
 #include "i_timer.h"
 #include "doomtype.h"
 
+#include "crlcore.h"
+
 //
 // I_GetTime
 // returns time in 1/35th second tics
@@ -62,12 +64,12 @@ int I_GetTimeMS(void)
 
 void I_Sleep(int ms)
 {
-    SDL_Delay(ms);
+	SDL_Delay(ms);
 }
 
 void I_WaitVBL(int count)
 {
-    I_Sleep((count * 1000) / 70);
+	I_Sleep((count * 1000) / 70);
 }
 
 

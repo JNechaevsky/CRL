@@ -32,7 +32,7 @@
 #include "r_local.h"
 #include "r_sky.h"
 
-
+#include "crlcore.h"
 
 planefunction_t		floorfunc;
 planefunction_t		ceilingfunc;
@@ -87,6 +87,10 @@ fixed_t			cachedxstep[SCREENHEIGHT];
 fixed_t			cachedystep[SCREENHEIGHT];
 
 
+void GAME_IdentifyPlane(void* __what, CRLPlaneData_t* __info)
+{
+	raise(SIGABRT);
+}
 
 //
 // R_InitPlanes

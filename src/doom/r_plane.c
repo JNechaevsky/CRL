@@ -32,6 +32,7 @@
 #include "r_local.h"
 #include "r_sky.h"
 
+#include "crlcore.h"
 
 
 planefunction_t		floorfunc;
@@ -43,7 +44,8 @@ planefunction_t		ceilingfunc;
 
 // Here comes the obnoxious "visplane".
 #define MAXVISPLANES	128
-visplane_t		visplanes[MAXVISPLANES];
+#define REALMAXVISPLANES	4096
+visplane_t		visplanes[REALMAXVISPLANES];
 visplane_t*		lastvisplane;
 visplane_t*		floorplane;
 visplane_t*		ceilingplane;
@@ -86,6 +88,24 @@ fixed_t			cachedxstep[SCREENHEIGHT];
 fixed_t			cachedystep[SCREENHEIGHT];
 
 
+/**
+ * Identify the used visplane.
+ *
+ * @param __what The plane.
+ * @param __info Plane information.
+ * @return The plane value.
+ */
+void GAME_IdentifyPlane(void* __what, CRLPlaneData_t* __info)
+{
+	visplane_t* pl = ((visplane_t*)__what);
+	
+	// Set
+	__info->id = (intptr_t)(pl - visplanes);
+	__info->isf = pl->isfindplane;
+	__info->emitline = pl->emitline;
+	__info->emitsub = pl->emitsub;
+	__info->onfloor = pl->height < viewz;
+}
 
 //
 // R_InitPlanes
@@ -114,7 +134,7 @@ void
 R_MapPlane
 ( int		y,
   int		x1,
-  int		x2 )
+  int		x2, visplane_t* __plane)
 {
     angle_t	angle;
     fixed_t	distance;
@@ -167,7 +187,9 @@ R_MapPlane
     ds_x2 = x2;
 
     // high or low detail
+    dc_visplaneused = __plane;
     spanfunc ();	
+    dc_visplaneused = NULL;
 }
 
 
@@ -211,7 +233,7 @@ visplane_t*
 R_FindPlane
 ( fixed_t	height,
   int		picnum,
-  int		lightlevel )
+  int		lightlevel, seg_t* __line, subsector_t* __sub)
 {
     visplane_t*	check;
 	
@@ -227,6 +249,7 @@ R_FindPlane
 	    && picnum == check->picnum
 	    && lightlevel == check->lightlevel)
 	{
+		if ((CRLOptionSet[CRL_MERGEPLANES].curvalue & CRL_MERGE_FIND) == 0)
 	    break;
 	}
     }
@@ -235,9 +258,12 @@ R_FindPlane
     if (check < lastvisplane)
 	return check;
 		
-    if (lastvisplane - visplanes == MAXVISPLANES)
-	I_Error ("R_FindPlane: no more visplanes");
-		
+    if (lastvisplane - visplanes == CRL_MaxVisPlanes())
+    	longjmp(CRLJustIncaseBuf, CRL_JUMP_VPO);
+	
+	// GhostlyDeath -- Count plane before write
+	CRL_CountPlane(check, 1, (intptr_t)(lastvisplane - visplanes));
+    
     lastvisplane++;
 
     check->height = height;
@@ -245,6 +271,11 @@ R_FindPlane
     check->lightlevel = lightlevel;
     check->minx = SCREENWIDTH;
     check->maxx = -1;
+    
+    // GhostlyDeath -- Store emitting seg
+    check->isfindplane = 1;
+    check->emitline = __line;
+    check->emitsub = __sub;
     
     memset (check->top,0xff,sizeof(check->top));
 		
@@ -259,7 +290,7 @@ visplane_t*
 R_CheckPlane
 ( visplane_t*	pl,
   int		start,
-  int		stop )
+  int		stop, seg_t* __line, subsector_t* __sub)
 {
     int		intrl;
     int		intrh;
@@ -289,10 +320,11 @@ R_CheckPlane
 	intrh = stop;
     }
 
-    for (x=intrl ; x<= intrh ; x++)
-	if (pl->top[x] != 0xff)
-	    break;
-
+	if ((CRLOptionSet[CRL_MERGEPLANES].curvalue & CRL_MERGE_CHECK) == 0)
+		for (x=intrl ; x<= intrh ; x++)
+			if (pl->top[x] != 0xff)
+				break;
+	
     if (x > intrh)
     {
 	pl->minx = unionl;
@@ -308,8 +340,17 @@ R_CheckPlane
     lastvisplane->lightlevel = pl->lightlevel;
     
     pl = lastvisplane++;
+    
+	// GhostlyDeath -- Count plane before write
+	CRL_CountPlane(pl, 0, (intptr_t)((lastvisplane - 1) - visplanes));
+    
     pl->minx = start;
     pl->maxx = stop;
+    
+    // GhostlyDeath -- Store emitting seg
+    pl->isfindplane = 0;
+    pl->emitline = __line;
+    pl->emitsub = __sub;
 
     memset (pl->top,0xff,sizeof(pl->top));
 		
@@ -326,16 +367,16 @@ R_MakeSpans
   int		t1,
   int		b1,
   int		t2,
-  int		b2 )
+  int		b2, visplane_t* __plane)
 {
     while (t1 < t2 && t1<=b1)
     {
-	R_MapPlane (t1,spanstart[t1],x-1);
+	R_MapPlane (t1,spanstart[t1],x-1, __plane);
 	t1++;
     }
     while (b1 > b2 && b1>=t1)
     {
-	R_MapPlane (b1,spanstart[b1],x-1);
+	R_MapPlane (b1,spanstart[b1],x-1, __plane);
 	b1--;
     }
 	
@@ -371,9 +412,8 @@ void R_DrawPlanes (void)
 	I_Error ("R_DrawPlanes: drawsegs overflow (%i)",
 		 ds_p - drawsegs);
     
-    if (lastvisplane - visplanes > MAXVISPLANES)
-	I_Error ("R_DrawPlanes: visplane overflow (%i)",
-		 lastvisplane - visplanes);
+    if (lastvisplane - visplanes > CRL_MaxVisPlanes())
+    	longjmp(CRLJustIncaseBuf, CRL_JUMP_VPO);
     
     if (lastopening - openings > MAXOPENINGS)
 	I_Error ("R_DrawPlanes: opening overflow (%i)",
@@ -407,7 +447,10 @@ void R_DrawPlanes (void)
 		    angle = (viewangle + xtoviewangle[x])>>ANGLETOSKYSHIFT;
 		    dc_x = x;
 		    dc_source = R_GetColumn(skytexture, angle);
+		    
+		    dc_visplaneused = pl;
 		    colfunc ();
+		    dc_visplaneused = NULL;
 		}
 	    }
 	    continue;
@@ -438,7 +481,7 @@ void R_DrawPlanes (void)
 	    R_MakeSpans(x,pl->top[x-1],
 			pl->bottom[x-1],
 			pl->top[x],
-			pl->bottom[x]);
+			pl->bottom[x], pl);
 	}
 	
         W_ReleaseLumpNum(lumpnum);

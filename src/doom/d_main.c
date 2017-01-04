@@ -75,6 +75,8 @@
 
 #include "d_main.h"
 
+#include "crlcore.h"
+
 //
 // D-DoomLoop()
 // Not a globally visible function,
@@ -161,6 +163,9 @@ void D_ProcessEvents (void)
 //  draw current display, possibly wiping it from the previous
 //
 
+void M_WriteText(int x, int y, const char *string);
+int  M_StringWidth(const char *string);
+
 // wipegamestate can be set to -1 to force a wipe on the next draw
 gamestate_t     wipegamestate = GS_DEMOSCREEN;
 extern  boolean setsizeneeded;
@@ -179,6 +184,7 @@ void D_Display (void)
     int				tics;
     int				wipestart;
     int				y;
+    int pp;
     boolean			done;
     boolean			wipe;
     boolean			redrawsbar;
@@ -195,6 +201,10 @@ void D_Display (void)
 	oldgamestate = -1;                      // force background redraw
 	borderdrawcount = 3;
     }
+    
+    // Never wipe when brute forcing
+    if (CRLBruteForce)
+    	wipegamestate = gamestate;
 
     // save the current screen if about to wipe
     if (gamestate != wipegamestate)
@@ -214,8 +224,6 @@ void D_Display (void)
       case GS_LEVEL:
 	if (!gametic)
 	    break;
-	if (automapactive)
-	    AM_Drawer ();
 	if (wipe || (viewheight != 200 && fullscreen) )
 	    redrawsbar = true;
 	if (inhelpscreensstate && !inhelpscreens)
@@ -240,12 +248,23 @@ void D_Display (void)
     // draw buffered stuff to screen
     I_UpdateNoBlit ();
     
+    // Set surface
+    CRLSurface = I_VideoBuffer;
+    
     // draw the view directly
-    if (gamestate == GS_LEVEL && !automapactive && gametic)
-	R_RenderPlayerView (&players[displayplayer]);
-
-    if (gamestate == GS_LEVEL && gametic)
-	HU_Drawer ();
+    if (gamestate == GS_LEVEL)
+    {
+    	if (gametic)
+		{
+			HU_Drawer();
+			
+			if (automapactive != 1)
+				R_RenderPlayerView(&players[displayplayer]);
+		}
+		
+		if (automapactive)
+			AM_Drawer();
+	}
     
     // clean up border stuff
     if (gamestate != oldgamestate && gamestate != GS_LEVEL)
@@ -259,7 +278,7 @@ void D_Display (void)
     }
 
     // see if the border needs to be updated to the screen
-    if (gamestate == GS_LEVEL && !automapactive && scaledviewwidth != 320)
+    if (gamestate == GS_LEVEL && (automapactive != 1) && scaledviewwidth != 320)
     {
 	if (menuactive || menuactivestate || !viewactivestate)
 	    borderdrawcount = 3;
@@ -294,11 +313,18 @@ void D_Display (void)
                           W_CacheLumpName (DEH_String("M_PAUSE"), PU_CACHE));
     }
 
+	// GhostlyDeath -- CRL markers and indicators
+	CRL_ViewDrawer();
 
     // menus go directly to the screen
     M_Drawer ();          // menu is drawn even on top of everything
     NetUpdate ();         // send out any new accumulation
-
+	
+	// GhostlyDeath -- CRL Stats
+	pp = SCREENHEIGHT;
+	if (viewheight < SCREENHEIGHT)
+		pp -= 32;
+	CRL_StatDrawer(M_WriteText, M_StringWidth, 9, pp);
 
     // normal update
     if (!wipe)
@@ -446,7 +472,13 @@ void D_DoomLoop (void)
 	// frame syncronous IO operations
 	I_StartFrame ();
 
-        TryRunTics (); // will run at least one tic
+	if (CRLBruteForce)
+	{
+		CRL_BruteForceLoop();
+		break;
+	}
+
+   	TryRunTics (); // will run at least one tic
 
 	S_UpdateSounds (players[consoleplayer].mo);// move positional sounds
 
@@ -1156,6 +1188,32 @@ static void G_CheckDemoStatusAtExit (void)
     G_CheckDemoStatus();
 }
 
+#define NUMPLANEBORDERCOLORS 16
+const int c_PlaneBorderColors[NUMPLANEBORDERCOLORS] =
+{
+	// LIGHT
+	16,							// yucky pink
+	176,						// red
+	216,						// orange
+	231,						// yellow
+	
+	112,						// green
+	195,						// light blue (cyanish)
+	202,						// Deep blue
+	251,						// yuck, magenta
+	
+	// DARK
+	26,
+	183,
+	232,
+	164,
+	
+	122,
+	198,
+	240,
+	254,
+};
+
 //
 // D_DoomMain
 //
@@ -1166,14 +1224,20 @@ void D_DoomMain (void)
     char demolumpname[9];
     int numiwadlumps;
 
-    I_AtExit(D_Endoom, false);
-
     // print banner
 
     I_PrintBanner(PACKAGE_STRING);
 
     DEH_printf("Z_Init: Init zone memory allocation daemon. \n");
     Z_Init ();
+    
+    // Initializes CRL
+    CRL_Init(c_PlaneBorderColors, NUMPLANEBORDERCOLORS, 128);
+    
+	// Do not display the endoom screen if brute forcing because it is very
+	// annoying
+	if (!CRLBruteForce)
+    	I_AtExit(D_Endoom, false);
 
 #ifdef FEATURE_MULTIPLAYER
     //!
@@ -1828,12 +1892,26 @@ void D_DoomMain (void)
 	
     if (gameaction != ga_loadgame )
     {
-	if (autostart || netgame)
-	    G_InitNew (startskill, startepisode, startmap);
-	else
-	    D_StartTitle ();                // start up intro loop
+		if (autostart || netgame)
+			G_InitNew (startskill, startepisode, startmap);
+		else
+		{
+			// If brute forcing this was NOT wanted
+			if (CRLBruteForce)
+				I_Error("Brute forcing requires -warp!");
+			
+			D_StartTitle ();                // start up intro loop
+		}
     }
 
     D_DoomLoop ();  // never returns
 }
+
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+
+#define CHOCORENDERLIMITS_MAGIC_INCLUDE
+#include "../crlcore.c"
 

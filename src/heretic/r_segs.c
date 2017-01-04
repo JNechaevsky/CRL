@@ -27,6 +27,8 @@
 #include "doomdef.h"
 #include "r_local.h"
 
+#include "crlcore.h"
+
 // OPTIMIZE: closed two sided lines as single sided
 
 boolean segtextured;            // true if any of the segs textures might be vis
@@ -64,6 +66,16 @@ fixed_t bottomfrac, bottomstep;
 lighttable_t **walllights;
 
 short *maskedtexturecol;
+
+void GAME_IdentifySeg(void* __what, CRLSegData_t* __info)
+{
+	raise(SIGABRT);
+}
+
+void GAME_IdentifySubSector(void* __what, CRLSubData_t* __info)
+{
+	raise(SIGABRT);
+}
 
 /*
 ================

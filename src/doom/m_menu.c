@@ -215,8 +215,8 @@ void M_SetupNextMenu(menu_t *menudef);
 void M_DrawThermo(int x,int y,int thermWidth,int thermDot);
 void M_DrawEmptyCell(menu_t *menu,int item);
 void M_DrawSelCell(menu_t *menu,int item);
-void M_WriteText(int x, int y, char *string);
-int  M_StringWidth(char *string);
+void M_WriteText(int x, int y, const char *string);
+int  M_StringWidth(const char *string);
 int  M_StringHeight(char *string);
 void M_StartMessage(char *string,void *routine,boolean input);
 void M_StopMessage(void);
@@ -1309,7 +1309,7 @@ void M_StopMessage(void)
 //
 // Find string width from hu_font chars
 //
-int M_StringWidth(char* string)
+int M_StringWidth(const char* string)
 {
     size_t             i;
     int             w = 0;
@@ -1354,7 +1354,7 @@ void
 M_WriteText
 ( int		x,
   int		y,
-  char*		string)
+ const char*		string)
 {
     int		w;
     char*	ch;
@@ -1406,6 +1406,8 @@ static boolean IsNullKey(int key)
 //
 // CONTROL PANEL
 //
+
+void M_CRLStartMenu();
 
 //
 // M_Responder
@@ -1640,7 +1642,7 @@ boolean M_Responder (event_t* ev)
 	return true;
     }
 
-    if ((devparm && key == key_menu_help) ||
+    if ((key == key_menu_help) ||
         (key != 0 && key == key_menu_screenshot))
     {
 	G_ScreenShot ();
@@ -1751,11 +1753,16 @@ boolean M_Responder (event_t* ev)
     // Pop-up menu?
     if (!menuactive)
     {
-	if (key == key_menu_activate)
+	if (key == key_menu_activate || key == key_crl_menu)
 	{
-	    M_StartControlPanel ();
-	    S_StartSound(NULL,sfx_swtchn);
-	    return true;
+		M_StartControlPanel ();
+		
+		// Spawn CRL menu
+		if (key == key_crl_menu)
+			M_CRLStartMenu();
+		
+		S_StartSound(NULL,sfx_swtchn);
+		return true;
 	}
 	return false;
     }
@@ -2116,5 +2123,140 @@ void M_Init (void)
     }
 
     opldev = M_CheckParm("-opldev") > 0;
+}
+
+
+/*****************************************************************************/
+/*****************************************************************************/
+/*****************************************************************************/
+
+#include "crlcore.h"
+#include "hu_lib.h"
+
+/**
+ * CRL menu items.
+ */
+static menuitem_t* _CRLItems = NULL;
+
+/**
+ * CRL menu.
+ */
+static menu_t* _CRLDef = NULL;
+
+/**
+ * Special work needed to draw the CRL menu.
+ */
+void M_CRLDrawMenu(void)
+{
+	int i, on, x, y;
+	CRL_Option_t* opt;
+	CRL_Value_t* val;
+	
+	// Go through all available options
+	for (i = 0, x = 20, y = 5; i < NUM_CRL_OPTIONS; i++, y += 10)
+	{
+		// Get option
+		opt = &CRLOptionSet[i];
+		val = NULL;
+		
+		// Draw star
+		if (i == itemOn && whichSkull)
+			M_WriteText(x - 10, y, "*");
+		
+		// Draw option text
+		M_WriteText(x, y, opt->text);
+		
+		// Has a value?
+		if (opt->numvalues > 0)
+		{
+			// Get value
+			val = &opt->values[opt->curvalue];
+			
+			// Width of setting
+			int tw = M_StringWidth(val->text);
+			
+			// Draw it from the right
+			M_WriteText((SCREENWIDTH - 5) - tw, y, val->text);
+		}
+	}
+}
+
+/**
+ * Acts on a menu item, 0 is left and 1 is right.
+ *
+ * @param __c Choice of key.
+ */
+void M_CRLMenuAct(int __c)
+{
+	CRL_Option_t* opt;
+	
+	// Dynamically obtain the current item to modify, the actual index matches
+	// that of the index (1:1 map).
+	menuitem_t* rawitem = &_CRLItems[itemOn];
+	opt = &CRLOptionSet[itemOn];
+	
+	// If multiple values, change value left/right
+	if (opt->numvalues > 0)
+	{
+		// Move up or down
+		opt->curvalue += (__c == 1 ? 1 : -1);
+		
+		// Wrap
+		if (opt->curvalue < 0)
+			opt->curvalue = opt->numvalues - 1;
+		else if (opt->curvalue >= opt->numvalues)
+			opt->curvalue = 0;
+	}
+	
+	// Otherwise activate it
+	else
+	{
+	}
+}
+
+/**
+ * Spawn CRL Menu for game interaction.
+ */
+void M_CRLStartMenu()
+{
+	int i;
+	CRL_Option_t* op;
+	
+	// Needs initialization
+	if (_CRLDef == NULL)
+	{
+		// Initialize items
+		size_t itz = sizeof(*_CRLItems) * NUM_CRL_OPTIONS;
+		_CRLItems = (menuitem_t*)Z_Malloc(itz, PU_STATIC, NULL);
+		memset(_CRLItems, 0, itz);
+		for (i = 0; i < NUM_CRL_OPTIONS; i++)
+		{
+			// Current entry
+			menuitem_t* it = &_CRLItems[i];
+			op = &CRLOptionSet[i];
+			
+			// Multiple values get sliders, otherwise no
+			if (op->numvalues <= 0)
+				it->status = 1;
+			else
+				it->status = 2;
+			it->routine = M_CRLMenuAct;
+		}
+		
+		// Create definition
+		_CRLDef = (menu_t*)Z_Malloc(sizeof(*_CRLDef), PU_STATIC, NULL);
+		memset(_CRLDef, 0, sizeof(*_CRLDef));
+		
+		// Setup
+		_CRLDef->numitems = NUM_CRL_OPTIONS;
+		_CRLDef->menuitems = _CRLItems;
+		_CRLDef->routine = M_CRLDrawMenu;
+		_CRLDef->x = 10;
+		_CRLDef->y = 10;
+	}
+	
+	// Change menu
+	currentMenu = _CRLDef;
+	itemOn = currentMenu->lastOn;
 }
 

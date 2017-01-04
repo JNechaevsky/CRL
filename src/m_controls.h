@@ -153,6 +153,9 @@ extern int joybmenu;
 
 extern int dclick_use;
 
+// GhostlyDeath -- CRL
+extern int key_crl_menu;
+
 void M_BindBaseControls(void);
 void M_BindHereticControls(void);
 void M_BindHexenControls(void);

@@ -22,6 +22,7 @@
 #include <string.h>
 //haleyjd: removed WATCOMC
 #include <limits.h>
+#include <signal.h>
 
 #define HERETIC_VERSION 130
 #define HERETIC_VERSION_TEXT "v1.3"

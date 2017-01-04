@@ -72,6 +72,9 @@ extern byte*		ds_source;
 extern byte*		translationtables;
 extern byte*		dc_translation;
 
+// GhostlyDeath -- CRL
+extern visplane_t* dc_visplaneused;
+
 
 // Span blitting for rows, floor/ceiling.
 // No Sepctre effect needed.

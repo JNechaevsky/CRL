@@ -32,6 +32,8 @@
 #include "r_local.h"
 #include "r_sky.h"
 
+#include "crlcore.h"
+
 
 // OPTIMIZE: closed two sided lines as single sided
 
@@ -87,6 +89,15 @@ lighttable_t**	walllights;
 
 short*		maskedtexturecol;
 
+void GAME_IdentifySeg(void* __what, CRLSegData_t* __info)
+{
+	raise(SIGABRT);
+}
+
+void GAME_IdentifySubSector(void* __what, CRLSubData_t* __info)
+{
+	raise(SIGABRT);
+}
 
 
 //

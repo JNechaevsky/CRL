@@ -1499,6 +1499,13 @@ static default_t extra_defaults_list[] =
     //
 
     CONFIG_VARIABLE_KEY(key_demo_quit),
+    
+
+    //!
+    // Key to access CRL extended menu
+    //
+
+    CONFIG_VARIABLE_KEY(key_crl_menu),
 
     //!
     // Key to send a message during multiplayer games.

@@ -21,6 +21,8 @@
 #include "i_system.h"
 #include "r_local.h"
 
+#include "crlcore.h"
+
 planefunction_t floorfunc, ceilingfunc;
 
 //
@@ -69,6 +71,11 @@ fixed_t cachedheight[SCREENHEIGHT];
 fixed_t cacheddistance[SCREENHEIGHT];
 fixed_t cachedxstep[SCREENHEIGHT];
 fixed_t cachedystep[SCREENHEIGHT];
+
+void GAME_IdentifyPlane(void* __what, CRLPlaneData_t* __info)
+{
+	raise(SIGABRT);
+}
 
 
 /*

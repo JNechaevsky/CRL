@@ -1,0 +1,46 @@
+<p>
+	<h1>Chocorenderlimits 2.0</h1>
+	
+	<p>
+		<ul>
+			<li>Main Website: <strong><a href="http://remood.org/?page=chocorenderlimits">http://remood.org/?page=chocorenderlimits</a></strong></li>
+			<li>Based on <a href="http://www.chocolate-doom.org/">Chocolate Doom</a> by <a href="mailto:fraggle@gmail.com">Simon Howard</a>, <a href="mailto:haleyjd@hotmail.com">James Haley</a>, and <a href="mailto:svkaiser@gmail.com">Samuel Villarreal</a>.</li>
+			<li>Modifications by GhostlyDeath (<a href="mailto:ghostlydeath@remood.org">ghostlydeath@remood.org</a>)</li>
+		</ul>
+	</p>
+	
+	<p>
+		Chocorenderlimits is a modification of Chocolate Doom that allows you to better map using Vanilla limitations and to visualize some pieces of the rendering engine. It is licensed under the GNU General Public License Version 2 (or at your option any later version).
+	</p>
+	
+	<p>
+		<a href="crl.mkd">crl.mkd contains usage documentation.</a>
+	</p>
+</p>
+
+<p>
+	<h2>Other Links</h2>
+	
+	<p>
+		<ul>
+			<li><a href="http://remood.org:8080/crl">Main repository</a> (<a href="http://remood.org:8080/crl">http://remood.org:8080/crl</a>) -- You can pull the latest developmental changes from here.</li>
+			<li><a href="http://www.chocolate-doom.org/">Chocolate Doom</a> (<a href="http://www.chocolate-doom.org/">http://www.chocolate-doom.org/</a>) -- Web site of the code this is based on.</li>
+		</ul>
+	</p>
+</p>
+
+<p>
+	<h2>Donations</h2>
+	
+	<p>
+		If you like Chocorenderlimits and are feeling generous you may donate:
+		
+		<ul>
+			<li>LiteCoin (LTC)
+				<code>LMRzV9UxaUUVvJ71nA58fBNc3VZvwLPonL</code></li>
+			<li>BitCoin (BTC)
+				<code>1CRTjt7qjoNjjJeRpourpjzaapH9YckBur</code></li>
+		</ul>
+	</p>
+</p>
+

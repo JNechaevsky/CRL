@@ -428,6 +428,15 @@ typedef struct
   int			minx;
   int			maxx;
   
+  /** Is a find plane. */
+  int			isfindplane;
+  
+  /** The seg that emitted this. */
+  seg_t*		emitline;
+  
+  /** The subsector this visplane is in. */
+  subsector_t*	emitsub;
+  
   // leave pads for [minx-1]/[maxx+1]
   
   byte		pad1;

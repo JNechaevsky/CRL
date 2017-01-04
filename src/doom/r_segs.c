@@ -32,6 +32,7 @@
 #include "r_local.h"
 #include "r_sky.h"
 
+#include "crlcore.h"
 
 // OPTIMIZE: closed two sided lines as single sided
 
@@ -88,6 +89,41 @@ lighttable_t**	walllights;
 short*		maskedtexturecol;
 
 
+/**
+ * Identifies segment.
+ *
+ * @param __what The seg.
+ * @param __info Target location.
+ */
+void GAME_IdentifySeg(void* __what, CRLSegData_t* __info)
+{
+	seg_t* s = (seg_t*)__what;
+	
+	// Fill data
+	__info->id = s - segs;
+	__info->coords[0] = s->v1->x;
+	__info->coords[1] = s->v1->y;
+	__info->coords[2] = s->v2->x;
+	__info->coords[3] = s->v2->y;
+}
+
+/**
+ * Identified subsector.
+ *
+ * @param __what Thing.
+ * @param __info Information.
+ */
+void GAME_IdentifySubSector(void* __what, CRLSubData_t* __info)
+{
+	int i;
+	subsector_t* s = (subsector_t*)__what;
+	
+	// Set
+	__info->id = s - subsectors;
+	__info->numlines = s->numlines;
+	for (i = 0; i < s->numlines && i < MAXCRLSUBSEGS; i++)
+		__info->lines[i] = &segs[s->firstline + i];
+}
 
 //
 // R_RenderMaskedSegRange
@@ -371,7 +407,7 @@ void R_RenderSegLoop (void)
 void
 R_StoreWallRange
 ( int	start,
-  int	stop )
+  int	stop, seg_t* __line, subsector_t* __sub)
 {
     fixed_t		hyp;
     fixed_t		sineval;
@@ -702,11 +738,17 @@ R_StoreWallRange
     }
     
     // render it
-    if (markceiling)
-	ceilingplane = R_CheckPlane (ceilingplane, rw_x, rw_stopx-1);
+	if (markceiling)
+	{
+		ceilingplane = R_CheckPlane (ceilingplane, rw_x, rw_stopx-1, __line,
+			__sub);
+	}
     
-    if (markfloor)
-	floorplane = R_CheckPlane (floorplane, rw_x, rw_stopx-1);
+	if (markfloor)
+	{
+		floorplane = R_CheckPlane (floorplane, rw_x, rw_stopx-1, __line,
+			__sub);
+	}
 
     R_RenderSegLoop ();
 

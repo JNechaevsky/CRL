@@ -1,12 +1,12 @@
-AC_INIT(Chocolate Doom, 2.2.1, fraggle@gmail.com, chocolate-doom)
+AC_INIT(Chocorenderlimits, 2.2.1, ghostlydeath@remood.org, chocorenderlimits)
 
 PACKAGE_SHORTNAME=${PACKAGE_NAME% Doom}
-PACKAGE_SHORTDESC="Conservative source port"
+PACKAGE_SHORTDESC="Conformist source port"
 PACKAGE_COPYRIGHT="Copyright (C) 1993-2015"
 PACKAGE_LICENSE="GNU General Public License, version 2"
-PACKAGE_MAINTAINER="Simon Howard"
-PACKAGE_URL="http://www.chocolate-doom.org/"
-PACKAGE_ISSUES="https://github.com/chocolate-doom/chocolate-doom/issues"
+PACKAGE_MAINTAINER="GhostlyDeath"
+PACKAGE_URL="http://remood.org/"
+PACKAGE_ISSUES="mailto:ghostlydeath@remood.org"
 
 AC_CONFIG_AUX_DIR(autotools)
 
@@ -128,11 +128,11 @@ WINDOWS_RC_VERSION=`echo $PACKAGE_VERSION | sed 's/-.*//; s/\./, /g; s/$/, 0/'`
 # if this is changed to "lemon-", the programs generated will be named
 # lemon-doom, lemon-heretic, etc.
 
-PROGRAM_PREFIX=chocolate-
+PROGRAM_PREFIX=chocorenderlimits-
 
 AC_SUBST(PROGRAM_PREFIX)
 AC_DEFINE_UNQUOTED(PROGRAM_PREFIX, "$PROGRAM_PREFIX",
-                   Change this when you create your awesome forked version)
+                   Change this when you create your awesomer forked version)
 
 AM_CONFIG_HEADER(config.h:config.hin)
 

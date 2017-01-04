@@ -35,6 +35,7 @@
 #include "r_local.h"
 #include "r_sky.h"
 
+#include "crlcore.h"
 
 
 
@@ -675,7 +676,7 @@ void R_ExecuteSetViewSize (void)
 
     setsizeneeded = false;
 
-    if (setblocks == 11)
+    if (setblocks == 11 ||  CRLBruteForce)
     {
 	scaledviewwidth = SCREENWIDTH;
 	viewheight = SCREENHEIGHT;
@@ -855,37 +856,61 @@ void R_SetupFrame (player_t* player)
     validcount++;
 }
 
-
-
 //
 // R_RenderView
 //
 void R_RenderPlayerView (player_t* player)
-{	
-    R_SetupFrame (player);
+{
+	int js;
+	
+	// Start of frame
+	CRL_ChangeFrame(0);
+	
+	// GhostlyDeath -- Store current position and go back to it in case the
+	// renderer does something fancy
+	js = setjmp(CRLJustIncaseBuf);
+	
+	// Do not spawn it just in case.
+	if (js == 0)
+	{
+		// Start frame
+		R_SetupFrame (player);
+		
+		// Clear the view buffer
+		CRL_DrawHOMBack(viewwindowx, viewwindowy, viewwidth, viewheight);
 
-    // Clear buffers.
-    R_ClearClipSegs ();
-    R_ClearDrawSegs ();
-    R_ClearPlanes ();
-    R_ClearSprites ();
-    
-    // check for new console commands.
-    NetUpdate ();
+		// Clear buffers.
+		R_ClearClipSegs ();
+		R_ClearDrawSegs ();
+		R_ClearPlanes ();
+		R_ClearSprites ();
+		
+		// check for new console commands.
+		NetUpdate ();
 
-    // The head node is the last node output.
-    R_RenderBSPNode (numnodes-1);
-    
-    // Check for new console commands.
-    NetUpdate ();
-    
-    R_DrawPlanes ();
-    
-    // Check for new console commands.
-    NetUpdate ();
-    
-    R_DrawMasked ();
+		// The head node is the last node output.
+		R_RenderBSPNode (numnodes-1);
+		
+		// Check for new console commands.
+		NetUpdate ();
+		
+		// GhostlyDeath -- Draw Visplanes
+		R_DrawPlanes ();
+		CRL_DrawVisPlanes(0);
+		
+		// Check for new console commands.
+		NetUpdate ();
+		
+		R_DrawMasked ();
 
-    // Check for new console commands.
-    NetUpdate ();				
+		// Check for new console commands.
+		NetUpdate ();
+		
+		// No errors, set jump to negative for OK
+		js = -1;
+	}
+	
+	// End of frame
+	CRL_ChangeFrame(js);
 }
+
