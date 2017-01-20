@@ -129,7 +129,7 @@ int aspect_ratio_correct = true;
 // Force software rendering, for systems which lack effective hardware
 // acceleration
 
-int force_software_renderer = false;
+int force_software_renderer = true;
 
 // Time to wait for the screen to settle on startup before starting the
 // game (ms)
@@ -1126,8 +1126,12 @@ static void SetVideoMode(void)
         I_InitWindowIcon();
     }
 
-	// Never fullscreen when brute forcing
-    if (fullscreen && !CRLBruteForce)
+    // The SDL_RENDERER_TARGETTEXTURE flag is required to render the
+    // intermediate texture into the upscaled texture.
+    renderer_flags = SDL_RENDERER_TARGETTEXTURE;
+
+	// Force software mode
+    if (force_software_renderer)
     {
         renderer_flags |= SDL_RENDERER_SOFTWARE;
     }
