@@ -44,12 +44,19 @@ void P_SpawnMapThing (mapthing_t*	mthing);
 //
 int test;
 
+// Use a heuristic approach to detect infinite state cycles: Count the number
+// of times the loop in P_SetMobjState() executes and exit with an error once
+// an arbitrary very large limit is reached.
+
+#define MOBJ_CYCLE_LIMIT 1000000
+
 boolean
 P_SetMobjState
 ( mobj_t*	mobj,
   statenum_t	state )
 {
     state_t*	st;
+    int	cycle_counter = 0;
 
     do
     {
@@ -72,6 +79,11 @@ P_SetMobjState
 	    st->action.acp1(mobj);	
 	
 	state = st->nextstate;
+
+	if (cycle_counter++ > MOBJ_CYCLE_LIMIT)
+	{
+	    I_Error("P_SetMobjState: Infinite state cycle detected!");
+	}
     } while (!mobj->tics);
 				
     return true;
@@ -855,7 +867,7 @@ P_SpawnPuff
 {
     mobj_t*	th;
 	
-    z += ((P_Random()-P_Random())<<10);
+    z += (P_SubRandom() << 10);
 
     th = P_SpawnMobj (x,y,z, MT_PUFF);
     th->momz = FRACUNIT;
@@ -883,7 +895,7 @@ P_SpawnBlood
 {
     mobj_t*	th;
 	
-    z += ((P_Random()-P_Random())<<10);
+    z += (P_SubRandom() << 10);
     th = P_SpawnMobj (x,y,z, MT_BLOOD);
     th->momz = FRACUNIT*2;
     th->tics -= P_Random()&3;
@@ -968,7 +980,7 @@ P_SpawnMissile
 
     // fuzzy player
     if (dest->flags & MF_SHADOW)
-	an += (P_Random()-P_Random())<<20;	
+	an += P_SubRandom() << 20;
 
     th->angle = an;
     an >>= ANGLETOFINESHIFT;

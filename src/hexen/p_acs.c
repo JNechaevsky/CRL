@@ -787,6 +787,23 @@ static int GetACSIndex(int number)
 
 //==========================================================================
 //
+// CheckACSPresent
+//
+// Placing Korax in a PWAD without extra steps will result in a crash in
+// Vanilla because the relevant ACS scripts are not initialised
+//
+//==========================================================================
+
+void CheckACSPresent(int number)
+{
+    if (GetACSIndex(number) == -1)
+    {
+        I_Error("Required ACS script %d not initialised", number);
+    }
+}
+
+//==========================================================================
+//
 // Push
 //
 //==========================================================================

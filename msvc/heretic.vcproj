@@ -60,7 +60,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="SDL.lib SDL_mixer.lib SDL_net.lib SDLmain.lib"
+				AdditionalDependencies="SDL2_mixer.lib SDL2_net.lib SDL2main.lib SDL2.lib"
 				OutputFile="$(OutDir)\chocolate-heretic-dbg.exe"
 				IgnoreDefaultLibraryNames="msvcrt"
 				GenerateDebugInformation="true"
@@ -140,7 +140,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="SDL.lib SDL_mixer.lib SDL_net.lib SDLmain.lib"
+				AdditionalDependencies="SDL2_mixer.lib SDL2_net.lib SDL2main.lib SDL2.lib"
 				OutputFile="$(OutDir)\chocolate-heretic.exe"
 				LinkIncremental="0"
 				IgnoreDefaultLibraryNames="msvcrtd"
@@ -371,6 +371,10 @@
 			</File>
 			<File
 				RelativePath="..\src\tables.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\v_diskicon.c"
 				>
 			</File>
 			<File
@@ -789,6 +793,10 @@
 			</File>
 			<File
 				RelativePath="..\src\tables.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\v_diskicon.h"
 				>
 			</File>
 			<File

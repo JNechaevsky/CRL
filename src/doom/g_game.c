@@ -37,6 +37,7 @@
 #include "m_random.h"
 #include "i_system.h"
 #include "i_timer.h"
+#include "i_input.h"
 #include "i_video.h"
 
 #include "p_setup.h"
@@ -614,7 +615,8 @@ void G_DoLoadLevel (void)
 
     // The "Sky never changes in Doom II" bug was fixed in
     // the id Anthology version of doom2.exe for Final Doom.
-    if ((gamemode == commercial) && (gameversion == exe_final2))
+    if ((gamemode == commercial)
+     && (gameversion == exe_final2 || gameversion == exe_chex))
     {
         char *skytexturename;
 
@@ -1540,9 +1542,6 @@ void G_LoadGame (char* name)
     M_StringCopy(savename, name, sizeof(savename));
     gameaction = ga_loadgame; 
 } 
- 
-#define VERSIONSIZE		16 
-
 
 void G_DoLoadGame (void) 
 { 
@@ -1610,59 +1609,78 @@ void G_DoSaveGame (void)
 { 
     char *savegame_file;
     char *temp_savegame_file;
+    char *recovery_savegame_file;
 
+    recovery_savegame_file = NULL;
     temp_savegame_file = P_TempSaveGameFile();
     savegame_file = P_SaveGameFile(savegameslot);
 
     // Open the savegame file for writing.  We write to a temporary file
     // and then rename it at the end if it was successfully written.
-    // This prevents an existing savegame from being overwritten by 
+    // This prevents an existing savegame from being overwritten by
     // a corrupted one, or if a savegame buffer overrun occurs.
-
     save_stream = fopen(temp_savegame_file, "wb");
 
     if (save_stream == NULL)
     {
-        return;
+        // Failed to save the game, so we're going to have to abort. But
+        // to be nice, save to somewhere else before we call I_Error().
+        recovery_savegame_file = M_TempFile("recovery.dsg");
+        save_stream = fopen(recovery_savegame_file, "wb");
+        if (save_stream == NULL)
+        {
+            I_Error("Failed to open either '%s' or '%s' to write savegame.",
+                    temp_savegame_file, recovery_savegame_file);
+        }
     }
 
     savegame_error = false;
 
     P_WriteSaveGameHeader(savedescription);
- 
-    P_ArchivePlayers (); 
-    P_ArchiveWorld (); 
-    P_ArchiveThinkers (); 
-    P_ArchiveSpecials (); 
-	 
+
+    P_ArchivePlayers ();
+    P_ArchiveWorld ();
+    P_ArchiveThinkers ();
+    P_ArchiveSpecials ();
+
     P_WriteSaveGameEOF();
-	 
-    // Enforce the same savegame size limit as in Vanilla Doom, 
+
+    // Enforce the same savegame size limit as in Vanilla Doom,
     // except if the vanilla_savegame_limit setting is turned off.
 
     if (vanilla_savegame_limit && ftell(save_stream) > SAVEGAMESIZE)
     {
-        I_Error ("Savegame buffer overrun");
+        I_Error("Savegame buffer overrun");
     }
-    
+
     // Finish up, close the savegame file.
 
     fclose(save_stream);
+
+    if (recovery_savegame_file != NULL)
+    {
+        // We failed to save to the normal location, but we wrote a
+        // recovery file to the temp directory. Now we can bomb out
+        // with an error.
+        I_Error("Failed to open savegame file '%s' for writing.\n"
+                "But your game has been saved to '%s' for recovery.",
+                temp_savegame_file, recovery_savegame_file);
+    }
 
     // Now rename the temporary savegame file to the actual savegame
     // file, overwriting the old savegame if there was one there.
 
     remove(savegame_file);
     rename(temp_savegame_file, savegame_file);
-    
-    gameaction = ga_nothing; 
+
+    gameaction = ga_nothing;
     M_StringCopy(savedescription, "", sizeof(savedescription));
 
     players[consoleplayer].message = DEH_String(GGSAVED);
 
     // draw the pattern into the back screen
-    R_FillBackScreen ();	
-} 
+    R_FillBackScreen ();
+}
  
 
 //
@@ -1725,9 +1743,6 @@ G_InitNew
     // the -warp command line parameter to behave differently.
     // This is left here for posterity.
 
-    if (skill > sk_nightmare)
-	skill = sk_nightmare;
-
     // This was quite messy with SPECIAL and commented parts.
     // Supposedly hacks to make the latest edition work.
     // It might not work properly.
@@ -1750,6 +1765,33 @@ G_InitNew
 	episode = 3;
     }
     */
+
+    if (skill > sk_nightmare)
+	skill = sk_nightmare;
+
+    if (gameversion >= exe_ultimate)
+    {
+        if (episode == 0)
+        {
+            episode = 4;
+        }
+    }
+    else
+    {
+        if (episode < 1)
+        {
+            episode = 1;
+        }
+        if (episode > 3)
+        {
+            episode = 3;
+        }
+    }
+
+    if (episode > 1 && gamemode == shareware)
+    {
+        episode = 1;
+    }
 
     if (map < 1)
 	map = 1;
@@ -2015,22 +2057,20 @@ void G_BeginRecording (void)
 { 
     int             i; 
 
+    demo_p = demobuffer;
+
     //!
     // @category demo
     //
     // Record a high resolution "Doom 1.91" demo.
     //
 
-    longtics = M_CheckParm("-longtics") != 0;
+    longtics = D_NonVanillaRecord(M_ParmExists("-longtics"),
+                                  "Doom 1.91 demo format");
 
     // If not recording a longtics demo, record in low res
-
     lowres_turn = !longtics;
-    
-    demo_p = demobuffer;
-	
-    // Save the right version code for this demo
- 
+
     if (longtics)
     {
         *demo_p++ = DOOM_191_VERSION;
@@ -2086,6 +2126,8 @@ static char *DemoVersionDescription(int version)
             return "v1.8";
         case 109:
             return "v1.9";
+        case 111:
+            return "v1.91 hack demo?";
         default:
             break;
     }
@@ -2105,40 +2147,43 @@ static char *DemoVersionDescription(int version)
     }
 }
 
-void G_DoPlayDemo (void) 
-{ 
-    skill_t skill; 
-    int             i, episode, map; 
+void G_DoPlayDemo (void)
+{
+    skill_t skill;
+    int i, lumpnum, episode, map;
     int demoversion;
-	 
-    gameaction = ga_nothing; 
-    demobuffer = demo_p = W_CacheLumpName (defdemoname, PU_STATIC); 
+
+    lumpnum = W_GetNumForName(defdemoname);
+    gameaction = ga_nothing;
+    demobuffer = W_CacheLumpNum(lumpnum, PU_STATIC);
+    demo_p = demobuffer;
 
     demoversion = *demo_p++;
 
-    if (demoversion == G_VanillaVersionCode())
+    longtics = false;
+
+    // Longtics demos use the modified format that is generated by cph's
+    // hacked "v1.91" doom exe. This is a non-vanilla extension.
+    if (D_NonVanillaPlayback(demoversion == DOOM_191_VERSION, lumpnum,
+                             "Doom 1.91 demo format"))
     {
-        longtics = false;
-    }
-    else if (demoversion == DOOM_191_VERSION)
-    {
-        // demo recorded with cph's modified "v1.91" doom exe
         longtics = true;
     }
-    else
+    else if (demoversion != G_VanillaVersionCode())
     {
         char *message = "Demo is from a different game version!\n"
                         "(read %i, should be %i)\n"
                         "\n"
                         "*** You may need to upgrade your version "
                             "of Doom to v1.9. ***\n"
-                        "    See: http://doomworld.com/files/patches.shtml\n"
+                        "    See: https://www.doomworld.com/classicdoom"
+                                  "/info/patches.php\n"
                         "    This appears to be %s.";
 
         I_Error(message, demoversion, G_VanillaVersionCode(),
                          DemoVersionDescription(demoversion));
     }
-    
+
     skill = *demo_p++; 
     episode = *demo_p++; 
     map = *demo_p++; 
@@ -2174,12 +2219,13 @@ void G_DoPlayDemo (void)
 void G_TimeDemo (char* name) 
 {
     //!
-    // @vanilla 
+    // @category video
+    // @vanilla
     //
     // Disable rendering the screen entirely.
     //
 
-    nodrawers = M_CheckParm ("-nodraw"); 
+    nodrawers = M_CheckParm ("-nodraw");
 
     timingdemo = true; 
     singletics = true; 

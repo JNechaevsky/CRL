@@ -24,6 +24,8 @@
 	<string>@PACKAGE_VERSION@</string>
 	<key>CFBundleVersion</key>
 	<string>@PACKAGE_VERSION@</string>
+        <key>NSHighResolutionCapable</key>
+        <string>true</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 	<key>NSMainNibFile</key>
@@ -47,6 +49,18 @@ Licensed under the GNU GPL v2.</string>
                         <key>CFBundleTypeExtensions</key>
                         <array>
                                 <string>wad</string>
+                        </array>
+                </dict>
+                <dict>
+                        <key>CFBundleTypeName</key>
+                        <string>Doom demo recording</string>
+                        <key>CFBundleTypeIconFile</key>
+                        <string>wadfile.icns</string>
+                        <key>CFBundleTypeRole</key>
+                        <string>Viewer</string>
+                        <key>CFBundleTypeExtensions</key>
+                        <array>
+                                <string>lmp</string>
                         </array>
                 </dict>
                 <dict>

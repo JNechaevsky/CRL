@@ -32,6 +32,7 @@
 #include "m_cheat.h"
 #include "m_controls.h"
 #include "i_system.h"
+#include "i_timer.h"
 
 // Needs access to LFB.
 #include "v_video.h"
@@ -320,11 +321,10 @@ void AM_restoreScaleAndLoc(void)
 //
 void AM_addMark(void)
 {
-    markpoints[markpointnum].x = m_x + m_w/2;
-    markpoints[markpointnum].y = m_y + m_h/2;
+    markpoints[markpointnum].x = plr->mo->x; // 20160306 [STRIFE]: use player position
+    markpoints[markpointnum].y = plr->mo->y;
     //markpointnum = (markpointnum + 1) % AM_NUMMARKPOINTS;
     ++markpointnum; // haleyjd 20141101: [STRIFE] does not wrap around
-
 }
 
 //
@@ -580,10 +580,32 @@ AM_Responder
 
     int rc;
     static int bigstate=0;
+    static int joywait = 0;
     static char buffer[20];
     int key;
 
     rc = false;
+
+    if (ev->type == ev_joystick && joybautomap >= 0
+        && (ev->data1 & (1 << joybautomap)) != 0 && joywait < I_GetTime())
+    {
+        joywait = I_GetTime() + 5;
+
+        if (!automapactive)
+        {
+            AM_Start ();
+            viewactive = false;
+        }
+        else
+        {
+            bigstate = 0;
+            viewactive = true;
+            AM_Stop ();
+        }
+
+        return true;
+    }
+
 
     if (!automapactive)
     {

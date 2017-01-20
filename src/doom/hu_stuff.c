@@ -24,6 +24,7 @@
 #include "z_zone.h"
 
 #include "deh_main.h"
+#include "i_input.h"
 #include "i_swap.h"
 #include "i_video.h"
 
@@ -48,7 +49,7 @@
 #define HU_TITLE2	(mapnames_commercial[gamemap-1])
 #define HU_TITLEP	(mapnames_commercial[gamemap-1 + 32])
 #define HU_TITLET	(mapnames_commercial[gamemap-1 + 64])
-#define HU_TITLE_CHEX   (mapnames[gamemap - 1])
+#define HU_TITLE_CHEX   (mapnames_chex[(gameepisode-1)*9+gamemap-1])
 #define HU_TITLEHEIGHT	1
 #define HU_TITLEX	0
 #define HU_TITLEY	(167 - SHORT(hu_font[0]->height))
@@ -151,6 +152,60 @@ char*	mapnames[] =	// DOOM shareware/registered/retail (Ultimate) names.
     HUSTR_E4M7,
     HUSTR_E4M8,
     HUSTR_E4M9,
+
+    "NEWLEVEL",
+    "NEWLEVEL",
+    "NEWLEVEL",
+    "NEWLEVEL",
+    "NEWLEVEL",
+    "NEWLEVEL",
+    "NEWLEVEL",
+    "NEWLEVEL",
+    "NEWLEVEL"
+};
+
+char*   mapnames_chex[] =   // Chex Quest names.
+{
+
+    HUSTR_E1M1,
+    HUSTR_E1M2,
+    HUSTR_E1M3,
+    HUSTR_E1M4,
+    HUSTR_E1M5,
+    HUSTR_E1M5,
+    HUSTR_E1M5,
+    HUSTR_E1M5,
+    HUSTR_E1M5,
+
+    HUSTR_E1M5,
+    HUSTR_E1M5,
+    HUSTR_E1M5,
+    HUSTR_E1M5,
+    HUSTR_E1M5,
+    HUSTR_E1M5,
+    HUSTR_E1M5,
+    HUSTR_E1M5,
+    HUSTR_E1M5,
+
+    HUSTR_E1M5,
+    HUSTR_E1M5,
+    HUSTR_E1M5,
+    HUSTR_E1M5,
+    HUSTR_E1M5,
+    HUSTR_E1M5,
+    HUSTR_E1M5,
+    HUSTR_E1M5,
+    HUSTR_E1M5,
+
+    HUSTR_E1M5,
+    HUSTR_E1M5,
+    HUSTR_E1M5,
+    HUSTR_E1M5,
+    HUSTR_E1M5,
+    HUSTR_E1M5,
+    HUSTR_E1M5,
+    HUSTR_E1M5,
+    HUSTR_E1M5,
 
     "NEWLEVEL",
     "NEWLEVEL",
@@ -351,10 +406,7 @@ void HU_Start(void)
          break;
     }
 
-    // Chex.exe always uses the episode 1 level title
-    // eg. E2M1 gives the title for E1M1
-
-    if (gameversion == exe_chex)
+    if (logical_gamemission == doom && gameversion == exe_chex)
     {
         s = HU_TITLE_CHEX;
     }
@@ -509,6 +561,21 @@ char HU_dequeueChatChar(void)
     return c;
 }
 
+static void StartChatInput(int dest)
+{
+    chat_on = true;
+    HUlib_resetIText(&w_chat);
+    HU_queueChatChar(HU_BROADCAST);
+
+    I_StartTextInput(0, 8, SCREENWIDTH, 16);
+}
+
+static void StopChatInput(void)
+{
+    chat_on = false;
+    I_StopTextInput();
+}
+
 boolean HU_Responder(event_t *ev)
 {
 
@@ -549,9 +616,8 @@ boolean HU_Responder(event_t *ev)
 	}
 	else if (netgame && ev->data2 == key_multi_msg)
 	{
-	    eatkey = chat_on = true;
-	    HUlib_resetIText(&w_chat);
-	    HU_queueChatChar(HU_BROADCAST);
+	    eatkey = true;
+            StartChatInput(HU_BROADCAST);
 	}
 	else if (netgame && numplayers > 2)
 	{
@@ -561,9 +627,8 @@ boolean HU_Responder(event_t *ev)
 		{
 		    if (playeringame[i] && i!=consoleplayer)
 		    {
-			eatkey = chat_on = true;
-			HUlib_resetIText(&w_chat);
-			HU_queueChatChar(i+1);
+			eatkey = true;
+                        StartChatInput(i + 1);
 			break;
 		    }
 		    else if (i == consoleplayer)
@@ -594,37 +659,37 @@ boolean HU_Responder(event_t *ev)
 		return false;
 	    // fprintf(stderr, "got here\n");
 	    macromessage = chat_macros[c];
-	    
+
 	    // kill last message with a '\n'
 	    HU_queueChatChar(KEY_ENTER); // DEBUG!!!
-	    
+
 	    // send the macro message
 	    while (*macromessage)
 		HU_queueChatChar(*macromessage++);
 	    HU_queueChatChar(KEY_ENTER);
-	    
+
             // leave chat mode and notify that it was sent
-            chat_on = false;
+            StopChatInput();
             M_StringCopy(lastmessage, chat_macros[c], sizeof(lastmessage));
             plr->message = lastmessage;
             eatkey = true;
 	}
 	else
 	{
-            c = ev->data2;
+            c = ev->data3;
 
 	    eatkey = HUlib_keyInIText(&w_chat, c);
 	    if (eatkey)
 	    {
 		// static unsigned char buf[20]; // DEBUG
 		HU_queueChatChar(c);
-		
+
 		// M_snprintf(buf, sizeof(buf), "KEY: %d => %d", ev->data1, c);
 		//        plr->message = buf;
 	    }
 	    if (c == KEY_ENTER)
 	    {
-		chat_on = false;
+		StopChatInput();
                 if (w_chat.l.len)
                 {
                     M_StringCopy(lastmessage, w_chat.l.l, sizeof(lastmessage));
@@ -632,10 +697,11 @@ boolean HU_Responder(event_t *ev)
                 }
 	    }
 	    else if (c == KEY_ESCAPE)
-		chat_on = false;
+	    {
+                StopChatInput();
+            }
 	}
     }
 
     return eatkey;
-
 }

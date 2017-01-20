@@ -38,7 +38,7 @@
 #include "multiplayer.h"
 #include "sound.h"
 
-#define WINDOW_HELP_URL "http://www.chocolate-doom.org/setup"
+#define WINDOW_HELP_URL "https://www.chocolate-doom.org/setup"
 
 static const int cheat_sequence[] =
 {
@@ -91,6 +91,8 @@ static void SensibleDefaults(void)
     show_endoom = 0;
     dclick_use = 0;
     novert = 1;
+    snd_dmxoption = "-opl3 -reverse";
+    png_screenshots = 1;
 }
 
 static int MainMenuKeyPress(txt_window_t *window, int key, void *user_data)
@@ -214,41 +216,27 @@ void MainMenu(void)
     TXT_SetWindowHelpURL(window, WINDOW_HELP_URL);
 
     TXT_AddWidgets(window,
-          TXT_NewButton2("Configure Display",
-                         (TxtWidgetSignalFunc) ConfigDisplay, NULL),
-          TXT_NewButton2("Configure Sound",
-                         (TxtWidgetSignalFunc) ConfigSound, NULL),
-          TXT_NewButton2("Configure Keyboard",
-                         (TxtWidgetSignalFunc) ConfigKeyboard, NULL),
-          TXT_NewButton2("Configure Mouse",
-                         (TxtWidgetSignalFunc) ConfigMouse, NULL),
-          TXT_NewButton2("Configure Gamepad/Joystick",
-                         (TxtWidgetSignalFunc) ConfigJoystick, NULL),
-          NULL);
-
-    // The compatibility window is only appropriate for Doom/Strife.
-
-    if (gamemission == doom || gamemission == strife)
-    {
-        txt_button_t *button;
-
-        button = TXT_NewButton2("Compatibility", 
-                                (TxtWidgetSignalFunc) CompatibilitySettings,
-                                NULL);
-
-        TXT_AddWidget(window, button);
-    }
-
-    TXT_AddWidgets(window,
-          GetLaunchButton(),
-          TXT_NewStrut(0, 1),
-          TXT_NewButton2("Start a Network Game", 
-                         (TxtWidgetSignalFunc) StartMultiGame, NULL),
-          TXT_NewButton2("Join a Network Game", 
-                         (TxtWidgetSignalFunc) JoinMultiGame, NULL),
-          TXT_NewButton2("Multiplayer Configuration", 
-                         (TxtWidgetSignalFunc) MultiplayerConfig, NULL),
-          NULL);
+        TXT_NewButton2("Configure Display",
+                       (TxtWidgetSignalFunc) ConfigDisplay, NULL),
+        TXT_NewButton2("Configure Sound",
+                       (TxtWidgetSignalFunc) ConfigSound, NULL),
+        TXT_NewButton2("Configure Keyboard",
+                       (TxtWidgetSignalFunc) ConfigKeyboard, NULL),
+        TXT_NewButton2("Configure Mouse",
+                       (TxtWidgetSignalFunc) ConfigMouse, NULL),
+        TXT_NewButton2("Configure Gamepad/Joystick",
+                       (TxtWidgetSignalFunc) ConfigJoystick, NULL),
+        TXT_NewButton2("Compatibility",
+                       (TxtWidgetSignalFunc) CompatibilitySettings, NULL),
+        GetLaunchButton(),
+        TXT_NewStrut(0, 1),
+        TXT_NewButton2("Start a Network Game",
+                       (TxtWidgetSignalFunc) StartMultiGame, NULL),
+        TXT_NewButton2("Join a Network Game",
+                       (TxtWidgetSignalFunc) JoinMultiGame, NULL),
+        TXT_NewButton2("Multiplayer Configuration",
+                       (TxtWidgetSignalFunc) MultiplayerConfig, NULL),
+        NULL);
 
     quit_action = TXT_NewWindowAction(KEY_ESCAPE, "Quit");
     warp_action = TXT_NewWindowAction(KEY_F2, "Warp");
@@ -282,39 +270,16 @@ static void InitConfig(void)
 
 static void SetIcon(void)
 {
+    extern SDL_Window *TXT_SDLWindow;
     SDL_Surface *surface;
-    Uint8 *mask;
-    int i;
 
-    // Generate the mask
-  
-    mask = malloc(setup_icon_w * setup_icon_h / 8);
-    memset(mask, 0, setup_icon_w * setup_icon_h / 8);
+    surface = SDL_CreateRGBSurfaceFrom((void *) setup_icon_data, setup_icon_w,
+                                       setup_icon_h, 32, setup_icon_w * 4,
+                                       0xff << 24, 0xff << 16,
+                                       0xff << 8, 0xff << 0);
 
-    for (i=0; i<setup_icon_w * setup_icon_h; ++i) 
-    {
-        if (setup_icon_data[i * 3] != 0x00
-         || setup_icon_data[i * 3 + 1] != 0x00
-         || setup_icon_data[i * 3 + 2] != 0x00)
-        {
-            mask[i / 8] |= 1 << (7 - i % 8);
-        }
-    }
-
-
-    surface = SDL_CreateRGBSurfaceFrom(setup_icon_data,
-                                       setup_icon_w,
-                                       setup_icon_h,
-                                       24,
-                                       setup_icon_w * 3,
-                                       0xff << 0,
-                                       0xff << 8,
-                                       0xff << 16,
-                                       0);
-
-    SDL_WM_SetIcon(surface, mask);
+    SDL_SetWindowIcon(TXT_SDLWindow, surface);
     SDL_FreeSurface(surface);
-    free(mask);
 }
 
 static void SetWindowTitle(void)

@@ -38,7 +38,7 @@
 
 
 #define MINZ				(FRACUNIT*4)
-#define BASEYCENTER			100
+#define BASEYCENTER			(SCREENHEIGHT/2)
 
 //void R_DrawColumn (void);
 //void R_DrawFuzzColumn (void);
@@ -208,22 +208,22 @@ void R_InitSpriteDefs (char** namelist)
 	//  filling in the frames for whatever is found
 	for (l=start+1 ; l<end ; l++)
 	{
-	    if (!strncasecmp(lumpinfo[l].name, spritename, 4))
+	    if (!strncasecmp(lumpinfo[l]->name, spritename, 4))
 	    {
-		frame = lumpinfo[l].name[4] - 'A';
-		rotation = lumpinfo[l].name[5] - '0';
+		frame = lumpinfo[l]->name[4] - 'A';
+		rotation = lumpinfo[l]->name[5] - '0';
 
 		if (modifiedgame)
-		    patched = W_GetNumForName (lumpinfo[l].name);
+		    patched = W_GetNumForName (lumpinfo[l]->name);
 		else
 		    patched = l;
 
 		R_InstallSpriteLump (patched, frame, rotation, false);
 
-		if (lumpinfo[l].name[6])
+		if (lumpinfo[l]->name[6])
 		{
-		    frame = lumpinfo[l].name[6] - 'A';
-		    rotation = lumpinfo[l].name[7] - '0';
+		    frame = lumpinfo[l]->name[6] - 'A';
+		    rotation = lumpinfo[l]->name[7] - '0';
 		    R_InstallSpriteLump (l, frame, rotation, true);
 		}
 	    }
@@ -665,7 +665,7 @@ void R_DrawPSprite (pspdef_t* psp)
     flip = (boolean)sprframe->flip[0];
     
     // calculate edges of the shape
-    tx = psp->sx-160*FRACUNIT;
+    tx = psp->sx-(SCREENWIDTH/2)*FRACUNIT;
 	
     tx -= spriteoffset[lump];	
     x1 = (centerxfrac + FixedMul (tx,pspritescale) ) >>FRACBITS;

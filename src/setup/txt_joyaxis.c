@@ -286,7 +286,6 @@ static int EventCallback(SDL_Event *event, TXT_UNCAST_ARG(joystick_axis))
     // joystick is being configured and which button the user is pressing.
     if (joystick_axis->config_stage == CONFIG_CENTER)
     {
-        joystick_index = event->jbutton.which;
         joystick_axis->config_button = event->jbutton.button;
         IdentifyBadAxes(joystick_axis);
 
@@ -300,7 +299,7 @@ static int EventCallback(SDL_Event *event, TXT_UNCAST_ARG(joystick_axis))
     // In subsequent stages, the user is asked to push in a specific
     // direction and press the button. They must push the same button
     // as they did before; this is necessary to support button axes.
-    if (event->jbutton.which == joystick_index
+    if (event->jbutton.which == SDL_JoystickInstanceID(joystick_axis->joystick)
      && event->jbutton.button == joystick_axis->config_button)
     {
         switch (joystick_axis->config_stage)
@@ -367,7 +366,7 @@ void TXT_ConfigureJoystickAxis(txt_joystick_axis_t *joystick_axis,
     joystick_axis->joystick = SDL_JoystickOpen(joystick_index);
     if (joystick_axis->joystick == NULL)
     {
-        // TODO: OpenErrorWindow();
+        TXT_MessageBox(NULL, "Please configure a controller first!");
         return;
     }
 
@@ -461,7 +460,7 @@ static void TXT_JoystickAxisDrawer(TXT_UNCAST_ARG(joystick_axis))
 
     TXT_DrawString(buf);
 
-    for (i=strlen(buf); i<JOYSTICK_AXIS_WIDTH; ++i)
+    for (i = strlen(buf); i < joystick_axis->widget.w; ++i)
     {
         TXT_DrawString(" ");
     }

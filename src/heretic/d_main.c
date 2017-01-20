@@ -32,6 +32,7 @@
 #include "deh_main.h"
 #include "d_iwad.h"
 #include "i_endoom.h"
+#include "i_input.h"
 #include "i_joystick.h"
 #include "i_sound.h"
 #include "i_system.h"
@@ -738,6 +739,7 @@ void D_BindVariables(void)
 
     M_ApplyPlatformDefaults();
 
+    I_BindInputVariables();
     I_BindVideoVariables();
     I_BindJoystickVariables();
     I_BindSoundVariables();
@@ -755,11 +757,17 @@ void D_BindVariables(void)
     M_BindMenuControls();
     M_BindMapControls();
 
+#ifdef FEATURE_MULTIPLAYER
+    NET_BindVariables();
+#endif
+
     M_BindIntVariable("mouse_sensitivity",      &mouseSensitivity);
     M_BindIntVariable("sfx_volume",             &snd_MaxVolume);
     M_BindIntVariable("music_volume",           &snd_MusicVolume);
     M_BindIntVariable("screenblocks",           &screenblocks);
     M_BindIntVariable("snd_channels",           &snd_Channels);
+    M_BindIntVariable("vanilla_savegame_limit", &vanilla_savegame_limit);
+    M_BindIntVariable("vanilla_demo_limit",     &vanilla_demo_limit);
     M_BindIntVariable("show_endoom",            &show_endoom);
     M_BindIntVariable("graphical_startup",      &graphical_startup);
 
@@ -1018,7 +1026,7 @@ void D_DoomMain(void)
 
         if (D_AddFile(file))
         {
-            M_StringCopy(demolumpname, lumpinfo[numlumps - 1].name,
+            M_StringCopy(demolumpname, lumpinfo[numlumps - 1]->name,
                          sizeof(demolumpname));
         }
         else
@@ -1030,6 +1038,15 @@ void D_DoomMain(void)
 
         printf("Playing demo %s.\n", file);
     }
+
+    //!
+    // @category demo
+    //
+    // Record or playback a demo without automatically quitting
+    // after either level exit or player respawn.
+    //
+
+    demoextend = M_ParmExists("-demoextend");
 
     if (W_CheckNumForName(DEH_String("E2M1")) == -1)
     {

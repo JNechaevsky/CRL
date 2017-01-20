@@ -33,9 +33,6 @@
 #include "m_misc.h"
 #include "r_state.h"
 
-#define SAVEGAME_EOF 0x1d
-#define VERSIONSIZE 16 
-
 FILE *save_stream;
 int savegamelength;
 boolean savegame_error;
@@ -80,7 +77,7 @@ char *P_SaveGameFile(int slot)
 
 static byte saveg_read8(void)
 {
-    byte result;
+    byte result = -1;
 
     if (fread(&result, 1, 1, save_stream) < 1)
     {

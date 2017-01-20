@@ -34,12 +34,16 @@
 #include "doomfeatures.h"
 #include "sounds.h"
 
+#include "txt_main.h"
+#include "txt_io.h"
+
 #include "d_iwad.h"
 
 #include "z_zone.h"
 #include "w_main.h"
 #include "w_wad.h"
 #include "s_sound.h"
+#include "v_diskicon.h"
 #include "v_video.h"
 
 #include "f_finale.h"
@@ -55,6 +59,7 @@
 #include "p_dialog.h" // haleyjd [STRIFE]
 
 #include "i_endoom.h"
+#include "i_input.h"
 #include "i_joystick.h"
 #include "i_system.h"
 #include "i_timer.h"
@@ -141,7 +146,9 @@ char		wadfile[1024];          // primary wad file
 char		mapdir[1024];           // directory of development maps
 
 int             show_endoom = 1;
+int             show_diskicon = 1;
 int             graphical_startup = 1;
+static boolean  using_text_startup;
 
 // If true, startup has completed and the main game loop has started.
 
@@ -396,6 +403,7 @@ void D_BindVariables(void)
 
     M_ApplyPlatformDefaults();
 
+    I_BindInputVariables();
     I_BindVideoVariables();
     I_BindJoystickVariables();
     I_BindSoundVariables();
@@ -441,6 +449,7 @@ void D_BindVariables(void)
     M_BindIntVariable("vanilla_savegame_limit", &vanilla_savegame_limit);
     M_BindIntVariable("vanilla_demo_limit",     &vanilla_demo_limit);
     M_BindIntVariable("show_endoom",            &show_endoom);
+    M_BindIntVariable("show_diskicon",          &show_diskicon);
     M_BindIntVariable("graphical_startup",      &graphical_startup);
 
     M_BindStringVariable("back_flat",           &back_flat);
@@ -505,11 +514,13 @@ void D_DoomLoop (void)
 
     if (!showintro)
     {
-        I_SetWindowTitle(gamedescription);
         I_InitGraphics();
     }
 
-    I_EnableLoadingDisk();
+    if (show_diskicon)
+    {
+        V_EnableLoadingDisk("STDISK", SCREENWIDTH - LOADING_DISK_W, 3);
+    }
     I_SetGrabMouseCallback(D_GrabMouseCallback);
 
     V_RestoreBuffer();
@@ -828,49 +839,48 @@ void D_IdentifyVersion(void)
     // Load voices.wad 
     if(isregistered)
     {
-        char *name = D_FindWADByName("voices.wad");
+        char *name = NULL;
+        int p;
 
-        if(!name) // not found?
+        // If -iwad was used, check and see if voices.wad exists on the same
+        // filepath.
+        if((p = M_CheckParm("-iwad")) && p < myargc - 1)
         {
-            int p;
+            char   *iwad     = myargv[p + 1];
+            size_t  len      = strlen(iwad) + 1;
+            char   *iwadpath = Z_Malloc(len, PU_STATIC, NULL);
+            char   *voiceswad;
 
-            // haleyjd STRIFE-FIXME: Temporary?
-            // If -iwad was used, check and see if voices.wad exists on the
-            // same filepath.
-            if((p = M_CheckParm("-iwad")) && p < myargc - 1)
-            {
-                char   *iwad     = myargv[p + 1];
-                size_t  len      = strlen(iwad) + 1;
-                char   *iwadpath = Z_Malloc(len, PU_STATIC, NULL);
-                char   *voiceswad;
-                
-                // extract base path of IWAD parameter
-                M_GetFilePath(iwad, iwadpath, len);
-                
-                // concatenate with /voices.wad
-                voiceswad = M_SafeFilePath(iwadpath, "voices.wad");
-                Z_Free(iwadpath);
+            // extract base path of IWAD parameter
+            M_GetFilePath(iwad, iwadpath, len);
 
-                if(!M_FileExists(voiceswad))
-                {
-                    disable_voices = 1;
-                    Z_Free(voiceswad);
-                }
-                else
-                    name = voiceswad; // STRIFE-FIXME: memory leak!!
-            }
+            // concatenate with /voices.wad
+            voiceswad = M_SafeFilePath(iwadpath, "voices.wad");
+            Z_Free(iwadpath);
+
+            if(!M_FileExists(voiceswad))
+                Z_Free(voiceswad);
             else
-                disable_voices = 1;
+                name = voiceswad; // STRIFE-FIXME: memory leak!!
         }
 
-        if(disable_voices) // voices disabled?
+        // not found? try global search paths
+        if(!name)
+            name = D_FindWADByName("voices.wad");
+
+        // still not found? too bad.
+        if(!name)
         {
+            disable_voices = 1;
+
             if(devparm)
                  printf("Voices disabled\n");
-            return;
         }
-
-        D_AddFile(name);
+        else
+        {
+            // add it.
+            D_AddFile(name);
+        }
     }
 }
 
@@ -915,7 +925,27 @@ void D_SetGameDescription(void)
 }
 
 //      print title for every printed line
-char            title[128];
+static char title[128] = "";
+
+static void InitTitleString(void)
+{
+    switch (gameversion)
+    {
+    case exe_strife_1_2:
+        DEH_snprintf(title, sizeof(title), "                      "
+                                           "STRIFE:  Quest for the Sigil v1.2"
+                                           "                                  "
+                                           );
+        break;
+    case exe_strife_1_31:
+    default:
+        DEH_snprintf(title, sizeof(title), "                      "
+                                           "STRIFE:  Quest for the Sigil v1.31"
+                                           "                                 "
+                                           );
+        break;
+    }
+}
 
 static boolean D_AddFile(char *filename)
 {
@@ -1075,6 +1105,85 @@ static void D_Endoom(void)
     I_Endoom(endoom);
 }
 
+//
+// D_GetCursorColumn
+//
+static int D_GetCursorColumn(void)
+{
+    int x, y;
+    TXT_GetXY(&x, &y);
+    return x;
+}
+
+//
+// D_GetCursorRow
+//
+static int D_GetCursorRow(void)
+{
+    int x, y;
+    TXT_GetXY(&x, &y);
+    return y;
+}
+
+//
+// D_SetCursorPosition
+//
+static void D_SetCursorPosition(int column, int row)
+{
+    TXT_GotoXY(column, row);
+}
+
+//
+// D_SetChar
+//
+static void D_SetChar(char c)
+{
+    int x, y;
+    // Backup position
+    TXT_GetXY(&x, &y);
+    TXT_PutChar(c);
+    // Restore position
+    TXT_GotoXY(x, y);
+}
+
+//
+// D_DrawText
+//
+static void D_DrawText(char *string, int bc, int fc)
+{
+    int column;
+    int row;
+    int i;
+
+    if (!using_text_startup)
+    {
+        return;
+    }
+
+    // Set text color
+    TXT_BGColor(bc, 0);
+    TXT_FGColor(fc);
+
+    // Get column position
+    column = D_GetCursorColumn();
+
+    // Get row position
+    row = D_GetCursorRow();
+
+    for (i = 0; i < strlen(string); i++)
+    {
+        // Set character
+        D_SetChar(string[i]);
+
+        // Check cursor position
+        if (++column >= 80)
+            column = 0;
+
+        // Set postition
+        D_SetCursorPosition(column, row);
+    }
+}
+
 //=============================================================================
 //
 // haleyjd: Chocolate Strife Specifics
@@ -1162,11 +1271,20 @@ static void D_IntroBackground(void)
 
 static void D_InitIntroSequence(void)
 {
+    byte *textScreen;
+    char string[80];
+
+    if (devparm || !graphical_startup || testcontrols)
+    {
+        using_text_startup = false;
+        showintro = false;
+        return;
+    }
+
     if(showintro)
     {
         // In vanilla Strife, Mode 13h was initialized directly in D_DoomMain.
         // We have to be a little more courteous of the low-level code here.
-        I_SetWindowTitle(gamedescription);
         I_SetGrabMouseCallback(D_StartupGrabCallback);
         I_InitGraphics();
         V_RestoreBuffer(); // make the V_ routines work
@@ -1183,22 +1301,62 @@ static void D_InitIntroSequence(void)
 
         // Draw the background
         D_IntroBackground();
+
+        using_text_startup = false;
     }
-    /*
-    // STRIFE-FIXME: This was actually displayed on a special textmode
-    // screen with ANSI color codes... would require use of textlib to
-    // emulate properly...
     else
     {
-        puts(DEH_String("Conversation ON"));
-        puts(DEH_String("Rogue Entertainment"));
-        puts(DEH_String("and"));
-        puts(DEH_String("Velocity Games"));
-        puts(DEH_String("present"));
-        puts(DEH_String("S T R I F E"));
-        puts(DEH_String("Loading..."));
+        if (!TXT_Init())
+        {
+            using_text_startup = false;
+            return;
+        }
+
+        I_InitWindowTitle();
+        I_InitWindowIcon();
+
+        // Clear screen
+        textScreen = TXT_GetScreenData();
+        memset(textScreen, 0, 4000);
+
+        using_text_startup = true;
+
+        // Print title
+
+        D_SetCursorPosition(0, 0);
+        D_DrawText(title, TXT_COLOR_GREEN, TXT_COLOR_BLACK);
+
+        DEH_snprintf(string, sizeof(string), "Rogue Entertainment");
+        D_SetCursorPosition(40 - strlen(string) / 2, 5);
+        D_DrawText(string, TXT_COLOR_BLUE, TXT_COLOR_GREEN);
+
+        DEH_snprintf(string, sizeof(string), "and");
+        D_SetCursorPosition(40 - strlen(string) / 2, 7);
+        D_DrawText(string, TXT_COLOR_BLUE, TXT_COLOR_GREEN);
+
+        DEH_snprintf(string, sizeof(string), "Velocity Games");
+        D_SetCursorPosition(40 - strlen(string) / 2, 9);
+        D_DrawText(string, TXT_COLOR_BLUE, TXT_COLOR_GREEN);
+
+        DEH_snprintf(string, sizeof(string), "present");
+        D_SetCursorPosition(40 - strlen(string) / 2, 11);
+        D_DrawText(string, TXT_COLOR_BLUE, TXT_COLOR_GREEN);
+
+        DEH_snprintf(string, sizeof(string), "S T R I F E");
+        D_SetCursorPosition(40 - strlen(string) / 2, 14);
+        D_DrawText(string, TXT_COLOR_BLUE, TXT_COLOR_GREEN);
+
+        DEH_snprintf(string, sizeof(string), "Loading...");
+        D_SetCursorPosition(40 - strlen(string) / 2, 17);
+        D_DrawText(string, TXT_COLOR_BLUE, TXT_COLOR_GREEN);
+
+        DEH_snprintf(string, sizeof(string),
+                    "[                                                  ]");
+        D_SetCursorPosition(14, 18);
+        D_DrawText(string, TXT_COLOR_BLUE, TXT_COLOR_GREEN);
+
+        TXT_UpdateScreen();
     }
-    */
 }
 
 //
@@ -1211,41 +1369,62 @@ static void D_DrawIntroSequence(void)
 {
     int laserpos;
     int robotpos;
+    int i;
 
-    if(!showintro)
-        return;
+    if (showintro)
+    {
+        D_IntroBackground(); // haleyjd: refresh the background
 
-    D_IntroBackground(); // haleyjd: refresh the background
+        // Laser position
+        laserpos = (200 * introprogress / MAXINTROPROGRESS) + 60;
 
-    // Laser position
-    laserpos = (200 * introprogress / MAXINTROPROGRESS) + 60;
+        // BUG: (?) Due to this clip, the laser never even comes close to
+        // touching the peasant; confirmed with vanilla. This MAY have been
+        // intentional, for effect, however, since no death frames are shown 
+        // either... kind of a black-out death.
+        if (laserpos > 200)
+            laserpos = 200;
 
-    // BUG: (?) Due to this clip, the laser never even comes close to
-    // touching the peasant; confirmed with vanilla. This MAY have been
-    // intentional, for effect, however, since no death frames are shown 
-    // either... kind of a black-out death.
-    if(laserpos > 200)
-        laserpos = 200;
+        // Draw the laser
+        // Blitted 16 bytes for 16 rows starting at 705280 + laserpos
+        // (705280 - 0xA0000) / 320 == 156
+        V_DrawBlock(laserpos, 156, 16, 16, rawgfx_startlz[laserpos % 2]);
 
-    // Draw the laser
-    // Blitted 16 bytes for 16 rows starting at 705280 + laserpos
-    // (705280 - 0xA0000) / 320 == 156
-    V_DrawBlock(laserpos, 156, 16, 16, rawgfx_startlz[laserpos % 2]);
+        // Robot position
+        robotpos = laserpos % 5 - 2;
 
-    // Robot position
-    robotpos = laserpos % 5 - 2;
+        // Draw the robot
+        // Blitted 48 bytes for 48 rows starting at 699534 + (320*robotpos)
+        // 699534 - 0xA0000 == 44174, which % 320 == 14, / 320 == 138
+        V_DrawBlock(14, 138 + robotpos, 48, 48, rawgfx_startbot);
 
-    // Draw the robot
-    // Blitted 48 bytes for 48 rows starting at 699534 + (320*robotpos)
-    // 699534 - 0xA0000 == 44174, which % 320 == 14, / 320 == 138
-    V_DrawBlock(14, 138 + robotpos, 48, 48, rawgfx_startbot);
+        // Draw the peasant
+        // Blitted 32 bytes for 64 rows starting at 699142
+        // 699142 - 0xA0000 == 43782, which % 320 == 262, / 320 == 136
+        V_DrawBlock(262, 136, 32, 64, rawgfx_startp[laserpos % 4]);
 
-    // Draw the peasant
-    // Blitted 32 bytes for 64 rows starting at 699142
-    // 699142 - 0xA0000 == 43782, which % 320 == 262, / 320 == 136
-    V_DrawBlock(262, 136, 32, 64, rawgfx_startp[laserpos % 4]);
+        I_FinishUpdate();
+    }
+    else if (using_text_startup)
+    {
+        // Laser position
+        laserpos = 50 * introprogress / MAXINTROPROGRESS;
 
-    I_FinishUpdate();
+        if (laserpos > 50)
+        {
+            laserpos = 50;
+        }
+
+        for (i = 0; i < laserpos; i++)
+        {
+            D_SetCursorPosition(15 + i, 18);
+            D_DrawText("#", TXT_COLOR_GREEN, TXT_COLOR_BLUE);
+        }
+
+        I_Sleep(10);
+
+        TXT_UpdateScreen();
+    }
 }
 
 //
@@ -1534,11 +1713,6 @@ void D_DoomMain (void)
     D_BindVariables();
     M_LoadDefaults();
 
-    if (!graphical_startup)
-    {
-        showintro = false;
-    }
-
     // Save configuration at exit.
     I_AtExit(M_SaveDefaults, false);
 
@@ -1629,7 +1803,7 @@ void D_DoomMain (void)
 
         if (D_AddFile (file))
         {
-            M_StringCopy(demolumpname, lumpinfo[numlumps - 1].name,
+            M_StringCopy(demolumpname, lumpinfo[numlumps - 1]->name,
                          sizeof(demolumpname));
         }
         else
@@ -1652,7 +1826,9 @@ void D_DoomMain (void)
     
     D_IdentifyVersion();
     InitGameVersion();
+    InitTitleString();
     D_SetGameDescription();
+    I_SetWindowTitle(gamedescription);
     savegamedir = M_GetSaveGameDir("strife1.wad");
 
     // fraggle 20130405: I_InitTimer is needed here for the netgame
@@ -1978,6 +2154,11 @@ void D_DoomMain (void)
             G_InitNew (startskill, startmap);
         else
             D_StartTitle ();                // start up intro loop
+    }
+
+    if (using_text_startup)
+    {
+        TXT_Shutdown();
     }
 
     D_DoomLoop ();  // never returns

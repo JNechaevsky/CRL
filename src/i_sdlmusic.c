@@ -752,7 +752,7 @@ static void DumpSubstituteConfig(char *filename)
 
     for (lumpnum = 0; lumpnum < numlumps; ++lumpnum)
     {
-        strncpy(name, lumpinfo[lumpnum].name, 8);
+        strncpy(name, lumpinfo[lumpnum]->name, 8);
         name[8] = '\0';
 
         if (!IsMusicLump(lumpnum))
@@ -900,29 +900,8 @@ static boolean I_SDL_InitMusic(void)
 {
     int i;
 
-    // SDL_mixer prior to v1.2.11 has a bug that causes crashes
-    // with MIDI playback.  Print a warning message if we are
-    // using an old version.
-
-#ifdef __MACOSX__
-    {
-        const SDL_version *v = Mix_Linked_Version();
-
-        if (SDL_VERSIONNUM(v->major, v->minor, v->patch)
-          < SDL_VERSIONNUM(1, 2, 11))
-        {
-            printf("\n"
-               "                   *** WARNING ***\n"
-               "      You are using an old version of SDL_mixer.\n"
-               "      Music playback on this version may cause crashes\n"
-               "      under OS X and is disabled by default.\n"
-               "\n");
-        }
-    }
-#endif
-
     //!
-    // @arg <output filename>
+    // @arg <filename>
     //
     // Read all MIDI files from loaded WAD files, dump an example substitution
     // music config file to the specified filename and quit.

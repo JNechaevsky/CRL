@@ -1,4 +1,5 @@
 //
+// Copyright(C) 1993-1996 Id Software, Inc.
 // Copyright(C) 2005-2014 Simon Howard
 //
 // This program is free software; you can redistribute it and/or
@@ -11,26 +12,21 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
+// DESCRIPTION:
+//	Disk load indicator.
+//
 
-#ifndef LAUNCHER_IWADLOCATION_H
-#define LAUNCHER_IWADLOCATION_H
+#ifndef __V_DISKICON__
+#define __V_DISKICON__
 
-#include <AppKit/AppKit.h>
+// Dimensions of the flashing "loading" disk icon
 
-#include "IWADController.h"
+#define LOADING_DISK_W 16
+#define LOADING_DISK_H 16
 
-@interface IWADLocation : NSObject
-{
-    IWADController *iwadController;
+extern void V_EnableLoadingDisk(char *lump_name, int xoffs, int yoffs);
+extern void V_BeginRead(size_t nbytes);
+extern void V_DrawDiskIcon(void);
+extern void V_RestoreDiskBackground(void);
 
-    id locationConfigBox;
-}
-
-- (void) setButtonClicked: (id)sender;
-- (NSString *) getLocation;
-- (void) setLocation: (NSString *) value;
-
-@end
-
-#endif /* #ifndef LAUNCHER_IWADLOCATION_H */
-
+#endif

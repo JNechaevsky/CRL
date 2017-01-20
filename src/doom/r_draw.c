@@ -62,7 +62,7 @@ int		scaledviewwidth;
 int		viewheight;
 int		viewwindowx;
 int		viewwindowy; 
-byte*		ylookup[MAXHEIGHT]; 
+pixel_t*		ylookup[MAXHEIGHT];
 int		columnofs[MAXWIDTH]; 
 
 // Color tables for different players,
@@ -74,7 +74,7 @@ byte		translations[3][256];
 // Backing buffer containing the bezel drawn around the screen and 
 // surrounding background.
 
-static byte *background_buffer = NULL;
+static pixel_t *background_buffer = NULL;
 
 
 //
@@ -107,7 +107,7 @@ visplane_t* dc_visplaneused = NULL;
 void R_DrawColumn (void) 
 { 
     int			count; 
-    byte*		dest; 
+    pixel_t*		dest;
     fixed_t		frac;
     fixed_t		fracstep;	 
  
@@ -218,8 +218,8 @@ void R_DrawColumn (void)
 void R_DrawColumnLow (void) 
 { 
     int			count; 
-    byte*		dest; 
-    byte*		dest2;
+    pixel_t*		dest;
+    pixel_t*		dest2;
     fixed_t		frac;
     fixed_t		fracstep;	 
     int                 x;
@@ -301,7 +301,7 @@ int	fuzzpos = 0;
 void R_DrawFuzzColumn (void) 
 { 
     int			count; 
-    byte*		dest; 
+    pixel_t*		dest;
     fixed_t		frac;
     fixed_t		fracstep;	 
 
@@ -360,8 +360,8 @@ void R_DrawFuzzColumn (void)
 void R_DrawFuzzColumnLow (void) 
 { 
     int			count; 
-    byte*		dest; 
-    byte*		dest2; 
+    pixel_t*		dest;
+    pixel_t*		dest2;
     fixed_t		frac;
     fixed_t		fracstep;	 
     int x;
@@ -442,7 +442,7 @@ byte*	translationtables;
 void R_DrawTranslatedColumn (void) 
 { 
     int			count; 
-    byte*		dest; 
+    pixel_t*		dest;
     fixed_t		frac;
     fixed_t		fracstep;	 
  
@@ -486,8 +486,8 @@ void R_DrawTranslatedColumn (void)
 void R_DrawTranslatedColumnLow (void) 
 { 
     int			count; 
-    byte*		dest; 
-    byte*		dest2; 
+    pixel_t*		dest;
+    pixel_t*		dest2;
     fixed_t		frac;
     fixed_t		fracstep;	 
     int                 x;
@@ -608,7 +608,7 @@ int			dscount;
 void R_DrawSpan (void) 
 { 
     unsigned int position, step;
-    byte *dest;
+    pixel_t *dest;
     int count;
     int spot;
     unsigned int xtemp, ytemp;
@@ -671,7 +671,7 @@ void R_DrawSpan (void)
 
     byte*	source;
     byte*	colormap;
-    byte*	dest;
+    pixel_t*	dest;
     
     unsigned	count;
     usingned	spot; 
@@ -742,7 +742,7 @@ void R_DrawSpanLow (void)
 {
     unsigned int position, step;
     unsigned int xtemp, ytemp;
-    byte *dest;
+    pixel_t *dest;
     int count;
     int spot;
 
@@ -844,7 +844,7 @@ R_InitBuffer
 void R_FillBackScreen (void) 
 { 
     byte*	src;
-    byte*	dest; 
+    pixel_t*	dest;
     int		x;
     int		y; 
     patch_t*	patch;
@@ -875,7 +875,7 @@ void R_FillBackScreen (void)
 	
     if (background_buffer == NULL)
     {
-        background_buffer = Z_Malloc(SCREENWIDTH * (SCREENHEIGHT - SBARHEIGHT),
+        background_buffer = Z_Malloc(SCREENWIDTH * (SCREENHEIGHT - SBARHEIGHT) * sizeof(*background_buffer),
                                      PU_STATIC, NULL);
     }
 
@@ -960,7 +960,7 @@ R_VideoErase
 
     if (background_buffer != NULL)
     {
-        memcpy(I_VideoBuffer + ofs, background_buffer + ofs, count); 
+        memcpy(I_VideoBuffer + ofs, background_buffer + ofs, count * sizeof(*I_VideoBuffer));
     }
 } 
 

@@ -52,14 +52,13 @@ struct allocated_sound_s
     sfxinfo_t *sfxinfo;
     Mix_Chunk chunk;
     int use_count;
+    int pitch;
     allocated_sound_t *prev, *next;
 };
 
-static boolean setpanning_workaround = false;
-
 static boolean sound_initialized = false;
 
-static sfxinfo_t *channels_playing[NUM_CHANNELS];
+static allocated_sound_t *channels_playing[NUM_CHANNELS];
 
 static int mixer_freq;
 static Uint16 mixer_format;
@@ -136,10 +135,6 @@ static void FreeAllocatedSound(allocated_sound_t *snd)
 
     AllocatedSoundUnlink(snd);
 
-    // Unlink from higher-level code.
-
-    snd->sfxinfo->driver_data = NULL;
-
     // Keep track of the amount of allocated sound data:
 
     allocated_sounds_size -= snd->chunk.alen;
@@ -200,7 +195,7 @@ static void ReserveCacheSpace(size_t len)
 
 // Allocate a block for a new sound effect.
 
-static Mix_Chunk *AllocateSound(sfxinfo_t *sfxinfo, size_t len)
+static allocated_sound_t *AllocateSound(sfxinfo_t *sfxinfo, size_t len)
 {
     allocated_sound_t *snd;
 
@@ -231,13 +226,10 @@ static Mix_Chunk *AllocateSound(sfxinfo_t *sfxinfo, size_t len)
     snd->chunk.alen = len;
     snd->chunk.allocated = 1;
     snd->chunk.volume = MIX_MAX_VOLUME;
+    snd->pitch = NORM_PITCH;
 
     snd->sfxinfo = sfxinfo;
     snd->use_count = 0;
-
-    // driver_data pointer points to the allocated_sound structure.
-
-    sfxinfo->driver_data = snd;
 
     // Keep track of how much memory all these cached sounds are using...
 
@@ -245,7 +237,7 @@ static Mix_Chunk *AllocateSound(sfxinfo_t *sfxinfo, size_t len)
 
     AllocatedSoundLink(snd);
 
-    return &snd->chunk;
+    return snd;
 }
 
 // Lock a sound, to indicate that it may not be freed.
@@ -279,22 +271,93 @@ static void UnlockAllocatedSound(allocated_sound_t *snd)
     //printf("-- %s: Use count=%i\n", snd->sfxinfo->name, snd->use_count);
 }
 
-// When a sound stops, check if it is still playing.  If it is not, 
+// Search through the list of allocated sounds and return the one that matches
+// the supplied sfxinfo entry and pitch level.
+
+static allocated_sound_t * GetAllocatedSoundBySfxInfoAndPitch(sfxinfo_t *sfxinfo, int pitch)
+{
+    allocated_sound_t * p = allocated_sounds_head;
+
+    while (p != NULL)
+    {
+        if (p->sfxinfo == sfxinfo && p->pitch == pitch)
+        {
+            return p;
+        }
+        p = p->next;
+    }
+
+    return NULL;
+}
+
+// Allocate a new sound chunk and pitch-shift an existing sound up-or-down
+// into it.
+
+static allocated_sound_t * PitchShift(allocated_sound_t *insnd, int pitch)
+{
+    allocated_sound_t * outsnd;
+    Sint16 *inp, *outp;
+    Sint16 *srcbuf, *dstbuf;
+    Uint32 srclen, dstlen;
+
+    srcbuf = (Sint16 *)insnd->chunk.abuf;
+    srclen = insnd->chunk.alen;
+
+    // determine ratio pitch:NORM_PITCH and apply to srclen, then invert.
+    // This is an approximation of vanilla behaviour based on measurements
+    dstlen = (int)((1 + (1 - (float)pitch / NORM_PITCH)) * srclen);
+
+    // ensure that the new buffer is an even length
+    if ((dstlen % 2) == 0)
+    {
+        dstlen++;
+    }
+
+    outsnd = AllocateSound(insnd->sfxinfo, dstlen);
+
+    if (!outsnd)
+    {
+        return NULL;
+    }
+
+    outsnd->pitch = pitch;
+    dstbuf = (Sint16 *)outsnd->chunk.abuf;
+
+    // loop over output buffer. find corresponding input cell, copy over
+    for (outp = dstbuf; outp < dstbuf + dstlen/2; ++outp)
+    {
+        inp = srcbuf + (int)((float)(outp - dstbuf) / dstlen * srclen);
+        *outp = *inp;
+    }
+
+    return outsnd;
+}
+
+// When a sound stops, check if it is still playing.  If it is not,
 // we can mark the sound data as CACHE to be freed back for other
 // means.
 
 static void ReleaseSoundOnChannel(int channel)
 {
-    sfxinfo_t *sfxinfo = channels_playing[channel];
+    allocated_sound_t *snd = channels_playing[channel];
 
-    if (sfxinfo == NULL)
+    Mix_HaltChannel(channel);
+
+    if (snd == NULL)
     {
         return;
     }
 
     channels_playing[channel] = NULL;
 
-    UnlockAllocatedSound(sfxinfo->driver_data);
+    UnlockAllocatedSound(snd);
+
+    // if the sound is a pitch-shift and it's not in use, immediately
+    // free it
+    if (snd->pitch != NORM_PITCH && snd->use_count <= 0)
+    {
+        FreeAllocatedSound(snd);
+    }
 }
 
 #ifdef HAVE_LIBSAMPLERATE
@@ -339,14 +402,17 @@ static boolean ExpandSoundData_SRC(sfxinfo_t *sfxinfo,
                                    int length)
 {
     SRC_DATA src_data;
+    float *data_in;
     uint32_t i, abuf_index=0, clipped=0;
 //    uint32_t alen;
     int retn;
     int16_t *expanded;
+    allocated_sound_t *snd;
     Mix_Chunk *chunk;
 
     src_data.input_frames = length;
-    src_data.data_in = malloc(length * sizeof(float));
+    data_in = malloc(length * sizeof(float));
+    src_data.data_in = data_in;
     src_data.src_ratio = (double)mixer_freq / samplerate;
 
     // We include some extra space here in case of rounding-up.
@@ -362,7 +428,7 @@ static boolean ExpandSoundData_SRC(sfxinfo_t *sfxinfo,
         // Unclear whether 128 should be interpreted as "zero" or whether a
         // symmetrical range should be assumed.  The following assumes a
         // symmetrical range.
-        src_data.data_in[i] = data[i] / 127.5 - 1;
+        data_in[i] = data[i] / 127.5 - 1;
     }
 
     // Do the sound conversion
@@ -374,13 +440,14 @@ static boolean ExpandSoundData_SRC(sfxinfo_t *sfxinfo,
 
 //    alen = src_data.output_frames_gen * 4;
 
-    chunk = AllocateSound(sfxinfo, src_data.output_frames_gen * 4);
+    snd = AllocateSound(sfxinfo, src_data.output_frames_gen * 4);
 
-    if (chunk == NULL)
+    if (snd == NULL)
     {
         return false;
     }
 
+    chunk = &snd->chunk;
     expanded = (int16_t *) chunk->abuf;
 
     // Convert the result back into 16-bit integers.
@@ -430,7 +497,7 @@ static boolean ExpandSoundData_SRC(sfxinfo_t *sfxinfo,
         expanded[abuf_index++] = cvtval_i;
     }
 
-    free(src_data.data_in);
+    free(data_in);
     free(src_data.data_out);
 
     if (clipped > 0)
@@ -533,10 +600,11 @@ static boolean ExpandSoundData_SDL(sfxinfo_t *sfxinfo,
                                    int length)
 {
     SDL_AudioCVT convertor;
+    allocated_sound_t *snd;
     Mix_Chunk *chunk;
     uint32_t expanded_length;
- 
-    // Calculate the length of the expanded version of the sample.    
+
+    // Calculate the length of the expanded version of the sample.
 
     expanded_length = (uint32_t) ((((uint64_t) length) * mixer_freq) / samplerate);
 
@@ -546,12 +614,14 @@ static boolean ExpandSoundData_SDL(sfxinfo_t *sfxinfo,
 
     // Allocate a chunk in which to expand the sound
 
-    chunk = AllocateSound(sfxinfo, expanded_length);
+    snd = AllocateSound(sfxinfo, expanded_length);
 
-    if (chunk == NULL)
+    if (snd == NULL)
     {
         return false;
     }
+
+    chunk = &snd->chunk;
 
     // If we can, use the standard / optimized SDL conversion routines.
 
@@ -696,11 +766,12 @@ static boolean CacheSFX(sfxinfo_t *sfxinfo)
 #ifdef DEBUG_DUMP_WAVS
     {
         char filename[16];
+        allocated_sound_t * snd;
 
         M_snprintf(filename, sizeof(filename), "%s.wav",
-                   DEH_String(S_sfx[sound].name));
-        WriteWAV(filename, sound_chunks[sound].abuf,
-                 sound_chunks[sound].alen, mixer_freq);
+                   DEH_String(sfxinfo->name));
+        snd = GetAllocatedSoundBySfxInfoAndPitch(sfxinfo, NORM_PITCH);
+        WriteWAV(filename, snd->chunk.abuf, snd->chunk.alen,mixer_freq);
     }
 #endif
 
@@ -786,8 +857,7 @@ static void I_SDL_PrecacheSounds(sfxinfo_t *sounds, int num_sounds)
 static boolean LockSound(sfxinfo_t *sfxinfo)
 {
     // If the sound isn't loaded, load it now
-
-    if (sfxinfo->driver_data == NULL)
+    if (GetAllocatedSoundBySfxInfoAndPitch(sfxinfo, NORM_PITCH) == NULL)
     {
         if (!CacheSFX(sfxinfo))
         {
@@ -795,7 +865,7 @@ static boolean LockSound(sfxinfo_t *sfxinfo)
         }
     }
 
-    LockAllocatedSound(sfxinfo->driver_data);
+    LockAllocatedSound(GetAllocatedSoundBySfxInfoAndPitch(sfxinfo, NORM_PITCH));
 
     return true;
 }
@@ -831,16 +901,6 @@ static void I_SDL_UpdateSoundParams(int handle, int vol, int sep)
     if (right < 0) right = 0;
     else if (right > 255) right = 255;
 
-    // SDL_mixer version 1.2.8 and earlier has a bug in the Mix_SetPanning
-    // function.  A workaround is to call Mix_UnregisterAllEffects for
-    // the channel before calling it.  This is undesirable as it may lead
-    // to the channel volumes resetting briefly.
-
-    if (setpanning_workaround)
-    {
-        Mix_UnregisterAllEffects(handle);
-    }
-
     Mix_SetPanning(handle, left, right);
 }
 
@@ -857,7 +917,7 @@ static void I_SDL_UpdateSoundParams(int handle, int vol, int sep)
 //  is set, but currently not used by mixing.
 //
 
-static int I_SDL_StartSound(sfxinfo_t *sfxinfo, int channel, int vol, int sep)
+static int I_SDL_StartSound(sfxinfo_t *sfxinfo, int channel, int vol, int sep, int pitch)
 {
     allocated_sound_t *snd;
 
@@ -875,19 +935,47 @@ static int I_SDL_StartSound(sfxinfo_t *sfxinfo, int channel, int vol, int sep)
 
     if (!LockSound(sfxinfo))
     {
-	return -1;
+        return -1;
     }
 
-    snd = sfxinfo->driver_data;
+    snd = GetAllocatedSoundBySfxInfoAndPitch(sfxinfo, pitch);
+
+    if (snd == NULL)
+    {
+        allocated_sound_t *newsnd;
+        // fetch the base sound effect, un-pitch-shifted
+        snd = GetAllocatedSoundBySfxInfoAndPitch(sfxinfo, NORM_PITCH);
+
+        if (snd == NULL)
+        {
+            return -1;
+        }
+
+        if (snd_pitchshift)
+        {
+            newsnd = PitchShift(snd, pitch);
+
+            if (newsnd)
+            {
+                LockAllocatedSound(newsnd);
+                UnlockAllocatedSound(snd);
+                snd = newsnd;
+            }
+        }
+    }
+    else
+    {
+        LockAllocatedSound(snd);
+    }
 
     // play sound
 
-    Mix_PlayChannelTimed(channel, &snd->chunk, 0, -1);
+    Mix_PlayChannel(channel, &snd->chunk, 0);
 
-    channels_playing[channel] = sfxinfo;
+    channels_playing[channel] = snd;
 
     // set separation, etc.
- 
+
     I_SDL_UpdateSoundParams(channel, vol, sep);
 
     return channel;
@@ -899,8 +987,6 @@ static void I_SDL_StopSound(int handle)
     {
         return;
     }
-
-    Mix_HaltChannel(handle);
 
     // Sound data is no longer needed; release the
     // sound data being used for this channel
@@ -919,7 +1005,7 @@ static boolean I_SDL_SoundIsPlaying(int handle)
     return Mix_Playing(handle);
 }
 
-// 
+//
 // Periodically called to update the sound system
 //
 
@@ -935,14 +1021,14 @@ static void I_SDL_UpdateSound(void)
         {
             // Sound has finished playing on this channel,
             // but sound data has not been released to cache
-            
+
             ReleaseSoundOnChannel(i);
         }
     }
 }
 
 static void I_SDL_ShutdownSound(void)
-{    
+{
     if (!sound_initialized)
     {
         return;
@@ -1029,32 +1115,6 @@ static boolean I_SDL_InitSound(boolean _use_sfx_prefix)
                         use_libsamplerate);
     }
 #endif
-
-    // SDL_mixer version 1.2.8 and earlier has a bug in the Mix_SetPanning
-    // function that can cause the game to lock up.  If we're using an old
-    // version, we need to apply a workaround.  But the workaround has its
-    // own drawbacks ...
-
-    {
-        const SDL_version *mixer_version;
-        int v;
-
-        mixer_version = Mix_Linked_Version();
-        v = SDL_VERSIONNUM(mixer_version->major,
-                           mixer_version->minor,
-                           mixer_version->patch);
-
-        if (v <= SDL_VERSIONNUM(1, 2, 8))
-        {
-            setpanning_workaround = true;
-            fprintf(stderr, "\n"
-              "ATTENTION: You are using an old version of SDL_mixer!\n"
-              "           This version has a bug that may cause "
-                          "your sound to stutter.\n"
-              "           Please upgrade to a newer version!\n"
-              "\n");
-        }
-    }
 
     Mix_AllocateChannels(NUM_CHANNELS);
 

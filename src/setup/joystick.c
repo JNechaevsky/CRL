@@ -29,7 +29,7 @@
 #include "txt_joyaxis.h"
 #include "txt_joybinput.h"
 
-#define WINDOW_HELP_URL "http://www.chocolate-doom.org/setup-gamepad"
+#define WINDOW_HELP_URL "https://www.chocolate-doom.org/setup-gamepad"
 
 typedef struct
 {
@@ -52,8 +52,9 @@ static int joystick_initted = 0;
 
 static int usejoystick = 0;
 
-// Joystick to use, as an SDL joystick index:
+// GUID and index of joystick to use.
 
+char *joystick_guid = "";
 int joystick_index = -1;
 
 // Calibration button. This is the button the user pressed at the
@@ -81,7 +82,7 @@ static int joystick_strafe_invert = 0;
 
 // Virtual to physical mapping.
 int joystick_physical_buttons[NUM_VIRTUAL_BUTTONS] = {
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
 };
 
 static txt_button_t *joystick_button;
@@ -94,6 +95,7 @@ static txt_joystick_axis_t *y_axis_widget;
 
 static txt_window_t *calibration_window;
 static SDL_Joystick **all_joysticks = NULL;
+static int all_joysticks_len = 0;
 
 // Known controllers.
 // There are lots of game controllers on the market. Try to configure
@@ -125,22 +127,33 @@ static SDL_Joystick **all_joysticks = NULL;
 // Always loaded before others, to get a known starting configuration.
 static const joystick_config_t empty_defaults[] =
 {
-    {"joystick_x_axis",        -1},
-    {"joystick_x_invert",      0},
-    {"joystick_y_axis",        -1},
-    {"joystick_y_invert",      0},
-    {"joystick_strafe_axis",   -1},
-    {"joystick_strafe_invert", 0},
-    {"joyb_fire",              -1},
-    {"joyb_use",               -1},
-    {"joyb_strafe",            -1},
-    {"joyb_speed",             -1},
-    {"joyb_strafeleft",        -1},
-    {"joyb_straferight",       -1},
-    {"joyb_prevweapon",        -1},
-    {"joyb_nextweapon",        -1},
-    {"joyb_jump",              -1},
-    {"joyb_menu_activate",     -1},
+    {"joystick_x_axis",            -1},
+    {"joystick_x_invert",          0},
+    {"joystick_y_axis",            -1},
+    {"joystick_y_invert",          0},
+    {"joystick_strafe_axis",       -1},
+    {"joystick_strafe_invert",     0},
+    {"joyb_fire",                  -1},
+    {"joyb_use",                   -1},
+    {"joyb_strafe",                -1},
+    {"joyb_speed",                 -1},
+    {"joyb_strafeleft",            -1},
+    {"joyb_straferight",           -1},
+    {"joyb_prevweapon",            -1},
+    {"joyb_nextweapon",            -1},
+    {"joyb_jump",                  -1},
+    {"joyb_menu_activate",         -1},
+    {"joyb_toggle_automap",        -1},
+    {"joystick_physical_button0",  0},
+    {"joystick_physical_button1",  1},
+    {"joystick_physical_button2",  2},
+    {"joystick_physical_button3",  3},
+    {"joystick_physical_button4",  4},
+    {"joystick_physical_button5",  5},
+    {"joystick_physical_button6",  6},
+    {"joystick_physical_button7",  7},
+    {"joystick_physical_button8",  8},
+    {"joystick_physical_button9",  9},
     {NULL, 0},
 };
 
@@ -313,6 +326,38 @@ static const joystick_config_t pc_gameport_controller[] =
     {NULL, 0},
 };
 
+// http://www.8bitdo.com/nes30pro/
+static const joystick_config_t nes30_pro_controller[] =
+{
+    {"joystick_x_axis",        CREATE_HAT_AXIS(0, HAT_AXIS_HORIZONTAL)},
+    {"joystick_y_axis",        CREATE_HAT_AXIS(0, HAT_AXIS_VERTICAL)},
+    {"joyb_fire",              4},  // Y
+    {"joyb_speed",             1},  // B
+    {"joyb_jump",              2},  // X
+    {"joyb_use",               0},  // A
+    {"joyb_strafeleft",        8},  // L1
+    {"joyb_straferight",       9}, // R1
+    {"joyb_prevweapon",        6},  // L2
+    {"joyb_nextweapon",        7},  // R2
+    {"joyb_menu_activate",     11}, // Start
+    {NULL, 0},
+};
+
+// http://www.8bitdo.com/sfc30/ or http://www.8bitdo.com/snes30/
+static const joystick_config_t sfc30_controller[] =
+{
+    {"joystick_x_axis",        0},
+    {"joystick_y_axis",        1},
+    {"joyb_fire",              4}, // Y
+    {"joyb_speed",             1}, // B
+    {"joyb_jump",              3}, // X
+    {"joyb_use",               0}, // A
+    {"joyb_strafeleft",        6}, // L
+    {"joyb_straferight",       7}, // R
+    {"joyb_menu_activate",    11}, // Start
+    {"joyb_toggle_automap",   10}, // Select
+    {NULL, 0},
+};
 
 static const known_joystick_t known_joysticks[] =
 {
@@ -405,6 +450,52 @@ static const known_joystick_t known_joysticks[] =
         2, 8, 1,
         pc_gameport_controller,
     },
+
+    // 8Bitdo NES30 Pro, http://www.8bitdo.com/nes30pro/
+    // Probably some of their other controllers can use the same config.
+    {
+        "8Bitdo NES30 Pro",
+        4, 16, 1,
+        nes30_pro_controller,
+    },
+
+    // 8Bitdo SFC30 SNES replica controller
+    // in default mode and in controller mode (Start+R)
+    // the latter suffixes "Joystick" to the name
+    // http://www.8bitdo.com/sfc30/
+    {
+        "8Bitdo SFC30 GamePad*",
+        4, 16, 1,
+        sfc30_controller,
+    },
+
+    // As above, but as detected on RHEL Linux (odd extra axes)
+    {
+        "8Bitdo SFC30 GamePad*",
+        6, 16, 1,
+        sfc30_controller,
+    },
+
+    // SNES30 colour variation of the above
+    // http://www.8bitdo.com/snes30/
+    {
+        "8Bitdo SNES30 GamePad*",
+        4, 16, 1,
+        sfc30_controller,
+    },
+
+    // 8Bitdo SFC30 SNES replica controller in USB controller mode
+    // tested with firmware V2.68 (Beta); latest stable V2.65 doesn't work on
+    // OS X in USB controller mode
+    // Names seen so far:
+    //     'SFC30 Joystick' (OS X)
+    //     'SFC30              SFC30 Joystick' (Fedora 24; RHEL7)
+    // XXX: there is probably a SNES30 variant of this too
+    {
+        "SFC30 *",
+        4, 12, 1,
+        sfc30_controller,
+    },
 };
 
 static const known_joystick_t *GetJoystickType(int index)
@@ -415,7 +506,7 @@ static const known_joystick_t *GetJoystickType(int index)
     int i;
 
     joystick = all_joysticks[index];
-    name = SDL_JoystickName(index);
+    name = SDL_JoystickName(joystick);
     axes = SDL_JoystickNumAxes(joystick);
     buttons = SDL_JoystickNumButtons(joystick);
     hats = SDL_JoystickNumHats(joystick);
@@ -529,25 +620,71 @@ static void UnInitJoystick(void)
     }
 }
 
-// Set the label showing the name of the currently selected joystick
-
-static void SetJoystickButtonLabel(void)
+// We identify joysticks using GUID where possible, but joystick_index
+// is used to distinguish between different devices. As the index can
+// change, UpdateJoystickIndex() checks to see if it is still valid and
+// updates it as appropriate.
+static void UpdateJoystickIndex(void)
 {
-    char *name;
+    SDL_JoystickGUID guid, dev_guid;
+    int i;
 
-    InitJoystick();
+    guid = SDL_JoystickGetGUIDFromString(joystick_guid);
 
-    name = "None set";
-
-    if (joystick_initted
-     && joystick_index >= 0 && joystick_index < SDL_NumJoysticks())
+    // Is joystick_index already correct?
+    if (joystick_index >= 0 && joystick_index < SDL_NumJoysticks())
     {
-        name = (char *) SDL_JoystickName(joystick_index);
+        dev_guid = SDL_JoystickGetDeviceGUID(joystick_index);
+        if (!memcmp(&guid, &dev_guid, sizeof(SDL_JoystickGUID)))
+        {
+            return;
+        }
     }
 
-    TXT_SetButtonLabel(joystick_button, name);
+    // If index is not correct, look for the first device with the
+    // expected GUID. It may have moved to a different index.
+    for (i = 0; i < SDL_NumJoysticks(); ++i)
+    {
+        dev_guid = SDL_JoystickGetDeviceGUID(i);
+        if (!memcmp(&guid, &dev_guid, sizeof(SDL_JoystickGUID)))
+        {
+            joystick_index = i;
+            return;
+        }
+    }
 
-    UnInitJoystick();
+    // Not found; it's possible the device is disconnected. Do not
+    // reset joystick_guid or joystick_index in case they are
+    // reconnected later.
+}
+
+// Set the label showing the name of the currently selected joystick
+static void SetJoystickButtonLabel(void)
+{
+    SDL_JoystickGUID guid, dev_guid;
+    const char *name;
+
+    if (!usejoystick || !strcmp(joystick_guid, ""))
+    {
+        name = "None set";
+    }
+    else
+    {
+        name = "Not found (device disconnected?)";
+
+        // Use the device name if the GUID and index match.
+        if (joystick_index >= 0 && joystick_index < SDL_NumJoysticks())
+        {
+            guid = SDL_JoystickGetGUIDFromString(joystick_guid);
+            dev_guid = SDL_JoystickGetDeviceGUID(joystick_index);
+            if (!memcmp(&guid, &dev_guid, sizeof(SDL_JoystickGUID)))
+            {
+                name = SDL_JoystickNameForIndex(joystick_index);
+            }
+        }
+    }
+
+    TXT_SetButtonLabel(joystick_button, (char *) name);
 }
 
 // Try to open all joysticks visible to SDL.
@@ -555,20 +692,18 @@ static void SetJoystickButtonLabel(void)
 static int OpenAllJoysticks(void)
 {
     int i;
-    int num_joysticks;
     int result;
 
     InitJoystick();
 
     // SDL_JoystickOpen() all joysticks.
 
-    num_joysticks = SDL_NumJoysticks();
-
-    all_joysticks = malloc(sizeof(SDL_Joystick *) * num_joysticks);
+    all_joysticks_len = SDL_NumJoysticks();
+    all_joysticks = calloc(all_joysticks_len, sizeof(SDL_Joystick *));
 
     result = 0;
 
-    for (i = 0; i < num_joysticks; ++i)
+    for (i = 0; i < all_joysticks_len; ++i)
     {
         all_joysticks[i] = SDL_JoystickOpen(i);
 
@@ -600,11 +735,8 @@ static int OpenAllJoysticks(void)
 static void CloseAllJoysticks(void)
 {
     int i;
-    int num_joysticks;
 
-    num_joysticks = SDL_NumJoysticks();
-
-    for (i = 0; i < num_joysticks; ++i)
+    for (i = 0; i < all_joysticks_len; ++i)
     {
         if (all_joysticks[i] != NULL)
         {
@@ -625,9 +757,36 @@ static void CalibrateXAxis(void)
     TXT_ConfigureJoystickAxis(x_axis_widget, calibrate_button, NULL);
 }
 
+// Given the SDL_JoystickID instance ID from a button event, set the
+// joystick_guid and joystick_index config variables.
+static boolean SetJoystickGUID(SDL_JoystickID joy_id)
+{
+    SDL_JoystickGUID guid;
+    int i;
+
+    for (i = 0; i < all_joysticks_len; ++i)
+    {
+        if (SDL_JoystickInstanceID(all_joysticks[i]) == joy_id)
+        {
+            guid = SDL_JoystickGetGUID(all_joysticks[i]);
+            joystick_guid = malloc(33);
+            SDL_JoystickGetGUIDString(guid, joystick_guid, 33);
+            joystick_index = i;
+            return true;
+        }
+    }
+
+    return false;
+}
+
 static int CalibrationEventCallback(SDL_Event *event, void *user_data)
 {
     if (event->type != SDL_JOYBUTTONDOWN)
+    {
+        return 0;
+    }
+
+    if (!SetJoystickGUID(event->jbutton.which))
     {
         return 0;
     }
@@ -636,7 +795,6 @@ static int CalibrationEventCallback(SDL_Event *event, void *user_data)
     // In the first "center" stage, we're just trying to work out which
     // joystick is being configured and which button the user is pressing.
     usejoystick = 1;
-    joystick_index = event->jbutton.which;
     calibrate_button = event->jbutton.button;
 
     // If the joystick is a known one, auto-load default
@@ -673,9 +831,9 @@ static void NoJoystick(void)
 
 static void CalibrateWindowClosed(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(unused))
 {
-    CloseAllJoysticks();
     TXT_SDL_SetEventCallback(NULL, NULL);
     SetJoystickButtonLabel();
+    CloseAllJoysticks();
 }
 
 static void CalibrateJoystick(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(unused))
@@ -716,70 +874,76 @@ static void CalibrateJoystick(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(unused))
 // GUI
 //
 
-static void AddJoystickControl(txt_table_t *table, char *label, int *var)
+static void AddJoystickControl(TXT_UNCAST_ARG(table), char *label, int *var)
 {
+    TXT_CAST_ARG(txt_table_t, table);
     txt_joystick_input_t *joy_input;
 
     joy_input = TXT_NewJoystickInput(var);
 
-    TXT_AddWidget(table, TXT_NewLabel(label));
-    TXT_AddWidget(table, joy_input);
+    TXT_AddWidgets(table,
+                   TXT_NewLabel(label),
+                   joy_input,
+                   TXT_TABLE_EMPTY,
+                   NULL);
 }
 
 void ConfigJoystick(void)
 {
     txt_window_t *window;
-    txt_table_t *button_table, *axis_table;
-    txt_table_t *joystick_table;
 
     window = TXT_NewWindow("Gamepad/Joystick configuration");
-
+    TXT_SetTableColumns(window, 6);
+    TXT_SetColumnWidths(window, 18, 10, 1, 15, 10, 0);
     TXT_SetWindowHelpURL(window, WINDOW_HELP_URL);
 
     TXT_AddWidgets(window,
-                   joystick_table = TXT_NewTable(2),
-                   TXT_NewSeparator("Axes"),
-                   axis_table = TXT_NewTable(2),
-                   TXT_NewSeparator("Buttons"),
-                   button_table = TXT_NewTable(4),
-                   NULL);
-
-    TXT_SetColumnWidths(joystick_table, 13, 40);
-
-    TXT_AddWidgets(joystick_table,
                    TXT_NewLabel("Controller"),
                    joystick_button = TXT_NewButton("zzzz"),
-                   NULL);
+                   TXT_TABLE_EOL,
 
-    TXT_SetColumnWidths(axis_table, 20, 15);
-
-    TXT_AddWidgets(axis_table,
+                   TXT_NewSeparator("Axes"),
                    TXT_NewLabel("Forward/backward"),
                    y_axis_widget = TXT_NewJoystickAxis(&joystick_y_axis,
                                                        &joystick_y_invert,
                                                        JOYSTICK_AXIS_VERTICAL),
+                   TXT_TABLE_OVERFLOW_RIGHT,
+                   TXT_TABLE_OVERFLOW_RIGHT,
+                   TXT_TABLE_EMPTY,
+                   TXT_TABLE_EMPTY,
+
                    TXT_NewLabel("Turn left/right"),
-                   x_axis_widget = TXT_NewJoystickAxis(&joystick_x_axis,
-                                                       &joystick_x_invert,
-                                                       JOYSTICK_AXIS_HORIZONTAL),
+                   x_axis_widget =
+                        TXT_NewJoystickAxis(&joystick_x_axis,
+                                            &joystick_x_invert,
+                                            JOYSTICK_AXIS_HORIZONTAL),
+                   TXT_TABLE_OVERFLOW_RIGHT,
+                   TXT_TABLE_OVERFLOW_RIGHT,
+                   TXT_TABLE_EMPTY,
+                   TXT_TABLE_EMPTY,
+
                    TXT_NewLabel("Strafe left/right"),
                    TXT_NewJoystickAxis(&joystick_strafe_axis,
                                        &joystick_strafe_invert,
                                         JOYSTICK_AXIS_HORIZONTAL),
+                   TXT_TABLE_OVERFLOW_RIGHT,
+                   TXT_TABLE_OVERFLOW_RIGHT,
+                   TXT_TABLE_EMPTY,
+                   TXT_TABLE_EMPTY,
+
+                   TXT_NewSeparator("Buttons"),
                    NULL);
 
-    TXT_SetColumnWidths(button_table, 16, 12, 14, 11);
+    AddJoystickControl(window, "Fire/Attack", &joybfire);
+    AddJoystickControl(window, "Strafe Left", &joybstrafeleft);
 
-    AddJoystickControl(button_table, "Fire/Attack", &joybfire);
-    AddJoystickControl(button_table, "Strafe Left", &joybstrafeleft);
+    AddJoystickControl(window, "Use", &joybuse);
+    AddJoystickControl(window, "Strafe Right", &joybstraferight);
 
-    AddJoystickControl(button_table, "Use", &joybuse);
-    AddJoystickControl(button_table, "Strafe Right", &joybstraferight);
+    AddJoystickControl(window, "Previous weapon", &joybprevweapon);
+    AddJoystickControl(window, "Strafe", &joybstrafe);
 
-    AddJoystickControl(button_table, "Previous weapon", &joybprevweapon);
-    AddJoystickControl(button_table, "Strafe", &joybstrafe);
-
-    AddJoystickControl(button_table, "Next weapon", &joybnextweapon);
+    AddJoystickControl(window, "Next weapon", &joybnextweapon);
 
     // High values of joybspeed are used to activate the "always run mode"
     // trick in Vanilla Doom.  If this has been enabled, not only is the
@@ -787,20 +951,25 @@ void ConfigJoystick(void)
 
     if (joybspeed < 20)
     {
-        AddJoystickControl(button_table, "Speed", &joybspeed);
+        AddJoystickControl(window, "Speed", &joybspeed);
     }
 
     if (gamemission == hexen || gamemission == strife)
     {
-        AddJoystickControl(button_table, "Jump", &joybjump);
+        AddJoystickControl(window, "Jump", &joybjump);
     }
 
-    AddJoystickControl(button_table, "Activate menu", &joybmenu);
+    AddJoystickControl(window, "Activate menu", &joybmenu);
+
+    AddJoystickControl(window, "Toggle Automap", &joybautomap);
 
     TXT_SignalConnect(joystick_button, "pressed", CalibrateJoystick, NULL);
     TXT_SetWindowAction(window, TXT_HORIZ_CENTER, TestConfigAction());
 
+    InitJoystick();
+    UpdateJoystickIndex();
     SetJoystickButtonLabel();
+    UnInitJoystick();
 }
 
 void BindJoystickVariables(void)
@@ -808,6 +977,7 @@ void BindJoystickVariables(void)
     int i;
 
     M_BindIntVariable("use_joystick",           &usejoystick);
+    M_BindStringVariable("joystick_guid",       &joystick_guid);
     M_BindIntVariable("joystick_index",         &joystick_index);
     M_BindIntVariable("joystick_x_axis",        &joystick_x_axis);
     M_BindIntVariable("joystick_y_axis",        &joystick_y_axis);

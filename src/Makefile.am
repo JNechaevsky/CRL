@@ -1,7 +1,7 @@
 
 SUBDIRS = doom heretic hexen strife setup
 
-execgamesdir = ${exec_prefix}/games
+execgamesdir = ${bindir}
 
 execgames_PROGRAMS = @PROGRAM_PREFIX@doom     \
                      @PROGRAM_PREFIX@heretic  \
@@ -64,8 +64,8 @@ d_mode.c             d_mode.h              \
 deh_str.c            deh_str.h             \
 i_cdmus.c            i_cdmus.h             \
 i_endoom.c           i_endoom.h            \
+i_input.c            i_input.h             \
 i_joystick.c         i_joystick.h          \
-i_scale.c            i_scale.h             \
                      i_swap.h              \
 i_sound.c            i_sound.h             \
 i_timer.c            i_timer.h             \
@@ -79,6 +79,7 @@ m_fixed.c            m_fixed.h             \
 sha1.c               sha1.h                \
 memio.c              memio.h               \
 tables.c             tables.h              \
+v_diskicon.c         v_diskicon.h          \
 v_video.c            v_video.h             \
                      v_patch.h             \
 w_checksum.c         w_checksum.h          \
@@ -186,7 +187,7 @@ endif
 @PROGRAM_PREFIX@strife_LDADD = strife/libstrife.a $(EXTRA_LIBS)
 
 $(SETUP_BINARIES): @PROGRAM_PREFIX@setup$(EXEEXT)
-	cp $< $@
+	cp @PROGRAM_PREFIX@setup$(EXEEXT) $@
 
 # Source files needed for chocolate-setup:
 
@@ -271,14 +272,16 @@ CLEANFILES = $(execgames_SCRIPTS) $(app_DATA) $(screensaver_DATA)
 
 if HAVE_PYTHON
 
-icon.c : $(top_builddir)/data/doom8.ico
-	$(top_builddir)/data/convert-icon $< $@
+icon.c : $(top_builddir)/data/doom.png
+	$(top_builddir)/data/convert-icon $(top_builddir)/data/doom.png $@
 
 endif
 
 midiread : midifile.c
-	$(CC) -DTEST $(CFLAGS) @LDFLAGS@ $< -o $@
+	$(CC) -DTEST $(CFLAGS) @LDFLAGS@ midifile.c -o $@
 
-mus2mid : mus2mid.c memio.c z_native.c i_system.c m_argv.c m_misc.c
-	$(CC) -DSTANDALONE -I$(top_builddir) $(CFLAGS) @LDFLAGS@ $^ -o $@
+MUS2MID_SRC_FILES = mus2mid.c memio.c z_native.c i_system.c m_argv.c m_misc.c
+mus2mid : $(MUS2MID_SRC_FILES)
+	$(CC) -DSTANDALONE -I$(top_builddir) $(CFLAGS) @LDFLAGS@ \
+              $(MUS2MID_SRC_FILES) -o $@
 

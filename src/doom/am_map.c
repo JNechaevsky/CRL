@@ -32,6 +32,7 @@
 #include "m_controls.h"
 #include "m_misc.h"
 #include "i_system.h"
+#include "i_timer.h"
 
 // Needs access to LFB.
 #include "v_video.h"
@@ -103,8 +104,8 @@
 #define M_ZOOMOUT       ((int) (FRACUNIT/1.02))
 
 // translates between frame-buffer and map distances
-#define FTOM(x) FixedMul(((x)<<16),scale_ftom)
-#define MTOF(x) (FixedMul((x),scale_mtof)>>16)
+#define FTOM(x) FixedMul(((x)<<FRACBITS),scale_ftom)
+#define MTOF(x) (FixedMul((x),scale_mtof)>>FRACBITS)
 // translates between frame-buffer and map coordinates
 #define CXMTOF(x)  (f_x + MTOF((x)-m_x))
 #define CYMTOF(y)  (f_y + (f_h - MTOF((y)-m_y)))
@@ -204,7 +205,7 @@ static int 	leveljuststarted = 1; 	// kluge until AM_LevelInit() is called
 
 int    	automapactive = false;
 static int 	finit_width = SCREENWIDTH;
-static int 	finit_height = SCREENHEIGHT - 32;
+static int 	finit_height = SCREENHEIGHT - ST_HEIGHT;
 
 // location of window on screen
 static int 	f_x;
@@ -215,7 +216,7 @@ static int 	f_w;
 static int	f_h;
 
 static int 	lightlev; 		// used for funky strobing effect
-static byte*	fb; 			// pseudo-frame buffer
+static pixel_t*	fb; 			// pseudo-frame buffer
 static int 	amclock;
 
 static mpoint_t m_paninc; // how far the window pans each tic (map coords)
@@ -603,10 +604,31 @@ AM_Responder
 
     int rc;
     static int bigstate=0;
+    static int joywait = 0;
     static char buffer[20];
     int key;
 
     rc = false;
+
+    if (ev->type == ev_joystick && joybautomap >= 0
+        && (ev->data1 & (1 << joybautomap)) != 0 && joywait < I_GetTime())
+    {
+        joywait = I_GetTime() + 5;
+
+        if (!automapactive)
+        {
+            AM_Start ();
+            viewactive = false;
+        }
+        else
+        {
+            bigstate = 0;
+            viewactive = true;
+            AM_Stop ();
+        }
+
+        return true;
+    }
 
     if (!automapactive)
     {
@@ -707,11 +729,12 @@ AM_Responder
             rc = false;
         }
 
-	if (!deathmatch && cht_CheckCheat(&cheat_amap, ev->data2))
-	{
-	    rc = false;
-	    cheating = (cheating+1) % 3;
-	}
+        if ((!deathmatch || gameversion <= exe_doom_1_8)
+         && cht_CheckCheat(&cheat_amap, ev->data2))
+        {
+            rc = false;
+            cheating = (cheating + 1) % 3;
+        }
     }
     else if (ev->type == ev_keyup)
     {
@@ -843,7 +866,7 @@ void AM_Ticker (void)
 //
 void AM_clearFB(int color)
 {
-    memset(fb, color, f_w*f_h);
+    memset(fb, color, f_w*f_h*sizeof(*fb));
 }
 
 

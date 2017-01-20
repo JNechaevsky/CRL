@@ -1083,8 +1083,8 @@ P_AimLineAttack
     shootz = t1->z + (t1->height>>1) + 8*FRACUNIT;
 
     // can't shoot outside view angles
-    topslope = 100*FRACUNIT/160;	
-    bottomslope = -100*FRACUNIT/160;
+    topslope = (SCREENHEIGHT/2)*FRACUNIT/(SCREENWIDTH/2);	
+    bottomslope = -(SCREENHEIGHT/2)*FRACUNIT/(SCREENWIDTH/2);
     
     attackrange = distance;
     linetarget = NULL;
@@ -1351,8 +1351,8 @@ boolean PIT_ChangeSector (mobj_t*	thing)
 			  thing->y,
 			  thing->z + thing->height/2, MT_BLOOD);
 	
-	mo->momx = (P_Random() - P_Random ())<<12;
-	mo->momy = (P_Random() - P_Random ())<<12;
+	mo->momx = P_SubRandom() << 12;
+	mo->momy = P_SubRandom() << 12;
     }
 
     // keep checking (crush other things)	
