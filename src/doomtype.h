@@ -60,10 +60,6 @@
 #endif
 
 #else
-#define PACKEDATTR __attribute__((packed,gcc_struct))
-#endif
-
-#else
 #define PACKEDATTR
 #endif
 
