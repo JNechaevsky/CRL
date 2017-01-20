@@ -756,347 +756,6 @@ void I_SetPalette (byte *doompalette)
     palette_to_set = true;
 }
 
-// Given an RGB value, find the closest matching palette index.
-
-int I_GetPaletteIndex(int r, int g, int b)
-{
-    int best, best_diff, diff;
-    int i;
-
-    best = 0; best_diff = INT_MAX;
-
-    for (i = 0; i < 256; ++i)
-    {
-        diff = (r - palette[i].r) * (r - palette[i].r)
-             + (g - palette[i].g) * (g - palette[i].g)
-             + (b - palette[i].b) * (b - palette[i].b);
-
-        if (diff < best_diff)
-        {
-            best = i;
-            best_diff = diff;
-        }
-
-        if (diff == 0)
-        {
-            break;
-        }
-    }
-
-    return best;
-}
-
-// 
-// Set the window title
-//
-
-void I_SetWindowTitle(char *title)
-{
-    window_title = title;
-}
-
-//
-// Call the SDL function to set the window title, based on 
-// the title set with I_SetWindowTitle.
-//
-
-void I_InitWindowTitle(void)
-{
-    char *buf;
-
-    buf = M_StringJoin(window_title, " - ", PACKAGE_STRING, NULL);
-    SDL_WM_SetCaption(buf, NULL);
-    free(buf);
-}
-
-// Set the application icon
-
-void I_InitWindowIcon(void)
-{
-    SDL_Surface *surface;
-    Uint8 *mask;
-    int i;
-
-    // Generate the mask
-
-    mask = malloc(icon_w * icon_h / 8);
-    memset(mask, 0, icon_w * icon_h / 8);
-
-    for (i=0; i<icon_w * icon_h; ++i)
-    {
-        if (icon_data[i * 3] != 0x00
-         || icon_data[i * 3 + 1] != 0x00
-         || icon_data[i * 3 + 2] != 0x00)
-        {
-            mask[i / 8] |= 1 << (7 - i % 8);
-        }
-    }
-
-    surface = SDL_CreateRGBSurfaceFrom(icon_data,
-                                       icon_w,
-                                       icon_h,
-                                       24,
-                                       icon_w * 3,
-                                       0xff << 0,
-                                       0xff << 8,
-                                       0xff << 16,
-                                       0);
-
-    SDL_WM_SetIcon(surface, mask);
-    SDL_FreeSurface(surface);
-    free(mask);
-}
-
-// Pick the modes list to use:
-
-static void GetScreenModes(screen_mode_t ***modes_list, int *num_modes)
-{
-    if (aspect_ratio_correct)
-    {
-        *modes_list = screen_modes_corrected;
-        *num_modes = arrlen(screen_modes_corrected);
-    }
-    else
-    {
-        *modes_list = screen_modes;
-        *num_modes = arrlen(screen_modes);
-    }
-}
-
-// Find which screen_mode_t to use for the given width and height.
-
-static screen_mode_t *I_FindScreenMode(int w, int h)
-{
-    screen_mode_t **modes_list;
-    screen_mode_t *best_mode;
-    int modes_list_length;
-    int num_pixels;
-    int best_num_pixels;
-    int i;
-
-    // Special case: 320x200 and 640x400 are available even if aspect 
-    // ratio correction is turned on.  These modes have non-square
-    // pixels.
-
-    if (fullscreen)
-    {
-        if (w == SCREENWIDTH && h == SCREENHEIGHT)
-        {
-            return &mode_scale_1x;
-        }
-        else if (w == SCREENWIDTH*2 && h == SCREENHEIGHT*2)
-        {
-            return &mode_scale_2x;
-        }
-    }
-
-    GetScreenModes(&modes_list, &modes_list_length);
-
-    // Find the biggest screen_mode_t in the list that fits within these 
-    // dimensions
-
-    best_mode = NULL;
-    best_num_pixels = 0;
-
-    for (i=0; i<modes_list_length; ++i) 
-    {
-        // Will this fit within the dimensions? If not, ignore.
-
-        if (modes_list[i]->width > w || modes_list[i]->height > h)
-        {
-            continue;
-        }
-
-        num_pixels = modes_list[i]->width * modes_list[i]->height;
-
-        if (num_pixels > best_num_pixels)
-        {
-            // This is a better mode than the current one
-
-            best_mode = modes_list[i];
-            best_num_pixels = num_pixels;
-        }
-    }
-
-    return best_mode;
-}
-
-// Adjust to an appropriate fullscreen mode.
-// Returns true if successful.
-
-static boolean AutoAdjustFullscreen(void)
-{
-    SDL_Rect **modes;
-    SDL_Rect *best_mode;
-    screen_mode_t *screen_mode;
-    int diff, best_diff;
-    int i;
-    
-    // GhostlyDeath -- Never fullscreen in brute mode, force failure
-    if (CRLBruteForce)
-    	return false;
-
-    modes = SDL_ListModes(NULL, SDL_FULLSCREEN);
-
-    // No fullscreen modes available at all?
-
-    if (modes == NULL || modes == (SDL_Rect **) -1 || *modes == NULL)
-    {
-        return false;
-    }
-
-    // Find the best mode that matches the mode specified in the
-    // configuration file
-
-    best_mode = NULL;
-    best_diff = INT_MAX;
-
-    for (i=0; modes[i] != NULL; ++i)
-    {
-        //printf("%ix%i?\n", modes[i]->w, modes[i]->h);
-
-        // What screen_mode_t would be used for this video mode?
-
-        screen_mode = I_FindScreenMode(modes[i]->w, modes[i]->h);
-
-        // Never choose a screen mode that we cannot run in, or
-        // is poor quality for fullscreen
-
-        if (screen_mode == NULL || screen_mode->poor_quality)
-        {
-        //    printf("\tUnsupported / poor quality\n");
-            continue;
-        }
-
-        // Do we have the exact mode?
-        // If so, no autoadjust needed
-
-        if (screen_width == modes[i]->w && screen_height == modes[i]->h)
-        {
-        //    printf("\tExact mode!\n");
-            return true;
-        }
-
-        // Is this mode better than the current mode?
-
-        diff = (screen_width - modes[i]->w) * (screen_width - modes[i]->w)
-             + (screen_height - modes[i]->h) * (screen_height - modes[i]->h);
-
-        if (diff < best_diff)
-        {
-        //    printf("\tA valid mode\n");
-            best_mode = modes[i];
-            best_diff = diff;
-        }
-    }
-
-    if (best_mode == NULL)
-    {
-        // Unable to find a valid mode!
-
-        return false;
-    }
-
-    printf("I_InitGraphics: %ix%i mode not supported on this machine.\n",
-           screen_width, screen_height);
-
-    screen_width = best_mode->w;
-    screen_height = best_mode->h;
-
-    return true;
-}
-
-// Auto-adjust to a valid windowed mode.
-
-static void AutoAdjustWindowed(void)
-{
-    screen_mode_t *best_mode;
-
-    // Find a screen_mode_t to fit within the current settings
-
-    best_mode = I_FindScreenMode(screen_width, screen_height);
-
-    if (best_mode == NULL)
-    {
-        // Nothing fits within the current settings.
-        // Pick the closest to 320x200 possible.
-
-        best_mode = I_FindScreenMode(SCREENWIDTH, SCREENHEIGHT_4_3);
-    }
-
-    // Switch to the best mode if necessary.
-
-    if (best_mode->width != screen_width || best_mode->height != screen_height)
-    {
-        printf("I_InitGraphics: Cannot run at specified mode: %ix%i\n",
-               screen_width, screen_height);
-
-        palette[i].r = gammatable[usegamma][*doompalette++] & ~3;
-        palette[i].g = gammatable[usegamma][*doompalette++] & ~3;
-        palette[i].b = gammatable[usegamma][*doompalette++] & ~3;
-    }
-
-    palette_to_set = true;
-}
-
-// Given an RGB value, find the closest matching palette index.
-
-int I_GetPaletteIndex(int r, int g, int b)
-{
-    int best, best_diff, diff;
-    int i;
-
-    best = 0; best_diff = INT_MAX;
-
-    for (i = 0; i < 256; ++i)
-    {
-        diff = (r - palette[i].r) * (r - palette[i].r)
-             + (g - palette[i].g) * (g - palette[i].g)
-             + (b - palette[i].b) * (b - palette[i].b);
-
-        if (diff < best_diff)
-        {
-            best = i;
-            best_diff = diff;
-        }
-    }
-
-	// Never fullscreen when brute forcing
-	if (CRLBruteForce)
-		flags = 0;
-	
-    else if (fullscreen && !CRLBruteForce)
-    {
-        flags = SDL_FULLSCREEN;
-    }
-    else
-    {
-        flags = 0;
-    }
-
-    format.BitsPerPixel = screen_bpp;
-    format.BytesPerPixel = (screen_bpp + 7) / 8;
-
-    // Are any screen modes supported at the configured color depth?
-
-    modes = SDL_ListModes(&format, flags);
-
-    // If not, we must autoadjust to something sensible.
-
-    if (modes == NULL)
-    {
-        printf("I_InitGraphics: %ibpp color depth not supported.\n",
-               screen_bpp);
-
-        if (diff == 0)
-        {
-            break;
-        }
-    }
-
-    return best;
-}
-
 // 
 // Set the window title
 //
@@ -1118,6 +777,31 @@ void I_InitWindowTitle(void)
     buf = M_StringJoin(window_title, " - ", PACKAGE_STRING, NULL);
     SDL_SetWindowTitle(screen, buf);
     free(buf);
+}
+
+// Given an RGB value, find the closest matching palette index.
+
+int I_GetPaletteIndex(int r, int g, int b)
+{
+    int best, best_diff, diff;
+    int i, flags;
+
+    best = 0; best_diff = INT_MAX;
+
+    for (i = 0; i < 256; ++i)
+    {
+        diff = (r - palette[i].r) * (r - palette[i].r)
+             + (g - palette[i].g) * (g - palette[i].g)
+             + (b - palette[i].b) * (b - palette[i].b);
+
+        if (diff < best_diff)
+        {
+            best = i;
+            best_diff = diff;
+        }
+    }
+    
+    return best;
 }
 
 // Set the application icon
