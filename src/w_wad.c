@@ -181,11 +181,11 @@ wad_file_t *W_AddFile (char *filename)
 
          // Vanilla Doom doesn't like WADs with more than 4046 lumps
          // https://www.doomworld.com/vb/post/1010985
+         // RestlessRodent -- Just warn
          if (!strncmp(header.identification,"PWAD",4) && header.numlumps > 4046)
          {
-                 W_CloseFile(wad_file);
-                 I_Error ("Error: Vanilla limit for lumps in a WAD is 4046, "
-                          "PWAD %s has %d", filename, header.numlumps);
+                 printf("Warning: Vanilla limit for lumps in a WAD is 4046, "
+                          "PWAD %s has %d\n", filename, header.numlumps);
          }
 
 	header.infotableofs = LONG(header.infotableofs);
