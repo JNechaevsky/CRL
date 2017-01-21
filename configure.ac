@@ -1,11 +1,11 @@
-AC_INIT(Chocorenderlimits, 2.3.1, ghostlydeath@remood.org, chocorenderlimits)
+AC_INIT(Chocorenderlimits, 2.999.0, ghostlydeath@remood.org, chocorenderlimits)
 
 PACKAGE_SHORTNAME=${PACKAGE_NAME% Doom}
 PACKAGE_SHORTDESC="Conformity enforcing source port"
 PACKAGE_COPYRIGHT="Copyright (C) 1993-2017"
 PACKAGE_LICENSE="GNU General Public License, version 2"
-PACKAGE_MAINTAINER="GhostlyDeath"
-PACKAGE_URL="http://remood.org/"
+PACKAGE_MAINTAINER="RestlessRodent"
+PACKAGE_URL="https://github.com/RestlessRodent/ChocoRenderLimits"
 PACKAGE_ISSUES="mailto:ghostlydeath@remood.org"
 
 AC_CONFIG_AUX_DIR(autotools)
