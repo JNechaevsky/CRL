@@ -45,6 +45,7 @@ typedef struct
 #include "fonts/small.h"
 #include "fonts/normal.h"
 #include "fonts/large.h"
+#include "fonts/codepage.h"
 
 // Time between character blinks in ms
 
@@ -72,6 +73,7 @@ static const txt_font_t *font;
 // normal_font otherwise.
 static const txt_font_t highdpi_font = { "normal-highdpi", NULL, 8, 16 };
 
+static const short code_page_to_unicode[] = CODE_PAGE_TO_UNICODE;
 static const int scancode_translate_table[] = SCANCODE_TO_KEYS_ARRAY;
 
 //#define TANGO
@@ -715,30 +717,59 @@ int TXT_GetModifierState(txt_modifier_t mod)
     }
 }
 
+int TXT_UnicodeCharacter(unsigned int c)
+{
+    unsigned int i;
+
+    // Check the code page mapping to see if this character maps
+    // to anything.
+
+    for (i = 0; i < arrlen(code_page_to_unicode); ++i)
+    {
+        if (code_page_to_unicode[i] == c)
+        {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+// Returns true if the given UTF8 key name is printable to the screen.
+static int PrintableName(const char *s)
+{
+    const char *p;
+    unsigned int c;
+
+    p = s;
+    while (*p != '\0')
+    {
+        c = TXT_DecodeUTF8(&p);
+        if (TXT_UnicodeCharacter(c) < 0)
+        {
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+static const struct {
+    int key;
+    const char *name;
+} key_names[] = KEY_NAMES_ARRAY;
+
 static const char *NameForKey(int key)
 {
+    const char *result;
     int i;
 
+    // Overrides purely for aesthetical reasons, so that default
+    // window accelerator keys match those of setup.exe.
     switch (key)
     {
-        // A few keys which are not in the scancodes table:
-        case KEY_RSHIFT:      return "SHIFT";
-        case KEY_RCTRL:       return "CTRL";
-        case KEY_RALT:        return "ALT";
-
-        // Keys where we want to use specific strings to look more
-        // like setup.exe:
-        case KEY_CAPSLOCK:    return "CAPS";
-        case KEY_BACKSPACE:   return "BKSP";
-        case KEY_ESCAPE:      return "ESC";
-        case KEY_ENTER:       return "ENTER";
-        case KEY_SCRLCK:      return "SCRLCK";
-        case KEY_PGUP:        return "PGUP";
-        case KEY_PGDN:        return "PGDN";
-        case KEY_INS:         return "INS";
-        case KEY_DEL:         return "DEL";
-        case KEY_PRTSCR:      return "PRTSC";
-
+        case KEY_ESCAPE: return "ESC";
+        case KEY_ENTER:  return "ENTER";
         default:
             break;
     }
@@ -750,7 +781,23 @@ static const char *NameForKey(int key)
     {
         if (scancode_translate_table[i] == key)
         {
-            return SDL_GetKeyName(SDL_GetKeyFromScancode(i));
+            result = SDL_GetKeyName(SDL_GetKeyFromScancode(i));
+            if (TXT_UTF8_Strlen(result) > 6 || !PrintableName(result))
+            {
+                break;
+            }
+            return result;
+        }
+    }
+
+    // Use US English fallback names, if the localized name is too long,
+    // not found in the scancode table, or contains unprintable chars
+    // (non-extended ASCII character set):
+    for (i = 0; i < arrlen(key_names); ++i)
+    {
+        if (key_names[i].key == key)
+        {
+            return key_names[i].name;
         }
     }
 

@@ -147,15 +147,15 @@ static void TXT_InputBoxDrawer(TXT_UNCAST_ARG(inputbox))
 
     if (TXT_UTF8_Strlen(inputbox->buffer) > w - 1)
     {
-        TXT_DrawString("\xae");
-        TXT_DrawUTF8String(
+        TXT_DrawCodePageString("\xae");
+        TXT_DrawString(
             TXT_UTF8_SkipChars(inputbox->buffer,
                                TXT_UTF8_Strlen(inputbox->buffer) - w + 2));
         chars = w - 1;
     }
     else
     {
-        TXT_DrawUTF8String(inputbox->buffer);
+        TXT_DrawString(inputbox->buffer);
         chars = TXT_UTF8_Strlen(inputbox->buffer);
     }
 
@@ -253,7 +253,7 @@ static int TXT_InputBoxKeyPress(TXT_UNCAST_ARG(inputbox), int key)
     // Add character to the buffer, but only if it's a printable character
     // that we can represent on the screen.
     if (isprint(c)
-     || (c >= 128 && TXT_CanDrawCharacter(c)))
+     || (c >= 128 && TXT_UnicodeCharacter(c) >= 0))
     {
         AddCharacter(inputbox, c);
     }
