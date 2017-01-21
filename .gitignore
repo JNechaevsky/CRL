@@ -19,9 +19,20 @@ stamp-h
 stamp-h.in
 stamp-h1
 tags
+src/chocorenderlimits-doom
+src/chocorenderlimits-doom-setup
+src/chocorenderlimits-heretic
+src/chocorenderlimits-heretic-setup
+src/chocorenderlimits-hexen
+src/chocorenderlimits-hexen-setup
+src/chocorenderlimits-server
+src/chocorenderlimits-setup
+src/chocorenderlimits-strife
+src/chocorenderlimits-strife-setup
 \#*\#
 
 # These are the default patterns globally ignored by Subversion:
+*.pcx
 *.o
 *.lo
 *.la
