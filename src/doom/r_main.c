@@ -833,6 +833,9 @@ void R_SetupFrame (player_t* player)
 
     viewz = player->viewz;
     
+    // Just report it
+    CRL_ReportPosition(viewx, viewy, viewz, viewangle);
+    
     viewsin = finesine[viewangle>>ANGLETOFINESHIFT];
     viewcos = finecosine[viewangle>>ANGLETOFINESHIFT];
 	
@@ -909,6 +912,10 @@ void R_RenderPlayerView (player_t* player)
 		// No errors, set jump to negative for OK
 		js = -1;
 	}
+	
+	// Overflowed, report it
+	else
+		CRL_OutputReport();
 	
 	// End of frame
 	CRL_ChangeFrame(js);

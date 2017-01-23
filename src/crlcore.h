@@ -142,6 +142,9 @@ enum
 	/** Almost unlimited. */
 	CRL_VISLIMIT_VERYHIGH,
 	
+	/** 1/4 the max visplanes. */
+	CRL_VISLIMIT_QUARTER,
+	
 	/** Count. */
 	NUM_CRL_MAXVISPLANES,
 };
@@ -217,8 +220,20 @@ typedef struct CRLPlaneData_s
 	/** Identifying line. */
 	void* emitline;
 	
+	/** The ID of the line. */
+	int emitlineid;
+	
 	/** Identifying subsector. */
 	void* emitsub;
+	
+	/** The ID of the subsector. */
+	int emitsubid;
+	
+	/** The emitting sector. */
+	void* emitsect;
+	
+	/** The ID of the sector (of the subsector). */
+	int emitsectid;
 	
 	/** Is on floor. */
 	int onfloor;
@@ -283,6 +298,8 @@ extern int CRLBruteForce;
 /*****************************************************************************/
 
 void CRL_Init(int* __colorset, int __numcolors, int __pllim);
+void CRL_ReportPosition(fixed_t x, fixed_t y, fixed_t z, uint32_t angle);
+void CRL_OutputReport(void);
 void CRL_SetColors(uint8_t* colors);
 void CRL_ChangeFrame(int __err);
 void CRL_CountPlane(void* __key, int __chorf, int __id);

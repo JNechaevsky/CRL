@@ -12,7 +12,7 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include <stdlib.h>
+#include <stdio.h>
 
 #include "crlcore.h"
 
@@ -92,6 +92,9 @@ CRL_Value_t CRLVisplaneLimitSet[] =
 	},
 	{
 		"4096 (CRL)"
+	},
+	{
+		"32 (Quarter)"
 	}
 };
 
@@ -422,6 +425,12 @@ static int _pulsestage;
 #define HOMQUAD (HOMCOUNT / 4)
 static int _homtable[HOMCOUNT];
 
+/** Camera position and orientation. */
+static fixed_t _campos[3];
+static uint32_t _camang;
+
+static FILE* _crllogfile;
+
 /** Brute force? The value here is the precision. */
 int CRLBruteForce = 0;
 
@@ -459,6 +468,75 @@ void CRL_Init(int* __colorset, int __numcolors, int __pllim)
 		// Note it
 		printf("Enabled brute force with granularity: %d\n", CRLBruteForce);
 	}
+}
+
+/**
+ * Reports the position of the camera.
+ *
+ * @param x The x position.
+ * @param y The y position.
+ * @param z The z position.
+ * @param angle The angle used.
+ */
+void CRL_ReportPosition(fixed_t x, fixed_t y, fixed_t z, uint32_t angle)
+{
+	_campos[0] = x;
+	_campos[1] = y;
+	_campos[2] = z;
+	_camang = angle;
+}
+
+/**
+ * Prints report.
+ */
+extern int gametic;
+void CRL_OutputReport(void)
+{
+	int i;
+	CRLPlaneData_t plane;
+	
+#define FTOD(x) (((double)(x)) / 65536.0)
+#define ANGLE1 0x00b60b60
+	// Need to open file?
+	if (_crllogfile == NULL)
+		_crllogfile = fopen("logcrl.txt", "w+t");
+	
+	// Well, you cannot always be a winner
+	if (_crllogfile == NULL)
+		return;
+	
+	// Print report header
+	fprintf(_crllogfile, "Report gt=%d\n", (int)gametic);
+	
+	// Position
+	fprintf(_crllogfile, "\tX x=%08x f=%g\n", (int)_campos[0], FTOD(_campos[0]));
+	fprintf(_crllogfile, "\tY x=%08x f=%g\n", (int)_campos[1], FTOD(_campos[1]));
+	fprintf(_crllogfile, "\tZ x=%08x f=%g\n", (int)_campos[2], FTOD(_campos[2]));
+	fprintf(_crllogfile, "\tA x=%08x f=%g\n", (int)_camang, ((double)_camang / (double)ANGLE1));
+	
+	// Print visplane information
+	fprintf(_crllogfile, "\tVISCOUNT num=%d chk=%d fnd=%d\n",
+		(int)_numplanes,
+		(int)CRLData.numcheckplanes,
+		(int)CRLData.numfindplanes);
+	for (i = 0; i < _numplanes; i++)
+	{
+		// Load plane info
+		memset(&plane, 0, sizeof(plane));
+		GAME_IdentifyPlane(_planelist[i], &plane);
+		
+		// Print visplane information
+		fprintf(_crllogfile, "\tVISPLANE num=%d id=%d type=%s seg=%d ssub=%d sect=%d what=%c\n",
+			i,
+			(int)plane.id,
+			(plane.isf ? "FND" : "CHK"),
+			(int)plane.emitlineid,
+			(int)plane.emitsubid,
+			(int)plane.emitsectid,
+			(plane.onfloor ? 'F' : 'C'));
+	}
+#undef FTOD
+#undef ANGLE1
 }
 
 /**
@@ -895,6 +973,8 @@ int CRL_MaxVisPlanes(void)
 {
 	if (CRLOptionSet[CRL_MAXVISPLANES].curvalue == CRL_VISLIMIT_VANILLA)
 		return 128;
+	else if (CRLOptionSet[CRL_MAXVISPLANES].curvalue == CRL_VISLIMIT_QUARTER)
+		return 32;
 	return 4096;
 }
 
