@@ -64,6 +64,9 @@ enum
 	/** Automap mode. */
 	CRL_MAPMODE,
 	
+	/** Spectating? */
+	CRL_SPECTATE,
+	
 	/** Number of options used. */
 	NUM_CRL_OPTIONS
 };
@@ -165,6 +168,21 @@ enum
 	
 	/** Count. */
 	NUM_CRL_MAP
+};
+
+/**
+ * Spectate options.
+ */
+enum
+{
+	/** Do not spectate. */
+	CRL_SPECTATE_OFF,
+	
+	/** Do spectate. */
+	CRL_SPECTATE_ON,
+	
+	/** Count. */
+	NUM_CRL_SPECTATE
 };
 
 /**
@@ -310,6 +328,10 @@ void CRL_DrawVisPlanes();
 void CRL_ViewDrawer();
 void CRL_DrawMap(void (*__fl)(int, int, int, int, int),
 	void (*__ml)(int, int, int, int, int));
+
+int CRL_IsSpectating(void);
+void CRL_ImpulseCamera(int32_t fwm, int32_t swm, uint32_t at);
+void CRL_GetCameraPos(int32_t* x, int32_t* y, int32_t* z, uint32_t* a);
 
 int CRL_MaxVisPlanes(void);
 

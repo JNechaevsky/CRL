@@ -15,12 +15,10 @@
 #include <stdio.h>
 
 #include "crlcore.h"
-
 #include "z_zone.h"
-
 #include "v_video.h"
-
 #include "m_argv.h"
+#include "tables.h"
 
 /** Backup. */
 jmp_buf CRLJustIncaseBuf;
@@ -115,6 +113,19 @@ CRL_Value_t CRLMapSet[] =
 };
 
 /**
+ * Spectate mode.
+ */
+CRL_Value_t CRLSpectate[] =
+{
+	{
+		"Off",
+	},
+	{
+		"On",
+	},
+};
+
+/**
  * CRL Option menu and their values.
  */
 CRL_Option_t CRLOptionSet[NUM_CRL_OPTIONS] =
@@ -152,6 +163,13 @@ CRL_Option_t CRLOptionSet[NUM_CRL_OPTIONS] =
 		"Automap Mode",
 		NUM_CRL_MAP,
 		CRLMapSet
+	},
+	
+	/** Spectate. */
+	{
+		"Spectating",
+		NUM_CRL_SPECTATE,
+		CRLSpectate
 	},
 };
 
@@ -961,6 +979,58 @@ void CRL_CountPlane(void* __key, int __chorf, int __id)
 	// Add to global list
 	if (_numplanes < MAXCOUNTPLANES)
 		_planelist[_numplanes++] = __key;
+}
+
+/**
+ * Is spectating happening?
+ *
+ * @return {@code 1} if spectating is being done.
+ * @since 2017/01/23
+ */
+int CRL_IsSpectating(void)
+{
+	if (CRLOptionSet[CRL_SPECTATE].curvalue == CRL_SPECTATE_ON)
+		return 1;
+	return 0;
+}
+
+/**
+ * Impulses the camera.
+ *
+ * @param fwm Forward movement.
+ * @param swm Sideways movement.
+ * @param at Angle turning.
+ */
+void CRL_ImpulseCamera(int32_t fwm, int32_t swm, uint32_t at)
+{
+	// Do nothing if not spectating
+	if (!CRL_IsSpectating())
+		return;
+	
+	// Rotate camera first
+	_camang += at << FRACBITS;
+	
+	// Needed for math
+    at = _camang >> ANGLETOFINESHIFT;
+  	
+  	// Forward movement
+    _campos[0] += FixedMul(fwm * 32768, finecosine[at]); 
+    _campos[1] += FixedMul(fwm * 32768, finesine[at]);
+    
+    // Sideways movement
+    _campos[0] += FixedMul(swm * 32768, finecosine[at - ANG90]); 
+    _campos[1] += FixedMul(swm * 32768, finesine[at - ANG90]);
+}
+
+/**
+ * Returns the camera position.
+ */
+void CRL_GetCameraPos(int32_t* x, int32_t* y, int32_t* z, uint32_t* a)
+{
+	*x = _campos[0];
+	*y = _campos[1];
+	*z = _campos[2];
+	*a = _camang;
 }
 
 /**

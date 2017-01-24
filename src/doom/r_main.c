@@ -824,14 +824,30 @@ R_PointInSubsector
 void R_SetupFrame (player_t* player)
 {		
     int		i;
+    int32_t bx, by, bz;
+    uint32_t ba;
     
     viewplayer = player;
-    viewx = player->mo->x;
-    viewy = player->mo->y;
-    viewangle = player->mo->angle + viewangleoffset;
+    
+    if (CRL_IsSpectating())
+    {
+    	// Get camera position
+    	CRL_GetCameraPos(&bx, &by, &bz, &ba);
+		viewx = bx;
+		viewy = by;
+   	    viewz = bz;
+		viewangle = ba;
+    }
+    else
+    {
+		viewx = player->mo->x;
+		viewy = player->mo->y;
+   	    viewz = player->viewz;
+		viewangle = player->mo->angle + viewangleoffset;
+	}
+    
     extralight = player->extralight;
 
-    viewz = player->viewz;
     
     // Just report it
     CRL_ReportPosition(viewx, viewy, viewz, viewangle);

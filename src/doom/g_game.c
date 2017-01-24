@@ -69,7 +69,7 @@
 #include "r_data.h"
 #include "r_sky.h"
 
-
+#include "crlcore.h"
 
 #include "g_game.h"
 
@@ -329,12 +329,20 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
     int		tspeed; 
     int		forward;
     int		side;
+    ticcmd_t spect;
+    ticcmd_t* altcmd;
 
     memset(cmd, 0, sizeof(ticcmd_t));
 
-    cmd->consistancy = 
-	consistancy[consoleplayer][maketic%BACKUPTICS]; 
- 
+	// needed for net games
+    cmd->consistancy = consistancy[consoleplayer][maketic%BACKUPTICS]; 
+ 	
+ 	// If spectating then the player loses all input
+ 	memmove(&spect, cmd, sizeof(spect));
+	altcmd = cmd;
+ 	if (CRL_IsSpectating())
+ 		cmd = &spect;
+ 	
     strafe = gamekeydown[key_strafe] || mousebuttons[mousebstrafe] 
 	|| joybuttons[joybstrafe]; 
 
@@ -595,6 +603,10 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
 
         carry = desired_angleturn - cmd->angleturn;
     }
+    
+    // If spectating, send the movement commands instead
+    if (CRL_IsSpectating())
+    	CRL_ImpulseCamera(cmd->forwardmove, cmd->sidemove, cmd->angleturn); 
 } 
  
 

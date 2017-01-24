@@ -741,6 +741,10 @@ void R_DrawPlayerSprites (void)
     int		lightnum;
     pspdef_t*	psp;
     
+    // Do not draw player gun sprite if spectating
+    if (CRL_IsSpectating())
+    	return;
+    
     // get light level
     lightnum =
 	(viewplayer->mo->subsector->sector->lightlevel >> LIGHTSEGSHIFT) 
