@@ -105,9 +105,13 @@ void GAME_IdentifyPlane(void* __what, CRLPlaneData_t* __info)
 	
 	__info->emitline = pl->emitline;
 	__info->emitlineid = pl->emitline - segs;
+	if (__info->emitlineid < 0 || __info->emitlineid >= numsegs)
+		__info->emitlineid = -1;
 	
 	__info->emitsub = pl->emitsub;
 	__info->emitsubid = pl->emitsub - subsectors;
+	if (__info->emitsubid < 0 || __info->emitsubid >= numsubsectors)
+		__info->emitsubid = -1;
 	
 	__info->emitsect = NULL;
 	__info->emitsectid = 0;
@@ -115,6 +119,8 @@ void GAME_IdentifyPlane(void* __what, CRLPlaneData_t* __info)
 	{
 		__info->emitsect = pl->emitsub->sector;
 		__info->emitsectid = pl->emitsub->sector - sectors;
+		if (__info->emitsectid < 0 || __info->emitsectid >= numsectors)
+			__info->emitsectid = -1;
 	}
 	
 	__info->onfloor = pl->height < viewz;
