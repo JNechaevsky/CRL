@@ -951,6 +951,13 @@ void ST_Ticker (void)
 
 static int st_palette = 0;
 
+void ST_ReloadPalette(void)
+{
+    byte*	pal;
+	pal = (byte *) W_CacheLumpNum (lu_palette, PU_CACHE)+st_palette*768;
+	I_SetPalette (pal);
+}
+
 void ST_doPaletteStuff(void)
 {
 

@@ -2133,6 +2133,8 @@ void M_CRLDrawMenu(void)
 	}
 }
 
+void ST_ReloadPalette(void);
+
 /**
  * Acts on a menu item, 0 is left and 1 is right.
  *
@@ -2164,6 +2166,10 @@ void M_CRLMenuAct(int __c)
 	else
 	{
 	}
+	
+	// RestlessRodent -- Redo palette for colorblindnes
+	if (itemOn == CRL_COLORBLIND)
+		ST_ReloadPalette();
 }
 
 /**

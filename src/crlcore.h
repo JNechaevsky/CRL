@@ -67,6 +67,9 @@ enum
 	/** Spectating? */
 	CRL_SPECTATE,
 	
+	/** Colorblindness. */
+	CRL_COLORBLIND,
+	
 	/** Number of options used. */
 	NUM_CRL_OPTIONS
 };
@@ -183,6 +186,27 @@ enum
 	
 	/** Count. */
 	NUM_CRL_SPECTATE
+};
+
+/**
+ * Colorblind options.
+ */
+enum
+{
+	/** None. */
+	CRL_COLORBLIND_NONE,
+	
+	/** Red/Green. */
+	CRL_COLORBLIND_RED_GREEN,
+	
+	/** Blue/Yellow. */
+	CRL_COLORBLIND_GREEN_BLUE,
+	
+	/** Monochrome. */
+	CRL_COLORBLIND_MONOCHROME,
+	
+	/** Count. */
+	NUM_CRL_COLORBLIND
 };
 
 /**
@@ -318,7 +342,7 @@ extern int CRLBruteForce;
 void CRL_Init(int* __colorset, int __numcolors, int __pllim);
 void CRL_ReportPosition(fixed_t x, fixed_t y, fixed_t z, uint32_t angle);
 void CRL_OutputReport(void);
-void CRL_SetColors(uint8_t* colors);
+void CRL_SetColors(uint8_t* colors, void* ref);
 void CRL_ChangeFrame(int __err);
 void CRL_CountPlane(void* __key, int __chorf, int __id);
 void CRL_StatDrawer(void (*__dt)(int, int, const char*),
@@ -338,6 +362,7 @@ int CRL_MaxVisPlanes(void);
 void CRL_DrawHOMBack(int __x, int __y, int __w, int __h);
 
 void CRL_BruteForceLoop(void);
+
 
 CRLRect_t CRL_MapSize(void);
 

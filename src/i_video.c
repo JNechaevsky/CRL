@@ -740,17 +740,23 @@ void I_ReadScreen (pixel_t* scr)
 void I_SetPalette (byte *doompalette)
 {
     int i;
+    byte palcopy[768];
+    byte* usepal;
     
-    CRL_SetColors(doompalette);
+    // RR -- Make a copy since it the lump is cached, which in this case the
+    // colorblindness needs to be set
+    memmove(palcopy, doompalette, sizeof(palcopy));
+    usepal = palcopy;
+    CRL_SetColors(palcopy, doompalette);
 
     for (i=0; i<256; ++i)
     {
         // Zero out the bottom two bits of each channel - the PC VGA
         // controller only supports 6 bits of accuracy.
 
-        palette[i].r = gammatable[usegamma][*doompalette++] & ~3;
-        palette[i].g = gammatable[usegamma][*doompalette++] & ~3;
-        palette[i].b = gammatable[usegamma][*doompalette++] & ~3;
+        palette[i].r = gammatable[usegamma][*usepal++] & ~3;
+        palette[i].g = gammatable[usegamma][*usepal++] & ~3;
+        palette[i].b = gammatable[usegamma][*usepal++] & ~3;
     }
 
     palette_to_set = true;

@@ -126,6 +126,25 @@ CRL_Value_t CRLSpectate[] =
 };
 
 /**
+ * Colorblindness.
+ */
+CRL_Value_t CRLColorblind[] =
+{
+	{
+		"None",
+	},
+	{
+		"Red/Green",
+	},
+	{
+		"Green/Blue",
+	},
+	{
+		"Monochrome",
+	},
+};
+
+/**
  * CRL Option menu and their values.
  */
 CRL_Option_t CRLOptionSet[NUM_CRL_OPTIONS] =
@@ -170,6 +189,13 @@ CRL_Option_t CRLOptionSet[NUM_CRL_OPTIONS] =
 		"Spectating",
 		NUM_CRL_SPECTATE,
 		CRLSpectate
+	},
+	
+	/** Colorblind. */
+	{
+		"Colorblind",
+		NUM_CRL_COLORBLIND,
+		CRLColorblind
 	},
 };
 
@@ -557,23 +583,95 @@ void CRL_OutputReport(void)
 #undef ANGLE1
 }
 
+static void CRL_AdjustRedGreen(byte* r, byte* g, byte* b)
+{
+	int x = (*r + *g) / 2;
+	
+	*r = x;
+	*g = x;
+}
+
+static void CRL_AdjustGreenBlue(byte* r, byte* g, byte* b)
+{
+	int x = (*g + *b) / 2;
+	
+	*g = x;
+	*b = x;
+}
+
+static void CRL_AdjustMonochrome(byte* r, byte* g, byte* b)
+{
+	V_ColorEntry_t rgb, hsv;
+	
+	// Convert to HSV
+	rgb.RGB.R = *r;
+	rgb.RGB.G = *g;
+	rgb.RGB.B = *b;
+	hsv = V_RGBtoHSV(rgb);
+	
+	// Use value
+	*r = hsv.HSV.V;
+	*g = hsv.HSV.V;
+	*b = hsv.HSV.V;
+}
+
 /**
  * Sets the game colors.
  *
  * @param __colors Colors to use, RGB.
  */
-void CRL_SetColors(uint8_t* colors)
+void CRL_SetColors(uint8_t* colors, void* ref)
 {
+	static int lastcolorblind = -1;
+	static void* oldref = NULL;
+	
 	int i, j, darksplit, idx, hueoff, count, mi, bb, k;
+	int nowcolorblind;
 	int qr, qg, qb;
 	uint8_t* x;
 	V_ColorEntry_t vc;
+	void (*adjustcolor)(byte* r, byte* g, byte* b);
 	
-	// Only if no colors were set
-	if (!_didcolors)
+	// Current color blindness used
+	nowcolorblind = CRLOptionSet[CRL_COLORBLIND].curvalue;
+	
+	// Only if no colors were set or colorblindness changed
+	if (!_didcolors || (lastcolorblind != nowcolorblind) || (ref != oldref) ||
+		nowcolorblind >= 1)
 	{
 		// Do no more
 		_didcolors = 1;
+		lastcolorblind = nowcolorblind;
+		oldref = ref;
+		
+		// Colorblind simulation, modify colors
+		adjustcolor = NULL;
+		switch (nowcolorblind)
+		{
+				// Red/green
+			case CRL_COLORBLIND_RED_GREEN:
+				adjustcolor = CRL_AdjustRedGreen;
+				break;
+			
+				// Green/Blue
+			case CRL_COLORBLIND_GREEN_BLUE:
+				adjustcolor = CRL_AdjustGreenBlue;
+				break;
+				
+				// Monochrome
+			case CRL_COLORBLIND_MONOCHROME:
+				adjustcolor = CRL_AdjustMonochrome;
+				break;
+			
+				// Do not touch
+			default:
+				break;
+		}
+		
+		// Adjust
+		if (adjustcolor != NULL)
+			for (int i = 0; i < 768; i += 3)
+				adjustcolor(&colors[i], &colors[i + 1], &colors[i + 2]);
 		
 		// go through them all
 		x = colors;
