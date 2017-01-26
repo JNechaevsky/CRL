@@ -62,6 +62,7 @@ static int show_talk = 0;
 static int use_libsamplerate = 0;
 static float libsamplerate_scale = 0.65;
 
+static char *music_pack_path = NULL;
 static char *timidity_cfg_path = NULL;
 static char *gus_patch_path = NULL;
 static int gus_ram_kb = 1024;
@@ -162,30 +163,31 @@ void ConfigSound(void)
 
         TXT_NewRadioButton("GUS (emulated)", &snd_musicdevice, SNDDEVICE_GUS),
         TXT_NewConditional(&snd_musicdevice, SNDDEVICE_GUS,
-            TXT_NewHorizBox(
+            TXT_MakeTable(2,
                 TXT_NewStrut(4, 0),
                 TXT_NewLabel("Path to patch files: "),
-                NULL)),
-        TXT_NewConditional(&snd_musicdevice, SNDDEVICE_GUS,
-            TXT_NewHorizBox(
                 TXT_NewStrut(4, 0),
                 TXT_NewFileSelector(&gus_patch_path, 34,
-                                    "Select path to GUS patches",
+                                    "Select directory containing GUS patches",
                                     TXT_DIRECTORY),
                 NULL)),
 
         TXT_NewRadioButton("Native MIDI", &snd_musicdevice, SNDDEVICE_GENMIDI),
         TXT_NewConditional(&snd_musicdevice, SNDDEVICE_GENMIDI,
-            TXT_NewHorizBox(
+            TXT_MakeTable(2,
                 TXT_NewStrut(4, 0),
                 TXT_NewLabel("Timidity configuration file: "),
-                NULL)),
-        TXT_NewConditional(&snd_musicdevice, SNDDEVICE_GENMIDI,
-            TXT_NewHorizBox(
                 TXT_NewStrut(4, 0),
                 TXT_NewFileSelector(&timidity_cfg_path, 34,
                                     "Select Timidity config file",
                                     cfg_extension),
+                TXT_NewStrut(4, 0),
+                TXT_NewLabel("Digital music pack directory: "),
+                TXT_NewStrut(4, 0),
+                TXT_NewFileSelector(&music_pack_path, 34,
+                                    "Select directory containing music pack "
+                                    "config files",
+                                    TXT_DIRECTORY),
                 NULL)),
         NULL);
 }
@@ -204,6 +206,7 @@ void BindSoundVariables(void)
 
     M_BindIntVariable("gus_ram_kb",               &gus_ram_kb);
     M_BindStringVariable("gus_patch_path",        &gus_patch_path);
+    M_BindStringVariable("music_pack_path",     &music_pack_path);
     M_BindStringVariable("timidity_cfg_path",     &timidity_cfg_path);
 
     M_BindIntVariable("snd_sbport",               &snd_sbport);
@@ -225,6 +228,7 @@ void BindSoundVariables(void)
         M_BindIntVariable("show_talk",            &show_talk);
     }
 
+    music_pack_path = M_StringDuplicate("");
     timidity_cfg_path = M_StringDuplicate("");
     gus_patch_path = M_StringDuplicate("");
 

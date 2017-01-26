@@ -31,7 +31,6 @@
 
 #include "doomtype.h"
 #include "doomkeys.h"
-#include "doomfeatures.h"
 #include "i_system.h"
 #include "m_argv.h"
 #include "m_misc.h"
@@ -862,8 +861,6 @@ static default_t extra_defaults_list[] =
 
     CONFIG_VARIABLE_INT_HEX(opl_io_port),
 
-#ifdef FEATURE_SOUND
-
     //!
     // Controls whether libsamplerate support is used for performing
     // sample rate conversions of sound effects.  Support for this
@@ -892,6 +889,15 @@ static default_t extra_defaults_list[] =
     CONFIG_VARIABLE_FLOAT(libsamplerate_scale),
 
     //!
+    // Full path to a directory containing configuration files for
+    // substitute music packs. These packs contain high quality renderings
+    // of game music to be played instead of using the system's built-in
+    // MIDI playback.
+    //
+
+    CONFIG_VARIABLE_STRING(music_pack_path),
+
+    //!
     // Full path to a Timidity configuration file to use for MIDI
     // playback. The file will be evaluated from the directory where
     // it is evaluated, so there is no need to add "dir" commands
@@ -913,8 +919,6 @@ static default_t extra_defaults_list[] =
     //
 
     CONFIG_VARIABLE_INT(gus_ram_kb),
-
-#endif
 
     //!
     // @game doom strife
@@ -946,16 +950,12 @@ static default_t extra_defaults_list[] =
 
     CONFIG_VARIABLE_INT(vanilla_keyboard_mapping),
 
-#ifdef FEATURE_MULTIPLAYER
-
     //!
     // Name to use in network games for identification.  This is only
     // used on the "waiting" screen while waiting for the game to start.
     //
 
     CONFIG_VARIABLE_STRING(player_name),
-
-#endif
 
     //!
     // If this is non-zero, the mouse will be "grabbed" when running

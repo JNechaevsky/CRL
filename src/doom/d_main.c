@@ -31,7 +31,6 @@
 #include "doomstat.h"
 
 #include "dstrings.h"
-#include "doomfeatures.h"
 #include "sounds.h"
 
 #include "d_iwad.h"
@@ -405,9 +404,7 @@ void D_BindVariables(void)
     key_multi_msgplayer[2] = HUSTR_KEYBROWN;
     key_multi_msgplayer[3] = HUSTR_KEYRED;
 
-#ifdef FEATURE_MULTIPLAYER
     NET_BindVariables();
-#endif
 
     M_BindIntVariable("mouse_sensitivity",      &mouseSensitivity);
     M_BindIntVariable("sfx_volume",             &sfxVolume);
@@ -1298,7 +1295,6 @@ void D_DoomMain (void)
 	if (!CRLBruteForce)
     	I_AtExit(D_Endoom, false);
 
-#ifdef FEATURE_MULTIPLAYER
     //!
     // @category net
     //
@@ -1354,8 +1350,6 @@ void D_DoomMain (void)
         NET_LANQuery();
         exit(0);
     }
-
-#endif
 
     //!
     // @vanilla
@@ -1573,7 +1567,6 @@ void D_DoomMain (void)
         DEH_AddStringReplacement("M_GDLOW", "M_MSGOFF");
     }
 
-#ifdef FEATURE_DEHACKED
     // Load Dehacked patches specified on the command line with -deh.
     // Note that there's a very careful and deliberate ordering to how
     // Dehacked patches are loaded. The order we use is:
@@ -1581,7 +1574,6 @@ void D_DoomMain (void)
     //  2. Command line dehacked patches specified with -deh.
     //  3. PWAD dehacked patches in DEHACKED lumps.
     DEH_ParseCommandLine();
-#endif
 
     // Load PWAD files.
     modifiedgame = W_ParseCommandLine();
@@ -1740,10 +1732,8 @@ void D_DoomMain (void)
     I_InitSound(true);
     I_InitMusic();
 
-#ifdef FEATURE_MULTIPLAYER
     printf ("NET_Init: Init network subsystem.\n");
     NET_Init ();
-#endif
 
     // Initial netgame startup. Connect to server etc.
     D_ConnectNetGame();
