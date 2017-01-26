@@ -583,9 +583,37 @@ void CRL_OutputReport(void)
 #undef ANGLE1
 }
 
+static byte CRL_GetLightness(byte r, byte g, byte b)
+{
+	V_ColorEntry_t rgb, hsv;
+	int rv;
+	double is, iv, ol;
+	
+	// Convert to HSV
+	rgb.RGB.R = r;
+	rgb.RGB.G = g;
+	rgb.RGB.B = b;
+	hsv = V_RGBtoHSV(rgb);
+	
+	// Convert to double space
+	is = (double)hsv.HSV.S / 255.0;
+	iv = (double)hsv.HSV.V / 255.0;
+	
+	// Calculate values
+	ol = (0.5 * iv) * (2.0 - is);
+	
+	// Retur brightness
+	rv = ol * 255;
+	if (rv > 255)
+		rv = 255;
+	else if (rv < 0)
+		rv = 0;
+	return rv;
+}
+
 static void CRL_AdjustRedGreen(byte* r, byte* g, byte* b)
 {
-	int x = (*r + *g) / 2;
+	int x = CRL_GetLightness(*r, *g, 0);
 	
 	*r = x;
 	*g = x;
@@ -593,7 +621,7 @@ static void CRL_AdjustRedGreen(byte* r, byte* g, byte* b)
 
 static void CRL_AdjustGreenBlue(byte* r, byte* g, byte* b)
 {
-	int x = (*g + *b) / 2;
+	int x = CRL_GetLightness(0, *g, *b);
 	
 	*g = x;
 	*b = x;
