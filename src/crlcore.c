@@ -698,7 +698,7 @@ void CRL_SetColors(uint8_t* colors, void* ref)
 		
 		// Adjust
 		if (adjustcolor != NULL)
-			for (int i = 0; i < 768; i += 3)
+			for (i = 0; i < 768; i += 3)
 				adjustcolor(&colors[i], &colors[i + 1], &colors[i + 2]);
 		
 		// go through them all
