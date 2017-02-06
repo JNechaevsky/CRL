@@ -71,6 +71,7 @@ static int fullscreen = 1;
 static int fullscreen_width = 0, fullscreen_height = 0;
 static int window_width = 640, window_height = 480;
 static int startup_delay = 1000;
+static int max_scaling_buffer_pixels = 16000000;
 static int usegamma = 0;
 
 int graphical_startup = 1;
@@ -226,12 +227,14 @@ void ConfigDisplay(void)
             sizes_table = TXT_NewTable(3)),
         NULL);
 
+    TXT_SetColumnWidths(window, 42);
+
     // The window is set at a fixed vertical position.  This keeps
     // the top of the window stationary when switching between
     // fullscreen and windowed mode (which causes the window's
     // height to change).
     TXT_SetWindowPosition(window, TXT_HORIZ_CENTER, TXT_VERT_TOP,
-                                  TXT_SCREEN_W / 2, 5);
+                                  TXT_SCREEN_W / 2, 6);
 
     GenerateSizesTable(NULL, sizes_table);
 
@@ -258,6 +261,7 @@ void BindDisplayVariables(void)
     M_BindIntVariable("usegamma",                  &usegamma);
     M_BindIntVariable("png_screenshots",           &png_screenshots);
     M_BindIntVariable("force_software_renderer",   &force_software_renderer);
+    M_BindIntVariable("max_scaling_buffer_pixels", &max_scaling_buffer_pixels);
 
     if (gamemission == doom || gamemission == heretic
      || gamemission == strife)

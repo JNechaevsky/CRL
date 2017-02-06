@@ -11,20 +11,19 @@
 #define PACKAGE_NAME "Chocorenderlimits"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "Chocorenderlimits 2.3.0"
->>>>>>> ce82099ff17328f1be9f37d14458866e06bb4fa3
+#define PACKAGE_STRING "Chocorenderlimits 3.0.0"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "chocolate-doom"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "2.3.0"
+#define PACKAGE_VERSION "3.0.0-beta1"
 
 /* Change this when you create your awesome forked version */
 #define PROGRAM_PREFIX "chocorenderlimits-"
 
 /* Version number of package */
-#define VERSION "2.3.0"
+#define VERSION "3.0.0-beta1"
 
 /* Define to 1 if your processor stores words with the most significant byte
    first (like Motorola and SPARC, unlike Intel and VAX). */
