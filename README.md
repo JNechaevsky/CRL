@@ -6,7 +6,7 @@ ChocoRenderLimits aims to help map developers test their maps within the
 limitations of Vanilla Doom. It provides visual cues for players to find and
 potentially locate visplane overflows and other renderer issues.
 
-It was formerly maintained by RestlessRodent, but they no longer do active
+It was formerly maintained by RestlessRodent, but she no longer does active
 development.
 
 # Controls
