@@ -1,4 +1,4 @@
-AC_INIT(Chocorenderlimits, 3.0.0, ghostlydeath@remood.org, chocorenderlimits)
+AC_INIT(ChocoRenderLimits, 3.0.0, ghostlydeath@remood.org, chocorenderlimits)
 
 PACKAGE_SHORTNAME=${PACKAGE_NAME% Doom}
 PACKAGE_SHORTDESC="Conformity revealing source port"
