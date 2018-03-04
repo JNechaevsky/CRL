@@ -1,6 +1,15 @@
-Simon Howard <fraggle@gmail.com>
-James Haley <haleyjd@hotmail.com>
-Samuel Villarreal <svkaiser@gmail.com>
-Fabian Greffrath <fabian@greffrath.com>
-Jonathan Dowland <jon@dow.land>
-Alexey Khokholov <alexeytf2@gmail.com>
+### Chocorenderlimits
+Created by RestlessRodent
+
+### Chocolate Doom
+Development team:
+
+Simon Howard<br />
+James Haley<br />
+Samuel Villarreal<br />
+Fabian Greffrath<br />
+Jonathan Dowland<br />
+Alexey Khokholov<br />
+
+### Windows SDL2 version
+Maintained by Julian Nechaevsky
