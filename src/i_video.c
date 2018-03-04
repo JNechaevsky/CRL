@@ -69,7 +69,7 @@ static char *window_title = "";
 // in turn is finally rendered to screen using "linear" scaling.
 
 static SDL_Surface *screenbuffer = NULL;
-static SDL_Surface *rgbabuffer = NULL;
+static SDL_Surface *argbbuffer = NULL;
 static SDL_Texture *texture = NULL;
 static SDL_Texture *texture_upscaled = NULL;
 
@@ -132,6 +132,7 @@ int fullscreen = true;
 // Aspect ratio correction mode
 
 int aspect_ratio_correct = true;
+static int actualheight;
 
 // Force integer scales for resolution-independent rendering
 
@@ -144,7 +145,7 @@ int vga_porch_flash = false;
 // Force software rendering, for systems which lack effective hardware
 // acceleration
 
-int force_software_renderer = true;
+int force_software_renderer = false;
 
 // Time to wait for the screen to settle on startup before starting the
 // game (ms)
@@ -293,37 +294,19 @@ void I_StartFrame (void)
 
 }
 
-// Returns base screen height - either SCREENHEIGHT_4_3 or SCREENHEIGHT,
-// dependent on aspect_ratio_correct value.
-static int EffectiveScreenHeight(void)
-{
-    if (aspect_ratio_correct)
-    {
-        return SCREENHEIGHT_4_3;
-    }
-    else
-    {
-        return SCREENHEIGHT;
-    }
-}
-
 // Adjust window_width / window_height variables to be an an aspect
 // ratio consistent with the aspect_ratio_correct variable.
 static void AdjustWindowSize(void)
 {
-    int h;
-
-    h = EffectiveScreenHeight();
-
-    if (window_width * h <= window_height * SCREENWIDTH)
+    if (window_width * actualheight <= window_height * SCREENWIDTH)
     {
         // We round up window_height if the ratio is not exact; this leaves
         // the result stable.
-        window_height = (window_width * h + SCREENWIDTH - 1) / SCREENWIDTH;
+        window_height = (window_width * actualheight + SCREENWIDTH - 1) / SCREENWIDTH;
     }
     else
     {
-        window_width = window_height * SCREENWIDTH / h;
+        window_width = window_height * SCREENWIDTH / actualheight;
     }
 }
 
@@ -588,10 +571,11 @@ static void LimitTextureSize(int *w_upscale, int *h_upscale)
                 rinfo.max_texture_width, rinfo.max_texture_height);
     }
 
-    // We limit the amount of texture memory used for the intermediate buffer.
-    // By default we limit to 1600x1200, which gives pretty good results, but
-    // we allow the user to override this and use more if they want to use
-    // even more (or less, if their graphics card can't handle it).
+    // We limit the amount of texture memory used for the intermediate buffer,
+    // since beyond a certain point there are diminishing returns. Also,
+    // depending on the hardware there may be performance problems with very
+    // huge textures, so the user can use this to reduce the maximum texture
+    // size if desired.
 
     if (max_scaling_buffer_pixels < SCREENWIDTH * SCREENHEIGHT)
     {
@@ -625,7 +609,6 @@ static void LimitTextureSize(int *w_upscale, int *h_upscale)
 
 static void CreateUpscaledTexture(boolean force)
 {
-    const int actualheight = EffectiveScreenHeight();
     int w, h;
     int h_upscale, w_upscale;
     static int h_upscale_old, w_upscale_old;
@@ -791,11 +774,11 @@ void I_FinishUpdate (void)
     // Blit from the paletted 8-bit screen buffer to the intermediate
     // 32-bit RGBA buffer that we can load into the texture.
 
-    SDL_LowerBlit(screenbuffer, &blit_rect, rgbabuffer, &blit_rect);
+    SDL_LowerBlit(screenbuffer, &blit_rect, argbbuffer, &blit_rect);
 
     // Update the intermediate texture with the contents of the RGBA buffer.
 
-    SDL_UpdateTexture(texture, NULL, rgbabuffer->pixels, rgbabuffer->pitch);
+    SDL_UpdateTexture(texture, NULL, argbbuffer->pixels, argbbuffer->pitch);
 
     // Make sure the pillarboxes are kept clear each frame.
 
@@ -858,35 +841,12 @@ void I_SetPalette (byte *doompalette)
     palette_to_set = true;
 }
 
-// 
-// Set the window title
-//
-
-void I_SetWindowTitle(char *title)
-{
-    window_title = title;
-}
-
-//
-// Call the SDL function to set the window title, based on 
-// the title set with I_SetWindowTitle.
-//
-
-void I_InitWindowTitle(void)
-{
-    char *buf;
-
-    buf = M_StringJoin(window_title, " - ", PACKAGE_STRING, NULL);
-    SDL_SetWindowTitle(screen, buf);
-    free(buf);
-}
-
 // Given an RGB value, find the closest matching palette index.
 
 int I_GetPaletteIndex(int r, int g, int b)
 {
     int best, best_diff, diff;
-    int i, flags;
+    int i;
 
     best = 0; best_diff = INT_MAX;
 
@@ -901,9 +861,37 @@ int I_GetPaletteIndex(int r, int g, int b)
             best = i;
             best_diff = diff;
         }
+
+        if (diff == 0)
+        {
+            break;
+        }
     }
     
     return best;
+}
+
+//
+// Set the window title
+//
+
+void I_SetWindowTitle(char *title)
+{
+    window_title = title;
+}
+
+//
+// Call the SDL function to set the window title, based on
+// the title set with I_SetWindowTitle.
+//
+
+void I_InitWindowTitle(void)
+{
+    char *buf;
+
+    buf = M_StringJoin(window_title, " - ", PACKAGE_STRING, NULL);
+    SDL_SetWindowTitle(screen, buf);
+    free(buf);
 }
 
 // Set the application icon
@@ -928,7 +916,7 @@ static void SetScaleFactor(int factor)
     // Pick 320x200 or 320x240, depending on aspect ratio correct
 
     window_width = factor * SCREENWIDTH;
-    window_height = factor * EffectiveScreenHeight();
+    window_height = factor * actualheight;
     fullscreen = false;
 }
 
@@ -1223,7 +1211,7 @@ static void SetVideoMode(void)
 
         pixel_format = SDL_GetWindowPixelFormat(screen);
 
-        SDL_SetWindowMinimumSize(screen, SCREENWIDTH, EffectiveScreenHeight());
+        SDL_SetWindowMinimumSize(screen, SCREENWIDTH, actualheight);
 
         I_InitWindowTitle();
         I_InitWindowIcon();
@@ -1249,6 +1237,7 @@ static void SetVideoMode(void)
     if (force_software_renderer)
     {
         renderer_flags |= SDL_RENDERER_SOFTWARE;
+        renderer_flags &= ~SDL_RENDERER_PRESENTVSYNC;
     }
 
     if (renderer != NULL)
@@ -1270,7 +1259,7 @@ static void SetVideoMode(void)
 
     SDL_RenderSetLogicalSize(renderer,
                              SCREENWIDTH,
-                             EffectiveScreenHeight());
+                             actualheight);
 
     // Force integer scales for resolution-independent rendering.
 
@@ -1295,16 +1284,16 @@ static void SetVideoMode(void)
         SDL_FillRect(screenbuffer, NULL, 0);
     }
 
-    // Format of rgbabuffer must match the screen pixel format because we
+    // Format of argbbuffer must match the screen pixel format because we
     // import the surface data into the texture.
-    if (rgbabuffer == NULL)
+    if (argbbuffer == NULL)
     {
         SDL_PixelFormatEnumToMasks(pixel_format, &unused_bpp,
                                    &rmask, &gmask, &bmask, &amask);
-        rgbabuffer = SDL_CreateRGBSurface(0,
+        argbbuffer = SDL_CreateRGBSurface(0,
                                           SCREENWIDTH, SCREENHEIGHT, 32,
                                           rmask, gmask, bmask, amask);
-        SDL_FillRect(rgbabuffer, NULL, 0);
+        SDL_FillRect(argbbuffer, NULL, 0);
     }
 
     if (texture != NULL)
@@ -1391,6 +1380,15 @@ void I_InitGraphics(void)
     if (screensaver_mode)
     {
         fullscreen = true;
+    }
+
+    if (aspect_ratio_correct)
+    {
+        actualheight = SCREENHEIGHT_4_3;
+    }
+    else
+    {
+        actualheight = SCREENHEIGHT;
     }
 
     // Create the game window; this may switch graphic modes depending
