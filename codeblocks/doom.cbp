@@ -54,6 +54,10 @@
 			<Add option="-lmingw32 -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net -lSDL2_image" />
 			<Add directory="../lib" />
 		</Linker>
+		<Unit filename="../src/crlcore.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../src/crlcore.h" />
 		<Unit filename="../src/d_event.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -107,7 +111,6 @@
 		<Unit filename="../src/doom/d_net.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="../src/doom/d_net.h" />
 		<Unit filename="../src/doom/d_player.h" />
 		<Unit filename="../src/doom/d_textur.h" />
 		<Unit filename="../src/doom/d_think.h" />
@@ -311,7 +314,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="../src/doom/wi_stuff.h" />
-		<Unit filename="../src/doomfeatures.h" />
 		<Unit filename="../src/doomkeys.h" />
 		<Unit filename="../src/doomtype.h" />
 		<Unit filename="../src/gusconf.c">
@@ -337,6 +339,10 @@
 		<Unit filename="../src/i_main.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="../src/i_midipipe.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../src/i_midipipe.h" />
 		<Unit filename="../src/i_oplmusic.c">
 			<Option compilerVar="CC" />
 		</Unit>
