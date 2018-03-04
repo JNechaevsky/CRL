@@ -77,7 +77,7 @@ static int max_scaling_buffer_pixels = 16000000;
 static int usegamma = 0;
 
 int graphical_startup = 1;
-int show_endoom = 1;
+int show_endoom = 0;    // [JN] disable
 int show_diskicon = 1;
 int png_screenshots = 0;
 
