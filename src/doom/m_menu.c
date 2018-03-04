@@ -60,6 +60,7 @@
 #include "m_menu.h"
 
 
+extern int			show_endoom;
 extern patch_t*		hu_font[HU_FONTSIZE];
 extern boolean		message_dontfuckwithme;
 
@@ -1080,7 +1081,7 @@ void M_QuitResponse(int key)
 {
     if (key != key_menu_confirm)
 	return;
-    if (!netgame)
+    if (!netgame && show_endoom) // [JN] Play exit SFX only if ENDOOM is enabled
     {
 	if (gamemode == commercial)
 	    S_StartSound(NULL,quitsounds2[(gametic>>2)&7]);
