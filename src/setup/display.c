@@ -66,6 +66,7 @@ static window_size_t window_sizes_scaled[] =
 static char *video_driver = "";
 static char *window_position = "";
 static int aspect_ratio_correct = 1;
+static int smooth_scaling = 1;
 static int integer_scaling = 0;
 static int vga_porch_flash = 0;
 static int force_software_renderer = 0;
@@ -196,6 +197,7 @@ static void AdvancedDisplayConfig(TXT_UNCAST_ARG(widget),
     TXT_AddWidgets(window,
         ar_checkbox = TXT_NewCheckBox("Fix aspect ratio",
                                       &aspect_ratio_correct),
+        TXT_NewCheckBox("Smooth scaling", &smooth_scaling),
         TXT_If(gamemission == heretic || gamemission == hexen
             || gamemission == strife,
             TXT_NewCheckBox("Graphical startup", &graphical_startup)),
@@ -252,6 +254,7 @@ void ConfigDisplay(void)
 void BindDisplayVariables(void)
 {
     M_BindIntVariable("aspect_ratio_correct",      &aspect_ratio_correct);
+    M_BindIntVariable("smooth_scaling",            &smooth_scaling);
     M_BindIntVariable("integer_scaling",           &integer_scaling);
     M_BindIntVariable("fullscreen",                &fullscreen);
     M_BindIntVariable("fullscreen_width",          &fullscreen_width);

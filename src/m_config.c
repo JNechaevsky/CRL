@@ -728,6 +728,12 @@ static default_t extra_defaults_list[] =
     CONFIG_VARIABLE_INT(aspect_ratio_correct),
 
     //!
+    // [JN] Allow to change smooth scaling.
+    //
+
+    CONFIG_VARIABLE_INT(smooth_scaling),
+
+    //!
     // If non-zero, forces integer scales for resolution-independent rendering.
     //
 

@@ -132,6 +132,7 @@ int fullscreen = true;
 // Aspect ratio correction mode
 
 int aspect_ratio_correct = true;
+int smooth_scaling = true;
 static int actualheight;
 
 // Force integer scales for resolution-independent rendering
@@ -677,7 +678,7 @@ static void CreateUpscaledTexture(boolean force)
     // which looks much softer and smoother than "nearest" but does a better
     // job at downscaling from the upscaled texture to screen.
 
-    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, smooth_scaling ? "linear" : "nearest");
 
     texture_upscaled = SDL_CreateTexture(renderer,
                                 pixel_format,
@@ -1455,6 +1456,7 @@ void I_BindVideoVariables(void)
     M_BindIntVariable("fullscreen",                &fullscreen);
     M_BindIntVariable("video_display",             &video_display);
     M_BindIntVariable("aspect_ratio_correct",      &aspect_ratio_correct);
+    M_BindIntVariable("smooth_scaling",            &smooth_scaling);
     M_BindIntVariable("integer_scaling",           &integer_scaling);
     M_BindIntVariable("vga_porch_flash",           &vga_porch_flash);
     M_BindIntVariable("startup_delay",             &startup_delay);
