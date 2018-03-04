@@ -1,3 +1,10 @@
+# About this repository
+
+This is SDL2 version of ChocoRenderLimits with very few additional tweaks
+and corrections, primary for Windows operating system.
+
+Maintained by [Julian Nechaevsky](http://jnechaevsky.users.sourceforge.net/author.html).
+
 # ChocoRenderLimits
 
  * Repository: https://github.com/chocolatiers/ChocoRenderLimits
