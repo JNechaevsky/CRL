@@ -18,7 +18,7 @@
 #define PACKAGE_VERSION "3.0.0"
 
 /* Change this when you create your awesome forked version */
-/* #define PROGRAM_PREFIX "chocorenderlimits-"             */
+#define PROGRAM_PREFIX "chocorenderlimits-"
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
