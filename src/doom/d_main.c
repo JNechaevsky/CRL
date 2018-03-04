@@ -1245,7 +1245,7 @@ static void G_CheckDemoStatusAtExit (void)
 }
 
 #define NUMPLANEBORDERCOLORS 16
-const int c_PlaneBorderColors[NUMPLANEBORDERCOLORS] =
+int c_PlaneBorderColors[NUMPLANEBORDERCOLORS] =
 {
 	// LIGHT
 	16,							// yucky pink
