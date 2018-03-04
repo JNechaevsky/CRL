@@ -65,8 +65,8 @@ static mission_config_t mission_configs[] =
         IWAD_MASK_DOOM,
         "doom",
         "default.cfg",
-        PROGRAM_PREFIX "doom.cfg",
-        PROGRAM_PREFIX "doom"
+        /*PROGRAM_PREFIX*/ "chocorenderlimits.cfg",
+        /*PROGRAM_PREFIX*/ "chocorenderlimits"
     },
     {
         "Heretic",
