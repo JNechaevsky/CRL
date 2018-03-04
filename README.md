@@ -1,7 +1,9 @@
 # About this repository
 
-This is SDL2 version of ChocoRenderLimits with very few additional tweaks
-and corrections, primary for Windows operating system.
+This is a SDL2 version of [ChocoRenderLimits](https://doomwiki.org/wiki/Chocorenderlimits) with very few additional tweaks
+and corrections, primary for Windows operating system. Download link:
+
+ * For Windows (x86 and x64): [chocorenderlimits-3.0.0-win32-sdl2.zip](https://github.com/JNechaevsky/russian-doom/releases/download/3.0.0/chocorenderlimits-3.0.0-win32-sdl2.zip)
 
 Maintained by [Julian Nechaevsky](http://jnechaevsky.users.sourceforge.net/author.html).
 
