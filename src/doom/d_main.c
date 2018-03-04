@@ -126,7 +126,7 @@ boolean         main_loop_started = false;
 char		wadfile[1024];		// primary wad file
 char		mapdir[1024];           // directory of development maps
 
-int             show_endoom = 1;
+int             show_endoom = 1;    // [JN] disable
 int             show_diskicon = 1;
 
 
