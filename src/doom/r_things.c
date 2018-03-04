@@ -35,6 +35,7 @@
 
 #include "doomstat.h"
 
+#include "crlcore.h"
 
 
 #define MINZ				(FRACUNIT*4)
