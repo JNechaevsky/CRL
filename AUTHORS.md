@@ -11,5 +11,5 @@ Fabian Greffrath<br />
 Jonathan Dowland<br />
 Alexey Khokholov<br />
 
-### Windows SDL2 version
+### Windows SDL2 maintenance
 Maintained by Julian Nechaevsky
