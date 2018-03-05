@@ -1643,6 +1643,7 @@ boolean M_Responder (event_t* ev)
     if ((key == key_menu_help) ||
         (key != 0 && key == key_menu_screenshot))
     {
+	S_StartSound(NULL,sfx_tink);    // [JN] Add audible feedback
 	G_ScreenShot ();
 	return true;
     }
