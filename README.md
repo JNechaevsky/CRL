@@ -8,11 +8,12 @@ It was formerly maintained by RestlessRodent, but she no longer does active
 development.
 
 This is a SDL2 version with very few additional tweaks and corrections, primary 
-for Windows operating system. Maintained by [Julian Nechaevsky](http://jnechaevsky.users.sourceforge.net/author.html).
+for Windows operating system.<br />
+Maintained by [Julian Nechaevsky](http://jnechaevsky.sf.net/).
 
 # Download:
 
-For Windows (x86 and x64): chocorenderlimits-sdl2-win32.zip
+For Windows (x86 and x64): chocorenderlimits-sdl2-win32.zip<br />
 Source code: chocorenderlimits-sdl2-src.zip
 
 # Controls
