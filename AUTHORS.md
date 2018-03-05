@@ -1,8 +1,8 @@
-### Chocorenderlimits
-Created by RestlessRodent
+**Chocorenderlimits created by RestlessRodent**<br />
+https://doomwiki.org/wiki/Chocorenderlimits
 
-### Chocolate Doom
-Development team:
+**Chocolate Doom development team:**<br />
+https://www.chocolate-doom.org
 
 Simon Howard<br />
 James Haley<br />
@@ -11,5 +11,6 @@ Fabian Greffrath<br />
 Jonathan Dowland<br />
 Alexey Khokholov<br />
 
-### Windows SDL2 maintenance
-Maintained by Julian Nechaevsky
+**Windows SDL2 maintenance by Julian Nechaevsky**<br />
+http://jnechaevsky.sf.net
+
