@@ -1,13 +1,4 @@
-# About this repository
-
-This is a SDL2 version of [ChocoRenderLimits](https://doomwiki.org/wiki/Chocorenderlimits) with very few additional tweaks
-and corrections, primary for Windows operating system. Download link will be available soon.
-
-Maintained by [Julian Nechaevsky](http://jnechaevsky.users.sourceforge.net/author.html).
-
 # ChocoRenderLimits
-
- * Repository: https://github.com/chocolatiers/ChocoRenderLimits
 
 ChocoRenderLimits aims to help map developers test their maps within the
 limitations of Vanilla Doom. It provides visual cues for players to find and
@@ -15,6 +6,14 @@ potentially locate visplane overflows and other renderer issues.
 
 It was formerly maintained by RestlessRodent, but she no longer does active
 development.
+
+This is a SDL2 version with very few additional tweaks and corrections, primary 
+for Windows operating system. Maintained by [Julian Nechaevsky](http://jnechaevsky.users.sourceforge.net/author.html).
+
+# Download:
+
+For Windows (x86 and x64): chocorenderlimits-sdl2-win32.zip
+Source code: chocorenderlimits-sdl2-src.zip
 
 # Controls
 
