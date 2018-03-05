@@ -9,7 +9,7 @@ development.
 
 This is a SDL2 version with very few additional tweaks and corrections, primary 
 for Windows operating system.<br />
-Maintained by [Julian Nechaevsky](http://jnechaevsky.sf.net/).
+Forked from [chocolatiers/ChocoRenderLimits](https://github.com/chocolatiers/ChocoRenderLimits) and maintained by [Julian Nechaevsky](http://jnechaevsky.sf.net/).
 
 # Download:
 
