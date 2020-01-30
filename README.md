@@ -13,8 +13,8 @@ Forked from [chocolatiers/ChocoRenderLimits](https://github.com/chocolatiers/Cho
 
 ### Download:
 
-For Windows (x86 and x64): [chocorenderlimits-sdl2-win32.zip](https://sourceforge.net/projects/jnechaevsky/files/ChocoRenderLimits-SDL2/chocorenderlimits-sdl2-win32.zip/download)<br />
-Source code: [chocorenderlimits-sdl2-src.zip](https://sourceforge.net/projects/jnechaevsky/files/ChocoRenderLimits-SDL2/chocorenderlimits-sdl2-src.zip/download)
+For Windows (x86 and x64): [chocorenderlimits-sdl2-win32.zip](https://github.com/JNechaevsky/ChocoRenderLimits/releases/download/1.0/chocorenderlimits-sdl2-win32.zip)<br />
+Source code: [chocorenderlimits-sdl2-src.zip](https://github.com/JNechaevsky/ChocoRenderLimits/releases/download/1.0/chocorenderlimits-sdl2-src.zip)
 
 ### Controls
 
