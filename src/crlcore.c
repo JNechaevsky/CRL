@@ -18,12 +18,39 @@
 #include "z_zone.h"
 #include "v_video.h"
 #include "m_argv.h"
-#include "m_misc.h"  // [JN] M_snprintf
+#include "m_config.h"  // [JN] M_BindIntVariable
+#include "m_misc.h"    // [JN] M_snprintf
 #include "tables.h"
 
 
-/** [JN] External data. */
-extern void M_WriteText(int x, int y, const char *string);
+// -----------------------------------------------------------------------------
+// [JN] CRL-specific config variables.
+// -----------------------------------------------------------------------------
+
+// Time to wait for the screen to settle on startup before starting the game (ms).
+int crl_startup_delay = 35;
+// Time to wait for the screen to be updated after resizing (ms).
+int crl_resize_delay = 35;
+// Screen wiping effect.
+int crl_screenwipe = 1;
+
+// -----------------------------------------------------------------------------
+// [JN] CRL-specific config variables binding function.
+// -----------------------------------------------------------------------------
+
+void CRL_BindVariables (void)
+{
+	M_BindIntVariable("crl_startup_delay",              &crl_startup_delay);
+	M_BindIntVariable("crl_resize_delay",               &crl_resize_delay);
+	M_BindIntVariable("crl_screenwipe",                 &crl_screenwipe);
+}
+
+// -----------------------------------------------------------------------------
+// [JN] External data.
+// -----------------------------------------------------------------------------
+
+extern void M_WriteText (int x, int y, const char *string);
+
 
 /** Backup. */
 jmp_buf CRLJustIncaseBuf;

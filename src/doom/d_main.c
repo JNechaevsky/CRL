@@ -205,7 +205,8 @@ void D_Display (void)
     	wipegamestate = gamestate;
 
     // save the current screen if about to wipe
-    if (gamestate != wipegamestate)
+    // [JN] Wiping: make optional
+    if (gamestate != wipegamestate && crl_screenwipe)
     {
 	wipe = true;
 	wipe_StartScreen(0, 0, SCREENWIDTH, SCREENHEIGHT);
@@ -424,6 +425,9 @@ void D_BindVariables(void)
         M_snprintf(buf, sizeof(buf), "chatmacro%i", i);
         M_BindStringVariable(buf, &chat_macros[i]);
     }
+
+	// [JN] Bind CRL-specific config variables.
+	CRL_BindVariables();
 }
 
 //

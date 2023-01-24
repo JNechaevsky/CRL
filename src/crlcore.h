@@ -32,6 +32,18 @@
 	#define SCREENAREA (SCREENWIDTH * SCREENHEIGHT)
 #endif
 
+
+// -----------------------------------------------------------------------------
+// [JN] CRL-specific config variables.
+// -----------------------------------------------------------------------------
+
+extern int crl_startup_delay;
+extern int crl_resize_delay;
+extern int crl_screenwipe;
+
+extern void CRL_BindVariables (void);
+
+
 /**
  * Why a jump failed.
  */

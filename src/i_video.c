@@ -148,11 +148,6 @@ int vga_porch_flash = false;
 
 int force_software_renderer = false;
 
-// Time to wait for the screen to settle on startup before starting the
-// game (ms)
-
-static int startup_delay = 1000;
-
 // Grab the mouse? (int type for config code). nograbmouse_override allows
 // this to be temporarily disabled via the command line.
 
@@ -195,7 +190,6 @@ static boolean window_focused = true;
 
 static boolean need_resize = false;
 static unsigned int last_resize_time;
-// #define RESIZE_DELAY 500
 
 // Gamma correction level to use
 
@@ -750,7 +744,7 @@ void I_FinishUpdate (void)
 
     if (need_resize)
     {
-        if (SDL_GetTicks() > last_resize_time /* + RESIZE_DELAY*/)
+        if (SDL_GetTicks() > last_resize_time + crl_resize_delay)
         {
             int flags;
             // When the window is resized (we're not in fullscreen mode),
@@ -1468,7 +1462,7 @@ void I_InitGraphics(void)
 
     if (fullscreen && !screensaver_mode)
     {
-        SDL_Delay(startup_delay);
+        SDL_Delay(crl_startup_delay);
     }
 
     // The actual 320x200 canvas that we draw to. This is the pixel buffer of
@@ -1505,7 +1499,6 @@ void I_BindVideoVariables(void)
     M_BindIntVariable("smooth_scaling",            &smooth_scaling);
     M_BindIntVariable("integer_scaling",           &integer_scaling);
     M_BindIntVariable("vga_porch_flash",           &vga_porch_flash);
-    M_BindIntVariable("startup_delay",             &startup_delay);
     M_BindIntVariable("fullscreen_width",          &fullscreen_width);
     M_BindIntVariable("fullscreen_height",         &fullscreen_height);
     M_BindIntVariable("force_software_renderer",   &force_software_renderer);

@@ -790,15 +790,6 @@ static default_t extra_defaults_list[] =
     CONFIG_VARIABLE_INT(max_scaling_buffer_pixels),
 
     //!
-    // Number of milliseconds to wait on startup after the video mode
-    // has been set, before the game will start.  This allows the
-    // screen to settle on some monitors that do not display an image
-    // for a brief interval after changing video modes.
-    //
-
-    CONFIG_VARIABLE_INT(startup_delay),
-
-    //!
     // @game heretic hexen strife
     //
     // If non-zero, display the graphical startup screen.
@@ -1649,6 +1640,14 @@ static default_t extra_defaults_list[] =
     //
 
     CONFIG_VARIABLE_KEY(key_multi_msgplayer8),
+
+    //
+    // [JN] CRL-specific config variables.
+    //
+
+    CONFIG_VARIABLE_INT(crl_startup_delay),
+    CONFIG_VARIABLE_INT(crl_resize_delay),
+    CONFIG_VARIABLE_INT(crl_screenwipe),
 };
 
 static default_collection_t extra_defaults =
