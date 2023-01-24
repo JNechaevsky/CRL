@@ -41,6 +41,21 @@
 
 #include "doomtype.h"
 
+
+int use_libsamplerate = 0;
+
+// Scale factor used when converting libsamplerate floating point numbers
+// to integers. Too high means the sounds can clip; too low means they
+// will be too quiet. This is an amount that should avoid clipping most
+// of the time: with all the Doom IWAD sound effects, at least. If a PWAD
+// is used, clipping might occur.
+
+float libsamplerate_scale = 0.65f;
+
+
+#ifndef DISABLE_SDL2MIXER
+
+
 #define LOW_PASS_FILTER
 //#define DEBUG_DUMP_WAVS
 #define NUM_CHANNELS 16
@@ -77,15 +92,6 @@ static allocated_sound_t *allocated_sounds_head = NULL;
 static allocated_sound_t *allocated_sounds_tail = NULL;
 static int allocated_sounds_size = 0;
 
-int use_libsamplerate = 0;
-
-// Scale factor used when converting libsamplerate floating point numbers
-// to integers. Too high means the sounds can clip; too low means they
-// will be too quiet. This is an amount that should avoid clipping most
-// of the time: with all the Doom IWAD sound effects, at least. If a PWAD
-// is used, clipping might occur.
-
-float libsamplerate_scale = 0.65f;
 
 // Hook a sound into the linked list at the head.
 
@@ -552,7 +558,7 @@ static void WriteWAV(char *filename, byte *data,
     unsigned int i;
     unsigned short s;
 
-    wav = fopen(filename, "wb");
+    wav = M_fopen(filename, "wb");
 
     // Header
 
@@ -631,11 +637,15 @@ static boolean ExpandSoundData_SDL(sfxinfo_t *sfxinfo,
                           AUDIO_U8, 1, samplerate,
                           mixer_format, mixer_channels, mixer_freq))
     {
-        convertor.buf = chunk->abuf;
         convertor.len = length;
+        convertor.buf = malloc(convertor.len * convertor.len_mult);
+        assert(convertor.buf != NULL);
         memcpy(convertor.buf, data, length);
 
         SDL_ConvertAudio(&convertor);
+
+        memcpy(chunk->abuf, convertor.buf, chunk->alen);
+        free(convertor.buf);
     }
     else
     {
@@ -804,21 +814,12 @@ static void GetSfxLumpName(sfxinfo_t *sfx, char *buf, size_t buf_len)
     }
 }
 
-#ifdef HAVE_LIBSAMPLERATE
-
 // Preload all the sound effects - stops nasty ingame freezes
 
 static void I_SDL_PrecacheSounds(sfxinfo_t *sounds, int num_sounds)
 {
     char namebuf[9];
     int i;
-
-    // Don't need to precache the sounds unless we are using libsamplerate.
-
-    if (use_libsamplerate == 0)
-    {
-	return;
-    }
 
     printf("I_SDL_PrecacheSounds: Precaching all sound effects..");
 
@@ -842,15 +843,6 @@ static void I_SDL_PrecacheSounds(sfxinfo_t *sounds, int num_sounds)
 
     printf("\n");
 }
-
-#else
-
-static void I_SDL_PrecacheSounds(sfxinfo_t *sounds, int num_sounds)
-{
-    // no-op
-}
-
-#endif
 
 // Load a SFX chunk into memory and ensure that it is locked.
 
@@ -1074,7 +1066,6 @@ static boolean I_SDL_InitSound(boolean _use_sfx_prefix)
     use_sfx_prefix = _use_sfx_prefix;
 
     // No sounds yet
-
     for (i=0; i<NUM_CHANNELS; ++i)
     {
         channels_playing[i] = NULL;
@@ -1086,7 +1077,7 @@ static boolean I_SDL_InitSound(boolean _use_sfx_prefix)
         return false;
     }
 
-    if (Mix_OpenAudio(snd_samplerate, AUDIO_S16SYS, 2, GetSliceSize()) < 0)
+    if (Mix_OpenAudioDevice(snd_samplerate, AUDIO_S16SYS, 2, GetSliceSize(), NULL, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE) < 0)
     {
         fprintf(stderr, "Error initialising SDL_mixer: %s\n", Mix_GetError());
         return false;
@@ -1150,3 +1141,5 @@ sound_module_t sound_sdl_module =
     I_SDL_PrecacheSounds,
 };
 
+
+#endif // DISABLE_SDL2MIXER
