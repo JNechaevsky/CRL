@@ -1309,7 +1309,7 @@ M_WriteText
  const char*		string)
 {
     int		w;
-    char*	ch;
+    const char*	ch;
     int		c;
     int		cx;
     int		cy;
@@ -2156,7 +2156,7 @@ static menu_t* _CRLDef = NULL;
  */
 void M_CRLDrawMenu(void)
 {
-	int i, on, x, y;
+	int i, x, y;
 	CRL_Option_t* opt;
 	CRL_Value_t* val;
 	
@@ -2177,11 +2177,13 @@ void M_CRLDrawMenu(void)
 		// Has a value?
 		if (opt->numvalues > 0)
 		{
+			int tw;
+
 			// Get value
 			val = &opt->values[opt->curvalue];
 			
 			// Width of setting
-			int tw = M_StringWidth(val->text);
+			tw = M_StringWidth(val->text);
 			
 			// Draw it from the right
 			M_WriteText((SCREENWIDTH - 5) - tw, y, val->text);
@@ -2202,7 +2204,6 @@ void M_CRLMenuAct(int __c)
 	
 	// Dynamically obtain the current item to modify, the actual index matches
 	// that of the index (1:1 map).
-	menuitem_t* rawitem = &_CRLItems[itemOn];
 	opt = &CRLOptionSet[itemOn];
 	
 	// If multiple values, change value left/right

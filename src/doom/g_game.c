@@ -330,7 +330,6 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
     int		forward;
     int		side;
     ticcmd_t spect;
-    ticcmd_t* altcmd;
 
     memset(cmd, 0, sizeof(ticcmd_t));
 
@@ -339,7 +338,6 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
  	
  	// If spectating then the player loses all input
  	memmove(&spect, cmd, sizeof(spect));
-	altcmd = cmd;
  	if (CRL_IsSpectating())
  		cmd = &spect;
  	

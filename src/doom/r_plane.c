@@ -278,7 +278,9 @@ R_FindPlane
 	return check;
 		
     if (lastvisplane - visplanes == CRL_MaxVisPlanes())
+	{
     	longjmp(CRLJustIncaseBuf, CRL_JUMP_VPO);
+	}
 	
 	// GhostlyDeath -- Count plane before write
 	CRL_CountPlane(check, 1, (intptr_t)(lastvisplane - visplanes));
@@ -315,7 +317,7 @@ R_CheckPlane
     int		intrh;
     int		unionl;
     int		unionh;
-    int		x;
+    int		x = 0;
 	
     if (start < pl->minx)
     {
