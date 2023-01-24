@@ -241,6 +241,12 @@ typedef struct CRL_Option_s
  */
 typedef struct CRL_Data_s
 {
+    /** [JN] Number of vissprites. */
+    int numvissprites;
+    
+	/** [JN] Number of wall segments. */
+	int numsegs;
+	
 	/** Number of check planes. */
 	int numcheckplanes;
 	
@@ -345,8 +351,7 @@ void CRL_OutputReport(void);
 void CRL_SetColors(uint8_t* colors, void* ref);
 void CRL_ChangeFrame(int __err);
 void CRL_CountPlane(void* __key, int __chorf, int __id);
-void CRL_StatDrawer(void (*__dt)(int, int, const char*),
-	int (*__wi)(const char*), int __fh, int __lh);
+void CRL_StatDrawer(void);
 void CRL_MarkPixelP(void** __surface, void* __what, void* __drawp);
 void CRL_DrawVisPlanes();
 void CRL_ViewDrawer();

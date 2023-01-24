@@ -18,7 +18,12 @@
 #include "z_zone.h"
 #include "v_video.h"
 #include "m_argv.h"
+#include "m_misc.h"  // [JN] M_snprintf
 #include "tables.h"
+
+
+/** [JN] External data. */
+extern void M_WriteText(int x, int y, const char *string);
 
 /** Backup. */
 jmp_buf CRLJustIncaseBuf;
@@ -874,13 +879,43 @@ void CRL_ChangeFrame(int __err)
 /**
  * Draws CRL stats.
  *
- * @param __dt Draw text.
- * @param __wi String width.
- * @param __fh Font height.
+ * [JN] Extended to draw sprite and segment counters, simplified.
  */
-void CRL_StatDrawer(void (*__dt)(int, int, const char*),
-	int (*__wi)(const char*), int __fh, int __lh)
+void CRL_StatDrawer(void)
 {
+    // Sprites (128 max)
+	{
+		char num[4];
+		
+		M_snprintf(num, 4, "%d", CRLData.numvissprites);
+		M_WriteText(0, 136, "SPR:");
+		M_WriteText(32, 136, num);
+	}
+
+    // Segments (256 max)
+	{
+		char num[16];
+		
+		M_snprintf(num, 16, "%d", CRLData.numsegs);
+		M_WriteText(0, 144, "SEG:");
+		M_WriteText(32, 144, num);
+	}
+    
+    // Visplanes (CRL: 32, 128 or 4096 max)
+	{
+		char num[32];
+		
+		// M_snprintf(num, 4, "%d", CRLData.numfindplanes);
+		M_snprintf(num, 32, "%d = %d CHK + %d FND",
+					CRLData.numcheckplanes + CRLData.numfindplanes,
+					CRLData.numcheckplanes, CRLData.numfindplanes);
+
+		M_WriteText(0, 152, "VIS:");
+		M_WriteText(32, 152, num);
+	}
+
+
+    /*
 #define MAXLINE 256
 	char line[MAXLINE];
 	CRL_Option_t* op;
@@ -912,6 +947,7 @@ void CRL_StatDrawer(void (*__dt)(int, int, const char*),
 		__dt(x, y, line);
 		y -= __fh;
 	}
+    */
 }
 
 /**

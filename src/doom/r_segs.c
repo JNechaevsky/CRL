@@ -243,6 +243,8 @@ void R_RenderSegLoop (void)
     int			top;
     int			bottom;
 
+    CRLData.numsegs++;
+
     for ( ; rw_x < rw_stopx ; rw_x++)
     {
 	// mark floor / ceiling areas

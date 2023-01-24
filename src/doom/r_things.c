@@ -309,6 +309,7 @@ void R_InitSprites (char** namelist)
 //
 void R_ClearSprites (void)
 {
+    CRLData.numvissprites = 0; 
     vissprite_p = vissprites;
 }
 
@@ -967,7 +968,7 @@ void R_DrawMasked (void)
 	     spr != &vsprsortedhead ;
 	     spr=spr->next)
 	{
-	    
+	    CRLData.numvissprites++;
 	    R_DrawSprite (spr);
 	}
     }

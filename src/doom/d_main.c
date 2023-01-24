@@ -183,7 +183,6 @@ void D_Display (void)
     int				tics;
     int				wipestart;
     int				y;
-    int pp;
     boolean			done;
     boolean			wipe;
     boolean			redrawsbar;
@@ -322,10 +321,8 @@ void D_Display (void)
     NetUpdate ();         // send out any new accumulation
 	
 	// GhostlyDeath -- CRL Stats
-	pp = SCREENHEIGHT;
-	if (viewheight < SCREENHEIGHT)
-		pp -= 32;
-	CRL_StatDrawer(M_WriteText, M_StringWidth, 9, pp);
+	// [JN] Extended to draw sprite and segment counters, simplified.
+	CRL_StatDrawer();
 
     // normal update
     if (!wipe)
