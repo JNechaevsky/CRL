@@ -1235,7 +1235,7 @@ void CRL_DrawHOMBack(int __x, int __y, int __w, int __h)
 #include "crlcore.h"
 
 // This across all ports has all the render stuff visible
-#include "r_local.h"
+#include "doom/r_local.h"
 
 // eye dee sawftwear kan speil
 #define numvertices numvertexes
