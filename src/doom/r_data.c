@@ -37,6 +37,7 @@
 
 
 #include "r_data.h"
+#include "v_trans.h"
 
 //
 // Graphics.
@@ -690,6 +691,37 @@ void R_InitColormaps (void)
     //  256 byte align tables.
     lump = W_GetNumForName(DEH_String("COLORMAP"));
     colormaps = W_CacheLumpNum(lump, PU_STATIC);
+
+    // [crispy] initialize color translation and color strings tables
+    {
+        byte *playpal = W_CacheLumpName("PLAYPAL", PU_STATIC);
+        char c[3];
+        int i, j;
+        boolean keepgray = false;
+
+        if (!crstr)
+        {
+            crstr = realloc(NULL, CRMAX * sizeof(*crstr));
+        }
+
+        // [crispy] check for status bar graphics replacements
+        i = W_CheckNumForName(DEH_String("sttnum0")); // [crispy] Status Bar '0'
+        keepgray = W_CheckMultipleLumps("sttnum0") < 2;
+
+        // [JN] CR__STOP: don't override tablified colors after this enum.
+        for (i = 0 ; i < CR__STOP ; i++)
+        {
+            for (j = 0; j < 256; j++)
+            {
+                cr[i][j] = V_Colorize(playpal, i, j, keepgray);
+            }
+
+            M_snprintf(c, sizeof(c), "%c%c", cr_esc, '0' + i);
+            crstr[i] = M_StringDuplicate(c);
+        }
+
+        W_ReleaseLumpName("PLAYPAL");
+    }
 }
 
 

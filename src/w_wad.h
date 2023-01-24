@@ -56,6 +56,7 @@ extern unsigned int numlumps;
 wad_file_t *W_AddFile(char *filename);
 void W_Reload(void);
 
+int W_CheckMultipleLumps (char *name);
 lumpindex_t W_CheckNumForName(char *name);
 lumpindex_t W_GetNumForName(char *name);
 
