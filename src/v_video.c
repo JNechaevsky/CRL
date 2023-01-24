@@ -23,6 +23,10 @@
 #include <string.h>
 #include <math.h>
 
+#define MINIZ_NO_STDIO
+#define MINIZ_NO_ZLIB_APIS
+#include "miniz.h"
+
 #include "i_system.h"
 
 #include "doomtype.h"
@@ -38,9 +42,6 @@
 #include "z_zone.h"
 
 #include "config.h"
-#ifdef HAVE_LIBPNG
-#include <png.h>
-#endif
 
 // TODO: There are separate RANGECHECK defines for different games, but this
 // is common code. Fix this.
@@ -708,135 +709,35 @@ void WritePCXfile(char *filename, byte *data,
     Z_Free (pcx);
 }
 
-#ifdef HAVE_LIBPNG
 //
 // WritePNGfile
 //
 
-static void error_fn(png_structp p, png_const_charp s)
+void WritePNGfile (char *filename)
 {
-    printf("libpng error: %s\n", s);
-}
-
-static void warning_fn(png_structp p, png_const_charp s)
-{
-    printf("libpng warning: %s\n", s);
-}
-
-void WritePNGfile(char *filename, byte *data,
-                  int inwidth, int inheight,
-                  byte *palette)
-{
-    png_structp ppng;
-    png_infop pinfo;
-    png_colorp pcolor;
-    FILE *handle;
-    int i, j;
+    byte *data;
     int width, height;
-    byte *rowbuf;
+    size_t png_data_size = 0;
 
-    if (aspect_ratio_correct)
+    I_RenderReadPixels(&data, &width, &height);
     {
-        // scale up to accommodate aspect ratio correction
-        width = inwidth * 5;
-        height = inheight * 6;
-    }
-    else
-    {
-        width = inwidth;
-        height = inheight;
-    }
+        void *pPNG_data = tdefl_write_image_to_png_file_in_memory(data, width, height, 4, &png_data_size);
 
-    handle = fopen(filename, "wb");
-    if (!handle)
-    {
-        return;
-    }
-
-    ppng = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL,
-                                   error_fn, warning_fn);
-    if (!ppng)
-    {
-        fclose(handle);
-        return;
-    }
-
-    pinfo = png_create_info_struct(ppng);
-    if (!pinfo)
-    {
-        fclose(handle);
-        png_destroy_write_struct(&ppng, NULL);
-        return;
-    }
-
-    png_init_io(ppng, handle);
-
-    png_set_IHDR(ppng, pinfo, width, height,
-                 8, PNG_COLOR_TYPE_PALETTE, PNG_INTERLACE_NONE,
-                 PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
-
-    pcolor = malloc(sizeof(*pcolor) * 256);
-    if (!pcolor)
-    {
-        fclose(handle);
-        png_destroy_write_struct(&ppng, &pinfo);
-        return;
-    }
-
-    for (i = 0; i < 256; i++)
-    {
-        pcolor[i].red   = *(palette + 3 * i);
-        pcolor[i].green = *(palette + 3 * i + 1);
-        pcolor[i].blue  = *(palette + 3 * i + 2);
-    }
-
-    png_set_PLTE(ppng, pinfo, pcolor, 256);
-    free(pcolor);
-
-    png_write_info(ppng, pinfo);
-
-    rowbuf = malloc(width);
-
-    if (rowbuf)
-    {
-        if (aspect_ratio_correct)
+        if (!pPNG_data)
         {
-            for (i = 0; i < SCREENHEIGHT; i++)
-            {
-                // expand the row 5x
-                for (j = 0; j < SCREENWIDTH; j++)
-                {
-                    memset(rowbuf + j * 5, *(data + i*SCREENWIDTH + j), 5);
-                }
-
-                // write the row 6 times
-                for (j = 0; j < 6; j++)
-                {
-                    png_write_row(ppng, rowbuf);
-                }
-            }
+            return;
         }
         else
         {
-            for (i = 0; i < SCREENHEIGHT; i++)
-            {
-                for (j = 0; j < SCREENWIDTH; j++)
-                {
-                    memset(rowbuf + j, *(data + i*SCREENWIDTH + j), 1);
-                }
-
-                png_write_row(ppng, rowbuf);
-            }
+            FILE *handle = fopen(filename, "wb");
+            fwrite(pPNG_data, 1, png_data_size, handle);
+            fclose(handle);
+            mz_free(pPNG_data);
         }
-
-        free(rowbuf);
     }
 
-    png_write_end(ppng, pinfo);
-    png_destroy_write_struct(&ppng, &pinfo);
-    fclose(handle);
+    free(data);
 }
-#endif
 
 //
 // V_ScreenShot
@@ -850,14 +751,12 @@ void V_ScreenShot(char *format)
     
     // find a file name to save it to
 
-#ifdef HAVE_LIBPNG
     extern int png_screenshots;
     if (png_screenshots)
     {
         ext = "png";
     }
     else
-#endif
     {
         ext = "pcx";
     }
@@ -874,27 +773,21 @@ void V_ScreenShot(char *format)
 
     if (i == 100)
     {
-#ifdef HAVE_LIBPNG
         if (png_screenshots)
         {
             I_Error ("V_ScreenShot: Couldn't create a PNG");
         }
         else
-#endif
         {
             I_Error ("V_ScreenShot: Couldn't create a PCX");
         }
     }
 
-#ifdef HAVE_LIBPNG
     if (png_screenshots)
     {
-    WritePNGfile(lbmname, I_VideoBuffer,
-                 SCREENWIDTH, SCREENHEIGHT,
-                 W_CacheLumpName (DEH_String("PLAYPAL"), PU_CACHE));
+    WritePNGfile(lbmname);
     }
     else
-#endif
     {
     // save the pcx file
     WritePCXfile(lbmname, I_VideoBuffer,

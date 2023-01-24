@@ -50,10 +50,11 @@ if(SAMPLERATE_FOUND)
     set(HAVE_LIBSAMPLERATE TRUE)
 endif()
 
-# Check for libpng.
-find_package(PNG)
-if(PNG_FOUND)
-    set(HAVE_LIBPNG TRUE)
+# Check for Miniz (replaces libpng).
+find_package(miniz 2.0.0)
+if(NOT MINIZ_FOUND)
+    message(STATUS "Using vendored miniz library")
+    add_subdirectory("miniz")
 endif()
 
 find_package(m)
