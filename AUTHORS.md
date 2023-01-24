@@ -10,7 +10,7 @@ Samuel Villarreal<br />
 Fabian Greffrath<br />
 Jonathan Dowland<br />
 Alexey Khokholov<br />
+Turo Lamminen<br />
 
-**Windows SDL2 maintenance by Julian Nechaevsky**<br />
-http://jnechaevsky.sf.net
-
+**SDL2 maintenance by Julia Nechaevskaya**<br />
+https://jnechaevsky.github.io
