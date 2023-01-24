@@ -767,6 +767,7 @@ void CRL_SetColors(uint8_t* colors, void* ref)
 					vc.HSV.H = 0;
 					
 					// Move color around a bit
+					{
 					double inv = (255.0 * ((double)j * (1.0 / (double)DARKSHADE)));
 					if (inv < 0.0)
 						inv = 0.0;
@@ -776,6 +777,7 @@ void CRL_SetColors(uint8_t* colors, void* ref)
 						
 					}
 					vc.HSV.V = (int)inv;
+					}
 					
 					// Set new color
 					_colormap[mi][i] = V_BestHSVMatch(_hsvgamecolors, vc);
@@ -813,6 +815,9 @@ void CRL_ChangeFrame(int __err)
 	// Clear state on zero
 	if (__err == 0)
 	{
+		// Frame up
+		int ntframe = (_frame++) >> 1;
+
 		// Old for max stats
 		memmove(&old, &CRLData, sizeof(CRLData));
 		memset(&CRLData, 0, sizeof(CRLData));
@@ -823,9 +828,6 @@ void CRL_ChangeFrame(int __err)
 		// Plane set
 		memset(_planelist, 0, sizeof(_planelist));
 		_numplanes = 0;
-		
-		// Frame up
-		int ntframe = (_frame++) >> 1;
 		
 		// Change pulse
 		if (_pulsestage == 0)
@@ -883,7 +885,7 @@ void CRL_StatDrawer(void (*__dt)(int, int, const char*),
 	char line[MAXLINE];
 	CRL_Option_t* op;
 	int dm;
-	int i, j, k, l;
+	int i;
 	int x, y;
 	
 	// Get current draw mode option
@@ -967,10 +969,9 @@ static int CRL_ColorizeThisPlane(CRLPlaneData_t* __pl)
 void CRL_DrawVisPlanes(int __over)
 {
 	CRL_Option_t* op;
-	int dm, isover, x, y, i, isbord, m, c;
+	int dm, isover, x, y, i, isbord, c;
 	void* is;
 	CRLPlaneData_t pd;
-	int qqc, qqf, qqz;
 	
 	// Get visplane drawing mode
 	op = &CRLOptionSet[CRL_DRAWPLANES];
@@ -990,7 +991,6 @@ void CRL_DrawVisPlanes(int __over)
 	
 	// Go through all pixels and draw visplane if one is there
 	memset(&pd, 0, sizeof(pd));
-	qqc = qqf = 0;
 	for (i = 0, x = 0, y = 0; i < SCREENAREA; i++, x++)
 	{
 		// Increase y
@@ -1235,7 +1235,7 @@ void CRL_DrawHOMBack(int __x, int __y, int __w, int __h)
 #include "crlcore.h"
 
 // This across all ports has all the render stuff visible
-#include "r_local.h"
+#include "doom/r_local.h"
 
 // eye dee sawftwear kan speil
 #define numvertices numvertexes

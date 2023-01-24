@@ -1383,7 +1383,7 @@ void AM_CRLMLine(int __col, int __x1, int __y1, int __x2, int __y2)
 void AM_Drawer (void)
 {
 	CRL_Option_t* op;
-	int i, dm;	
+	int dm;	
 	
     if (!automapactive) return;
     
