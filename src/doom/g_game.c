@@ -47,7 +47,6 @@
 #include "d_main.h"
 
 #include "wi_stuff.h"
-#include "hu_stuff.h"
 #include "st_stuff.h"
 #include "am_map.h"
 #include "statdump.h"
@@ -433,7 +432,7 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
     }
 
     // buttons
-    cmd->chatchar = HU_dequeueChatChar(); 
+    // cmd->chatchar = HU_dequeueChatChar(); 
  
     if (gamekeydown[key_fire] || mousebuttons[mousebfire] 
 	|| joybuttons[joybfire]) 
@@ -781,8 +780,8 @@ boolean G_Responder (event_t* ev)
 	    return true; 
 	} 
 #endif 
-	if (HU_Responder (ev)) 
-	    return true;	// chat ate the event 
+	// if (HU_Responder (ev)) 
+	//     return true;	// chat ate the event 
 	if (ST_Responder (ev)) 
 	    return true;	// status window ate it 
 	if (AM_Responder (ev)) 
@@ -1019,7 +1018,7 @@ void G_Ticker (void)
 	P_Ticker (); 
 	ST_Ticker (); 
 	AM_Ticker (); 
-	HU_Ticker ();            
+	//HU_Ticker ();            
 	break; 
 	 
       case GS_INTERMISSION: 

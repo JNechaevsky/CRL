@@ -42,8 +42,6 @@
 #include "r_local.h"
 
 
-#include "hu_stuff.h"
-
 #include "g_game.h"
 
 #include "m_argv.h"
@@ -62,11 +60,16 @@
 #include "crlcore.h"
 
 
+#define HU_FONTSTART	'!'	// the first font characters
+#define HU_FONTEND	'_'	// the last font characters
+
+// Calculate # of glyphs in font.
+#define HU_FONTSIZE	(HU_FONTEND - HU_FONTSTART + 1)	
+
 extern int			show_endoom;
 extern patch_t*		hu_font[HU_FONTSIZE];
-extern boolean		message_dontfuckwithme;
 
-extern boolean		chat_on;		// in heads-up code
+// extern boolean		chat_on;		// in heads-up code
 
 //
 // defaulted values
@@ -986,8 +989,6 @@ void M_ChangeMessages(int choice)
     CRL_SetMessage(&players[consoleplayer], DEH_String(MSGOFF), true);
     else
     CRL_SetMessage(&players[consoleplayer], DEH_String(MSGON), true);
-
-    message_dontfuckwithme = true;
 }
 
 
@@ -1654,7 +1655,7 @@ boolean M_Responder (event_t* ev)
     {
 	if (key == key_menu_decscreen)      // Screen size down
         {
-	    if (automapactive || chat_on)
+	    if (automapactive)
 		return false;
 	    M_SizeDisplay(0);
 	    S_StartSound(NULL,sfx_stnmov);
@@ -1662,7 +1663,7 @@ boolean M_Responder (event_t* ev)
 	}
         else if (key == key_menu_incscreen) // Screen size up
         {
-	    if (automapactive || chat_on)
+	    if (automapactive)
 		return false;
 	    M_SizeDisplay(1);
 	    S_StartSound(NULL,sfx_stnmov);
@@ -2140,7 +2141,6 @@ void M_Init (void)
 /*****************************************************************************/
 
 #include "crlcore.h"
-#include "hu_lib.h"
 
 /**
  * CRL menu items.

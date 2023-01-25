@@ -61,7 +61,6 @@
 
 #include "g_game.h"
 
-#include "hu_stuff.h"
 #include "wi_stuff.h"
 #include "st_stuff.h"
 #include "am_map.h"
@@ -75,9 +74,22 @@
 
 
 #include "d_main.h"
+#include "ct_chat.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
+
+
+///////////
+#define HU_FONTSTART	'!'	// the first font characters
+#define HU_FONTEND	'_'	// the last font characters
+
+// Calculate # of glyphs in font.
+#define HU_FONTSIZE	(HU_FONTEND - HU_FONTSTART + 1)	
+
+patch_t*		hu_font[HU_FONTSIZE];
+
+/////////////
 
 //
 // D-DoomLoop()
@@ -133,6 +145,8 @@ int             show_diskicon = 1;
 
 void D_ConnectNetGame(void);
 void D_CheckNetGame(void);
+
+
 
 
 //
@@ -229,9 +243,6 @@ void D_Display (void)
     else
 	wipe = false;
 
-    if (gamestate == GS_LEVEL && gametic)
-	HU_Erase();
-    
     // do buffered drawing
     switch (gamestate)
     {
@@ -272,8 +283,6 @@ void D_Display (void)
     {
     	if (gametic)
 		{
-			HU_Drawer();
-			
 			if (automapactive != 1)
 				R_RenderPlayerView(&players[displayplayer]);
 		}
@@ -1913,8 +1922,8 @@ void D_DoomMain (void)
 
     PrintGameVersion();
 
-    DEH_printf("HU_Init: Setting up heads up display.\n");
-    HU_Init ();
+    DEH_printf("CT_Init: Setting up messages system.\n");
+    CT_Init ();
 
     DEH_printf("ST_Init: Init status bar.\n");
     ST_Init ();

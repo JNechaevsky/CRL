@@ -44,6 +44,16 @@ typedef enum
     F_STAGE_CAST,
 } finalestage_t;
 
+#include "v_patch.h"
+
+#define HU_FONTSTART	'!'	// the first font characters
+#define HU_FONTEND	'_'	// the last font characters
+
+// Calculate # of glyphs in font.
+#define HU_FONTSIZE	(HU_FONTEND - HU_FONTSTART + 1)	
+
+extern patch_t*		hu_font[HU_FONTSIZE];
+
 // ?
 //#include "doomstat.h"
 //#include "r_local.h"
@@ -220,7 +230,6 @@ void F_Ticker (void)
 // F_TextWrite
 //
 
-#include "hu_stuff.h"
 extern	patch_t *hu_font[HU_FONTSIZE];
 
 

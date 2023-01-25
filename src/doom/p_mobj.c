@@ -27,7 +27,6 @@
 #include "sounds.h"
 
 #include "st_stuff.h"
-#include "hu_stuff.h"
 
 #include "s_sound.h"
 
@@ -741,7 +740,7 @@ void P_SpawnPlayer (mapthing_t* mthing)
 	// wake up the status bar
 	ST_Start ();
 	// wake up the heads up text
-	HU_Start ();		
+	// HU_Start ();		
     }
 }
 
