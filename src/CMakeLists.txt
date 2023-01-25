@@ -37,6 +37,7 @@ set(GAME_SOURCE_FILES
                         doomkeys.h
                         doomtype.h
     crlcore.c           crlcore.h
+    crlvars.c           crlvars.h
     d_iwad.c            d_iwad.h
     d_loop.c            d_loop.h
     d_mode.c            d_mode.h

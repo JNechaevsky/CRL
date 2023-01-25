@@ -48,6 +48,7 @@
 #include "z_zone.h"
 
 #include "crlcore.h"
+#include "crlvars.h"
 
 // Lookup table for mapping ASCII characters to their equivalent when
 // shift is pressed on an American layout keyboard:

@@ -38,6 +38,7 @@
 #include "sound.h"
 
 #include "mode.h"
+#include "crlvars.h"
 
 GameMission_t gamemission;
 static const iwad_t **iwads;
@@ -196,6 +197,10 @@ void InitBindings(void)
     BindSoundVariables();
     BindMiscVariables();
     BindMultiplayerVariables();
+
+    // [JN] CRL-specific config variables.
+
+    CRL_BindVariables();
 }
 
 // Set the name of the executable program to run the game:
@@ -208,11 +213,15 @@ static void SetExecutable(mission_config_t *config)
 
 #ifdef _WIN32
     extension = ".exe";
+    // [JN] FIXME, line below giving incorrect executable name,
+    // making game unable to start.
+    // executable = M_StringJoin(config->executable, extension, NULL);
+     executable = "chocorenderlimits-doom.exe";
 #else
     extension = "";
+    executable = M_StringJoin(config->executable, extension, NULL);
 #endif
 
-    executable = M_StringJoin(config->executable, extension, NULL);
 }
 
 static void SetMission(mission_config_t *config)

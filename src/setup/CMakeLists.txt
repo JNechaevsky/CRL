@@ -1,5 +1,6 @@
 add_library(setup STATIC
             compatibility.c     compatibility.h
+            ../crlvars.c        ../crlvars.h
             display.c           display.h
             joystick.c          joystick.h
             keyboard.c          keyboard.h

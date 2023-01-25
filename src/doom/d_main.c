@@ -77,6 +77,7 @@
 #include "d_main.h"
 
 #include "crlcore.h"
+#include "crlvars.h"
 
 //
 // D-DoomLoop()
