@@ -21,6 +21,7 @@
 #include <ctype.h>
 
 // Functions.
+#include "ct_chat.h"
 #include "deh_main.h"
 #include "i_system.h"
 #include "i_swap.h"
@@ -44,15 +45,9 @@ typedef enum
     F_STAGE_CAST,
 } finalestage_t;
 
-#include "v_patch.h"
 
-#define HU_FONTSTART	'!'	// the first font characters
-#define HU_FONTEND	'_'	// the last font characters
 
-// Calculate # of glyphs in font.
-#define HU_FONTSIZE	(HU_FONTEND - HU_FONTSTART + 1)	
 
-extern patch_t*		hu_font[HU_FONTSIZE];
 
 // ?
 //#include "doomstat.h"
@@ -229,9 +224,6 @@ void F_Ticker (void)
 //
 // F_TextWrite
 //
-
-extern	patch_t *hu_font[HU_FONTSIZE];
-
 
 void F_TextWrite (void)
 {

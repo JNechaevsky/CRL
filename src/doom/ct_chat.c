@@ -2,7 +2,7 @@
 // Copyright(C) 1993-1996 Id Software, Inc.
 // Copyright(C) 1993-2008 Raven Software
 // Copyright(C) 2005-2014 Simon Howard
-// Copyright(C) 2016-2023 Julian Nechaevsky
+// Copyright(C) 2023 Julia Nechaevskaya
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,8 +16,18 @@
 //
 
 
+#include "doomdef.h"
+
+#include "ct_chat.h"
+#include "d_englsh.h"
+#include "deh_str.h"
+#include "v_patch.h"
+#include "w_wad.h"
+#include "z_zone.h"
 
 
+
+patch_t *hu_font[HU_FONTSIZE];
 
 char *chat_macros[10] =
 {
@@ -49,13 +59,12 @@ char *player_names[] =
 
 void CT_Init (void)
 {
-    int		j = HU_FONTSTART;
-    char	buffer[9];
+    int   j = HU_FONTSTART;
+    char  buffer[9];
 
     for (int i = 0 ; i < HU_FONTSIZE ; i++)
     {
         DEH_snprintf(buffer, 9, "STCFN%.3d", j++);
         hu_font[i] = (patch_t *) W_CacheLumpName(buffer, PU_STATIC);
     }
-
 }
