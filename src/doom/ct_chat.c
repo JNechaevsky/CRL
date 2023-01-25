@@ -17,14 +17,12 @@
 
 
 #include "doomdef.h"
-
 #include "ct_chat.h"
 #include "d_englsh.h"
 #include "deh_str.h"
 #include "v_patch.h"
 #include "w_wad.h"
 #include "z_zone.h"
-
 
 
 patch_t *hu_font[HU_FONTSIZE];

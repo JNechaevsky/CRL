@@ -432,8 +432,6 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
     }
 
     // buttons
-    // cmd->chatchar = HU_dequeueChatChar(); 
- 
     if (gamekeydown[key_fire] || mousebuttons[mousebfire] 
 	|| joybuttons[joybfire]) 
 	cmd->buttons |= BT_ATTACK; 
@@ -780,8 +778,6 @@ boolean G_Responder (event_t* ev)
 	    return true; 
 	} 
 #endif 
-	// if (HU_Responder (ev)) 
-	//     return true;	// chat ate the event 
 	if (ST_Responder (ev)) 
 	    return true;	// status window ate it 
 	if (AM_Responder (ev)) 
@@ -1018,7 +1014,6 @@ void G_Ticker (void)
 	P_Ticker (); 
 	ST_Ticker (); 
 	AM_Ticker (); 
-	//HU_Ticker ();            
 	break; 
 	 
       case GS_INTERMISSION: 

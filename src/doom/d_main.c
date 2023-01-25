@@ -79,7 +79,6 @@
 #include "crlcore.h"
 #include "crlvars.h"
 
-
 //
 // D-DoomLoop()
 // Not a globally visible function,
@@ -134,8 +133,6 @@ int             show_diskicon = 1;
 
 void D_ConnectNetGame(void);
 void D_CheckNetGame(void);
-
-
 
 
 //

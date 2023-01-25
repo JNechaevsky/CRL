@@ -739,8 +739,6 @@ void P_SpawnPlayer (mapthing_t* mthing)
     {
 	// wake up the status bar
 	ST_Start ();
-	// wake up the heads up text
-	// HU_Start ();		
     }
 }
 

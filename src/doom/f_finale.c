@@ -45,10 +45,6 @@ typedef enum
     F_STAGE_CAST,
 } finalestage_t;
 
-
-
-
-
 // ?
 //#include "doomstat.h"
 //#include "r_local.h"

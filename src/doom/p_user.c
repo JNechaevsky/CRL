@@ -246,7 +246,8 @@ void P_PlayerThink (player_t* player)
 	cmd->sidemove = 0;
 	player->mo->flags &= ~MF_JUSTATTACKED;
     }
-			
+
+
     if (player->messageTics > 0)
     {
         player->messageTics--;
