@@ -133,7 +133,7 @@ typedef struct player_s
 
     // Hint messages.
     char*		message;	
-    int         messageTics;
+    int			messageTics;
     
     // For screen flashing (red or bright).
     int			damagecount;

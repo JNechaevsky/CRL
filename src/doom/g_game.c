@@ -679,7 +679,7 @@ void G_DoLoadLevel (void)
 
     if (testcontrols)
     {
-        P_SetMessage(&players[consoleplayer], "Press escape to quit.", false);
+        CRL_SetMessage(&players[consoleplayer], "Press escape to quit.", false);
     }
 } 
 
@@ -904,7 +904,7 @@ void G_Ticker (void)
 	    break; 
 	  case ga_screenshot: 
 	    V_ScreenShot("DOOM%02i.%s"); 
-            P_SetMessage(&players[consoleplayer], DEH_String("screen shot"), false);
+            CRL_SetMessage(&players[consoleplayer], DEH_String("screen shot"), false);
 	    gameaction = ga_nothing; 
 	    break; 
 	  case ga_nothing: 
@@ -950,7 +950,7 @@ void G_Ticker (void)
                 extern char *player_names[4];
                 M_snprintf(turbomessage, sizeof(turbomessage),
                            "%s is turbo!", player_names[i]);
-                P_SetMessage(&players[consoleplayer], turbomessage, false);
+                CRL_SetMessage(&players[consoleplayer], turbomessage, false);
                 turbodetected[i] = false;
             }
 
@@ -1688,7 +1688,7 @@ void G_DoSaveGame (void)
     gameaction = ga_nothing;
     M_StringCopy(savedescription, "", sizeof(savedescription));
 
-    P_SetMessage(&players[consoleplayer], DEH_String(GGSAVED), false);
+    CRL_SetMessage(&players[consoleplayer], DEH_String(GGSAVED), false);
 
     // draw the pattern into the back screen
     R_FillBackScreen ();

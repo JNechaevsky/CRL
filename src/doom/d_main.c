@@ -155,21 +155,20 @@ void D_ProcessEvents (void)
     }
 }
 
-//---------------------------------------------------------------------------
-//
-// PROC DrawMessage
-//
-//---------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+// D_DrawMessage
+// [JN] Draws message on the screen.
+// -----------------------------------------------------------------------------
 
-void DrawMessage(void)
+static void CRL_DrawMessage (void)
 {
-    player_t *player;
+    player_t *player = &players[consoleplayer];
 
-    player = &players[consoleplayer];
     if (player->messageTics <= 0 || !player->message)
-    {                           // No message
-        return;
+    {
+        return;  // No message
     }
+
     M_WriteText(0, 0, player->message);
 }
 
@@ -342,7 +341,7 @@ void D_Display (void)
 	CRL_StatDrawer();
 
     // Handle player messages
-    DrawMessage();
+    CRL_DrawMessage();
 
     // normal update
     if (!wipe)

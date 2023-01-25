@@ -983,9 +983,9 @@ void M_ChangeMessages(int choice)
     showMessages = 1 - showMessages;
 	
     if (!showMessages)
-    P_SetMessage(&players[consoleplayer], DEH_String(MSGOFF), true);
+    CRL_SetMessage(&players[consoleplayer], DEH_String(MSGOFF), true);
     else
-    P_SetMessage(&players[consoleplayer], DEH_String(MSGON), true);
+    CRL_SetMessage(&players[consoleplayer], DEH_String(MSGON), true);
 
     message_dontfuckwithme = true;
 }
@@ -1152,9 +1152,9 @@ void M_ChangeDetail(int choice)
     R_SetViewSize (screenblocks, detailLevel);
 
     if (!detailLevel)
-    P_SetMessage(&players[consoleplayer], DEH_String(DETAILHI), false);
+    CRL_SetMessage(&players[consoleplayer], DEH_String(DETAILHI), false);
     else
-    P_SetMessage(&players[consoleplayer], DEH_String(DETAILLO), false);
+    CRL_SetMessage(&players[consoleplayer], DEH_String(DETAILLO), false);
 }
 
 
@@ -1744,7 +1744,7 @@ boolean M_Responder (event_t* ev)
 	    usegamma++;
 	    if (usegamma > 4)
 		usegamma = 0;
-        P_SetMessage(&players[consoleplayer], DEH_String(gammamsg[usegamma]), false);
+        CRL_SetMessage(&players[consoleplayer], DEH_String(gammamsg[usegamma]), false);
             I_SetPalette (W_CacheLumpName (DEH_String("PLAYPAL"),PU_CACHE));
 	    return true;
 	}
