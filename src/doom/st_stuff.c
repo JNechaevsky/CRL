@@ -485,10 +485,14 @@ ST_Responder (event_t* ev)
 	plyr->armortype = deh_idfa_armor_class;
 	
 	for (i=0;i<NUMWEAPONS;i++)
+    {
 	  plyr->weaponowned[i] = true;
+    }
 	
 	for (i=0;i<NUMAMMO;i++)
+    {
 	  plyr->ammo[i] = plyr->maxammo[i];
+    }
 	
 	  CRL_SetMessage(plyr, DEH_String(STSTR_FAADDED), false);
       }
@@ -505,7 +509,9 @@ ST_Responder (event_t* ev)
 	  plyr->ammo[i] = plyr->maxammo[i];
 	
 	for (i=0;i<NUMCARDS;i++)
+    {
 	  plyr->cards[i] = true;
+    }
 	
 	  CRL_SetMessage(plyr, DEH_String(STSTR_KFAADDED), false);
       }

@@ -57,6 +57,7 @@
 
 #include "m_menu.h"
 #include "p_local.h"
+#include "ct_chat.h"
 #include "crlcore.h"
 
 
