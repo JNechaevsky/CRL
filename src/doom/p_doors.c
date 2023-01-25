@@ -213,7 +213,7 @@ EV_DoLockedDoor
 	    return 0;
 	if (!p->cards[it_bluecard] && !p->cards[it_blueskull])
 	{
-	    p->message = DEH_String(PD_BLUEO);
+        P_SetMessage(p, DEH_String(PD_BLUEO), false);
 	    S_StartSound(NULL,sfx_oof);
 	    return 0;
 	}
@@ -225,7 +225,7 @@ EV_DoLockedDoor
 	    return 0;
 	if (!p->cards[it_redcard] && !p->cards[it_redskull])
 	{
-	    p->message = DEH_String(PD_REDO);
+        P_SetMessage(p, DEH_String(PD_REDO), false);
 	    S_StartSound(NULL,sfx_oof);
 	    return 0;
 	}
@@ -238,7 +238,7 @@ EV_DoLockedDoor
 	if (!p->cards[it_yellowcard] &&
 	    !p->cards[it_yellowskull])
 	{
-	    p->message = DEH_String(PD_YELLOWO);
+        P_SetMessage(p, DEH_String(PD_YELLOWO), false);
 	    S_StartSound(NULL,sfx_oof);
 	    return 0;
 	}
@@ -358,7 +358,7 @@ EV_VerticalDoor
 	
 	if (!player->cards[it_bluecard] && !player->cards[it_blueskull])
 	{
-	    player->message = DEH_String(PD_BLUEK);
+        P_SetMessage(player, DEH_String(PD_BLUEK), false);
 	    S_StartSound(NULL,sfx_oof);
 	    return;
 	}
@@ -372,7 +372,7 @@ EV_VerticalDoor
 	if (!player->cards[it_yellowcard] &&
 	    !player->cards[it_yellowskull])
 	{
-	    player->message = DEH_String(PD_YELLOWK);
+        P_SetMessage(player, DEH_String(PD_YELLOWK), false);
 	    S_StartSound(NULL,sfx_oof);
 	    return;
 	}
@@ -385,7 +385,7 @@ EV_VerticalDoor
 	
 	if (!player->cards[it_redcard] && !player->cards[it_redskull])
 	{
-	    player->message = DEH_String(PD_REDK);
+        P_SetMessage(player, DEH_String(PD_REDK), false);
 	    S_StartSound(NULL,sfx_oof);
 	    return;
 	}

@@ -473,10 +473,10 @@ ST_Responder (event_t* ev)
 	    plyr->mo->health = 100;
 	  
 	  plyr->health = deh_god_mode_health;
-	  plyr->message = DEH_String(STSTR_DQDON);
+      P_SetMessage(plyr, DEH_String(STSTR_DQDON), false);
 	}
 	else 
-	  plyr->message = DEH_String(STSTR_DQDOFF);
+      P_SetMessage(plyr, DEH_String(STSTR_DQDOFF), false);
       }
       // 'fa' cheat for killer fucking arsenal
       else if (cht_CheckCheat(&cheat_ammonokey, ev->data2))
@@ -490,7 +490,7 @@ ST_Responder (event_t* ev)
 	for (i=0;i<NUMAMMO;i++)
 	  plyr->ammo[i] = plyr->maxammo[i];
 	
-	plyr->message = DEH_String(STSTR_FAADDED);
+    P_SetMessage(plyr, DEH_String(STSTR_FAADDED), false);
       }
       // 'kfa' cheat for key full ammo
       else if (cht_CheckCheat(&cheat_ammo, ev->data2))
@@ -507,7 +507,7 @@ ST_Responder (event_t* ev)
 	for (i=0;i<NUMCARDS;i++)
 	  plyr->cards[i] = true;
 	
-	plyr->message = DEH_String(STSTR_KFAADDED);
+    P_SetMessage(plyr, DEH_String(STSTR_KFAADDED), false);
       }
       // 'mus' cheat for changing music
       else if (cht_CheckCheat(&cheat_mus, ev->data2))
@@ -516,7 +516,7 @@ ST_Responder (event_t* ev)
 	char	buf[3];
 	int		musnum;
 	
-	plyr->message = DEH_String(STSTR_MUS);
+    P_SetMessage(plyr, DEH_String(STSTR_MUS), false);
 	cht_GetParam(&cheat_mus, buf);
 
         // Note: The original v1.9 had a bug that tried to play back
@@ -530,7 +530,7 @@ ST_Responder (event_t* ev)
 	  
 	  if (((buf[0]-'0')*10 + buf[1]-'0') > 35
        && gameversion >= exe_doom_1_8)
-	    plyr->message = DEH_String(STSTR_NOMUS);
+        P_SetMessage(plyr, DEH_String(STSTR_NOMUS), false);
 	  else
 	    S_ChangeMusic(musnum, 1);
 	}
@@ -539,7 +539,7 @@ ST_Responder (event_t* ev)
 	  musnum = mus_e1m1 + (buf[0]-'1')*9 + (buf[1]-'1');
 	  
 	  if (((buf[0]-'1')*9 + buf[1]-'1') > 31)
-	    plyr->message = DEH_String(STSTR_NOMUS);
+        P_SetMessage(plyr, DEH_String(STSTR_NOMUS), false);
 	  else
 	    S_ChangeMusic(musnum, 1);
 	}
@@ -556,9 +556,9 @@ ST_Responder (event_t* ev)
 	plyr->cheats ^= CF_NOCLIP;
 	
 	if (plyr->cheats & CF_NOCLIP)
-	  plyr->message = DEH_String(STSTR_NCON);
+      P_SetMessage(plyr, DEH_String(STSTR_NCON), false);
 	else
-	  plyr->message = DEH_String(STSTR_NCOFF);
+      P_SetMessage(plyr, DEH_String(STSTR_NCOFF), false);
       }
       // 'behold?' power-up cheats
       for (i=0;i<6;i++)
@@ -572,21 +572,21 @@ ST_Responder (event_t* ev)
 	  else
 	    plyr->powers[i] = 0;
 	  
-	  plyr->message = DEH_String(STSTR_BEHOLDX);
+      P_SetMessage(plyr, DEH_String(STSTR_BEHOLDX), false);
 	}
       }
       
       // 'behold' power-up menu
       if (cht_CheckCheat(&cheat_powerup[6], ev->data2))
       {
-	plyr->message = DEH_String(STSTR_BEHOLD);
+    P_SetMessage(plyr, DEH_String(STSTR_BEHOLD), false);
       }
       // 'choppers' invulnerability & chainsaw
       else if (cht_CheckCheat(&cheat_choppers, ev->data2))
       {
 	plyr->weaponowned[wp_chainsaw] = true;
 	plyr->powers[pw_invulnerability] = true;
-	plyr->message = DEH_String(STSTR_CHOPPERS);
+    P_SetMessage(plyr, DEH_String(STSTR_CHOPPERS), false);
       }
       // 'mypos' for player position
       else if (cht_CheckCheat(&cheat_mypos, ev->data2))
@@ -596,7 +596,7 @@ ST_Responder (event_t* ev)
                    players[consoleplayer].mo->angle,
                    players[consoleplayer].mo->x,
                    players[consoleplayer].mo->y);
-        plyr->message = buf;
+        P_SetMessage(plyr, buf, false);
       }
     }
     
@@ -671,7 +671,7 @@ ST_Responder (event_t* ev)
       }
 
       // So be it.
-      plyr->message = DEH_String(STSTR_CLEV);
+      P_SetMessage(plyr, DEH_String(STSTR_CLEV), false);
       G_DeferedInitNew(gameskill, epsd, map);
     }
   }

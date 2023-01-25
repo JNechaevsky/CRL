@@ -679,7 +679,7 @@ void G_DoLoadLevel (void)
 
     if (testcontrols)
     {
-        players[consoleplayer].message = "Press escape to quit.";
+        P_SetMessage(&players[consoleplayer], "Press escape to quit.", false);
     }
 } 
 
@@ -904,7 +904,7 @@ void G_Ticker (void)
 	    break; 
 	  case ga_screenshot: 
 	    V_ScreenShot("DOOM%02i.%s"); 
-            players[consoleplayer].message = DEH_String("screen shot");
+            P_SetMessage(&players[consoleplayer], DEH_String("screen shot"), false);
 	    gameaction = ga_nothing; 
 	    break; 
 	  case ga_nothing: 
@@ -950,7 +950,7 @@ void G_Ticker (void)
                 extern char *player_names[4];
                 M_snprintf(turbomessage, sizeof(turbomessage),
                            "%s is turbo!", player_names[i]);
-                players[consoleplayer].message = turbomessage;
+                P_SetMessage(&players[consoleplayer], turbomessage, false);
                 turbodetected[i] = false;
             }
 
@@ -1067,6 +1067,7 @@ void G_PlayerFinishLevel (int player)
 	 
     memset (p->powers, 0, sizeof (p->powers)); 
     memset (p->cards, 0, sizeof (p->cards)); 
+    p->messageTics = 0;
     p->mo->flags &= ~MF_SHADOW;		// cancel invisibility 
     p->extralight = 0;			// cancel gun flashes 
     p->fixedcolormap = 0;		// cancel ir gogles 
@@ -1109,6 +1110,7 @@ void G_PlayerReborn (int player)
     p->weaponowned[wp_fist] = true; 
     p->weaponowned[wp_pistol] = true; 
     p->ammo[am_clip] = deh_initial_bullets; 
+    p->messageTics = 0;
 	 
     for (i=0 ; i<NUMAMMO ; i++) 
 	p->maxammo[i] = maxammo[i]; 
@@ -1686,7 +1688,7 @@ void G_DoSaveGame (void)
     gameaction = ga_nothing;
     M_StringCopy(savedescription, "", sizeof(savedescription));
 
-    players[consoleplayer].message = DEH_String(GGSAVED);
+    P_SetMessage(&players[consoleplayer], DEH_String(GGSAVED), false);
 
     // draw the pattern into the back screen
     R_FillBackScreen ();

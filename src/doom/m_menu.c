@@ -58,6 +58,7 @@
 #include "sounds.h"
 
 #include "m_menu.h"
+#include "p_local.h"
 #include "crlcore.h"
 
 
@@ -982,9 +983,9 @@ void M_ChangeMessages(int choice)
     showMessages = 1 - showMessages;
 	
     if (!showMessages)
-	players[consoleplayer].message = DEH_String(MSGOFF);
+    P_SetMessage(&players[consoleplayer], DEH_String(MSGOFF), true);
     else
-	players[consoleplayer].message = DEH_String(MSGON);
+    P_SetMessage(&players[consoleplayer], DEH_String(MSGON), true);
 
     message_dontfuckwithme = true;
 }
@@ -1151,9 +1152,9 @@ void M_ChangeDetail(int choice)
     R_SetViewSize (screenblocks, detailLevel);
 
     if (!detailLevel)
-	players[consoleplayer].message = DEH_String(DETAILHI);
+    P_SetMessage(&players[consoleplayer], DEH_String(DETAILHI), false);
     else
-	players[consoleplayer].message = DEH_String(DETAILLO);
+    P_SetMessage(&players[consoleplayer], DEH_String(DETAILLO), false);
 }
 
 
@@ -1743,7 +1744,7 @@ boolean M_Responder (event_t* ev)
 	    usegamma++;
 	    if (usegamma > 4)
 		usegamma = 0;
-	    players[consoleplayer].message = DEH_String(gammamsg[usegamma]);
+        P_SetMessage(&players[consoleplayer], DEH_String(gammamsg[usegamma]), false);
             I_SetPalette (W_CacheLumpName (DEH_String("PLAYPAL"),PU_CACHE));
 	    return true;
 	}

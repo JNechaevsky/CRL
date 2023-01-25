@@ -155,7 +155,23 @@ void D_ProcessEvents (void)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// PROC DrawMessage
+//
+//---------------------------------------------------------------------------
 
+void DrawMessage(void)
+{
+    player_t *player;
+
+    player = &players[consoleplayer];
+    if (player->messageTics <= 0 || !player->message)
+    {                           // No message
+        return;
+    }
+    M_WriteText(0, 0, player->message);
+}
 
 
 //
@@ -324,6 +340,9 @@ void D_Display (void)
 	// GhostlyDeath -- CRL Stats
 	// [JN] Extended to draw sprite and segment counters, simplified.
 	CRL_StatDrawer();
+
+    // Handle player messages
+    DrawMessage();
 
     // normal update
     if (!wipe)
