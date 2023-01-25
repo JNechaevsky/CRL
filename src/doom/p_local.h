@@ -275,6 +275,11 @@ extern mobj_t**		blocklinks;	// for thing chains
 extern int		maxammo[NUMAMMO];
 extern int		clipammo[NUMAMMO];
 
+#define MESSAGETICS (4*35)
+extern int showMessages;
+extern boolean ultimatemsg;
+extern void CRL_SetMessage (player_t * player, char *message, boolean ultmsg);
+
 void
 P_TouchSpecialThing
 ( mobj_t*	special,

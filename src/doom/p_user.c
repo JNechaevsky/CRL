@@ -246,8 +246,17 @@ void P_PlayerThink (player_t* player)
 	cmd->sidemove = 0;
 	player->mo->flags &= ~MF_JUSTATTACKED;
     }
-			
-	
+
+
+    if (player->messageTics > 0)
+    {
+        player->messageTics--;
+    }
+    if (!player->messageTics)
+    {                           // Refresh the screen when a message goes away
+        ultimatemsg = false;    // clear out any chat messages.
+    }
+
     if (player->playerstate == PST_DEAD)
     {
 	P_DeathThink (player);

@@ -700,29 +700,29 @@ AM_Responder
             followplayer = !followplayer;
             f_oldloc.x = INT_MAX;
             if (followplayer)
-                plr->message = DEH_String(AMSTR_FOLLOWON);
+                CRL_SetMessage(plr, DEH_String(AMSTR_FOLLOWON), false);
             else
-                plr->message = DEH_String(AMSTR_FOLLOWOFF);
+                CRL_SetMessage(plr, DEH_String(AMSTR_FOLLOWOFF), false);
         }
         else if (key == key_map_grid)
         {
             grid = !grid;
             if (grid)
-                plr->message = DEH_String(AMSTR_GRIDON);
+                CRL_SetMessage(plr, DEH_String(AMSTR_GRIDON), false);
             else
-                plr->message = DEH_String(AMSTR_GRIDOFF);
+                CRL_SetMessage(plr, DEH_String(AMSTR_GRIDOFF), false);
         }
         else if (key == key_map_mark)
         {
             M_snprintf(buffer, sizeof(buffer), "%s %d",
                        DEH_String(AMSTR_MARKEDSPOT), markpointnum);
-            plr->message = buffer;
+            CRL_SetMessage(plr, buffer, false);
             AM_addMark();
         }
         else if (key == key_map_clearmark)
         {
             AM_clearMarks();
-            plr->message = DEH_String(AMSTR_MARKSCLEARED);
+            CRL_SetMessage(plr, DEH_String(AMSTR_MARKSCLEARED), false);
         }
         else
         {

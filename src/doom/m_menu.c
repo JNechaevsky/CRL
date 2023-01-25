@@ -42,8 +42,6 @@
 #include "r_local.h"
 
 
-#include "hu_stuff.h"
-
 #include "g_game.h"
 
 #include "m_argv.h"
@@ -58,14 +56,11 @@
 #include "sounds.h"
 
 #include "m_menu.h"
+#include "p_local.h"
 #include "crlcore.h"
 
 
 extern int			show_endoom;
-extern patch_t*		hu_font[HU_FONTSIZE];
-extern boolean		message_dontfuckwithme;
-
-extern boolean		chat_on;		// in heads-up code
 
 //
 // defaulted values
@@ -982,11 +977,9 @@ void M_ChangeMessages(int choice)
     showMessages = 1 - showMessages;
 	
     if (!showMessages)
-	players[consoleplayer].message = DEH_String(MSGOFF);
+	CRL_SetMessage(&players[consoleplayer], DEH_String(MSGOFF), true);
     else
-	players[consoleplayer].message = DEH_String(MSGON);
-
-    message_dontfuckwithme = true;
+	CRL_SetMessage(&players[consoleplayer], DEH_String(MSGON), true);
 }
 
 
@@ -1151,9 +1144,9 @@ void M_ChangeDetail(int choice)
     R_SetViewSize (screenblocks, detailLevel);
 
     if (!detailLevel)
-	players[consoleplayer].message = DEH_String(DETAILHI);
+	CRL_SetMessage(&players[consoleplayer], DEH_String(DETAILHI), false);
     else
-	players[consoleplayer].message = DEH_String(DETAILLO);
+	CRL_SetMessage(&players[consoleplayer], DEH_String(DETAILLO), false);
 }
 
 
@@ -1653,7 +1646,7 @@ boolean M_Responder (event_t* ev)
     {
 	if (key == key_menu_decscreen)      // Screen size down
         {
-	    if (automapactive || chat_on)
+	    if (automapactive)
 		return false;
 	    M_SizeDisplay(0);
 	    S_StartSound(NULL,sfx_stnmov);
@@ -1661,7 +1654,7 @@ boolean M_Responder (event_t* ev)
 	}
         else if (key == key_menu_incscreen) // Screen size up
         {
-	    if (automapactive || chat_on)
+	    if (automapactive)
 		return false;
 	    M_SizeDisplay(1);
 	    S_StartSound(NULL,sfx_stnmov);
@@ -1743,7 +1736,7 @@ boolean M_Responder (event_t* ev)
 	    usegamma++;
 	    if (usegamma > 4)
 		usegamma = 0;
-	    players[consoleplayer].message = DEH_String(gammamsg[usegamma]);
+	    CRL_SetMessage(&players[consoleplayer], DEH_String(gammamsg[usegamma]), false);
             I_SetPalette (W_CacheLumpName (DEH_String("PLAYPAL"),PU_CACHE));
 	    return true;
 	}
@@ -2139,7 +2132,6 @@ void M_Init (void)
 /*****************************************************************************/
 
 #include "crlcore.h"
-#include "hu_lib.h"
 
 /**
  * CRL menu items.

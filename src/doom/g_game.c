@@ -47,7 +47,6 @@
 #include "d_main.h"
 
 #include "wi_stuff.h"
-#include "hu_stuff.h"
 #include "st_stuff.h"
 #include "am_map.h"
 #include "statdump.h"
@@ -433,8 +432,6 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
     }
 
     // buttons
-    cmd->chatchar = HU_dequeueChatChar(); 
- 
     if (gamekeydown[key_fire] || mousebuttons[mousebfire] 
 	|| joybuttons[joybfire]) 
 	cmd->buttons |= BT_ATTACK; 
@@ -679,7 +676,7 @@ void G_DoLoadLevel (void)
 
     if (testcontrols)
     {
-        players[consoleplayer].message = "Press escape to quit.";
+        CRL_SetMessage(&players[consoleplayer], "Press escape to quit.", false);
     }
 } 
 
@@ -781,8 +778,6 @@ boolean G_Responder (event_t* ev)
 	    return true; 
 	} 
 #endif 
-	if (HU_Responder (ev)) 
-	    return true;	// chat ate the event 
 	if (ST_Responder (ev)) 
 	    return true;	// status window ate it 
 	if (AM_Responder (ev)) 
@@ -904,7 +899,7 @@ void G_Ticker (void)
 	    break; 
 	  case ga_screenshot: 
 	    V_ScreenShot("DOOM%02i.%s"); 
-            players[consoleplayer].message = DEH_String("screen shot");
+            CRL_SetMessage(&players[consoleplayer], DEH_String("screen shot"), false);
 	    gameaction = ga_nothing; 
 	    break; 
 	  case ga_nothing: 
@@ -950,7 +945,7 @@ void G_Ticker (void)
                 extern char *player_names[4];
                 M_snprintf(turbomessage, sizeof(turbomessage),
                            "%s is turbo!", player_names[i]);
-                players[consoleplayer].message = turbomessage;
+                CRL_SetMessage(&players[consoleplayer], turbomessage, false);
                 turbodetected[i] = false;
             }
 
@@ -1019,7 +1014,6 @@ void G_Ticker (void)
 	P_Ticker (); 
 	ST_Ticker (); 
 	AM_Ticker (); 
-	HU_Ticker ();            
 	break; 
 	 
       case GS_INTERMISSION: 
@@ -1067,6 +1061,7 @@ void G_PlayerFinishLevel (int player)
 	 
     memset (p->powers, 0, sizeof (p->powers)); 
     memset (p->cards, 0, sizeof (p->cards)); 
+    p->messageTics = 0;
     p->mo->flags &= ~MF_SHADOW;		// cancel invisibility 
     p->extralight = 0;			// cancel gun flashes 
     p->fixedcolormap = 0;		// cancel ir gogles 
@@ -1109,6 +1104,7 @@ void G_PlayerReborn (int player)
     p->weaponowned[wp_fist] = true; 
     p->weaponowned[wp_pistol] = true; 
     p->ammo[am_clip] = deh_initial_bullets; 
+    p->messageTics = 0;
 	 
     for (i=0 ; i<NUMAMMO ; i++) 
 	p->maxammo[i] = maxammo[i]; 
@@ -1686,7 +1682,7 @@ void G_DoSaveGame (void)
     gameaction = ga_nothing;
     M_StringCopy(savedescription, "", sizeof(savedescription));
 
-    players[consoleplayer].message = DEH_String(GGSAVED);
+    CRL_SetMessage(&players[consoleplayer], DEH_String(GGSAVED), false);
 
     // draw the pattern into the back screen
     R_FillBackScreen ();

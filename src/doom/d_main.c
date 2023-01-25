@@ -61,7 +61,6 @@
 
 #include "g_game.h"
 
-#include "hu_stuff.h"
 #include "wi_stuff.h"
 #include "st_stuff.h"
 #include "am_map.h"
@@ -75,6 +74,7 @@
 
 
 #include "d_main.h"
+#include "ct_chat.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
@@ -155,7 +155,22 @@ void D_ProcessEvents (void)
     }
 }
 
+// -----------------------------------------------------------------------------
+// D_DrawMessage
+// [JN] Draws message on the screen.
+// -----------------------------------------------------------------------------
 
+static void CRL_DrawMessage (void)
+{
+    player_t *player = &players[consoleplayer];
+
+    if (player->messageTics <= 0 || !player->message)
+    {
+        return;  // No message
+    }
+
+    M_WriteText(0, 0, player->message);
+}
 
 
 //
@@ -214,9 +229,6 @@ void D_Display (void)
     else
 	wipe = false;
 
-    if (gamestate == GS_LEVEL && gametic)
-	HU_Erase();
-    
     // do buffered drawing
     switch (gamestate)
     {
@@ -257,8 +269,6 @@ void D_Display (void)
     {
     	if (gametic)
 		{
-			HU_Drawer();
-			
 			if (automapactive != 1)
 				R_RenderPlayerView(&players[displayplayer]);
 		}
@@ -324,6 +334,9 @@ void D_Display (void)
 	// GhostlyDeath -- CRL Stats
 	// [JN] Extended to draw sprite and segment counters, simplified.
 	CRL_StatDrawer();
+
+    // Handle player messages
+    CRL_DrawMessage();
 
     // normal update
     if (!wipe)
@@ -1895,8 +1908,8 @@ void D_DoomMain (void)
 
     PrintGameVersion();
 
-    DEH_printf("HU_Init: Setting up heads up display.\n");
-    HU_Init ();
+    DEH_printf("CT_Init: Setting up messages system.\n");
+    CT_Init ();
 
     DEH_printf("ST_Init: Init status bar.\n");
     ST_Init ();
