@@ -31,6 +31,7 @@
 #include "s_sound.h"
 
 #include "doomstat.h"
+#include "crlcore.h"
 
 
 void G_PlayerReborn (int player);
@@ -726,6 +727,8 @@ void P_SpawnPlayer (mapthing_t* mthing)
     p->extralight = 0;
     p->fixedcolormap = 0;
     p->viewheight = VIEWHEIGHT;
+    // [JN] Reset intercepts overflow condition.
+    CRL_intercepts_overflow = false;
 
     // setup gun psprite
     P_SetupPsprites (p);

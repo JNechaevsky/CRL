@@ -481,6 +481,10 @@ static FILE* _crllogfile;
 /** Brute force? The value here is the precision. */
 int CRLBruteForce = 0;
 
+// [JN] True if intercepts overflow has happened.
+// Will be reset on level restart or save game loading.
+boolean CRL_intercepts_overflow = false;
+
 /**
  * Initializes things.
  */
@@ -881,35 +885,72 @@ void CRL_ChangeFrame(int __err)
  */
 void CRL_StatDrawer(void)
 {
-    // Sprites (128 max)
-	{
-		char num[4];
-		
-		M_snprintf(num, 4, "%d", CRLData.numvissprites);
-		M_WriteText(0, 136, "SPR:");
-		M_WriteText(32, 136, num);
-	}
+    // Intercepts (vanilla 128 + 61 for overflow emulation)
+    {
+        dp_translation = cr[CR_GRAY];
+        M_WriteText(0, 136, "INT:");
+        dp_translation = NULL;
+        
+        if (CRL_intercepts_overflow)
+        {
+            dp_translation = gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW];
+            M_WriteText(32, 136, "OVERFLOW");
+        }
+        else
+        {
+            dp_translation = cr[CR_GREEN];
+            M_WriteText(32, 136, "OK");
+        }
+        
+        dp_translation = NULL;
+    }
 
     // Segments (256 max)
 	{
 		char num[16];
 		
+        dp_translation = cr[CR_GRAY];
+        M_WriteText(0, 144, "SEG:");
+        dp_translation = NULL;
+
 		M_snprintf(num, 16, "%d", CRLData.numsegs);
-		M_WriteText(0, 144, "SEG:");
+        
+        if (CRLData.numsegs >= 256)
+        {
+            dp_translation = gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW];
+        }
+        else
+        {
+            dp_translation = cr[CR_GREEN];
+        }
 		M_WriteText(32, 144, num);
+        dp_translation = NULL;
 	}
     
     // Visplanes (CRL: 32, 128 or 4096 max)
 	{
 		char num[32];
 		
-		// M_snprintf(num, 4, "%d", CRLData.numfindplanes);
-		M_snprintf(num, 32, "%d = %d CHK + %d FND",
-					CRLData.numcheckplanes + CRLData.numfindplanes,
-					CRLData.numcheckplanes, CRLData.numfindplanes);
-
+        dp_translation = cr[CR_GRAY];
 		M_WriteText(0, 152, "VIS:");
+        dp_translation = NULL;
+        
+        if (CRLData.numcheckplanes + CRLData.numfindplanes >= 128)
+        {
+            dp_translation = gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW];
+        }
+        else
+        {
+            dp_translation = cr[CR_GREEN];
+        }
+        
+		M_snprintf(num, 4, "%d", CRLData.numfindplanes);
+		// M_snprintf(num, 32, "%d = %d CHK + %d FND",
+		// 			CRLData.numcheckplanes + CRLData.numfindplanes,
+		// 			CRLData.numcheckplanes, CRLData.numfindplanes);
+
 		M_WriteText(32, 152, num);
+        dp_translation = NULL;
 	}
 
 

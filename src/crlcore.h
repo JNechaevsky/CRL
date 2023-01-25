@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <signal.h>
 
+#include "doomtype.h"  // [JN] boolean
 #include "m_fixed.h"
 
 #ifndef SCREENWIDTH
@@ -248,9 +249,6 @@ typedef struct CRL_Option_s
  */
 typedef struct CRL_Data_s
 {
-    /** [JN] Number of vissprites. */
-    int numvissprites;
-    
 	/** [JN] Number of wall segments. */
 	int numsegs;
 	
@@ -349,6 +347,9 @@ extern void** CRLPlaneSurface;
 
 /** Brute forcing the state? */
 extern int CRLBruteForce;
+
+// [JN] True if intercepts overflow has happened.
+extern boolean CRL_intercepts_overflow;
 
 /*****************************************************************************/
 
