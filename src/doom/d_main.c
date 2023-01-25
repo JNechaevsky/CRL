@@ -163,7 +163,6 @@ void D_ProcessEvents (void)
 //  draw current display, possibly wiping it from the previous
 //
 
-void M_WriteText(int x, int y, const char *string);
 int  M_StringWidth(const char *string);
 
 // wipegamestate can be set to -1 to force a wipe on the next draw

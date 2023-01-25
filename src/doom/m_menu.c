@@ -58,6 +58,7 @@
 #include "sounds.h"
 
 #include "m_menu.h"
+#include "crlcore.h"
 
 
 extern int			show_endoom;
@@ -218,7 +219,6 @@ void M_SetupNextMenu(menu_t *menudef);
 void M_DrawThermo(int x,int y,int thermWidth,int thermDot);
 void M_DrawEmptyCell(menu_t *menu,int item);
 void M_DrawSelCell(menu_t *menu,int item);
-void M_WriteText(int x, int y, const char *string);
 int  M_StringWidth(const char *string);
 int  M_StringHeight(char *string);
 void M_StartMessage(char *string,void *routine,boolean input);

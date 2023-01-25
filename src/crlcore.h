@@ -32,6 +32,13 @@
 	#define SCREENAREA (SCREENWIDTH * SCREENHEIGHT)
 #endif
 
+
+// -----------------------------------------------------------------------------
+// [JN] External data.
+// -----------------------------------------------------------------------------
+
+extern void M_WriteText (int x, int y, const char *string);
+
 /**
  * Why a jump failed.
  */

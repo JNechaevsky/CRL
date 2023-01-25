@@ -18,15 +18,9 @@
 #include "z_zone.h"
 #include "v_video.h"
 #include "m_argv.h"
+#include "m_misc.h"    // [JN] M_snprintf
 #include "tables.h"
 #include "v_trans.h"   // [JN] Color translation
-
-
-// -----------------------------------------------------------------------------
-// [JN] External data.
-// -----------------------------------------------------------------------------
-
-extern void M_WriteText (int x, int y, const char *string);
 
 
 /** Backup. */

@@ -15,7 +15,6 @@
 
 
 #include "m_config.h"  // [JN] M_BindIntVariable
-#include "m_misc.h"    // [JN] M_snprintf
 
 
 // -----------------------------------------------------------------------------

@@ -1380,6 +1380,15 @@ void AM_CRLMLine(int __col, int __x1, int __y1, int __x2, int __y2)
 	AM_drawMline(&mt, __col);
 }
 
+static void AM_MapNameDrawer (void)
+{
+    static char str[128];
+    extern const char *level_name;
+    
+    sprintf(str, "%s", level_name);
+    M_WriteText(0, 160, str);
+}
+
 void AM_Drawer (void)
 {
 	CRL_Option_t* op;
@@ -1407,6 +1416,8 @@ void AM_Drawer (void)
     AM_drawCrosshair(XHAIRCOLORS);
 
     AM_drawMarks();
+	
+    AM_MapNameDrawer();
 
     V_MarkRect(f_x, f_y, f_w, f_h);
 
