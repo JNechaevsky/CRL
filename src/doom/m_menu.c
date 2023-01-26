@@ -215,7 +215,6 @@ void M_SetupNextMenu(menu_t *menudef);
 void M_DrawThermo(int x,int y,int thermWidth,int thermDot);
 void M_DrawEmptyCell(menu_t *menu,int item);
 void M_DrawSelCell(menu_t *menu,int item);
-int  M_StringWidth(const char *string);
 int  M_StringHeight(char *string);
 void M_StartMessage(char *string,void *routine,boolean input);
 void M_StopMessage(void);

@@ -888,18 +888,18 @@ void CRL_StatDrawer(void)
     // Intercepts (vanilla 128 + 61 for overflow emulation)
     {
         dp_translation = cr[CR_GRAY];
-        M_WriteText(0, 136, "INT:");
+        M_WriteText(0, 112, "INT:");
         dp_translation = NULL;
         
         if (CRL_intercepts_overflow)
         {
             dp_translation = gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW];
-            M_WriteText(32, 136, "OVERFLOW");
+            M_WriteText(32, 112, "OVERFLOW");
         }
         else
         {
             dp_translation = cr[CR_GREEN];
-            M_WriteText(32, 136, "OK");
+            M_WriteText(32, 112, "OK");
         }
         
         dp_translation = NULL;
@@ -910,7 +910,7 @@ void CRL_StatDrawer(void)
 		char num[16];
 		
         dp_translation = cr[CR_GRAY];
-        M_WriteText(0, 144, "SEG:");
+        M_WriteText(0, 128, "SEG:");
         dp_translation = NULL;
 
 		M_snprintf(num, 16, "%d", CRLData.numsegs);
@@ -923,16 +923,16 @@ void CRL_StatDrawer(void)
         {
             dp_translation = cr[CR_GREEN];
         }
-		M_WriteText(32, 144, num);
+		M_WriteText(32, 128, num);
         dp_translation = NULL;
 	}
-    
+
     // Visplanes (CRL: 32, 128 or 4096 max)
 	{
 		char num[32];
 		
         dp_translation = cr[CR_GRAY];
-		M_WriteText(0, 152, "VIS:");
+		M_WriteText(0, 136, "VIS:");
         dp_translation = NULL;
         
         if (CRLData.numcheckplanes + CRLData.numfindplanes >= 128)
@@ -949,7 +949,7 @@ void CRL_StatDrawer(void)
 		// 			CRLData.numcheckplanes + CRLData.numfindplanes,
 		// 			CRLData.numcheckplanes, CRLData.numfindplanes);
 
-		M_WriteText(32, 152, num);
+		M_WriteText(32, 136, num);
         dp_translation = NULL;
 	}
 

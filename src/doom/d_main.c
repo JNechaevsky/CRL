@@ -178,8 +178,6 @@ static void CRL_DrawMessage (void)
 //  draw current display, possibly wiping it from the previous
 //
 
-int  M_StringWidth(const char *string);
-
 // wipegamestate can be set to -1 to force a wipe on the next draw
 gamestate_t     wipegamestate = GS_DEMOSCREEN;
 extern  boolean setsizeneeded;
@@ -334,6 +332,9 @@ void D_Display (void)
 	// GhostlyDeath -- CRL Stats
 	// [JN] Extended to draw sprite and segment counters, simplified.
 	CRL_StatDrawer();
+
+	// [JN] Draw level stats (timer and KIS).
+	CRL_KISDrawer();
 
     // Handle player messages
     CRL_DrawMessage();
