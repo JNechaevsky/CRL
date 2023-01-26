@@ -41,6 +41,8 @@
 #include "doomstat.h"
 #include "d_englsh.h"
 
+#include "crlcore.h"
+
 
 void	P_SpawnMapThing (mapthing_t*	mthing);
 
@@ -538,6 +540,11 @@ void P_LoadLineDefs (int lump)
     memset (lines, 0, numlines*sizeof(line_t));
     data = W_CacheLumpNum (lump,PU_STATIC);
 	
+    // [Altazimuth] Reset the "warned about a Medusa error for this map" state
+    R_LineMedusaCheck(0, NULL);
+    // [JN] Reset detector boolean as well.
+    CRL_level_have_medusa = false;
+
     mld = (maplinedef_t *)data;
     ld = lines;
     for (i=0 ; i<numlines ; i++, mld++, ld++)
@@ -593,9 +600,15 @@ void P_LoadLineDefs (int lump)
 	    ld->frontsector = 0;
 
 	if (ld->sidenum[1] != -1)
+	{
 	    ld->backsector = sides[ld->sidenum[1]].sector;
+	}
 	else
+	{
 	    ld->backsector = 0;
+	}
+
+	    R_LineMedusaCheck(i, ld);
     }
 
     W_ReleaseLumpNum(lump);

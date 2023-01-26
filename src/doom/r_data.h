@@ -48,4 +48,8 @@ int R_FlatNumForName (char* name);
 int R_TextureNumForName (char *name);
 int R_CheckTextureNumForName (char *name);
 
+
+// [Altazimuth] Error checking
+extern void R_LineMedusaCheck (int i, line_t *ld);
+
 #endif

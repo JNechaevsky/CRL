@@ -485,6 +485,9 @@ int CRLBruteForce = 0;
 // Will be reset on level restart or save game loading.
 boolean CRL_intercepts_overflow = false;
 
+/** [JN] True if level contains Medusa bug. Used in P_LoadLineDefs. */
+boolean CRL_level_have_medusa;
+
 /**
  * Initializes things.
  */
@@ -885,6 +888,24 @@ void CRL_ChangeFrame(int __err)
  */
 void CRL_StatDrawer(void)
 {
+    // Medusa
+    {
+        dp_translation = cr[CR_GRAY];
+        M_WriteText(0, 104, "MED:");
+        dp_translation = NULL;
+
+        if (CRL_level_have_medusa)
+        {
+            dp_translation = gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW];
+            M_WriteText(32, 104, "FOUND");
+        }
+        else
+        {
+            dp_translation = cr[CR_GREEN];
+            M_WriteText(32, 104, "OK");
+        }
+    }
+
     // Intercepts (vanilla 128 + 61 for overflow emulation)
     {
         dp_translation = cr[CR_GRAY];

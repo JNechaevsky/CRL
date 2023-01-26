@@ -355,6 +355,9 @@ extern int CRLBruteForce;
 // [JN] True if intercepts overflow has happened.
 extern boolean CRL_intercepts_overflow;
 
+/** [JN] True if level contains Medusa bug. */
+extern boolean CRL_level_have_medusa;
+
 /*****************************************************************************/
 
 void CRL_Init(int* __colorset, int __numcolors, int __pllim);
