@@ -126,6 +126,15 @@ void P_Ticker (void)
 {
     int		i;
     
+    if (players[consoleplayer].messageTics > 0)
+    {
+        players[consoleplayer].messageTics--;
+    }
+    if (!players[consoleplayer].messageTics)
+    {                           // Refresh the screen when a message goes away
+        ultimatemsg = false;    // clear out any chat messages.
+    }
+    
     // run the tic
     if (paused)
 	return;
