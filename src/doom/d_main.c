@@ -325,10 +325,6 @@ void D_Display (void)
 	// GhostlyDeath -- CRL markers and indicators
 	CRL_ViewDrawer();
 
-    // menus go directly to the screen
-    M_Drawer ();          // menu is drawn even on top of everything
-    NetUpdate ();         // send out any new accumulation
-	
 	// GhostlyDeath -- CRL Stats
 	// [JN] Extended to draw sprite and segment counters, simplified.
 	CRL_StatDrawer();
@@ -339,6 +335,10 @@ void D_Display (void)
     // Handle player messages
     CRL_DrawMessage();
 
+    // menus go directly to the screen
+    M_Drawer ();          // menu is drawn even on top of everything
+    NetUpdate ();         // send out any new accumulation
+	
     // normal update
     if (!wipe)
     {

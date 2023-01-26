@@ -58,6 +58,7 @@
 #include "m_menu.h"
 #include "p_local.h"
 #include "ct_chat.h"
+#include "v_trans.h"
 #include "crlcore.h"
 
 
@@ -118,7 +119,8 @@ boolean			inhelpscreens;
 boolean			menuactive;
 
 #define SKULLXOFF		-32
-#define LINEHEIGHT		16
+#define LINEHEIGHT       16
+#define LINEHEIGHT_SMALL 9
 
 extern boolean		sendpause;
 char			savegamestrings[10][SAVESTRINGSIZE];
@@ -135,7 +137,7 @@ typedef struct
     // 0 = no cursor here, 1 = ok, 2 = arrows ok
     short	status;
     
-    char	name[10];
+    char	name[32];
     
     // choice = menu item #.
     // if status = 2,
@@ -493,6 +495,298 @@ menu_t  SaveDef =
     0
 };
 
+// =============================================================================
+// [JN] CRL custom menu
+// =============================================================================
+
+static void M_DrawCRL_1 (void);
+static void M_CRL_Medusa (int choice);
+static void M_CRL_Intercepts (int choice);
+static void M_CRL_SolidsegsCnt (int choice);
+static void M_CRL_VisplanesCnt (int choice);
+static void M_CRL_VisplanesDraw (int choice);
+static void M_CRL_VisplanesMerge (int choice);
+static void M_CRL_VisplanesMax (int choice);
+static void M_CRL_KIS (int choice);
+static void M_CRL_Time (int choice);
+static void M_CRL_Coords (int choice);
+static void M_CRL_Spectating (int choice);
+static void M_ChooseCRL_2 (int choice);
+
+static void M_DrawCRL_2 (void);
+static void M_ChooseCRL_1 (int choice);
+
+//
+// Page 1
+//
+
+enum
+{
+    crl_1_medusa,             // 18
+    crl_1_intercepts,         // 27
+  crl_1_drawing_title,        // 36
+    crl_1_solidsegs_counter,  // 45
+    crl_1_visplanes_counter,  // 54
+    crl_1_visplanes_drawing,  // 63
+    crl_1_visplanes_merge,    // 72
+    crl_1_visplanes_max,      // 81
+  crl_1_widgets_title,        // 90
+    crl_1_kis,                // 99
+    crl_1_time,               // 108
+    crl_1_coords,             // 117
+  crl_1_gamemode_title,       // 126
+    crl_1_spectating,         // 135
+  crl_1_next_menu,            // 144
+    crl_1_end
+} crl_1_e;
+
+static menuitem_t CRLMenu_1[]=
+{
+    { 1, "MEDUSA",              M_CRL_Medusa,         'm'},
+    { 2, "INTERCEPTS OVERFLOW", M_CRL_Intercepts,     'i'},
+    {-1, "", 0, '\0'},          // DRAWING FUNCTIONS title
+    { 1, "WALL SEGS COUNTER",   M_CRL_SolidsegsCnt,   'w'},
+    { 1, "VISPLANES COUNTER",   M_CRL_VisplanesCnt,   'v'},
+    { 1, "VISPLANES DRAWING",   M_CRL_VisplanesDraw,  'v'},
+    { 1, "MERGE VISPLANES",     M_CRL_VisplanesMerge, 'm'},
+    { 1, "MAX VISPLANES",       M_CRL_VisplanesMax,   'm'},
+    {-1, "", 0, '\0'},          // WIDGETS title
+    { 2, "K/I/S STATS",         M_CRL_KIS,            'k'},
+    { 2, "LEVEL TIME",          M_CRL_Time,           'l'},
+    { 2, "PLAYER COORDS",       M_CRL_Coords,         'p'},
+    {-1, "", 0, '\0'},          // GAME MODE title
+    { 2, "SPECTATING",          M_CRL_Spectating,     's'},
+    { 1, "",                    M_ChooseCRL_2,        'n'},
+};
+
+static menu_t CRLDef_1 =
+{
+    crl_1_end,
+    &MainDef,
+    CRLMenu_1,
+    M_DrawCRL_1,
+    48, 18,
+    0
+};
+
+//
+// Page 2
+//
+
+enum
+{
+    crl_2_colorblind,         // 18
+    crl_2_empty1,             // 27
+    crl_2_empty2,             // 36
+    crl_2_empty3,             // 45
+    crl_2_empty4,             // 54
+    crl_2_empty5,             // 63
+    crl_2_empty6,             // 72
+    crl_2_empty7,             // 81
+    crl_2_empty8,             // 90
+    crl_2_empty9,             // 99
+    crl_2_empty10,            // 108
+    crl_2_empty11,            // 117
+    crl_2_empty12,            // 126
+    crl_2_empty13,            // 135
+    crl_2_empty14,            // 144
+    crl_2_end
+} crl_2_e;
+
+static menuitem_t CRLMenu_2[]=
+{
+    { 1, "COLORBLIND",              M_EndGame,    'g'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    { 1, "",                       M_ChooseCRL_1,     's'},
+};
+
+static menu_t CRLDef_2 =
+{
+    crl_2_end,
+    &MainDef,
+    CRLMenu_2,
+    M_DrawCRL_2,
+    48, 18,
+    0
+};
+
+static void M_DrawCRL_1 (void)
+{
+    static char str[32];
+    
+    dp_translation = cr[CR_YELLOW];
+    M_WriteText(48,   9, "DETECTORS");
+    M_WriteText(48,  36, "DRAWING FUNCTIONS");
+    M_WriteText(48,  90, "WIDGETS");
+    M_WriteText(48, 126, "GAME MODE");
+    dp_translation = NULL;
+
+    //
+    // DETECTORS
+    //
+
+    // Medusa
+    sprintf(str, "ON");
+    M_WriteText (272 - M_StringWidth(str), 18, str);
+
+    // Intercepts overflow
+    sprintf(str, "OFF");
+    M_WriteText (272 - M_StringWidth(str), 27, str);
+
+    //
+    // DRAWING FUNCTIONS
+    //
+
+    // Wall segments counter
+    sprintf(str, "OFF");
+    M_WriteText (272 - M_StringWidth(str), 45, str);
+
+    // Visplanes counter
+    sprintf(str, "BRIEF");
+    M_WriteText (272 - M_StringWidth(str), 54, str);
+
+    // Visplanes drawing mode
+    sprintf(str, "OVERFILL");
+    M_WriteText (272 - M_StringWidth(str), 63, str);
+
+    // Merge visplanes
+    sprintf(str, "NO CHK+FND");
+    M_WriteText (272 - M_StringWidth(str), 72, str);
+
+    // Max visplanes
+    sprintf(str, "128 (VANILLA)");
+    M_WriteText (272 - M_StringWidth(str), 81, str);
+
+    //
+    // WIDGETS
+    //
+
+    // K/I/S stats
+    sprintf(str, "ON");
+    M_WriteText (272 - M_StringWidth(str), 99, str);
+
+    // Level time
+    sprintf(str, "ON");
+    M_WriteText (272 - M_StringWidth(str), 108, str);
+
+    // Player coords
+    sprintf(str, "ON");
+    M_WriteText (272 - M_StringWidth(str), 117, str);
+
+    //
+    // GAME MODE
+    //
+
+    // Spectating
+    sprintf(str, "OFF");
+    M_WriteText (272 - M_StringWidth(str), 135, str);
+
+    //
+    // NEXT PAGE >
+    //
+    dp_translation = cr[CR_WHITE];
+    M_WriteText(48, 144, "NEXT PAGE >");
+    dp_translation = NULL;
+}
+
+static void M_CRL_Medusa (int choice)
+{
+
+}
+
+static void M_CRL_Intercepts (int choice)
+{
+
+}
+
+static void M_CRL_SolidsegsCnt (int choice)
+{
+
+}
+
+static void M_CRL_VisplanesCnt (int choice)
+{
+
+}
+
+static void M_CRL_VisplanesDraw (int choice)
+{
+
+}
+
+static void M_CRL_VisplanesMerge (int choice)
+{
+
+}
+
+static void M_CRL_VisplanesMax (int choice)
+{
+
+}
+
+static void M_CRL_KIS (int choice)
+{
+
+}
+
+static void M_CRL_Time (int choice)
+{
+
+}
+
+static void M_CRL_Coords (int choice)
+{
+
+}
+
+static void M_CRL_Spectating (int choice)
+{
+
+}
+
+static void M_DrawCRL_2 (void)
+{
+    static char str[32];
+    
+    dp_translation = cr[CR_YELLOW];
+    M_WriteText(48, 9, "ACCESSIBILITY");
+    dp_translation = NULL;
+
+    // Colorblind
+    sprintf(str, "NONE");
+    M_WriteText (272 - M_StringWidth(str), 18, str);
+
+    //
+    // < PREV PAGE
+    //
+    dp_translation = cr[CR_WHITE];
+    M_WriteText(48, 144, "< PREV PAGE");
+    dp_translation = NULL;
+}
+
+static void M_ChooseCRL_1 (int choice)
+{
+    M_SetupNextMenu (&CRLDef_1);
+}
+
+static void M_ChooseCRL_2 (int choice)
+{
+    M_SetupNextMenu (&CRLDef_2);
+}
+
+// -----------------------------------------------------------------------------
 
 //
 // M_ReadSaveStrings
@@ -1339,6 +1633,81 @@ M_WriteText
     }
 }
 
+// -----------------------------------------------------------------------------
+// M_WriteTextCentered
+// [JN] Write a centered string using the hu_font.
+// -----------------------------------------------------------------------------
+
+void M_WriteTextCentered (const int y, const char *string, byte *table)
+{
+    const char *ch;
+    int w, c, cx, cy, width;
+
+    ch = string;
+    width = 0;
+    cx = SCREENWIDTH/2-width/2;
+    cy = y;
+
+    dp_translation = table;
+
+    // find width
+    while (ch)
+    {
+        c = *ch++;
+
+        if (!c)
+        {
+            break;
+        }
+
+        c = c - HU_FONTSTART;
+
+        if (c < 0 || c> HU_FONTSIZE)
+        {
+            width += 7;
+            continue;
+        }
+
+        w = SHORT (hu_font[c]->width);
+        width += w;
+    }
+
+    // draw it
+    cx = SCREENWIDTH/2-width/2;
+    ch = string;
+
+    while (ch)
+    {
+        c = *ch++;
+
+        if (!c)
+        {
+            break;
+        }
+
+        c = toupper(c) - HU_FONTSTART;
+
+        if (c < 0 || c>= HU_FONTSIZE)
+        {
+            cx += 4;
+            continue;
+        }
+
+        w = SHORT (hu_font[c]->width);
+        width += w;
+
+        if (cx+w > SCREENWIDTH)
+        {
+            break;
+        }
+        
+        V_DrawPatch(cx, cy, hu_font[c]);
+        cx += w;
+    }
+    
+    dp_translation = NULL;
+}
+
 // These keys evaluate to a "null" key in Vanilla Doom that allows weird
 // jumping in the menus. Preserve this behavior for accuracy.
 
@@ -1751,7 +2120,7 @@ boolean M_Responder (event_t* ev)
 		
 		// Spawn CRL menu
 		if (key == key_crl_menu)
-			M_CRLStartMenu();
+			M_SetupNextMenu(&CRLDef_1);
 		
 		S_StartSound(NULL,sfx_swtchn);
 		return true;
@@ -2014,18 +2383,34 @@ void M_Drawer (void)
     {
         name = DEH_String(currentMenu->menuitems[i].name);
 
-	if (name[0])
-	{
-	    V_DrawPatchDirect (x, y, W_CacheLumpName(name, PU_CACHE));
-	}
-	y += LINEHEIGHT;
+        if (currentMenu == &CRLDef_1 || currentMenu == &CRLDef_2)
+        {
+            M_WriteText (x, y, name);
+            y += LINEHEIGHT_SMALL;
+        }
+        else
+        {
+            if (name[0])
+            {
+                V_DrawPatchDirect (x, y, W_CacheLumpName(name, PU_CACHE));
+            }
+            y += LINEHEIGHT;
+        }
     }
 
-    
-    // DRAW SKULL
-    V_DrawPatchDirect(x + SKULLXOFF, currentMenu->y - 5 + itemOn*LINEHEIGHT,
-		      W_CacheLumpName(DEH_String(skullName[whichSkull]),
-				      PU_CACHE));
+    if (currentMenu == &CRLDef_1 || currentMenu == &CRLDef_2)
+    {
+        // [JN] Draw blinking * symbol.
+        dp_translation = whichSkull ? cr[CR_DARK] : NULL;
+        M_WriteText(x - 10, currentMenu->y + itemOn * LINEHEIGHT_SMALL, "*");
+        dp_translation = NULL;
+    }
+    else
+    {
+        // DRAW SKULL
+        V_DrawPatchDirect(x + SKULLXOFF, currentMenu->y - 5 + itemOn*LINEHEIGHT,
+	    	      W_CacheLumpName(DEH_String(skullName[whichSkull]), PU_CACHE));
+    }
 }
 
 
@@ -2130,6 +2515,8 @@ void M_Init (void)
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
+
+#if 0
 
 #include "crlcore.h"
 
@@ -2267,3 +2654,4 @@ void M_CRLStartMenu()
 	itemOn = currentMenu->lastOn;
 }
 
+#endif
