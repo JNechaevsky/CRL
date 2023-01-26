@@ -23,6 +23,19 @@
 
 extern int crl_startup_delay;
 extern int crl_resize_delay;
+
+// Detectors
+
+extern int crl_medusa;
+extern int crl_intercepts;
+
+// Drawing functions
+
+extern int crl_solidsegs_counter;
+
+// QOL Features
+
 extern int crl_screenwipe;
+
 
 extern void CRL_BindVariables (void);

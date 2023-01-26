@@ -1647,6 +1647,18 @@ static default_t extra_defaults_list[] =
 
     CONFIG_VARIABLE_INT(crl_startup_delay),
     CONFIG_VARIABLE_INT(crl_resize_delay),
+
+    // Detectors
+
+    CONFIG_VARIABLE_INT(crl_medusa),
+    CONFIG_VARIABLE_INT(crl_intercepts),
+
+    // Drawing functions
+
+    CONFIG_VARIABLE_INT(crl_solidsegs_counter),
+
+    // QOL Features
+
     CONFIG_VARIABLE_INT(crl_screenwipe),
 };
 

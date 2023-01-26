@@ -1468,15 +1468,10 @@ void CRL_KISDrawer (void)
         char strb[16];
  
         sprintf(stra, "TIME ");
-        dp_translation = cr[CR_GRAY];
-        M_WriteText(0, 152 - yy, stra);
-        dp_translation = NULL;
+        M_WriteText(0, 152 - yy, stra, cr[CR_GRAY]);
  
         sprintf(strb, "%02d:%02d:%02d", time/3600, (time%3600)/60, time%60);
- 
-        dp_translation = cr[CR_WHITE];
-        M_WriteText(0 + M_StringWidth(stra), 152 - yy, strb);
-        dp_translation = NULL;
+        M_WriteText(0 + M_StringWidth(stra), 152 - yy, strb, cr[CR_WHITE]);
     }
  
     // KIS counters
@@ -1487,58 +1482,42 @@ void CRL_KISDrawer (void)
 
         // Kills:
         sprintf(str1, "K ");
-        dp_translation = cr[CR_GRAY];
-        M_WriteText(0, 160 - yy, str1);
-        dp_translation = NULL;
+        M_WriteText(0, 160 - yy, str1, cr[CR_GRAY]);
 
         sprintf(str2, "%d/%d ", plyr->killcount, totalkills);
-
-        dp_translation = totalkills == 0 ? cr[CR_GREEN] :
-                         plyr->killcount == 0 ? cr[CR_RED] :
-                         plyr->killcount < totalkills ? cr[CR_YELLOW] : cr[CR_GREEN];
-
-        M_WriteText(0 + M_StringWidth(str1), 160 - yy, str2);
-
-        dp_translation = NULL;
+        M_WriteText(0 + M_StringWidth(str1), 160 - yy, str2,
+                    totalkills == 0 ? cr[CR_GREEN] :
+                    plyr->killcount == 0 ? cr[CR_RED] :
+                    plyr->killcount < totalkills ? cr[CR_YELLOW] : cr[CR_GREEN]);
  
         // Items:
         sprintf(str3, "I ");
-        dp_translation = cr[CR_GRAY];
-        M_WriteText(M_StringWidth(str1) + M_StringWidth(str2), 160 - yy, str3);
-        dp_translation = NULL;
+        M_WriteText(M_StringWidth(str1) + M_StringWidth(str2), 160 - yy, str3, cr[CR_GRAY]);
      
         sprintf(str4, "%d/%d ", plyr->itemcount, totalitems);
-     
-        dp_translation = totalitems == 0 ? cr[CR_GREEN] :
-                         plyr->itemcount == 0 ? cr[CR_RED] :
-                         plyr->itemcount < totalitems ? cr[CR_YELLOW] : cr[CR_GREEN];
-        
         M_WriteText(M_StringWidth(str1) +
                     M_StringWidth(str2) +
-                    M_StringWidth(str3), 160 - yy, str4);
-     
-        dp_translation = NULL;
+                    M_StringWidth(str3), 160 - yy, str4,
+                    totalitems == 0 ? cr[CR_GREEN] :
+                    plyr->itemcount == 0 ? cr[CR_RED] :
+                    plyr->itemcount < totalitems ? cr[CR_YELLOW] : cr[CR_GREEN]);
+
 
         // Secret:
         sprintf(str5, "S ");
-        dp_translation = cr[CR_GRAY];
         M_WriteText(M_StringWidth(str1) +
                     M_StringWidth(str2) +
                     M_StringWidth(str3) +
-                    M_StringWidth(str4), 160 - yy, str5);
-        dp_translation = NULL;
+                    M_StringWidth(str4), 160 - yy, str5, cr[CR_GRAY]);
 
         sprintf(str6, "%d/%d ", plyr->secretcount, totalsecret);
-
-        dp_translation = totalsecret == 0 ? cr[CR_GREEN] :
-                         plyr->secretcount == 0 ? cr[CR_RED] :
-                         plyr->secretcount < totalsecret ? cr[CR_YELLOW] : cr[CR_GREEN];
-
         M_WriteText(M_StringWidth(str1) +
                     M_StringWidth(str2) + 
                     M_StringWidth(str3) +
                     M_StringWidth(str4) +
-                    M_StringWidth(str5), 160 - yy, str6);
-        dp_translation = NULL;
+                    M_StringWidth(str5), 160 - yy, str6,
+                    totalsecret == 0 ? cr[CR_GREEN] :
+                    plyr->secretcount == 0 ? cr[CR_RED] :
+                    plyr->secretcount < totalsecret ? cr[CR_YELLOW] : cr[CR_GREEN]);
     }
 }

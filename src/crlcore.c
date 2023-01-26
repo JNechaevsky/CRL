@@ -14,13 +14,15 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "crlcore.h"
 #include "z_zone.h"
 #include "v_video.h"
 #include "m_argv.h"
 #include "m_misc.h"    // [JN] M_snprintf
 #include "tables.h"
 #include "v_trans.h"   // [JN] Color translation
+
+#include "crlcore.h"
+#include "crlvars.h"
 
 
 /** Backup. */
@@ -889,89 +891,60 @@ void CRL_ChangeFrame(int __err)
 void CRL_StatDrawer(void)
 {
     // Medusa
+    if (crl_medusa)
     {
-        dp_translation = cr[CR_GRAY];
-        M_WriteText(0, 104, "MED:");
-        dp_translation = NULL;
+        M_WriteText(0, 99, "MED:", cr[CR_GRAY]);
 
         if (CRL_level_have_medusa)
         {
-            dp_translation = gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW];
-            M_WriteText(32, 104, "FOUND");
+            M_WriteText(32, 99, "FOUND", gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]);
         }
         else
         {
-            dp_translation = cr[CR_GREEN];
-            M_WriteText(32, 104, "OK");
+            M_WriteText(32, 99, "OK", cr[CR_GREEN]);
         }
     }
 
     // Intercepts (vanilla 128 + 61 for overflow emulation)
+    if (crl_intercepts)
     {
-        dp_translation = cr[CR_GRAY];
-        M_WriteText(0, 112, "INT:");
-        dp_translation = NULL;
+        M_WriteText(0, 108, "INT:", cr[CR_GRAY]);
         
         if (CRL_intercepts_overflow)
         {
-            dp_translation = gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW];
-            M_WriteText(32, 112, "OVERFLOW");
+            M_WriteText(32, 108, "OVERFLOW", gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]);
         }
         else
         {
-            dp_translation = cr[CR_GREEN];
-            M_WriteText(32, 112, "OK");
+            M_WriteText(32, 108, "OK", cr[CR_GREEN]);
         }
-        
-        dp_translation = NULL;
     }
 
     // Segments (256 max)
+    if (crl_solidsegs_counter)
 	{
 		char num[16];
 		
-        dp_translation = cr[CR_GRAY];
-        M_WriteText(0, 128, "SEG:");
-        dp_translation = NULL;
+        M_WriteText(0, 126, "SEG:", cr[CR_GRAY]);
 
 		M_snprintf(num, 16, "%d", CRLData.numsegs);
-        
-        if (CRLData.numsegs >= 256)
-        {
-            dp_translation = gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW];
-        }
-        else
-        {
-            dp_translation = cr[CR_GREEN];
-        }
-		M_WriteText(32, 128, num);
-        dp_translation = NULL;
+		M_WriteText(32, 126, num, CRLData.numsegs >= 256 ?
+                   (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
 	}
 
     // Visplanes (CRL: 32, 128 or 4096 max)
 	{
 		char num[32];
 		
-        dp_translation = cr[CR_GRAY];
-		M_WriteText(0, 136, "VIS:");
-        dp_translation = NULL;
+		M_WriteText(0, 135, "VIS:", cr[CR_GRAY]);
         
-        if (CRLData.numcheckplanes + CRLData.numfindplanes >= 128)
-        {
-            dp_translation = gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW];
-        }
-        else
-        {
-            dp_translation = cr[CR_GREEN];
-        }
-        
-		M_snprintf(num, 4, "%d", CRLData.numfindplanes);
+		M_snprintf(num, 4, "%d", CRLData.numcheckplanes + CRLData.numfindplanes);
 		// M_snprintf(num, 32, "%d = %d CHK + %d FND",
 		// 			CRLData.numcheckplanes + CRLData.numfindplanes,
 		// 			CRLData.numcheckplanes, CRLData.numfindplanes);
 
-		M_WriteText(32, 136, num);
-        dp_translation = NULL;
+		M_WriteText(32, 135, num, (CRLData.numcheckplanes + CRLData.numfindplanes >= 128) ?
+                   (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
 	}
 
 

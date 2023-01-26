@@ -25,6 +25,18 @@
 int crl_startup_delay = 35;
 // Time to wait for the screen to be updated after resizing (ms).
 int crl_resize_delay = 35;
+
+// Detectors
+
+int crl_medusa = 0;
+int crl_intercepts = 0;
+
+// Drawing functions
+
+int crl_solidsegs_counter = 1;
+
+// QOL Features
+
 // Screen wiping effect.
 int crl_screenwipe = 1;
 
@@ -34,7 +46,19 @@ int crl_screenwipe = 1;
 
 void CRL_BindVariables (void)
 {
-	M_BindIntVariable("crl_startup_delay",              &crl_startup_delay);
-	M_BindIntVariable("crl_resize_delay",               &crl_resize_delay);
-	M_BindIntVariable("crl_screenwipe",                 &crl_screenwipe);
+    M_BindIntVariable("crl_startup_delay",              &crl_startup_delay);
+    M_BindIntVariable("crl_resize_delay",               &crl_resize_delay);
+
+    // Detectors
+
+    M_BindIntVariable("crl_medusa",                     &crl_medusa);
+    M_BindIntVariable("crl_intercepts",                 &crl_intercepts);
+
+    // Drawing functions
+
+    M_BindIntVariable("crl_solidsegs_counter",          &crl_solidsegs_counter);
+
+    // QOL Features
+
+    M_BindIntVariable("crl_screenwipe",                 &crl_screenwipe);
 }

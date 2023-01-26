@@ -59,7 +59,9 @@
 #include "p_local.h"
 #include "ct_chat.h"
 #include "v_trans.h"
+
 #include "crlcore.h"
+#include "crlvars.h"
 
 
 extern int			show_endoom;
@@ -542,10 +544,10 @@ enum
 
 static menuitem_t CRLMenu_1[]=
 {
-    { 1, "MEDUSA",              M_CRL_Medusa,         'm'},
+    { 2, "MEDUSA",              M_CRL_Medusa,         'm'},
     { 2, "INTERCEPTS OVERFLOW", M_CRL_Intercepts,     'i'},
     {-1, "", 0, '\0'},          // DRAWING FUNCTIONS title
-    { 1, "WALL SEGS COUNTER",   M_CRL_SolidsegsCnt,   'w'},
+    { 2, "WALL SEGS COUNTER",   M_CRL_SolidsegsCnt,   'w'},
     { 1, "VISPLANES COUNTER",   M_CRL_VisplanesCnt,   'v'},
     { 1, "VISPLANES DRAWING",   M_CRL_VisplanesDraw,  'v'},
     { 1, "MERGE VISPLANES",     M_CRL_VisplanesMerge, 'm'},
@@ -625,95 +627,81 @@ static menu_t CRLDef_2 =
 static void M_DrawCRL_1 (void)
 {
     static char str[32];
-    
-    dp_translation = cr[CR_YELLOW];
-    M_WriteText(48,   9, "DETECTORS");
-    M_WriteText(48,  36, "DRAWING FUNCTIONS");
-    M_WriteText(48,  90, "WIDGETS");
-    M_WriteText(48, 126, "GAME MODE");
-    dp_translation = NULL;
 
-    //
-    // DETECTORS
-    //
+    M_WriteText(48,   9, "DETECTORS", cr[CR_YELLOW]);
 
     // Medusa
-    sprintf(str, "ON");
-    M_WriteText (272 - M_StringWidth(str), 18, str);
+    sprintf(str, crl_medusa ? "ON" : "OFF");
+    M_WriteText (272 - M_StringWidth(str), 18, str,
+                 crl_medusa ? cr[CR_GREEN] : cr[CR_RED]);
 
     // Intercepts overflow
-    sprintf(str, "OFF");
-    M_WriteText (272 - M_StringWidth(str), 27, str);
+    sprintf(str, crl_intercepts ? "ON" : "OFF");
+    M_WriteText (272 - M_StringWidth(str), 27, str,
+                 crl_intercepts ? cr[CR_GREEN] : cr[CR_RED]);
 
-    //
-    // DRAWING FUNCTIONS
-    //
+    M_WriteText(48,  36, "DRAWING FUNCTIONS", cr[CR_YELLOW]);
 
     // Wall segments counter
-    sprintf(str, "OFF");
-    M_WriteText (272 - M_StringWidth(str), 45, str);
+    sprintf(str, crl_solidsegs_counter ? "ON" : "OFF");
+    M_WriteText (272 - M_StringWidth(str), 45, str,
+                 crl_solidsegs_counter ? cr[CR_GREEN] : cr[CR_RED]);
 
     // Visplanes counter
     sprintf(str, "BRIEF");
-    M_WriteText (272 - M_StringWidth(str), 54, str);
+    M_WriteText (272 - M_StringWidth(str), 54, str, cr[CR_RED]);
 
     // Visplanes drawing mode
     sprintf(str, "OVERFILL");
-    M_WriteText (272 - M_StringWidth(str), 63, str);
+    M_WriteText (272 - M_StringWidth(str), 63, str, cr[CR_RED]);
 
     // Merge visplanes
     sprintf(str, "NO CHK+FND");
-    M_WriteText (272 - M_StringWidth(str), 72, str);
+    M_WriteText (272 - M_StringWidth(str), 72, str, cr[CR_RED]);
 
     // Max visplanes
     sprintf(str, "128 (VANILLA)");
-    M_WriteText (272 - M_StringWidth(str), 81, str);
+    M_WriteText (272 - M_StringWidth(str), 81, str, cr[CR_RED]);
 
-    //
-    // WIDGETS
-    //
+    M_WriteText(48,  90, "WIDGETS", cr[CR_YELLOW]);
 
     // K/I/S stats
     sprintf(str, "ON");
-    M_WriteText (272 - M_StringWidth(str), 99, str);
+    M_WriteText (272 - M_StringWidth(str), 99, str, cr[CR_RED]);
 
     // Level time
     sprintf(str, "ON");
-    M_WriteText (272 - M_StringWidth(str), 108, str);
+    M_WriteText (272 - M_StringWidth(str), 108, str, cr[CR_RED]);
 
     // Player coords
     sprintf(str, "ON");
-    M_WriteText (272 - M_StringWidth(str), 117, str);
+    M_WriteText (272 - M_StringWidth(str), 117, str, cr[CR_RED]);
 
-    //
-    // GAME MODE
-    //
+    M_WriteText(48, 126, "GAME MODE", cr[CR_YELLOW]);
 
     // Spectating
     sprintf(str, "OFF");
-    M_WriteText (272 - M_StringWidth(str), 135, str);
+    M_WriteText (272 - M_StringWidth(str), 135, str, cr[CR_RED]);
 
     //
     // NEXT PAGE >
     //
-    dp_translation = cr[CR_WHITE];
-    M_WriteText(48, 144, "NEXT PAGE >");
-    dp_translation = NULL;
+    M_WriteText(48, 144, "NEXT PAGE >", cr[CR_WHITE]);
 }
 
 static void M_CRL_Medusa (int choice)
 {
-
+    crl_medusa ^= 1;
 }
 
 static void M_CRL_Intercepts (int choice)
 {
-
+    crl_intercepts ^= 1;
 }
 
 static void M_CRL_SolidsegsCnt (int choice)
 {
-
+    crl_solidsegs_counter ^= 1;
 }
 
 static void M_CRL_VisplanesCnt (int choice)
@@ -760,20 +748,16 @@ static void M_DrawCRL_2 (void)
 {
     static char str[32];
     
-    dp_translation = cr[CR_YELLOW];
-    M_WriteText(48, 9, "ACCESSIBILITY");
-    dp_translation = NULL;
+    M_WriteText(48, 9, "ACCESSIBILITY", cr[CR_YELLOW]);
 
     // Colorblind
     sprintf(str, "NONE");
-    M_WriteText (272 - M_StringWidth(str), 18, str);
+    M_WriteText (272 - M_StringWidth(str), 18, str, cr[CR_YELLOW]);
 
     //
     // < PREV PAGE
     //
-    dp_translation = cr[CR_WHITE];
-    M_WriteText(48, 144, "< PREV PAGE");
-    dp_translation = NULL;
+    M_WriteText(48, 144, "< PREV PAGE", cr[CR_WHITE]);
 }
 
 static void M_ChooseCRL_1 (int choice)
@@ -829,7 +813,7 @@ void M_DrawLoad(void)
     for (i = 0;i < load_end; i++)
     {
 	M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i);
-	M_WriteText(LoadDef.x,LoadDef.y+LINEHEIGHT*i,savegamestrings[i]);
+	M_WriteText(LoadDef.x,LoadDef.y+LINEHEIGHT*i,savegamestrings[i], NULL);
     }
 }
 
@@ -898,13 +882,13 @@ void M_DrawSave(void)
     for (i = 0;i < load_end; i++)
     {
 	M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i);
-	M_WriteText(LoadDef.x,LoadDef.y+LINEHEIGHT*i,savegamestrings[i]);
+	M_WriteText(LoadDef.x,LoadDef.y+LINEHEIGHT*i,savegamestrings[i], NULL);
     }
 	
     if (saveStringEnter)
     {
 	i = M_StringWidth(savegamestrings[saveSlot]);
-	M_WriteText(LoadDef.x + i,LoadDef.y+LINEHEIGHT*saveSlot,"_");
+	M_WriteText(LoadDef.x + i,LoadDef.y+LINEHEIGHT*saveSlot,"_", NULL);
     }
 }
 
@@ -1586,51 +1570,58 @@ int M_StringHeight(char* string)
 }
 
 
-//
-//      Write a string using the hu_font
-//
-void
-M_WriteText
-( int		x,
-  int		y,
- const char*		string)
+// -----------------------------------------------------------------------------
+// M_WriteText
+// Write a string using the hu_font.
+// -----------------------------------------------------------------------------
+
+void M_WriteText (int x, int y, const char *string, byte *table)
 {
-    int		w;
     const char*	ch;
-    int		c;
-    int		cx;
-    int		cy;
-		
+    int w, c, cx, cy;
 
     ch = string;
     cx = x;
     cy = y;
-	
-    while(1)
+
+    dp_translation = table;
+
+    while (ch)
     {
-	c = *ch++;
-	if (!c)
-	    break;
-	if (c == '\n')
-	{
-	    cx = x;
-	    cy += 12;
-	    continue;
-	}
-		
-	c = toupper(c) - HU_FONTSTART;
-	if (c < 0 || c>= HU_FONTSIZE)
-	{
-	    cx += 4;
-	    continue;
-	}
-		
-	w = SHORT (hu_font[c]->width);
-	if (cx+w > SCREENWIDTH)
-	    break;
-	V_DrawPatchDirect(cx, cy, hu_font[c]);
-	cx+=w;
+        c = *ch++;
+
+        if (!c)
+        {
+            break;
+        }
+
+        if (c == '\n')
+        {
+            cx = x;
+            cy += 12;
+            continue;
+        }
+
+        c = toupper(c) - HU_FONTSTART;
+
+        if (c < 0 || c >= HU_FONTSIZE)
+        {
+            cx += 4;
+            continue;
+        }
+
+        w = SHORT (hu_font[c]->width);
+
+        if (cx + w > SCREENWIDTH)
+        {
+            break;
+        }
+
+        V_DrawPatch(cx, cy, hu_font[c]);
+        cx+=w;
     }
+
+    dp_translation = NULL;
 }
 
 // -----------------------------------------------------------------------------
@@ -2294,7 +2285,7 @@ static void M_DrawOPLDev(void)
             *p = '\0';
         }
 
-        M_WriteText(0, line * 8, curr);
+        M_WriteText(0, line * 8, curr, NULL);
         ++line;
 
         if (p == NULL)
@@ -2356,7 +2347,7 @@ void M_Drawer (void)
             }
 
 	    x = SCREENWIDTH/2 - M_StringWidth(string) / 2;
-	    M_WriteText(x, y, string);
+	    M_WriteText(x, y, string, NULL);
 	    y += SHORT(hu_font[0]->height);
 	}
 
@@ -2385,7 +2376,7 @@ void M_Drawer (void)
 
         if (currentMenu == &CRLDef_1 || currentMenu == &CRLDef_2)
         {
-            M_WriteText (x, y, name);
+            M_WriteText (x, y, name, NULL);
             y += LINEHEIGHT_SMALL;
         }
         else
@@ -2401,9 +2392,8 @@ void M_Drawer (void)
     if (currentMenu == &CRLDef_1 || currentMenu == &CRLDef_2)
     {
         // [JN] Draw blinking * symbol.
-        dp_translation = whichSkull ? cr[CR_DARK] : NULL;
-        M_WriteText(x - 10, currentMenu->y + itemOn * LINEHEIGHT_SMALL, "*");
-        dp_translation = NULL;
+        M_WriteText(x - 10, currentMenu->y + itemOn * LINEHEIGHT_SMALL, "*",
+                    whichSkull ? cr[CR_DARK] : NULL);
     }
     else
     {

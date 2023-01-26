@@ -38,7 +38,7 @@
 // [JN] External data.
 // -----------------------------------------------------------------------------
 
-extern void M_WriteText (int x, int y, const char *string);
+extern void M_WriteText (int x, int y, const char *string, byte *table);
 extern void M_WriteTextCentered (const int y, const char *string, byte *table);
 extern int  M_StringWidth (const char *string);
 

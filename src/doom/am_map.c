@@ -1386,7 +1386,7 @@ static void AM_MapNameDrawer (void)
     extern const char *level_name;
     
     sprintf(str, "%s", level_name);
-    M_WriteText(0, 160, str);
+    M_WriteText(0, 160, str, NULL);
 }
 
 void AM_Drawer (void)
