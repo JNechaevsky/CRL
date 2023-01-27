@@ -66,7 +66,7 @@ static window_size_t window_sizes_scaled[] =
 static char *video_driver = "";
 static char *window_position = "";
 static int aspect_ratio_correct = 1;
-static int smooth_scaling = 1;
+static int smooth_scaling = 0;
 static int integer_scaling = 0;
 static int vga_porch_flash = 0;
 static int force_software_renderer = 0;
@@ -79,7 +79,7 @@ static int usegamma = 0;
 int graphical_startup = 1;
 int show_endoom = 0;    // [JN] disable
 int show_diskicon = 1;
-int png_screenshots = 0;
+int png_screenshots = 1;
 
 static int system_video_env_set;
 

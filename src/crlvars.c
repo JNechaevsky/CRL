@@ -38,7 +38,7 @@ int crl_solidsegs_counter = 1;
 // QOL Features
 
 // Screen wiping effect.
-int crl_screenwipe = 1;
+int crl_screenwipe = 0;
 
 // -----------------------------------------------------------------------------
 // [JN] CRL-specific config variables binding function.

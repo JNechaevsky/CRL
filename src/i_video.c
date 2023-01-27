@@ -133,7 +133,7 @@ int fullscreen = true;
 // Aspect ratio correction mode
 
 int aspect_ratio_correct = true;
-int smooth_scaling = true;
+int smooth_scaling = 0;
 static int actualheight;
 
 // Force integer scales for resolution-independent rendering

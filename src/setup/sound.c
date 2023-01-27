@@ -59,7 +59,7 @@ static int sfxVolume = 8;
 static int musicVolume = 8;
 static int voiceVolume = 15;
 static int show_talk = 0;
-static int use_libsamplerate = 0;
+static int use_libsamplerate = 1;
 static float libsamplerate_scale = 0.65;
 
 static char *music_pack_path = NULL;
