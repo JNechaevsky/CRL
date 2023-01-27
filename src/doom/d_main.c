@@ -322,15 +322,19 @@ void D_Display (void)
                           W_CacheLumpName (DEH_String("M_PAUSE"), PU_CACHE));
     }
 
-	// GhostlyDeath -- CRL markers and indicators
-	CRL_ViewDrawer();
+    // [JN] Do not draw any CRL widgets if not in game level.
+    if (gamestate == GS_LEVEL)
+    {
+        // GhostlyDeath -- CRL markers and indicators
+        CRL_ViewDrawer();
 
-	// GhostlyDeath -- CRL Stats
-	// [JN] Extended to draw sprite and segment counters, simplified.
-	CRL_StatDrawer();
+        // GhostlyDeath -- CRL Stats
+        // [JN] Extended to draw sprite and segment counters, simplified.
+        CRL_StatDrawer();
 
-	// [JN] Draw level stats (timer and KIS).
-	CRL_KISDrawer();
+        // [JN] Draw level stats (timer and KIS).
+        CRL_KISDrawer();
+    }
 
     // Handle player messages
     CRL_DrawMessage();
