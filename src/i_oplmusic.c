@@ -1197,7 +1197,7 @@ static void ControllerEvent(opl_track_data_t *track, midi_event_t *event)
 
     switch (controller)
     {
-        case MIDI_CONTROLLER_MAIN_VOLUME:
+        case MIDI_CONTROLLER_VOLUME_MSB:
             SetChannelVolume(channel, param, true);
             break;
 
@@ -1211,7 +1211,7 @@ static void ControllerEvent(opl_track_data_t *track, midi_event_t *event)
 
         default:
 #ifdef OPL_MIDI_DEBUG
-            fprintf(stderr, "Unknown MIDI controller type: %i\n", controller);
+            fprintf(stderr, "Unknown MIDI controller type: %u\n", controller);
 #endif
             break;
     }

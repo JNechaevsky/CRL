@@ -1,6 +1,6 @@
 //
-// Copyright(C) 2013 James Haley et al.
-// Copyright(C) 2017 Alex Mayfield
+// Copyright(C) 2021-2022 Roman Fomin
+// Copyright(C) 2022 ceski
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,30 +13,23 @@
 // GNU General Public License for more details.
 //
 // DESCRIPTION:
-//     Client Interface to Midi Server
-//
+//      Windows native MIDI
 
-#ifndef __I_MIDIPIPE__
-#define __I_MIDIPIPE__
+#ifdef _WIN32
 
-#if _WIN32
+#pragma once
 
-#include "SDL_mixer.h"
 
 #include "doomtype.h"
 
-extern boolean midi_server_initialized;
-extern boolean midi_server_registered;
-
-boolean I_MidiPipe_RegisterSong(char *filename);
-void I_MidiPipe_SetVolume(int vol);
-void I_MidiPipe_PlaySong(int loops);
-void I_MidiPipe_StopSong();
-void I_MidiPipe_ShutdownServer();
-
-boolean I_MidiPipe_InitServer();
-
-#endif
+boolean I_WIN_InitMusic(void);
+void I_WIN_PlaySong(boolean looping);
+void I_WIN_PauseSong(void);
+void I_WIN_ResumeSong(void);
+void I_WIN_StopSong(void);
+void I_WIN_SetMusicVolume(int volume);
+boolean I_WIN_RegisterSong(char* filename);
+void I_WIN_UnRegisterSong(void);
+void I_WIN_ShutdownMusic(void);
 
 #endif
-

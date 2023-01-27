@@ -25,12 +25,22 @@
 
 #include "doomtype.h"
 
-boolean M_WriteFile(char *name, void *source, int length);
+#ifdef _WIN32
+wchar_t *M_ConvertUtf8ToWide(const char *str);
+#endif
+char *M_ConvertUtf8ToSysNativeMB(const char *str);
+char *M_ConvertSysNativeMBToUtf8(const char *str);
+
+FILE *M_fopen(const char *filename, const char *mode);
+int M_remove(const char *path);
+int M_rename(const char *oldname, const char *newname);
+char *M_getenv(const char *name);
+boolean M_WriteFile(const char *name, void *source, int length);
 int M_ReadFile(char *name, byte **buffer);
-void M_MakeDirectory(char *dir);
+void M_MakeDirectory(const char *dir);
 char *M_TempFile(char *s);
-boolean M_FileExists(char *file);
-char *M_FileCaseExists(char *file);
+boolean M_FileExists(const char *file);
+char *M_FileCaseExists(const char *file);
 long M_FileLength(FILE *handle);
 boolean M_StrToInt(const char *str, int *result);
 void M_ExtractFileBase(char *path, char *dest);

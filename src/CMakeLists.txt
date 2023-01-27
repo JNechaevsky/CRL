@@ -49,7 +49,6 @@ set(GAME_SOURCE_FILES
     i_input.c           i_input.h
     i_joystick.c        i_joystick.h
                         i_swap.h
-    i_midipipe.c        i_midipipe.h
     i_oplmusic.c
     i_pcsound.c
     i_sdlmusic.c
@@ -58,6 +57,8 @@ set(GAME_SOURCE_FILES
     i_timer.c           i_timer.h
     i_video.c           i_video.h
     i_videohr.c         i_videohr.h
+    i_winmusic.c
+    midifallback.c      midifallback.h
     midifile.c          midifile.h
     mus2mid.c           mus2mid.h
     m_bbox.c            m_bbox.h
