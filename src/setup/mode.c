@@ -66,8 +66,8 @@ static mission_config_t mission_configs[] =
         IWAD_MASK_DOOM,
         "doom",
         "default.cfg",
-        /*PROGRAM_PREFIX*/ "chocorenderlimits.cfg",
-        /*PROGRAM_PREFIX*/ "chocorenderlimits"
+        PROGRAM_PREFIX "doom.cfg",
+        PROGRAM_PREFIX "doom"
     },
     {
         "Heretic",
@@ -213,15 +213,11 @@ static void SetExecutable(mission_config_t *config)
 
 #ifdef _WIN32
     extension = ".exe";
-    // [JN] FIXME, line below giving incorrect executable name,
-    // making game unable to start.
-    // executable = M_StringJoin(config->executable, extension, NULL);
-     executable = "chocorenderlimits-doom.exe";
 #else
     extension = "";
-    executable = M_StringJoin(config->executable, extension, NULL);
 #endif
 
+    executable = M_StringJoin(config->executable, extension, NULL);
 }
 
 static void SetMission(mission_config_t *config)
