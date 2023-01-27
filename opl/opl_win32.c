@@ -30,7 +30,7 @@
 
 #include "ioperm_sys.h"
 
-static unsigned int opl_port_base;
+unsigned int opl_port_base;
 
 // MingW?
 
