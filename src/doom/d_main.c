@@ -218,7 +218,7 @@ void D_Display (void)
     	wipegamestate = gamestate;
 
     // save the current screen if about to wipe
-    // [JN] Wiping: make optional
+    // [JN] Make screen wipe optional, use external config variable.
     if (gamestate != wipegamestate && crl_screenwipe)
     {
 	wipe = true;

@@ -517,6 +517,7 @@ static void M_ChooseCRL_2 (int choice);
 
 static void M_DrawCRL_2 (void);
 static void M_CRL_Colorblind (int choice);
+static void M_CRL_ScreenWipe (int choice);
 static void M_ChooseCRL_1 (int choice);
 
 //
@@ -597,8 +598,8 @@ static menuitem_t CRLMenu_2[]=
     { 2, "PLAYER COORDS",       M_CRL_Coords,         'p'},
     {-1, "", 0, '\0'},          // ACCESSIBILITY title
     { 2, "COLORBLIND",          M_CRL_Colorblind,     'c'},
-    {-1, "", 0, '\0'},
-    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},          // QOL FEATURES title
+    { 2, "SCREEN WIPE EFFECT",  M_CRL_ScreenWipe,     's'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
@@ -824,6 +825,13 @@ static void M_DrawCRL_2 (void)
     M_WriteText (272 - M_StringWidth(str), 54, str, 
                  crl_colorblind > 0 ? cr[CR_GREEN] : cr[CR_RED]);
 
+    M_WriteText(48, 63, "QOL FEATURES", cr[CR_YELLOW]);
+
+    // Screen wipe effect
+    sprintf(str, crl_screenwipe ? "ON" : "OFF");
+    M_WriteText (272 - M_StringWidth(str), 72, str, 
+                 crl_screenwipe ? cr[CR_GREEN] : cr[CR_RED]);
+
     //
     // < PREV PAGE
     //
@@ -867,6 +875,11 @@ static void M_CRL_Colorblind (int choice)
     }
     
     CRL_ReloadPalette();
+}
+
+static void M_CRL_ScreenWipe (int choice)
+{
+    crl_screenwipe ^= 1;
 }
 
 static void M_ChooseCRL_1 (int choice)
