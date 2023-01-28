@@ -34,6 +34,7 @@ int crl_intercepts = 0;
 // Drawing functions
 
 int crl_solidsegs_counter = 1;
+int crl_visplanes_counter = 1;
 
 // QOL Features
 
@@ -57,6 +58,7 @@ void CRL_BindVariables (void)
     // Drawing functions
 
     M_BindIntVariable("crl_solidsegs_counter",          &crl_solidsegs_counter);
+    M_BindIntVariable("crl_visplanes_counter",          &crl_visplanes_counter);
 
     // QOL Features
 

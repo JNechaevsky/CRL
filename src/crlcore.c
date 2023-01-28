@@ -933,16 +933,25 @@ void CRL_StatDrawer(void)
 	}
 
     // Visplanes (CRL: 32, 128 or 4096 max)
+    if (crl_visplanes_counter)
 	{
 		char num[32];
 		
 		M_WriteText(0, 135, "VIS:", cr[CR_GRAY]);
         
-		M_snprintf(num, 4, "%d", CRLData.numcheckplanes + CRLData.numfindplanes);
-		// M_snprintf(num, 32, "%d = %d CHK + %d FND",
-		// 			CRLData.numcheckplanes + CRLData.numfindplanes,
-		// 			CRLData.numcheckplanes, CRLData.numfindplanes);
-
+        if (crl_visplanes_counter == 1)
+        {
+            // Bief
+            M_snprintf(num, 4, "%d", CRLData.numcheckplanes + CRLData.numfindplanes);
+        }
+        else
+        {
+            // Full
+            M_snprintf(num, 32, "%d = %d CHK + %d FND",
+                       CRLData.numcheckplanes + CRLData.numfindplanes,
+                       CRLData.numcheckplanes, CRLData.numfindplanes);
+        }
+        
 		M_WriteText(32, 135, num, (CRLData.numcheckplanes + CRLData.numfindplanes >= 128) ?
                    (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
 	}

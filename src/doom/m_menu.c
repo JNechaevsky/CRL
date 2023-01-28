@@ -548,7 +548,7 @@ static menuitem_t CRLMenu_1[]=
     { 2, "INTERCEPTS OVERFLOW", M_CRL_Intercepts,     'i'},
     {-1, "", 0, '\0'},          // DRAWING FUNCTIONS title
     { 2, "WALL SEGS COUNTER",   M_CRL_SolidsegsCnt,   'w'},
-    { 1, "VISPLANES COUNTER",   M_CRL_VisplanesCnt,   'v'},
+    { 2, "VISPLANES COUNTER",   M_CRL_VisplanesCnt,   'v'},
     { 1, "VISPLANES DRAWING",   M_CRL_VisplanesDraw,  'v'},
     { 1, "MERGE VISPLANES",     M_CRL_VisplanesMerge, 'm'},
     { 1, "MAX VISPLANES",       M_CRL_VisplanesMax,   'm'},
@@ -648,8 +648,11 @@ static void M_DrawCRL_1 (void)
                  crl_solidsegs_counter ? cr[CR_GREEN] : cr[CR_RED]);
 
     // Visplanes counter
-    sprintf(str, "BRIEF");
-    M_WriteText (272 - M_StringWidth(str), 54, str, cr[CR_RED]);
+    sprintf(str, crl_visplanes_counter == 1 ? "BRIEF" :
+                 crl_visplanes_counter == 2 ? "FULL" : "OFF");
+    M_WriteText (272 - M_StringWidth(str), 54, str, 
+                 crl_visplanes_counter == 1 ? cr[CR_GREEN] :
+                 crl_visplanes_counter == 2 ? cr[CR_GREEN] : cr[CR_RED]);
 
     // Visplanes drawing mode
     sprintf(str, "OVERFILL");
@@ -706,7 +709,24 @@ static void M_CRL_SolidsegsCnt (int choice)
 
 static void M_CRL_VisplanesCnt (int choice)
 {
+    switch (choice)
+    {
+        case 0:
+            crl_visplanes_counter--;
+            if (crl_visplanes_counter < 0)
+            {
+                crl_visplanes_counter = 2;
+            }
+        break;
 
+        case 1:
+            crl_visplanes_counter++;
+            if (crl_visplanes_counter > 2)
+            {
+                crl_visplanes_counter = 0;
+            }
+        break;
+    }
 }
 
 static void M_CRL_VisplanesDraw (int choice)

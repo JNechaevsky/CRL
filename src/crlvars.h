@@ -32,6 +32,7 @@ extern int crl_intercepts;
 // Drawing functions
 
 extern int crl_solidsegs_counter;
+extern int crl_visplanes_counter;
 
 // QOL Features
 

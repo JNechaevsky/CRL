@@ -1656,6 +1656,7 @@ static default_t extra_defaults_list[] =
     // Drawing functions
 
     CONFIG_VARIABLE_INT(crl_solidsegs_counter),
+    CONFIG_VARIABLE_INT(crl_visplanes_counter),
 
     // QOL Features
 
