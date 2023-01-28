@@ -34,6 +34,7 @@ extern int crl_intercepts;
 extern int crl_solidsegs_counter;
 extern int crl_visplanes_counter;
 extern int crl_visplanes_drawing;
+extern int crl_visplanes_merge;
 
 // QOL Features
 

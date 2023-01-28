@@ -33,6 +33,7 @@
 #include "r_sky.h"
 
 #include "crlcore.h"
+#include "crlvars.h"
 
 
 planefunction_t		floorfunc;
@@ -268,7 +269,9 @@ R_FindPlane
 	    && picnum == check->picnum
 	    && lightlevel == check->lightlevel)
 	{
-		if ((CRLOptionSet[CRL_MERGEPLANES].curvalue & CRL_MERGE_FIND) == 0)
+        // [JN] CRL - Merge visplanes: NO FND / NO CHK + NO FND,
+        // Use external config variable.
+        if (crl_visplanes_merge != 2 && crl_visplanes_merge != 3)
 	    break;
 	}
     }
@@ -341,7 +344,9 @@ R_CheckPlane
 	intrh = stop;
     }
 
-	if ((CRLOptionSet[CRL_MERGEPLANES].curvalue & CRL_MERGE_CHECK) == 0)
+    // [JN] CRL - Merge visplanes: NO CHK / NO CHK + NO FND,
+    // Use external config variable.
+    if (crl_visplanes_merge != 1 && crl_visplanes_merge != 3)
 		for (x=intrl ; x<= intrh ; x++)
 			if (pl->top[x] != 0xff)
 				break;
