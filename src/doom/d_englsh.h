@@ -690,4 +690,11 @@
 #define CC_HERO	"OUR HERO"
 
 
+//
+// [JN] CRL-specific strings.
+//
+
+#define CRL_SPECTATOR_ON    "SPECTATOR MODE ON"
+#define CRL_SPECTATOR_OFF   "SPECTATOR MODE OFF"
+
 #endif

@@ -69,6 +69,7 @@
 #include "r_sky.h"
 
 #include "crlcore.h"
+#include "crlvars.h"
 
 #include "g_game.h"
 
@@ -831,6 +832,14 @@ boolean G_Responder (event_t* ev)
         {
 	    gamekeydown[ev->data1] = true; 
         }
+
+    // [JN] CRL - Toggle spectator mode.
+    if (ev->data1 == key_crl_spectator)
+    {
+        crl_spectating ^= 1;
+        CRL_SetMessage(&players[consoleplayer], crl_spectating ?
+                       CRL_SPECTATOR_ON : CRL_SPECTATOR_OFF, false);
+    }        
 
 	return true;    // eat key down events 
  

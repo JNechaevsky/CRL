@@ -51,10 +51,9 @@ static int *controls[] = { &key_left, &key_right, &key_up, &key_down,
                            &key_arti_invulnerability,
                            &key_prevweapon, &key_nextweapon, NULL };
 
-static int *menu_nav[] = { &key_crl_menu,
-	&key_menu_activate, &key_menu_up, &key_menu_down,
-	&key_menu_left, &key_menu_right, &key_menu_back,
-	&key_menu_forward, NULL };
+static int *menu_nav[] = { &key_menu_activate, &key_menu_up, &key_menu_down,
+                           &key_menu_left, &key_menu_right, &key_menu_back,
+                           &key_menu_forward, NULL };
 
 static int *shortcuts[] = { &key_menu_help, &key_menu_save, &key_menu_load,
                             &key_menu_volume, &key_menu_detail, &key_menu_qsave,
@@ -70,6 +69,9 @@ static int *map_keys[] = { &key_map_north, &key_map_south, &key_map_east,
                            &key_map_west, &key_map_zoomin, &key_map_zoomout,
                            &key_map_toggle, &key_map_maxzoom, &key_map_follow,
                            &key_map_grid, &key_map_mark, &key_map_clearmark,
+                           NULL };
+
+static int *crl_keys[] = { &key_crl_menu, &key_crl_spectator,
                            NULL };
 
 static void UpdateJoybSpeed(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(var))
@@ -143,6 +145,7 @@ static void KeySetCallback(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(variable))
     CheckKeyGroup(variable, menu_nav);
     CheckKeyGroup(variable, shortcuts);
     CheckKeyGroup(variable, map_keys);
+    CheckKeyGroup(variable, crl_keys);
 }
 
 // Add a label and keyboard input to the specified table.
@@ -291,7 +294,6 @@ static void OtherKeysDialog(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(unused))
 
     AddSectionLabel(table, "Menu navigation", false);
 
-	AddKeyControl(table, "Enable CRL Control Menu", &key_crl_menu);
     AddKeyControl(table, "Activate menu",         &key_menu_activate);
     AddKeyControl(table, "Move cursor up",        &key_menu_up);
     AddKeyControl(table, "Move cursor down",      &key_menu_down);
@@ -360,6 +362,30 @@ static void OtherKeysDialog(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(unused))
     TXT_AddWidget(window, scrollpane);
 }
 
+static void CRLKeysDialog(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(unused))
+{
+    txt_window_t *window;
+    txt_table_t *table;
+    txt_scrollpane_t *scrollpane;
+
+    window = TXT_NewWindow("CRL-Specific");
+
+    TXT_SetWindowHelpURL(window, WINDOW_HELP_URL);
+
+    table = TXT_NewTable(2);
+
+    TXT_SetColumnWidths(table, 19, 9);
+
+//  AddSectionLabel(table, "Menu navigation", false);
+
+    AddKeyControl(table, "CRL Control Menu",    &key_crl_menu);
+    AddKeyControl(table, "Spectator mode",      &key_crl_spectator);
+
+    scrollpane = TXT_NewScrollPane(0, 12, table);
+
+    TXT_AddWidget(window, scrollpane);
+}
+
 void ConfigKeyboard(void)
 {
     txt_window_t *window;
@@ -410,6 +436,10 @@ void ConfigKeyboard(void)
                    TXT_TABLE_OVERFLOW_RIGHT,
                    TXT_TABLE_EMPTY,
                    TXT_NewButton2("Other keys...", OtherKeysDialog, NULL),
+                   TXT_TABLE_OVERFLOW_RIGHT,
+
+                   TXT_NewSeparator("CRL-Specific"),
+                   TXT_NewButton2("CRL controls and keys...", CRLKeysDialog, NULL),
                    TXT_TABLE_OVERFLOW_RIGHT,
 
                    TXT_NewSeparator("Misc."),

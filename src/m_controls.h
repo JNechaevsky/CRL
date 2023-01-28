@@ -156,6 +156,7 @@ extern int dclick_use;
 
 // GhostlyDeath -- CRL
 extern int key_crl_menu;
+extern int key_crl_spectator;
 
 void M_BindBaseControls(void);
 void M_BindHereticControls(void);

@@ -201,6 +201,7 @@ int dclick_use = 1;
 
 // GhostlyDeath -- CRL
 int key_crl_menu = '`';
+int key_crl_spectator = 0;
  
 // 
 // Bind all of the common controls used by Doom and all other games.
@@ -379,6 +380,7 @@ void M_BindMenuControls(void)
     
     // GhostlyDeath -- CRL
     M_BindIntVariable("key_crl_menu",		&key_crl_menu);
+    M_BindIntVariable("key_crl_spectator",  &key_crl_spectator);
 }
 
 void M_BindChatControls(unsigned int num_players)
