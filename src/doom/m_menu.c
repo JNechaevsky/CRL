@@ -516,6 +516,7 @@ static void M_CRL_Spectating (int choice);
 static void M_ChooseCRL_2 (int choice);
 
 static void M_DrawCRL_2 (void);
+static void M_CRL_Colorblind (int choice);
 static void M_ChooseCRL_1 (int choice);
 
 //
@@ -532,13 +533,10 @@ enum
     crl_1_visplanes_drawing,  // 63
     crl_1_visplanes_merge,    // 72
     crl_1_visplanes_max,      // 81
-  crl_1_widgets_title,        // 90
-    crl_1_kis,                // 99
-    crl_1_time,               // 108
-    crl_1_coords,             // 117
-  crl_1_gamemode_title,       // 126
-    crl_1_spectating,         // 135
-  crl_1_next_menu,            // 144
+  crl_1_gamemode_title,       // 90
+    crl_1_spectating,         // 99
+    crl_1_empty1,             // 108
+  crl_1_next_menu,            // 117
     crl_1_end
 } crl_1_e;
 
@@ -552,13 +550,10 @@ static menuitem_t CRLMenu_1[]=
     { 2, "VISPLANES DRAWING",   M_CRL_VisplanesDraw,  'v'},
     { 2, "MERGE VISPLANES",     M_CRL_VisplanesMerge, 'm'},
     { 2, "MAX VISPLANES",       M_CRL_VisplanesMax,   'm'},
-    {-1, "", 0, '\0'},          // WIDGETS title
-    { 2, "K/I/S STATS",         M_CRL_KIS,            'k'},
-    { 2, "LEVEL TIME",          M_CRL_Time,           'l'},
-    { 2, "PLAYER COORDS",       M_CRL_Coords,         'p'},
     {-1, "", 0, '\0'},          // GAME MODE title
     { 2, "SPECTATING",          M_CRL_Spectating,     's'},
-    { 1, "",                    M_ChooseCRL_2,        'n'},
+    {-1, "", 0, '\0'},
+    { 1, "",                    M_ChooseCRL_2,        'n'}
 };
 
 static menu_t CRLDef_1 =
@@ -577,9 +572,9 @@ static menu_t CRLDef_1 =
 
 enum
 {
-    crl_2_colorblind,         // 18
-    crl_2_empty1,             // 27
-    crl_2_empty2,             // 36
+    crl_2_kis,                // 18
+    crl_2_time,               // 27
+    crl_2_coords,             // 36
     crl_2_empty3,             // 45
     crl_2_empty4,             // 54
     crl_2_empty5,             // 63
@@ -588,30 +583,27 @@ enum
     crl_2_empty8,             // 90
     crl_2_empty9,             // 99
     crl_2_empty10,            // 108
-    crl_2_empty11,            // 117
-    crl_2_empty12,            // 126
-    crl_2_empty13,            // 135
-    crl_2_empty14,            // 144
+  crl_2_prev_menu,            // 117
+    // crl_2_empty12,            // 126
+    // crl_2_empty13,            // 135
+    // crl_2_empty14,            // 144
     crl_2_end
 } crl_2_e;
 
 static menuitem_t CRLMenu_2[]=
 {
-    { 1, "COLORBLIND",              M_EndGame,    'g'},
+    { 2, "K/I/S STATS",         M_CRL_KIS,            'k'},
+    { 2, "LEVEL TIME",          M_CRL_Time,           'l'},
+    { 2, "PLAYER COORDS",       M_CRL_Coords,         'p'},
+    {-1, "", 0, '\0'},          // ACCESSIBILITY title
+    { 2, "COLORBLIND",          M_CRL_Colorblind,     'c'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
-    {-1, "", 0, '\0'},
-    {-1, "", 0, '\0'},
-    {-1, "", 0, '\0'},
-    {-1, "", 0, '\0'},
-    {-1, "", 0, '\0'},
-    {-1, "", 0, '\0'},
-    {-1, "", 0, '\0'},
-    { 1, "",                       M_ChooseCRL_1,     's'},
+    { 1, "",                     M_ChooseCRL_1,     's'},
 };
 
 static menu_t CRLDef_2 =
@@ -676,30 +668,17 @@ static void M_DrawCRL_1 (void)
     M_WriteText (272 - M_StringWidth(str), 81, str, 
                  crl_visplanes_max > 0 ? cr[CR_GREEN] : cr[CR_RED]);
 
-    M_WriteText(48,  90, "WIDGETS", cr[CR_YELLOW]);
-
-    // K/I/S stats
-    sprintf(str, "ON");
-    M_WriteText (272 - M_StringWidth(str), 99, str, cr[CR_RED]);
-
-    // Level time
-    sprintf(str, "ON");
-    M_WriteText (272 - M_StringWidth(str), 108, str, cr[CR_RED]);
-
-    // Player coords
-    sprintf(str, "ON");
-    M_WriteText (272 - M_StringWidth(str), 117, str, cr[CR_RED]);
-
-    M_WriteText(48, 126, "GAME MODE", cr[CR_YELLOW]);
+    M_WriteText(48, 90, "GAME MODE", cr[CR_YELLOW]);
 
     // Spectating
-    sprintf(str, "OFF");
-    M_WriteText (272 - M_StringWidth(str), 135, str, cr[CR_RED]);
+    sprintf(str, crl_spectating ? "ON" : "OFF");
+    M_WriteText (272 - M_StringWidth(str), 99, str,
+                 crl_spectating ? cr[CR_GREEN] : cr[CR_RED]);
 
     //
     // NEXT PAGE >
     //
-    M_WriteText(48, 144, "NEXT PAGE >", cr[CR_WHITE]);
+    M_WriteText(48, 117, "NEXT PAGE >", cr[CR_WHITE]);
 }
 
 static void M_CRL_Medusa (int choice)
@@ -805,40 +784,89 @@ static void M_CRL_VisplanesMax (int choice)
     }
 }
 
-static void M_CRL_KIS (int choice)
-{
-
-}
-
-static void M_CRL_Time (int choice)
-{
-
-}
-
-static void M_CRL_Coords (int choice)
-{
-
-}
-
 static void M_CRL_Spectating (int choice)
 {
+    crl_spectating ^= 1;
+}
 
+static void M_ChooseCRL_2 (int choice)
+{
+    M_SetupNextMenu (&CRLDef_2);
 }
 
 static void M_DrawCRL_2 (void)
 {
     static char str[32];
     
-    M_WriteText(48, 9, "ACCESSIBILITY", cr[CR_YELLOW]);
+    M_WriteText(48, 9, "WIDGETS", cr[CR_YELLOW]);
+
+    // K/I/S stats
+    sprintf(str, crl_widget_kis ? "ON" : "OFF");
+    M_WriteText (272 - M_StringWidth(str), 18, str, 
+                 crl_widget_kis ? cr[CR_GREEN] : cr[CR_RED]);
+
+    // Level time
+    sprintf(str, crl_widget_time ? "ON" : "OFF");
+    M_WriteText (272 - M_StringWidth(str), 27, str,
+                 crl_widget_time ? cr[CR_GREEN] : cr[CR_RED]);
+
+    // Player coords
+    sprintf(str, crl_widget_coords ? "ON" : "OFF");
+    M_WriteText (272 - M_StringWidth(str), 36, str,
+                 crl_widget_coords ? cr[CR_GREEN] : cr[CR_RED]);
+
+    M_WriteText(48, 45, "ACCESSIBILITY", cr[CR_YELLOW]);
 
     // Colorblind
-    sprintf(str, "NONE");
-    M_WriteText (272 - M_StringWidth(str), 18, str, cr[CR_YELLOW]);
+    sprintf(str, crl_colorblind == 1 ? "RED/GREEN" :
+                 crl_colorblind == 2 ? "BLUE/YELLOW" :
+                 crl_colorblind == 3 ? "MONOCHROME" : "NONE");
+    M_WriteText (272 - M_StringWidth(str), 54, str, 
+                 crl_colorblind > 0 ? cr[CR_GREEN] : cr[CR_RED]);
 
     //
     // < PREV PAGE
     //
-    M_WriteText(48, 144, "< PREV PAGE", cr[CR_WHITE]);
+    M_WriteText(48, 117, "< PREV PAGE", cr[CR_WHITE]);
+}
+
+static void M_CRL_KIS (int choice)
+{
+    crl_widget_kis ^= 1;
+}
+
+static void M_CRL_Time (int choice)
+{
+    crl_widget_time ^= 1;
+}
+
+static void M_CRL_Coords (int choice)
+{
+    crl_widget_coords ^= 1;
+}
+
+static void M_CRL_Colorblind (int choice)
+{
+    switch (choice)
+    {
+        case 0:
+            crl_colorblind--;
+            if (crl_colorblind < 0)
+            {
+                crl_colorblind = 3;
+            }
+        break;
+
+        case 1:
+            crl_colorblind++;
+            if (crl_colorblind > 3)
+            {
+                crl_colorblind = 0;
+            }
+        break;
+    }
+    
+    CRL_ReloadPalette();
 }
 
 static void M_ChooseCRL_1 (int choice)
@@ -846,10 +874,6 @@ static void M_ChooseCRL_1 (int choice)
     M_SetupNextMenu (&CRLDef_1);
 }
 
-static void M_ChooseCRL_2 (int choice)
-{
-    M_SetupNextMenu (&CRLDef_2);
-}
 
 // -----------------------------------------------------------------------------
 

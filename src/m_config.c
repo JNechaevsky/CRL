@@ -1661,6 +1661,16 @@ static default_t extra_defaults_list[] =
     CONFIG_VARIABLE_INT(crl_visplanes_merge),
     CONFIG_VARIABLE_INT(crl_visplanes_max),
 
+    // Widgets
+
+    CONFIG_VARIABLE_INT(crl_widget_kis),
+    CONFIG_VARIABLE_INT(crl_widget_time),
+    CONFIG_VARIABLE_INT(crl_widget_coords),
+
+    // Accessibility
+
+    CONFIG_VARIABLE_INT(crl_colorblind),
+
     // QOL Features
 
     CONFIG_VARIABLE_INT(crl_screenwipe),

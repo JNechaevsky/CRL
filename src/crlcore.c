@@ -673,7 +673,8 @@ void CRL_SetColors(uint8_t* colors, void* ref)
 	void (*adjustcolor)(byte* r, byte* g, byte* b);
 	
 	// Current color blindness used
-	nowcolorblind = CRLOptionSet[CRL_COLORBLIND].curvalue;
+    // [JN] Use external config variable.
+	nowcolorblind = crl_colorblind;
 	
 	// Only if no colors were set or colorblindness changed
 	if (!_didcolors || (lastcolorblind != nowcolorblind) || (ref != oldref) ||
@@ -689,17 +690,17 @@ void CRL_SetColors(uint8_t* colors, void* ref)
 		switch (nowcolorblind)
 		{
 				// Red/green
-			case CRL_COLORBLIND_RED_GREEN:
+			case 1:
 				adjustcolor = CRL_AdjustRedGreen;
 				break;
 			
 				// Green/Blue
-			case CRL_COLORBLIND_GREEN_BLUE:
+			case 2:
 				adjustcolor = CRL_AdjustGreenBlue;
 				break;
 				
 				// Monochrome
-			case CRL_COLORBLIND_MONOCHROME:
+			case 3:
 				adjustcolor = CRL_AdjustMonochrome;
 				break;
 			
@@ -1208,9 +1209,8 @@ void CRL_CountPlane(void* __key, int __chorf, int __id)
  */
 int CRL_IsSpectating(void)
 {
-	if (CRLOptionSet[CRL_SPECTATE].curvalue == CRL_SPECTATE_ON)
-		return 1;
-	return 0;
+    // [JN] Use external config variable.
+    return crl_spectating;
 }
 
 /**

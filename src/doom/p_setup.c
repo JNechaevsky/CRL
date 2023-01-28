@@ -42,6 +42,7 @@
 #include "d_englsh.h"
 
 #include "crlcore.h"
+#include "crlvars.h"
 
 
 void	P_SpawnMapThing (mapthing_t*	mthing);
@@ -990,6 +991,9 @@ P_SetupLevel
 
     // [JN] Set level name.
     P_LevelNameInit();
+
+    // [JN] Force to disable spectator mode.
+    crl_spectating = 0;
 
     //printf ("free memory: 0x%x\n", Z_FreeMemory());
 

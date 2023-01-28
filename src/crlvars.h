@@ -37,6 +37,20 @@ extern int crl_visplanes_drawing;
 extern int crl_visplanes_merge;
 extern int crl_visplanes_max;
 
+// Game mode
+
+extern int crl_spectating;
+
+// Widgets
+
+extern int crl_widget_kis;
+extern int crl_widget_time;
+extern int crl_widget_coords;
+
+// Accessibility
+
+extern int crl_colorblind;
+
 // QOL Features
 
 extern int crl_screenwipe;

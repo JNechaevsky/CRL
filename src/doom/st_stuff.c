@@ -60,7 +60,9 @@
 #include "sounds.h"
 
 #include "v_trans.h"
+
 #include "crlcore.h"
+#include "crlvars.h"
 
 
 //
@@ -962,7 +964,7 @@ void ST_Ticker (void)
 
 static int st_palette = 0;
 
-void ST_ReloadPalette(void)
+void CRL_ReloadPalette(void)
 {
     byte*	pal;
 	pal = (byte *) W_CacheLumpNum (lu_palette, PU_CACHE)+st_palette*768;
@@ -1452,16 +1454,37 @@ void ST_Init (void)
 }
 
 // -----------------------------------------------------------------------------
-// CRL_KISDrawer
-// [JN] Draw level stats (timer and KIS).
+// CRL_WidgetsDrawer
+// [JN] Draw player coords, level KIS stats and timer.
 // -----------------------------------------------------------------------------
 
-void CRL_KISDrawer (void)
+void CRL_WidgetsDrawer (void)
 {
     const int yy = automapactive ? 8 :
                    screenblocks == 11 ? -32 : 0;
 
+    // Player coords
+    if (crl_widget_coords)
+    {
+        char str[128];
+
+        M_WriteText(0, 18, "X:", cr[CR_GRAY]);
+        M_WriteText(0, 27, "Y:", cr[CR_GRAY]);
+        M_WriteText(0, 36, "Z:", cr[CR_GRAY]);
+        M_WriteText(0, 45, "ANG:", cr[CR_GRAY]);
+
+        sprintf(str, "%d", plyr->mo->x >> FRACBITS);
+        M_WriteText(16, 18, str, cr[CR_GREEN]);
+        sprintf(str, "%d", plyr->mo->y >> FRACBITS);
+        M_WriteText(16, 27, str, cr[CR_GREEN]);
+        sprintf(str, "%d", plyr->mo->z >> FRACBITS);
+        M_WriteText(16, 36, str, cr[CR_GREEN]);
+        sprintf(str, "%d", plyr->mo->angle / ANG1);
+        M_WriteText(32, 45, str, cr[CR_GREEN]);
+    }
+
     // Level timer
+    if (crl_widget_time)
     {
         const int time = leveltime / TICRATE;
         char stra[8];
@@ -1475,6 +1498,7 @@ void CRL_KISDrawer (void)
     }
  
     // KIS counters
+    if (crl_widget_kis)
     {
         char str1[8], str2[16];  // kills
         char str3[8], str4[16];  // items

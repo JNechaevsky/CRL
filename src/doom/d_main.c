@@ -332,8 +332,8 @@ void D_Display (void)
         // [JN] Extended to draw sprite and segment counters, simplified.
         CRL_StatDrawer();
 
-        // [JN] Draw level stats (timer and KIS).
-        CRL_KISDrawer();
+        // [JN] Draw player coords, level KIS stats and timer.
+        CRL_WidgetsDrawer();
     }
 
     // Handle player messages

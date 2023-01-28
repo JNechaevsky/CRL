@@ -39,6 +39,20 @@ int crl_visplanes_drawing = 0;
 int crl_visplanes_merge = 0;
 int crl_visplanes_max = 0;
 
+// Game mode
+
+int crl_spectating = 0;
+
+// Widgets
+
+int crl_widget_kis = 0;
+int crl_widget_time = 0;
+int crl_widget_coords = 0;
+
+// Accessibility
+
+int crl_colorblind = 0;
+
 // QOL Features
 
 // Screen wiping effect.
@@ -65,6 +79,16 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_visplanes_drawing",          &crl_visplanes_drawing);
     M_BindIntVariable("crl_visplanes_merge",            &crl_visplanes_merge);
     M_BindIntVariable("crl_visplanes_max",              &crl_visplanes_max);
+
+    // Widgets
+
+    M_BindIntVariable("crl_widget_kis",                 &crl_widget_kis);
+    M_BindIntVariable("crl_widget_time",                &crl_widget_time);
+    M_BindIntVariable("crl_widget_coords",              &crl_widget_coords);
+
+    // Accessibility
+
+    M_BindIntVariable("crl_colorblind",                 &crl_colorblind);
 
     // QOL Features
 
