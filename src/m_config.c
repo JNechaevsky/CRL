@@ -1659,6 +1659,7 @@ static default_t extra_defaults_list[] =
     CONFIG_VARIABLE_INT(crl_visplanes_counter),
     CONFIG_VARIABLE_INT(crl_visplanes_drawing),
     CONFIG_VARIABLE_INT(crl_visplanes_merge),
+    CONFIG_VARIABLE_INT(crl_visplanes_max),
 
     // QOL Features
 

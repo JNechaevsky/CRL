@@ -37,6 +37,7 @@ int crl_solidsegs_counter = 1;
 int crl_visplanes_counter = 1;
 int crl_visplanes_drawing = 0;
 int crl_visplanes_merge = 0;
+int crl_visplanes_max = 0;
 
 // QOL Features
 
@@ -63,6 +64,7 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_visplanes_counter",          &crl_visplanes_counter);
     M_BindIntVariable("crl_visplanes_drawing",          &crl_visplanes_drawing);
     M_BindIntVariable("crl_visplanes_merge",            &crl_visplanes_merge);
+    M_BindIntVariable("crl_visplanes_max",              &crl_visplanes_max);
 
     // QOL Features
 

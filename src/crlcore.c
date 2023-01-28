@@ -1259,11 +1259,10 @@ void CRL_GetCameraPos(int32_t* x, int32_t* y, int32_t* z, uint32_t* a)
  */
 int CRL_MaxVisPlanes(void)
 {
-	if (CRLOptionSet[CRL_MAXVISPLANES].curvalue == CRL_VISLIMIT_VANILLA)
-		return 128;
-	else if (CRLOptionSet[CRL_MAXVISPLANES].curvalue == CRL_VISLIMIT_QUARTER)
-		return 32;
-	return 4096;
+    // [JN] Use external config variable.
+    return crl_visplanes_max == 1 ? 4096 : // CRL
+           crl_visplanes_max == 2 ? 32   : // Quarter
+                                    128  ; // Vanilla
 }
 
 /**

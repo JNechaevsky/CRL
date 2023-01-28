@@ -551,7 +551,7 @@ static menuitem_t CRLMenu_1[]=
     { 2, "VISPLANES COUNTER",   M_CRL_VisplanesCnt,   'v'},
     { 2, "VISPLANES DRAWING",   M_CRL_VisplanesDraw,  'v'},
     { 2, "MERGE VISPLANES",     M_CRL_VisplanesMerge, 'm'},
-    { 1, "MAX VISPLANES",       M_CRL_VisplanesMax,   'm'},
+    { 2, "MAX VISPLANES",       M_CRL_VisplanesMax,   'm'},
     {-1, "", 0, '\0'},          // WIDGETS title
     { 2, "K/I/S STATS",         M_CRL_KIS,            'k'},
     { 2, "LEVEL TIME",          M_CRL_Time,           'l'},
@@ -671,8 +671,10 @@ static void M_DrawCRL_1 (void)
                  crl_visplanes_merge > 0 ? cr[CR_GREEN] : cr[CR_RED]);
 
     // Max visplanes
-    sprintf(str, "128 (VANILLA)");
-    M_WriteText (272 - M_StringWidth(str), 81, str, cr[CR_RED]);
+    sprintf(str, crl_visplanes_max == 1 ? "4096 (CRL)" :
+                 crl_visplanes_max == 2 ? "32 (QUARTER)" : "128 (VANILLA)");
+    M_WriteText (272 - M_StringWidth(str), 81, str, 
+                 crl_visplanes_max > 0 ? cr[CR_GREEN] : cr[CR_RED]);
 
     M_WriteText(48,  90, "WIDGETS", cr[CR_YELLOW]);
 
@@ -783,7 +785,24 @@ static void M_CRL_VisplanesMerge (int choice)
 
 static void M_CRL_VisplanesMax (int choice)
 {
+    switch (choice)
+    {
+        case 0:
+            crl_visplanes_max--;
+            if (crl_visplanes_max < 0)
+            {
+                crl_visplanes_max = 2;
+            }
+        break;
 
+        case 1:
+            crl_visplanes_max++;
+            if (crl_visplanes_max > 2)
+            {
+                crl_visplanes_max = 0;
+            }
+        break;
+    }
 }
 
 static void M_CRL_KIS (int choice)
