@@ -318,8 +318,8 @@ void D_Display (void)
 	    y = 4;
 	else
 	    y = viewwindowy+4;
-	V_DrawPatchDirect(viewwindowx + (scaledviewwidth - 68) / 2, y,
-                          W_CacheLumpName (DEH_String("M_PAUSE"), PU_CACHE));
+	V_DrawPatch(viewwindowx + (scaledviewwidth - 68) / 2, y,
+                W_CacheLumpName (DEH_String("M_PAUSE"), PU_CACHE));
     }
 
     // [JN] Do not draw any CRL widgets if not in game level.
