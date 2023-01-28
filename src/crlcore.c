@@ -1046,14 +1046,12 @@ static int CRL_ColorizeThisPlane(CRLPlaneData_t* __pl)
  */
 void CRL_DrawVisPlanes(int __over)
 {
-	CRL_Option_t* op;
 	int dm, isover, x, y, i, isbord, c;
 	void* is;
 	CRLPlaneData_t pd;
 	
 	// Get visplane drawing mode
-	op = &CRLOptionSet[CRL_DRAWPLANES];
-	dm = op->curvalue;
+	dm = crl_visplanes_drawing;  // [JN] Use external config variable.
 	
 	// Drawing nothing
 	if (dm == 0)
