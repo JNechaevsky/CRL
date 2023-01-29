@@ -967,6 +967,7 @@ void R_DrawMasked (void)
 	     spr != &vsprsortedhead ;
 	     spr=spr->next)
 	{
+        CRLData.numsprites++;// = vissprites;
 	    R_DrawSprite (spr);
 	}
     }

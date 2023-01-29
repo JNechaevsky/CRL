@@ -269,9 +269,6 @@ R_FindPlane
 	    && picnum == check->picnum
 	    && lightlevel == check->lightlevel)
 	{
-        // [JN] CRL - Merge visplanes: NO FND / NO CHK + NO FND,
-        // Use external config variable.
-        if (crl_visplanes_merge != 2 && crl_visplanes_merge != 3)
 	    break;
 	}
     }
@@ -344,12 +341,9 @@ R_CheckPlane
 	intrh = stop;
     }
 
-    // [JN] CRL - Merge visplanes: NO CHK / NO CHK + NO FND,
-    // Use external config variable.
-    if (crl_visplanes_merge != 1 && crl_visplanes_merge != 3)
-		for (x=intrl ; x<= intrh ; x++)
-			if (pl->top[x] != 0xff)
-				break;
+    for (x=intrl ; x<= intrh ; x++)
+	if (pl->top[x] != 0xff)
+	    break;
 	
     if (x > intrh)
     {
@@ -433,6 +427,9 @@ void R_DrawPlanes (void)
     int			angle;
     int                 lumpnum;
 				
+    // [JN] CRL - openings counter.
+    CRLData.numopenings = lastopening - openings;
+
 #ifdef RANGECHECK
     if (ds_p - drawsegs > MAXDRAWSEGS)
 	I_Error ("R_DrawPlanes: drawsegs overflow (%i)",

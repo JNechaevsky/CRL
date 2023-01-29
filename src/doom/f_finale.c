@@ -38,6 +38,8 @@
 #include "doomstat.h"
 #include "r_state.h"
 
+#include "crlcore.h"
+
 typedef enum
 {
     F_STAGE_TEXT,

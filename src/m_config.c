@@ -1644,35 +1644,25 @@ static default_t extra_defaults_list[] =
     CONFIG_VARIABLE_KEY(key_crl_spectator),
 
     // Rendering
-
     CONFIG_VARIABLE_INT(crl_startup_delay),
     CONFIG_VARIABLE_INT(crl_resize_delay),
 
-    // Detectors
-
-    CONFIG_VARIABLE_INT(crl_medusa),
-    CONFIG_VARIABLE_INT(crl_intercepts),
-
-    // Drawing functions
-
-    CONFIG_VARIABLE_INT(crl_solidsegs_counter),
-    CONFIG_VARIABLE_INT(crl_visplanes_counter),
-    CONFIG_VARIABLE_INT(crl_visplanes_drawing),
-    CONFIG_VARIABLE_INT(crl_visplanes_merge),
-    CONFIG_VARIABLE_INT(crl_visplanes_max),
-
     // Widgets
-
+    CONFIG_VARIABLE_INT(crl_widget_render),
     CONFIG_VARIABLE_INT(crl_widget_kis),
     CONFIG_VARIABLE_INT(crl_widget_time),
     CONFIG_VARIABLE_INT(crl_widget_coords),
 
-    // Accessibility
+    // Drawing
+    CONFIG_VARIABLE_INT(crl_visplanes_drawing),
 
+    // Automap
+    CONFIG_VARIABLE_INT(crl_automap_mode),
+
+    // Accessibility
     CONFIG_VARIABLE_INT(crl_colorblind),
 
     // QOL Features
-
     CONFIG_VARIABLE_INT(crl_screenwipe),
 };
 

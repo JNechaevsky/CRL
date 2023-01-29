@@ -960,6 +960,18 @@ void ST_Ticker (void)
     ST_updateWidgets();
     st_oldhealth = plyr->health;
 
+    // [JN] Update CRL_Widgets_t data.
+    CRLWidgets.kills = plyr->killcount;
+    CRLWidgets.totalkills = totalkills;
+    CRLWidgets.items = plyr->itemcount;
+    CRLWidgets.totalitems = totalitems;
+    CRLWidgets.secrets = plyr->secretcount;
+    CRLWidgets.totalsecrets = totalsecret;
+
+    CRLWidgets.x = plyr->mo->x >> FRACBITS;
+    CRLWidgets.y = plyr->mo->y >> FRACBITS;
+    CRLWidgets.z = plyr->mo->z >> FRACBITS;
+    CRLWidgets.ang = plyr->mo->angle / ANG1;
 }
 
 static int st_palette = 0;
@@ -1089,12 +1101,12 @@ void ST_diffDraw(void)
     // update all widgets
     ST_drawWidgets(false);
 }
-
+extern boolean inhelpscreens;
 void ST_Drawer (boolean fullscreen, boolean refresh)
 {
   
     st_statusbaron = (!fullscreen) || automapactive;
-    st_firsttime = st_firsttime || refresh;
+    st_firsttime = st_firsttime || refresh || inhelpscreens;
 
     // Do red-/gold-shifts from damage/items
     ST_doPaletteStuff();
@@ -1460,6 +1472,7 @@ void ST_Init (void)
 
 void CRL_WidgetsDrawer (void)
 {
+    /*
     const int yy = automapactive ? 8 :
                    screenblocks == 11 ? -32 : 0;
 
@@ -1544,4 +1557,5 @@ void CRL_WidgetsDrawer (void)
                     plyr->secretcount == 0 ? cr[CR_RED] :
                     plyr->secretcount < totalsecret ? cr[CR_YELLOW] : cr[CR_GREEN]);
     }
+    */
 }

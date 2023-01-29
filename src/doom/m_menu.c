@@ -482,21 +482,22 @@ static menu_t SaveDef =
 // [JN] CRL custom menu
 // =============================================================================
 
+#define CRL_MENU_LEFTOFFSET    (48)
+#define CRL_MENU_RIGHTOFFSET   (SCREENWIDTH - CRL_MENU_LEFTOFFSET)
+
 static void M_DrawCRL_1 (void);
-static void M_CRL_Medusa (int choice);
-static void M_CRL_Intercepts (int choice);
-static void M_CRL_SolidsegsCnt (int choice);
-static void M_CRL_VisplanesCnt (int choice);
+static void M_CRL_Widget_Render (int choice);
+static void M_CRL_Widget_KIS (int choice);
+static void M_CRL_Widget_Time (int choice);
+static void M_CRL_Widget_Coords (int choice);
 static void M_CRL_VisplanesDraw (int choice);
-static void M_CRL_VisplanesMerge (int choice);
-static void M_CRL_VisplanesMax (int choice);
-static void M_CRL_KIS (int choice);
-static void M_CRL_Time (int choice);
-static void M_CRL_Coords (int choice);
 static void M_CRL_Spectating (int choice);
+
+
 static void M_ChooseCRL_2 (int choice);
 
 static void M_DrawCRL_2 (void);
+static void M_CRL_Automap (int choice);
 static void M_CRL_Colorblind (int choice);
 static void M_CRL_ScreenWipe (int choice);
 static void M_ChooseCRL_1 (int choice);
@@ -507,35 +508,40 @@ static void M_ChooseCRL_1 (int choice);
 
 enum
 {
-    crl_1_medusa,             // 18
-    crl_1_intercepts,         // 27
-  crl_1_drawing_title,        // 36
-    crl_1_solidsegs_counter,  // 45
-    crl_1_visplanes_counter,  // 54
-    crl_1_visplanes_drawing,  // 63
-    crl_1_visplanes_merge,    // 72
-    crl_1_visplanes_max,      // 81
-  crl_1_gamemode_title,       // 90
-    crl_1_spectating,         // 99
-    crl_1_empty1,             // 108
-  crl_1_next_menu,            // 117
+    crl_1_render,           // 18
+    crl_1_kis,              // 27
+    crl_1_time,             // 36
+    crl_1_coords,           // 45
+  crl_1_drawing_title,      // 54
+    crl_1_visplanes,        // 63
+  crl_1_gamemode_title,     // 72
+    crl_1_spectating,       // 81
+    crl_1_empty1,           // 90
+    crl_1_empty2,           // 99
+    crl_1_empty3,           // 108
+    crl_1_empty4,           // 117
+    crl_1_empty5,           // 126
+  crl_1_next_menu,          // 135
     crl_1_end
 } crl_1_e;
 
 static menuitem_t CRLMenu_1[]=
 {
-    { 2, "MEDUSA",              M_CRL_Medusa,         'm'},
-    { 2, "INTERCEPTS OVERFLOW", M_CRL_Intercepts,     'i'},
-    {-1, "", 0, '\0'},          // DRAWING FUNCTIONS title
-    { 2, "WALL SEGS COUNTER",   M_CRL_SolidsegsCnt,   'w'},
-    { 2, "VISPLANES COUNTER",   M_CRL_VisplanesCnt,   'v'},
-    { 2, "VISPLANES DRAWING",   M_CRL_VisplanesDraw,  'v'},
-    { 2, "MERGE VISPLANES",     M_CRL_VisplanesMerge, 'm'},
-    { 2, "MAX VISPLANES",       M_CRL_VisplanesMax,   'm'},
-    {-1, "", 0, '\0'},          // GAME MODE title
-    { 2, "SPECTATING",          M_CRL_Spectating,     's'},
+                              // WIDGETS
+    { 2, "RENDER COUNTERS",   M_CRL_Widget_Render,  'r'},
+    { 2, "K/I/S STATS",       M_CRL_Widget_KIS,     'k'},
+    { 2, "LEVEL TIME",        M_CRL_Widget_Time,    'l'},
+    { 2, "PLAYER COORDS",     M_CRL_Widget_Coords,  'p'},
+    {-1, "", 0, '\0'},        // DRAWING
+    { 2, "VISPLANES DRAWING", M_CRL_VisplanesDraw,  'v'},
+    {-1, "", 0, '\0'},        // GAME MODE
+    { 2, "SPECTATING",        M_CRL_Spectating,     's'},
     {-1, "", 0, '\0'},
-    { 1, "",                    M_ChooseCRL_2,        'n'}
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    { 1, "",                  M_ChooseCRL_2,        'n'}
 };
 
 static menu_t CRLDef_1 =
@@ -544,7 +550,7 @@ static menu_t CRLDef_1 =
     &MainDef,
     CRLMenu_1,
     M_DrawCRL_1,
-    48, 18,
+    CRL_MENU_LEFTOFFSET, 27,
     0
 };
 
@@ -554,38 +560,40 @@ static menu_t CRLDef_1 =
 
 enum
 {
-    crl_2_kis,                // 18
-    crl_2_time,               // 27
-    crl_2_coords,             // 36
-    crl_2_empty3,             // 45
-    crl_2_empty4,             // 54
-    crl_2_empty5,             // 63
-    crl_2_empty6,             // 72
-    crl_2_empty7,             // 81
-    crl_2_empty8,             // 90
-    crl_2_empty9,             // 99
-    crl_2_empty10,            // 108
-  crl_2_prev_menu,            // 117
-    // crl_2_empty12,            // 126
-    // crl_2_empty13,            // 135
-    // crl_2_empty14,            // 144
+    crl_2_render,           // 18
+    crl_2_kis,              // 27
+    crl_2_time,             // 36
+    crl_2_coords,           // 45
+  crl_2_drawing_title,      // 54
+    crl_2_visplanes,        // 63
+  crl_2_gamemode_title,     // 72
+    crl_2_spectating,       // 81
+    crl_2_empty1,           // 90
+    crl_2_empty2,           // 99
+    crl_2_empty3,           // 108
+    crl_2_empty4,           // 117
+    crl_2_empty5,           // 126
+  crl_2_next_menu,          // 135
     crl_2_end
 } crl_2_e;
 
 static menuitem_t CRLMenu_2[]=
 {
-    { 2, "K/I/S STATS",         M_CRL_KIS,            'k'},
-    { 2, "LEVEL TIME",          M_CRL_Time,           'l'},
-    { 2, "PLAYER COORDS",       M_CRL_Coords,         'p'},
-    {-1, "", 0, '\0'},          // ACCESSIBILITY title
-    { 2, "COLORBLIND",          M_CRL_Colorblind,     'c'},
+                                // AUTOMAP
+    { 2, "DRAWING MODE",        M_CRL_Automap,        'a'},
     {-1, "", 0, '\0'},          // QOL FEATURES title
     { 2, "SCREEN WIPE EFFECT",  M_CRL_ScreenWipe,     's'},
+    { 2, "COLORBLIND",          M_CRL_Colorblind,     'c'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
-    { 1, "",                     M_ChooseCRL_1,     's'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    { 1, "",                     M_ChooseCRL_1,     's'}
 };
 
 static menu_t CRLDef_2 =
@@ -594,110 +602,109 @@ static menu_t CRLDef_2 =
     &MainDef,
     CRLMenu_2,
     M_DrawCRL_2,
-    48, 18,
+    CRL_MENU_LEFTOFFSET, 27,
     0
 };
+
+static void M_ShadeBackground (void)
+{
+    // [JN] Shade background while in CRL menu.
+	inhelpscreens = true;
+
+    for (int y = 0; y < SCREENWIDTH * SCREENHEIGHT; y++)
+    {
+        I_VideoBuffer[y] = colormaps[12 * 256 + I_VideoBuffer[y]];
+    }
+}
 
 static void M_DrawCRL_1 (void)
 {
     static char str[32];
 
-    M_WriteText(48,   9, "DETECTORS", cr[CR_YELLOW]);
+    M_ShadeBackground();
 
-    // Medusa
-    sprintf(str, crl_medusa ? "ON" : "OFF");
-    M_WriteText (272 - M_StringWidth(str), 18, str,
-                 crl_medusa ? cr[CR_GREEN] : cr[CR_RED]);
+    M_WriteText(CRL_MENU_LEFTOFFSET, 18, "WIDGETS", cr[CR_YELLOW]);
 
-    // Intercepts overflow
-    sprintf(str, crl_intercepts ? "ON" : "OFF");
-    M_WriteText (272 - M_StringWidth(str), 27, str,
-                 crl_intercepts ? cr[CR_GREEN] : cr[CR_RED]);
+    // Rendering counters
+    sprintf(str, crl_widget_render == 1 ? "ON" :
+                 crl_widget_render == 2 ? "OVERFLOWS" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 27, str,
+                 crl_widget_render == 1 ? cr[CR_GREEN] :
+                 crl_widget_render == 2 ? cr[CR_DARKGREEN] : cr[CR_DARKRED]);
 
-    M_WriteText(48,  36, "DRAWING FUNCTIONS", cr[CR_YELLOW]);
+    // K/I/S stats
+    sprintf(str, crl_widget_kis ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 36, str, 
+                 crl_widget_kis ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
-    // Wall segments counter
-    sprintf(str, crl_solidsegs_counter ? "ON" : "OFF");
-    M_WriteText (272 - M_StringWidth(str), 45, str,
-                 crl_solidsegs_counter ? cr[CR_GREEN] : cr[CR_RED]);
+    // Level time
+    sprintf(str, crl_widget_time ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 45, str,
+                 crl_widget_time ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
-    // Visplanes counter
-    sprintf(str, crl_visplanes_counter == 1 ? "BRIEF" :
-                 crl_visplanes_counter == 2 ? "FULL" : "OFF");
-    M_WriteText (272 - M_StringWidth(str), 54, str, 
-                 crl_visplanes_counter == 1 ? cr[CR_GREEN] :
-                 crl_visplanes_counter == 2 ? cr[CR_GREEN] : cr[CR_RED]);
+    // Player coords
+    sprintf(str, crl_widget_coords ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 54, str,
+                 crl_widget_coords ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
+    M_WriteText(CRL_MENU_LEFTOFFSET, 63, "DRAWING", cr[CR_YELLOW]);
 
     // Visplanes drawing mode
     sprintf(str, crl_visplanes_drawing == 0 ? "NORMAL" :
                  crl_visplanes_drawing == 1 ? "FILL" :
                  crl_visplanes_drawing == 2 ? "OVERFILL" :
                  crl_visplanes_drawing == 3 ? "BORDER" : "OVERBORDER");
-    M_WriteText (272 - M_StringWidth(str), 63, str,
-                 crl_visplanes_drawing > 0 ? cr[CR_GREEN] : cr[CR_RED]);
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 72, str,
+                 crl_visplanes_drawing > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
-
-    // Merge visplanes
-    sprintf(str, crl_visplanes_merge == 1 ? "NO CHK" :
-                 crl_visplanes_merge == 2 ? "NO FND" :
-                 crl_visplanes_merge == 3 ? "NO CHK+FND" : "DEFAULT");
-    M_WriteText (272 - M_StringWidth(str), 72, str,
-                 crl_visplanes_merge > 0 ? cr[CR_GREEN] : cr[CR_RED]);
-
-    // Max visplanes
-    sprintf(str, crl_visplanes_max == 1 ? "4096 (CRL)" :
-                 crl_visplanes_max == 2 ? "32 (QUARTER)" : "128 (VANILLA)");
-    M_WriteText (272 - M_StringWidth(str), 81, str, 
-                 crl_visplanes_max > 0 ? cr[CR_GREEN] : cr[CR_RED]);
-
-    M_WriteText(48, 90, "GAME MODE", cr[CR_YELLOW]);
+    M_WriteText(CRL_MENU_LEFTOFFSET, 81, "GAME MODE", cr[CR_YELLOW]);
 
     // Spectating
     sprintf(str, crl_spectating ? "ON" : "OFF");
-    M_WriteText (272 - M_StringWidth(str), 99, str,
-                 crl_spectating ? cr[CR_GREEN] : cr[CR_RED]);
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 90, str,
+                 crl_spectating ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     //
     // NEXT PAGE >
     //
-    M_WriteText(48, 117, "NEXT PAGE >", cr[CR_WHITE]);
+    M_WriteText(CRL_MENU_LEFTOFFSET, 144, "NEXT PAGE >", cr[CR_WHITE]);
 }
 
-static void M_CRL_Medusa (int choice)
-{
-    crl_medusa ^= 1;
-}
-
-static void M_CRL_Intercepts (int choice)
-{
-    crl_intercepts ^= 1;
-}
-
-static void M_CRL_SolidsegsCnt (int choice)
-{
-    crl_solidsegs_counter ^= 1;
-}
-
-static void M_CRL_VisplanesCnt (int choice)
+static void M_CRL_Widget_Render (int choice)
 {
     switch (choice)
     {
         case 0:
-            crl_visplanes_counter--;
-            if (crl_visplanes_counter < 0)
+            crl_widget_render--;
+            if (crl_widget_render < 0)
             {
-                crl_visplanes_counter = 2;
+                crl_widget_render = 2;
             }
         break;
 
         case 1:
-            crl_visplanes_counter++;
-            if (crl_visplanes_counter > 2)
+            crl_widget_render++;
+            if (crl_widget_render > 2)
             {
-                crl_visplanes_counter = 0;
+                crl_widget_render = 0;
             }
         break;
     }
+}
+
+static void M_CRL_Widget_KIS (int choice)
+{
+    crl_widget_kis ^= 1;
+}
+
+static void M_CRL_Widget_Time (int choice)
+{
+    crl_widget_time ^= 1;
+}
+
+static void M_CRL_Widget_Coords (int choice)
+{
+    crl_widget_coords ^= 1;
 }
 
 static void M_CRL_VisplanesDraw (int choice)
@@ -722,54 +729,12 @@ static void M_CRL_VisplanesDraw (int choice)
     }
 }
 
-static void M_CRL_VisplanesMerge (int choice)
-{
-    switch (choice)
-    {
-        case 0:
-            crl_visplanes_merge--;
-            if (crl_visplanes_merge < 0)
-            {
-                crl_visplanes_merge = 3;
-            }
-        break;
-
-        case 1:
-            crl_visplanes_merge++;
-            if (crl_visplanes_merge > 3)
-            {
-                crl_visplanes_merge = 0;
-            }
-        break;
-    }
-}
-
-static void M_CRL_VisplanesMax (int choice)
-{
-    switch (choice)
-    {
-        case 0:
-            crl_visplanes_max--;
-            if (crl_visplanes_max < 0)
-            {
-                crl_visplanes_max = 2;
-            }
-        break;
-
-        case 1:
-            crl_visplanes_max++;
-            if (crl_visplanes_max > 2)
-            {
-                crl_visplanes_max = 0;
-            }
-        break;
-    }
-}
-
 static void M_CRL_Spectating (int choice)
 {
     crl_spectating ^= 1;
 }
+
+
 
 static void M_ChooseCRL_2 (int choice)
 {
@@ -779,9 +744,32 @@ static void M_ChooseCRL_2 (int choice)
 static void M_DrawCRL_2 (void)
 {
     static char str[32];
-    
-    M_WriteText(48, 9, "WIDGETS", cr[CR_YELLOW]);
 
+    M_ShadeBackground();
+
+    M_WriteText(CRL_MENU_LEFTOFFSET, 18, "AUTOMAP", cr[CR_YELLOW]);
+
+    // Drawing mode
+    sprintf(str, crl_automap_mode == 1 ? "FLOOR VISPLANES" :
+                 crl_automap_mode == 2 ? "CEILING VISPLANES" : "NORMAL");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 27, str,
+                 crl_automap_mode ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
+    M_WriteText(CRL_MENU_LEFTOFFSET, 36, "QOL FEATURES", cr[CR_YELLOW]);
+
+    // Screen wipe effect
+    sprintf(str, crl_screenwipe ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 45, str, 
+                 crl_screenwipe ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
+    // Colorblind
+    sprintf(str, crl_colorblind == 1 ? "RED/GREEN" :
+                 crl_colorblind == 2 ? "BLUE/YELLOW" :
+                 crl_colorblind == 3 ? "MONOCHROME" : "NONE");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 54, str, 
+                 crl_colorblind > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
+/*
     // K/I/S stats
     sprintf(str, crl_widget_kis ? "ON" : "OFF");
     M_WriteText (272 - M_StringWidth(str), 18, str, 
@@ -797,41 +785,54 @@ static void M_DrawCRL_2 (void)
     M_WriteText (272 - M_StringWidth(str), 36, str,
                  crl_widget_coords ? cr[CR_GREEN] : cr[CR_RED]);
 
-    M_WriteText(48, 45, "ACCESSIBILITY", cr[CR_YELLOW]);
+    M_WriteText(48, 45, "AUTOMAP", cr[CR_YELLOW]);
 
-    // Colorblind
-    sprintf(str, crl_colorblind == 1 ? "RED/GREEN" :
-                 crl_colorblind == 2 ? "BLUE/YELLOW" :
-                 crl_colorblind == 3 ? "MONOCHROME" : "NONE");
-    M_WriteText (272 - M_StringWidth(str), 54, str, 
-                 crl_colorblind > 0 ? cr[CR_GREEN] : cr[CR_RED]);
+    // Drawing mode
+    sprintf(str, crl_automap_mode == 1 ? "FLOOR VISPLANES" :
+                 crl_automap_mode == 2 ? "CEILING VISPLANES" : "NORMAL");
+    M_WriteText (272 - M_StringWidth(str), 54, str,
+                 crl_automap_mode ? cr[CR_GREEN] : cr[CR_RED]);
 
-    M_WriteText(48, 63, "QOL FEATURES", cr[CR_YELLOW]);
+    M_WriteText(48, 63, "ACCESSIBILITY", cr[CR_YELLOW]);
 
-    // Screen wipe effect
-    sprintf(str, crl_screenwipe ? "ON" : "OFF");
-    M_WriteText (272 - M_StringWidth(str), 72, str, 
-                 crl_screenwipe ? cr[CR_GREEN] : cr[CR_RED]);
+
+
+    M_WriteText(48, 81, "QOL FEATURES", cr[CR_YELLOW]);
+
+
+*/
 
     //
     // < PREV PAGE
     //
-    M_WriteText(48, 117, "< PREV PAGE", cr[CR_WHITE]);
+    M_WriteText(CRL_MENU_LEFTOFFSET, 144, "< PREV PAGE", cr[CR_WHITE]);
 }
 
-static void M_CRL_KIS (int choice)
+static void M_CRL_Automap (int choice)
 {
-    crl_widget_kis ^= 1;
+    switch (choice)
+    {
+        case 0:
+            crl_automap_mode--;
+            if (crl_automap_mode < 0)
+            {
+                crl_automap_mode = 2;
+            }
+        break;
+
+        case 1:
+            crl_automap_mode++;
+            if (crl_automap_mode > 2)
+            {
+                crl_automap_mode = 0;
+            }
+        break;
+    }
 }
 
-static void M_CRL_Time (int choice)
+static void M_CRL_ScreenWipe (int choice)
 {
-    crl_widget_time ^= 1;
-}
-
-static void M_CRL_Coords (int choice)
-{
-    crl_widget_coords ^= 1;
+    crl_screenwipe ^= 1;
 }
 
 static void M_CRL_Colorblind (int choice)
@@ -856,11 +857,6 @@ static void M_CRL_Colorblind (int choice)
     }
     
     CRL_ReloadPalette();
-}
-
-static void M_CRL_ScreenWipe (int choice)
-{
-    crl_screenwipe ^= 1;
 }
 
 static void M_ChooseCRL_1 (int choice)

@@ -24,28 +24,23 @@
 extern int crl_startup_delay;
 extern int crl_resize_delay;
 
-// Detectors
-
-extern int crl_medusa;
-extern int crl_intercepts;
-
-// Drawing functions
-
-extern int crl_solidsegs_counter;
-extern int crl_visplanes_counter;
-extern int crl_visplanes_drawing;
-extern int crl_visplanes_merge;
-extern int crl_visplanes_max;
-
-// Game mode
-
-extern int crl_spectating;
-
 // Widgets
-
+extern int crl_widget_render;
 extern int crl_widget_kis;
 extern int crl_widget_time;
 extern int crl_widget_coords;
+
+// Drawing
+extern int crl_visplanes_drawing;
+
+// Game mode
+extern int crl_spectating;
+
+
+
+// Automap
+
+extern int crl_automap_mode;
 
 // Accessibility
 

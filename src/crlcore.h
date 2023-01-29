@@ -33,19 +33,6 @@
 	#define SCREENAREA (SCREENWIDTH * SCREENHEIGHT)
 #endif
 
-
-// -----------------------------------------------------------------------------
-// [JN] External data.
-// -----------------------------------------------------------------------------
-
-extern void M_WriteText (int x, int y, const char *string, byte *table);
-extern void M_WriteTextCentered (const int y, const char *string, byte *table);
-extern int  M_StringWidth (const char *string);
-
-extern void CRL_WidgetsDrawer (void);
-extern void CRL_ReloadPalette (void);
-
-
 /**
  * Why a jump failed.
  */
@@ -255,14 +242,20 @@ typedef struct CRL_Option_s
  */
 typedef struct CRL_Data_s
 {
+	/** [JN] Number of sprites. */
+	int numsprites;
+
 	/** [JN] Number of wall segments. */
 	int numsegs;
-	
+
 	/** Number of check planes. */
 	int numcheckplanes;
 	
 	/** Number of find planes. */
 	int numfindplanes;
+
+	/** [JN] Number of openings. */
+	int numopenings;
 } CRL_Data_t;
 
 /**
@@ -354,12 +347,6 @@ extern void** CRLPlaneSurface;
 /** Brute forcing the state? */
 extern int CRLBruteForce;
 
-// [JN] True if intercepts overflow has happened.
-extern boolean CRL_intercepts_overflow;
-
-/** [JN] True if level contains Medusa bug. */
-extern boolean CRL_level_have_medusa;
-
 /*****************************************************************************/
 
 void CRL_Init(int* __colorset, int __numcolors, int __pllim);
@@ -393,6 +380,42 @@ void GAME_IdentifySeg(void* __what, CRLSegData_t* __info);
 void GAME_IdentifySubSector(void* __what, CRLSubData_t* __info);
 
 /*****************************************************************************/
+
+// [JN] Widgets data. 
+typedef struct CRL_Widgets_s
+{
+    int kills;         // Current kill count
+    int totalkills;    // Total enemy count on the level
+    int items;         // Current items count
+    int totalitems;    // Total item count on the level
+    int secrets;       // Current secrets count
+    int totalsecrets;  // Total secrets on the level
+
+    int time; // Time spent on the level.
+
+    int x;    // Player X coord
+    int y;    // Player Y coord
+    int z;    // Player Z coord
+    int ang;  // Player angle
+} CRL_Widgets_t;
+
+extern CRL_Widgets_t CRLWidgets;
+
+
+// [JN] External data.
+extern void M_WriteText (int x, int y, const char *string, byte *table);
+extern void M_WriteTextCentered (const int y, const char *string, byte *table);
+extern int  M_StringWidth (const char *string);
+
+extern void CRL_WidgetsDrawer (void);
+extern void CRL_ReloadPalette (void);
+
+extern boolean  CRL_intercepts_overflow;
+
+extern int      screenblocks;
+extern int      automapactive;
+
+
 
 #endif /* __CRLCORE_H__ */
 

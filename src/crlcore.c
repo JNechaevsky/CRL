@@ -438,6 +438,7 @@ int CRL_BestRGBMatch(int __r, int __g, int __b)
 /*****************************************************************************/
 
 CRL_Data_t CRLData;
+CRL_Widgets_t CRLWidgets;
 
 uint8_t* CRLSurface = NULL;
 
@@ -483,12 +484,9 @@ static FILE* _crllogfile;
 /** Brute force? The value here is the precision. */
 int CRLBruteForce = 0;
 
-// [JN] True if intercepts overflow has happened.
-// Will be reset on level restart or save game loading.
+/** [JN] True if intercepts overflow has happened.
+	Will be reset on level restart or save game loading. */
 boolean CRL_intercepts_overflow = false;
-
-/** [JN] True if level contains Medusa bug. Used in P_LoadLineDefs. */
-boolean CRL_level_have_medusa;
 
 /**
  * Initializes things.
@@ -891,105 +889,159 @@ void CRL_ChangeFrame(int __err)
  */
 void CRL_StatDrawer(void)
 {
-    // Medusa
-    if (crl_medusa)
+    if (crl_widget_render)
     {
-        M_WriteText(0, 99, "MED:", cr[CR_GRAY]);
+        int yy = automapactive ? 9 : 
+                 screenblocks == 11 ? -32 : 9;
 
-        if (CRL_level_have_medusa)
+        if (crl_widget_kis)     yy += 9;
+        if (crl_widget_time)    yy += 9;
+        if (screenblocks == 11) yy += 9;
+
+        // Sprites (128 max)
+        if (crl_widget_render == 1
+        || (crl_widget_render == 2 && CRLData.numsprites >= 128))
         {
-            M_WriteText(32, 99, "FOUND", gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]);
+            char spr[32];
+
+            M_WriteText(0, 135 - yy, "SPR:", cr[CR_GRAY]);
+            M_snprintf(spr, 16, "%d/128", CRLData.numsprites);
+
+            M_WriteText(32, 135 - yy, spr, CRLData.numsprites >= 128 ?
+                                      cr[CR_YELLOW] : cr[CR_GREEN]);
         }
-        else
+
+        // Segments (256 max)
+        if (crl_widget_render == 1
+        || (crl_widget_render == 2 && CRLData.numsegs >= 256))
         {
-            M_WriteText(32, 99, "OK", cr[CR_GREEN]);
+            char seg[32];
+
+            M_WriteText(0, 144 - yy, "SEG:", cr[CR_GRAY]);
+            M_snprintf(seg, 16, "%d/256", CRLData.numsegs);
+
+            M_WriteText(32, 144 - yy, seg, CRLData.numsegs >= 256 ?
+                                      cr[CR_YELLOW] : cr[CR_GREEN]);
+        }
+
+        // Planes (128 max)
+        if (crl_widget_render == 1
+        || (crl_widget_render == 2 && CRLData.numcheckplanes + CRLData.numfindplanes >= 128))
+        {
+            char vis[32];
+            const int totalplanes = CRLData.numcheckplanes
+                                  + CRLData.numfindplanes;
+
+            M_WriteText(0, 153 - yy, "PLN:", cr[CR_GRAY]);
+            M_snprintf(vis, 32, "%d/128", totalplanes);
+
+            M_WriteText(32, 153 - yy, vis, (totalplanes >= 128) ?
+                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
+        }
+
+        // Openings
+        if (crl_widget_render == 1
+        || (crl_widget_render == 2 && CRLData.numopenings >= 20480))
+        {
+            char opn[64];
+
+            M_WriteText(0, 162 - yy, "OPN:", cr[CR_GRAY]);
+            M_snprintf(opn, 16, "%d/20480", CRLData.numopenings);
+            M_WriteText(32, 162 - yy, opn, cr[CR_GREEN]); // TODO - coloring?
         }
     }
 
-    // Intercepts (vanilla 128 + 61 for overflow emulation)
-    if (crl_intercepts)
+    // Level timer
+    if (crl_widget_time)
     {
-        M_WriteText(0, 108, "INT:", cr[CR_GRAY]);
-        
-        if (CRL_intercepts_overflow)
-        {
-            M_WriteText(32, 108, "OVERFLOW", gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]);
-        }
-        else
-        {
-            M_WriteText(32, 108, "OK", cr[CR_GREEN]);
-        }
+        extern int leveltime;
+        const int time = leveltime / 35;
+        char stra[8];
+        char strb[16];
+ 
+         int yy = automapactive ? 8 : 
+                screenblocks == 11 ? -32 : 0;
+
+        if (!crl_widget_kis)
+            yy -= 9;
+
+        sprintf(stra, "TIME ");
+        M_WriteText(0, 152 - yy, stra, cr[CR_GRAY]);
+ 
+        sprintf(strb, "%02d:%02d:%02d", time/3600, (time%3600)/60, time%60);
+        M_WriteText(0 + M_StringWidth(stra), 152 - yy, strb, cr[CR_WHITE]);
     }
 
-    // Segments (256 max)
-    if (crl_solidsegs_counter)
-	{
-		char num[16];
-		
-        M_WriteText(0, 126, "SEG:", cr[CR_GRAY]);
+    // K/I/S stats
+    if (crl_widget_kis)
+    {
+        char str1[8], str2[16];  // kills
+        char str3[8], str4[16];  // items
+        char str5[8], str6[16];  // secret
 
-		M_snprintf(num, 16, "%d", CRLData.numsegs);
-		M_WriteText(32, 126, num, CRLData.numsegs >= 256 ? cr[CR_YELLOW] : cr[CR_GREEN]);
-	}
-
-    // Visplanes (CRL: 32, 128 or 4096 max)
-    if (crl_visplanes_counter)
-	{
-		char num[32];
-		
-		M_WriteText(0, 135, "VIS:", cr[CR_GRAY]);
+        int yy = automapactive ? 8 : 
+                screenblocks == 11 ? -32 : 0;
         
-        if (crl_visplanes_counter == 1)
-        {
-            // Bief
-            M_snprintf(num, 4, "%d", CRLData.numcheckplanes + CRLData.numfindplanes);
-        }
-        else
-        {
-            // Full
-            M_snprintf(num, 32, "%d = %d CHK + %d FND",
-                       CRLData.numcheckplanes + CRLData.numfindplanes,
-                       CRLData.numcheckplanes, CRLData.numfindplanes);
-        }
-        
-		M_WriteText(32, 135, num, (CRLData.numcheckplanes + CRLData.numfindplanes >= 128) ?
-                   (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
-	}
+        // Kills:
+        sprintf(str1, "K ");
+        M_WriteText(0, 160 - yy, str1, cr[CR_GRAY]);
+
+        sprintf(str2, "%d/%d ", CRLWidgets.kills, CRLWidgets.totalkills);
+        M_WriteText(0 + M_StringWidth(str1), 160 - yy, str2,
+                    CRLWidgets.totalkills == 0 ? cr[CR_GREEN] :
+                    CRLWidgets.kills == 0 ? cr[CR_RED] :
+                    CRLWidgets.kills < CRLWidgets.totalkills ? cr[CR_YELLOW] : cr[CR_GREEN]);
+
+        // Items:
+        sprintf(str3, "I ");
+        M_WriteText(M_StringWidth(str1) + M_StringWidth(str2), 160 - yy, str3, cr[CR_GRAY]);
+     
+        sprintf(str4, "%d/%d ", CRLWidgets.items, CRLWidgets.totalitems);
+        M_WriteText(M_StringWidth(str1) +
+                    M_StringWidth(str2) +
+                    M_StringWidth(str3), 160 - yy, str4,
+                    CRLWidgets.totalitems == 0 ? cr[CR_GREEN] :
+                    CRLWidgets.items == 0 ? cr[CR_RED] :
+                    CRLWidgets.items < CRLWidgets.totalitems ? cr[CR_YELLOW] : cr[CR_GREEN]);
 
 
-    /*
-#define MAXLINE 256
-	char line[MAXLINE];
-	CRL_Option_t* op;
-	int dm;
-	int i;
-	int x, y;
-	
-	// Get current draw mode option
-	op = &CRLOptionSet[CRL_DRAWSTATS];
-	dm = op->curvalue;
-	
-	// Not drawing anything
-	if (dm == CRL_STAT_NONE)
-		return;
-	
-	// X and y position
-	x = 5;
-	y = __lh - __fh;
-	
-	// Visplanes
-	if (1)
-	{
-		// Visplane total
-		i = CRLData.numcheckplanes + CRLData.numfindplanes;
-		snprintf(line, MAXLINE, "VIS: %d = %d CHK + %d FND", i,
-			CRLData.numcheckplanes, CRLData.numfindplanes);
-			
-		// Draw
-		__dt(x, y, line);
-		y -= __fh;
-	}
-    */
+        // Secret:
+        sprintf(str5, "S ");
+        M_WriteText(M_StringWidth(str1) +
+                    M_StringWidth(str2) +
+                    M_StringWidth(str3) +
+                    M_StringWidth(str4), 160 - yy, str5, cr[CR_GRAY]);
+
+        sprintf(str6, "%d/%d ", CRLWidgets.secrets, CRLWidgets.totalsecrets);
+        M_WriteText(M_StringWidth(str1) +
+                    M_StringWidth(str2) + 
+                    M_StringWidth(str3) +
+                    M_StringWidth(str4) +
+                    M_StringWidth(str5), 160 - yy, str6,
+                    CRLWidgets.totalsecrets == 0 ? cr[CR_GREEN] :
+                    CRLWidgets.secrets == 0 ? cr[CR_RED] :
+                    CRLWidgets.secrets < CRLWidgets.totalsecrets ? cr[CR_YELLOW] : cr[CR_GREEN]);
+    }
+
+    // Player coords
+    if (crl_widget_coords)
+    {
+        char str[128];
+
+        M_WriteText(0, 18, "X:", cr[CR_GRAY]);
+        M_WriteText(0, 27, "Y:", cr[CR_GRAY]);
+        M_WriteText(0, 36, "Z:", cr[CR_GRAY]);
+        M_WriteText(0, 45, "ANG:", cr[CR_GRAY]);
+
+        sprintf(str, "%d", CRLWidgets.x);
+        M_WriteText(16, 18, str, cr[CR_GREEN]);
+        sprintf(str, "%d", CRLWidgets.y);
+        M_WriteText(16, 27, str, cr[CR_GREEN]);
+        sprintf(str, "%d", CRLWidgets.z);
+        M_WriteText(16, 36, str, cr[CR_GREEN]);
+        sprintf(str, "%d", CRLWidgets.ang);
+        M_WriteText(32, 45, str, cr[CR_GREEN]);
+    }
 }
 
 /**
@@ -1109,14 +1161,12 @@ void CRL_DrawVisPlanes(int __over)
 void CRL_DrawMap(void (*__fl)(int, int, int, int, int),
 	void (*__ml)(int, int, int, int, int))
 {
-	CRL_Option_t* op;
 	int i, dm, c, j;
 	CRLPlaneData_t pd;
 	CRLSegData_t sd;
 	CRLSubData_t ud;
 	
-	op = &CRLOptionSet[CRL_MAPMODE];
-	dm = op->curvalue;
+	dm = crl_automap_mode;  // [JN] Use external config variable.
 	
 	// Visplane emitting segs
 	if (dm == CRL_MAP_VPFLOOR || dm == CRL_MAP_VPCEIL)
@@ -1258,10 +1308,7 @@ void CRL_GetCameraPos(int32_t* x, int32_t* y, int32_t* z, uint32_t* a)
  */
 int CRL_MaxVisPlanes(void)
 {
-    // [JN] Use external config variable.
-    return crl_visplanes_max == 1 ? 4096 : // CRL
-           crl_visplanes_max == 2 ? 32   : // Quarter
-                                    128  ; // Vanilla
+    return 128;  // [JN] Left only vanilla value.
 }
 
 /**

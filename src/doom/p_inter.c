@@ -39,6 +39,8 @@
 
 #include "p_inter.h"
 
+#include "crlcore.h"
+
 
 #define BONUSADD	6
 

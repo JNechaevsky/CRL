@@ -26,28 +26,26 @@ int crl_startup_delay = 35;
 // Time to wait for the screen to be updated after resizing (ms).
 int crl_resize_delay = 35;
 
-// Detectors
+// Widgets
 
-int crl_medusa = 0;
-int crl_intercepts = 0;
+int crl_widget_render = 1;
+int crl_widget_kis = 0;
+int crl_widget_time = 0;
+int crl_widget_coords = 0;
 
-// Drawing functions
+// Drawing
 
-int crl_solidsegs_counter = 1;
-int crl_visplanes_counter = 1;
 int crl_visplanes_drawing = 0;
-int crl_visplanes_merge = 0;
-int crl_visplanes_max = 0;
 
 // Game mode
 
 int crl_spectating = 0;
 
-// Widgets
 
-int crl_widget_kis = 0;
-int crl_widget_time = 0;
-int crl_widget_coords = 0;
+
+// Automap
+
+int crl_automap_mode = 0;
 
 // Accessibility
 
@@ -67,30 +65,21 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_startup_delay",              &crl_startup_delay);
     M_BindIntVariable("crl_resize_delay",               &crl_resize_delay);
 
-    // Detectors
-
-    M_BindIntVariable("crl_medusa",                     &crl_medusa);
-    M_BindIntVariable("crl_intercepts",                 &crl_intercepts);
-
-    // Drawing functions
-
-    M_BindIntVariable("crl_solidsegs_counter",          &crl_solidsegs_counter);
-    M_BindIntVariable("crl_visplanes_counter",          &crl_visplanes_counter);
-    M_BindIntVariable("crl_visplanes_drawing",          &crl_visplanes_drawing);
-    M_BindIntVariable("crl_visplanes_merge",            &crl_visplanes_merge);
-    M_BindIntVariable("crl_visplanes_max",              &crl_visplanes_max);
-
     // Widgets
-
+    M_BindIntVariable("crl_widget_render",              &crl_widget_render);
     M_BindIntVariable("crl_widget_kis",                 &crl_widget_kis);
     M_BindIntVariable("crl_widget_time",                &crl_widget_time);
     M_BindIntVariable("crl_widget_coords",              &crl_widget_coords);
 
-    // Accessibility
+    // Drawing
+    M_BindIntVariable("crl_visplanes_drawing",          &crl_visplanes_drawing);
 
+    // Automap
+    M_BindIntVariable("crl_automap_mode",               &crl_automap_mode);
+
+    // Accessibility
     M_BindIntVariable("crl_colorblind",                 &crl_colorblind);
 
     // QOL Features
-
     M_BindIntVariable("crl_screenwipe",                 &crl_screenwipe);
 }
