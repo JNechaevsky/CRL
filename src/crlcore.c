@@ -929,8 +929,7 @@ void CRL_StatDrawer(void)
         M_WriteText(0, 126, "SEG:", cr[CR_GRAY]);
 
 		M_snprintf(num, 16, "%d", CRLData.numsegs);
-		M_WriteText(32, 126, num, CRLData.numsegs >= 256 ?
-                   (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
+		M_WriteText(32, 126, num, CRLData.numsegs >= 256 ? cr[CR_YELLOW] : cr[CR_GREEN]);
 	}
 
     // Visplanes (CRL: 32, 128 or 4096 max)
