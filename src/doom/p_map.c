@@ -1444,5 +1444,9 @@ static void SpechitOverrun(line_t *ld)
                             numspechit);
             break;
     }
+
+    // [JN] CRL - print in-game warning.
+    CRL_SetCriticalMessage(&players[consoleplayer],
+                           "TRIGGERED SPECHIT OVERRUN!", MESSAGETICS);
 }
 

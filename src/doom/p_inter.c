@@ -73,6 +73,17 @@ void CRL_SetMessage (player_t *player, char *message, boolean ultmsg)
     }
 }
 
+// -----------------------------------------------------------------------------
+// CRL_SetCriticalMessage
+// [JN] Sets critical message parameters.
+// -----------------------------------------------------------------------------
+
+void CRL_SetCriticalMessage (player_t *player, char *message, const int tics)
+{
+    player->criticalmessage = message;
+    player->criticalmessageTics = tics;
+}
+
 //
 // GET STUFF
 //

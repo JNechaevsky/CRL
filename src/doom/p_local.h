@@ -276,6 +276,7 @@ extern int		clipammo[NUMAMMO];
 extern int showMessages;
 extern boolean ultimatemsg;
 extern void CRL_SetMessage (player_t * player, char *message, boolean ultmsg);
+extern void CRL_SetCriticalMessage (player_t *player, char *message, const int tics);
 
 void
 P_TouchSpecialThing

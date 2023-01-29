@@ -76,6 +76,8 @@
 #include "d_main.h"
 #include "ct_chat.h"
 
+#include "v_trans.h"
+
 #include "crlcore.h"
 #include "crlvars.h"
 
@@ -170,6 +172,23 @@ static void CRL_DrawMessage (void)
     }
 
     M_WriteText(0, 0, player->message, NULL);
+}
+
+// -----------------------------------------------------------------------------
+// CRL_DrawCriticalMessage
+// [JN] Draws critical message on the second line of the screen.
+// -----------------------------------------------------------------------------
+
+static void CRL_DrawCriticalMessage (void)
+{
+    player_t *player = &players[consoleplayer];
+
+    if (player->criticalmessageTics <= 0 || !player->criticalmessage)
+    {
+        return;  // No message
+    }
+
+    M_WriteText(0, 9, player->criticalmessage, cr[CR_RED]);
 }
 
 
@@ -338,6 +357,7 @@ void D_Display (void)
 
     // Handle player messages
     CRL_DrawMessage();
+    CRL_DrawCriticalMessage();
 
     // menus go directly to the screen
     M_Drawer ();          // menu is drawn even on top of everything
