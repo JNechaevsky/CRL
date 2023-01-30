@@ -1105,7 +1105,7 @@ extern boolean inhelpscreens;
 void ST_Drawer (boolean fullscreen, boolean refresh)
 {
   
-    st_statusbaron = (!fullscreen) || automapactive;
+    st_statusbaron = (!fullscreen) || (automapactive && !crl_automap_overlay);
     st_firsttime = st_firsttime || refresh || inhelpscreens;
 
     // Do red-/gold-shifts from damage/items

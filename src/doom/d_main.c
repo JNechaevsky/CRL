@@ -205,12 +205,9 @@ void R_ExecuteSetViewSize (void);
 
 void D_Display (void)
 {
-    static  boolean		viewactivestate = false;
-    static  boolean		menuactivestate = false;
     static  boolean		inhelpscreensstate = false;
     static  boolean		fullscreen = false;
     static  gamestate_t		oldgamestate = -1;
-    static  int			borderdrawcount;
     int				nowtime;
     int				tics;
     int				wipestart;
@@ -229,7 +226,6 @@ void D_Display (void)
     {
 	R_ExecuteSetViewSize ();
 	oldgamestate = -1;                      // force background redraw
-	borderdrawcount = 3;
     }
     
     // Never wipe when brute forcing
@@ -252,8 +248,6 @@ void D_Display (void)
       case GS_LEVEL:
 	if (!gametic)
 	    break;
-	if (automapactive)
-	    AM_Drawer ();
 	if (wipe || (viewheight != SCREENHEIGHT && fullscreen))
 	    redrawsbar = true;
 	if (inhelpscreensstate && !inhelpscreens)
@@ -282,17 +276,8 @@ void D_Display (void)
     CRLSurface = I_VideoBuffer;
     
     // draw the view directly
-    if (gamestate == GS_LEVEL)
-    {
-    	if (gametic)
-		{
-			if (automapactive != 1)
-				R_RenderPlayerView(&players[displayplayer]);
-		}
-		
-		if (automapactive)
-			AM_Drawer();
-	}
+    if (gamestate == GS_LEVEL && gametic)
+	R_RenderPlayerView(&players[displayplayer]);
     
     // clean up border stuff
     if (gamestate != oldgamestate && gamestate != GS_LEVEL)
@@ -300,22 +285,20 @@ void D_Display (void)
 
     // see if the border needs to be initially drawn
     if (gamestate == GS_LEVEL && oldgamestate != GS_LEVEL)
-    {
-	viewactivestate = false;        // view was not active
 	R_FillBackScreen ();    // draw the pattern into the back screen
-    }
 
     // see if the border needs to be updated to the screen
-    if (gamestate == GS_LEVEL && !automapactive && scaledviewwidth != SCREENWIDTH)
-    {
-	if (menuactive || menuactivestate || !viewactivestate)
-	    borderdrawcount = 3;
-	if (borderdrawcount)
-	{
-	    R_DrawViewBorder ();    // erase old menu stuff
-	    borderdrawcount--;
-	}
+    if (gamestate == GS_LEVEL && scaledviewwidth != SCREENWIDTH)
+	R_DrawViewBorder ();    // erase old menu stuff
 
+    // [JN] CRL - Draw automap on top of player view and view border,
+    // and update while playing. This also needed for render counters update.
+    if (automapactive)
+    {
+        AM_Drawer();
+
+        if (screenblocks == 11 && !crl_automap_overlay)
+        ST_Drawer(false, true);  // [JN] Draw status bar if needed.
     }
 
     if (testcontrols)
@@ -325,8 +308,6 @@ void D_Display (void)
         V_DrawMouseSpeedBox(testcontrols_mousespeed);
     }
 
-    menuactivestate = menuactive;
-    viewactivestate = viewactive;
     inhelpscreensstate = inhelpscreens;
     oldgamestate = wipegamestate = gamestate;
     

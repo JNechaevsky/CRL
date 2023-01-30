@@ -41,6 +41,7 @@ extern int crl_spectating;
 // Automap
 
 extern int crl_automap_mode;
+extern int crl_automap_overlay;
 
 // Accessibility
 

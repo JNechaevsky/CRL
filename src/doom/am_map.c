@@ -48,6 +48,7 @@
 #include "am_map.h"
 
 #include "crlcore.h"
+#include "crlvars.h"
 
 #define MAYBEBLAND(x) (blandcolor == 0 ? (x) : 0)
 #define LIMRANGE(x) (blandcolor == 0 ? (x) : 1)
@@ -676,14 +677,9 @@ AM_Responder
         }
         else if (key == key_map_toggle)
         {
-        	if (automapactive == 1)
-        		automapactive = 2;
-        	else
-        	{
-		        bigstate = 0;
-		        viewactive = true;
-		        AM_Stop ();
-		    }
+            bigstate = 0;
+            viewactive = true;
+            AM_Stop ();
         }
         else if (key == key_map_maxzoom)
         {
@@ -723,6 +719,13 @@ AM_Responder
         {
             AM_clearMarks();
             CRL_SetMessage(plr, DEH_String(AMSTR_MARKSCLEARED), false);
+        }
+        else if (key == key_crl_map_overlay)
+        {
+            // [JN] CRL - Automap overlay mode
+            crl_automap_overlay = !crl_automap_overlay;
+            CRL_SetMessage(plr, DEH_String(crl_automap_overlay ?
+            CRL_AUTOMAPOVERLAY_ON : CRL_AUTOMAPOVERLAY_OFF), false);
         }
         else
         {
@@ -1405,7 +1408,7 @@ void AM_Drawer (void)
 	else
 		blandcolor = false;
 
-	if (automapactive == 1)
+	if (automapactive == 1 && !crl_automap_overlay)
 		AM_clearFB(BACKGROUND);
     if (grid)
 	AM_drawGrid(GRIDCOLORS);
@@ -1421,8 +1424,7 @@ void AM_Drawer (void)
 
     V_MarkRect(f_x, f_y, f_w, f_h);
 
-	// CRL
-	if (automapactive == 2)
-		CRL_DrawMap(AM_CRLFLine, AM_CRLMLine);
+    // [JN] CRL - always colorize automap with given drawing mode.
+    CRL_DrawMap(AM_CRLFLine, AM_CRLMLine);
 }
 
