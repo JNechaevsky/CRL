@@ -24,7 +24,7 @@
 #include "z_zone.h"
 #include "doomkeys.h"
 #include "doomdef.h"
-#include "st_stuff.h"
+#include "st_bar.h"
 #include "p_local.h"
 #include "w_wad.h"
 

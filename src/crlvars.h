@@ -36,20 +36,14 @@ extern int crl_visplanes_drawing;
 // Game mode
 extern int crl_spectating;
 
-
-
 // Automap
-
 extern int crl_automap_mode;
 extern int crl_automap_overlay;
 
-// Accessibility
-
-extern int crl_colorblind;
-
 // QOL Features
-
 extern int crl_screenwipe;
+extern int crl_colored_stbar;
+extern int crl_colorblind;
 
 
 extern void CRL_BindVariables (void);

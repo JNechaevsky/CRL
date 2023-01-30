@@ -62,7 +62,7 @@
 #include "g_game.h"
 
 #include "wi_stuff.h"
-#include "st_stuff.h"
+#include "st_bar.h"
 #include "am_map.h"
 #include "net_client.h"
 #include "net_dedicated.h"
@@ -109,8 +109,6 @@ boolean         fastparm;	// checkparm of -fast
 //extern int soundVolume;
 //extern  int	sfxVolume;
 //extern  int	musicVolume;
-
-extern  boolean	inhelpscreens;
 
 skill_t		startskill;
 int             startepisode;
@@ -205,8 +203,6 @@ void R_ExecuteSetViewSize (void);
 
 void D_Display (void)
 {
-    static  boolean		inhelpscreensstate = false;
-    static  boolean		fullscreen = false;
     static  gamestate_t		oldgamestate = -1;
     int				nowtime;
     int				tics;
@@ -214,13 +210,10 @@ void D_Display (void)
     int				y;
     boolean			done;
     boolean			wipe;
-    boolean			redrawsbar;
 
     if (nodrawers)
 	return;                    // for comparative timing / profiling
 		
-    redrawsbar = false;
-    
     // change the view size if needed
     if (setsizeneeded)
     {
@@ -248,12 +241,7 @@ void D_Display (void)
       case GS_LEVEL:
 	if (!gametic)
 	    break;
-	if (wipe || (viewheight != SCREENHEIGHT && fullscreen))
-	    redrawsbar = true;
-	if (inhelpscreensstate && !inhelpscreens)
-	    redrawsbar = true;              // just put away the help screen
-	ST_Drawer (viewheight == SCREENHEIGHT, redrawsbar );
-	fullscreen = viewheight == SCREENHEIGHT;
+	ST_Drawer ();
 	break;
 
       case GS_INTERMISSION:
@@ -298,7 +286,7 @@ void D_Display (void)
         AM_Drawer();
 
         if (screenblocks == 11 && !crl_automap_overlay)
-        ST_Drawer(false, true);  // [JN] Draw status bar if needed.
+        ST_Drawer();  // [JN] Draw status bar if needed.
     }
 
     if (testcontrols)
@@ -308,7 +296,6 @@ void D_Display (void)
         V_DrawMouseSpeedBox(testcontrols_mousespeed);
     }
 
-    inhelpscreensstate = inhelpscreens;
     oldgamestate = wipegamestate = gamestate;
     
     // draw pause pic

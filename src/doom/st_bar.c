@@ -30,7 +30,6 @@
 #include "deh_main.h"
 #include "deh_misc.h"
 #include "g_game.h"
-#include "st_stuff.h"
 #include "p_local.h"
 #include "p_inter.h"
 #include "m_menu.h"
@@ -39,6 +38,7 @@
 #include "doomstat.h"
 #include "d_englsh.h"
 #include "v_trans.h"
+#include "st_bar.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
@@ -87,6 +87,7 @@ static player_t *plyr;
 
 // lump number for PLAYPAL
 static int lu_palette;
+static int st_palette = 0;
 
 // used for evil grin
 static boolean	oldweaponsowned[NUMWEAPONS]; 
@@ -130,494 +131,517 @@ cheatseq_t cheat_powerup[7] =
 };
 
 
-//
-// STATUS BAR CODE
-//
-void ST_Stop(void);
+// -----------------------------------------------------------------------------
+// ST_Responder
+// Respond to keyboard input events, intercept cheats.
+// -----------------------------------------------------------------------------
 
-// Respond to keyboard input events,
-//  intercept cheats.
-boolean
-ST_Responder (event_t* ev)
+boolean ST_Responder (event_t *ev)
 {
-  int		i;
-    
-  // if a user keypress...
-  if (ev->type == ev_keydown)
-  {
-    if (!netgame && gameskill != sk_nightmare)
-    {
-      // 'dqd' cheat for toggleable god mode
-      if (cht_CheckCheat(&cheat_god, ev->data2))
-      {
-	plyr->cheats ^= CF_GODMODE;
-	if (plyr->cheats & CF_GODMODE)
-	{
-	  if (plyr->mo)
-	    plyr->mo->health = 100;
-	  
-	  plyr->health = deh_god_mode_health;
-	  CRL_SetMessage(plyr, DEH_String(STSTR_DQDON), false);
-	}
-	else 
-	  CRL_SetMessage(plyr, DEH_String(STSTR_DQDOFF), false);
-      }
-      // 'fa' cheat for killer fucking arsenal
-      else if (cht_CheckCheat(&cheat_ammonokey, ev->data2))
-      {
-	plyr->armorpoints = deh_idfa_armor;
-	plyr->armortype = deh_idfa_armor_class;
-	
-	for (i=0;i<NUMWEAPONS;i++)
-    {
-	  plyr->weaponowned[i] = true;
-    }
-	
-	for (i=0;i<NUMAMMO;i++)
-    {
-	  plyr->ammo[i] = plyr->maxammo[i];
-    }
-	
-	  CRL_SetMessage(plyr, DEH_String(STSTR_FAADDED), false);
-      }
-      // 'kfa' cheat for key full ammo
-      else if (cht_CheckCheat(&cheat_ammo, ev->data2))
-      {
-	plyr->armorpoints = deh_idkfa_armor;
-	plyr->armortype = deh_idkfa_armor_class;
-	
-	for (i=0;i<NUMWEAPONS;i++)
-	  plyr->weaponowned[i] = true;
-	
-	for (i=0;i<NUMAMMO;i++)
-	  plyr->ammo[i] = plyr->maxammo[i];
-	
-	for (i=0;i<NUMCARDS;i++)
-    {
-	  plyr->cards[i] = true;
-    }
-	
-	  CRL_SetMessage(plyr, DEH_String(STSTR_KFAADDED), false);
-      }
-      // 'mus' cheat for changing music
-      else if (cht_CheckCheat(&cheat_mus, ev->data2))
-      {
-	
-	char	buf[3];
-	int		musnum;
-	
-	CRL_SetMessage(plyr, DEH_String(STSTR_MUS), false);
-	cht_GetParam(&cheat_mus, buf);
+    int i;
 
-        // Note: The original v1.9 had a bug that tried to play back
-        // the Doom II music regardless of gamemode.  This was fixed
-        // in the Ultimate Doom executable so that it would work for
-        // the Doom 1 music as well.
-
-	if (gamemode == commercial || gameversion < exe_ultimate)
-	{
-	  musnum = mus_runnin + (buf[0]-'0')*10 + buf[1]-'0' - 1;
-	  
-	  if (((buf[0]-'0')*10 + buf[1]-'0') > 35
-       && gameversion >= exe_doom_1_8)
-	    CRL_SetMessage(plyr, DEH_String(STSTR_NOMUS), false);
-	  else
-	    S_ChangeMusic(musnum, 1);
-	}
-	else
-	{
-	  musnum = mus_e1m1 + (buf[0]-'1')*9 + (buf[1]-'1');
-	  
-	  if (((buf[0]-'1')*9 + buf[1]-'1') > 31)
-	    CRL_SetMessage(plyr, DEH_String(STSTR_NOMUS), false);
-	  else
-	    S_ChangeMusic(musnum, 1);
-	}
-      }
-      else if ( (logical_gamemission == doom 
-                 && cht_CheckCheat(&cheat_noclip, ev->data2))
-             || (logical_gamemission != doom 
-                 && cht_CheckCheat(&cheat_commercial_noclip,ev->data2)))
-      {	
-        // Noclip cheat.
-        // For Doom 1, use the idspipsopd cheat; for all others, use
-        // idclip
-
-	plyr->cheats ^= CF_NOCLIP;
-	
-	if (plyr->cheats & CF_NOCLIP)
-	  CRL_SetMessage(plyr, DEH_String(STSTR_NCON), false);
-	else
-	  CRL_SetMessage(plyr, DEH_String(STSTR_NCOFF), false);
-      }
-      // 'behold?' power-up cheats
-      for (i=0;i<6;i++)
-      {
-	if (cht_CheckCheat(&cheat_powerup[i], ev->data2))
-	{
-	  if (!plyr->powers[i])
-	    P_GivePower( plyr, i);
-	  else if (i!=pw_strength)
-	    plyr->powers[i] = 1;
-	  else
-	    plyr->powers[i] = 0;
-	  
-	  CRL_SetMessage(plyr, DEH_String(STSTR_BEHOLDX), false);
-	}
-      }
-      
-      // 'behold' power-up menu
-      if (cht_CheckCheat(&cheat_powerup[6], ev->data2))
-      {
-	CRL_SetMessage(plyr, DEH_String(STSTR_BEHOLD), false);
-      }
-      // 'choppers' invulnerability & chainsaw
-      else if (cht_CheckCheat(&cheat_choppers, ev->data2))
-      {
-	plyr->weaponowned[wp_chainsaw] = true;
-	plyr->powers[pw_invulnerability] = true;
-	CRL_SetMessage(plyr, DEH_String(STSTR_CHOPPERS), false);
-      }
-      // 'mypos' for player position
-      else if (cht_CheckCheat(&cheat_mypos, ev->data2))
-      {
-        static char buf[52];
-        M_snprintf(buf, sizeof(buf), "ang=0x%x;x,y=(0x%x,0x%x)",
-                   players[consoleplayer].mo->angle,
-                   players[consoleplayer].mo->x,
-                   players[consoleplayer].mo->y);
-        CRL_SetMessage(plyr, buf, false);
-      }
-    }
-    
-    // 'clev' change-level cheat
-    if (!netgame && cht_CheckCheat(&cheat_clev, ev->data2))
+    // if a user keypress...
+    if (ev->type == ev_keydown)
     {
-      char		buf[3];
-      int		epsd;
-      int		map;
-      
-      cht_GetParam(&cheat_clev, buf);
-      
-      if (gamemode == commercial)
-      {
-	epsd = 0;
-	map = (buf[0] - '0')*10 + buf[1] - '0';
-      }
-      else
-      {
-	epsd = buf[0] - '0';
-	map = buf[1] - '0';
-
-        // Chex.exe always warps to episode 1.
-
-        if (gameversion == exe_chex)
+        if (!netgame && gameskill != sk_nightmare)
         {
-            if (epsd > 1)
+            // 'dqd' cheat for toggleable god mode
+            if (cht_CheckCheat(&cheat_god, ev->data2))
             {
-                epsd = 1;
+                plyr->cheats ^= CF_GODMODE;
+                if (plyr->cheats & CF_GODMODE)
+                {
+                    if (plyr->mo)
+                    {
+                        plyr->mo->health = 100;
+                    }
+                    plyr->health = deh_god_mode_health;
+                    CRL_SetMessage(plyr, DEH_String(STSTR_DQDON), false);
+                }
+                else 
+                {
+                    CRL_SetMessage(plyr, DEH_String(STSTR_DQDOFF), false);
+                }
             }
-            if (map > 5)
+            // 'fa' cheat for killer fucking arsenal
+            else if (cht_CheckCheat(&cheat_ammonokey, ev->data2))
             {
-                map = 5;
+                plyr->armorpoints = deh_idfa_armor;
+                plyr->armortype = deh_idfa_armor_class;
+
+                for (i=0;i<NUMWEAPONS;i++)
+                {
+                    plyr->weaponowned[i] = true;
+                }
+                for (i=0;i<NUMAMMO;i++)
+                {
+                    plyr->ammo[i] = plyr->maxammo[i];
+                }
+
+                CRL_SetMessage(plyr, DEH_String(STSTR_FAADDED), false);
+            }
+            // 'kfa' cheat for key full ammo
+            else if (cht_CheckCheat(&cheat_ammo, ev->data2))
+            {
+                plyr->armorpoints = deh_idkfa_armor;
+                plyr->armortype = deh_idkfa_armor_class;
+
+                for (i = 0 ; i < NUMWEAPONS ; i++)
+                {
+                    plyr->weaponowned[i] = true;
+                }
+                for (i = 0 ; i < NUMAMMO ; i++)
+                {
+                    plyr->ammo[i] = plyr->maxammo[i];
+                }
+                for (i = 0 ; i < NUMCARDS ; i++)
+                {
+                    plyr->cards[i] = true;
+                }
+
+                CRL_SetMessage(plyr, DEH_String(STSTR_KFAADDED), false);
+            }
+            // 'mus' cheat for changing music
+            else if (cht_CheckCheat(&cheat_mus, ev->data2))
+            {
+                char buf[3];
+                int  musnum;
+
+                CRL_SetMessage(plyr, DEH_String(STSTR_MUS), false);
+                cht_GetParam(&cheat_mus, buf);
+
+                // Note: The original v1.9 had a bug that tried to play back
+                // the Doom II music regardless of gamemode.  This was fixed
+                // in the Ultimate Doom executable so that it would work for
+                // the Doom 1 music as well.
+                // [JN] Fixed: using a proper IDMUS selection for shareware 
+                // and registered game versions.
+                if (gamemode == commercial /*|| gameversion < exe_ultimate*/)
+                {
+                    musnum = mus_runnin + (buf[0]-'0')*10 + buf[1]-'0' - 1;
+
+                    if (((buf[0]-'0')*10 + buf[1]-'0') > 35
+                    && gameversion >= exe_doom_1_8)
+                    {
+                        CRL_SetMessage(plyr, DEH_String(STSTR_NOMUS), false);
+                    }
+                    else
+                    {
+                        S_ChangeMusic(musnum, 1);
+                    }
+                }
+                else
+                {
+                    musnum = mus_e1m1 + (buf[0]-'1')*9 + (buf[1]-'1');
+
+                    if (((buf[0]-'1')*9 + buf[1]-'1') > 31)
+                    {
+                        CRL_SetMessage(plyr, DEH_String(STSTR_NOMUS), false);
+                    }
+                    else
+                    {
+                        S_ChangeMusic(musnum, 1);
+                    }
+                }
+            }
+            // Noclip cheat.
+            // For Doom 1, use the idspipsopd cheat; for all others, use idclip            
+            // [crispy] allow both idspispopd and idclip cheats in all gamemissions
+            else 
+            if (cht_CheckCheat(&cheat_noclip, ev->data2)
+            || (cht_CheckCheat(&cheat_commercial_noclip, ev->data2)))
+            {	
+                plyr->cheats ^= CF_NOCLIP;
+
+                if (plyr->cheats & CF_NOCLIP)
+                {
+                    CRL_SetMessage(plyr, DEH_String(STSTR_NCON), false);
+                }
+                else
+                {
+                    CRL_SetMessage(plyr, DEH_String(STSTR_NCOFF), false);
+                }
+            }
+
+            // 'behold?' power-up cheats
+            for (i = 0 ; i < 6 ; i++)
+            {
+                if (cht_CheckCheat(&cheat_powerup[i], ev->data2))
+                {
+                    if (!plyr->powers[i])
+                    {
+                        P_GivePower( plyr, i);
+                    }
+                    else if (i!=pw_strength)
+                    {
+                        plyr->powers[i] = 1;
+                    }
+                    else
+                    {
+                        plyr->powers[i] = 0;
+                    }
+
+                CRL_SetMessage(plyr, DEH_String(STSTR_BEHOLDX), false);
+                }
+            }
+            // 'behold' power-up menu
+            if (cht_CheckCheat(&cheat_powerup[6], ev->data2))
+            {
+                CRL_SetMessage(plyr, DEH_String(STSTR_BEHOLD), false);
+            }
+            // 'choppers' invulnerability & chainsaw
+            else if (cht_CheckCheat(&cheat_choppers, ev->data2))
+            {
+                plyr->weaponowned[wp_chainsaw] = true;
+                plyr->powers[pw_invulnerability] = true;
+                CRL_SetMessage(plyr, DEH_String(STSTR_CHOPPERS), false);
+            }
+            // 'mypos' for player position
+            else if (cht_CheckCheat(&cheat_mypos, ev->data2))
+            {
+                static char buf[52];
+
+                M_snprintf(buf, sizeof(buf), "ang=0x%x;x,y=(0x%x,0x%x)",
+                           players[consoleplayer].mo->angle,
+                           players[consoleplayer].mo->x,
+                           players[consoleplayer].mo->y);
+                CRL_SetMessage(plyr, buf, false);
             }
         }
-      }
 
-      // Catch invalid maps.
-      if (gamemode != commercial)
-      {
-          if (epsd < 1)
-          {
-              return false;
-          }
-          if (epsd > 4)
-          {
-              return false;
-          }
-          if (epsd == 4 && gameversion < exe_ultimate)
-          {
-              return false;
-          }
-          if (map < 1)
-          {
-              return false;
-          }
-          if (map > 9)
-          {
-              return false;
-          }
-      }
-      else
-      {
-          if (map < 1)
-          {
-              return false;
-          }
-          if (map > 40)
-          {
-              return false;
-          }
-      }
+        // 'clev' change-level cheat
+        if (!netgame && cht_CheckCheat(&cheat_clev, ev->data2))
+        {
+            char  buf[3];
+            int   epsd;
+            int   map;
 
-      // So be it.
-      CRL_SetMessage(plyr, DEH_String(STSTR_CLEV), false);
-      G_DeferedInitNew(gameskill, epsd, map);
+            cht_GetParam(&cheat_clev, buf);
+
+            if (gamemode == commercial)
+            {
+                epsd = 0;
+                map = (buf[0] - '0')*10 + buf[1] - '0';
+            }
+            else
+            {
+                epsd = buf[0] - '0';
+                map = buf[1] - '0';
+
+                // Chex.exe always warps to episode 1.
+
+                if (gameversion == exe_chex)
+                {
+                    if (epsd > 1)
+                    {
+                        epsd = 1;
+                    }
+                    if (map > 5)
+                    {
+                        map = 5;
+                    }
+                }
+            }
+
+            // Catch invalid maps.
+            if (gamemode != commercial)
+            {
+                if (epsd < 1)
+                {
+                    return false;
+                }
+                if (epsd > 4)
+                {
+                    return false;
+                }
+                if (epsd == 4 && gameversion < exe_ultimate)
+                {
+                    return false;
+                }
+                if (map < 1)
+                {
+                    return false;
+                }
+                if (map > 9)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (map < 1)
+                {
+                    return false;
+                }
+                if (map > 40)
+                {
+                    return false;
+                }
+            }
+
+            // So be it.
+            CRL_SetMessage(plyr, DEH_String(STSTR_CLEV), false);
+            G_DeferedInitNew(gameskill, epsd, map);
+        }
     }
-  }
-  return false;
+
+    return false;
 }
 
+// -----------------------------------------------------------------------------
+// ST_calcPainOffset
+// -----------------------------------------------------------------------------
 
-
-int ST_calcPainOffset(void)
+static const int ST_calcPainOffset (void)
 {
-    int		health;
-    static int	lastcalc;
-    static int	oldhealth = -1;
-    
+    int        health;
+    static int lastcalc;
+    static int oldhealth = -1;
+
     health = plyr->health > 100 ? 100 : plyr->health;
 
     if (health != oldhealth)
     {
-	lastcalc = ST_FACESTRIDE * (((100 - health) * ST_NUMPAINFACES) / 101);
-	oldhealth = health;
+        lastcalc = ST_FACESTRIDE * (((100 - health) * ST_NUMPAINFACES) / 101);
+        oldhealth = health;
     }
+
     return lastcalc;
 }
 
-
-//
-// This is a not-very-pretty routine which handles
-//  the face states and their timing.
-// the precedence of expressions is:
+// -----------------------------------------------------------------------------
+// ST_updateFaceWidget
+// This is a not-very-pretty routine which handles the face states 
+// and their timing. // the precedence of expressions is:
 //  dead > evil grin > turned head > straight ahead
-//
-void ST_updateFaceWidget(void)
+// -----------------------------------------------------------------------------
+
+static void ST_updateFaceWidget (void)
 {
-    int		i;
-    angle_t	badguyangle;
-    angle_t	diffang;
-    static int	lastattackdown = -1;
-    static int	priority = 0;
-    boolean	doevilgrin;
+    int         i;
+    static int  lastattackdown = -1;
+    static int  priority = 0;
+    angle_t     badguyangle;
+    angle_t     diffang;
+    boolean     doevilgrin;
 
     if (priority < 10)
     {
-	// dead
-	if (!plyr->health)
-	{
-	    priority = 9;
-	    st_faceindex = ST_DEADFACE;
-	    st_facecount = 1;
-	}
+        // dead
+        if (!plyr->health)
+        {
+            priority = 9;
+            st_faceindex = ST_DEADFACE;
+            st_facecount = 1;
+        }
     }
 
     if (priority < 9)
     {
-	if (plyr->bonuscount)
-	{
-	    // picking up bonus
-	    doevilgrin = false;
+        if (plyr->bonuscount)
+        {
+            // picking up bonus
+            doevilgrin = false;
 
-	    for (i=0;i<NUMWEAPONS;i++)
-	    {
-		if (oldweaponsowned[i] != plyr->weaponowned[i])
-		{
-		    doevilgrin = true;
-		    oldweaponsowned[i] = plyr->weaponowned[i];
-		}
-	    }
-	    if (doevilgrin) 
-	    {
-		// evil grin if just picked up weapon
-		priority = 8;
-		st_facecount = ST_EVILGRINCOUNT;
-		st_faceindex = ST_calcPainOffset() + ST_EVILGRINOFFSET;
-	    }
-	}
-
+            for (i = 0 ; i < NUMWEAPONS ; i++)
+            {
+                if (oldweaponsowned[i] != plyr->weaponowned[i])
+                {
+                    doevilgrin = true;
+                    oldweaponsowned[i] = plyr->weaponowned[i];
+                }
+            }
+            if (doevilgrin) 
+            {
+                // evil grin if just picked up weapon
+                priority = 8;
+                st_facecount = ST_EVILGRINCOUNT;
+                st_faceindex = ST_calcPainOffset() + ST_EVILGRINOFFSET;
+            }
+        }
     }
-  
+
     if (priority < 8)
     {
-	if (plyr->damagecount
-	    && plyr->attacker
-	    && plyr->attacker != plyr->mo)
-	{
-	    // being attacked
-	    priority = 7;
-	    
-	    if (plyr->health - st_oldhealth > ST_MUCHPAIN)
-	    {
-		st_facecount = ST_TURNCOUNT;
-		st_faceindex = ST_calcPainOffset() + ST_OUCHOFFSET;
-	    }
-	    else
-	    {
-		badguyangle = R_PointToAngle2(plyr->mo->x,
-					      plyr->mo->y,
-					      plyr->attacker->x,
-					      plyr->attacker->y);
-		
-		if (badguyangle > plyr->mo->angle)
-		{
-		    // whether right or left
-		    diffang = badguyangle - plyr->mo->angle;
-		    i = diffang > ANG180; 
-		}
-		else
-		{
-		    // whether left or right
-		    diffang = plyr->mo->angle - badguyangle;
-		    i = diffang <= ANG180; 
-		} // confusing, aint it?
+        if (plyr->damagecount && plyr->attacker && plyr->attacker != plyr->mo)
+        {
+            // being attacked
+            priority = 7;
 
-		
-		st_facecount = ST_TURNCOUNT;
-		st_faceindex = ST_calcPainOffset();
-		
-		if (diffang < ANG45)
-		{
-		    // head-on    
-		    st_faceindex += ST_RAMPAGEOFFSET;
-		}
-		else if (i)
-		{
-		    // turn face right
-		    st_faceindex += ST_TURNOFFSET;
-		}
-		else
-		{
-		    // turn face left
-		    st_faceindex += ST_TURNOFFSET+1;
-		}
-	    }
-	}
+            if (plyr->health - st_oldhealth > ST_MUCHPAIN)
+            {
+                st_facecount = ST_TURNCOUNT;
+                st_faceindex = ST_calcPainOffset() + ST_OUCHOFFSET;
+            }
+            else
+            {
+                badguyangle = R_PointToAngle2(plyr->mo->x,
+                                              plyr->mo->y,
+                                              plyr->attacker->x,
+                                              plyr->attacker->y);
+
+                if (badguyangle > plyr->mo->angle)
+                {
+                    // whether right or left
+                    diffang = badguyangle - plyr->mo->angle;
+                    i = diffang > ANG180; 
+                }
+                else
+                {
+                    // whether left or right
+                    diffang = plyr->mo->angle - badguyangle;
+                    i = diffang <= ANG180; 
+                } // confusing, aint it?
+
+                st_facecount = ST_TURNCOUNT;
+                st_faceindex = ST_calcPainOffset();
+
+                if (diffang < ANG45)
+                {
+                    // head-on    
+                    st_faceindex += ST_RAMPAGEOFFSET;
+                }
+                else if (i)
+                {
+                    // turn face right
+                    st_faceindex += ST_TURNOFFSET;
+                }
+                else
+                {
+                    // turn face left
+                    st_faceindex += ST_TURNOFFSET+1;
+                }
+            }
+        }
     }
-  
+
     if (priority < 7)
     {
-	// getting hurt because of your own damn stupidity
-	if (plyr->damagecount)
-	{
-	    if (plyr->health - st_oldhealth > ST_MUCHPAIN)
-	    {
-		priority = 7;
-		st_facecount = ST_TURNCOUNT;
-		st_faceindex = ST_calcPainOffset() + ST_OUCHOFFSET;
-	    }
-	    else
-	    {
-		priority = 6;
-		st_facecount = ST_TURNCOUNT;
-		st_faceindex = ST_calcPainOffset() + ST_RAMPAGEOFFSET;
-	    }
-
-	}
-
+        // getting hurt because of your own damn stupidity
+        if (plyr->damagecount)
+        {
+            if (plyr->health - st_oldhealth > ST_MUCHPAIN)
+            {
+                priority = 7;
+                st_facecount = ST_TURNCOUNT;
+                st_faceindex = ST_calcPainOffset() + ST_OUCHOFFSET;
+            }
+            else
+            {
+                priority = 6;
+                st_facecount = ST_TURNCOUNT;
+                st_faceindex = ST_calcPainOffset() + ST_RAMPAGEOFFSET;
+            }
+        }
     }
-  
+
     if (priority < 6)
     {
-	// rapid firing
-	if (plyr->attackdown)
-	{
-	    if (lastattackdown==-1)
-		lastattackdown = ST_RAMPAGEDELAY;
-	    else if (!--lastattackdown)
-	    {
-		priority = 5;
-		st_faceindex = ST_calcPainOffset() + ST_RAMPAGEOFFSET;
-		st_facecount = 1;
-		lastattackdown = 1;
-	    }
-	}
-	else
-	    lastattackdown = -1;
-
+        // rapid firing
+        if (plyr->attackdown)
+        {
+            if (lastattackdown==-1)
+            {
+                lastattackdown = ST_RAMPAGEDELAY;
+            }
+            else if (!--lastattackdown)
+            {
+                priority = 5;
+                st_faceindex = ST_calcPainOffset() + ST_RAMPAGEOFFSET;
+                st_facecount = 1;
+                lastattackdown = 1;
+            }
+        }
+        else
+        {
+            lastattackdown = -1;
+        }
     }
-  
+
     if (priority < 5)
     {
-	// invulnerability
-	if ((plyr->cheats & CF_GODMODE)
-	    || plyr->powers[pw_invulnerability])
-	{
-	    priority = 4;
+        // invulnerability
+        if ((plyr->cheats & CF_GODMODE) || plyr->powers[pw_invulnerability])
+        {
+            priority = 4;
 
-	    st_faceindex = ST_GODFACE;
-	    st_facecount = 1;
-
-	}
-
+            st_faceindex = ST_GODFACE;
+            st_facecount = 1;
+        }
     }
 
     // look left or look right if the facecount has timed out
     if (!st_facecount)
     {
-	st_faceindex = ST_calcPainOffset() + (st_randomnumber % 3);
-	st_facecount = ST_STRAIGHTFACECOUNT;
-	priority = 0;
+        st_faceindex = ST_calcPainOffset() + (st_randomnumber % 3);
+        st_facecount = ST_STRAIGHTFACECOUNT;
+        priority = 0;
     }
 
     st_facecount--;
-
 }
 
-static int st_palette = 0;
+// -----------------------------------------------------------------------------
+// CRL_ReloadPalette
+// -----------------------------------------------------------------------------
 
-void CRL_ReloadPalette(void)
+void CRL_ReloadPalette (void)
 {
-    byte*	pal;
-	pal = (byte *) W_CacheLumpNum (lu_palette, PU_CACHE)+st_palette*768;
-	I_SetPalette (pal);
+    byte *pal = (byte *) W_CacheLumpNum (lu_palette, PU_CACHE)+st_palette*768;
+    I_SetPalette (pal);
 }
 
-void ST_doPaletteStuff(void)
+// -----------------------------------------------------------------------------
+// ST_doPaletteStuff
+// -----------------------------------------------------------------------------
+
+void ST_doPaletteStuff (void)
 {
-
-    int		palette;
-    byte*	pal;
-    int		cnt;
-    int		bzc;
-
-    cnt = plyr->damagecount;
+    int palette;
+    int bzc;
+    int cnt = plyr->damagecount;
 
     if (plyr->powers[pw_strength])
     {
-	// slowly fade the berzerk out
-  	bzc = 12 - (plyr->powers[pw_strength]>>6);
+        // slowly fade the berzerk out
+        bzc = 12 - (plyr->powers[pw_strength]>>6);
 
-	if (bzc > cnt)
-	    cnt = bzc;
+        if (bzc > cnt)
+        {
+            cnt = bzc;
+        }
     }
-	
+
     if (cnt)
     {
-	palette = (cnt+7)>>3;
-	
-	if (palette >= NUMREDPALS)
-	    palette = NUMREDPALS-1;
+        palette = (cnt+7)>>3;
 
-	palette += STARTREDPALS;
+        if (palette >= NUMREDPALS)
+        {
+            palette = NUMREDPALS-1;
+        }
+
+        palette += STARTREDPALS;
     }
-
     else if (plyr->bonuscount)
     {
-	palette = (plyr->bonuscount+7)>>3;
+        palette = (plyr->bonuscount+7)>>3;
 
-	if (palette >= NUMBONUSPALS)
-	    palette = NUMBONUSPALS-1;
+        if (palette >= NUMBONUSPALS)
+        {
+            palette = NUMBONUSPALS-1;
+        }
 
-	palette += STARTBONUSPALS;
+        palette += STARTBONUSPALS;
     }
-
-    else if ( plyr->powers[pw_ironfeet] > 4*32
-	      || plyr->powers[pw_ironfeet]&8)
-	palette = RADIATIONPAL;
+    else if (plyr->powers[pw_ironfeet] > 4*32 || plyr->powers[pw_ironfeet] & 8)
+    {
+        palette = RADIATIONPAL;
+    }
     else
-	palette = 0;
+    {
+        palette = 0;
+    }
 
     // In Chex Quest, the player never sees red.  Instead, the
     // radiation suit palette is used to tint the screen green,
@@ -625,19 +649,21 @@ void ST_doPaletteStuff(void)
     // attacking flemoid.
 
     if (gameversion == exe_chex
-     && palette >= STARTREDPALS && palette < STARTREDPALS + NUMREDPALS)
+    &&  palette >= STARTREDPALS && palette < STARTREDPALS + NUMREDPALS)
     {
         palette = RADIATIONPAL;
     }
 
     if (palette != st_palette)
     {
-	st_palette = palette;
-	pal = (byte *) W_CacheLumpNum (lu_palette, PU_CACHE)+palette*768;
-	I_SetPalette (pal);
+        st_palette = palette;
+        CRL_ReloadPalette();
     }
-
 }
+
+// -----------------------------------------------------------------------------
+// ST_Ticker
+// -----------------------------------------------------------------------------
 
 void ST_Ticker (void)
 {
@@ -645,7 +671,6 @@ void ST_Ticker (void)
     ST_updateFaceWidget();
 
     st_randomnumber = M_Random();
-    //ST_updateWidgets();
     st_oldhealth = plyr->health;
 
     // [JN] Update CRL_Widgets_t data.
@@ -680,10 +705,10 @@ enum
 
 static byte *ST_WidgetColor (const int i)
 {
-    // if (!sbar_colored || vanillaparm)
-    // {
-    //     return NULL;
-    // }
+    if (!crl_colored_stbar)
+    {
+        return NULL;
+    }
 
     switch (i)
     {
@@ -928,10 +953,10 @@ static const int ST_UpdateFragsCounter (const int playernum, const boolean big_v
 
 // -----------------------------------------------------------------------------
 // ST_Drawer
-// [JN] 
+// [JN] Main drawing function, totally rewritten.
 // -----------------------------------------------------------------------------
 
-void ST_Drawer (boolean fullscreen, boolean refresh)
+void ST_Drawer (void)
 {
     V_UseBuffer(st_backing_screen);
     V_DrawPatch(0, 0, sbar);
@@ -1151,5 +1176,6 @@ void ST_Start (void)
 void ST_Init (void)
 {
     ST_loadData();
-    st_backing_screen = (pixel_t *) Z_Malloc(ST_WIDTH * ST_HEIGHT * sizeof(*st_backing_screen), PU_STATIC, 0);
+    st_backing_screen = (pixel_t *) Z_Malloc(ST_WIDTH * ST_HEIGHT
+                      * sizeof(*st_backing_screen), PU_STATIC, 0);
 }

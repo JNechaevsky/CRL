@@ -27,35 +27,25 @@ int crl_startup_delay = 35;
 int crl_resize_delay = 35;
 
 // Widgets
-
 int crl_widget_render = 1;
 int crl_widget_kis = 0;
 int crl_widget_time = 0;
 int crl_widget_coords = 0;
 
 // Drawing
-
 int crl_visplanes_drawing = 0;
 
 // Game mode
-
 int crl_spectating = 0;
 
-
-
 // Automap
-
 int crl_automap_mode = 0;
 int crl_automap_overlay = 0;
 
-// Accessibility
-
-int crl_colorblind = 0;
-
 // QOL Features
-
-// Screen wiping effect.
 int crl_screenwipe = 0;
+int crl_colored_stbar = 0;
+int crl_colorblind = 0;
 
 // -----------------------------------------------------------------------------
 // [JN] CRL-specific config variables binding function.
@@ -79,9 +69,8 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_automap_mode",               &crl_automap_mode);
     M_BindIntVariable("crl_automap_overlay",            &crl_automap_overlay);
 
-    // Accessibility
-    M_BindIntVariable("crl_colorblind",                 &crl_colorblind);
-
     // QOL Features
     M_BindIntVariable("crl_screenwipe",                 &crl_screenwipe);
+    M_BindIntVariable("crl_colored_stbar",              &crl_colored_stbar);
+    M_BindIntVariable("crl_colorblind",                 &crl_colorblind);
 }

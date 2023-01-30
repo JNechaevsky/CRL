@@ -47,7 +47,7 @@
 #include "d_main.h"
 
 #include "wi_stuff.h"
-#include "st_stuff.h"
+#include "st_bar.h"
 #include "am_map.h"
 #include "statdump.h"
 
