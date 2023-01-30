@@ -625,8 +625,7 @@ static boolean PIT_AddLineIntercepts (line_t *ld)
         fprintf(stderr, "PIT_AddLineIntercepts: Triggered INTERCEPTS overflow!\n");
         // [JN] CRL - print in-game warning.
         CRL_intercepts_overflow = true;
-        CRL_SetCriticalMessage(&players[consoleplayer],
-                               "TRIGGERED LINE INTERCEPTS OVERFLOW!", MESSAGETICS);
+        CRL_SetCriticalMessage("TRIGGERED LINE INTERCEPTS OVERFLOW!", MESSAGETICS);
     }
     intercept_p++;
 
@@ -693,8 +692,7 @@ static boolean PIT_AddThingIntercepts (mobj_t *thing)
         fprintf(stderr, "PIT_AddThingIntercepts: Triggered INTERCEPTS overflow!\n");
         // [JN] CRL - print in-game warning.
         CRL_intercepts_overflow = true;
-        CRL_SetCriticalMessage(&players[consoleplayer], 
-                               "TRIGGERED THING INTERCEPTS OVERFLOW!", MESSAGETICS);
+        CRL_SetCriticalMessage("TRIGGERED THING INTERCEPTS OVERFLOW!", MESSAGETICS);
     }
 
     intercept_p++;

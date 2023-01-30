@@ -270,7 +270,7 @@ boolean PIT_CheckLine (line_t* ld)
                 printf("PIT_CheckLine: %s\n", message);
 
                 // [JN] CRL - print in-game warning as well.
-                CRL_SetCriticalMessage(&players[consoleplayer], message, MESSAGETICS);
+                CRL_SetCriticalMessage(message, MESSAGETICS);
             }
             
             SpechitOverrun(ld);

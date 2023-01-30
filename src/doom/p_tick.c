@@ -135,9 +135,9 @@ void P_Ticker (void)
     {                           // Refresh the screen when a message goes away
         ultimatemsg = false;    // clear out any chat messages.
     }
-    if (player->criticalmessageTics > 0)
+    if (players[consoleplayer].criticalmessageTics > 0)
     {
-        player->criticalmessageTics--;
+        players[consoleplayer].criticalmessageTics--;
     }
 
     
