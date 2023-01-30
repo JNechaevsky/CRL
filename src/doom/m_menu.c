@@ -104,7 +104,6 @@ static boolean joypadSave = false; // was the save action initiated by joypad?
 // old save description before edit
 static char saveOldString[SAVESTRINGSIZE];  
 
-boolean			inhelpscreens;
 boolean			menuactive;
 
 #define SKULLXOFF		-32
@@ -498,8 +497,9 @@ static void M_ChooseCRL_2 (int choice);
 
 static void M_DrawCRL_2 (void);
 static void M_CRL_Automap (int choice);
-static void M_CRL_Colorblind (int choice);
 static void M_CRL_ScreenWipe (int choice);
+static void M_CRL_ColoredSTBar (int choice);
+static void M_CRL_Colorblind (int choice);
 static void M_ChooseCRL_1 (int choice);
 
 //
@@ -583,8 +583,8 @@ static menuitem_t CRLMenu_2[]=
     { 2, "DRAWING MODE",        M_CRL_Automap,        'a'},
     {-1, "", 0, '\0'},          // QOL FEATURES title
     { 2, "SCREEN WIPE EFFECT",  M_CRL_ScreenWipe,     's'},
+    { 2, "COLORED STATUS BAR",  M_CRL_ColoredSTBar,   'c'},
     { 2, "COLORBLIND",          M_CRL_Colorblind,     'c'},
-    {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
@@ -609,8 +609,6 @@ static menu_t CRLDef_2 =
 static void M_ShadeBackground (void)
 {
     // [JN] Shade background while in CRL menu.
-	inhelpscreens = true;
-
     for (int y = 0; y < SCREENWIDTH * SCREENHEIGHT; y++)
     {
         I_VideoBuffer[y] = colormaps[12 * 256 + I_VideoBuffer[y]];
@@ -762,45 +760,17 @@ static void M_DrawCRL_2 (void)
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 45, str, 
                  crl_screenwipe ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
+    // Colored status bar
+    sprintf(str, crl_colored_stbar ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 54, str, 
+                 crl_colored_stbar ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
     // Colorblind
     sprintf(str, crl_colorblind == 1 ? "RED/GREEN" :
                  crl_colorblind == 2 ? "BLUE/YELLOW" :
                  crl_colorblind == 3 ? "MONOCHROME" : "NONE");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 54, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 63, str, 
                  crl_colorblind > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
-
-/*
-    // K/I/S stats
-    sprintf(str, crl_widget_kis ? "ON" : "OFF");
-    M_WriteText (272 - M_StringWidth(str), 18, str, 
-                 crl_widget_kis ? cr[CR_GREEN] : cr[CR_RED]);
-
-    // Level time
-    sprintf(str, crl_widget_time ? "ON" : "OFF");
-    M_WriteText (272 - M_StringWidth(str), 27, str,
-                 crl_widget_time ? cr[CR_GREEN] : cr[CR_RED]);
-
-    // Player coords
-    sprintf(str, crl_widget_coords ? "ON" : "OFF");
-    M_WriteText (272 - M_StringWidth(str), 36, str,
-                 crl_widget_coords ? cr[CR_GREEN] : cr[CR_RED]);
-
-    M_WriteText(48, 45, "AUTOMAP", cr[CR_YELLOW]);
-
-    // Drawing mode
-    sprintf(str, crl_automap_mode == 1 ? "FLOOR VISPLANES" :
-                 crl_automap_mode == 2 ? "CEILING VISPLANES" : "NORMAL");
-    M_WriteText (272 - M_StringWidth(str), 54, str,
-                 crl_automap_mode ? cr[CR_GREEN] : cr[CR_RED]);
-
-    M_WriteText(48, 63, "ACCESSIBILITY", cr[CR_YELLOW]);
-
-
-
-    M_WriteText(48, 81, "QOL FEATURES", cr[CR_YELLOW]);
-
-
-*/
 
     //
     // < PREV PAGE
@@ -833,6 +803,11 @@ static void M_CRL_Automap (int choice)
 static void M_CRL_ScreenWipe (int choice)
 {
     crl_screenwipe ^= 1;
+}
+
+static void M_CRL_ColoredSTBar (int choice)
+{
+    crl_colored_stbar ^= 1;
 }
 
 static void M_CRL_Colorblind (int choice)
@@ -1134,8 +1109,6 @@ static void M_QuickLoad(void)
 //
 static void M_DrawReadThis1(void)
 {
-    inhelpscreens = true;
-
     V_DrawPatch(0, 0, W_CacheLumpName(DEH_String("HELP2"), PU_CACHE));
 }
 
@@ -1146,8 +1119,6 @@ static void M_DrawReadThis1(void)
 //
 static void M_DrawReadThis2(void)
 {
-    inhelpscreens = true;
-
     // We only ever draw the second page if this is 
     // gameversion == exe_doom_1_9 and gamemode == registered
 
@@ -1156,8 +1127,6 @@ static void M_DrawReadThis2(void)
 
 static void M_DrawReadThisCommercial(void)
 {
-    inhelpscreens = true;
-
     V_DrawPatch(0, 0, W_CacheLumpName(DEH_String("HELP"), PU_CACHE));
 }
 
@@ -2365,8 +2334,6 @@ void M_Drawer (void)
     char               *name;
     int			start;
 
-    inhelpscreens = false;
-    
     // Horiz. & Vertically center string and print it.
     if (messageToPrint)
     {

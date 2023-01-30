@@ -1661,11 +1661,10 @@ static default_t extra_defaults_list[] =
     CONFIG_VARIABLE_INT(crl_automap_mode),
     CONFIG_VARIABLE_INT(crl_automap_overlay),
 
-    // Accessibility
-    CONFIG_VARIABLE_INT(crl_colorblind),
-
     // QOL Features
     CONFIG_VARIABLE_INT(crl_screenwipe),
+    CONFIG_VARIABLE_INT(crl_colored_stbar),
+    CONFIG_VARIABLE_INT(crl_colorblind),
 };
 
 static default_collection_t extra_defaults =
