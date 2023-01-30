@@ -62,7 +62,7 @@ add_library(doom STATIC
             s_sound.c       s_sound.h
             sounds.c        sounds.h
             statdump.c      statdump.h
-            st_stuff.c      st_stuff.h
+            st_bar.c        st_bar.h
             wi_stuff.c      wi_stuff.h)
 
 target_include_directories(doom PRIVATE "../" "${CMAKE_CURRENT_BINARY_DIR}/../../")
