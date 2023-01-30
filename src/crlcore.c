@@ -1290,6 +1290,25 @@ void CRL_ImpulseCamera(int32_t fwm, int32_t swm, uint32_t at)
 }
 
 /**
+ * [JN] Impulses the camera up/down.
+ *
+ * @param direction: true = up, false = down.
+ * @param intensity: 32 of 64 map unit, depending on player run mode.
+ */
+
+void CRL_ImpulseCameraVert (boolean direction, const int32_t intensity)
+{
+    if (direction)
+    {
+        _campos[2] += FRACUNIT*intensity;
+    }
+    else
+    {
+        _campos[2] -= FRACUNIT*intensity;
+    }
+}
+
+/**
  * Returns the camera position.
  */
 void CRL_GetCameraPos(int32_t* x, int32_t* y, int32_t* z, uint32_t* a)

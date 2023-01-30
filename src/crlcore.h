@@ -364,6 +364,7 @@ void CRL_DrawMap(void (*__fl)(int, int, int, int, int),
 
 int CRL_IsSpectating(void);
 void CRL_ImpulseCamera(int32_t fwm, int32_t swm, uint32_t at);
+void CRL_ImpulseCameraVert(boolean direction, const int32_t intensity);
 void CRL_GetCameraPos(int32_t* x, int32_t* y, int32_t* z, uint32_t* a);
 
 int CRL_MaxVisPlanes(void);

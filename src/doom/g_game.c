@@ -220,6 +220,9 @@ static int      joystrafemove;
 static boolean  joyarray[MAX_JOY_BUTTONS + 1]; 
 static boolean *joybuttons = &joyarray[1];		// allow [-1] 
  
+// [JN] Determinates speed of camera Z-axis movement in spectator mode.
+static int      crl_camzspeed;
+
 static int      savegameslot; 
 static char     savedescription[32]; 
  
@@ -359,6 +362,7 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
     // pressing the "run" key will result in walking
     speed = (key_speed >= NUMKEYS || joybspeed >= MAX_JOY_BUTTONS);
     speed ^= speedkeydown();
+    crl_camzspeed = speed;
  
     forward = side = 0;
     
@@ -731,10 +735,23 @@ static void SetMouseButtons(unsigned int buttons_mask)
         {
             if (i == mousebprevweapon)
             {
+                // [JN] CRL - move spectator camera down.
+                if (CRL_IsSpectating())
+                {
+                    CRL_ImpulseCameraVert(false, crl_camzspeed ? 64 : 32); 
+                }
+                else
                 next_weapon = -1;
             }
             else if (i == mousebnextweapon)
             {
+                // [JN] CRL - move spectator camera up.
+                if (CRL_IsSpectating())
+                {
+                    CRL_ImpulseCameraVert(true, crl_camzspeed ? 64 : 32);
+                    
+                }
+                else
                 next_weapon = 1;
             }
         }
