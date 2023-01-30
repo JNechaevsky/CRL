@@ -37,7 +37,6 @@
 #include "g_game.h"
 
 #include "st_stuff.h"
-#include "st_lib.h"
 #include "r_local.h"
 
 #include "p_local.h"
@@ -272,44 +271,11 @@ pixel_t			*st_backing_screen;
 // main player in game
 static player_t*	plyr; 
 
-// ST_Start() has just been called
-static boolean		st_firsttime;
-
 // lump number for PLAYPAL
 static int		lu_palette;
 
-// used for timing
-static unsigned int	st_clock;
-
-// used for making messages go away
-static int		st_msgcounter=0;
-
-// used when in chat 
-static st_chatstateenum_t	st_chatstate;
-
 // whether in automap or first-person
 static st_stateenum_t	st_gamestate;
-
-// whether left-side main status bar is active
-static boolean		st_statusbaron;
-
-// whether status bar chat is active
-static boolean		st_chat;
-
-// value of st_chat before message popped up
-static boolean		st_oldchat;
-
-// whether chat window has the cursor on
-static boolean		st_cursoron;
-
-// !deathmatch
-static boolean		st_notdeathmatch; 
-
-// !deathmatch && st_statusbaron
-static boolean		st_armson;
-
-// !deathmatch
-static boolean		st_fragson; 
 
 // main bar left
 static patch_t*		sbar;
@@ -320,8 +286,12 @@ static patch_t*		tallnum[10];
 // tall % sign
 static patch_t*		tallpercent;
 
+// [JN] Minus symbol.
+static patch_t*		tallminus;
+
 // 0-9, short, yellow (,different!) numbers
-static patch_t*		shortnum[10];
+static patch_t*		shortnum_y[10];
+static patch_t*		shortnum_g[10];
 
 // 3 key-cards, 3 skulls
 static patch_t*		keys[NUMCARDS]; 
@@ -334,42 +304,6 @@ static patch_t*		faceback;
 
  // main bar right
 static patch_t*		armsbg;
-
-// weapon ownership patches
-static patch_t*		arms[6][2]; 
-
-// ready-weapon widget
-static st_number_t	w_ready;
-
- // in deathmatch only, summary of frags stats
-static st_number_t	w_frags;
-
-// health widget
-static st_percent_t	w_health;
-
-// arms background
-static st_binicon_t	w_armsbg; 
-
-
-// weapon ownership widgets
-static st_multicon_t	w_arms[6];
-
-// face status widget
-static st_multicon_t	w_faces; 
-
-// keycard widgets
-static st_multicon_t	w_keyboxes[3];
-
-// armor widget
-static st_percent_t	w_armor;
-
-// ammo widgets
-static st_number_t	w_ammo[4];
-
-// max ammo widgets
-static st_number_t	w_maxammo[4]; 
-
-
 
  // number of frags so far in deathmatch
 static int	st_fragscount;
@@ -420,26 +354,6 @@ cheatseq_t cheat_mypos = CHEAT("idmypos", 0);
 //
 void ST_Stop(void);
 
-void ST_refreshBackground(void)
-{
-
-    if (st_statusbaron)
-    {
-        V_UseBuffer(st_backing_screen);
-
-	V_DrawPatch(ST_X, 0, sbar);
-
-	if (netgame)
-	    V_DrawPatch(ST_FX, 0, faceback);
-
-        V_RestoreBuffer();
-
-	V_CopyRect(ST_X, 0, st_backing_screen, ST_WIDTH, ST_HEIGHT, ST_X, ST_Y);
-    }
-
-}
-
-
 // Respond to keyboard input events,
 //  intercept cheats.
 boolean
@@ -455,7 +369,6 @@ ST_Responder (event_t* ev)
     {
       case AM_MSGENTERED:
 	st_gamestate = AutomapState;
-	st_firsttime = true;
 	break;
 	
       case AM_MSGEXITED:
@@ -888,92 +801,6 @@ void ST_updateFaceWidget(void)
 
 }
 
-void ST_updateWidgets(void)
-{
-    static int	largeammo = 1994; // means "n/a"
-    int		i;
-
-    // must redirect the pointer if the ready weapon has changed.
-    //  if (w_ready.data != plyr->readyweapon)
-    //  {
-    if (weaponinfo[plyr->readyweapon].ammo == am_noammo)
-	w_ready.num = &largeammo;
-    else
-	w_ready.num = &plyr->ammo[weaponinfo[plyr->readyweapon].ammo];
-    //{
-    // static int tic=0;
-    // static int dir=-1;
-    // if (!(tic&15))
-    //   plyr->ammo[weaponinfo[plyr->readyweapon].ammo]+=dir;
-    // if (plyr->ammo[weaponinfo[plyr->readyweapon].ammo] == -100)
-    //   dir = 1;
-    // tic++;
-    // }
-    w_ready.data = plyr->readyweapon;
-
-    // if (*w_ready.on)
-    //  STlib_updateNum(&w_ready, true);
-    // refresh weapon change
-    //  }
-
-    // update keycard multiple widgets
-    for (i=0;i<3;i++)
-    {
-	keyboxes[i] = plyr->cards[i] ? i : -1;
-
-	if (plyr->cards[i+3])
-	    keyboxes[i] = i+3;
-    }
-
-    // refresh everything if this is him coming back to life
-    ST_updateFaceWidget();
-
-    // used by the w_armsbg widget
-    st_notdeathmatch = !deathmatch;
-    
-    // used by w_arms[] widgets
-    st_armson = st_statusbaron && !deathmatch; 
-
-    // used by w_frags widget
-    st_fragson = deathmatch && st_statusbaron; 
-    st_fragscount = 0;
-
-    for (i=0 ; i<MAXPLAYERS ; i++)
-    {
-	if (i != consoleplayer)
-	    st_fragscount += plyr->frags[i];
-	else
-	    st_fragscount -= plyr->frags[i];
-    }
-
-    // get rid of chat window if up because of message
-    if (!--st_msgcounter)
-	st_chat = st_oldchat;
-
-}
-
-void ST_Ticker (void)
-{
-
-    st_clock++;
-    st_randomnumber = M_Random();
-    ST_updateWidgets();
-    st_oldhealth = plyr->health;
-
-    // [JN] Update CRL_Widgets_t data.
-    CRLWidgets.kills = plyr->killcount;
-    CRLWidgets.totalkills = totalkills;
-    CRLWidgets.items = plyr->itemcount;
-    CRLWidgets.totalitems = totalitems;
-    CRLWidgets.secrets = plyr->secretcount;
-    CRLWidgets.totalsecrets = totalsecret;
-
-    CRLWidgets.x = plyr->mo->x >> FRACBITS;
-    CRLWidgets.y = plyr->mo->y >> FRACBITS;
-    CRLWidgets.z = plyr->mo->z >> FRACBITS;
-    CRLWidgets.ang = plyr->mo->angle / ANG1;
-}
-
 static int st_palette = 0;
 
 void CRL_ReloadPalette(void)
@@ -1048,75 +875,33 @@ void ST_doPaletteStuff(void)
 
 }
 
-void ST_drawWidgets(boolean refresh)
+void ST_Ticker (void)
 {
-    int		i;
+    // refresh everything if this is him coming back to life
+    ST_updateFaceWidget();
 
-    // used by w_arms[] widgets
-    st_armson = st_statusbaron && !deathmatch;
+    st_randomnumber = M_Random();
+    //ST_updateWidgets();
+    st_oldhealth = plyr->health;
 
-    // used by w_frags widget
-    st_fragson = deathmatch && st_statusbaron; 
+    // [JN] Update CRL_Widgets_t data.
+    CRLWidgets.kills = plyr->killcount;
+    CRLWidgets.totalkills = totalkills;
+    CRLWidgets.items = plyr->itemcount;
+    CRLWidgets.totalitems = totalitems;
+    CRLWidgets.secrets = plyr->secretcount;
+    CRLWidgets.totalsecrets = totalsecret;
 
-    STlib_updateNum(&w_ready, refresh);
-
-    for (i=0;i<4;i++)
-    {
-	STlib_updateNum(&w_ammo[i], refresh);
-	STlib_updateNum(&w_maxammo[i], refresh);
-    }
-
-    STlib_updatePercent(&w_health, refresh);
-    STlib_updatePercent(&w_armor, refresh);
-
-    STlib_updateBinIcon(&w_armsbg, refresh);
-
-    for (i=0;i<6;i++)
-	STlib_updateMultIcon(&w_arms[i], refresh);
-
-    STlib_updateMultIcon(&w_faces, refresh);
-
-    for (i=0;i<3;i++)
-	STlib_updateMultIcon(&w_keyboxes[i], refresh);
-
-    STlib_updateNum(&w_frags, refresh);
-
-}
-
-void ST_doRefresh(void)
-{
-
-    st_firsttime = false;
-
-    // draw status bar background to off-screen buff
-    ST_refreshBackground();
-
-    // and refresh all widgets
-    ST_drawWidgets(true);
-
-}
-
-void ST_diffDraw(void)
-{
-    // update all widgets
-    ST_drawWidgets(false);
-}
-extern boolean inhelpscreens;
-void ST_Drawer (boolean fullscreen, boolean refresh)
-{
-  
-    st_statusbaron = (!fullscreen) || (automapactive && !crl_automap_overlay);
-    st_firsttime = st_firsttime || refresh || inhelpscreens;
+    CRLWidgets.x = plyr->mo->x >> FRACBITS;
+    CRLWidgets.y = plyr->mo->y >> FRACBITS;
+    CRLWidgets.z = plyr->mo->z >> FRACBITS;
+    CRLWidgets.ang = plyr->mo->angle / ANG1;
 
     // Do red-/gold-shifts from damage/items
     ST_doPaletteStuff();
-
-    // If just after ST_Start(), refresh all
-    if (st_firsttime) ST_doRefresh();
-    // Otherwise, update as little as possible
-    else ST_diffDraw();
-
 }
+
+
 
 typedef void (*load_callback_t)(char *lumpname, patch_t **variable); 
 
@@ -1139,13 +924,17 @@ static void ST_loadUnloadGraphics(load_callback_t callback)
         callback(namebuf, &tallnum[i]);
 
 	DEH_snprintf(namebuf, 9, "STYSNUM%d", i);
-        callback(namebuf, &shortnum[i]);
+        callback(namebuf, &shortnum_y[i]);
+
+	DEH_snprintf(namebuf, 9, "STGNUM%d", i);
+        callback(namebuf, &shortnum_g[i]);
     }
 
     // Load percent key.
-    //Note: why not load STMINUS here, too?
-
     callback(DEH_String("STTPRCNT"), &tallpercent);
+
+    // [JN] Load minus symbol.
+    callback(DEH_String("STTMINUS"), &tallminus);
 
     // key cards
     for (i=0;i<NUMCARDS;i++)
@@ -1156,18 +945,6 @@ static void ST_loadUnloadGraphics(load_callback_t callback)
 
     // arms background
     callback(DEH_String("STARMS"), &armsbg);
-
-    // arms ownership widgets
-    for (i=0; i<6; i++)
-    {
-	DEH_snprintf(namebuf, 9, "STGNUM%d", i+2);
-
-	// gray #
-        callback(namebuf, &arms[i][0]);
-
-	// yellow #
-	arms[i][1] = shortnum[i+2]; 
-    }
 
     // face backgrounds for different color players
     DEH_snprintf(namebuf, 9, "STFB%d", consoleplayer);
@@ -1246,16 +1023,9 @@ void ST_initData(void)
 
     int		i;
 
-    st_firsttime = true;
     plyr = &players[consoleplayer];
 
-    st_clock = 0;
-    st_chatstate = StartChatState;
     st_gamestate = FirstPersonState;
-
-    st_statusbaron = true;
-    st_oldchat = st_chat = false;
-    st_cursoron = false;
 
     st_faceindex = 0;
     st_palette = -1;
@@ -1268,171 +1038,12 @@ void ST_initData(void)
     for (i=0;i<3;i++)
 	keyboxes[i] = -1;
 
-    STlib_init();
+   // STlib_init();
 
 }
 
 
 
-void ST_createWidgets(void)
-{
-
-    int i;
-
-    // ready weapon ammo
-    STlib_initNum(&w_ready,
-		  ST_AMMOX,
-		  ST_AMMOY,
-		  tallnum,
-		  &plyr->ammo[weaponinfo[plyr->readyweapon].ammo],
-		  &st_statusbaron,
-		  ST_AMMOWIDTH );
-
-    // the last weapon type
-    w_ready.data = plyr->readyweapon; 
-
-    // health percentage
-    STlib_initPercent(&w_health,
-		      ST_HEALTHX,
-		      ST_HEALTHY,
-		      tallnum,
-		      &plyr->health,
-		      &st_statusbaron,
-		      tallpercent);
-
-    // arms background
-    STlib_initBinIcon(&w_armsbg,
-		      ST_ARMSBGX,
-		      ST_ARMSBGY,
-		      armsbg,
-		      &st_notdeathmatch,
-		      &st_statusbaron);
-
-    // weapons owned
-    for(i=0;i<6;i++)
-    {
-        STlib_initMultIcon(&w_arms[i],
-                           ST_ARMSX+(i%3)*ST_ARMSXSPACE,
-                           ST_ARMSY+(i/3)*ST_ARMSYSPACE,
-                           arms[i],
-                           &plyr->weaponowned[i+1],
-                           &st_armson);
-    }
-
-    // frags sum
-    STlib_initNum(&w_frags,
-		  ST_FRAGSX,
-		  ST_FRAGSY,
-		  tallnum,
-		  &st_fragscount,
-		  &st_fragson,
-		  ST_FRAGSWIDTH);
-
-    // faces
-    STlib_initMultIcon(&w_faces,
-		       ST_FACESX,
-		       ST_FACESY,
-		       faces,
-		       &st_faceindex,
-		       &st_statusbaron);
-
-    // armor percentage - should be colored later
-    STlib_initPercent(&w_armor,
-		      ST_ARMORX,
-		      ST_ARMORY,
-		      tallnum,
-		      &plyr->armorpoints,
-		      &st_statusbaron, tallpercent);
-
-    // keyboxes 0-2
-    STlib_initMultIcon(&w_keyboxes[0],
-		       ST_KEY0X,
-		       ST_KEY0Y,
-		       keys,
-		       &keyboxes[0],
-		       &st_statusbaron);
-    
-    STlib_initMultIcon(&w_keyboxes[1],
-		       ST_KEY1X,
-		       ST_KEY1Y,
-		       keys,
-		       &keyboxes[1],
-		       &st_statusbaron);
-
-    STlib_initMultIcon(&w_keyboxes[2],
-		       ST_KEY2X,
-		       ST_KEY2Y,
-		       keys,
-		       &keyboxes[2],
-		       &st_statusbaron);
-
-    // ammo count (all four kinds)
-    STlib_initNum(&w_ammo[0],
-		  ST_AMMO0X,
-		  ST_AMMO0Y,
-		  shortnum,
-		  &plyr->ammo[0],
-		  &st_statusbaron,
-		  ST_AMMO0WIDTH);
-
-    STlib_initNum(&w_ammo[1],
-		  ST_AMMO1X,
-		  ST_AMMO1Y,
-		  shortnum,
-		  &plyr->ammo[1],
-		  &st_statusbaron,
-		  ST_AMMO1WIDTH);
-
-    STlib_initNum(&w_ammo[2],
-		  ST_AMMO2X,
-		  ST_AMMO2Y,
-		  shortnum,
-		  &plyr->ammo[2],
-		  &st_statusbaron,
-		  ST_AMMO2WIDTH);
-    
-    STlib_initNum(&w_ammo[3],
-		  ST_AMMO3X,
-		  ST_AMMO3Y,
-		  shortnum,
-		  &plyr->ammo[3],
-		  &st_statusbaron,
-		  ST_AMMO3WIDTH);
-
-    // max ammo count (all four kinds)
-    STlib_initNum(&w_maxammo[0],
-		  ST_MAXAMMO0X,
-		  ST_MAXAMMO0Y,
-		  shortnum,
-		  &plyr->maxammo[0],
-		  &st_statusbaron,
-		  ST_MAXAMMO0WIDTH);
-
-    STlib_initNum(&w_maxammo[1],
-		  ST_MAXAMMO1X,
-		  ST_MAXAMMO1Y,
-		  shortnum,
-		  &plyr->maxammo[1],
-		  &st_statusbaron,
-		  ST_MAXAMMO1WIDTH);
-
-    STlib_initNum(&w_maxammo[2],
-		  ST_MAXAMMO2X,
-		  ST_MAXAMMO2Y,
-		  shortnum,
-		  &plyr->maxammo[2],
-		  &st_statusbaron,
-		  ST_MAXAMMO2WIDTH);
-    
-    STlib_initNum(&w_maxammo[3],
-		  ST_MAXAMMO3X,
-		  ST_MAXAMMO3Y,
-		  shortnum,
-		  &plyr->maxammo[3],
-		  &st_statusbaron,
-		  ST_MAXAMMO3WIDTH);
-
-}
 
 static boolean	st_stopped = true;
 
@@ -1444,7 +1055,6 @@ void ST_Start (void)
 	ST_Stop();
 
     ST_initData();
-    ST_createWidgets();
     st_stopped = false;
 
 }
@@ -1465,97 +1075,377 @@ void ST_Init (void)
     st_backing_screen = (pixel_t *) Z_Malloc(ST_WIDTH * ST_HEIGHT * sizeof(*st_backing_screen), PU_STATIC, 0);
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // -----------------------------------------------------------------------------
-// CRL_WidgetsDrawer
-// [JN] Draw player coords, level KIS stats and timer.
+// ST_WidgetColor
+// [crispy] return ammo/health/armor widget color
 // -----------------------------------------------------------------------------
 
-void CRL_WidgetsDrawer (void)
+enum
 {
-    /*
-    const int yy = automapactive ? 8 :
-                   screenblocks == 11 ? -32 : 0;
+    hudcolor_ammo,
+    hudcolor_health,
+    hudcolor_frags,
+    hudcolor_armor
+} hudcolor_t;
 
-    // Player coords
-    if (crl_widget_coords)
+static byte *ST_WidgetColor (const int i)
+{
+    // if (!sbar_colored || vanillaparm)
+    // {
+    //     return NULL;
+    // }
+
+    switch (i)
     {
-        char str[128];
+        case hudcolor_ammo:
+        {
+            if (weaponinfo[plyr->readyweapon].ammo == am_noammo)
+            {
+                return NULL;
+            }
+            else
+            {
+                int ammo =  plyr->ammo[weaponinfo[plyr->readyweapon].ammo];
+                int fullammo = maxammo[weaponinfo[plyr->readyweapon].ammo];
 
-        M_WriteText(0, 18, "X:", cr[CR_GRAY]);
-        M_WriteText(0, 27, "Y:", cr[CR_GRAY]);
-        M_WriteText(0, 36, "Z:", cr[CR_GRAY]);
-        M_WriteText(0, 45, "ANG:", cr[CR_GRAY]);
+                if (ammo < fullammo/4)
+                    return cr[CR_RED];
+                else if (ammo < fullammo/2)
+                    return cr[CR_YELLOW];
+                else if (ammo <= fullammo)
+                    return cr[CR_GREEN];
+                else
+                    return cr[CR_BLUE2];
+            }
+            break;
+        }
+        case hudcolor_health:
+        {
+            int health = plyr->health;
 
-        sprintf(str, "%d", plyr->mo->x >> FRACBITS);
-        M_WriteText(16, 18, str, cr[CR_GREEN]);
-        sprintf(str, "%d", plyr->mo->y >> FRACBITS);
-        M_WriteText(16, 27, str, cr[CR_GREEN]);
-        sprintf(str, "%d", plyr->mo->z >> FRACBITS);
-        M_WriteText(16, 36, str, cr[CR_GREEN]);
-        sprintf(str, "%d", plyr->mo->angle / ANG1);
-        M_WriteText(32, 45, str, cr[CR_GREEN]);
+            // [crispy] Invulnerability powerup and God Mode cheat turn Health values gray
+            // [JN] I'm using different health values, represented by crosshair,
+            // and thus a little bit different logic.
+            if (plyr->cheats & CF_GODMODE || plyr->powers[pw_invulnerability])
+                return cr[CR_WHITE];
+            else if (health > 100)
+                return cr[CR_BLUE2];
+            else if (health >= 67)
+                return cr[CR_GREEN];
+            else if (health >= 34)
+                return cr[CR_YELLOW];
+            else
+                return cr[CR_RED];
+            break;
+        }
+        case hudcolor_frags:
+        {
+            int frags = st_fragscount;
+
+            if (frags < 0)
+                return cr[CR_RED];
+            else if (frags == 0)
+                return cr[CR_YELLOW];
+            else
+                return cr[CR_GREEN];
+
+            break;
+        }
+        case hudcolor_armor:
+        {
+	    // [crispy] Invulnerability powerup and God Mode cheat turn Armor values gray
+	    if (plyr->cheats & CF_GODMODE || plyr->powers[pw_invulnerability])
+                return cr[CR_WHITE];
+	    // [crispy] color by armor type
+	    else if (plyr->armortype >= 2)
+                return cr[CR_BLUE2];
+	    else if (plyr->armortype == 1)
+                return cr[CR_GREEN];
+	    else if (plyr->armortype == 0)
+                return cr[CR_RED];
+            break;
+        }
     }
 
-    // Level timer
-    if (crl_widget_time)
+    return NULL;
+}
+
+// -----------------------------------------------------------------------------
+// ST_DrawBigNumber
+// [JN] Draws a three digit big red number using STTNUM* graphics.
+// -----------------------------------------------------------------------------
+
+static void ST_DrawBigNumber (int val, const int x, const int y, byte *table)
+{
+    int oldval = val;
+    int xpos = x;
+
+    dp_translation = table;
+
+    // [JN] Support for negative values.
+    if (val < 0)
     {
-        const int time = leveltime / TICRATE;
-        char stra[8];
-        char strb[16];
- 
-        sprintf(stra, "TIME ");
-        M_WriteText(0, 152 - yy, stra, cr[CR_GRAY]);
- 
-        sprintf(strb, "%02d:%02d:%02d", time/3600, (time%3600)/60, time%60);
-        M_WriteText(0 + M_StringWidth(stra), 152 - yy, strb, cr[CR_WHITE]);
+        val = -val;
+        
+        if (-val <= -99)
+        {
+            val = 99;
+        }
+
+        // [JN] Draw minus symbol with respection of digits placement.
+        // However, values below -10 requires some correction in "x" placement.
+        V_DrawPatch(xpos + (val <= 9 ? 20 : 5) - 4, y, tallminus);
     }
- 
-    // KIS counters
-    if (crl_widget_kis)
+    if (val > 999)
     {
-        char str1[8], str2[16];  // kills
-        char str3[8], str4[16];  // items
-        char str5[8], str6[16];  // secret
-
-        // Kills:
-        sprintf(str1, "K ");
-        M_WriteText(0, 160 - yy, str1, cr[CR_GRAY]);
-
-        sprintf(str2, "%d/%d ", plyr->killcount, totalkills);
-        M_WriteText(0 + M_StringWidth(str1), 160 - yy, str2,
-                    totalkills == 0 ? cr[CR_GREEN] :
-                    plyr->killcount == 0 ? cr[CR_RED] :
-                    plyr->killcount < totalkills ? cr[CR_YELLOW] : cr[CR_GREEN]);
- 
-        // Items:
-        sprintf(str3, "I ");
-        M_WriteText(M_StringWidth(str1) + M_StringWidth(str2), 160 - yy, str3, cr[CR_GRAY]);
-     
-        sprintf(str4, "%d/%d ", plyr->itemcount, totalitems);
-        M_WriteText(M_StringWidth(str1) +
-                    M_StringWidth(str2) +
-                    M_StringWidth(str3), 160 - yy, str4,
-                    totalitems == 0 ? cr[CR_GREEN] :
-                    plyr->itemcount == 0 ? cr[CR_RED] :
-                    plyr->itemcount < totalitems ? cr[CR_YELLOW] : cr[CR_GREEN]);
-
-
-        // Secret:
-        sprintf(str5, "S ");
-        M_WriteText(M_StringWidth(str1) +
-                    M_StringWidth(str2) +
-                    M_StringWidth(str3) +
-                    M_StringWidth(str4), 160 - yy, str5, cr[CR_GRAY]);
-
-        sprintf(str6, "%d/%d ", plyr->secretcount, totalsecret);
-        M_WriteText(M_StringWidth(str1) +
-                    M_StringWidth(str2) + 
-                    M_StringWidth(str3) +
-                    M_StringWidth(str4) +
-                    M_StringWidth(str5), 160 - yy, str6,
-                    totalsecret == 0 ? cr[CR_GREEN] :
-                    plyr->secretcount == 0 ? cr[CR_RED] :
-                    plyr->secretcount < totalsecret ? cr[CR_YELLOW] : cr[CR_GREEN]);
+        val = 999;
     }
-    */
+
+    if (val > 99)
+    {
+        V_DrawPatch(xpos - 4, y, tallnum[val / 100]);
+    }
+
+    val = val % 100;
+    xpos += 14;
+
+    if (val > 9 || oldval > 99)
+    {
+        V_DrawPatch(xpos - 4, y, tallnum[val / 10]);
+    }
+
+    val = val % 10;
+    xpos += 14;
+
+    V_DrawPatch(xpos - 4, y, tallnum[val]);
+    
+    dp_translation = NULL;
+}
+
+// -----------------------------------------------------------------------------
+// ST_DrawPercent
+// [JN] Draws big red percent sign.
+// -----------------------------------------------------------------------------
+
+static void ST_DrawPercent (const int x, const int y, byte *table)
+{
+    dp_translation = table;
+    V_DrawPatch(x, y, tallpercent);
+    dp_translation = NULL;
+}
+
+// -----------------------------------------------------------------------------
+// ST_DrawSmallNumberY
+// [JN] Draws a three digit yellow number using STYSNUM* graphics.
+// -----------------------------------------------------------------------------
+
+static void ST_DrawSmallNumberY (int val, const int x, const int y)
+{
+    int oldval = val;
+    int xpos = x;
+
+    if (val < 0)
+    {
+        val = 0;
+    }
+    if (val > 999)
+    {
+        val = 999;
+    }
+
+    if (val > 99)
+    {
+        V_DrawPatch(xpos - 4, y, shortnum_y[val / 100]);
+    }
+
+    val = val % 100;
+    xpos += 4;
+
+    if (val > 9 || oldval > 99)
+    {
+        V_DrawPatch(xpos - 4, y, shortnum_y[val / 10]);
+    }
+
+    val = val % 10;
+    xpos += 4;
+
+    V_DrawPatch(xpos - 4, y, shortnum_y[val]);
+}
+
+// -----------------------------------------------------------------------------
+// ST_DrawSmallNumberG
+// [JN] Draws a one digit gray number using STGNUM* graphics.
+// -----------------------------------------------------------------------------
+
+static void ST_DrawSmallNumberG (int val, const int x, const int y)
+{
+    if (val < 0)
+    {
+        val = 0;
+    }
+    if (val > 9)
+    {
+        val = 9;
+    }
+
+    V_DrawPatch(x + 4, y, shortnum_g[val]);
+}
+
+// -----------------------------------------------------------------------------
+// ST_DrawSmallNumberFunc
+// [JN] Decides which small font drawing function to use: if weapon is owned,
+//      draw using yellow font. Else, draw using gray font.
+// -----------------------------------------------------------------------------
+
+static void ST_DrawWeaponNumberFunc (const int val, const int x, const int y, const boolean have_it)
+{
+    have_it ? ST_DrawSmallNumberY(val, x, y) : ST_DrawSmallNumberG(val, x, y);
+}
+
+// -----------------------------------------------------------------------------
+// ST_UpdateFragsCounter
+// [JN] Updated to int type, allowing to show frags of any player.
+// -----------------------------------------------------------------------------
+
+static const int ST_UpdateFragsCounter (const int playernum, const boolean big_values)
+{
+    st_fragscount = 0;
+
+    for (int i = 0 ; i < MAXPLAYERS ; i++)
+    {
+        if (i != playernum)
+        {
+            st_fragscount += players[playernum].frags[i];
+        }
+        else
+        {
+            st_fragscount -= players[playernum].frags[i];
+        }
+    }
+    
+    // [JN] Prevent overflow, ST_DrawBigNumber can only draw three 
+    // digit number, and status bar fits well only two digits number
+    if (!big_values)
+    {
+        if (st_fragscount > 99)
+            st_fragscount = 99;
+        if (st_fragscount < -99)
+            st_fragscount = -99;
+    }
+
+    return st_fragscount;
+}
+
+// -----------------------------------------------------------------------------
+// ST_Drawer
+// [JN] 
+// -----------------------------------------------------------------------------
+
+void ST_Drawer (boolean fullscreen, boolean refresh)
+{
+    V_UseBuffer(st_backing_screen);
+    V_DrawPatch(ST_X, 0, sbar);
+	if (netgame)
+    {
+        // Player face background
+	    V_DrawPatch(ST_FX, 0, faceback);
+    }
+    V_RestoreBuffer();
+    V_CopyRect(ST_X, 0, st_backing_screen, ST_WIDTH, ST_HEIGHT, ST_X, ST_Y);
+
+
+    // Ammo amount for current weapon
+    if (weaponinfo[plyr->readyweapon].ammo != am_noammo)
+    {
+        ST_DrawBigNumber(plyr->ammo[weaponinfo[plyr->readyweapon].ammo],
+                         6, 171, ST_WidgetColor(hudcolor_ammo));
+    }
+
+    // Health
+    {
+        ST_DrawBigNumber(plyr->health, 52, ST_HEALTHY, ST_WidgetColor(hudcolor_health));
+        ST_DrawPercent(ST_HEALTHX, ST_HEALTHY, ST_WidgetColor(hudcolor_health));
+    }
+
+    // Frags of Arms
+    if (deathmatch)
+    {
+        st_fragscount = ST_UpdateFragsCounter(displayplayer, false);
+        ST_DrawBigNumber(st_fragscount, 100, 171, ST_WidgetColor(hudcolor_frags));
+    }
+    else
+    {
+        // ARMS background
+        V_DrawPatch(ST_ARMSBGX, ST_ARMSBGY, armsbg);
+
+        // Pistol
+        ST_DrawWeaponNumberFunc(2, 107, 172, plyr->weaponowned[1]);
+        // Shotgun or Super Shotgun
+        ST_DrawWeaponNumberFunc(3, 119, 172, plyr->weaponowned[2] || plyr->weaponowned[8]);
+        // Chaingun
+        ST_DrawWeaponNumberFunc(4, 131, 172, plyr->weaponowned[3]);
+        // Rocket Launcher
+        ST_DrawWeaponNumberFunc(5, 107, 182, plyr->weaponowned[4]);
+        // Plasma Gun
+        ST_DrawWeaponNumberFunc(6, 119, 182, plyr->weaponowned[5]);
+        // BFG9000
+        ST_DrawWeaponNumberFunc(7, 131, 182, plyr->weaponowned[6]);
+    }
+
+    // Player face
+    V_DrawPatch(143, 168, faces[st_faceindex]);
+
+    // Armor
+    ST_DrawBigNumber(plyr->armorpoints, 183, 171, ST_WidgetColor(hudcolor_armor));
+    ST_DrawPercent(221, 171, ST_WidgetColor(hudcolor_armor));
+
+    // Keys
+    if (plyr->cards[it_blueskull])
+    V_DrawPatch(239, 171, keys[3]);
+    else if (plyr->cards[it_bluecard])
+    V_DrawPatch(239, 171, keys[0]);
+
+    if (plyr->cards[it_yellowskull])
+    V_DrawPatch(239, 181, keys[4]);
+    else if (plyr->cards[it_yellowcard])
+    V_DrawPatch(239, 181, keys[1]);
+
+    if (plyr->cards[it_redskull])
+    V_DrawPatch(239, 191, keys[5]);
+    else if (plyr->cards[it_redcard])
+    V_DrawPatch(239, 191, keys[2]);
+
+    // Ammo (current)
+    ST_DrawSmallNumberY(plyr->ammo[0], 280, 173);
+    ST_DrawSmallNumberY(plyr->ammo[1], 280, 179);
+    ST_DrawSmallNumberY(plyr->ammo[3], 280, 185);
+    ST_DrawSmallNumberY(plyr->ammo[2], 280, 191);
+
+    // Ammo (max)
+    ST_DrawSmallNumberY(plyr->maxammo[0], 306, 173);
+    ST_DrawSmallNumberY(plyr->maxammo[1], 306, 179);
+    ST_DrawSmallNumberY(plyr->maxammo[3], 306, 185);
+    ST_DrawSmallNumberY(plyr->maxammo[2], 306, 191);
 }
