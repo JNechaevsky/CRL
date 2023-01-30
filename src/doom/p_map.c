@@ -262,6 +262,17 @@ boolean PIT_CheckLine (line_t* ld)
         // fraggle: spechits overrun emulation code from prboom-plus
         if (numspechit > MAXSPECIALCROSS_ORIGINAL)
         {
+            // [crispy] print a warning
+            if (numspechit == MAXSPECIALCROSS_ORIGINAL + 1)
+            {
+                char *message = "Triggered SPECHITS overflow!";
+
+                printf("PIT_CheckLine: %s\n", message);
+
+                // [JN] CRL - print in-game warning as well.
+                CRL_SetCriticalMessage(&players[consoleplayer], message, MESSAGETICS);
+            }
+            
             SpechitOverrun(ld);
         }
     }
@@ -1444,9 +1455,5 @@ static void SpechitOverrun(line_t *ld)
                             numspechit);
             break;
     }
-
-    // [JN] CRL - print in-game warning.
-    CRL_SetCriticalMessage(&players[consoleplayer],
-                           "TRIGGERED SPECHIT OVERRUN!", MESSAGETICS);
 }
 
