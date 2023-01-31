@@ -23,6 +23,8 @@
 
 #include "doomstat.h"
 
+#include "crlcore.h"
+
 
 int	leveltime;
 

@@ -1293,9 +1293,11 @@ int CRL_IsSpectating(void)
  */
 void CRL_ImpulseCamera(int32_t fwm, int32_t swm, uint32_t at)
 {
-	// Do nothing if not spectating
-	if (!CRL_IsSpectating())
+	// [JN] Don't move camera while active menu.
+	if (menuactive)
+	{
 		return;
+	}
 	
 	// Rotate camera first
 	_camang += at << FRACBITS;
@@ -1320,6 +1322,12 @@ void CRL_ImpulseCamera(int32_t fwm, int32_t swm, uint32_t at)
 
 void CRL_ImpulseCameraVert (boolean direction, const int32_t intensity)
 {
+	// [JN] Don't move camera while active menu.
+	if (menuactive)
+	{
+		return;
+	}
+
     if (direction)
     {
         _campos[2] += FRACUNIT*intensity;

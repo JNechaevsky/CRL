@@ -414,6 +414,7 @@ extern void CRL_ReloadPalette (void);
 extern boolean  CRL_intercepts_overflow;
 extern int      CRL_plats_counter;
 
+extern boolean  menuactive;
 extern int      screenblocks;
 extern int      automapactive;
 

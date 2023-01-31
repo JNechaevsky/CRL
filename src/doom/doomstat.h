@@ -138,7 +138,6 @@ extern int snd_DesiredSfxDevice;
 //  status bar explicitely.
 extern  boolean statusbaractive;
 
-extern  boolean	menuactive;	// Menu overlayed?
 extern  boolean	paused;		// Game Pause?
 
 
