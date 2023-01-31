@@ -33,6 +33,7 @@ int crl_widget_time = 0;
 int crl_widget_coords = 0;
 
 // Drawing
+int crl_hom_effect = 1;
 int crl_visplanes_drawing = 0;
 
 // Game mode
@@ -63,6 +64,7 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_widget_coords",              &crl_widget_coords);
 
     // Drawing
+    M_BindIntVariable("crl_hom_effect",                 &crl_hom_effect);
     M_BindIntVariable("crl_visplanes_drawing",          &crl_visplanes_drawing);
 
     // Automap

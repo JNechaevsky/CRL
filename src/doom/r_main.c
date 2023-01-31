@@ -34,8 +34,10 @@
 
 #include "r_local.h"
 #include "r_sky.h"
+#include "v_video.h"
 
 #include "crlcore.h"
+#include "crlvars.h"
 
 
 
@@ -896,7 +898,16 @@ void R_RenderPlayerView (player_t* player)
 		R_SetupFrame (player);
 		
 		// Clear the view buffer
-		CRL_DrawHOMBack(viewwindowx, viewwindowy, viewwidth, viewheight);
+        // [JN] CRL - allow to choose HOM effect.
+        if (crl_hom_effect == 1)  // Multicolor
+        {
+            CRL_DrawHOMBack(viewwindowx, viewwindowy, viewwidth, viewheight);
+        }
+        else
+        if (crl_hom_effect == 2)  // Black
+        {
+            V_DrawFilledBox(viewwindowx, viewwindowy, viewwidth, viewheight, 0);
+        }
 
 		// Clear buffers.
 		R_ClearClipSegs ();

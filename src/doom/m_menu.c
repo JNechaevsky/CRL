@@ -489,6 +489,7 @@ static void M_CRL_Widget_Render (int choice);
 static void M_CRL_Widget_KIS (int choice);
 static void M_CRL_Widget_Time (int choice);
 static void M_CRL_Widget_Coords (int choice);
+static void M_CRL_HOMDraw (int choice);
 static void M_CRL_VisplanesDraw (int choice);
 static void M_CRL_Spectating (int choice);
 
@@ -533,10 +534,10 @@ static menuitem_t CRLMenu_1[]=
     { 2, "LEVEL TIME",        M_CRL_Widget_Time,    'l'},
     { 2, "PLAYER COORDS",     M_CRL_Widget_Coords,  'p'},
     {-1, "", 0, '\0'},        // DRAWING
+    { 2, "HOM EFFECT",        M_CRL_HOMDraw,        'h'},
     { 2, "VISPLANES DRAWING", M_CRL_VisplanesDraw,  'v'},
     {-1, "", 0, '\0'},        // GAME MODE
     { 2, "SPECTATING",        M_CRL_Spectating,     's'},
-    {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
@@ -647,19 +648,25 @@ static void M_DrawCRL_1 (void)
 
     M_WriteText(CRL_MENU_LEFTOFFSET, 63, "DRAWING", cr[CR_YELLOW]);
 
+    // HOM effect
+    sprintf(str, crl_hom_effect == 0 ? "OFF" :
+                 crl_hom_effect == 1 ? "MULTICOLOR" : "BLACK");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 72, str,
+                 crl_hom_effect > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
     // Visplanes drawing mode
     sprintf(str, crl_visplanes_drawing == 0 ? "NORMAL" :
                  crl_visplanes_drawing == 1 ? "FILL" :
                  crl_visplanes_drawing == 2 ? "OVERFILL" :
                  crl_visplanes_drawing == 3 ? "BORDER" : "OVERBORDER");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 72, str,
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 81, str,
                  crl_visplanes_drawing > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
-    M_WriteText(CRL_MENU_LEFTOFFSET, 81, "GAME MODE", cr[CR_YELLOW]);
+    M_WriteText(CRL_MENU_LEFTOFFSET, 90, "GAME MODE", cr[CR_YELLOW]);
 
     // Spectating
     sprintf(str, crl_spectating ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 90, str,
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 99, str,
                  crl_spectating ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     //
@@ -703,6 +710,28 @@ static void M_CRL_Widget_Time (int choice)
 static void M_CRL_Widget_Coords (int choice)
 {
     crl_widget_coords ^= 1;
+}
+
+static void M_CRL_HOMDraw (int choice)
+{
+    switch (choice)
+    {
+        case 0:
+            crl_hom_effect--;
+            if (crl_hom_effect < 0)
+            {
+                crl_hom_effect = 2;
+            }
+        break;
+
+        case 1:
+            crl_hom_effect++;
+            if (crl_hom_effect > 2)
+            {
+                crl_hom_effect = 0;
+            }
+        break;
+    }
 }
 
 static void M_CRL_VisplanesDraw (int choice)

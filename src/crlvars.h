@@ -31,6 +31,7 @@ extern int crl_widget_time;
 extern int crl_widget_coords;
 
 // Drawing
+extern int crl_hom_effect;
 extern int crl_visplanes_drawing;
 
 // Game mode

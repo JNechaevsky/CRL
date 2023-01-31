@@ -1658,6 +1658,7 @@ static default_t extra_defaults_list[] =
     CONFIG_VARIABLE_INT(crl_widget_coords),
 
     // Drawing
+    CONFIG_VARIABLE_INT(crl_hom_effect),
     CONFIG_VARIABLE_INT(crl_visplanes_drawing),
 
     // Automap
