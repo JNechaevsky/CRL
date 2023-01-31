@@ -132,6 +132,34 @@ cheatseq_t cheat_powerup[7] =
 
 
 // -----------------------------------------------------------------------------
+// GiveBackpack
+// [crispy] give or take backpack
+// -----------------------------------------------------------------------------
+
+static void GiveBackpack (boolean give)
+{
+    int i;
+    
+    if (give && !plyr->backpack)
+    {
+        for (i = 0; i < NUMAMMO; i++)
+        {
+            plyr->maxammo[i] *= 2;
+        }
+        plyr->backpack = true;
+    }
+    else
+    if (!give && plyr->backpack)
+    {
+        for (i = 0; i < NUMAMMO; i++)
+        {
+            plyr->maxammo[i] /= 2;
+        }
+        plyr->backpack = false;
+    }
+}
+
+// -----------------------------------------------------------------------------
 // ST_Responder
 // Respond to keyboard input events, intercept cheats.
 // -----------------------------------------------------------------------------
@@ -171,6 +199,9 @@ boolean ST_Responder (event_t *ev)
                 plyr->armorpoints = deh_idfa_armor;
                 plyr->armortype = deh_idfa_armor_class;
 
+                // [crispy] give backpack
+                GiveBackpack(true);
+
                 for (i=0;i<NUMWEAPONS;i++)
                 {
                     plyr->weaponowned[i] = true;
@@ -187,6 +218,9 @@ boolean ST_Responder (event_t *ev)
             {
                 plyr->armorpoints = deh_idkfa_armor;
                 plyr->armortype = deh_idkfa_armor_class;
+
+                // [crispy] give backpack
+                GiveBackpack(true);
 
                 for (i = 0 ; i < NUMWEAPONS ; i++)
                 {
