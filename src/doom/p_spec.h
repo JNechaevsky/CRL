@@ -300,7 +300,9 @@ typedef struct
 
 #define PLATWAIT		3
 #define PLATSPEED		FRACUNIT
-#define MAXPLATS		30
+// [JN] CRL - increase actual limit, render counter will blink
+// if active plats value reaches 31 and above.
+#define MAXPLATS		(30 * 256)
 
 
 extern plat_t*	activeplats[MAXPLATS];

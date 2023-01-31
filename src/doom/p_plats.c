@@ -34,6 +34,8 @@
 // Data.
 #include "sounds.h"
 
+#include "crlcore.h"
+
 
 plat_t*		activeplats[MAXPLATS];
 
@@ -283,6 +285,8 @@ void P_AddActivePlat(plat_t* plat)
 	if (activeplats[i] == NULL)
 	{
 	    activeplats[i] = plat;
+	    CRL_plats_counter++;
+
 	    return;
 	}
     I_Error ("P_AddActivePlat: no more plats!");
@@ -297,6 +301,7 @@ void P_RemoveActivePlat(plat_t* plat)
 	    (activeplats[i])->sector->specialdata = NULL;
 	    P_RemoveThinker(&(activeplats[i])->thinker);
 	    activeplats[i] = NULL;
+	    CRL_plats_counter--;
 	    
 	    return;
 	}

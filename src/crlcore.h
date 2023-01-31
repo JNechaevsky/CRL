@@ -412,6 +412,7 @@ extern void CRL_WidgetsDrawer (void);
 extern void CRL_ReloadPalette (void);
 
 extern boolean  CRL_intercepts_overflow;
+extern int      CRL_plats_counter;
 
 extern int      screenblocks;
 extern int      automapactive;

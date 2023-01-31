@@ -488,6 +488,10 @@ int CRLBruteForce = 0;
 	Will be reset on level restart or save game loading. */
 boolean CRL_intercepts_overflow = false;
 
+/** [JN] MAXPLATS counter (30 in vanilla).
+	Will be reset on level restart. */    
+int CRL_plats_counter;
+
 /**
  * Initializes things.
  */
@@ -897,6 +901,18 @@ void CRL_StatDrawer(void)
         if (crl_widget_kis)     yy += 9;
         if (crl_widget_time)    yy += 9;
         if (screenblocks == 11) yy += 9;
+
+        // Plats (30 max)
+        if (crl_widget_render == 1)
+        {
+            char plt[32];
+
+            M_WriteText(0, 126 - yy, "PLT:", cr[CR_GRAY]);
+            M_snprintf(plt, 16, "%d/30", CRL_plats_counter);
+
+            M_WriteText(32, 126 - yy, plt, CRL_plats_counter >= 31 ?
+                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
+        }
 
         // Sprites (128 max)
         if (crl_widget_render == 1
