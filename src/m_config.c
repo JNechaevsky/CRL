@@ -1644,6 +1644,9 @@ static default_t extra_defaults_list[] =
     CONFIG_VARIABLE_KEY(key_crl_spectator),
     CONFIG_VARIABLE_KEY(key_crl_map_overlay),
 
+    CONFIG_VARIABLE_KEY(key_crl_nextlevel),
+    CONFIG_VARIABLE_KEY(key_crl_reloadlevel),
+
     // Rendering
     CONFIG_VARIABLE_INT(crl_startup_delay),
     CONFIG_VARIABLE_INT(crl_resize_delay),

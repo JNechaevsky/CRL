@@ -158,6 +158,8 @@ extern int dclick_use;
 extern int key_crl_menu;
 extern int key_crl_spectator;
 extern int key_crl_map_overlay;
+extern int key_crl_nextlevel; // [crispy]
+extern int key_crl_reloadlevel; // [crispy]
 
 void M_BindBaseControls(void);
 void M_BindHereticControls(void);

@@ -72,6 +72,7 @@ static int *map_keys[] = { &key_map_north, &key_map_south, &key_map_east,
                            NULL };
 
 static int *crl_keys[] = { &key_crl_menu, &key_crl_spectator, &key_crl_map_overlay,
+                           &key_crl_nextlevel, &key_crl_reloadlevel,
                            NULL };
 
 static void UpdateJoybSpeed(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(var))
@@ -381,6 +382,9 @@ static void CRLKeysDialog(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(unused))
     AddKeyControl(table, "CRL Control Menu",    &key_crl_menu);
     AddKeyControl(table, "Spectator mode",      &key_crl_spectator);
     AddKeyControl(table, "Overlay mode",        &key_crl_map_overlay);
+    
+    AddKeyControl(table, "Restart level/demo",  &key_crl_reloadlevel);
+    AddKeyControl(table, "Go to next level",    &key_crl_nextlevel);
 
     scrollpane = TXT_NewScrollPane(0, 12, table);
 
