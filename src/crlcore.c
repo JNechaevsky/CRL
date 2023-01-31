@@ -985,7 +985,7 @@ void CRL_StatDrawer(void)
         M_WriteText(0, 152 - yy, stra, cr[CR_GRAY]);
  
         sprintf(strb, "%02d:%02d:%02d", time/3600, (time%3600)/60, time%60);
-        M_WriteText(0 + M_StringWidth(stra), 152 - yy, strb, cr[CR_WHITE]);
+        M_WriteText(0 + M_StringWidth(stra), 152 - yy, strb, cr[CR_LIGHTGRAY]);
     }
 
     // K/I/S stats
