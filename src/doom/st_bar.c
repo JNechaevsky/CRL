@@ -119,6 +119,10 @@ cheatseq_t cheat_choppers = CHEAT("idchoppers", 0);
 cheatseq_t cheat_clev = CHEAT("idclev", 2);
 cheatseq_t cheat_mypos = CHEAT("idmypos", 0);
 
+// [crispy] new cheats
+static cheatseq_t cheat_massacre1 = CHEAT("tntem", 0);
+static cheatseq_t cheat_massacre2 = CHEAT("killem", 0);
+
 cheatseq_t cheat_powerup[7] =
 {
     CHEAT("idbeholdv", 0),
@@ -157,6 +161,45 @@ static void GiveBackpack (boolean give)
         }
         plyr->backpack = false;
     }
+}
+
+// -----------------------------------------------------------------------------
+// [crispy] adapted from boom202s/M_CHEAT.C:467-498
+// -----------------------------------------------------------------------------
+
+static int ST_cheat_massacre (void)
+{
+    int killcount = 0;
+    thinker_t *th;
+    // extern int numbraintargets;
+    extern void A_PainDie(mobj_t *);
+
+    for (th = thinkercap.next; th != &thinkercap; th = th->next)
+    {
+        if (th->function.acp1 == (actionf_p1)P_MobjThinker)
+        {
+            mobj_t *mo = (mobj_t *)th;
+
+            if (mo->flags & MF_COUNTKILL || mo->type == MT_SKULL)
+            {
+                if (mo->health > 0)
+                {
+                    P_DamageMobj(mo, NULL, NULL, 10000);
+                    killcount++;
+                }
+                if (mo->type == MT_PAIN)
+                {
+                    A_PainDie(mo);
+                    P_SetMobjState(mo, S_PAIN_DIE6);
+                }
+            }
+        }
+    }
+
+    // [crispy] disable brain spitters
+    // numbraintargets = -1;
+
+    return killcount;
 }
 
 // -----------------------------------------------------------------------------
@@ -341,6 +384,19 @@ boolean ST_Responder (event_t *ev)
                            players[consoleplayer].mo->angle,
                            players[consoleplayer].mo->x,
                            players[consoleplayer].mo->y);
+                CRL_SetMessage(plyr, buf, false);
+            }
+            // [crispy] implement Boom's "tntem" cheat
+            // [JN] Allow to use "killem" as well.
+            else
+            if (cht_CheckCheat(&cheat_massacre1, ev->data2)
+            ||  cht_CheckCheat(&cheat_massacre2, ev->data2))
+            {
+                static char buf[52];
+                const int   killcount = ST_cheat_massacre();
+
+                M_snprintf(buf, sizeof(buf), "Monsters killed: %d", killcount);
+                
                 CRL_SetMessage(plyr, buf, false);
             }
         }
