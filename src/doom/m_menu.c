@@ -1747,8 +1747,11 @@ boolean M_Responder (event_t* ev)
     static  int     mousewait = 0;
     static  int     mousey = 0;
     static  int     lasty = 0;
+    // [JN] Disable menu left/right controls by mouse movement.
+    /*
     static  int     mousex = 0;
     static  int     lastx = 0;
+    */
 
     // In testcontrols mode, none of the function keys should do anything
     // - the only key is escape to quit.
@@ -1884,6 +1887,8 @@ boolean M_Responder (event_t* ev)
 		mousey = lasty += 30;
 	    }
 		
+        // [JN] Disable menu left/right controls by mouse movement.
+        /*
 	    mousex += ev->data2;
 	    if (mousex < lastx-30)
 	    {
@@ -1897,6 +1902,7 @@ boolean M_Responder (event_t* ev)
 		mousewait = I_GetTime() + 5;
 		mousex = lastx += 30;
 	    }
+        */
 		
 	    if (ev->data1&1)
 	    {
@@ -1908,6 +1914,19 @@ boolean M_Responder (event_t* ev)
 	    {
 		key = key_menu_back;
 		mousewait = I_GetTime() + 15;
+	    }
+
+	    // [crispy] scroll menus with mouse wheel
+	    if (mousebprevweapon >= 0 && ev->data1 & (1 << mousebprevweapon))
+	    {
+		key = key_menu_down;
+		mousewait = I_GetTime() + 1;
+	    }
+	    else
+	    if (mousebnextweapon >= 0 && ev->data1 & (1 << mousebnextweapon))
+	    {
+		key = key_menu_up;
+		mousewait = I_GetTime() + 1;
 	    }
 	}
 	else
