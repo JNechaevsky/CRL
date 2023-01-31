@@ -143,7 +143,9 @@ boolean ST_Responder (event_t *ev)
     // if a user keypress...
     if (ev->type == ev_keydown)
     {
-        if (!netgame && gameskill != sk_nightmare)
+        // [JN] Allow cheats in Nightmare, as it was done in old released
+        // version of Chocorenderlimits, but still disallow in netgame.
+        if (!netgame /*&& gameskill != sk_nightmare*/)
         {
             // 'dqd' cheat for toggleable god mode
             if (cht_CheckCheat(&cheat_god, ev->data2))
