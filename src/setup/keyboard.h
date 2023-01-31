@@ -16,6 +16,7 @@
 #define SETUP_KEYBOARD_H 
 
 void ConfigKeyboard(void);
+void CRLKeysDialog(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(unused));
 void BindKeyboardVariables(void);
 
 extern int vanilla_keyboard_mapping;

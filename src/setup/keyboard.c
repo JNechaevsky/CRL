@@ -363,30 +363,30 @@ static void OtherKeysDialog(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(unused))
     TXT_AddWidget(window, scrollpane);
 }
 
-static void CRLKeysDialog(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(unused))
+void CRLKeysDialog(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(unused))
 {
     txt_window_t *window;
     txt_table_t *table;
     txt_scrollpane_t *scrollpane;
 
-    window = TXT_NewWindow("CRL-Specific");
+    window = TXT_NewWindow("CRL-Specific controls");
 
     TXT_SetWindowHelpURL(window, WINDOW_HELP_URL);
 
     table = TXT_NewTable(2);
 
-    TXT_SetColumnWidths(table, 19, 9);
+    TXT_SetColumnWidths(table, 10, 3);
 
-//  AddSectionLabel(table, "Menu navigation", false);
-
+    AddSectionLabel(table, "Main functions", false);
     AddKeyControl(table, "CRL Control Menu",    &key_crl_menu);
     AddKeyControl(table, "Spectator mode",      &key_crl_spectator);
-    AddKeyControl(table, "Overlay mode",        &key_crl_map_overlay);
-    
     AddKeyControl(table, "Restart level/demo",  &key_crl_reloadlevel);
     AddKeyControl(table, "Go to next level",    &key_crl_nextlevel);
 
-    scrollpane = TXT_NewScrollPane(0, 12, table);
+    AddSectionLabel(table, "Automap", false);
+    AddKeyControl(table, "Overlay mode",        &key_crl_map_overlay);
+
+    scrollpane = TXT_NewScrollPane(0, 10, table);
 
     TXT_AddWidget(window, scrollpane);
 }
@@ -441,10 +441,6 @@ void ConfigKeyboard(void)
                    TXT_TABLE_OVERFLOW_RIGHT,
                    TXT_TABLE_EMPTY,
                    TXT_NewButton2("Other keys...", OtherKeysDialog, NULL),
-                   TXT_TABLE_OVERFLOW_RIGHT,
-
-                   TXT_NewSeparator("CRL-Specific"),
-                   TXT_NewButton2("CRL controls and keys...", CRLKeysDialog, NULL),
                    TXT_TABLE_OVERFLOW_RIGHT,
 
                    TXT_NewSeparator("Misc."),
