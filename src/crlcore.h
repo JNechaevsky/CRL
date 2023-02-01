@@ -33,6 +33,10 @@
 	#define SCREENAREA (SCREENWIDTH * SCREENHEIGHT)
 #endif
 
+#ifndef BETWEEN
+	#define BETWEEN(l,u,x) (((l)>(x))?(l):((x)>(u))?(u):(x))
+#endif
+
 /**
  * Why a jump failed.
  */
