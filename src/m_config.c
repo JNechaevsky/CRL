@@ -713,6 +713,13 @@ static default_t extra_defaults_list[] =
     CONFIG_VARIABLE_INT(fullscreen),
 
     //!
+    // [JN] Window X and Y position to save and restore.
+    //
+
+    CONFIG_VARIABLE_INT(window_position_x),
+    CONFIG_VARIABLE_INT(window_position_y),
+
+    //!
     // Index of the display on which the game should run. This has no
     // effect if running in windowed mode (fullscreen=0) and
     // window_position is not set to "center".
