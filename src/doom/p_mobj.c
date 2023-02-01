@@ -452,6 +452,20 @@ P_NightmareRespawn (mobj_t* mobj)
 //
 void P_MobjThinker (mobj_t* mobj)
 {
+    // [AM] Handle interpolation unless we're an active player.
+    if (!(mobj->player != NULL && mobj == mobj->player->mo))
+    {
+        // Assume we can interpolate at the beginning
+        // of the tic.
+        mobj->interp = true;
+
+        // Store starting position for mobj interpolation.
+        mobj->oldx = mobj->x;
+        mobj->oldy = mobj->y;
+        mobj->oldz = mobj->z;
+        mobj->oldangle = mobj->angle;
+    }
+
     // momentum movement
     if (mobj->momx
 	|| mobj->momy
@@ -566,6 +580,15 @@ P_SpawnMobj
 
     mobj->thinker.function.acp1 = (actionf_p1)P_MobjThinker;
 	
+    // [AM] Do not interpolate on spawn.
+    mobj->interp = false;
+
+    // [AM] Just in case interpolation is attempted...
+    mobj->oldx = mobj->x;
+    mobj->oldy = mobj->y;
+    mobj->oldz = mobj->z;
+    mobj->oldangle = mobj->angle;
+
     P_AddThinker (&mobj->thinker);
 
     return mobj;
@@ -731,6 +754,9 @@ void P_SpawnPlayer (mapthing_t* mthing)
     CRL_intercepts_overflow = false;
     // [JN] Reset active plats counter.
     CRL_plats_counter = 0;
+
+    // [crispy] interpolate weapon bobbing
+    pspr_interp = false;
 
     // setup gun psprite
     P_SetupPsprites (p);
@@ -1060,6 +1086,8 @@ P_SpawnPlayerMissile
     th->momy = FixedMul( th->info->speed,
 			 finesine[an>>ANGLETOFINESHIFT]);
     th->momz = FixedMul( th->info->speed, slope);
+    // [crispy] suppress interpolation of player missiles for the first tic
+    th->interp = -1;
 
     P_CheckMissileSpawn (th);
 }

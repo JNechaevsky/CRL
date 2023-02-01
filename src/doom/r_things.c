@@ -36,6 +36,7 @@
 #include "doomstat.h"
 
 #include "crlcore.h"
+#include "crlvars.h"
 
 
 #define MINZ				(FRACUNIT*4)
@@ -472,9 +473,36 @@ void R_ProjectSprite (mobj_t* thing)
     angle_t		ang;
     fixed_t		iscale;
     
+    fixed_t             interpx;
+    fixed_t             interpy;
+    fixed_t             interpz;
+    fixed_t             interpangle;
+
+    // [AM] Interpolate between current and last position,
+    //      if prudent.
+    if (crl_uncapped_fps &&
+        // Don't interpolate if the mobj did something
+        // that would necessitate turning it off for a tic.
+        thing->interp == true &&
+        // Don't interpolate during a paused state.
+        leveltime > oldleveltime)
+    {
+        interpx = thing->oldx + FixedMul(thing->x - thing->oldx, fractionaltic);
+        interpy = thing->oldy + FixedMul(thing->y - thing->oldy, fractionaltic);
+        interpz = thing->oldz + FixedMul(thing->z - thing->oldz, fractionaltic);
+        interpangle = R_InterpolateAngle(thing->oldangle, thing->angle, fractionaltic);
+    }
+    else
+    {
+        interpx = thing->x;
+        interpy = thing->y;
+        interpz = thing->z;
+        interpangle = thing->angle;
+    }
+
     // transform the origin point
-    tr_x = thing->x - viewx;
-    tr_y = thing->y - viewy;
+    tr_x = interpx - viewx;
+    tr_y = interpy - viewy;
 	
     gxt = FixedMul(tr_x,viewcos); 
     gyt = -FixedMul(tr_y,viewsin);
@@ -512,8 +540,8 @@ void R_ProjectSprite (mobj_t* thing)
     if (sprframe->rotate)
     {
 	// choose a different rotation based on player view
-	ang = R_PointToAngle (thing->x, thing->y);
-	rot = (ang-thing->angle+(unsigned)(ANG45/2)*9)>>29;
+	ang = R_PointToAngle (interpx, interpy);
+	rot = (ang-interpangle+(unsigned)(ANG45/2)*9)>>29;
 	lump = sprframe->lump[rot];
 	flip = (boolean)sprframe->flip[rot];
     }
@@ -543,10 +571,10 @@ void R_ProjectSprite (mobj_t* thing)
     vis = R_NewVisSprite ();
     vis->mobjflags = thing->flags;
     vis->scale = xscale<<detailshift;
-    vis->gx = thing->x;
-    vis->gy = thing->y;
-    vis->gz = thing->z;
-    vis->gzt = thing->z + spritetopoffset[lump];
+    vis->gx = interpx;
+    vis->gy = interpy;
+    vis->gz = interpz;
+    vis->gzt = interpz + spritetopoffset[lump];
     vis->texturemid = vis->gzt - viewz;
     vis->x1 = x1 < 0 ? 0 : x1;
     vis->x2 = x2 >= viewwidth ? viewwidth-1 : x2;	
@@ -636,6 +664,9 @@ void R_AddSprites (sector_t* sec)
 //
 // R_DrawPSprite
 //
+
+boolean pspr_interp = true; // interpolate weapon bobbing
+
 void R_DrawPSprite (pspdef_t* psp)
 {
     fixed_t		tx;
@@ -728,6 +759,40 @@ void R_DrawPSprite (pspdef_t* psp)
 	vis->colormap = spritelights[MAXLIGHTSCALE-1];
     }
 	
+    // [crispy] interpolate weapon bobbing
+    if (crl_uncapped_fps)
+    {
+        static int     oldx1, x1_saved;
+        static fixed_t oldtexturemid, texturemid_saved;
+        static int     oldlump = -1;
+        static int     oldgametic = -1;
+
+        if (oldgametic < gametic)
+        {
+            oldx1 = x1_saved;
+            oldtexturemid = texturemid_saved;
+            oldgametic = gametic;
+        }
+
+        x1_saved = vis->x1;
+        texturemid_saved = vis->texturemid;
+
+        if (lump == oldlump && pspr_interp)
+        {
+            int deltax = vis->x2 - vis->x1;
+            vis->x1 = oldx1 + FixedMul(vis->x1 - oldx1, fractionaltic);
+            vis->x2 = vis->x1 + deltax;
+            vis->texturemid = oldtexturemid + FixedMul(vis->texturemid - oldtexturemid, fractionaltic);
+        }
+        else
+        {
+            oldx1 = vis->x1;
+            oldtexturemid = vis->texturemid;
+            oldlump = lump;
+            pspr_interp = true;
+        }
+    }
+
     R_DrawVisSprite (vis, vis->x1, vis->x2);
 }
 

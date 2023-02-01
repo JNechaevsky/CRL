@@ -1040,6 +1040,7 @@ void G_Ticker (void)
     }
 
     oldgamestate = gamestate;
+    oldleveltime = leveltime;
     
     // do main actions
     switch (gamestate) 

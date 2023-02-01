@@ -424,6 +424,14 @@ void P_LoadSectors (int lump)
 	ss->special = SHORT(ms->special);
 	ss->tag = SHORT(ms->tag);
 	ss->thinglist = NULL;
+	// [AM] Sector interpolation.  Even if we're
+	//      not running uncapped, the renderer still
+	//      uses this data.
+	ss->oldfloorheight = ss->floorheight;
+	ss->interpfloorheight = ss->floorheight;
+	ss->oldceilingheight = ss->ceilingheight;
+	ss->interpceilingheight = ss->ceilingheight;
+	ss->oldgametic = 0;
     }
 	
     W_ReleaseLumpNum(lump);
@@ -634,6 +642,8 @@ void P_LoadSideDefs (int lump)
 	sd->bottomtexture = R_TextureNumForName(msd->bottomtexture);
 	sd->midtexture = R_TextureNumForName(msd->midtexture);
 	sd->sector = &sectors[SHORT(msd->sector)];
+	// [crispy] smooth texture scrolling
+	sd->basetextureoffset = sd->textureoffset;
     }
 
     W_ReleaseLumpNum(lump);
@@ -938,6 +948,7 @@ P_SetupLevel
     lumpnum = W_GetNumForName (lumpname);
 	
     leveltime = 0;
+    oldleveltime = 0;
 	
     // note: most of this ordering is important	
     P_LoadBlockMap (lumpnum+ML_BLOCKMAP);
