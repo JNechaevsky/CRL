@@ -752,6 +752,8 @@ void P_SpawnPlayer (mapthing_t* mthing)
     p->viewheight = VIEWHEIGHT;
     // [JN] Reset intercepts overflow condition.
     CRL_intercepts_overflow = false;
+    // [JN] Reset animater lines counter.
+    CRL_lineanims_counter = 0;
     // [JN] Reset active plats counter.
     CRL_plats_counter = 0;
 

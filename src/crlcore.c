@@ -488,6 +488,10 @@ int CRLBruteForce = 0;
 	Will be reset on level restart or save game loading. */
 boolean CRL_intercepts_overflow = false;
 
+/** [JN] MAXLINEANIMS counter (64 in vanilla).
+	Will be reset on level restart. */    
+int CRL_lineanims_counter;
+
 /** [JN] MAXPLATS counter (30 in vanilla).
 	Will be reset on level restart. */    
 int CRL_plats_counter;
@@ -901,6 +905,19 @@ void CRL_StatDrawer(void)
         if (crl_widget_kis)     yy += 9;
         if (crl_widget_time)    yy += 9;
         if (screenblocks == 11) yy += 9;
+
+        // Animated lines (64 max)
+        if (crl_widget_render == 1)
+        {
+            char plt[32];
+
+            M_WriteText(0, 117 - yy, "ANI:", CRL_lineanims_counter >= 64 ?
+                       (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
+            M_snprintf(plt, 16, "%d/64", CRL_lineanims_counter);
+
+            M_WriteText(32, 117 - yy, plt, CRL_lineanims_counter >= 64 ?
+                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
+        }
 
         // Plats (30 max)
         if (crl_widget_render == 1)

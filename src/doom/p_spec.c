@@ -47,6 +47,7 @@
 // Data.
 #include "sounds.h"
 
+#include "crlcore.h"
 #include "crlvars.h"
 
 
@@ -135,7 +136,7 @@ anim_t*		lastanim;
 //
 //      Animating line specials
 //
-#define MAXLINEANIMS            64
+#define MAXLINEANIMS            64*256
 
 extern  short	numlinespecials;
 extern  line_t*	linespeciallist[MAXLINEANIMS];
@@ -1508,6 +1509,7 @@ void P_SpawnSpecials (void)
 	    // EFFECT FIRSTCOL SCROLL+
 	    linespeciallist[numlinespecials] = &lines[i];
 	    numlinespecials++;
+	    CRL_lineanims_counter++;
 	    break;
 	}
     }
