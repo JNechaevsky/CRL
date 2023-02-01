@@ -498,6 +498,7 @@ static void M_ChooseCRL_2 (int choice);
 
 static void M_DrawCRL_2 (void);
 static void M_CRL_Automap (int choice);
+static void M_CRL_UncappedFPS (int choice);
 static void M_CRL_ScreenWipe (int choice);
 static void M_CRL_ColoredSTBar (int choice);
 static void M_CRL_Colorblind (int choice);
@@ -583,10 +584,10 @@ static menuitem_t CRLMenu_2[]=
                                 // AUTOMAP
     { 2, "DRAWING MODE",        M_CRL_Automap,        'a'},
     {-1, "", 0, '\0'},          // QOL FEATURES title
+    { 2, "UNCAPPED FRAMERATE",  M_CRL_UncappedFPS,    'u'},
     { 2, "SCREEN WIPE EFFECT",  M_CRL_ScreenWipe,     's'},
     { 2, "COLORED STATUS BAR",  M_CRL_ColoredSTBar,   'c'},
     { 2, "COLORBLIND",          M_CRL_Colorblind,     'c'},
-    {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
@@ -784,21 +785,26 @@ static void M_DrawCRL_2 (void)
 
     M_WriteText(CRL_MENU_LEFTOFFSET, 36, "QOL FEATURES", cr[CR_YELLOW]);
 
+    // Uncapped framerate
+    sprintf(str, crl_uncapped_fps ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 45, str, 
+                 crl_uncapped_fps ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
     // Screen wipe effect
     sprintf(str, crl_screenwipe ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 45, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 54, str, 
                  crl_screenwipe ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Colored status bar
     sprintf(str, crl_colored_stbar ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 54, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 63, str, 
                  crl_colored_stbar ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Colorblind
     sprintf(str, crl_colorblind == 1 ? "RED/GREEN" :
                  crl_colorblind == 2 ? "BLUE/YELLOW" :
                  crl_colorblind == 3 ? "MONOCHROME" : "NONE");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 63, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 72, str, 
                  crl_colorblind > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     //
@@ -827,6 +833,13 @@ static void M_CRL_Automap (int choice)
             }
         break;
     }
+}
+
+static void M_CRL_UncappedFPS (int choice)
+{
+    crl_uncapped_fps ^= 1;
+    // [JN] Skip weapon bobbing interpolation for next frame.
+    pspr_interp = false;
 }
 
 static void M_CRL_ScreenWipe (int choice)
