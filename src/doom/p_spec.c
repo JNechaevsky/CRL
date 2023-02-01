@@ -47,6 +47,8 @@
 // Data.
 #include "sounds.h"
 
+#include "crlvars.h"
+
 
 //
 // Animating textures and planes
@@ -1128,7 +1130,17 @@ void P_UpdateSpecials (void)
 	{
 	  case 48:
 	    // EFFECT FIRSTCOL SCROLL +
-	    sides[line->sidenum[0]].textureoffset += FRACUNIT;
+	    // [crispy] smooth texture scrolling
+	    sides[line->sidenum[0]].basetextureoffset += FRACUNIT;
+	    sides[line->sidenum[0]].textureoffset =
+	    sides[line->sidenum[0]].basetextureoffset;
+	    break;
+	  case 85:
+	    // [JN] (Boom) Scroll Texture Right
+	    // [crispy] smooth texture scrolling
+	    sides[line->sidenum[0]].basetextureoffset -= FRACUNIT;
+	    sides[line->sidenum[0]].textureoffset =
+	    sides[line->sidenum[0]].basetextureoffset;
 	    break;
 	}
     }
@@ -1162,8 +1174,35 @@ void P_UpdateSpecials (void)
 		memset(&buttonlist[i],0,sizeof(button_t));
 	    }
 	}
+
+    // [crispy] draw fuzz effect independent of rendering frame rate
+    R_SetFuzzPosTic();
 }
 
+// [crispy] smooth texture scrolling
+void R_InterpolateTextureOffsets (void)
+{
+	if (crl_uncapped_fps && leveltime > oldleveltime)
+	{
+		int i;
+
+		for (i = 0; i < numlinespecials; i++)
+		{
+			const line_t *const line = linespeciallist[i];
+			side_t *const side = &sides[line->sidenum[0]];
+
+			if (line->special == 48)
+			{
+				side->textureoffset = side->basetextureoffset + fractionaltic;
+			}
+			else
+			if (line->special == 85)
+			{
+				side->textureoffset = side->basetextureoffset - fractionaltic;
+			}
+		}
+	}
+}
 
 //
 // Donut overrun emulation

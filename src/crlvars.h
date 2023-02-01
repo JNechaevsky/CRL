@@ -42,6 +42,7 @@ extern int crl_automap_mode;
 extern int crl_automap_overlay;
 
 // QOL Features
+extern int crl_uncapped_fps;
 extern int crl_screenwipe;
 extern int crl_colored_stbar;
 extern int crl_colorblind;

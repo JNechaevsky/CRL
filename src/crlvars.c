@@ -44,6 +44,7 @@ int crl_automap_mode = 0;
 int crl_automap_overlay = 0;
 
 // QOL Features
+int crl_uncapped_fps = 1;
 int crl_screenwipe = 0;
 int crl_colored_stbar = 0;
 int crl_colorblind = 0;
@@ -72,6 +73,7 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_automap_overlay",            &crl_automap_overlay);
 
     // QOL Features
+    M_BindIntVariable("crl_uncapped_fps",               &crl_uncapped_fps);
     M_BindIntVariable("crl_screenwipe",                 &crl_screenwipe);
     M_BindIntVariable("crl_colored_stbar",              &crl_colored_stbar);
     M_BindIntVariable("crl_colorblind",                 &crl_colorblind);
