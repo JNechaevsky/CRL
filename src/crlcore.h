@@ -420,8 +420,8 @@ extern int      CRL_lineanims_counter;
 extern int      CRL_plats_counter;
 
 extern boolean  menuactive;
+extern boolean  automapactive;
 extern int      screenblocks;
-extern int      automapactive;
 
 
 
