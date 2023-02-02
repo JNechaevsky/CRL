@@ -30,6 +30,7 @@
 
 // Called by main loop.
 boolean AM_Responder (event_t* ev);
+void AM_initVariables (void);
 
 // Called by main loop.
 void AM_Ticker (void);
