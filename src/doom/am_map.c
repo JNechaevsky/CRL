@@ -117,8 +117,8 @@
 #define FTOM(x) (((int64_t)((x)<<16) * scale_ftom) >> FRACBITS)
 #define MTOF(x) ((((int64_t)(x) * scale_mtof) >> FRACBITS)>>16)
 // translates between frame-buffer and map coordinates
-#define CXMTOF(x)  (f_x + MTOF((x)-m_x))
-#define CYMTOF(y)  (f_y + (f_h - MTOF((y)-m_y)))
+#define CXMTOF(x) (f_x + MTOF((x)-m_x))
+#define CYMTOF(y) (f_y + (f_h - MTOF((y)-m_y)))
 
 // the following is crap
 #define LINE_NEVERSEE ML_DONTDRAW
@@ -157,40 +157,38 @@ static boolean blandcolor = false;
 //   starting from the middle.
 //
 #define R ((8*FRACUNIT)/7)
-mline_t player_arrow[] = {
-    { { -R+R/8, 0 }, { R, 0 } }, // -----
-    { { R, 0 }, { R-R/2, R/4 } },  // ----->
-    { { R, 0 }, { R-R/2, -R/4 } },
-    { { -R+R/8, 0 }, { -R-R/8, R/4 } }, // >---->
-    { { -R+R/8, 0 }, { -R-R/8, -R/4 } },
-    { { -R+3*R/8, 0 }, { -R+R/8, R/4 } }, // >>--->
+static mline_t player_arrow[] = {
+    { { -R+R/8,   0 }, {  R,      0   } }, // -----
+    { {  R,       0 }, {  R-R/2,  R/4 } }, // ----->
+    { {  R,       0 }, {  R-R/2, -R/4 } },
+    { { -R+R/8,   0 }, { -R-R/8,  R/4 } }, // >---->
+    { { -R+R/8,   0 }, { -R-R/8, -R/4 } },
+    { { -R+3*R/8, 0 }, { -R+R/8,  R/4 } }, // >>--->
     { { -R+3*R/8, 0 }, { -R+R/8, -R/4 } }
 };
-#undef R
 
-#define R ((8*FRACUNIT)/7)
-mline_t cheat_player_arrow[] = {
-    { { -R+R/8, 0 }, { R, 0 } }, // -----
-    { { R, 0 }, { R-R/2, R/6 } },  // ----->
-    { { R, 0 }, { R-R/2, -R/6 } },
-    { { -R+R/8, 0 }, { -R-R/8, R/6 } }, // >----->
-    { { -R+R/8, 0 }, { -R-R/8, -R/6 } },
-    { { -R+3*R/8, 0 }, { -R+R/8, R/6 } }, // >>----->
-    { { -R+3*R/8, 0 }, { -R+R/8, -R/6 } },
-    { { -R/2, 0 }, { -R/2, -R/6 } }, // >>-d--->
-    { { -R/2, -R/6 }, { -R/2+R/6, -R/6 } },
-    { { -R/2+R/6, -R/6 }, { -R/2+R/6, R/4 } },
-    { { -R/6, 0 }, { -R/6, -R/6 } }, // >>-dd-->
-    { { -R/6, -R/6 }, { 0, -R/6 } },
-    { { 0, -R/6 }, { 0, R/4 } },
-    { { R/6, R/4 }, { R/6, -R/7 } }, // >>-ddt->
-    { { R/6, -R/7 }, { R/6+R/32, -R/7-R/32 } },
-    { { R/6+R/32, -R/7-R/32 }, { R/6+R/10, -R/7 } }
+static mline_t cheat_player_arrow[] = {
+    { { -R+R/8,     0        }, {  R,           0 } }, // -----
+    { {  R,         0        }, {  R-R/2,     R/4 } }, // ----->
+    { {  R,         0        }, {  R-R/2,    -R/4 } },
+    { { -R+R/8,     0        }, { -R-R/8,     R/4 } }, // >----->
+    { { -R+R/8,     0        }, { -R-R/8,    -R/4 } },
+    { { -R+3*R/8,   0        }, { -R+R/8,     R/4 } }, // >>----->
+    { { -R+3*R/8,   0        }, { -R+R/8,    -R/4 } },
+    { { -R/2,       0        }, { -R/2,      -R/6 } }, // >>-d--->
+    { { -R/2,      -R/6      }, { -R/2+R/6,  -R/6 } },
+    { { -R/2+R/6,  -R/6      }, { -R/2+R/6,   R/4 } },
+    { { -R/6,       0        }, { -R/6,      -R/6 } }, // >>-dd-->
+    { { -R/6,      -R/6      }, {  0,        -R/6 } },
+    { {  0,        -R/6      }, {  0,         R/4 } },
+    { {  R/6,       R/4      }, {  R/6,      -R/7 } }, // >>-ddt->
+    { {  R/6,      -R/7      }, {  R/6+R/32, -R/7-R/32 } },
+    { {  R/6+R/32, -R/7-R/32 }, {  R/6+R/10, -R/7 } }
 };
 #undef R
 
 #define R (FRACUNIT)
-mline_t thintriangle_guy[] = {
+static mline_t thintriangle_guy[] = {
     { { (fixed_t)(-.5*R), (fixed_t)(-.7*R) }, { (fixed_t)(R    ), (fixed_t)(0    ) } },
     { { (fixed_t)(R    ), (fixed_t)(0    ) }, { (fixed_t)(-.5*R), (fixed_t)(.7*R ) } },
     { { (fixed_t)(-.5*R), (fixed_t)(.7*R ) }, { (fixed_t)(-.5*R), (fixed_t)(-.7*R) } }
@@ -251,9 +249,6 @@ static fixed_t 	max_scale_mtof; // used to tell when to stop zooming in
 // old stuff for recovery later
 static int64_t old_m_w, old_m_h;
 static int64_t old_m_x, old_m_y;
-
-// old location used by the Follower routine
-static mpoint_t f_oldloc;
 
 // used by MTOF to scale from map-to-frame-buffer coords
 static fixed_t scale_mtof = (fixed_t)INITSCALEMTOF;
@@ -452,7 +447,6 @@ void AM_changeWindowLoc(void)
     m_x2 = m_x + m_w;
     m_y2 = m_y + m_h;
 }
-// pitto
 
 //
 //
@@ -709,7 +703,6 @@ AM_Responder
         else if (key == key_map_follow)
         {
             followplayer = !followplayer;
-            f_oldloc.x = INT_MAX;
             if (followplayer)
                 CRL_SetMessage(plr, DEH_String(AMSTR_FOLLOWON), false);
             else
@@ -1295,13 +1288,13 @@ AM_rotate
 {
     int64_t tmpx;
 
-    tmpx =
-	FixedMul(*x,finecosine[a>>ANGLETOFINESHIFT])
-	- FixedMul(*y,finesine[a>>ANGLETOFINESHIFT]);
-    
-    *y   =
-	FixedMul(*x,finesine[a>>ANGLETOFINESHIFT])
-	+ FixedMul(*y,finecosine[a>>ANGLETOFINESHIFT]);
+    a >>= ANGLETOFINESHIFT;
+
+    tmpx = FixedMul(*x, finecosine[a])
+         - FixedMul(*y, finesine[a]);
+
+    *y = FixedMul(*x, finesine[a])
+       + FixedMul(*y, finecosine[a]);
 
     *x = tmpx;
 }
@@ -1311,18 +1304,18 @@ AM_rotate
 static void AM_rotatePoint (mpoint_t *pt)
 {
     int64_t tmpx;
-    // [crispy] smooth automap rotation
-    const angle_t smoothangle = followplayer ? ANG90 - viewangle : mapangle;
+    const angle_t actualangle = ((!(!followplayer && crl_automap_overlay)) ?
+                                 ANG90 - viewangle : mapangle) >> ANGLETOFINESHIFT;
 
     pt->x -= mapcenter.x;
     pt->y -= mapcenter.y;
 
-    tmpx = (int64_t)FixedMul(pt->x, finecosine[smoothangle>>ANGLETOFINESHIFT])
-         - (int64_t)FixedMul(pt->y, finesine[smoothangle>>ANGLETOFINESHIFT])
+    tmpx = (int64_t)FixedMul(pt->x, finecosine[actualangle])
+         - (int64_t)FixedMul(pt->y, finesine[actualangle])
          + mapcenter.x;
 
-    pt->y = (int64_t)FixedMul(pt->x, finesine[smoothangle>>ANGLETOFINESHIFT])
-          + (int64_t)FixedMul(pt->y, finecosine[smoothangle>>ANGLETOFINESHIFT])
+    pt->y = (int64_t)FixedMul(pt->x, finesine[actualangle])
+          + (int64_t)FixedMul(pt->y, finecosine[actualangle])
           + mapcenter.y;
 
     pt->x = tmpx;
@@ -1473,16 +1466,19 @@ AM_drawThings
 ( int	colors,
   int 	colorrange)
 {
-    int		i;
-    mobj_t*	t;
-    mpoint_t	pt;
+    int       i;
+    mpoint_t  pt;
+    mobj_t   *t;
     angle_t   actualangle;
 
-    for (i=0;i<numsectors;i++)
+    for (i = 0 ; i < numsectors ; i++)
     {
-	t = sectors[i].thinglist;
-	while (t)
-	{
+        t = sectors[i].thinglist;
+        while (t)
+        {
+            // [JN] Use actual radius for things drawing.
+            const fixed_t actualradius = t->radius >> FRACTOMAPBITS;
+                
             // [crispy] do not draw an extra triangle for the player
             if (t == plr->mo)
             {
@@ -1509,18 +1505,30 @@ AM_drawThings
                 AM_rotatePoint(&pt);
             }
 
-            pt.x = t->x;
-            pt.y = t->y;
-            if (crl_automap_rotate)
+            // [JN] IDDT extended colors:
+            // [crispy] draw blood splats and puffs as small squares
+            if (t->type == MT_BLOOD || t->type == MT_PUFF)
             {
-                AM_rotatePoint(&pt);
+                AM_drawLineCharacter(thintriangle_guy, arrlen(thintriangle_guy),
+                                     actualradius >> 2, actualangle, GRAYS, pt.x, pt.y);
+            }
+            else
+            {
+                AM_drawLineCharacter(thintriangle_guy, arrlen(thintriangle_guy), 
+                                     actualradius, actualangle, 
+                                     // Monsters
+                                     t->flags & MF_COUNTKILL ? (t->health > 0 ? REDS : GRAYS) :
+                                     // Lost Souls and Explosive barrels (does not have a MF_COUNTKILL flag)
+                                     t->type == MT_SKULL || t->type == MT_BARREL ? YELLOWS :
+                                     // Pickups
+                                     t->flags & MF_SPECIAL ? GREENS :
+                                     // Everything else
+                                     GRAYS,
+                                     pt.x, pt.y);
             }
 
-            AM_drawLineCharacter (thintriangle_guy, GREENS, 16<<MAPBITS,
-                                  actualangle, colors+lightlev, pt.x, pt.y);
-
-	    t = t->snext;
-	}
+            t = t->snext;
+        }
     }
 }
 
