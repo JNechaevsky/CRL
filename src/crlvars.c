@@ -41,6 +41,7 @@ int crl_spectating = 0;
 
 // Automap
 int crl_automap_mode = 0;
+int crl_automap_rotate = 0;
 int crl_automap_overlay = 0;
 
 // QOL Features
@@ -70,6 +71,7 @@ void CRL_BindVariables (void)
 
     // Automap
     M_BindIntVariable("crl_automap_mode",               &crl_automap_mode);
+    M_BindIntVariable("crl_automap_rotate",             &crl_automap_rotate);
     M_BindIntVariable("crl_automap_overlay",            &crl_automap_overlay);
 
     // QOL Features
