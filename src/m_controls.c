@@ -202,6 +202,7 @@ int dclick_use = 1;
 // GhostlyDeath -- CRL
 int key_crl_menu = '`';
 int key_crl_spectator = 0;
+int key_crl_map_rotate = 'r';
 int key_crl_map_overlay = 'o';
  
 int key_crl_nextlevel = 0; // [crispy]
@@ -385,6 +386,7 @@ void M_BindMenuControls(void)
     // GhostlyDeath -- CRL
     M_BindIntVariable("key_crl_menu",		  &key_crl_menu);
     M_BindIntVariable("key_crl_spectator",    &key_crl_spectator);
+    M_BindIntVariable("key_crl_map_rotate",   &key_crl_map_rotate);
     M_BindIntVariable("key_crl_map_overlay",  &key_crl_map_overlay);
 
     M_BindIntVariable("key_crl_nextlevel",   &key_crl_nextlevel); // [crispy]
