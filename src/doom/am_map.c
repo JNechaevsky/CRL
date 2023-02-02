@@ -114,8 +114,8 @@
 #define M_ZOOMOUT       ((int) (FRACUNIT/1.02))
 
 // translates between frame-buffer and map distances
-#define FTOM(x) FixedMul(((x)<<FRACBITS),scale_ftom)
-#define MTOF(x) (FixedMul((x),scale_mtof)>>FRACBITS)
+#define FTOM(x) (((int64_t)((x)<<16) * scale_ftom) >> FRACBITS)
+#define MTOF(x) ((((int64_t)(x) * scale_mtof) >> FRACBITS)>>16)
 // translates between frame-buffer and map coordinates
 #define CXMTOF(x)  (f_x + MTOF((x)-m_x))
 #define CYMTOF(y)  (f_y + (f_h - MTOF((y)-m_y)))
@@ -156,7 +156,7 @@ static boolean blandcolor = false;
 //  A line drawing of the player pointing right,
 //   starting from the middle.
 //
-#define R ((8*PLAYERRADIUS)/7)
+#define R ((8*FRACUNIT)/7)
 mline_t player_arrow[] = {
     { { -R+R/8, 0 }, { R, 0 } }, // -----
     { { R, 0 }, { R-R/2, R/4 } },  // ----->
@@ -168,7 +168,7 @@ mline_t player_arrow[] = {
 };
 #undef R
 
-#define R ((8*PLAYERRADIUS)/7)
+#define R ((8*FRACUNIT)/7)
 mline_t cheat_player_arrow[] = {
     { { -R+R/8, 0 }, { R, 0 } }, // -----
     { { R, 0 }, { R-R/2, R/6 } },  // ----->
@@ -186,14 +186,6 @@ mline_t cheat_player_arrow[] = {
     { { R/6, R/4 }, { R/6, -R/7 } }, // >>-ddt->
     { { R/6, -R/7 }, { R/6+R/32, -R/7-R/32 } },
     { { R/6+R/32, -R/7-R/32 }, { R/6+R/10, -R/7 } }
-};
-#undef R
-
-#define R (FRACUNIT)
-mline_t triangle_guy[] = {
-    { { (fixed_t)(-.867*R), (fixed_t)(-.5*R) }, { (fixed_t)(.867*R ), (fixed_t)(-.5*R) } },
-    { { (fixed_t)(.867*R ), (fixed_t)(-.5*R) }, { (fixed_t)(0      ), (fixed_t)(R    ) } },
-    { { (fixed_t)(0      ), (fixed_t)(R    ) }, { (fixed_t)(-.867*R), (fixed_t)(-.5*R) } }
 };
 #undef R
 
@@ -234,15 +226,15 @@ static fixed_t 	mtof_zoommul; // how far the window zooms in each tic (map coord
 static fixed_t 	ftom_zoommul; // how far the window zooms in each tic (fb coords)
 static fixed_t  curr_mtof_zoommul; // [JN] Zooming interpolation.
 
-static fixed_t 	m_x, m_y;   // LL x,y where the window is on the map (map coords)
-static fixed_t 	m_x2, m_y2; // UR x,y where the window is on the map (map coords)
+static int64_t 	m_x, m_y;   // LL x,y where the window is on the map (map coords)
+static int64_t 	m_x2, m_y2; // UR x,y where the window is on the map (map coords)
 static fixed_t 	prev_m_x, prev_m_y; // [JN] Panning interpolation.
 
 //
 // width/height of window on map (map coords)
 //
-static fixed_t 	m_w;
-static fixed_t	m_h;
+static int64_t 	m_w;
+static int64_t	m_h;
 
 // based on level size
 static fixed_t 	min_x;
@@ -253,17 +245,12 @@ static fixed_t  max_y;
 static fixed_t 	max_w; // max_x-min_x,
 static fixed_t  max_h; // max_y-min_y
 
-// based on player size
-static fixed_t 	min_w;
-static fixed_t  min_h;
-
-
 static fixed_t 	min_scale_mtof; // used to tell when to stop zooming out
 static fixed_t 	max_scale_mtof; // used to tell when to stop zooming in
 
 // old stuff for recovery later
-static fixed_t old_m_w, old_m_h;
-static fixed_t old_m_x, old_m_y;
+static int64_t old_m_w, old_m_h;
+static int64_t old_m_x, old_m_y;
 
 // old location used by the Follower routine
 static mpoint_t f_oldloc;
@@ -293,26 +280,6 @@ static void AM_rotatePoint (mpoint_t *pt);
 static mpoint_t mapcenter;
 static angle_t mapangle;
 
-// Calculates the slope and slope according to the x-axis of a line
-// segment in map coordinates (with the upright y-axis n' all) so
-// that it can be used with the brain-dead drawing stuff.
-
-void
-AM_getIslope
-( mline_t*	ml,
-  islope_t*	is )
-{
-    int dx, dy;
-
-    dy = ml->a.y - ml->b.y;
-    dx = ml->b.x - ml->a.x;
-    if (!dy) is->islp = (dx<0?-INT_MAX:INT_MAX);
-    else is->islp = FixedDiv(dx, dy);
-    if (!dx) is->slp = (dy<0?-INT_MAX:INT_MAX);
-    else is->slp = FixedDiv(dy, dx);
-
-}
-
 //
 //
 //
@@ -320,8 +287,8 @@ void AM_activateNewScale(void)
 {
     m_x += m_w/2;
     m_y += m_h/2;
-    m_w = FTOM(f_w);
-    m_h = FTOM(f_h);
+    m_w  = FTOM(f_w);
+    m_h  = FTOM(f_h);
     m_x -= m_w/2;
     m_y -= m_h/2;
     m_x2 = m_x + m_w;
@@ -344,17 +311,20 @@ void AM_saveScaleAndLoc(void)
 //
 void AM_restoreScaleAndLoc(void)
 {
-
     m_w = old_m_w;
     m_h = old_m_h;
+
     if (!followplayer)
     {
-	m_x = old_m_x;
-	m_y = old_m_y;
-    } else {
-	m_x = (plr->mo->x >> FRACTOMAPBITS) - m_w/2;
-	m_y = (plr->mo->y >> FRACTOMAPBITS) - m_h/2;
+        m_x = old_m_x;
+        m_y = old_m_y;
     }
+    else 
+    {
+        m_x = (plr->mo->x >> FRACTOMAPBITS) - m_w/2;
+        m_y = (plr->mo->y >> FRACTOMAPBITS) - m_h/2;
+    }
+
     m_x2 = m_x + m_w;
     m_y2 = m_y + m_h;
 
@@ -391,38 +361,42 @@ void AM_addMark(void)
 //
 void AM_findMinMaxBoundaries(void)
 {
-    int i;
-    fixed_t a;
-    fixed_t b;
+    int     i;
+    fixed_t a, b;
 
     min_x = min_y =  INT_MAX;
     max_x = max_y = -INT_MAX;
-  
-    for (i=0;i<numvertexes;i++)
-    {
-	if (vertexes[i].x < min_x)
-	    min_x = vertexes[i].x;
-	else if (vertexes[i].x > max_x)
-	    max_x = vertexes[i].x;
-    
-	if (vertexes[i].y < min_y)
-	    min_y = vertexes[i].y;
-	else if (vertexes[i].y > max_y)
-	    max_y = vertexes[i].y;
-    }
-  
-    max_w = max_x - min_x;
-    max_h = max_y - min_y;
 
-    min_w = 2*PLAYERRADIUS; // const? never changed?
-    min_h = 2*PLAYERRADIUS;
+    for (i = 0 ; i < numvertexes ; i++)
+    {
+        if (vertexes[i].x < min_x)
+        {
+            min_x = vertexes[i].x;
+        }
+        else if (vertexes[i].x > max_x)
+        {
+            max_x = vertexes[i].x;
+        }
+
+        if (vertexes[i].y < min_y)
+        {
+            min_y = vertexes[i].y;
+        }
+        else if (vertexes[i].y > max_y)
+        {
+            max_y = vertexes[i].y;
+        }
+    }
+
+    // [crispy] cope with huge level dimensions which span the entire INT range
+    max_w = (max_x >>= FRACTOMAPBITS) - (min_x >>= FRACTOMAPBITS);
+    max_h = (max_y >>= FRACTOMAPBITS) - (min_y >>= FRACTOMAPBITS);
 
     a = FixedDiv(f_w<<FRACBITS, max_w);
     b = FixedDiv(f_h<<FRACBITS, max_h);
-  
-    min_scale_mtof = a < b ? a : b;
-    max_scale_mtof = FixedDiv(f_h<<FRACBITS, 2*PLAYERRADIUS);
 
+    min_scale_mtof = a < b ? a : b;
+    max_scale_mtof = FixedDiv(f_h<<FRACBITS, 2*FRACUNIT);
 }
 
 
@@ -435,8 +409,7 @@ void AM_changeWindowLoc(void)
 
     if (m_paninc.x || m_paninc.y)
     {
-	followplayer = 0;
-	// f_oldloc.x = INT_MAX;
+        followplayer = 0;
     }
 
     if (crl_uncapped_fps && leveltime > oldleveltime)
@@ -450,7 +423,7 @@ void AM_changeWindowLoc(void)
         incy = m_paninc.y;
     }
 
-    if (crl_automap_overlay)
+    if (crl_automap_rotate)
     {
         AM_rotate(&incx, &incy, -mapangle);
     }
@@ -479,21 +452,15 @@ void AM_changeWindowLoc(void)
     m_x2 = m_x + m_w;
     m_y2 = m_y + m_h;
 }
-
+// pitto
 
 //
 //
 //
 void AM_initVariables(void)
 {
-    static event_t st_notify = { ev_keyup, AM_MSGENTERED, 0, 0 };
-
     automapactive = true;
     fb = I_VideoBuffer;
-
-    f_oldloc.x = INT_MAX;
-    amclock = 0;
-    lightlev = 0;
 
     m_paninc.x = m_paninc.y = 0;
     ftom_zoommul = FRACUNIT;
@@ -516,10 +483,6 @@ void AM_initVariables(void)
     old_m_y = m_y;
     old_m_w = m_w;
     old_m_h = m_h;
-
-    // inform the status bar of the change
-    ST_Responder(&st_notify);
-
 }
 
 //
@@ -574,10 +537,25 @@ void AM_LevelInit(void)
     AM_clearMarks();
 
     AM_findMinMaxBoundaries();
+
     scale_mtof = FixedDiv(min_scale_mtof, (int) (0.7*FRACUNIT));
+
     if (scale_mtof > max_scale_mtof)
-	scale_mtof = min_scale_mtof;
+    {
+        scale_mtof = min_scale_mtof;
+    }
+
     scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
+
+    // [JN] If running Deathmatch mode, mark all automap lines as mapped
+    // so they will appear initially. DM mode is not about map reveal.
+    if (deathmatch)
+    {
+        for (int i = 0 ; i < numlines ; i++)
+        {
+            lines[i].flags |= ML_MAPPED;
+        }
+    }
 }
 
 
@@ -588,11 +566,8 @@ void AM_LevelInit(void)
 //
 void AM_Stop (void)
 {
-    static event_t st_notify = { 0, ev_keyup, AM_MSGEXITED, 0 };
-
     AM_unloadPics();
     automapactive = false;
-    ST_Responder(&st_notify);
     stopped = true;
 }
 
@@ -607,9 +582,9 @@ void AM_Start (void)
     stopped = false;
     if (lastlevel != gamemap || lastepisode != gameepisode)
     {
-	AM_LevelInit();
-	lastlevel = gamemap;
-	lastepisode = gameepisode;
+        AM_LevelInit();
+        lastlevel = gamemap;
+        lastepisode = gameepisode;
     }
     AM_initVariables();
     AM_loadPics();
@@ -764,8 +739,8 @@ AM_Responder
         {
             // [JN] CRL - Automap rotate mode
             crl_automap_rotate = !crl_automap_rotate;
-            CRL_SetMessage(plr, DEH_String(crl_automap_overlay ?
-            CRL_AUTOMAPOVERLAY_ON : CRL_AUTOMAPOVERLAY_OFF), false);
+            CRL_SetMessage(plr, DEH_String(crl_automap_rotate ?
+            CRL_AUTOMAPROTATE_ON : CRL_AUTOMAPROTATE_OFF), false);
         }
         else if (key == key_crl_map_overlay)
         {
@@ -871,23 +846,13 @@ void AM_changeWindowScale(void)
 //
 void AM_doFollowPlayer(void)
 {
+    // [JN] Use interpolated player coords for smooth
+    // scrolling and static player arrow position.
+    m_x = (viewx >> FRACTOMAPBITS) - m_w/2;
+    m_y = (viewy >> FRACTOMAPBITS) - m_h/2;
 
-    if (f_oldloc.x != plr->mo->x || f_oldloc.y != plr->mo->y)
-    {
-	m_x = FTOM(MTOF(plr->mo->x)) - m_w/2;
-	m_y = FTOM(MTOF(plr->mo->y)) - m_h/2;
-	m_x2 = m_x + m_w;
-	m_y2 = m_y + m_h;
-	f_oldloc.x = plr->mo->x;
-	f_oldloc.y = plr->mo->y;
-
-	//  m_x = FTOM(MTOF(plr->mo->x - m_w/2));
-	//  m_y = FTOM(MTOF(plr->mo->y - m_h/2));
-	//  m_x = plr->mo->x - m_w/2;
-	//  m_y = plr->mo->y - m_h/2;
-
-    }
-
+    m_x2 = m_x + m_w;
+    m_y2 = m_y + m_h;
 }
 
 //
@@ -1165,7 +1130,10 @@ AM_drawMline
     static fline_t fl;
 
     if (AM_clipMline(ml, &fl))
-	AM_drawFline(&fl, color); // draws it on frame buffer using fb coords
+    {
+        // draws it on frame buffer using fb coords
+        AM_drawFline(&fl, color);
+    }
 }
 
 
@@ -1175,8 +1143,9 @@ AM_drawMline
 //
 void AM_drawGrid(int color)
 {
-    fixed_t x, y;
-    fixed_t start, end;
+    int64_t x, y;
+    int64_t start, end;
+    const fixed_t gridsize = MAPBLOCKUNITS << MAPBITS;
     mline_t ml;
 
     // Figure out start of vertical gridlines
@@ -1185,31 +1154,35 @@ void AM_drawGrid(int color)
     {
         start -= m_h / 2;
     }
-    if ((start-bmaporgx)%(MAPBLOCKUNITS<<FRACBITS))
-	start += (MAPBLOCKUNITS<<FRACBITS)
-	    - ((start-bmaporgx)%(MAPBLOCKUNITS<<FRACBITS));
+
+    if ((start-(bmaporgx>>FRACTOMAPBITS))%gridsize)
+    {
+        start -= ((start-(bmaporgx>>FRACTOMAPBITS))%gridsize);
+    }
+
+    end = m_x + m_w;
+
     if (crl_automap_rotate)
     {
         end += m_h / 2;
     }
-    end = m_x + m_w;
 
     // draw vertical gridlines
-    for (x=start; x<end; x+=(MAPBLOCKUNITS<<FRACBITS))
+    for (x = start ; x < end ; x += gridsize)
     {
-	ml.a.x = x;
-	ml.b.x = x;
-	// [crispy] moved here
-	ml.a.y = m_y;
-	ml.b.y = m_y+m_h;
-	if (crl_automap_rotate)
-	{
-	    ml.a.y -= m_w / 2;
-	    ml.b.y += m_w / 2;
-	    AM_rotatePoint(&ml.a);
-	    AM_rotatePoint(&ml.b);
-	}
-	AM_drawMline(&ml, color);
+        ml.a.x = x;
+        ml.b.x = x;
+        // [crispy] moved here
+        ml.a.y = m_y;
+        ml.b.y = m_y+m_h;
+        if (crl_automap_rotate)
+        {
+            ml.a.y -= m_w / 2;
+            ml.b.y += m_w / 2;
+            AM_rotatePoint(&ml.a);
+            AM_rotatePoint(&ml.b);
+        }
+        AM_drawMline(&ml, color);
     }
 
     // Figure out start of horizontal gridlines
@@ -1218,33 +1191,36 @@ void AM_drawGrid(int color)
     {
         start -= m_w / 2;
     }
-    if ((start-bmaporgy)%(MAPBLOCKUNITS<<FRACBITS))
-	start += (MAPBLOCKUNITS<<FRACBITS)
-	    - ((start-bmaporgy)%(MAPBLOCKUNITS<<FRACBITS));
+
+    if ((start-(bmaporgy>>FRACTOMAPBITS))%gridsize)
+    {
+        start -= ((start-(bmaporgy>>FRACTOMAPBITS))%gridsize);
+    }
+
     end = m_y + m_h;
+
     if (crl_automap_rotate)
     {
         end += m_w / 2;
     }
 
     // draw horizontal gridlines
-    for (y=start; y<end; y+=(MAPBLOCKUNITS<<FRACBITS))
+    for (y = start ; y < end ; y += gridsize)
     {
-	ml.a.y = y;
-	ml.b.y = y;
-	// [crispy] moved here
-	ml.a.x = m_x;
-	ml.b.x = m_x + m_w;
-	if (crl_automap_rotate)
-	{
-	    ml.a.x -= m_h / 2;
-	    ml.b.x += m_h / 2;
-	    AM_rotatePoint(&ml.a);
-	    AM_rotatePoint(&ml.b);
-	}
-	AM_drawMline(&ml, color);
+        ml.a.y = y;
+        ml.b.y = y;
+        // [crispy] moved here
+        ml.a.x = m_x;
+        ml.b.x = m_x + m_w;
+        if (crl_automap_rotate)
+        {
+            ml.a.x -= m_h / 2;
+            ml.b.x += m_h / 2;
+            AM_rotatePoint(&ml.a);
+            AM_rotatePoint(&ml.b);
+        }
+        AM_drawMline(&ml, color);
     }
-
 }
 
 //
@@ -1258,10 +1234,10 @@ void AM_drawWalls(void)
 
     for (i=0;i<numlines;i++)
     {
-	l.a.x = lines[i].v1->x;
-	l.a.y = lines[i].v1->y;
-	l.b.x = lines[i].v2->x;
-	l.b.y = lines[i].v2->y;
+	l.a.x = lines[i].v1->x >> FRACTOMAPBITS;
+	l.a.y = lines[i].v1->y >> FRACTOMAPBITS;
+	l.b.x = lines[i].v2->x >> FRACTOMAPBITS;
+	l.b.y = lines[i].v2->y >> FRACTOMAPBITS;
 	if (crl_automap_rotate)
 	{
 	    AM_rotatePoint(&l.a);
@@ -1317,7 +1293,7 @@ AM_rotate
   int64_t*	y,
   angle_t	a )
 {
-    fixed_t tmpx;
+    int64_t tmpx;
 
     tmpx =
 	FixedMul(*x,finecosine[a>>ANGLETOFINESHIFT])
@@ -1334,18 +1310,20 @@ AM_rotate
 // adapted from prboom-plus/src/am_map.c:898-920
 static void AM_rotatePoint (mpoint_t *pt)
 {
-    fixed_t tmpx;
+    int64_t tmpx;
+    // [crispy] smooth automap rotation
+    const angle_t smoothangle = followplayer ? ANG90 - viewangle : mapangle;
 
     pt->x -= mapcenter.x;
     pt->y -= mapcenter.y;
 
-    tmpx = FixedMul(pt->x, finecosine[mapangle>>ANGLETOFINESHIFT])
-         - FixedMul(pt->y, finesine[mapangle>>ANGLETOFINESHIFT])
+    tmpx = (int64_t)FixedMul(pt->x, finecosine[smoothangle>>ANGLETOFINESHIFT])
+         - (int64_t)FixedMul(pt->y, finesine[smoothangle>>ANGLETOFINESHIFT])
          + mapcenter.x;
 
-    pt->y = FixedMul(pt->x, finesine[mapangle>>ANGLETOFINESHIFT])
-         + FixedMul(pt->y, finecosine[mapangle>>ANGLETOFINESHIFT])
-         + mapcenter.y;
+    pt->y = (int64_t)FixedMul(pt->x, finesine[smoothangle>>ANGLETOFINESHIFT])
+          + (int64_t)FixedMul(pt->y, finecosine[smoothangle>>ANGLETOFINESHIFT])
+          + mapcenter.y;
 
     pt->x = tmpx;
 }
@@ -1360,47 +1338,51 @@ AM_drawLineCharacter
   fixed_t	x,
   fixed_t	y )
 {
-    int		i;
-    mline_t	l;
+    int     i;
+    mline_t l;
 
     if (crl_automap_rotate)
     {
         angle += mapangle;
     }
 
-    for (i=0;i<lineguylines;i++)
+    for (i = 0 ; i < lineguylines ; i++)
     {
-	l.a.x = lineguy[i].a.x;
-	l.a.y = lineguy[i].a.y;
+        l.a.x = lineguy[i].a.x;
+        l.a.y = lineguy[i].a.y;
 
-	if (scale)
-	{
-	    l.a.x = FixedMul(scale, l.a.x);
-	    l.a.y = FixedMul(scale, l.a.y);
-	}
+        if (scale)
+        {
+            l.a.x = FixedMul(scale, l.a.x);
+            l.a.y = FixedMul(scale, l.a.y);
+        }
 
-	if (angle)
-	    AM_rotate(&l.a.x, &l.a.y, angle);
+        if (angle)
+        {
+            AM_rotate(&l.a.x, &l.a.y, angle);
+        }
 
-	l.a.x += x;
-	l.a.y += y;
+        l.a.x += x;
+        l.a.y += y;
 
-	l.b.x = lineguy[i].b.x;
-	l.b.y = lineguy[i].b.y;
+        l.b.x = lineguy[i].b.x;
+        l.b.y = lineguy[i].b.y;
 
-	if (scale)
-	{
-	    l.b.x = FixedMul(scale, l.b.x);
-	    l.b.y = FixedMul(scale, l.b.y);
-	}
+        if (scale)
+        {
+            l.b.x = FixedMul(scale, l.b.x);
+            l.b.y = FixedMul(scale, l.b.y);
+        }
 
-	if (angle)
-	    AM_rotate(&l.b.x, &l.b.y, angle);
-	
-	l.b.x += x;
-	l.b.y += y;
+        if (angle)
+        {
+            AM_rotate(&l.b.x, &l.b.y, angle);
+        }
 
-	AM_drawMline(&l, color);
+        l.b.x += x;
+        l.b.y += y;
+
+        AM_drawMline(&l, color);
     }
 }
 
@@ -1415,26 +1397,34 @@ void AM_drawPlayers(void)
 
     if (!netgame)
     {
-    pt.x = plr->mo->x;
-    pt.y = plr->mo->y;
-    if (crl_automap_rotate)
-    {
-        AM_rotatePoint(&pt);
-    }
+        // [JN] Smooth player arrow rotation.
+        const angle_t smoothangle = crl_automap_rotate ? plr->mo->angle : viewangle;
+
+        // [JN] Interpolate player arrow.
+        pt.x = viewx >> FRACTOMAPBITS;
+        pt.y = viewy >> FRACTOMAPBITS;
+
+        if (crl_automap_rotate)
+        {
+            AM_rotatePoint(&pt);
+        }
 
 	if (cheating)
 	    AM_drawLineCharacter
 		(cheat_player_arrow, arrlen(cheat_player_arrow), 0,
-		 plr->mo->angle, WHITE, pt.x, pt.y);
+		 smoothangle, WHITE, pt.x, pt.y);
 	else
 	    AM_drawLineCharacter
-		(player_arrow, arrlen(player_arrow), 0, plr->mo->angle,
+		(player_arrow, arrlen(player_arrow), 0, smoothangle,
 		 WHITE, pt.x, pt.y);
 	return;
     }
 
     for (i=0;i<MAXPLAYERS;i++)
     {
+        // [JN] Interpolate other player arrows angle.
+        angle_t smoothangle;
+
 	their_color++;
 	p = &players[i];
 
@@ -1449,15 +1439,30 @@ void AM_drawPlayers(void)
 	else
 	    color = their_colors[their_color];
 	
-    pt.x = p->mo->x;
-    pt.y = p->mo->y;
-    if (crl_automap_rotate)
-    {
-        AM_rotatePoint(&pt);
-    }
+        // [JN] Interpolate other player arrows.
+        if (crl_uncapped_fps && leveltime > oldleveltime)
+        {
+            pt.x = (p->mo->oldx + FixedMul(p->mo->x - p->mo->oldx, fractionaltic)) >> FRACTOMAPBITS;
+            pt.y = (p->mo->oldy + FixedMul(p->mo->y - p->mo->oldy, fractionaltic)) >> FRACTOMAPBITS;
+        }
+        else
+        {
+            pt.x = p->mo->x >> FRACTOMAPBITS;
+            pt.y = p->mo->y >> FRACTOMAPBITS;
+        }
+
+        if (crl_automap_rotate)
+        {
+            AM_rotatePoint(&pt);
+            smoothangle = p->mo->angle;
+        }
+        else
+        {
+            smoothangle = R_InterpolateAngle(p->mo->oldangle, p->mo->angle, fractionaltic);
+        }
 
 	AM_drawLineCharacter
-	    (player_arrow, arrlen(player_arrow), 0, p->mo->angle,
+	    (player_arrow, arrlen(player_arrow), 0, smoothangle,
 	     color, pt.x, pt.y);
     }
 
@@ -1511,7 +1516,9 @@ AM_drawThings
                 AM_rotatePoint(&pt);
             }
 
-            AM_drawLineCharacter (thintriangle_guy, GREENS, 16<<FRACBITS, t->angle, colors+lightlev, pt.x, pt.y);
+            AM_drawLineCharacter (thintriangle_guy, GREENS, 16<<MAPBITS,
+                                  actualangle, colors+lightlev, pt.x, pt.y);
+
 	    t = t->snext;
 	}
     }
