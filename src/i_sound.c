@@ -65,6 +65,7 @@ int snd_sfxdevice = SNDDEVICE_SB;
 extern void I_InitTimidityConfig(void);
 extern sound_module_t sound_sdl_module;
 extern sound_module_t sound_pcsound_module;
+extern music_module_t music_win_module;
 extern music_module_t music_sdl_module;
 extern music_module_t music_opl_module;
 
@@ -99,7 +100,12 @@ static sound_module_t *sound_modules[] =
 
 static music_module_t *music_modules[] =
 {
+#ifdef _WIN32
+    &music_win_module,
+#endif
+#ifndef DISABLE_SDL2MIXER
     &music_sdl_module,
+#endif // DISABLE_SDL2MIXER
     &music_opl_module,
     NULL,
 };
@@ -168,6 +174,17 @@ static void InitMusicModule(void)
                             music_modules[i]->sound_devices,
                             music_modules[i]->num_sound_devices))
         {
+        #ifdef _WIN32
+            // Skip the native Windows MIDI module if using Timidity or
+            // FluidSynth.
+
+            if ((strcmp(timidity_cfg_path, ""))
+              && music_modules[i] == &music_win_module)
+            {
+                continue;
+            }
+        #endif
+
             // Initialize the module
 
             if (music_modules[i]->Init())
