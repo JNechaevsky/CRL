@@ -1273,7 +1273,8 @@ void ST_Start (void)
     I_SetPalette (W_CacheLumpNum (lu_palette, PU_CACHE));
 
     plyr = &players[consoleplayer];
-    st_faceindex = 0;
+    faceindex = 1; // [crispy] fix status bar face hysteresis across level changes
+    st_faceindex = 1;
     st_palette = -1;
     st_oldhealth = -1;
 
