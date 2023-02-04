@@ -28,182 +28,6 @@
 /** Backup. */
 jmp_buf CRLJustIncaseBuf;
 
-/**
- * Stat values.
- */
-CRL_Value_t CRLStatSet[] =
-{
-	{
-		"Full",
-	},
-	{
-		"Overflows",
-	},
-	{
-		"None",
-	}
-};
-
-/**
- * Visplane values.
- */
-CRL_Value_t CRLVisplaneSet[] =
-{
-	{
-		"None",
-	},
-	{
-		"Fill",
-	},
-	{
-		"OverFill",
-	},
-	{
-		"Border",
-	},
-	{
-		"OverBorder",
-	},
-};
-
-/**
- * Merging visplanes.
- */
-CRL_Value_t CRLMergeVisplaneSet[] =
-{
-	{
-		"Default"
-	},
-	{
-		"No CHK"
-	},
-	{
-		"No FND"
-	},
-	{
-		"No CHK+FND"
-	},
-};
-
-/**
- * Visplane limit.
- */
-CRL_Value_t CRLVisplaneLimitSet[] =
-{
-	{
-		"128 (Vanilla)"
-	},
-	{
-		"4096 (CRL)"
-	},
-	{
-		"32 (Quarter)"
-	}
-};
-
-/**
- * Automap set.
- */
-CRL_Value_t CRLMapSet[] =
-{
-	{
-		"None",
-	},
-	{
-		"Visplane Floor",
-	},
-	{
-		"Visplane Ceil",
-	},
-};
-
-/**
- * Spectate mode.
- */
-CRL_Value_t CRLSpectate[] =
-{
-	{
-		"Off",
-	},
-	{
-		"On",
-	},
-};
-
-/**
- * Colorblindness.
- */
-CRL_Value_t CRLColorblind[] =
-{
-	{
-		"None",
-	},
-	{
-		"Red/Green",
-	},
-	{
-		"Green/Blue",
-	},
-	{
-		"Monochrome",
-	},
-};
-
-/**
- * CRL Option menu and their values.
- */
-CRL_Option_t CRLOptionSet[NUM_CRL_OPTIONS] =
-{
-	/** Stats. */
-	{
-		"Draw Stats",
-		NUM_CRL_STAT,
-		CRLStatSet
-	},
-	
-	/** Visplanes. */
-	{
-		"VisPlanes",
-		NUM_CRL_VIS,
-		CRLVisplaneSet
-	},
-	
-	/** Merge visplanes. */
-	{
-		"Merge VisPlanes",
-		NUM_CRL_MERGE,
-		CRLMergeVisplaneSet
-	},
-	
-	/** Maximum visplane limit. */
-	{
-		"Max VisPlanes",
-		NUM_CRL_MAXVISPLANES,
-		CRLVisplaneLimitSet
-	},
-	
-	/** Automap mode. */
-	{
-		"Automap Mode",
-		NUM_CRL_MAP,
-		CRLMapSet
-	},
-	
-	/** Spectate. */
-	{
-		"Spectating",
-		NUM_CRL_SPECTATE,
-		CRLSpectate
-	},
-	
-	/** Colorblind. */
-	{
-		"Colorblind",
-		NUM_CRL_COLORBLIND,
-		CRLColorblind
-	},
-};
-
 /*****************************************************************************/
 /*****************************************************************************/
 /*****************************************************************************/
@@ -1149,12 +973,12 @@ void CRL_DrawVisPlanes(int __over)
 		return;
 	
 	// Overlay but not overlaying?
-	isover = (dm == CRL_VIS_FILL_OVERLAY || dm == CRL_VIS_BORDER_OVERLAY);
+	isover = (dm == 2 || dm == 4);
 	if (__over != isover)
 		return;
 	
 	// Border colors
-	isbord = (dm == CRL_VIS_BORDER || dm == CRL_VIS_BORDER_OVERLAY);
+	isbord = (dm == 3 || dm == 4);
 	
 	// Go through all pixels and draw visplane if one is there
 	memset(&pd, 0, sizeof(pd));
@@ -1208,7 +1032,7 @@ void CRL_DrawMap(void (*__fl)(int, int, int, int, int),
 	dm = crl_automap_mode;  // [JN] Use external config variable.
 	
 	// Visplane emitting segs
-	if (dm == CRL_MAP_VPFLOOR || dm == CRL_MAP_VPCEIL)
+	if (dm == 1 || dm == 2)
 	{
 		// Go through all planes
 		for (i = 0; i < _numplanes; i++)
@@ -1217,7 +1041,7 @@ void CRL_DrawMap(void (*__fl)(int, int, int, int, int),
 			GAME_IdentifyPlane(_planelist[i], &pd);
 			
 			// Floor/ceiling mismatch
-			if ((!!(dm == CRL_MAP_VPFLOOR)) != (!!pd.onfloor))
+			if ((!!(dm == 1)) != (!!pd.onfloor))
 				continue;
 			
 			// Color the plane
