@@ -508,6 +508,9 @@ static const int ST_calcPainOffset (void)
 //  dead > evil grin > turned head > straight ahead
 // -----------------------------------------------------------------------------
 
+// [crispy] fix status bar face hysteresis
+static int faceindex;
+
 static void ST_updateFaceWidget (void)
 {
     int         i;
@@ -517,13 +520,21 @@ static void ST_updateFaceWidget (void)
     angle_t     diffang;
     boolean     doevilgrin;
 
+    // [crispy] fix status bar face hysteresis
+    int		painoffset;
+    // [crispy] no evil grin or rampage face in god mode
+    const boolean invul = (plyr->cheats & CF_GODMODE) || plyr->powers[pw_invulnerability];
+
+    painoffset = ST_calcPainOffset();
+
     if (priority < 10)
     {
         // dead
         if (!plyr->health)
         {
             priority = 9;
-            st_faceindex = ST_DEADFACE;
+            painoffset = 0;
+            faceindex = ST_DEADFACE;
             st_facecount = 1;
         }
     }
@@ -548,7 +559,7 @@ static void ST_updateFaceWidget (void)
                 // evil grin if just picked up weapon
                 priority = 8;
                 st_facecount = ST_EVILGRINCOUNT;
-                st_faceindex = ST_calcPainOffset() + ST_EVILGRINOFFSET;
+                faceindex = ST_EVILGRINOFFSET;
             }
         }
     }
@@ -560,10 +571,13 @@ static void ST_updateFaceWidget (void)
             // being attacked
             priority = 7;
 
-            if (plyr->health - st_oldhealth > ST_MUCHPAIN)
+            // [crispy] show "Ouch Face" as intended
+            if (st_oldhealth - plyr->health > ST_MUCHPAIN)
             {
+                // [crispy] raise "Ouch Face" priority
+                priority = 8;
                 st_facecount = ST_TURNCOUNT;
-                st_faceindex = ST_calcPainOffset() + ST_OUCHOFFSET;
+                faceindex = ST_OUCHOFFSET;
             }
             else
             {
@@ -586,22 +600,21 @@ static void ST_updateFaceWidget (void)
                 } // confusing, aint it?
 
                 st_facecount = ST_TURNCOUNT;
-                st_faceindex = ST_calcPainOffset();
 
                 if (diffang < ANG45)
                 {
                     // head-on    
-                    st_faceindex += ST_RAMPAGEOFFSET;
+                    faceindex += ST_RAMPAGEOFFSET;
                 }
                 else if (i)
                 {
                     // turn face right
-                    st_faceindex += ST_TURNOFFSET;
+                    faceindex += ST_TURNOFFSET;
                 }
                 else
                 {
                     // turn face left
-                    st_faceindex += ST_TURNOFFSET+1;
+                    faceindex += ST_TURNOFFSET+1;
                 }
             }
         }
@@ -612,17 +625,18 @@ static void ST_updateFaceWidget (void)
         // getting hurt because of your own damn stupidity
         if (plyr->damagecount)
         {
-            if (plyr->health - st_oldhealth > ST_MUCHPAIN)
+            // [crispy] show "Ouch Face" as intended
+            if (st_oldhealth - plyr->health > ST_MUCHPAIN)
             {
                 priority = 7;
                 st_facecount = ST_TURNCOUNT;
-                st_faceindex = ST_calcPainOffset() + ST_OUCHOFFSET;
+                faceindex = ST_OUCHOFFSET;
             }
             else
             {
                 priority = 6;
                 st_facecount = ST_TURNCOUNT;
-                st_faceindex = ST_calcPainOffset() + ST_RAMPAGEOFFSET;
+                faceindex = ST_RAMPAGEOFFSET;
             }
         }
     }
@@ -639,7 +653,7 @@ static void ST_updateFaceWidget (void)
             else if (!--lastattackdown)
             {
                 priority = 5;
-                st_faceindex = ST_calcPainOffset() + ST_RAMPAGEOFFSET;
+                faceindex = ST_RAMPAGEOFFSET;
                 st_facecount = 1;
                 lastattackdown = 1;
             }
@@ -653,10 +667,11 @@ static void ST_updateFaceWidget (void)
     if (priority < 5)
     {
         // invulnerability
-        if ((plyr->cheats & CF_GODMODE) || plyr->powers[pw_invulnerability])
+        if (invul)
         {
             priority = 4;
 
+            painoffset = 0;
             st_faceindex = ST_GODFACE;
             st_facecount = 1;
         }
@@ -665,12 +680,15 @@ static void ST_updateFaceWidget (void)
     // look left or look right if the facecount has timed out
     if (!st_facecount)
     {
-        st_faceindex = ST_calcPainOffset() + (st_randomnumber % 3);
+        faceindex = st_randomnumber % 3;
         st_facecount = ST_STRAIGHTFACECOUNT;
         priority = 0;
     }
 
     st_facecount--;
+
+    // [crispy] fix status bar face hysteresis
+    st_faceindex = painoffset + faceindex;
 }
 
 // -----------------------------------------------------------------------------
