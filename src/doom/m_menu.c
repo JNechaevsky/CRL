@@ -1137,17 +1137,6 @@ static void M_SaveGame (int choice)
 //
 //      M_QuickSave
 //
-static char tempstring[80];
-
-static void M_QuickSaveResponse(int key)
-{
-    if (key == key_menu_confirm)
-    {
-	M_DoSave(quickSaveSlot);
-	S_StartSound(NULL,sfx_swtchx);
-    }
-}
-
 static void M_QuickSave(void)
 {
     if (!usergame)
@@ -1167,8 +1156,10 @@ static void M_QuickSave(void)
 	quickSaveSlot = -2;	// means to pick a slot now
 	return;
     }
-    DEH_snprintf(tempstring, 80, QSPROMPT, savegamestrings[quickSaveSlot]);
-    M_StartMessage(tempstring,M_QuickSaveResponse,true);
+
+	// [JN] CRL - do not show confirmation dialog,
+	// do a quick save immediately.
+	M_DoSave(quickSaveSlot);
 }
 
 
@@ -1176,16 +1167,6 @@ static void M_QuickSave(void)
 //
 // M_QuickLoad
 //
-static void M_QuickLoadResponse(int key)
-{
-    if (key == key_menu_confirm)
-    {
-	M_LoadSelect(quickSaveSlot);
-	S_StartSound(NULL,sfx_swtchx);
-    }
-}
-
-
 static void M_QuickLoad(void)
 {
     if (netgame)
@@ -1199,8 +1180,10 @@ static void M_QuickLoad(void)
 	M_StartMessage(DEH_String(QSAVESPOT),NULL,false);
 	return;
     }
-    DEH_snprintf(tempstring, 80, QLPROMPT, savegamestrings[quickSaveSlot]);
-    M_StartMessage(tempstring,M_QuickLoadResponse,true);
+
+	// [JN] CRL - do not show confirmation dialog,
+	// do a quick load immediately.
+	M_LoadSelect(quickSaveSlot);
 }
 
 
