@@ -1747,7 +1747,8 @@ void D_DoomMain (void)
     D_ConnectNetGame();
 
     // get skill / episode / map from parms
-    startskill = sk_medium;
+    // [JN] CRL - use choosen default skill level.
+    startskill = crl_default_skill;
     startepisode = 1;
     startmap = 1;
     autostart = false;
@@ -1957,7 +1958,7 @@ void D_DoomMain (void)
     if (gameaction != ga_loadgame )
     {
 		if (autostart || netgame)
-			G_InitNew (startskill, startepisode, startmap);
+			G_InitNew (crl_default_skill, startepisode, startmap);
 		else
 		{
 			// If brute forcing this was NOT wanted

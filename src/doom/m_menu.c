@@ -500,10 +500,31 @@ static void M_DrawCRL_2 (void);
 static void M_CRL_Automap (int choice);
 static void M_CRL_UncappedFPS (int choice);
 static void M_CRL_ScreenWipe (int choice);
+static void M_CRL_DefaulSkill (int choice);
 static void M_CRL_ColoredSTBar (int choice);
 static void M_CRL_RevealedSecrets (int choice);
 static void M_CRL_Colorblind (int choice);
 static void M_ChooseCRL_1 (int choice);
+
+static char *const DefSkillName[5] = 
+{
+    "IMTYTD" ,
+    "HNTR"   ,
+    "HMP"    ,
+    "UV"     ,
+    "NM"     
+};
+
+static byte *DefSkillColor (const int skill)
+{
+    return
+        skill == 0 ? cr[CR_OLIVE]     :
+        skill == 1 ? cr[CR_DARKGREEN] :
+        skill == 2 ? cr[CR_GREEN]     :
+        skill == 3 ? cr[CR_YELLOW]    :
+        skill == 4 ? cr[CR_ORANGE]    :
+                     cr[CR_RED];
+}
 
 //
 // Page 1
@@ -587,10 +608,10 @@ static menuitem_t CRLMenu_2[]=
     {-1, "", 0, '\0'},               // QOL FEATURES title
     { 2, "UNCAPPED FRAMERATE",       M_CRL_UncappedFPS,     'u'},
     { 2, "SCREEN WIPE EFFECT",       M_CRL_ScreenWipe,      's'},
+    { 2, "DEFAULT SKILL LEVEL",      M_CRL_DefaulSkill,     'd'},
     { 2, "COLORED STATUS BAR",       M_CRL_ColoredSTBar,    'c'},
     { 2, "REPORT REVEALED SECRETS",  M_CRL_RevealedSecrets, 'r'},
     { 2, "COLORBLIND",               M_CRL_Colorblind,      'c'},
-    {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
@@ -796,21 +817,26 @@ static void M_DrawCRL_2 (void)
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 54, str, 
                  crl_screenwipe ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
+    // Default skill level
+    sprintf(str, DefSkillName[crl_default_skill]);
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 63, str, 
+                 DefSkillColor(crl_default_skill));
+
     // Colored status bar
     sprintf(str, crl_colored_stbar ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 63, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 72, str, 
                  crl_colored_stbar ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Report revealed secrets
     sprintf(str, crl_revealed_secrets ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 72, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 81, str, 
                  crl_revealed_secrets ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Colorblind
     sprintf(str, crl_colorblind == 1 ? "RED/GREEN" :
                  crl_colorblind == 2 ? "BLUE/YELLOW" :
                  crl_colorblind == 3 ? "MONOCHROME" : "NONE");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 81, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 90, str, 
                  crl_colorblind > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     //
@@ -851,6 +877,30 @@ static void M_CRL_UncappedFPS (int choice)
 static void M_CRL_ScreenWipe (int choice)
 {
     crl_screenwipe ^= 1;
+}
+
+static void M_CRL_DefaulSkill (int choice)
+{
+    switch (choice)
+    {
+        case 0:
+            crl_default_skill--;
+            if (crl_default_skill < 0)
+            {
+                crl_default_skill = 4;
+            }
+        break;
+
+        case 1:
+            crl_default_skill++;
+            if (crl_default_skill > 4)
+            {
+                crl_default_skill = 0;
+            }
+        break;
+    }
+    
+    NewDef.lastOn = crl_default_skill;
 }
 
 static void M_CRL_ColoredSTBar (int choice)
@@ -2661,6 +2711,9 @@ void M_Init (void)
     messageString = NULL;
     messageLastMenuActive = menuactive;
     quickSaveSlot = -1;
+
+    // [JN] CRL - set cursor position in skill menu to default skill level.
+    NewDef.lastOn = crl_default_skill;
 
     // Here we could catch other version dependencies,
     //  like HELP1/2, and four episodes.

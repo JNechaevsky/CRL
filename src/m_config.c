@@ -1677,6 +1677,7 @@ static default_t extra_defaults_list[] =
     // QOL Features
     CONFIG_VARIABLE_INT(crl_uncapped_fps),
     CONFIG_VARIABLE_INT(crl_screenwipe),
+    CONFIG_VARIABLE_INT(crl_default_skill),
     CONFIG_VARIABLE_INT(crl_colored_stbar),
     CONFIG_VARIABLE_INT(crl_revealed_secrets),
     CONFIG_VARIABLE_INT(crl_colorblind),
