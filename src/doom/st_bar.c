@@ -106,8 +106,9 @@ static patch_t *armsbg;              // ARMS background
 static int st_fragscount; // number of frags so far in deathmatch
 static int st_oldhealth = -1;  // used to use appopriately pained face
 static int st_facecount = 0;  // count until face changes
-static int st_faceindex = 0;  // current face index, used by w_faces
+static int st_faceindex = 1;  // current face index, used by w_faces
 static int st_randomnumber; // a random number per tick
+static int faceindex; // [crispy] fix status bar face hysteresis
 
 cheatseq_t cheat_mus = CHEAT("idmus", 2);
 cheatseq_t cheat_god = CHEAT("iddqd", 0);
@@ -508,9 +509,6 @@ static const int ST_calcPainOffset (void)
 //  dead > evil grin > turned head > straight ahead
 // -----------------------------------------------------------------------------
 
-// [crispy] fix status bar face hysteresis
-static int faceindex;
-
 static void ST_updateFaceWidget (void)
 {
     int         i;
@@ -521,11 +519,9 @@ static void ST_updateFaceWidget (void)
     boolean     doevilgrin;
 
     // [crispy] fix status bar face hysteresis
-    int		painoffset;
+    int painoffset = ST_calcPainOffset();
     // [crispy] no evil grin or rampage face in god mode
     const boolean invul = (plyr->cheats & CF_GODMODE) || plyr->powers[pw_invulnerability];
-
-    painoffset = ST_calcPainOffset();
 
     if (priority < 10)
     {
@@ -554,7 +550,8 @@ static void ST_updateFaceWidget (void)
                     oldweaponsowned[i] = plyr->weaponowned[i];
                 }
             }
-            if (doevilgrin) 
+            // [crispy] no evil grin in god mode
+            if (doevilgrin && !invul)
             {
                 // evil grin if just picked up weapon
                 priority = 8;
@@ -604,17 +601,17 @@ static void ST_updateFaceWidget (void)
                 if (diffang < ANG45)
                 {
                     // head-on    
-                    faceindex += ST_RAMPAGEOFFSET;
+                    faceindex = ST_RAMPAGEOFFSET;
                 }
                 else if (i)
                 {
                     // turn face right
-                    faceindex += ST_TURNOFFSET;
+                    faceindex = ST_TURNOFFSET;
                 }
                 else
                 {
                     // turn face left
-                    faceindex += ST_TURNOFFSET+1;
+                    faceindex = ST_TURNOFFSET+1;
                 }
             }
         }
@@ -650,7 +647,8 @@ static void ST_updateFaceWidget (void)
             {
                 lastattackdown = ST_RAMPAGEDELAY;
             }
-            else if (!--lastattackdown)
+            // [crispy] no rampage face in god mode
+            else if (!--lastattackdown && !invul)
             {
                 priority = 5;
                 faceindex = ST_RAMPAGEOFFSET;
@@ -672,7 +670,7 @@ static void ST_updateFaceWidget (void)
             priority = 4;
 
             painoffset = 0;
-            st_faceindex = ST_GODFACE;
+            faceindex = ST_GODFACE;
             st_facecount = 1;
         }
     }
