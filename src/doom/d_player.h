@@ -134,6 +134,9 @@ typedef struct player_s
     // Hint messages.
     char*		message;	
     int			messageTics;
+    byte*		messageColor;
+
+    // [JN] CRL - hint critical messages.
     char*		criticalmessage;	
     int			criticalmessageTics;
     

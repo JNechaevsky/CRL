@@ -689,7 +689,7 @@ void G_DoLoadLevel (void)
 
     if (testcontrols)
     {
-        CRL_SetMessage(&players[consoleplayer], "Press escape to quit.", false);
+        CRL_SetMessage(&players[consoleplayer], "Press escape to quit.", false, NULL);
     }
 } 
 
@@ -862,7 +862,7 @@ boolean G_Responder (event_t* ev)
     {
         crl_spectating ^= 1;
         CRL_SetMessage(&players[consoleplayer], crl_spectating ?
-                       CRL_SPECTATOR_ON : CRL_SPECTATOR_OFF, false);
+                       CRL_SPECTATOR_ON : CRL_SPECTATOR_OFF, false, NULL);
     }        
 
 	return true;    // eat key down events 
@@ -940,7 +940,7 @@ void G_Ticker (void)
 	    break; 
 	  case ga_screenshot: 
 	    V_ScreenShot("DOOM%02i.%s"); 
-            CRL_SetMessage(&players[consoleplayer], DEH_String("screen shot"), false);
+            CRL_SetMessage(&players[consoleplayer], DEH_String("screen shot"), false, NULL);
 	    gameaction = ga_nothing; 
 	    break; 
 	  case ga_nothing: 
@@ -986,7 +986,7 @@ void G_Ticker (void)
                 extern char *player_names[4];
                 M_snprintf(turbomessage, sizeof(turbomessage),
                            "%s is turbo!", player_names[i]);
-                CRL_SetMessage(&players[consoleplayer], turbomessage, false);
+                CRL_SetMessage(&players[consoleplayer], turbomessage, false, NULL);
                 turbodetected[i] = false;
             }
 
@@ -1726,7 +1726,7 @@ void G_DoSaveGame (void)
     gameaction = ga_nothing;
     M_StringCopy(savedescription, "", sizeof(savedescription));
 
-    CRL_SetMessage(&players[consoleplayer], DEH_String(GGSAVED), false);
+    CRL_SetMessage(&players[consoleplayer], DEH_String(GGSAVED), false, NULL);
 
     // draw the pattern into the back screen
     R_FillBackScreen ();

@@ -1414,7 +1414,7 @@ static void M_ChangeMessages(int choice)
     showMessages = 1 - showMessages;
 	
 	CRL_SetMessage(&players[consoleplayer],
-                   DEH_String(showMessages ? MSGON : MSGOFF), true);
+                   DEH_String(showMessages ? MSGON : MSGOFF), true, NULL);
 }
 
 
@@ -1579,9 +1579,9 @@ static void M_ChangeDetail(int choice)
     R_SetViewSize (screenblocks, detailLevel);
 
     if (!detailLevel)
-	CRL_SetMessage(&players[consoleplayer], DEH_String(DETAILHI), false);
+	CRL_SetMessage(&players[consoleplayer], DEH_String(DETAILHI), false, NULL);
     else
-	CRL_SetMessage(&players[consoleplayer], DEH_String(DETAILLO), false);
+	CRL_SetMessage(&players[consoleplayer], DEH_String(DETAILLO), false, NULL);
 }
 
 
@@ -2344,7 +2344,7 @@ boolean M_Responder (event_t* ev)
 	    usegamma++;
 	    if (usegamma > 4)
 		usegamma = 0;
-	    CRL_SetMessage(&players[consoleplayer], DEH_String(gammamsg[usegamma]), false);
+	    CRL_SetMessage(&players[consoleplayer], DEH_String(gammamsg[usegamma]), false, NULL);
             I_SetPalette (W_CacheLumpName (DEH_String("PLAYPAL"),PU_CACHE));
 	    return true;
         }

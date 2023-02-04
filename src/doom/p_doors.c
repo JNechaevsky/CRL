@@ -213,7 +213,7 @@ EV_DoLockedDoor
 	    return 0;
 	if (!p->cards[it_bluecard] && !p->cards[it_blueskull])
 	{
-	    CRL_SetMessage(p, DEH_String(PD_BLUEO), false);
+	    CRL_SetMessage(p, DEH_String(PD_BLUEO), false, NULL);
 	    S_StartSound(NULL,sfx_oof);
 	    return 0;
 	}
@@ -225,7 +225,7 @@ EV_DoLockedDoor
 	    return 0;
 	if (!p->cards[it_redcard] && !p->cards[it_redskull])
 	{
-	    CRL_SetMessage(p, DEH_String(PD_REDO), false);
+	    CRL_SetMessage(p, DEH_String(PD_REDO), false, NULL);
 	    S_StartSound(NULL,sfx_oof);
 	    return 0;
 	}
@@ -238,7 +238,7 @@ EV_DoLockedDoor
 	if (!p->cards[it_yellowcard] &&
 	    !p->cards[it_yellowskull])
 	{
-	    CRL_SetMessage(p, DEH_String(PD_YELLOWO), false);
+	    CRL_SetMessage(p, DEH_String(PD_YELLOWO), false, NULL);
 	    S_StartSound(NULL,sfx_oof);
 	    return 0;
 	}
@@ -358,7 +358,7 @@ EV_VerticalDoor
 	
 	if (!player->cards[it_bluecard] && !player->cards[it_blueskull])
 	{
-	    CRL_SetMessage(player, DEH_String(PD_BLUEK), false);
+	    CRL_SetMessage(player, DEH_String(PD_BLUEK), false, NULL);
 	    S_StartSound(NULL,sfx_oof);
 	    return;
 	}
@@ -372,7 +372,7 @@ EV_VerticalDoor
 	if (!player->cards[it_yellowcard] &&
 	    !player->cards[it_yellowskull])
 	{
-	    CRL_SetMessage(player, DEH_String(PD_YELLOWK), false);
+	    CRL_SetMessage(player, DEH_String(PD_YELLOWK), false, NULL);
 	    S_StartSound(NULL,sfx_oof);
 	    return;
 	}
@@ -385,7 +385,7 @@ EV_VerticalDoor
 	
 	if (!player->cards[it_redcard] && !player->cards[it_redskull])
 	{
-	    CRL_SetMessage(player, DEH_String(PD_REDK), false);
+	    CRL_SetMessage(player, DEH_String(PD_REDK), false, NULL);
 	    S_StartSound(NULL,sfx_oof);
 	    return;
 	}

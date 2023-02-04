@@ -743,41 +743,41 @@ boolean AM_Responder (event_t *ev)
             followplayer = !followplayer;
 
             CRL_SetMessage(plr, DEH_String(followplayer ?
-                           AMSTR_FOLLOWON : AMSTR_FOLLOWOFF), false);
+                           AMSTR_FOLLOWON : AMSTR_FOLLOWOFF), false, NULL);
         }
         else if (key == key_map_grid)
         {
             grid = !grid;
 
             CRL_SetMessage(plr, DEH_String(grid ?
-                           AMSTR_GRIDON : AMSTR_GRIDOFF), false);
+                           AMSTR_GRIDON : AMSTR_GRIDOFF), false, NULL);
 
         }
         else if (key == key_map_mark)
         {
             M_snprintf(buffer, sizeof(buffer), "%s %d",
                        DEH_String(AMSTR_MARKEDSPOT), markpointnum);
-            CRL_SetMessage(plr, buffer, false);
+            CRL_SetMessage(plr, buffer, false, NULL);
             AM_addMark();
         }
         else if (key == key_map_clearmark)
         {
             AM_clearMarks();
-            CRL_SetMessage(plr, DEH_String(AMSTR_MARKSCLEARED), false);
+            CRL_SetMessage(plr, DEH_String(AMSTR_MARKSCLEARED), false, NULL);
         }
         else if (key == key_crl_map_rotate)
         {
             // [JN] CRL - Automap rotate mode
             crl_automap_rotate = !crl_automap_rotate;
             CRL_SetMessage(plr, DEH_String(crl_automap_rotate ?
-                           CRL_AUTOMAPROTATE_ON : CRL_AUTOMAPROTATE_OFF), false);
+                           CRL_AUTOMAPROTATE_ON : CRL_AUTOMAPROTATE_OFF), false, NULL);
         }
         else if (key == key_crl_map_overlay)
         {
             // [JN] CRL - Automap overlay mode
             crl_automap_overlay = !crl_automap_overlay;
             CRL_SetMessage(plr, DEH_String(crl_automap_overlay ?
-                           CRL_AUTOMAPOVERLAY_ON : CRL_AUTOMAPOVERLAY_OFF), false);
+                           CRL_AUTOMAPOVERLAY_ON : CRL_AUTOMAPOVERLAY_OFF), false, NULL);
         }
         else
         {

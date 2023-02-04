@@ -275,7 +275,7 @@ extern int		clipammo[NUMAMMO];
 #define MESSAGETICS (4*35)
 extern int showMessages;
 extern boolean ultimatemsg;
-extern void CRL_SetMessage (player_t * player, char *message, boolean ultmsg);
+extern void CRL_SetMessage (player_t * player, char *message, boolean ultmsg, byte *table);
 extern void CRL_SetCriticalMessage (char *message, const int tics);
 
 void

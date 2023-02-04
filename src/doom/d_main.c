@@ -169,7 +169,7 @@ static void CRL_DrawMessage (void)
         return;  // No message
     }
 
-    M_WriteText(0, 0, player->message, NULL);
+    M_WriteText(0, 0, player->message, player->messageColor);
 }
 
 // -----------------------------------------------------------------------------
