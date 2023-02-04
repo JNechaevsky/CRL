@@ -46,6 +46,7 @@
 
 // Data.
 #include "sounds.h"
+#include "d_englsh.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
@@ -1062,6 +1063,21 @@ void P_PlayerInSpecialSector (player_t* player)
 	// SECRET SECTOR
 	player->secretcount++;
 	sector->special = 0;
+	// [JN] CRL - "A secret is revelaed!" message.
+	if (crl_revealed_secrets)
+	{
+	    // [crispy] play DSSECRET if available
+	    int sfx_id;  
+        
+	    sfx_id = I_GetSfxLumpNum(&S_sfx[sfx_secret]) != -1 ? sfx_secret :
+	             I_GetSfxLumpNum(&S_sfx[sfx_getpow]) != -1 ? sfx_getpow : -1;
+
+	    CRL_SetMessage(&players[displayplayer], DEH_String(CRL_SECRET_FOUND), true);
+	    if (sfx_id != -1)
+        {
+	        S_StartSound(NULL, sfx_id);
+	    }
+	}
 	break;
 			
       case 11:

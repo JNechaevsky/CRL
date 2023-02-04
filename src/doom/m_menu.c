@@ -501,6 +501,7 @@ static void M_CRL_Automap (int choice);
 static void M_CRL_UncappedFPS (int choice);
 static void M_CRL_ScreenWipe (int choice);
 static void M_CRL_ColoredSTBar (int choice);
+static void M_CRL_RevealedSecrets (int choice);
 static void M_CRL_Colorblind (int choice);
 static void M_ChooseCRL_1 (int choice);
 
@@ -581,21 +582,21 @@ enum
 
 static menuitem_t CRLMenu_2[]=
 {
-                                // AUTOMAP
-    { 2, "DRAWING MODE",        M_CRL_Automap,        'a'},
-    {-1, "", 0, '\0'},          // QOL FEATURES title
-    { 2, "UNCAPPED FRAMERATE",  M_CRL_UncappedFPS,    'u'},
-    { 2, "SCREEN WIPE EFFECT",  M_CRL_ScreenWipe,     's'},
-    { 2, "COLORED STATUS BAR",  M_CRL_ColoredSTBar,   'c'},
-    { 2, "COLORBLIND",          M_CRL_Colorblind,     'c'},
+                                     // AUTOMAP
+    { 2, "DRAWING MODE",             M_CRL_Automap,         'a'},
+    {-1, "", 0, '\0'},               // QOL FEATURES title
+    { 2, "UNCAPPED FRAMERATE",       M_CRL_UncappedFPS,     'u'},
+    { 2, "SCREEN WIPE EFFECT",       M_CRL_ScreenWipe,      's'},
+    { 2, "COLORED STATUS BAR",       M_CRL_ColoredSTBar,    'c'},
+    { 2, "REPORT REVEALED SECRETS",  M_CRL_RevealedSecrets, 'r'},
+    { 2, "COLORBLIND",               M_CRL_Colorblind,      'c'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
-    {-1, "", 0, '\0'},
-    { 1, "",                     M_ChooseCRL_1,     's'}
+    { 1, "",                         M_ChooseCRL_1,         's'}
 };
 
 static menu_t CRLDef_2 =
@@ -800,11 +801,16 @@ static void M_DrawCRL_2 (void)
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 63, str, 
                  crl_colored_stbar ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
+    // Report revealed secrets
+    sprintf(str, crl_revealed_secrets ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 72, str, 
+                 crl_revealed_secrets ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
     // Colorblind
     sprintf(str, crl_colorblind == 1 ? "RED/GREEN" :
                  crl_colorblind == 2 ? "BLUE/YELLOW" :
                  crl_colorblind == 3 ? "MONOCHROME" : "NONE");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 72, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 81, str, 
                  crl_colorblind > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     //
@@ -850,6 +856,11 @@ static void M_CRL_ScreenWipe (int choice)
 static void M_CRL_ColoredSTBar (int choice)
 {
     crl_colored_stbar ^= 1;
+}
+
+static void M_CRL_RevealedSecrets (int choice)
+{
+    crl_revealed_secrets ^= 1;
 }
 
 static void M_CRL_Colorblind (int choice)
