@@ -1911,6 +1911,23 @@ void A_BrainSpit (mobj_t*	mo)
     if (gameskill <= sk_easy && (!easy))
 	return;
 		
+    // [crispy] avoid division by zero by recalculating the number of spawn spots
+    if (numbraintargets == 0)
+    {
+        char *message = "numbraintargets was 0 (vanilla crashes here)";
+
+        A_BrainAwake(NULL);
+
+        printf("A_BrainSpit: %s\n", message);
+        // [JN] CRL - print in-game warning as well.
+        CRL_SetCriticalMessage(message, MESSAGETICS);
+
+    }
+        
+    // [crispy] still no spawn spots available
+    if (numbraintargets == -1)
+	return;
+
     // shoot a cube at current target
     targ = braintargets[braintargeton];
     braintargeton = (braintargeton+1)%numbraintargets;
