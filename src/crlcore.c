@@ -320,6 +320,10 @@ int CRL_lineanims_counter;
 	Will be reset on level restart. */    
 int CRL_plats_counter;
 
+/** [JN] Icon of Sin spitter target counter (32 in vanilla).
+	Will be reset on level restart. */
+int CRL_brain_counter;
+
 /**
  * Initializes things.
  */
@@ -730,87 +734,137 @@ void CRL_StatDrawer(void)
         if (crl_widget_time)    yy += 9;
         if (screenblocks == 11) yy += 9;
 
-        // Animated lines (64 max)
-        if (crl_widget_render == 1)
+        // Icon of Sin spitter targets (32 max)
+        if ((crl_widget_render == 1 
+        ||  (crl_widget_render == 2 && CRL_brain_counter > 32)) && CRL_brain_counter)
         {
             char plt[32];
 
-            M_WriteText(0, 117 - yy, "ANI:", CRL_lineanims_counter >= 64 ?
-                       (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
+            M_WriteText(0, 108 - yy, "BRN:",
+                        CRL_brain_counter == 32 ? cr[CR_LIGHTGRAY] :
+                        CRL_brain_counter >= 32 ? (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) :
+                                                  cr[CR_GRAY]);
+
+            M_snprintf(plt, 16, "%d/32", CRL_brain_counter);
+
+            M_WriteText(32, 108 - yy, plt,
+                        CRL_brain_counter == 32 ? cr[CR_YELLOW] :
+                        CRL_brain_counter >= 32 ? (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) :
+                                                  cr[CR_GREEN]);
+        }
+
+        // Animated lines (64 max)
+        if (crl_widget_render == 1
+        || (crl_widget_render == 2 && CRL_lineanims_counter > 64))
+        {
+            char plt[32];
+
+            M_WriteText(0, 117 - yy, "ANI:",
+                        CRL_lineanims_counter == 64 ? cr[CR_LIGHTGRAY] :
+                        CRL_lineanims_counter >= 64 ? (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) :
+                                                      cr[CR_GRAY]);
+
             M_snprintf(plt, 16, "%d/64", CRL_lineanims_counter);
 
-            M_WriteText(32, 117 - yy, plt, CRL_lineanims_counter >= 64 ?
-                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
+            M_WriteText(32, 117 - yy, plt,
+                        CRL_lineanims_counter == 64 ? cr[CR_YELLOW] :
+                        CRL_lineanims_counter >= 64 ? (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) :
+                                                      cr[CR_GREEN]);
         }
 
         // Plats (30 max)
-        if (crl_widget_render == 1)
+        if (crl_widget_render == 1
+        || (crl_widget_render == 2 && CRL_plats_counter > 30))
         {
             char plt[32];
 
-            M_WriteText(0, 126 - yy, "PLT:", CRL_plats_counter >= 31 ?
-                       (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
+            M_WriteText(0, 126 - yy, "PLT:",
+                        CRL_plats_counter == 30 ? cr[CR_LIGHTGRAY] :
+                        CRL_plats_counter >= 31 ? (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) :
+                                                  cr[CR_GRAY]);
+
             M_snprintf(plt, 16, "%d/30", CRL_plats_counter);
 
-            M_WriteText(32, 126 - yy, plt, CRL_plats_counter >= 31 ?
-                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
+            M_WriteText(32, 126 - yy, plt,
+                        CRL_plats_counter == 30 ? cr[CR_YELLOW] :
+                        CRL_plats_counter >= 30 ? (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) :
+                                                  cr[CR_GREEN]);
         }
 
         // Sprites (128 max)
         if (crl_widget_render == 1
-        || (crl_widget_render == 2 && CRLData.numsprites >= 128))
+        || (crl_widget_render == 2 && CRLData.numsprites > 128))
         {
             char spr[32];
 
-            M_WriteText(0, 135 - yy, "SPR:", CRLData.numsprites >= 128 ?
-                        cr[CR_LIGHTGRAY] : cr[CR_GRAY]);
+            M_WriteText(0, 135 - yy, "SPR:",
+                        CRLData.numsprites >= 128 ? cr[CR_LIGHTGRAY] :
+                                                    cr[CR_GRAY]);
+
             M_snprintf(spr, 16, "%d/128", CRLData.numsprites);
 
-            M_WriteText(32, 135 - yy, spr, CRLData.numsprites >= 128 ?
-                                      cr[CR_YELLOW] : cr[CR_GREEN]);
+            M_WriteText(32, 135 - yy, spr,
+                        CRLData.numsprites >= 128 ? cr[CR_YELLOW] :
+                                                    cr[CR_GREEN]);
         }
 
         // Segments (256 max)
         if (crl_widget_render == 1
-        || (crl_widget_render == 2 && CRLData.numsegs >= 256))
+        || (crl_widget_render == 2 && CRLData.numsegs > 256))
         {
             char seg[32];
 
-            M_WriteText(0, 144 - yy, "SEG:", CRLData.numsegs >= 256 ?
-                       (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
+            M_WriteText(0, 144 - yy, "SEG:",
+                        CRLData.numsegs == 256 ? cr[CR_LIGHTGRAY] :
+                        CRLData.numsegs >= 256 ? (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) :
+                                                 cr[CR_GRAY]);
+
             M_snprintf(seg, 16, "%d/256", CRLData.numsegs);
 
-            M_WriteText(32, 144 - yy, seg, CRLData.numsegs >= 256 ?
-                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
+            M_WriteText(32, 144 - yy, seg,
+                        CRLData.numsegs == 256 ? cr[CR_YELLOW] :
+                        CRLData.numsegs >= 256 ? (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) :
+                                                 cr[CR_GREEN]);
         }
 
         // Planes (128 max)
         if (crl_widget_render == 1
-        || (crl_widget_render == 2 && CRLData.numcheckplanes + CRLData.numfindplanes >= 128))
+        || (crl_widget_render == 2 && CRLData.numcheckplanes + CRLData.numfindplanes > 128))
         {
             char vis[32];
             const int totalplanes = CRLData.numcheckplanes
                                   + CRLData.numfindplanes;
 
-            M_WriteText(0, 153 - yy, "PLN:", (totalplanes >= 128) ?
-                       (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
-            
+            M_WriteText(0, 153 - yy, "PLN:",
+                        totalplanes == 128 ? cr[CR_LIGHTGRAY] :
+                        totalplanes >= 128 ? (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) :
+                                             cr[CR_GRAY]);
+
             M_snprintf(vis, 32, "%d/128", totalplanes);
-            M_WriteText(32, 153 - yy, vis, (totalplanes >= 128) ?
-                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
+
+            M_WriteText(32, 153 - yy, vis,
+                        totalplanes == 128 ? cr[CR_YELLOW] :
+                        totalplanes >= 128 ? (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) :
+                                             cr[CR_GREEN]);
         }
 
         // Openings
         if (crl_widget_render == 1
-        || (crl_widget_render == 2 && CRLData.numopenings >= 20480))
+        || (crl_widget_render == 2 && CRLData.numopenings > 20480))
         {
             char opn[64];
 
-            M_WriteText(0, 162 - yy, "OPN:", (CRLData.numopenings >= 20480) ?
-                       (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
+            M_WriteText(0, 162 - yy, "OPN:",
+                        CRLData.numopenings == 20480 ? cr[CR_LIGHTGRAY] :
+                        CRLData.numopenings >= 20480 ? (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) :
+                                                       cr[CR_GRAY]);
+
             M_snprintf(opn, 16, "%d/20480", CRLData.numopenings);
-            M_WriteText(32, 162 - yy, opn, CRLData.numopenings >= 20480 ? 
-                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
+
+            M_WriteText(32, 162 - yy, opn,
+                        CRLData.numopenings == 20480 ? cr[CR_YELLOW] :
+                        CRLData.numopenings >= 20480 ? (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) :
+                                                       cr[CR_GREEN]);
         }
     }
 

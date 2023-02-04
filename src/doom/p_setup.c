@@ -492,6 +492,9 @@ void P_LoadThings (int lump)
     data = W_CacheLumpNum (lump,PU_STATIC);
     numthings = W_LumpLength (lump) / sizeof(mapthing_t);
 	
+    // [JN] CRL - initialize Icon of Sin spitter targets counter.
+    CRL_brain_counter = 0;
+    
     mt = (mapthing_t *)data;
     for (i=0 ; i<numthings ; i++, mt++)
     {
@@ -526,6 +529,12 @@ void P_LoadThings (int lump)
 	spawnthing.type = SHORT(mt->type);
 	spawnthing.options = SHORT(mt->options);
 	
+	// [JN] CRL - count Icon of Sin spitter targets.
+	if (mt->type == 87)
+	{
+	    CRL_brain_counter++;
+	}
+
 	P_SpawnMapThing(&spawnthing);
     }
 
