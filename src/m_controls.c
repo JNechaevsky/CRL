@@ -207,6 +207,7 @@ int key_crl_map_overlay = 'o';
  
 int key_crl_nextlevel = 0; // [crispy]
 int key_crl_reloadlevel = 0; // [crispy]
+int key_crl_demospeed = 0; // [crispy]
  
 // 
 // Bind all of the common controls used by Doom and all other games.
@@ -391,6 +392,7 @@ void M_BindMenuControls(void)
 
     M_BindIntVariable("key_crl_nextlevel",   &key_crl_nextlevel); // [crispy]
     M_BindIntVariable("key_crl_reloadlevel", &key_crl_reloadlevel); // [crispy]
+    M_BindIntVariable("key_crl_demospeed",   &key_crl_demospeed); // [crispy]
 }
 
 void M_BindChatControls(unsigned int num_players)

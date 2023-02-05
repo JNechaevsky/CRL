@@ -161,6 +161,7 @@ extern int key_crl_map_rotate;
 extern int key_crl_map_overlay;
 extern int key_crl_nextlevel; // [crispy]
 extern int key_crl_reloadlevel; // [crispy]
+extern int key_crl_demospeed; // [crispy]
 
 void M_BindBaseControls(void);
 void M_BindHereticControls(void);

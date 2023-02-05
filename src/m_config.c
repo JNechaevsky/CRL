@@ -1654,6 +1654,7 @@ static default_t extra_defaults_list[] =
 
     CONFIG_VARIABLE_KEY(key_crl_nextlevel),
     CONFIG_VARIABLE_KEY(key_crl_reloadlevel),
+    CONFIG_VARIABLE_KEY(key_crl_demospeed),
 
     // Rendering
     CONFIG_VARIABLE_INT(crl_startup_delay),
