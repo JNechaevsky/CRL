@@ -1654,6 +1654,7 @@ static default_t extra_defaults_list[] =
 
     CONFIG_VARIABLE_KEY(key_crl_nextlevel),
     CONFIG_VARIABLE_KEY(key_crl_reloadlevel),
+    CONFIG_VARIABLE_KEY(key_crl_demospeed),
 
     // Rendering
     CONFIG_VARIABLE_INT(crl_startup_delay),
@@ -1673,6 +1674,11 @@ static default_t extra_defaults_list[] =
     CONFIG_VARIABLE_INT(crl_automap_mode),
     CONFIG_VARIABLE_INT(crl_automap_rotate),
     CONFIG_VARIABLE_INT(crl_automap_overlay),
+
+    // Demos
+    CONFIG_VARIABLE_INT(crl_demo_timer),
+    CONFIG_VARIABLE_INT(crl_demo_timerdir),
+    CONFIG_VARIABLE_INT(crl_demo_bar),
 
     // QOL Features
     CONFIG_VARIABLE_INT(crl_uncapped_fps),

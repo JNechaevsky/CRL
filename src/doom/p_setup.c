@@ -931,6 +931,14 @@ P_SetupLevel
     // will be set by player think.
     players[consoleplayer].viewz = 1; 
 
+    // [crispy] stop demo warp mode now
+    if (demowarp == map)
+    {
+        demowarp = 0;
+        nodrawers = false;
+        singletics = false;
+    }
+
     // Make sure all sounds are stopped before Z_FreeTags.
     S_Start ();			
 

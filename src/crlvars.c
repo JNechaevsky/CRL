@@ -44,6 +44,11 @@ int crl_automap_mode = 0;
 int crl_automap_rotate = 0;
 int crl_automap_overlay = 0;
 
+// Demos
+int crl_demo_timer = 0;
+int crl_demo_timerdir = 0;
+int crl_demo_bar = 0;
+
 // QOL Features
 int crl_uncapped_fps = 1;
 int crl_screenwipe = 0;
@@ -75,6 +80,11 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_automap_mode",               &crl_automap_mode);
     M_BindIntVariable("crl_automap_rotate",             &crl_automap_rotate);
     M_BindIntVariable("crl_automap_overlay",            &crl_automap_overlay);
+
+    // Demos
+    M_BindIntVariable("crl_demo_timer",                 &crl_demo_timer);
+    M_BindIntVariable("crl_demo_timerdir",              &crl_demo_timerdir);
+    M_BindIntVariable("crl_demo_bar",                   &crl_demo_bar);
 
     // QOL Features
     M_BindIntVariable("crl_uncapped_fps",               &crl_uncapped_fps);

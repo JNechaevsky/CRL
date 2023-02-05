@@ -319,6 +319,22 @@ void D_Display (void)
         // GhostlyDeath -- CRL Stats
         // [JN] Extended to draw sprite and segment counters, simplified.
         CRL_StatDrawer();
+
+        // [crispy] demo timer widget
+        if (demoplayback && (crl_demo_timer == 1 || crl_demo_timer == 3))
+        {
+            CRL_DemoTimer(crl_demo_timerdir ? (deftotaldemotics - defdemotics) : defdemotics);
+        }
+        else if (demorecording && (crl_demo_timer == 2 || crl_demo_timer == 3))
+        {
+            CRL_DemoTimer(leveltime);
+        }
+    }
+
+    // [crispy] demo progress bar
+    if (demoplayback && crl_demo_bar)
+    {
+        CRL_DemoBar();
     }
 
     // Handle player messages
@@ -1845,6 +1861,8 @@ void D_DoomMain (void)
             }
         }
         autostart = true;
+        // [crispy] if used with -playdemo, fast-forward demo up to the desired map
+        demowarp = startmap;
     }
 
     // Undocumented:
@@ -1942,6 +1960,7 @@ void D_DoomMain (void)
 	G_DeferedPlayDemo (demolumpname);
 	D_DoomLoop ();  // never returns
     }
+    demowarp = 0; // [crispy] we don't play a demo, so don't skip maps
 	
     p = M_CheckParmWithArgs("-timedemo", 1);
     if (p)

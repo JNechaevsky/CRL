@@ -225,6 +225,12 @@ extern int      CRL_lineanims_counter;
 extern int      CRL_plats_counter;
 extern int      CRL_brain_counter;
 
+// [crispy] demo progress bar and timer widget
+extern void CRL_DemoTimer (const int time);
+extern void CRL_DemoBar (void);
+extern int  defdemotics, deftotaldemotics;
+extern int  demowarp; // [JN] Demo warp from Crispy Doom.
+
 extern boolean  menuactive;
 extern boolean  automapactive;
 extern int      screenblocks;
