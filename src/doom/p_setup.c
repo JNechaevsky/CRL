@@ -18,7 +18,7 @@
 //
 
 
-
+#include <SDL.h>  // [JN] SDL_GetTicks()
 #include <math.h>
 
 #include "z_zone.h"
@@ -915,6 +915,9 @@ P_SetupLevel
     int		i;
     char	lumpname[9];
     int		lumpnum;
+    // [JN] CRL - indicate level loading time in console.
+    unsigned const int starttime = SDL_GetTicks();
+    unsigned int endtime;
 	
     totalkills = totalitems = totalsecret = wminfo.maxfrags = 0;
     wminfo.partime = 180;
@@ -940,20 +943,13 @@ P_SetupLevel
     W_Reload ();
 
     // find map name
-    if ( gamemode == commercial)
+    if (gamemode == commercial)
     {
-	if (map<10)
-	    DEH_snprintf(lumpname, 9, "map0%i", map);
-	else
-	    DEH_snprintf(lumpname, 9, "map%i", map);
+        DEH_snprintf(lumpname, 9, "MAP%02d", map);
     }
     else
     {
-	lumpname[0] = 'E';
-	lumpname[1] = '0' + episode;
-	lumpname[2] = 'M';
-	lumpname[3] = '0' + map;
-	lumpname[4] = 0;
+        DEH_snprintf(lumpname, 9, "E%dM%d", episode, map);
     }
 
     lumpnum = W_GetNumForName (lumpname);
@@ -961,6 +957,16 @@ P_SetupLevel
     leveltime = 0;
     oldleveltime = 0;
 	
+    // [JN] Indicate the map we are loading.
+    if (gamemode == commercial)
+    {
+        fprintf(stderr, "P_SetupLevel: MAP%02d, ", gamemap);
+    }
+    else
+    {
+        fprintf(stderr, "P_SetupLevel: E%dM%d, ", gameepisode, gamemap);
+    }
+
     // note: most of this ordering is important	
     P_LoadBlockMap (lumpnum+ML_BLOCKMAP);
     P_LoadVertexes (lumpnum+ML_VERTEXES);
@@ -1009,6 +1015,10 @@ P_SetupLevel
 
     // [JN] Force to disable spectator mode.
     crl_spectating = 0;
+
+    // [JN] Print amount of level loading time.
+    endtime = SDL_GetTicks() - starttime;
+    DEH_printf("loaded in %d ms.\n", endtime);
 
     //printf ("free memory: 0x%x\n", Z_FreeMemory());
 
