@@ -186,7 +186,8 @@ static void CRL_DrawCriticalMessage (void)
         return;  // No message
     }
 
-    M_WriteText(0, 9, player->criticalmessage, cr[CR_RED]);
+    M_WriteText(0, 9, player->criticalmessage, gametic & 8 ?
+                cr[CR_DARKRED] : cr[CR_RED]);
 }
 
 
