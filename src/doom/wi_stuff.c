@@ -45,6 +45,9 @@
 
 #include "wi_stuff.h"
 
+#include "crlcore.h"
+#include "crlvars.h"
+
 //
 // Data needed to add patches to full screen intermission pics.
 // Patches are statistics messages, and animations.
@@ -827,6 +830,13 @@ void WI_drawShowNextLoc(void)
 	 || wbs->next != 30)
 	WI_drawEL();  
 
+
+    // [crispy] demo timer widget
+    if ((demoplayback && (crl_demo_timer == 1 || crl_demo_timer == 3))
+    ||  (demorecording && (crl_demo_timer == 2 || crl_demo_timer == 3)))
+    {
+        CRL_DemoTimer(leveltime);
+    }
 }
 
 void WI_drawNoState(void)
@@ -1476,6 +1486,12 @@ void WI_drawStats(void)
 	WI_drawTime(SCREENWIDTH - SP_TIMEX, SP_TIMEY, cnt_par);
     }
 
+    // [crispy] demo timer widget
+    if ((demoplayback && (crl_demo_timer == 1 || crl_demo_timer == 3))
+    ||  (demorecording && (crl_demo_timer == 2 || crl_demo_timer == 3)))
+    {
+        CRL_DemoTimer(leveltime);
+    }
 }
 
 void WI_checkForAccelerate(void)

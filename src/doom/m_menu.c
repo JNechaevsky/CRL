@@ -498,6 +498,9 @@ static void M_ChooseCRL_2 (int choice);
 
 static void M_DrawCRL_2 (void);
 static void M_CRL_Automap (int choice);
+static void M_CRL_DemoTimer (int choice);
+static void M_CRL_TimerDirection (int choice);
+static void M_CRL_ProgressBar (int choice);
 static void M_CRL_UncappedFPS (int choice);
 static void M_CRL_ScreenWipe (int choice);
 static void M_CRL_DefaulSkill (int choice);
@@ -605,6 +608,10 @@ static menuitem_t CRLMenu_2[]=
 {
                                      // AUTOMAP
     { 2, "DRAWING MODE",             M_CRL_Automap,         'a'},
+    {-1, "", 0, '\0'},               // DEMOS title
+    { 2, "DEMO TIMER",               M_CRL_DemoTimer,       'd'},
+    { 2, "TIMER DIRECTION",          M_CRL_TimerDirection,  't'},
+    { 2, "PROGRESS BAR",             M_CRL_ProgressBar,     'p'},
     {-1, "", 0, '\0'},               // QOL FEATURES title
     { 2, "UNCAPPED FRAMERATE",       M_CRL_UncappedFPS,     'u'},
     { 2, "SCREEN WIPE EFFECT",       M_CRL_ScreenWipe,      's'},
@@ -612,10 +619,6 @@ static menuitem_t CRLMenu_2[]=
     { 2, "COLORED STATUS BAR",       M_CRL_ColoredSTBar,    'c'},
     { 2, "REPORT REVEALED SECRETS",  M_CRL_RevealedSecrets, 'r'},
     { 2, "COLORBLIND",               M_CRL_Colorblind,      'c'},
-    {-1, "", 0, '\0'},
-    {-1, "", 0, '\0'},
-    {-1, "", 0, '\0'},
-    {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     { 1, "",                         M_ChooseCRL_1,         's'}
 };
@@ -645,7 +648,7 @@ static void M_DrawCRL_1 (void)
 
     M_ShadeBackground();
 
-    M_WriteText(CRL_MENU_LEFTOFFSET, 18, "WIDGETS", cr[CR_YELLOW]);
+    M_WriteText(CRL_MENU_LEFTOFFSET-10, 18, "WIDGETS", cr[CR_YELLOW]);
 
     // Rendering counters
     sprintf(str, crl_widget_render == 1 ? "ON" :
@@ -669,7 +672,7 @@ static void M_DrawCRL_1 (void)
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 54, str,
                  crl_widget_coords ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
-    M_WriteText(CRL_MENU_LEFTOFFSET, 63, "DRAWING", cr[CR_YELLOW]);
+    M_WriteText(CRL_MENU_LEFTOFFSET-10, 63, "DRAWING", cr[CR_YELLOW]);
 
     // HOM effect
     sprintf(str, crl_hom_effect == 0 ? "OFF" :
@@ -685,7 +688,7 @@ static void M_DrawCRL_1 (void)
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 81, str,
                  crl_visplanes_drawing > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
-    M_WriteText(CRL_MENU_LEFTOFFSET, 90, "GAME MODE", cr[CR_YELLOW]);
+    M_WriteText(CRL_MENU_LEFTOFFSET-10, 90, "GAME MODE", cr[CR_YELLOW]);
 
     // Spectating
     sprintf(str, crl_spectating ? "ON" : "OFF");
@@ -797,7 +800,7 @@ static void M_DrawCRL_2 (void)
 
     M_ShadeBackground();
 
-    M_WriteText(CRL_MENU_LEFTOFFSET, 18, "AUTOMAP", cr[CR_YELLOW]);
+    M_WriteText(CRL_MENU_LEFTOFFSET-10, 18, "AUTOMAP", cr[CR_YELLOW]);
 
     // Drawing mode
     sprintf(str, crl_automap_mode == 1 ? "FLOOR VISPLANES" :
@@ -805,38 +808,57 @@ static void M_DrawCRL_2 (void)
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 27, str,
                  crl_automap_mode ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
-    M_WriteText(CRL_MENU_LEFTOFFSET, 36, "QOL FEATURES", cr[CR_YELLOW]);
+    M_WriteText(CRL_MENU_LEFTOFFSET-10, 36, "DEMOS", cr[CR_YELLOW]);
+
+    // Demo timer
+    sprintf(str, crl_demo_timer == 1 ? "PLAYBACK" : 
+                 crl_demo_timer == 2 ? "RECORDING" : 
+                 crl_demo_timer == 3 ? "ALWAYS" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 45, str, 
+                 crl_demo_timer ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
+    // Timer direction
+    sprintf(str, crl_demo_timerdir ? "BACKWARD" : "FORWARD");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 54, str, 
+                 crl_demo_timer ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
+    // Progress bar
+    sprintf(str, crl_demo_bar ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 63, str, 
+                 crl_demo_bar ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
+    M_WriteText(CRL_MENU_LEFTOFFSET-10, 72, "QOL FEATURES", cr[CR_YELLOW]);
 
     // Uncapped framerate
     sprintf(str, crl_uncapped_fps ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 45, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 81, str, 
                  crl_uncapped_fps ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Screen wipe effect
     sprintf(str, crl_screenwipe ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 54, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 90, str, 
                  crl_screenwipe ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Default skill level
     sprintf(str, DefSkillName[crl_default_skill]);
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 63, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 99, str, 
                  DefSkillColor(crl_default_skill));
 
     // Colored status bar
     sprintf(str, crl_colored_stbar ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 72, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 108, str, 
                  crl_colored_stbar ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Report revealed secrets
     sprintf(str, crl_revealed_secrets ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 81, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 117, str, 
                  crl_revealed_secrets ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Colorblind
     sprintf(str, crl_colorblind == 1 ? "RED/GREEN" :
                  crl_colorblind == 2 ? "BLUE/YELLOW" :
                  crl_colorblind == 3 ? "MONOCHROME" : "NONE");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 90, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 126, str, 
                  crl_colorblind > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     //
@@ -865,6 +887,38 @@ static void M_CRL_Automap (int choice)
             }
         break;
     }
+}
+
+static void M_CRL_DemoTimer (int choice)
+{
+    switch (choice)
+    {
+        case 0:
+            crl_demo_timer--;
+            if (crl_demo_timer < 0)
+            {
+                crl_demo_timer = 3;
+            }
+        break;
+
+        case 1:
+            crl_demo_timer++;
+            if (crl_demo_timer > 3)
+            {
+                crl_demo_timer = 0;
+            }
+        break;
+    }
+}
+
+static void M_CRL_TimerDirection (int choice)
+{
+    crl_demo_timerdir ^= 1;
+}
+
+static void M_CRL_ProgressBar (int choice)
+{
+    crl_demo_bar ^= 1;
 }
 
 static void M_CRL_UncappedFPS (int choice)

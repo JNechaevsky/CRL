@@ -1006,6 +1006,12 @@ void G_Ticker (void)
 	}
     }
     
+    // [crispy] increase demo tics counter
+    if (demoplayback || demorecording)
+    {
+        defdemotics++;
+    }
+
     // check for special buttons
     for (i=0 ; i<MAXPLAYERS ; i++)
     {
@@ -1942,6 +1948,8 @@ G_InitNew
 // 
 #define DEMOMARKER		0x80
 
+// [crispy] demo progress bar and timer widget
+int defdemotics = 0, deftotaldemotics;
 
 void G_ReadDemoTiccmd (ticcmd_t* cmd) 
 { 
@@ -2202,11 +2210,21 @@ void G_DoPlayDemo (void)
     skill_t skill;
     int i, lumpnum, episode, map;
     int demoversion;
+    int lumplength; // [crispy]
 
     lumpnum = W_GetNumForName(defdemoname);
     gameaction = ga_nothing;
     demobuffer = W_CacheLumpNum(lumpnum, PU_STATIC);
     demo_p = demobuffer;
+
+    // [crispy] ignore empty demo lumps
+    lumplength = W_LumpLength(lumpnum);
+    if (lumplength < 0xd)
+    {
+        demoplayback = true;
+        G_CheckDemoStatus();
+        return;
+    }
 
     demoversion = *demo_p++;
 
@@ -2261,6 +2279,28 @@ void G_DoPlayDemo (void)
 
     usergame = false; 
     demoplayback = true; 
+
+    // [crispy] demo progress bar
+    {
+        int numplayersingame = 0;
+        byte *demo_ptr = demo_p;
+
+        for (int i = 0; i < MAXPLAYERS; i++)
+        {
+            if (playeringame[i])
+            {
+                numplayersingame++;
+            }
+        }
+
+        deftotaldemotics = defdemotics = 0;
+
+        while (*demo_ptr != DEMOMARKER && (demo_ptr - demobuffer) < lumplength)
+        {
+            demo_ptr += numplayersingame * (longtics ? 5 : 4);
+            deftotaldemotics++;
+        }
+    }
 } 
 
 //

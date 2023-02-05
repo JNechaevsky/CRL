@@ -42,6 +42,11 @@ extern int crl_automap_mode;
 extern int crl_automap_rotate;
 extern int crl_automap_overlay;
 
+// Demos
+extern int crl_demo_timer;
+extern int crl_demo_timerdir;
+extern int crl_demo_bar;
+
 // QOL Features
 extern int crl_uncapped_fps;
 extern int crl_screenwipe;

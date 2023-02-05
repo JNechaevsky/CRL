@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "i_timer.h"
 #include "z_zone.h"
 #include "v_video.h"
 #include "m_argv.h"
@@ -927,6 +928,43 @@ void CRL_StatDrawer(void)
         sprintf(str, "%d", CRLWidgets.ang);
         M_WriteText(32, 45, str, cr[CR_GREEN]);
     }
+}
+
+/**
+ * [crispy] Demo Timer widget
+ */
+
+void CRL_DemoTimer (const int time)
+{
+    const int hours = time / (3600 * TICRATE);
+    const int mins = time / (60 * TICRATE) % 60;
+    const float secs = (float)(time % (60 * TICRATE)) / TICRATE;
+    char n[16];
+    int x = 238;
+
+    if (hours)
+    {
+        M_snprintf(n, sizeof(n), "%02i:%02i:%05.02f", hours, mins, secs);
+    }
+    else
+    {
+        M_snprintf(n, sizeof(n), "%02i:%05.02f", mins, secs);
+        x += 20;
+    }
+
+    M_WriteText(x, 18, n, cr[CR_LIGHTGRAY]);
+}
+
+/**
+ * [crispy] print a bar indicating demo progress at the bottom of the screen
+ */
+
+void CRL_DemoBar (void)
+{
+    const int i = SCREENWIDTH * defdemotics / deftotaldemotics;
+
+    V_DrawHorizLine(0, SCREENHEIGHT - 2, i, 0); // [crispy] black
+    V_DrawHorizLine(0, SCREENHEIGHT - 1, i, 4); // [crispy] white
 }
 
 /**
