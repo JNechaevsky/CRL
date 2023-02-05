@@ -127,6 +127,7 @@ int             consoleplayer;          // player taking events and displaying
 int             displayplayer;          // view being displayed 
 int             levelstarttic;          // gametic at level start 
 int             totalkills, totalitems, totalsecret;    // for intermission 
+int             demostarttic;           // [crispy] fix revenant internal demo bug
  
 char           *demoname;
 boolean         demorecording; 
@@ -583,7 +584,11 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
     if (sendpause) 
     { 
 	sendpause = false; 
+	// [crispy] ignore un-pausing in menus during demo recording
+	if (!(menuactive && demorecording && paused) && gameaction != ga_loadgame)
+	{
 	cmd->buttons = BT_SPECIAL | BTS_PAUSE; 
+	}
     } 
  
     if (sendsave) 
@@ -766,6 +771,20 @@ static void SetMouseButtons(unsigned int buttons_mask)
 // 
 boolean G_Responder (event_t* ev) 
 { 
+    // [crispy] demo pause (from prboom-plus)
+    if (gameaction == ga_nothing && 
+        (demoplayback || gamestate == GS_INTERMISSION))
+    {
+        if (ev->type == ev_keydown && ev->data1 == key_pause)
+        {
+            if (paused ^= 2)
+                S_PauseSound();
+            else
+                S_ResumeSound();
+            return true;
+        }
+    }
+
     // allow spy mode changes even during the demo
     if (gamestate == GS_LEVEL && ev->type == ev_keydown 
      && ev->data1 == key_spy && (singledemo || !deathmatch) )
@@ -948,6 +967,13 @@ void G_Ticker (void)
 	} 
     }
     
+    // [crispy] demo sync of revenant tracers and RNG (from prboom-plus)
+    if (paused & 2 || (!demoplayback && menuactive && !netgame))
+    {
+        demostarttic++;
+    }
+    else
+    {   
     // get commands, check consistancy,
     // and build new consistancy check
     buf = (gametic/ticdup)%BACKUPTICS; 
@@ -1030,6 +1056,9 @@ void G_Ticker (void)
 		    break; 
 					 
 		  case BTS_SAVEGAME: 
+		    // [crispy] never override savegames by demo playback
+		    if (demoplayback)
+			break;
 		    if (!savedescription[0]) 
                     {
                         M_StringCopy(savedescription, "NET GAME",
@@ -1039,10 +1068,15 @@ void G_Ticker (void)
 		    savegameslot =  
 			(players[i].cmd.buttons & BTS_SAVEMASK)>>BTS_SAVESHIFT; 
 		    gameaction = ga_savegame; 
+		    // [crispy] un-pause immediately after saving
+		    // (impossible to send save and pause specials within the same tic)
+		    if (demorecording && paused)
+			sendpause = true;
 		    break; 
 		} 
 	    } 
 	}
+    }
     }
 
     // Have we just finished displaying an intermission screen?
@@ -1055,6 +1089,14 @@ void G_Ticker (void)
     oldgamestate = gamestate;
     oldleveltime = leveltime;
     
+    // [crispy] no pause at intermission screen during demo playback 
+    // to avoid desyncs (from prboom-plus)
+    if ((paused & 2 || (!demoplayback && menuactive && !netgame)) 
+        && gamestate == GS_INTERMISSION)
+    {
+    return;
+    }
+
     // do main actions
     switch (gamestate) 
     { 
@@ -1893,6 +1935,8 @@ G_InitNew
     gamemap = map;
     gameskill = skill;
 
+    demostarttic = gametic; // [crispy] fix revenant internal demo bug
+
     viewactive = true;
 
     // Set the sky to use.
@@ -2276,6 +2320,7 @@ void G_DoPlayDemo (void)
     G_InitNew (skill, episode, map); 
     precache = true; 
     starttime = I_GetTime (); 
+    demostarttic = gametic; // [crispy] fix revenant internal demo bug
 
     usergame = false; 
     demoplayback = true; 
