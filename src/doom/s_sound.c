@@ -37,6 +37,8 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
+#include "crlcore.h"
+
 // when to clip out sounds
 // Does not fit the large outdoor areas.
 
@@ -436,6 +438,12 @@ void S_StartSound(void *origin_p, int sfx_id)
     int cnum;
     int volume;
 
+    // [JN] Do not play sound while demo-warp.
+    if (nodrawers && singletics && demowarp)
+    {
+        return;
+    }
+
     origin = (mobj_t *) origin_p;
     volume = snd_SfxVolume;
 
@@ -656,6 +664,12 @@ void S_ChangeMusic(int musicnum, int looping)
     musicinfo_t *music = NULL;
     char namebuf[9];
     void *handle;
+
+    // [JN] CRL - do not play music while demo-warp.
+    if (nodrawers && singletics && demowarp)
+    {
+        return;
+    }
 
     // The Doom IWAD file has two versions of the intro music: d_intro
     // and d_introa.  The latter is used for OPL playback.

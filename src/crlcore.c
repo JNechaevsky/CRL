@@ -934,6 +934,8 @@ void CRL_StatDrawer(void)
  * [crispy] Demo Timer widget
  */
 
+int demowarp; // [JN] Demo warp from Crispy Doom.
+
 void CRL_DemoTimer (const int time)
 {
     const int hours = time / (3600 * TICRATE);

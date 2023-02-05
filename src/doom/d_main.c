@@ -1861,6 +1861,8 @@ void D_DoomMain (void)
             }
         }
         autostart = true;
+        // [crispy] if used with -playdemo, fast-forward demo up to the desired map
+        demowarp = startmap;
     }
 
     // Undocumented:
@@ -1958,6 +1960,7 @@ void D_DoomMain (void)
 	G_DeferedPlayDemo (demolumpname);
 	D_DoomLoop ();  // never returns
     }
+    demowarp = 0; // [crispy] we don't play a demo, so don't skip maps
 	
     p = M_CheckParmWithArgs("-timedemo", 1);
     if (p)
