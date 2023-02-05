@@ -718,6 +718,28 @@ void CRL_ChangeFrame(int __err)
 	}
 }
 
+/*
+ * CRL_StatColor_Str, CRL_StatColor_Val
+ *
+ * [JN] Colorizes counters string and values respectively.
+ */
+
+static byte *CRL_StatColor_Str (const int val1, const int val2)
+{
+    return
+        val1 == val2 ? cr[CR_LIGHTGRAY] :
+        val1 >= val2 ? (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) :
+                       cr[CR_GRAY];
+}
+
+static byte *CRL_StatColor_Val (const int val1, const int val2)
+{
+    return
+        val1 == val2 ? cr[CR_YELLOW] :
+        val1 >= val2 ? (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) :
+                       cr[CR_GREEN];
+}
+
 /**
  * Draws CRL stats.
  *
@@ -738,38 +760,22 @@ void CRL_StatDrawer(void)
         if ((crl_widget_render == 1 
         ||  (crl_widget_render == 2 && CRL_brain_counter > 32)) && CRL_brain_counter)
         {
-            char plt[32];
+            char brn[32];
 
-            M_WriteText(0, 108 - yy, "BRN:",
-                        CRL_brain_counter == 32 ? cr[CR_LIGHTGRAY] :
-                        CRL_brain_counter >= 32 ? (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) :
-                                                  cr[CR_GRAY]);
-
-            M_snprintf(plt, 16, "%d/32", CRL_brain_counter);
-
-            M_WriteText(32, 108 - yy, plt,
-                        CRL_brain_counter == 32 ? cr[CR_YELLOW] :
-                        CRL_brain_counter >= 32 ? (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) :
-                                                  cr[CR_GREEN]);
+            M_WriteText(0, 108 - yy, "BRN:", CRL_StatColor_Str(CRL_brain_counter, 32));
+            M_snprintf(brn, 16, "%d/32", CRL_brain_counter);
+            M_WriteText(32, 108 - yy, brn, CRL_StatColor_Val(CRL_brain_counter, 32));
         }
 
         // Animated lines (64 max)
         if (crl_widget_render == 1
         || (crl_widget_render == 2 && CRL_lineanims_counter > 64))
         {
-            char plt[32];
+            char ani[32];
 
-            M_WriteText(0, 117 - yy, "ANI:",
-                        CRL_lineanims_counter == 64 ? cr[CR_LIGHTGRAY] :
-                        CRL_lineanims_counter >= 64 ? (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) :
-                                                      cr[CR_GRAY]);
-
-            M_snprintf(plt, 16, "%d/64", CRL_lineanims_counter);
-
-            M_WriteText(32, 117 - yy, plt,
-                        CRL_lineanims_counter == 64 ? cr[CR_YELLOW] :
-                        CRL_lineanims_counter >= 64 ? (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) :
-                                                      cr[CR_GREEN]);
+            M_WriteText(0, 117 - yy, "ANI:", CRL_StatColor_Str(CRL_lineanims_counter, 64));
+            M_snprintf(ani, 16, "%d/64", CRL_lineanims_counter);
+            M_WriteText(32, 117 - yy, ani, CRL_StatColor_Val(CRL_lineanims_counter, 64));
         }
 
         // Plats (30 max)
@@ -778,17 +784,9 @@ void CRL_StatDrawer(void)
         {
             char plt[32];
 
-            M_WriteText(0, 126 - yy, "PLT:",
-                        CRL_plats_counter == 30 ? cr[CR_LIGHTGRAY] :
-                        CRL_plats_counter >= 31 ? (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) :
-                                                  cr[CR_GRAY]);
-
+            M_WriteText(0, 126 - yy, "PLT:", CRL_StatColor_Str(CRL_plats_counter, 30));
             M_snprintf(plt, 16, "%d/30", CRL_plats_counter);
-
-            M_WriteText(32, 126 - yy, plt,
-                        CRL_plats_counter == 30 ? cr[CR_YELLOW] :
-                        CRL_plats_counter >= 30 ? (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) :
-                                                  cr[CR_GREEN]);
+            M_WriteText(32, 126 - yy, plt, CRL_StatColor_Val(CRL_plats_counter, 30));
         }
 
         // Sprites (128 max)
@@ -797,15 +795,9 @@ void CRL_StatDrawer(void)
         {
             char spr[32];
 
-            M_WriteText(0, 135 - yy, "SPR:",
-                        CRLData.numsprites >= 128 ? cr[CR_LIGHTGRAY] :
-                                                    cr[CR_GRAY]);
-
+            M_WriteText(0, 135 - yy, "SPR:", CRL_StatColor_Str(CRLData.numsprites, 128));
             M_snprintf(spr, 16, "%d/128", CRLData.numsprites);
-
-            M_WriteText(32, 135 - yy, spr,
-                        CRLData.numsprites >= 128 ? cr[CR_YELLOW] :
-                                                    cr[CR_GREEN]);
+            M_WriteText(32, 135 - yy, spr, CRL_StatColor_Val(CRLData.numsprites, 128));
         }
 
         // Segments (256 max)
@@ -814,17 +806,9 @@ void CRL_StatDrawer(void)
         {
             char seg[32];
 
-            M_WriteText(0, 144 - yy, "SEG:",
-                        CRLData.numsegs == 256 ? cr[CR_LIGHTGRAY] :
-                        CRLData.numsegs >= 256 ? (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) :
-                                                 cr[CR_GRAY]);
-
+            M_WriteText(0, 144 - yy, "SEG:", CRL_StatColor_Str(CRLData.numsegs, 256));
             M_snprintf(seg, 16, "%d/256", CRLData.numsegs);
-
-            M_WriteText(32, 144 - yy, seg,
-                        CRLData.numsegs == 256 ? cr[CR_YELLOW] :
-                        CRLData.numsegs >= 256 ? (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) :
-                                                 cr[CR_GREEN]);
+            M_WriteText(32, 144 - yy, seg, CRL_StatColor_Val(CRLData.numsegs, 256));
         }
 
         // Planes (128 max)
@@ -835,17 +819,9 @@ void CRL_StatDrawer(void)
             const int totalplanes = CRLData.numcheckplanes
                                   + CRLData.numfindplanes;
 
-            M_WriteText(0, 153 - yy, "PLN:",
-                        totalplanes == 128 ? cr[CR_LIGHTGRAY] :
-                        totalplanes >= 128 ? (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) :
-                                             cr[CR_GRAY]);
-
+            M_WriteText(0, 153 - yy, "PLN:", CRL_StatColor_Str(totalplanes, 128));
             M_snprintf(vis, 32, "%d/128", totalplanes);
-
-            M_WriteText(32, 153 - yy, vis,
-                        totalplanes == 128 ? cr[CR_YELLOW] :
-                        totalplanes >= 128 ? (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) :
-                                             cr[CR_GREEN]);
+            M_WriteText(32, 153 - yy, vis, CRL_StatColor_Val(totalplanes, 128));
         }
 
         // Openings
@@ -854,17 +830,9 @@ void CRL_StatDrawer(void)
         {
             char opn[64];
 
-            M_WriteText(0, 162 - yy, "OPN:",
-                        CRLData.numopenings == 20480 ? cr[CR_LIGHTGRAY] :
-                        CRLData.numopenings >= 20480 ? (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) :
-                                                       cr[CR_GRAY]);
-
+            M_WriteText(0, 162 - yy, "OPN:", CRL_StatColor_Str(CRLData.numopenings, 20480));
             M_snprintf(opn, 16, "%d/20480", CRLData.numopenings);
-
-            M_WriteText(32, 162 - yy, opn,
-                        CRLData.numopenings == 20480 ? cr[CR_YELLOW] :
-                        CRLData.numopenings >= 20480 ? (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) :
-                                                       cr[CR_GREEN]);
+            M_WriteText(32, 162 - yy, opn, CRL_StatColor_Val(CRLData.numopenings, 20480));
         }
     }
 
