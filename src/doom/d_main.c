@@ -1484,10 +1484,6 @@ void D_DoomMain (void)
 	sidemove[1] = sidemove[1]*scale/100;
     }
     
-    // init subsystems
-    DEH_printf("V_Init: allocate screens.\n");
-    V_Init ();
-
     // Load configuration files before initialising other subsystems.
     DEH_printf("M_LoadDefaults: Load system defaults.\n");
     M_SetConfigFilenames("default.cfg", PROGRAM_PREFIX "doom.cfg");
