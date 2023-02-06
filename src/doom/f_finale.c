@@ -56,9 +56,14 @@ typedef enum
 finalestage_t finalestage;
 
 unsigned int finalecount;
+unsigned int finaleendcount;
+
+// [JN] Do screen wipe only once after text skipping.
+static boolean finale_wipe_done;
 
 #define	TEXTSPEED	3
 #define	TEXTWAIT	250
+#define	TEXTEND		25
 
 typedef struct
 {
@@ -116,6 +121,7 @@ void F_StartFinale (void)
     gamestate = GS_FINALE;
     viewactive = false;
     automapactive = false;
+    finale_wipe_done = false;
 
     if (logical_gamemission == doom)
     {
@@ -152,6 +158,9 @@ void F_StartFinale (void)
   
     finaletext = DEH_String(finaletext);
     finaleflat = DEH_String(finaleflat);
+    // [JN] Count intermission/finale text lenght. Once it's fully printed, 
+    // no extra "attack/use" button pressing is needed for skipping.
+    finaleendcount = strlen(finaletext) * TEXTSPEED + TEXTEND;
     
     finalestage = F_STAGE_TEXT;
     finalecount = 0;
@@ -176,6 +185,116 @@ void F_Ticker (void)
 {
     size_t		i;
     
+    //
+    // [JN] If we are in single player mode, allow double skipping for 
+    // intermission text. First skip printing all intermission text,
+    // second is advancing to the next state.
+    //
+    if (singleplayer)
+    {
+        // [JN] Make PAUSE working properly on text screen
+        if (paused)
+        {
+            return;
+        }
+
+        // [JN] Check for skipping. Allow double-press skiping, 
+        // but don't skip immediately.
+        if (finalecount > 10)
+        {
+            // go on to the next level
+            for (i = 0 ; i < MAXPLAYERS ; i++)
+            {
+                // [JN] Don't allow to skip bunny screen,
+                // and don't allow to skip by pressing "pause" button.
+                if ((gameepisode == 3 && finalestage == F_STAGE_ARTSCREEN)
+                || players[i].cmd.buttons == (BT_SPECIAL | BTS_PAUSE))
+                continue;
+
+                // [JN] Double-skip by pressing "attack" button.
+                if (players[i].cmd.buttons & BT_ATTACK && !menuactive)
+                {
+                    if (!players[i].attackdown)
+                    {
+                        if (finalecount >= finaleendcount)
+                        break;
+    
+                        finalecount += finaleendcount;
+                        players[i].attackdown = true;
+                    }
+                    players[i].attackdown = true;
+                }
+                else
+                {
+                    players[i].attackdown = false;
+                }
+    
+                // [JN] Double-skip by pressing "use" button.
+                if (players[i].cmd.buttons & BT_USE && !menuactive)
+                {
+                    if (!players[i].usedown)
+                    {
+                        if (finalecount >= finaleendcount)
+                        break;
+    
+                        finalecount += finaleendcount;
+                        players[i].usedown = true;
+                    }
+                    players[i].usedown = true;
+                }
+                else
+                {
+                    players[i].usedown = false;
+                }
+            }
+
+            if (i < MAXPLAYERS)
+            {
+                if (gamemode != commercial)
+                {
+                    
+                    finalestage = F_STAGE_ARTSCREEN;
+                    
+                    if (!finale_wipe_done)
+                    {
+                        finale_wipe_done = true;
+                        wipegamestate = -1; // force a wipe
+                    }
+
+                    if (gameepisode == 3)
+                    {
+                        finalecount = 0;
+                        S_StartMusic (mus_bunny);
+                    }
+                
+                    return;
+                }
+    
+                if (gamemap == 30)
+                {
+                    F_StartCast ();
+                }
+                else
+                {
+                    gameaction = ga_worlddone;
+                }
+            }
+        }
+    
+        // advance animation
+        finalecount++;
+    
+        if (finalestage == F_STAGE_CAST)
+        {
+            F_CastTicker ();
+            return;
+        }
+    }
+    //
+    // [JN] Standard Doom routine, safe for network game and demos.
+    //        
+    else
+    {
     // check for skipping
     if ( (gamemode == commercial)
       && ( finalecount > 50) )
@@ -214,6 +333,7 @@ void F_Ticker (void)
 	wipegamestate = -1;		// force a wipe
 	if (gameepisode == 3)
 	    S_StartMusic (mus_bunny);
+    }
     }
 }
 

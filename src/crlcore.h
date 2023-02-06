@@ -37,6 +37,8 @@
 	#define BETWEEN(l,u,x) (((l)>(x))?(l):((x)>(u))?(u):(x))
 #endif
 
+#define singleplayer (!demorecording && !demoplayback && !netgame)
+
 /**
  * Why a jump failed.
  */
