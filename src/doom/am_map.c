@@ -42,7 +42,6 @@
 // For use if I do walls with outsides/insides
 #define REDS        MAYBEBLAND(176)
 #define REDRANGE    LIMRANGE(16)
-#define PINKS       MAYBEBLAND(173)
 #define GREENS      MAYBEBLAND(112)
 #define GREENRANGE  LIMRANGE(16)
 #define GRAYS       MAYBEBLAND(96)
@@ -1566,6 +1565,9 @@ static void AM_drawThings (int colors, int colorrange)
     mpoint_t  pt;
     mobj_t   *t;
     angle_t   actualangle;
+    // RestlessRodent -- Carbon copy from ReMooD
+    int       color = colors;
+    extern void A_Look();
 
     for (i = 0 ; i < numsectors ; i++)
     {
@@ -1610,10 +1612,20 @@ static void AM_drawThings (int colors, int colorrange)
             }
             else
             {
+                // [JN] CRL - implement ReMooD style monsters coloring.
+                if (t->target && t->state && t->state->action.acv != A_Look)
+                {
+                    color = REDS + (gametic % REDRANGE);
+                }
+                else
+                {
+                    color = REDS + ((gametic >> 2) % REDRANGE);
+                }
+
                 AM_drawLineCharacter(thintriangle_guy, arrlen(thintriangle_guy), 
                                      actualradius, actualangle, 
                                      // Monsters
-                                     t->flags & MF_COUNTKILL ? (t->health > 0 ? PINKS : GRAYS) :
+                                     t->flags & MF_COUNTKILL ? (t->health > 0 ? color : GRAYS) :
                                      // Lost Souls and Explosive barrels (does not have a MF_COUNTKILL flag)
                                      t->type == MT_SKULL || t->type == MT_BARREL ? YELLOWS :
                                      // Pickups
