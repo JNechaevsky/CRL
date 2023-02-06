@@ -64,13 +64,6 @@ fixed_t			centerxfrac;
 fixed_t			centeryfrac;
 fixed_t			projection;
 
-// just for profiling purposes
-int			framecount;	
-
-int			sscount;
-int			linecount;
-int			loopcount;
-
 fixed_t			viewx;
 fixed_t			viewy;
 fixed_t			viewz;
@@ -811,8 +804,6 @@ void R_Init (void)
     R_InitSkyMap ();
     R_InitTranslationTables ();
     printf (".");
-	
-    framecount = 0;
 }
 
 
@@ -908,8 +899,6 @@ void R_SetupFrame (player_t* player)
     viewsin = finesine[viewangle>>ANGLETOFINESHIFT];
     viewcos = finecosine[viewangle>>ANGLETOFINESHIFT];
 	
-    sscount = 0;
-	
     if (player->fixedcolormap)
     {
 	fixedcolormap =
@@ -924,7 +913,6 @@ void R_SetupFrame (player_t* player)
     else
 	fixedcolormap = 0;
 		
-    framecount++;
     validcount++;
 }
 
