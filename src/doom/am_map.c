@@ -1619,7 +1619,7 @@ static void AM_drawThings (int colors, int colorrange)
                 }
                 else
                 {
-                    color = REDS + ((gametic >> 2) % REDRANGE);
+                    color = REDS + ((gametic >> 1) % REDRANGE);
                 }
 
                 AM_drawLineCharacter(thintriangle_guy, arrlen(thintriangle_guy), 
