@@ -1,6 +1,8 @@
 //
 // Copyright(C) 1993-1996 Id Software, Inc.
 // Copyright(C) 2005-2014 Simon Howard
+// Copyright(C) 2014-2017 RestlessRodent
+// Copyright(C) 2018-2023 Julia Nechaevskaya
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -350,7 +352,7 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
  	
  	// If spectating then the player loses all input
  	memmove(&spect, cmd, sizeof(spect));
- 	if (CRL_IsSpectating())
+ 	if (crl_spectating)
  		cmd = &spect;
  	
     strafe = gamekeydown[key_strafe] || mousebuttons[mousebstrafe] 
@@ -618,7 +620,7 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
     }
     
     // If spectating, send the movement commands instead
-    if (CRL_IsSpectating())
+    if (crl_spectating)
     	CRL_ImpulseCamera(cmd->forwardmove, cmd->sidemove, cmd->angleturn); 
 } 
  
@@ -741,7 +743,7 @@ static void SetMouseButtons(unsigned int buttons_mask)
             if (i == mousebprevweapon)
             {
                 // [JN] CRL - move spectator camera down.
-                if (CRL_IsSpectating())
+                if (crl_spectating)
                 {
                     CRL_ImpulseCameraVert(false, crl_camzspeed ? 64 : 32); 
                 }
@@ -751,7 +753,7 @@ static void SetMouseButtons(unsigned int buttons_mask)
             else if (i == mousebnextweapon)
             {
                 // [JN] CRL - move spectator camera up.
-                if (CRL_IsSpectating())
+                if (crl_spectating)
                 {
                     CRL_ImpulseCameraVert(true, crl_camzspeed ? 64 : 32);
                     

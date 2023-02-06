@@ -2,6 +2,8 @@
 // Copyright(C) 1993-1996 Id Software, Inc.
 // Copyright(C) 1993-2008 Raven Software
 // Copyright(C) 2005-2014 Simon Howard
+// Copyright(C) 2014-2017 RestlessRodent
+// Copyright(C) 2018-2023 Julia Nechaevskaya
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -134,7 +136,7 @@ void V_DrawPatch(int x, int y, patch_t *patch)
      || y < 0
      || y + SHORT(patch->height) > SCREENHEIGHT)
     {
-		// GhostlyDeath -- Do not die
+		// RestlessRodent -- Do not die
 		// [JN] ... print a critical message instead.
 		CRL_SetCriticalMessage("Bad V_DrawPatch (vanilla crashes here)", 2);
 		return;

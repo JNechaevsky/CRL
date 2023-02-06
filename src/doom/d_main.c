@@ -1,6 +1,8 @@
 //
 // Copyright(C) 1993-1996 Id Software, Inc.
 // Copyright(C) 2005-2014 Simon Howard
+// Copyright(C) 2014-2017 RestlessRodent
+// Copyright(C) 2018-2023 Julia Nechaevskaya
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -222,10 +224,6 @@ void D_Display (void)
 	oldgamestate = -1;                      // force background redraw
     }
     
-    // Never wipe when brute forcing
-    if (CRLBruteForce)
-    	wipegamestate = gamestate;
-
     // save the current screen if about to wipe
     // [JN] Make screen wipe optional, use external config variable.
     if (gamestate != wipegamestate && crl_screenwipe)
@@ -313,11 +311,10 @@ void D_Display (void)
     // [JN] Do not draw any CRL widgets if not in game level.
     if (gamestate == GS_LEVEL)
     {
-        // GhostlyDeath -- CRL markers and indicators
+        // RestlessRodent -- CRL markers and indicators
         CRL_ViewDrawer();
 
-        // GhostlyDeath -- CRL Stats
-        // [JN] Extended to draw sprite and segment counters, simplified.
+        // RestlessRodent -- CRL Stats
         CRL_StatDrawer();
 
         // [crispy] demo timer widget
@@ -514,12 +511,6 @@ void D_DoomLoop (void)
     {
 	// frame syncronous IO operations
 	I_StartFrame ();
-
-	if (CRLBruteForce)
-	{
-		CRL_BruteForceLoop();
-		break;
-	}
 
    	TryRunTics (); // will run at least one tic
 
@@ -1311,10 +1302,7 @@ void D_DoomMain (void)
     // Initializes CRL
     CRL_Init(c_PlaneBorderColors, NUMPLANEBORDERCOLORS, 128);
     
-	// Do not display the endoom screen if brute forcing because it is very
-	// annoying
-	if (!CRLBruteForce)
-    	I_AtExit(D_Endoom, false);
+   	I_AtExit(D_Endoom, false);
 
     //!
     // @category net
@@ -1977,22 +1965,9 @@ void D_DoomMain (void)
 			G_InitNew (crl_default_skill, startepisode, startmap);
 		else
 		{
-			// If brute forcing this was NOT wanted
-			if (CRLBruteForce)
-				I_Error("Brute forcing requires -warp!");
-			
 			D_StartTitle ();                // start up intro loop
 		}
     }
 
     D_DoomLoop ();  // never returns
 }
-
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
-
-#define CHOCORENDERLIMITS_MAGIC_INCLUDE
-#include "../crlcore.c"
-

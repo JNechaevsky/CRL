@@ -1,6 +1,8 @@
 //
 // Copyright(C) 1993-1996 Id Software, Inc.
 // Copyright(C) 2005-2014 Simon Howard
+// Copyright(C) 2014-2017 RestlessRodent
+// Copyright(C) 2018-2023 Julia Nechaevskaya
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -74,12 +76,6 @@ void I_AtExit(atexit_func_t func, boolean run_on_error)
     entry->run_on_error = run_on_error;
     entry->next = exit_funcs;
     exit_funcs = entry;
-}
-
-// Tactile feedback function, probably used for the Logitech Cyberman
-
-void I_Tactile(int on, int off, int total)
-{
 }
 
 // Zone memory auto-allocation function that allocates the zone size

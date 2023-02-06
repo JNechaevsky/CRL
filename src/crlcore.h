@@ -1,220 +1,173 @@
-// -*- Mode: C; indent-tabs-mode: t; c-basic-offset: 4; tab-width: 4 -*-
-// ----------------------------------------------------------------------------
-// Chocorenderlimits 2.0 <http://remood.org/?page=chocorenderlimits>
-//   Copyright (C) 2014-2015 GhostlyDeath <ghostlydeath@remood.org>
-//     For more credits, see AUTHORS.
-// ----------------------------------------------------------------------------
-// CRL is under the GNU General Public License v2 (or later), see COPYING.
-// ----------------------------------------------------------------------------
+//
+// Copyright(C) 2014-2017 RestlessRodent
+// Copyright(C) 2018-2023 Julia Nechaevskaya
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
 
-/**
- * Core CRL Code that is shared for all game engines.
- */
 
-#ifndef __CRLCORE_H__
-#define __CRLCORE_H__
-
-/*****************************************************************************/
+#pragma once
 
 #include <setjmp.h>
 #include <stdint.h>
 #include <signal.h>
 
-#include "doomtype.h"  // [JN] boolean
+#include "doomtype.h"
 #include "m_fixed.h"
+#include "i_video.h"
 
-#ifndef SCREENWIDTH
-	#define SCREENWIDTH 320
-#endif
-#ifndef SCREENHEIGHT
-	#define SCREENHEIGHT 200
-#endif
-#ifndef SCREENAREA
-	#define SCREENAREA (SCREENWIDTH * SCREENHEIGHT)
-#endif
-
-#ifndef BETWEEN
-	#define BETWEEN(l,u,x) (((l)>(x))?(l):((x)>(u))?(u):(x))
-#endif
+#define BETWEEN(l,u,x) (((l)>(x))?(l):((x)>(u))?(u):(x))
 
 #define singleplayer (!demorecording && !demoplayback && !netgame)
 
-/**
- * Why a jump failed.
- */
+
+//
+// Data types
+//
+
+// Why a jump failed.
 enum
 {
-	/** Not known. */
-	CRL_JUMP_UNKNOWN = 1,
-	
-	/** Visplane overflow. */
-	CRL_JUMP_VPO,
+    CRL_JUMP_UNKNOWN = 1,  // Not known.
+    CRL_JUMP_VPO,          // Visplane overflow.
 };
 
-/**
- * Drawing data structures.
- */
+// Drawing data structures.
 typedef struct CRL_Data_s
 {
-	/** [JN] Number of sprites. */
-	int numsprites;
-
-	/** [JN] Number of wall segments. */
-	int numsegs;
-
-	/** Number of check planes. */
-	int numcheckplanes;
-	
-	/** Number of find planes. */
-	int numfindplanes;
-
-	/** [JN] Number of openings. */
-	int numopenings;
+	int numsprites;     // [JN] Number of sprites.
+	int numsegs;        // [JN] Number of wall segments.
+	int numcheckplanes; // Number of check planes.
+    int numfindplanes;  // Number of find planes.
+    int numopenings;    // [JN] Number of openings.
 } CRL_Data_t;
 
-/**
- * Visplane information.
- */
+// Visplane information
 typedef struct CRLPlaneData_s
 {
-	/** ID number. */
-	int id;
-	
-	/** C or F plane?. */
-	int isf;
-	
-	/** Identifying line. */
-	void* emitline;
-	
-	/** The ID of the line. */
-	int emitlineid;
-	
-	/** Identifying subsector. */
-	void* emitsub;
-	
-	/** The ID of the subsector. */
-	int emitsubid;
-	
-	/** The emitting sector. */
-	void* emitsect;
-	
-	/** The ID of the sector (of the subsector). */
-	int emitsectid;
-	
-	/** Is on floor. */
-	int onfloor;
+	int   id;          // ID number.
+	int   isf;         // C or F plane?
+	void *emitline;    // Identifying line.
+	int   emitlineid;  // The ID of the line.
+	void *emitsub;     // Identifying subsector.
+	int   emitsubid;   // The ID of the subsector.
+	void *emitsect;    // The emitting sector.
+	int   emitsectid;  // The ID of the sector (of the subsector).
+	int   onfloor;     // Is on floor.
 } CRLPlaneData_t;
 
-/**
- * Segment data.
- */
+// Segment data.
 typedef struct CRLSegData_s
 {
-	/** Identity. */
-	int id;
-	
-	/** Coordinates. */
-	int coords[4];
+    int id;         // Identity.
+	int coords[4];  // Coordinates.
 } CRLSegData_t;
 
-/**
- * Subsector data.
- */
+// Subsector data.
 #define MAXCRLSUBSEGS 128
 typedef struct CRLSubData_s
 {
-	/** Id number. */
-	int id;
-	
-	/** Count of segs. */
-	int numlines;
-	
-	/** Seg data. */
-	void* lines[MAXCRLSUBSEGS];
+	int id;                      // Id number.
+	int numlines;                // Count of segs.
+	void* lines[MAXCRLSUBSEGS];  // Seg data.
 } CRLSubData_t;
 
-/**
- * Rectangle.
- *
- * @since 2015/12/19
- */
+// Rectangle.
+// @since 2015/12/19
 typedef struct CRLRect_s
 {
-	fixed_t x, y, w, h;
+    fixed_t x, y, w, h;
 } CRLRect_t;
 
-/** Backup. */
+// Backup.
 extern jmp_buf CRLJustIncaseBuf;
 
-/** Data info. */
+// Data info.
 extern CRL_Data_t CRLData;
 
-/** Screen surface. */
+// Screen surface.
 extern uint8_t* CRLSurface;
 
-/** Visplane surface. */
+// Visplane surface.
 extern void** CRLPlaneSurface;
-
-/** Brute forcing the state? */
-extern int CRLBruteForce;
-
-/*****************************************************************************/
-
-void CRL_Init(int* __colorset, int __numcolors, int __pllim);
-void CRL_ReportPosition(fixed_t x, fixed_t y, fixed_t z, uint32_t angle);
-void CRL_OutputReport(void);
-void CRL_SetColors(uint8_t* colors, void* ref);
-void CRL_ChangeFrame(int __err);
-void CRL_CountPlane(void* __key, int __chorf, int __id);
-void CRL_StatDrawer(void);
-void CRL_MarkPixelP(void** __surface, void* __what, void* __drawp);
-void CRL_DrawVisPlanes();
-void CRL_ViewDrawer();
-void CRL_DrawMap(void (*__fl)(int, int, int, int, int),
-	void (*__ml)(int, int, int, int, int));
-
-int CRL_IsSpectating(void);
-void CRL_ImpulseCamera(int32_t fwm, int32_t swm, uint32_t at);
-void CRL_ImpulseCameraVert(boolean direction, const int32_t intensity);
-void CRL_GetCameraPos(int32_t* x, int32_t* y, int32_t* z, uint32_t* a);
-
-int CRL_MaxVisPlanes(void);
-
-void CRL_DrawHOMBack(int __x, int __y, int __w, int __h);
-
-void CRL_BruteForceLoop(void);
-
-
-CRLRect_t CRL_MapSize(void);
-
-void GAME_IdentifyPlane(void* __what, CRLPlaneData_t* __info);
-void GAME_IdentifySeg(void* __what, CRLSegData_t* __info);
-void GAME_IdentifySubSector(void* __what, CRLSubData_t* __info);
-
-/*****************************************************************************/
 
 // [JN] Widgets data. 
 typedef struct CRL_Widgets_s
 {
+    int x;    // Player X coord
+    int y;    // Player Y coord
+    int z;    // Player Z coord
+    int ang;  // Player angle
+
+    int time; // Time spent on the level.
+
     int kills;         // Current kill count
     int totalkills;    // Total enemy count on the level
     int items;         // Current items count
     int totalitems;    // Total item count on the level
     int secrets;       // Current secrets count
     int totalsecrets;  // Total secrets on the level
-
-    int time; // Time spent on the level.
-
-    int x;    // Player X coord
-    int y;    // Player Y coord
-    int z;    // Player Z coord
-    int ang;  // Player angle
 } CRL_Widgets_t;
 
 extern CRL_Widgets_t CRLWidgets;
 
+//
+// Drawing functions
+//
 
-// [JN] External data.
+extern void CRL_Init (int* __colorset, int __numcolors, int __pllim);
+extern void CRL_ChangeFrame (int __err);
+extern void CRL_MarkPixelP (void** __surface, void* __what, void* __drawp);
+extern void CRL_DrawVisPlanes (int __over);
+extern void CRL_CountPlane (void* __key, int __chorf, int __id);
+extern int  CRL_MaxVisPlanes (void);
+extern void CRL_ViewDrawer (void);
+extern void CRL_DrawHOMBack (int __x, int __y, int __w, int __h);
+
+extern void GAME_IdentifyPlane (void* __what, CRLPlaneData_t* __info);
+extern void GAME_IdentifySeg (void* __what, CRLSegData_t* __info);
+extern void GAME_IdentifySubSector (void* __what, CRLSubData_t* __info);
+
+//
+// Automap
+//
+
+extern void CRL_DrawMap(void (*__fl)(int, int, int, int, int),
+                        void (*__ml)(int, int, int, int, int));
+
+//
+// Spectator Mode
+//
+
+extern void CRL_GetCameraPos (int32_t* x, int32_t* y, int32_t* z, uint32_t* a);
+extern void CRL_ReportPosition (fixed_t x, fixed_t y, fixed_t z, uint32_t angle);
+extern void CRL_ImpulseCamera(int32_t fwm, int32_t swm, uint32_t at);
+extern void CRL_ImpulseCameraVert(boolean direction, const int32_t intensity);
+
+//
+// Render Counters and Widgets
+//
+
+extern void CRL_StatDrawer (void);
+
+//
+// HSV Coloring routines
+//
+
+extern void CRL_SetColors (uint8_t* colors, void* ref);
+
+//
+// The rest of externals
+//
+
 extern void M_WriteText (int x, int y, const char *string, byte *table);
 extern void M_WriteTextCentered (const int y, const char *string, byte *table);
 extern int  M_StringWidth (const char *string);
@@ -222,22 +175,16 @@ extern int  M_StringWidth (const char *string);
 extern void CRL_WidgetsDrawer (void);
 extern void CRL_ReloadPalette (void);
 
-extern boolean  CRL_intercepts_overflow;
-extern int      CRL_lineanims_counter;
-extern int      CRL_plats_counter;
-extern int      CRL_brain_counter;
+extern int  CRL_lineanims_counter;
+extern int  CRL_plats_counter;
+extern int  CRL_brain_counter;
 
 // [crispy] demo progress bar and timer widget
 extern void CRL_DemoTimer (const int time);
 extern void CRL_DemoBar (void);
 extern int  defdemotics, deftotaldemotics;
-extern int  demowarp; // [JN] Demo warp from Crispy Doom.
+extern int  demowarp;
 
 extern boolean  menuactive;
 extern boolean  automapactive;
 extern int      screenblocks;
-
-
-
-#endif /* __CRLCORE_H__ */
-

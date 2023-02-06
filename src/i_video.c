@@ -1,6 +1,8 @@
 //
 // Copyright(C) 1993-1996 Id Software, Inc.
 // Copyright(C) 2005-2014 Simon Howard
+// Copyright(C) 2014-2017 RestlessRodent
+// Copyright(C) 2018-2023 Julia Nechaevskaya
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -202,10 +204,6 @@ unsigned int joywait = 0;
 
 static boolean MouseShouldBeGrabbed()
 {
-	// GhostlyDeath -- Do not grab in brute force
-	if (CRLBruteForce)
-		return false;	
-	
     // never grab the mouse when in screensaver mode
    
     if (screensaver_mode)
@@ -868,8 +866,8 @@ void I_SetPalette (byte *doompalette)
     byte palcopy[768];
     byte* usepal;
     
-    // RR -- Make a copy since it the lump is cached, which in this case the
-    // colorblindness needs to be set
+    // RestlessRodent -- Make a copy since it the lump is cached,
+    // which in this case the colorblindness needs to be set
     memmove(palcopy, doompalette, sizeof(palcopy));
     usepal = palcopy;
     CRL_SetColors(palcopy, doompalette);

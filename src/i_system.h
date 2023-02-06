@@ -1,6 +1,8 @@
 //
 // Copyright(C) 1993-1996 Id Software, Inc.
 // Copyright(C) 2005-2014 Simon Howard
+// Copyright(C) 2014-2017 RestlessRodent
+// Copyright(C) 2018-2023 Julia Nechaevskaya
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -55,8 +57,6 @@ void I_Quit (void);
 void I_Error (char *error, ...);
 
 void *I_Realloc(void *ptr, size_t size);
-
-void I_Tactile (int on, int off, int total);
 
 boolean I_GetMemoryValue(unsigned int offset, void *value, int size);
 

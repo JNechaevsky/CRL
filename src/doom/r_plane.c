@@ -1,6 +1,8 @@
 //
 // Copyright(C) 1993-1996 Id Software, Inc.
 // Copyright(C) 2005-2014 Simon Howard
+// Copyright(C) 2014-2017 RestlessRodent
+// Copyright(C) 2018-2023 Julia Nechaevskaya
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -282,7 +284,7 @@ R_FindPlane
     	longjmp(CRLJustIncaseBuf, CRL_JUMP_VPO);
 	}
 	
-	// GhostlyDeath -- Count plane before write
+	// RestlessRodent -- Count plane before write
 	CRL_CountPlane(check, 1, (intptr_t)(lastvisplane - visplanes));
     
     lastvisplane++;
@@ -293,7 +295,7 @@ R_FindPlane
     check->minx = SCREENWIDTH;
     check->maxx = -1;
     
-    // GhostlyDeath -- Store emitting seg
+    // RestlessRodent -- Store emitting seg
     check->isfindplane = 1;
     check->emitline = __line;
     check->emitsub = __sub;
@@ -361,13 +363,13 @@ R_CheckPlane
     
     pl = lastvisplane++;
     
-	// GhostlyDeath -- Count plane before write
+	// RestlessRodent -- Count plane before write
 	CRL_CountPlane(pl, 0, (intptr_t)((lastvisplane - 1) - visplanes));
     
     pl->minx = start;
     pl->maxx = stop;
     
-    // GhostlyDeath -- Store emitting seg
+    // RestlessRodent -- Store emitting seg
     pl->isfindplane = 0;
     pl->emitline = __line;
     pl->emitsub = __sub;

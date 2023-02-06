@@ -2,6 +2,8 @@
 // Copyright(C) 1993-1996 Id Software, Inc.
 // Copyright(C) 2005-2014 Simon Howard
 // Copyright(C) 2005, 2006 Andrey Budko
+// Copyright(C) 2014-2017 RestlessRodent
+// Copyright(C) 2018-2023 Julia Nechaevskaya
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -624,7 +626,6 @@ static boolean PIT_AddLineIntercepts (line_t *ld)
         // [crispy] print a warning
         fprintf(stderr, "PIT_AddLineIntercepts: Triggered INTERCEPTS overflow!\n");
         // [JN] CRL - print in-game warning.
-        CRL_intercepts_overflow = true;
         CRL_SetCriticalMessage("TRIGGERED LINE INTERCEPTS OVERFLOW!", MESSAGETICS);
     }
     intercept_p++;
@@ -691,7 +692,6 @@ static boolean PIT_AddThingIntercepts (mobj_t *thing)
         // [crispy] print a warning
         fprintf(stderr, "PIT_AddThingIntercepts: Triggered INTERCEPTS overflow!\n");
         // [JN] CRL - print in-game warning.
-        CRL_intercepts_overflow = true;
         CRL_SetCriticalMessage("TRIGGERED THING INTERCEPTS OVERFLOW!", MESSAGETICS);
     }
 

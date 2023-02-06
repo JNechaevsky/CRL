@@ -1,6 +1,8 @@
 //
 // Copyright(C) 1993-1996 Id Software, Inc.
 // Copyright(C) 2005-2014 Simon Howard
+// Copyright(C) 2014-2017 RestlessRodent
+// Copyright(C) 2018-2023 Julia Nechaevskaya
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -823,7 +825,6 @@ P_DamageMobj
     int		saved;
     player_t*	player;
     fixed_t	thrust;
-    int		temp;
 	
     if ( !(target->flags & MF_SHOOTABLE) )
 	return;	// shouldn't happen...
@@ -917,11 +918,6 @@ P_DamageMobj
 
 	if (player->damagecount > 100)
 	    player->damagecount = 100;	// teleport stomp does 10k points...
-	
-	temp = damage < 100 ? damage : 100;
-
-	if (player == &players[consoleplayer])
-	    I_Tactile (40,10,40+temp*2);
     }
     
     // do the damage	

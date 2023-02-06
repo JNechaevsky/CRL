@@ -1,6 +1,8 @@
 //
 // Copyright(C) 1993-1996 Id Software, Inc.
 // Copyright(C) 2005-2014 Simon Howard
+// Copyright(C) 2014-2017 RestlessRodent
+// Copyright(C) 2018-2023 Julia Nechaevskaya
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -750,8 +752,6 @@ void P_SpawnPlayer (mapthing_t* mthing)
     p->extralight = 0;
     p->fixedcolormap = 0;
     p->viewheight = VIEWHEIGHT;
-    // [JN] Reset intercepts overflow condition.
-    CRL_intercepts_overflow = false;
     // [JN] Reset animater lines counter.
     CRL_lineanims_counter = 0;
     // [JN] Reset active plats counter.

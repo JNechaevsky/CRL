@@ -1,6 +1,8 @@
 //
 // Copyright(C) 1993-1996 Id Software, Inc.
 // Copyright(C) 2005-2014 Simon Howard
+// Copyright(C) 2014-2017 RestlessRodent
+// Copyright(C) 2018-2023 Julia Nechaevskaya
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -94,7 +96,7 @@ byte*			dc_source;
 // just for profiling 
 int			dccount;
 
-// GhostlyDeath -- CRL
+// RestlessRodent -- CRL
 visplane_t* dc_visplaneused = NULL;
 
 //
@@ -140,7 +142,7 @@ void R_DrawColumn (void)
     do 
     {
 
-	// GhostlyDeath -- Possibly mark visplane
+	// RestlessRodent -- Possibly mark visplane
 	if (dc_visplaneused != NULL)
 		CRL_MarkPixelP(CRLPlaneSurface, dc_visplaneused, dest);
 	
@@ -253,7 +255,7 @@ void R_DrawColumnLow (void)
     {
 	// Hack. Does not work corretly.
 	
-	// GhostlyDeath -- Possibly mark visplane
+	// RestlessRodent -- Possibly mark visplane
 	if (dc_visplaneused != NULL)
 	{
 		CRL_MarkPixelP(CRLPlaneSurface, dc_visplaneused, dest);
@@ -685,7 +687,7 @@ void R_DrawSpan (void)
 		xtemp = (position >> 26);
 		spot = xtemp | ytemp;
 
-		// GhostlyDeath -- Possibly mark visplane
+		// RestlessRodent -- Possibly mark visplane
 		if (dc_visplaneused != NULL)
 			CRL_MarkPixelP(CRLPlaneSurface, dc_visplaneused, dest);
 
@@ -817,7 +819,7 @@ void R_DrawSpanLow (void)
         spot = xtemp | ytemp;
 
 
-	// GhostlyDeath -- Possibly mark visplane
+	// RestlessRodent -- Possibly mark visplane
 	if (dc_visplaneused != NULL)
 		CRL_MarkPixelP(CRLPlaneSurface, dc_visplaneused, dest);
 
@@ -825,7 +827,7 @@ void R_DrawSpanLow (void)
 	//  while scale is adjusted appropriately.
 	*dest++ = ds_colormap[ds_source[spot]];
 	
-	// GhostlyDeath -- Possibly mark visplane
+	// RestlessRodent -- Possibly mark visplane
 	if (dc_visplaneused != NULL)
 		CRL_MarkPixelP(CRLPlaneSurface, dc_visplaneused, dest);
 	

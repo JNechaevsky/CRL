@@ -2,6 +2,8 @@
 // Copyright(C) 1993-1996 Id Software, Inc.
 // Copyright(C) 1993-2008 Raven Software
 // Copyright(C) 2005-2014 Simon Howard
+// Copyright(C) 2014-2017 RestlessRodent
+// Copyright(C) 2018-2023 Julia Nechaevskaya
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -199,7 +201,7 @@ int joybautomap = -1;
 
 int dclick_use = 1;
 
-// GhostlyDeath -- CRL
+// RestlessRodent -- CRL
 int key_crl_menu = '`';
 int key_crl_spectator = 0;
 int key_crl_map_rotate = 'r';
@@ -384,7 +386,7 @@ void M_BindMenuControls(void)
     M_BindIntVariable("key_demo_quit",      &key_demo_quit);
     M_BindIntVariable("key_spy",            &key_spy);
     
-    // GhostlyDeath -- CRL
+    // RestlessRodent -- CRL
     M_BindIntVariable("key_crl_menu",		  &key_crl_menu);
     M_BindIntVariable("key_crl_spectator",    &key_crl_spectator);
     M_BindIntVariable("key_crl_map_rotate",   &key_crl_map_rotate);

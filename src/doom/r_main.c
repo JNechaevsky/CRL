@@ -1,6 +1,8 @@
 //
 // Copyright(C) 1993-1996 Id Software, Inc.
 // Copyright(C) 2005-2014 Simon Howard
+// Copyright(C) 2014-2017 RestlessRodent
+// Copyright(C) 2018-2023 Julia Nechaevskaya
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -695,7 +697,7 @@ void R_ExecuteSetViewSize (void)
 
     setsizeneeded = false;
 
-    if (setblocks == 11 ||  CRLBruteForce)
+    if (setblocks == 11)
     {
 	scaledviewwidth = SCREENWIDTH;
 	viewheight = SCREENHEIGHT;
@@ -848,7 +850,7 @@ void R_SetupFrame (player_t* player)
     
     viewplayer = player;
     
-    if (CRL_IsSpectating())
+    if (crl_spectating)
     {
     	// Get camera position
     	CRL_GetCameraPos(&bx, &by, &bz, &ba);
@@ -928,7 +930,7 @@ void R_RenderPlayerView (player_t* player)
 	// Start of frame
 	CRL_ChangeFrame(0);
 	
-	// GhostlyDeath -- Store current position and go back to it in case the
+	// RestlessRodent -- Store current position and go back to it in case the
 	// renderer does something fancy
 	js = setjmp(CRLJustIncaseBuf);
 	
@@ -968,7 +970,7 @@ void R_RenderPlayerView (player_t* player)
 		// Check for new console commands.
 		NetUpdate ();
 		
-		// GhostlyDeath -- Draw Visplanes
+		// RestlessRodent -- Draw Visplanes
 		R_DrawPlanes ();
 		CRL_DrawVisPlanes(0);
 		
@@ -985,11 +987,7 @@ void R_RenderPlayerView (player_t* player)
 		// No errors, set jump to negative for OK
 		js = -1;
 	}
-	
-	// Overflowed, report it
-	else
-		CRL_OutputReport();
-	
+
 	// End of frame
 	CRL_ChangeFrame(js);
 }

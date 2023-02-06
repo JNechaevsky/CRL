@@ -44,7 +44,6 @@ set(GAME_SOURCE_FILES
                         d_ticcmd.h
     deh_str.c           deh_str.h
     gusconf.c           gusconf.h
-    i_cdmus.c           i_cdmus.h
     i_endoom.c          i_endoom.h
     i_input.c           i_input.h
     i_joystick.c        i_joystick.h

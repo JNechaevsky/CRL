@@ -1,6 +1,8 @@
 //
 // Copyright(C) 1993-1996 Id Software, Inc.
 // Copyright(C) 2005-2014 Simon Howard
+// Copyright(C) 2014-2017 RestlessRodent
+// Copyright(C) 2018-2023 Julia Nechaevskaya
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -126,7 +128,7 @@ typedef struct
     mpoint_t a, b;
 } mline_t;
 
-// GhostlyDeath -- Bland color drawing
+// RestlessRodent -- Bland color drawing
 static boolean blandcolor = false;
 
 // -----------------------------------------------------------------------------
