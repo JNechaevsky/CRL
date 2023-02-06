@@ -68,6 +68,8 @@ int dirtybox[4];
 // This is needed for Chocolate Strife, which clips patches to the screen.
 static vpatchclipfunc_t patchclip_callback = NULL;
 
+extern void CRL_SetCriticalMessage (char *message, const int tics);
+
 //
 // V_MarkRect 
 // 
@@ -168,6 +170,8 @@ void V_DrawPatch(int x, int y, patch_t *patch)
      || y + SHORT(patch->height) > SCREENHEIGHT)
     {
 		// GhostlyDeath -- Do not die
+		// [JN] ... print a critical message instead.
+		CRL_SetCriticalMessage("Bad V_DrawPatch (vanilla crashes here)", 2);
 		return;
     }
 
@@ -234,7 +238,8 @@ void V_DrawPatchFlipped(int x, int y, patch_t *patch)
      || y < 0
      || y + SHORT(patch->height) > SCREENHEIGHT)
     {
-        I_Error("Bad V_DrawPatchFlipped");
+        // [JN] Do not crash, print a critical message instead.
+        CRL_SetCriticalMessage("Bad V_DrawPatchFlipped (vanilla crashes here)", 2);
     }
 #endif
 
