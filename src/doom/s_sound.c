@@ -439,7 +439,7 @@ void S_StartSound(void *origin_p, int sfx_id)
     int volume;
 
     // [JN] Do not play sound while demo-warp.
-    if (nodrawers && singletics && demowarp)
+    if (nodrawers || demowarp)
     {
         return;
     }
@@ -666,7 +666,7 @@ void S_ChangeMusic(int musicnum, int looping)
     void *handle;
 
     // [JN] CRL - do not play music while demo-warp.
-    if (nodrawers && singletics && demowarp)
+    if (nodrawers || demowarp)
     {
         return;
     }
