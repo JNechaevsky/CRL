@@ -38,20 +38,19 @@
 #define LIMRANGE(x) (blandcolor == 0 ? (x) : 1)
 
 // For use if I do walls with outsides/insides
-#define REDS        MAYBEBLAND(256-5*16)
+#define REDS        MAYBEBLAND(176)
 #define REDRANGE    LIMRANGE(16)
-#define BLUES       MAYBEBLAND(256-4*16+8)
-#define BLUERANGE   LIMRANGE(8)
-#define GREENS      MAYBEBLAND(7*16)
+#define PINKS       MAYBEBLAND(173)
+#define GREENS      MAYBEBLAND(112)
 #define GREENRANGE  LIMRANGE(16)
-#define GRAYS       MAYBEBLAND(6*16)
+#define GRAYS       MAYBEBLAND(96)
 #define GRAYSRANGE  LIMRANGE(16)
-#define BROWNS      MAYBEBLAND(4*16)
+#define BROWNS      MAYBEBLAND(64)
 #define BROWNRANGE  LIMRANGE(16)
-#define YELLOWS     MAYBEBLAND(256-32+7)
+#define YELLOWS     MAYBEBLAND(231)
 #define YELLOWRANGE LIMRANGE(1)
 #define BLACK       MAYBEBLAND(0)
-#define WHITE       MAYBEBLAND(256-47)
+#define WHITE       MAYBEBLAND(209)
 
 // Automap colors
 #define BACKGROUND       BLACK
@@ -1612,7 +1611,7 @@ static void AM_drawThings (int colors, int colorrange)
                 AM_drawLineCharacter(thintriangle_guy, arrlen(thintriangle_guy), 
                                      actualradius, actualangle, 
                                      // Monsters
-                                     t->flags & MF_COUNTKILL ? (t->health > 0 ? REDS : GRAYS) :
+                                     t->flags & MF_COUNTKILL ? (t->health > 0 ? PINKS : GRAYS) :
                                      // Lost Souls and Explosive barrels (does not have a MF_COUNTKILL flag)
                                      t->type == MT_SKULL || t->type == MT_BARREL ? YELLOWS :
                                      // Pickups
