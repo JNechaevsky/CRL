@@ -8,15 +8,15 @@ set(top_srcdir ${CMAKE_CURRENT_SOURCE_DIR})
 set(top_builddir ${CMAKE_CURRENT_BINARY_DIR})
 
 # AC_INIT variables
+set(PACKAGE_VERSION "1.0")
 set(PACKAGE_NAME "${PROJECT_NAME}")
 set(PACKAGE_TARNAME "crl-doom")
-set(PACKAGE_VERSION "${PROJECT_VERSION}")
-set(PACKAGE_STRING "${PROJECT_NAME} ${PROJECT_VERSION}")
+set(PACKAGE_STRING "${PROJECT_NAME} ${PACKAGE_VERSION}")
 set(PACKAGE_BUGREPORT "julia.nechaevskaya@live.com")
 
 string(REGEX REPLACE " Doom$" "" PACKAGE_SHORTNAME "${PACKAGE_NAME}")
 set(PACKAGE_COPYRIGHT "Copyright (C) 2023 Julia Nechaevskaya")
-set(PACKAGE_LICENSE "GNU General Public License, version 2")
+set(PACKAGE_LICENSE "GNU GPL (version 2)")
 
 # Any settings that should apply to all targets in this directory and all
 # subdirectories should go here.  Use judiciously.

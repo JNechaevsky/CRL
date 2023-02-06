@@ -288,9 +288,7 @@ static void SetWindowTitle(void)
 {
     char *title;
 
-    title = M_StringReplace(PACKAGE_NAME " Setup ver " PACKAGE_VERSION,
-                            "Doom",
-                            GetGameTitle());
+    title = M_StringJoin(PACKAGE_NAME, " Setup", NULL);
 
 
     TXT_SetDesktopTitle(title);
