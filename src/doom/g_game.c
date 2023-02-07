@@ -897,6 +897,13 @@ boolean G_Responder (event_t* ev)
     // [JN] CRL - Toggle freeze mode.
     if (ev->data1 == key_crl_freeze)
     {
+        // Disallow freeze while demo recording (causing desyncs).
+        if (demorecording)
+        {
+            CRL_SetMessage(&players[consoleplayer], CRL_FREEZE_NA , false, NULL);
+            return true;
+        }            
+        
         crl_freeze ^= 1;
         CRL_SetMessage(&players[consoleplayer], crl_freeze ?
                        CRL_FREEZE_ON : CRL_FREEZE_OFF, false, NULL);
@@ -1051,7 +1058,9 @@ void G_Ticker (void)
     }
     
     // [crispy] increase demo tics counter
-    if (demoplayback || demorecording)
+    // [JN] Do not increase tics while freeze mode.
+    // Freeze mode not available while demo recording at all.
+    if ((demoplayback && !crl_freeze) || demorecording)
     {
         defdemotics++;
     }
@@ -2023,6 +2032,13 @@ void G_ReadDemoTiccmd (ticcmd_t* cmd)
 	G_CheckDemoStatus (); 
 	return; 
     } 
+
+	// [JN] Do not proceed demo while freeze mode.
+    if (crl_freeze)
+    {
+	return;
+    }
+
     cmd->forwardmove = ((signed char)*demo_p++); 
     cmd->sidemove = ((signed char)*demo_p++); 
 

@@ -169,6 +169,9 @@ void P_Ticker (void)
 	return;
     }
     
+    // [JN] Do not proceed thinkers running while demo playing.
+    if (crl_freeze && demoplayback)
+	return;
 		
     for (i=0 ; i<MAXPLAYERS ; i++)
 	if (playeringame[i])
