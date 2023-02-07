@@ -71,7 +71,7 @@ static int *map_keys[] = { &key_map_north, &key_map_south, &key_map_east,
                            &key_map_grid, &key_map_mark, &key_map_clearmark,
                            NULL };
 
-static int *crl_keys[] = { &key_crl_menu, &key_crl_spectator,
+static int *crl_keys[] = { &key_crl_menu, &key_crl_spectator, &key_crl_freeze,
                            &key_crl_map_rotate, &key_crl_map_overlay,
                            &key_crl_nextlevel, &key_crl_reloadlevel,
                            &key_crl_demospeed,
@@ -382,6 +382,7 @@ void CRLKeysDialog(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(unused))
     AddSectionLabel(table, "Main functions", false);
     AddKeyControl(table, "CRL Control Menu",    &key_crl_menu);
     AddKeyControl(table, "Spectator mode",      &key_crl_spectator);
+    AddKeyControl(table, "Freeze mode",         &key_crl_freeze);
     AddKeyControl(table, "Restart level/demo",  &key_crl_reloadlevel);
     AddKeyControl(table, "Go to next level",    &key_crl_nextlevel);
     AddKeyControl(table, "Demo fast-forward",   &key_crl_demospeed);

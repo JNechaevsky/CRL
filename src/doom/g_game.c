@@ -894,6 +894,14 @@ boolean G_Responder (event_t* ev)
                        CRL_SPECTATOR_ON : CRL_SPECTATOR_OFF, false, NULL);
     }        
 
+    // [JN] CRL - Toggle freeze mode.
+    if (ev->data1 == key_crl_freeze)
+    {
+        crl_freeze ^= 1;
+        CRL_SetMessage(&players[consoleplayer], crl_freeze ?
+                       CRL_FREEZE_ON : CRL_FREEZE_OFF, false, NULL);
+    }    
+
 	return true;    // eat key down events 
  
       case ev_keyup: 

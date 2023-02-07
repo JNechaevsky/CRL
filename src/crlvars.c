@@ -39,6 +39,7 @@ int crl_visplanes_drawing = 0;
 
 // Game mode
 int crl_spectating = 0;
+int crl_freeze = 0;
 
 // Automap
 int crl_automap_mode = 0;
