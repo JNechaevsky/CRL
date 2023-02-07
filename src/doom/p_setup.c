@@ -113,6 +113,7 @@ byte*		rejectmatrix;
 mapthing_t	deathmatchstarts[MAX_DEATHMATCH_STARTS];
 mapthing_t*	deathmatch_p;
 mapthing_t	playerstarts[MAXPLAYERS];
+boolean     playerstartsingame[MAXPLAYERS];
 
 
 // =============================================================================
@@ -539,6 +540,11 @@ void P_LoadThings (int lump)
 
 	P_SpawnMapThing(&spawnthing);
     }
+
+    if (!deathmatch)
+        for (i = 0; i < MAXPLAYERS; i++)
+            if (playeringame[i] && !playerstartsingame[i])
+                I_Error("P_LoadThings: Player %d start missing", i + 1);
 
     W_ReleaseLumpNum(lump);
 }
