@@ -961,7 +961,7 @@ static void SetScaleFactor(int factor)
     // Pick 320x200 or 320x240, depending on aspect ratio correct
 
     window_width = factor * SCREENWIDTH;
-    window_height = factor * actualheight;
+    window_height = factor * SCREENHEIGHT;
     fullscreen = false;
 }
 
