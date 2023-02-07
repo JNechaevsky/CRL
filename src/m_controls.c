@@ -204,6 +204,7 @@ int dclick_use = 1;
 // RestlessRodent -- CRL
 int key_crl_menu = '`';
 int key_crl_spectator = 0;
+int key_crl_freeze = 0;
 int key_crl_map_rotate = 'r';
 int key_crl_map_overlay = 'o';
  
@@ -389,6 +390,7 @@ void M_BindMenuControls(void)
     // RestlessRodent -- CRL
     M_BindIntVariable("key_crl_menu",		  &key_crl_menu);
     M_BindIntVariable("key_crl_spectator",    &key_crl_spectator);
+    M_BindIntVariable("key_crl_freeze",       &key_crl_freeze);
     M_BindIntVariable("key_crl_map_rotate",   &key_crl_map_rotate);
     M_BindIntVariable("key_crl_map_overlay",  &key_crl_map_overlay);
 

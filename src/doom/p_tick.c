@@ -26,6 +26,7 @@
 #include "doomstat.h"
 
 #include "crlcore.h"
+#include "crlvars.h"
 
 
 int	leveltime;
@@ -102,6 +103,16 @@ void P_RunThinkers (void)
     currentthinker = thinkercap.next;
     while (currentthinker != &thinkercap)
     {
+    // [JN] CRL - do not run other than player thinkers in freeze mode.
+    if (crl_freeze)
+    {
+        mobj_t *mo = (mobj_t *)currentthinker;
+        if (mo->type != MT_PLAYER)
+        {
+            return;
+        }
+    }
+
 	if ( currentthinker->function.acv == (actionf_v)(-1) )
 	{
 	    // time to remove it
@@ -158,14 +169,22 @@ void P_Ticker (void)
 	return;
     }
     
+    // [JN] Do not proceed thinkers running while demo playing.
+    if (crl_freeze && demoplayback)
+	return;
 		
     for (i=0 ; i<MAXPLAYERS ; i++)
 	if (playeringame[i])
 	    P_PlayerThink (&players[i]);
 			
     P_RunThinkers ();
+    
+    // [JN] CRL - do not update specials in freeze mode.
+    if (!crl_freeze)
+    {
     P_UpdateSpecials ();
     P_RespawnSpecials ();
+    }
 
     // for par times
     leveltime++;	

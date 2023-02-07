@@ -37,6 +37,7 @@ extern int crl_visplanes_drawing;
 
 // Game mode
 extern int crl_spectating;
+extern int crl_freeze;
 
 // Automap
 extern int crl_automap_mode;

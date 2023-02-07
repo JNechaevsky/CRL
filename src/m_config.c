@@ -1651,6 +1651,7 @@ static default_t extra_defaults_list[] =
 
     CONFIG_VARIABLE_KEY(key_crl_menu),
     CONFIG_VARIABLE_KEY(key_crl_spectator),
+    CONFIG_VARIABLE_KEY(key_crl_freeze),
     CONFIG_VARIABLE_KEY(key_crl_map_rotate),
     CONFIG_VARIABLE_KEY(key_crl_map_overlay),
 

@@ -494,6 +494,7 @@ static void M_CRL_Widget_Coords (int choice);
 static void M_CRL_HOMDraw (int choice);
 static void M_CRL_VisplanesDraw (int choice);
 static void M_CRL_Spectating (int choice);
+static void M_CRL_Freeze (int choice);
 
 
 static void M_ChooseCRL_2 (int choice);
@@ -566,7 +567,7 @@ static menuitem_t CRLMenu_1[]=
     { 2, "VISPLANES DRAWING", M_CRL_VisplanesDraw,  'v'},
     {-1, "", 0, '\0'},        // GAME MODE
     { 2, "SPECTATING",        M_CRL_Spectating,     's'},
-    {-1, "", 0, '\0'},
+    { 2, "FREEZE",            M_CRL_Freeze,         'f'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
@@ -697,6 +698,11 @@ static void M_DrawCRL_1 (void)
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 99, str,
                  crl_spectating ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
+    // Freeze
+    sprintf(str, crl_freeze ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 108, str,
+                 crl_freeze ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
     //
     // NEXT PAGE >
     //
@@ -787,6 +793,11 @@ static void M_CRL_VisplanesDraw (int choice)
 static void M_CRL_Spectating (int choice)
 {
     crl_spectating ^= 1;
+}
+
+static void M_CRL_Freeze (int choice)
+{
+    crl_freeze ^= 1;
 }
 
 
