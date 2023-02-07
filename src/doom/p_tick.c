@@ -109,7 +109,7 @@ void P_RunThinkers (void)
         mobj_t *mo = (mobj_t *)currentthinker;
         if (mo->type != MT_PLAYER)
         {
-            return;
+            goto skip;
         }
     }
 
@@ -125,6 +125,8 @@ void P_RunThinkers (void)
 	{
 	    if (currentthinker->function.acp1)
 		currentthinker->function.acp1 (currentthinker);
+
+            skip:
             nextthinker = currentthinker->next;
 	}
 	currentthinker = nextthinker;
