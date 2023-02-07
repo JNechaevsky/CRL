@@ -54,6 +54,7 @@ void M_Init (void);
 void M_StartControlPanel (void);
 
 
+extern void M_ConfirmDeleteGame (void);
 
 extern int detailLevel;
 

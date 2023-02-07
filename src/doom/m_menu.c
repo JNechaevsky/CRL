@@ -2532,6 +2532,23 @@ boolean M_Responder (event_t* ev)
 	}
 	return true;
     }
+    // [crispy] delete a savegame
+    else if (key == key_menu_del)
+    {
+	if (currentMenu == &LoadDef || currentMenu == &SaveDef)
+	{
+	    if (LoadMenu[itemOn].status)
+	    {
+		currentMenu->lastOn = itemOn;
+		M_ConfirmDeleteGame();
+		return true;
+	    }
+	    else
+	    {
+		return true;
+	    }
+	}
+    }
 
     // Keyboard shortcut?
     // Vanilla Doom has a weird behavior where it jumps to the scroll bars
@@ -2814,4 +2831,35 @@ void M_Init (void)
     }
 
     opldev = M_CheckParm("-opldev") > 0;
+}
+
+// [crispy] delete a savegame
+static char *savegwarning;
+static void M_ConfirmDeleteGameResponse (int key)
+{
+	free(savegwarning);
+
+	if (key == key_menu_confirm)
+	{
+		char name[256];
+
+		M_StringCopy(name, P_SaveGameFile(itemOn), sizeof(name));
+		remove(name);
+
+		if (itemOn == quickSaveSlot)
+			quickSaveSlot = -1;
+
+		M_ReadSaveStrings();
+	}
+}
+
+void M_ConfirmDeleteGame ()
+{
+	savegwarning =
+	M_StringJoin("delete savegame\n\n", "\"", savegamestrings[itemOn], "\"", " ?\n\n",
+	             PRESSYN, NULL);
+
+	M_StartMessage(savegwarning, M_ConfirmDeleteGameResponse, true);
+	messageToPrint = 2;
+	S_StartSound(NULL,sfx_swtchn);
 }
