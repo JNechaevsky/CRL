@@ -962,7 +962,10 @@ void R_RenderPlayerView (player_t* player)
 		NetUpdate ();
 
 		// [crispy] smooth texture scrolling
-		R_InterpolateTextureOffsets();
+        if (!crl_freeze)
+        {
+            R_InterpolateTextureOffsets();
+        }
 
 		// The head node is the last node output.
 		R_RenderBSPNode (numnodes-1);
