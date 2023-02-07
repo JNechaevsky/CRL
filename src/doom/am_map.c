@@ -1676,7 +1676,6 @@ static void AM_drawMarks (void)
 
 // -----------------------------------------------------------------------------
 // AM_drawCrosshair
-// [JN] Draw crosshair representing map center, or single point in vanilla mode.
 // -----------------------------------------------------------------------------
 
 static void AM_drawCrosshair (int color)
@@ -1806,7 +1805,11 @@ void AM_Drawer (void)
         AM_drawThings(THINGCOLORS, THINGRANGE);
     }
 
-    AM_drawCrosshair(XHAIRCOLORS);
+    // [JN] Do not draw in following mode.
+    if (!followplayer)
+    {
+        AM_drawCrosshair(XHAIRCOLORS);
+    }
 
     AM_drawMarks();
 	
