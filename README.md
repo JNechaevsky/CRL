@@ -1,23 +1,19 @@
-### ChocoRenderLimits
+## CRL
 
-ChocoRenderLimits aims to help map developers test their maps within the
-limitations of Vanilla Doom. It provides visual cues for players to find and
-potentially locate visplane overflows and other renderer issues.
+[![CRL icon](https://github.com/JNechaevsky/ChocoRenderLimits/blob/master/data/doom.png)](https://github.com/JNechaevsky/ChocoRenderLimits)
 
-It was formerly maintained by RestlessRodent, but she no longer does active
-development.
+CRL is a continuation of [Chocorenderlimits](https://doomwiki.org/wiki/Chocorenderlimits) source port, created by [RestlessRodent](https://doomwiki.org/wiki/RestlessRodent). 
 
-This is a SDL2 version with very few additional tweaks and corrections, primary 
-for Windows operating system.<br />
-Forked from [chocolatiers/ChocoRenderLimits](https://github.com/chocolatiers/ChocoRenderLimits) and maintained by [Julian Nechaevsky](http://jnechaevsky.sf.net/).
+Armed with new features, QoL and technical improvements, it provides the ability to assist mappers in creation of Vanilla comaptible maps, as well as checking some specific scenarios via additional ingame modes.
+
+CRL is maintained by [Julia Nechaevskaya](mailto:julia.nechaevskaya@live.com).
 
 ### Download:
 
-For Windows (x86 and x64): [chocorenderlimits-sdl2-win32.zip](https://github.com/JNechaevsky/ChocoRenderLimits/releases/download/1.0/chocorenderlimits-sdl2-win32.zip)<br />
-Source code: [chocorenderlimits-sdl2-src.zip](https://github.com/JNechaevsky/ChocoRenderLimits/releases/download/1.0/chocorenderlimits-sdl2-src.zip)
+CRL is currently under development.
+
+Old version of Chocorenderlimits ported to SDL2 can be found [here](https://github.com/JNechaevsky/ChocoRenderLimits/releases/tag/1.0).
 
 ### Controls
 
-The _grave_/_tilde_ key opens the menu which can be used to change the
-settings.
-
+The _tilde_ [<kbd>~</kbd>] key opens the menu which can be used to change the settings and features.
