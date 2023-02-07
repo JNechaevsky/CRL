@@ -828,6 +828,8 @@ void I_FinishUpdate (void)
 
     SDL_RenderClear(renderer);
 
+    if (smooth_scaling)
+    {
     // Render this intermediate texture into the upscaled texture
     // using "nearest" integer scaling.
 
@@ -838,7 +840,12 @@ void I_FinishUpdate (void)
 
     SDL_SetRenderTarget(renderer, NULL);
     SDL_RenderCopy(renderer, texture_upscaled, NULL, NULL);
-
+    }
+    else
+    {
+    SDL_SetRenderTarget(renderer, NULL);
+    SDL_RenderCopy(renderer, texture, NULL, NULL);
+    }
     // Draw!
 
     SDL_RenderPresent(renderer);
