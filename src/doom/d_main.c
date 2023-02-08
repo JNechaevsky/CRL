@@ -240,7 +240,10 @@ void D_Display (void)
       case GS_LEVEL:
 	if (!gametic)
 	    break;
-	ST_Drawer ();
+	if (screenblocks <= 10)
+	{
+	    ST_Drawer ();
+	}
 	break;
 
       case GS_INTERMISSION:
