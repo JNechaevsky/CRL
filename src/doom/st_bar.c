@@ -337,10 +337,12 @@ boolean ST_Responder (event_t *ev)
 
                 if (plyr->cheats & CF_NOCLIP)
                 {
+                    plyr->mo->flags |= MF_NOCLIP;
                     CRL_SetMessage(plyr, DEH_String(STSTR_NCON), false, NULL);
                 }
                 else
                 {
+                    plyr->mo->flags &= ~MF_NOCLIP;
                     CRL_SetMessage(plyr, DEH_String(STSTR_NCOFF), false, NULL);
                 }
             }

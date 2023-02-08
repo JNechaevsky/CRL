@@ -752,6 +752,11 @@ void P_SpawnPlayer (mapthing_t* mthing)
     p->extralight = 0;
     p->fixedcolormap = 0;
     p->viewheight = VIEWHEIGHT;
+    // [JN] Keep NOCLIP cheat across the levels.
+    if (p->cheats & CF_NOCLIP)
+    {
+        p->mo->flags |= MF_NOCLIP;
+    }
     // [JN] Reset animater lines counter.
     CRL_lineanims_counter = 0;
     // [JN] Reset active plats counter.

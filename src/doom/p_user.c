@@ -244,12 +244,6 @@ void P_PlayerThink (player_t* player)
     player->mo->oldangle = player->mo->angle;
     player->oldviewz = player->viewz;
 
-    // fixme: do this in the cheat code
-    if (player->cheats & CF_NOCLIP)
-	player->mo->flags |= MF_NOCLIP;
-    else
-	player->mo->flags &= ~MF_NOCLIP;
-    
     // chain saw run forward
     cmd = &player->cmd;
     if (player->mo->flags & MF_JUSTATTACKED)
