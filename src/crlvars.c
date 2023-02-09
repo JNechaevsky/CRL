@@ -52,7 +52,7 @@ int crl_demo_timerdir = 0;
 int crl_demo_bar = 0;
 
 // QOL Features
-int crl_uncapped_fps = 1;
+int crl_uncapped_fps = 0;
 int crl_screenwipe = 0;
 int crl_default_skill = 2;
 int crl_colored_stbar = 0;
