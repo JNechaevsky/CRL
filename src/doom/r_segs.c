@@ -129,7 +129,7 @@ void GAME_IdentifySubSector(void* __what, CRLSubData_t* __info)
 }
 
 // -----------------------------------------------------------------------------
-// [kg] medusa effect indicator
+// [kgsws] medusa effect indicator
 // -----------------------------------------------------------------------------
 
 static byte medusa_ptr[129];
@@ -263,7 +263,7 @@ R_RenderMaskedSegRange
 	    col = (column_t *)( 
 		(byte *)R_GetColumn(texnum,maskedtexturecol[dc_x]) -3);
 			
-// 	    R_DrawMaskedColumn (col);
+        // [JN] CRL - check if column possibly have a Medusa.
         if(medusa_indicator((void*)col + 3, texnum))
         {
             R_DrawMaskedColumn (col);
