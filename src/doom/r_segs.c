@@ -33,6 +33,7 @@
 
 #include "r_local.h"
 #include "r_sky.h"
+#include "p_local.h"
 
 #include "crlcore.h"
 
@@ -127,6 +128,56 @@ void GAME_IdentifySubSector(void* __what, CRLSubData_t* __info)
 		__info->lines[i] = &segs[s->firstline + i];
 }
 
+// -----------------------------------------------------------------------------
+// [kgsws] medusa effect indicator
+// -----------------------------------------------------------------------------
+
+static byte medusa_ptr[129];
+
+static boolean medusa_indicator (void *data, int texture)
+{
+    void *composite;
+
+    // check if this column is composite
+    composite = texturecomposite[texture];
+
+    if (composite && data >= composite
+    &&  data < composite + texturecompositesize[texture])
+    {
+        // it is; draw solid
+        int bot;
+
+        bot = sprtopscreen + spryscale * (textureheight[texture] >> FRACBITS);
+
+        dc_yl = (sprtopscreen + FRACUNIT - 1) >> FRACBITS;
+
+        if(dc_yl <= mceilingclip[dc_x])
+        {
+            dc_yl = mceilingclip[dc_x] + 1;
+        }
+
+        dc_yh = (bot - 1) >> FRACBITS;
+
+        if(dc_yh >= mfloorclip[dc_x])
+        {
+            dc_yh = mfloorclip[dc_x] - 1;
+        }
+#if 0
+        // [kg] this fixes the bug
+        dc_source = data;
+#else
+        memset(medusa_ptr, leveltime, sizeof(medusa_ptr));
+        dc_source = medusa_ptr;
+        CRL_SetCriticalMessage("MEDUSA ERROR DETECTED", 2);
+#endif
+        colfunc();
+
+        return 0;
+    }
+
+    return 1;
+}
+
 //
 // R_RenderMaskedSegRange
 //
@@ -212,7 +263,11 @@ R_RenderMaskedSegRange
 	    col = (column_t *)( 
 		(byte *)R_GetColumn(texnum,maskedtexturecol[dc_x]) -3);
 			
-	    R_DrawMaskedColumn (col);
+        // [JN] CRL - check if column possibly have a Medusa.
+        if(medusa_indicator((void*)col + 3, texnum))
+        {
+            R_DrawMaskedColumn (col);
+        }
 	    maskedtexturecol[dc_x] = SHRT_MAX;
 	}
 	spryscale += rw_scalestep;
