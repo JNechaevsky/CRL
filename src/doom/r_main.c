@@ -944,12 +944,12 @@ void R_RenderPlayerView (player_t* player)
         // [JN] CRL - allow to choose HOM effect.
         if (crl_hom_effect == 1)  // Multicolor
         {
-            CRL_DrawHOMBack(viewwindowx, viewwindowy, viewwidth, viewheight);
+            CRL_DrawHOMBack(viewwindowx, viewwindowy, scaledviewwidth, viewheight);
         }
         else
         if (crl_hom_effect == 2)  // Black
         {
-            V_DrawFilledBox(viewwindowx, viewwindowy, viewwidth, viewheight, 0);
+            V_DrawFilledBox(viewwindowx, viewwindowy, scaledviewwidth, viewheight, 0);
         }
 
 		// Clear buffers.
