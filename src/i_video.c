@@ -555,15 +555,6 @@ void I_StartTic (void)
     }
 }
 
-
-//
-// I_UpdateNoBlit
-//
-void I_UpdateNoBlit (void)
-{
-    // what is this?
-}
-
 static void UpdateGrab(void)
 {
     static boolean currently_grabbed = false;
