@@ -44,7 +44,10 @@
 #include "r_things.h"
 #include "r_draw.h"
 
-extern int *texturecompositesize;
+
+extern void R_InterpolateTextureOffsets (void);
+
+extern int   *texturecompositesize;
 extern byte **texturecomposite;
 
 #endif		// __R_LOCAL__
