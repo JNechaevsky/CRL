@@ -1778,7 +1778,12 @@ void G_DoSaveGame (void)
 
     if (vanilla_savegame_limit && ftell(save_stream) > SAVEGAMESIZE)
     {
-        I_Error("Savegame buffer overrun");
+        char *message = "Savegame overflow (vanilla crashes here)";
+
+        // [JN] CRL - print a warnings instead of quit with an error.
+        // I_Error("Savegame buffer overrun");
+        printf("%s\n", message);
+        CRL_SetCriticalMessage(message, MESSAGETICS);
     }
 
     // Finish up, close the savegame file.

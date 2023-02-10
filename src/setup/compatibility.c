@@ -36,7 +36,7 @@ void CompatibilitySettings(void)
     TXT_SetWindowHelpURL(window, WINDOW_HELP_URL);
 
     TXT_AddWidgets(window,
-                   TXT_NewCheckBox("Vanilla savegame limit",
+                   TXT_NewCheckBox("Warn about vanilla savegame limit",
                                    &vanilla_savegame_limit),
                    TXT_NewCheckBox("Vanilla demo limit",
                                    &vanilla_demo_limit),
