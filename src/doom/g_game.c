@@ -2124,11 +2124,17 @@ void G_WriteDemoTiccmd (ticcmd_t* cmd)
     {
         if (vanilla_demo_limit)
         {
+            /*
             // no more space 
             G_CheckDemoStatus (); 
             return; 
+            */
+            // [JN] CRL - print a warnings instead of quit.        
+            char *message = "Demo overflow (vanilla stops record here)";
+            printf("%s\n", message);
+            CRL_SetCriticalMessage(message, MESSAGETICS);
         }
-        else
+        // else
         {
             // Vanilla demo limit disabled: unlimited
             // demo lengths!
