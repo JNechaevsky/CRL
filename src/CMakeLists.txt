@@ -95,14 +95,6 @@ set(GAME_SOURCE_FILES
 
 set(GAME_INCLUDE_DIRS "${CMAKE_CURRENT_BINARY_DIR}/../")
 
-if(MSVC)
-    list(APPEND GAME_SOURCE_FILES
-         "../win32/win_opendir.c" "../win32/win_opendir.h")
-
-    list(APPEND GAME_INCLUDE_DIRS
-         "${PROJECT_SOURCE_DIR}/win32/")
-endif()
-
 set(DEHACKED_SOURCE_FILES
     deh_defs.h
     deh_io.c            deh_io.h
