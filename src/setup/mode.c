@@ -50,7 +50,6 @@ typedef struct
     int mask;
     char *name;
     char *config_file;
-    char *extra_config_file;
     char *executable;
 } mission_config_t;
 
@@ -65,8 +64,7 @@ static mission_config_t mission_configs[] =
         doom,
         IWAD_MASK_DOOM,
         "doom",
-        "default.cfg",
-        PROGRAM_PREFIX "doom.cfg",
+        PROGRAM_PREFIX "doom.ini",
         PROGRAM_PREFIX "doom"
     },
     {
@@ -74,8 +72,7 @@ static mission_config_t mission_configs[] =
         heretic,
         IWAD_MASK_HERETIC,
         "heretic",
-        "heretic.cfg",
-        PROGRAM_PREFIX "heretic.cfg",
+        PROGRAM_PREFIX "heretic.ini",
         PROGRAM_PREFIX "heretic"
     },
     {
@@ -83,8 +80,7 @@ static mission_config_t mission_configs[] =
         hexen,
         IWAD_MASK_HEXEN,
         "hexen",
-        "hexen.cfg",
-        PROGRAM_PREFIX "hexen.cfg",
+        PROGRAM_PREFIX "hexen.ini",
         PROGRAM_PREFIX "hexen"
     },
     {
@@ -92,8 +88,7 @@ static mission_config_t mission_configs[] =
         strife,
         IWAD_MASK_STRIFE,
         "strife",
-        "strife.cfg",
-        PROGRAM_PREFIX "strife.cfg",
+        PROGRAM_PREFIX "strife.ini",
         PROGRAM_PREFIX "strife"
     }
 };
