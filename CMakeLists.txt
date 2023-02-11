@@ -52,7 +52,7 @@ endif()
 
 # Check for Miniz (replaces libpng).
 find_package(miniz 2.0.0)
-if(NOT MINIZ_FOUND)
+if(NOT miniz_FOUND)
     message(STATUS "Using vendored miniz library")
     add_subdirectory("miniz")
 endif()
