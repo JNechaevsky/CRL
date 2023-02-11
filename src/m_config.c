@@ -51,7 +51,6 @@ char *configdir;
 // Default filenames for configuration files.
 
 static char *default_main_config;
-static char *default_extra_config;
 
 typedef enum 
 {
@@ -678,19 +677,7 @@ static default_t	doom_defaults_list[] =
     //
 
     CONFIG_VARIABLE_INT(comport),
-};
 
-static default_collection_t doom_defaults =
-{
-    doom_defaults_list,
-    arrlen(doom_defaults_list),
-    NULL,
-};
-
-//! @begin_config_file extended
-
-static default_t extra_defaults_list[] =
-{
     //!
     // Name of the SDL video driver to use.  If this is an empty string,
     // the default video driver is used.
@@ -1698,10 +1685,10 @@ static default_t extra_defaults_list[] =
     CONFIG_VARIABLE_INT(crl_colorblind),
 };
 
-static default_collection_t extra_defaults =
+static default_collection_t doom_defaults =
 {
-    extra_defaults_list,
-    arrlen(extra_defaults_list),
+    doom_defaults_list,
+    arrlen(doom_defaults_list),
     NULL,
 };
 
@@ -1976,10 +1963,9 @@ static void LoadDefaultCollection(default_collection_t *collection)
 
 // Set the default filenames to use for configuration files.
 
-void M_SetConfigFilenames(char *main_config, char *extra_config)
+void M_SetConfigFilenames(char *main_config)
 {
     default_main_config = main_config;
-    default_extra_config = extra_config;
 }
 
 //
@@ -1989,32 +1975,27 @@ void M_SetConfigFilenames(char *main_config, char *extra_config)
 void M_SaveDefaults (void)
 {
     SaveDefaultCollection(&doom_defaults);
-    SaveDefaultCollection(&extra_defaults);
 }
 
 //
 // Save defaults to alternate filenames
 //
 
-void M_SaveDefaultsAlternate(char *main, char *extra)
+void M_SaveDefaultsAlternate(char *main)
 {
     char *orig_main;
-    char *orig_extra;
 
     // Temporarily change the filenames
 
     orig_main = doom_defaults.filename;
-    orig_extra = extra_defaults.filename;
 
     doom_defaults.filename = main;
-    extra_defaults.filename = extra;
 
     M_SaveDefaults();
 
     // Restore normal filenames
 
     doom_defaults.filename = orig_main;
-    extra_defaults.filename = orig_extra;
 }
 
 //
@@ -2050,29 +2031,7 @@ void M_LoadDefaults (void)
 
     printf("saving config in %s\n", doom_defaults.filename);
 
-    //!
-    // @arg <file>
-    //
-    // Load additional configuration from the specified file, instead of
-    // the default.
-    //
-
-    i = M_CheckParmWithArgs("-extraconfig", 1);
-
-    if (i)
-    {
-        extra_defaults.filename = myargv[i+1];
-        printf("        extra configuration file: %s\n", 
-               extra_defaults.filename);
-    }
-    else
-    {
-        extra_defaults.filename
-            = M_StringJoin(configdir, default_extra_config, NULL);
-    }
-
     LoadDefaultCollection(&doom_defaults);
-    LoadDefaultCollection(&extra_defaults);
 }
 
 // Get a configuration file variable by its name
@@ -2084,11 +2043,6 @@ static default_t *GetDefaultForName(char *name)
     // Try the main list and the extras
 
     result = SearchCollection(&doom_defaults, name);
-
-    if (result == NULL)
-    {
-        result = SearchCollection(&extra_defaults, name);
-    }
 
     // Not found? Internal error.
 
