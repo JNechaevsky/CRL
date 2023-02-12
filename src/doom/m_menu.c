@@ -503,6 +503,7 @@ static void M_CRL_Widget_Render (int choice);
 static void M_CRL_Widget_KIS (int choice);
 static void M_CRL_Widget_Time (int choice);
 static void M_CRL_Widget_Coords (int choice);
+static void M_CRL_Widget_Health (int choice);
 static void M_CRL_HOMDraw (int choice);
 static void M_CRL_VisplanesDraw (int choice);
 static void M_ChooseCRL_2 (int choice);
@@ -574,10 +575,10 @@ static menuitem_t CRLMenu_1[]=
     { 2, "K/I/S STATS",       M_CRL_Widget_KIS,     'k'},
     { 2, "LEVEL TIME",        M_CRL_Widget_Time,    'l'},
     { 2, "PLAYER COORDS",     M_CRL_Widget_Coords,  'p'},
+    { 2, "TARGET'S HEALTH",   M_CRL_Widget_Health,  't'},
     {-1, "", 0, '\0'},        // DRAWING
     { 2, "HOM EFFECT",        M_CRL_HOMDraw,        'h'},
     { 2, "VISPLANES DRAWING", M_CRL_VisplanesDraw,  'v'},
-    {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     { 1, "",                  M_ChooseCRL_2,        'n'}
 };
@@ -704,12 +705,18 @@ static void M_DrawCRL_1 (void)
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 90, str,
                  crl_widget_coords ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
-    M_WriteText(CRL_MENU_TITLEOFFSET, 99, "DRAWING", cr[CR_YELLOW]);
+    // Target's health
+    sprintf(str, crl_widget_health == 1 ? "TOP" : 
+                 crl_widget_health == 2 ? "BOTTOM" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 99, str,
+                 crl_widget_health ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
+    M_WriteText(CRL_MENU_TITLEOFFSET, 108, "DRAWING", cr[CR_YELLOW]);
 
     // HOM effect
     sprintf(str, crl_hom_effect == 0 ? "OFF" :
                  crl_hom_effect == 1 ? "MULTICOLOR" : "BLACK");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 108, str,
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 117, str,
                  crl_hom_effect > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Visplanes drawing mode
@@ -717,7 +724,7 @@ static void M_DrawCRL_1 (void)
                  crl_visplanes_drawing == 1 ? "FILL" :
                  crl_visplanes_drawing == 2 ? "OVERFILL" :
                  crl_visplanes_drawing == 3 ? "BORDER" : "OVERBORDER");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 117, str,
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 126, str,
                  crl_visplanes_drawing > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
 
@@ -762,6 +769,28 @@ static void M_CRL_Widget_Time (int choice)
 static void M_CRL_Widget_Coords (int choice)
 {
     crl_widget_coords ^= 1;
+}
+
+static void M_CRL_Widget_Health (int choice)
+{
+    switch (choice)
+    {
+        case 0:
+            crl_widget_health--;
+            if (crl_widget_health < 0)
+            {
+                crl_widget_health = 2;
+            }
+        break;
+
+        case 1:
+            crl_widget_health++;
+            if (crl_widget_health > 2)
+            {
+                crl_widget_health = 0;
+            }
+        break;
+    }
 }
 
 static void M_CRL_HOMDraw (int choice)

@@ -36,6 +36,7 @@ int crl_widget_render = 1;
 int crl_widget_kis = 0;
 int crl_widget_time = 0;
 int crl_widget_coords = 0;
+int crl_widget_health = 0;
 
 // Drawing
 int crl_hom_effect = 1;
@@ -73,6 +74,7 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_widget_kis",                 &crl_widget_kis);
     M_BindIntVariable("crl_widget_time",                &crl_widget_time);
     M_BindIntVariable("crl_widget_coords",              &crl_widget_coords);
+    M_BindIntVariable("crl_widget_health",              &crl_widget_health);
 
     // Drawing
     M_BindIntVariable("crl_hom_effect",                 &crl_hom_effect);

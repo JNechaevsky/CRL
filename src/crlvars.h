@@ -34,6 +34,7 @@ extern int crl_widget_render;
 extern int crl_widget_kis;
 extern int crl_widget_time;
 extern int crl_widget_coords;
+extern int crl_widget_health;
 
 // Drawing
 extern int crl_hom_effect;

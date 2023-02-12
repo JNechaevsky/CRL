@@ -52,6 +52,7 @@
 #include "m_controls.h"
 #include "m_misc.h"
 #include "m_menu.h"
+#include "p_local.h"
 #include "p_saveg.h"
 
 #include "i_endoom.h"
@@ -201,7 +202,6 @@ static void CRL_DrawCriticalMessage (void)
 // wipegamestate can be set to -1 to force a wipe on the next draw
 gamestate_t     wipegamestate = GS_DEMOSCREEN;
 extern  boolean setsizeneeded;
-extern  int             showMessages;
 void R_ExecuteSetViewSize (void);
 
 void D_Display (void)
@@ -325,6 +325,21 @@ void D_Display (void)
         else if (demorecording && (crl_demo_timer == 2 || crl_demo_timer == 3))
         {
             CRL_DemoTimer(leveltime);
+        }
+
+        // [JN] Target's health widget.
+        if (crl_widget_health)
+        {
+            player_t *player = &players[displayplayer];
+
+            // Do an overflow-safe trace to gather target's health.
+            P_AimLineAttack(player->mo, player->mo->angle, MISSILERANGE, true);
+
+            // If target is present, draw it's health.
+            if (linetarget)
+            {
+                CRL_TargetHealth(linetarget->health, linetarget->info->spawnhealth, crl_widget_health);
+            }
         }
     }
 

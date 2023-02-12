@@ -623,10 +623,19 @@ static boolean PIT_AddLineIntercepts (line_t *ld)
     // [crispy] Intercepts overflow guard.
     if (intercept_p - intercepts == MAXINTERCEPTS_ORIGINAL + 1)
     {
-        // [crispy] print a warning
-        fprintf(stderr, "PIT_AddLineIntercepts: Triggered INTERCEPTS overflow!\n");
-        // [JN] CRL - print in-game warning.
-        CRL_SetCriticalMessage("TRIGGERED LINE INTERCEPTS OVERFLOW!", MESSAGETICS);
+        if (safe_intercept)
+        {
+            // [JN] CRL - it's a safe trace, don't go
+            // any farther and don't inkove overflow.
+            return false;
+        }
+        else
+        {
+            // [crispy] print a warning
+            fprintf(stderr, "PIT_AddLineIntercepts: Triggered INTERCEPTS overflow!\n");
+            // [JN] CRL - print in-game warning.
+            CRL_SetCriticalMessage("TRIGGERED LINE INTERCEPTS OVERFLOW!", MESSAGETICS);
+        }
     }
     intercept_p++;
 
@@ -689,10 +698,19 @@ static boolean PIT_AddThingIntercepts (mobj_t *thing)
     // [crispy] Intercepts overflow guard.
     if (intercept_p - intercepts == MAXINTERCEPTS_ORIGINAL + 1)
     {
-        // [crispy] print a warning
-        fprintf(stderr, "PIT_AddThingIntercepts: Triggered INTERCEPTS overflow!\n");
-        // [JN] CRL - print in-game warning.
-        CRL_SetCriticalMessage("TRIGGERED THING INTERCEPTS OVERFLOW!", MESSAGETICS);
+        if (safe_intercept)
+        {
+            // [JN] CRL - it's a safe trace, don't go
+            // any farther and don't inkove overflow.
+            return false;
+        }
+        else
+        {
+            // [crispy] print a warning
+            fprintf(stderr, "PIT_AddThingIntercepts: Triggered INTERCEPTS overflow!\n");
+            // [JN] CRL - print in-game warning.
+            CRL_SetCriticalMessage("TRIGGERED THING INTERCEPTS OVERFLOW!", MESSAGETICS);
+        }
     }
 
     intercept_p++;

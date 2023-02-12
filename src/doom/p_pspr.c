@@ -473,7 +473,7 @@ A_Punch
 
     angle = player->mo->angle;
     angle += P_SubRandom() << 18;
-    slope = P_AimLineAttack (player->mo, angle, MELEERANGE);
+    slope = P_AimLineAttack (player->mo, angle, MELEERANGE, false);
     P_LineAttack (player->mo, angle, MELEERANGE, slope, damage);
 
     // turn to face target
@@ -505,7 +505,7 @@ A_Saw
     angle += P_SubRandom() << 18;
     
     // use meleerange + 1 se the puff doesn't skip the flash
-    slope = P_AimLineAttack (player->mo, angle, MELEERANGE+1);
+    slope = P_AimLineAttack (player->mo, angle, MELEERANGE+1, false);
     P_LineAttack (player->mo, angle, MELEERANGE+1, slope, damage);
 
     if (!linetarget)
@@ -615,16 +615,16 @@ void P_BulletSlope (mobj_t*	mo)
     
     // see which target is to be aimed at
     an = mo->angle;
-    bulletslope = P_AimLineAttack (mo, an, 16*64*FRACUNIT);
+    bulletslope = P_AimLineAttack (mo, an, 16*64*FRACUNIT, false);
 
     if (!linetarget)
     {
 	an += 1<<26;
-	bulletslope = P_AimLineAttack (mo, an, 16*64*FRACUNIT);
+	bulletslope = P_AimLineAttack (mo, an, 16*64*FRACUNIT, false);
 	if (!linetarget)
 	{
 	    an -= 2<<26;
-	    bulletslope = P_AimLineAttack (mo, an, 16*64*FRACUNIT);
+	    bulletslope = P_AimLineAttack (mo, an, 16*64*FRACUNIT, false);
 	}
     }
 }
@@ -803,7 +803,7 @@ void A_BFGSpray (mobj_t* mo)
 
 	// mo->target is the originator (player)
 	//  of the missile
-	P_AimLineAttack (mo->target, an, 16*64*FRACUNIT);
+	P_AimLineAttack (mo->target, an, 16*64*FRACUNIT, false);
 
 	if (!linetarget)
 	    continue;

@@ -1638,6 +1638,7 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(crl_widget_kis),
     CONFIG_VARIABLE_INT(crl_widget_time),
     CONFIG_VARIABLE_INT(crl_widget_coords),
+    CONFIG_VARIABLE_INT(crl_widget_health),
 
     // Drawing
     CONFIG_VARIABLE_INT(crl_hom_effect),

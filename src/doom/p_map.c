@@ -840,6 +840,9 @@ void P_SlideMove (mobj_t* mo)
 //
 mobj_t*		linetarget;	// who got hit (or NULL)
 mobj_t*		shootthing;
+// [JN] CRL - if true, this intercept will not cause overflow.
+// Needed for P_AimLineAttack calls to gather target's health.
+boolean		safe_intercept = false;
 
 // Height if not aiming up or down
 // ???: use slope for monsters?
@@ -1114,10 +1117,14 @@ fixed_t
 P_AimLineAttack
 ( mobj_t*	t1,
   angle_t	angle,
-  fixed_t	distance )
+  fixed_t	distance,
+  boolean	safe )
 {
     fixed_t	x2;
     fixed_t	y2;
+
+    // [JN] CRL - will this trace be safe for line/thing intercepts overflow?
+    safe_intercept = safe ? true : false;
 
     t1 = P_SubstNullMobj(t1);
 	

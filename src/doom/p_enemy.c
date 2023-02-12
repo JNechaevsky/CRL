@@ -815,7 +815,7 @@ void A_PosAttack (mobj_t* actor)
 		
     A_FaceTarget (actor);
     angle = actor->angle;
-    slope = P_AimLineAttack (actor, angle, MISSILERANGE);
+    slope = P_AimLineAttack (actor, angle, MISSILERANGE, false);
 
     S_StartSound (actor, sfx_pistol);
     angle += P_SubRandom() << 20;
@@ -837,7 +837,7 @@ void A_SPosAttack (mobj_t* actor)
     S_StartSound (actor, sfx_shotgn);
     A_FaceTarget (actor);
     bangle = actor->angle;
-    slope = P_AimLineAttack (actor, bangle, MISSILERANGE);
+    slope = P_AimLineAttack (actor, bangle, MISSILERANGE, false);
 
     for (i=0 ; i<3 ; i++)
     {
@@ -860,7 +860,7 @@ void A_CPosAttack (mobj_t* actor)
     S_StartSound (actor, sfx_shotgn);
     A_FaceTarget (actor);
     bangle = actor->angle;
-    slope = P_AimLineAttack (actor, bangle, MISSILERANGE);
+    slope = P_AimLineAttack (actor, bangle, MISSILERANGE, false);
 
     angle = bangle + (P_SubRandom() << 20);
     damage = ((P_Random()%5)+1)*3;
