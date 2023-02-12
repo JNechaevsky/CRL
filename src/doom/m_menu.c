@@ -706,10 +706,10 @@ static void M_DrawCRL_1 (void)
                  crl_spectating ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Freeze
-    sprintf(str, demorecording || demoplayback ? "N/A" :
+    sprintf(str, !singleplayer ? "N/A" :
             crl_freeze ? "ON" : "OFF");
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 108, str,
-                 demorecording || demoplayback ? cr[CR_DARKRED] :
+                 !singleplayer ? cr[CR_DARKRED] :
                  crl_freeze ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Notarget
@@ -813,7 +813,7 @@ static void M_CRL_Spectating (int choice)
 
 static void M_CRL_Freeze (int choice)
 {
-    if (demorecording || demoplayback)
+    if (!singleplayer)
     {
         return;
     }

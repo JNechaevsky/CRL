@@ -897,7 +897,7 @@ boolean G_Responder (event_t* ev)
     // [JN] CRL - Toggle freeze mode.
     if (ev->data1 == key_crl_freeze)
     {
-        // Disallow freeze while demo recording and playback (causing desyncs).
+        // Allow freeze only in single player game, otherwise desyncs may occur.
         if (demorecording)
         {
             CRL_SetMessage(&players[consoleplayer], CRL_FREEZE_NA_R , false, NULL);
@@ -908,8 +908,14 @@ boolean G_Responder (event_t* ev)
             CRL_SetMessage(&players[consoleplayer], CRL_FREEZE_NA_P , false, NULL);
             return true;
         }   
+        if (netgame)
+        {
+            CRL_SetMessage(&players[consoleplayer], CRL_FREEZE_NA_N , false, NULL);
+            return true;
+        }   
         
         crl_freeze ^= 1;
+
         CRL_SetMessage(&players[consoleplayer], crl_freeze ?
                        CRL_FREEZE_ON : CRL_FREEZE_OFF, false, NULL);
     }    
