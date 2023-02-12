@@ -492,6 +492,8 @@ static menu_t SaveDef =
 #define CRL_MENU_LEFTOFFSET    (48)
 #define CRL_MENU_RIGHTOFFSET   (SCREENWIDTH - CRL_MENU_LEFTOFFSET)
 
+static player_t *player;
+
 static void M_DrawCRL_1 (void);
 static void M_CRL_Widget_Render (int choice);
 static void M_CRL_Widget_KIS (int choice);
@@ -501,8 +503,7 @@ static void M_CRL_HOMDraw (int choice);
 static void M_CRL_VisplanesDraw (int choice);
 static void M_CRL_Spectating (int choice);
 static void M_CRL_Freeze (int choice);
-
-
+static void M_CRL_NoTarget (int choice);
 static void M_ChooseCRL_2 (int choice);
 
 static void M_DrawCRL_2 (void);
@@ -574,7 +575,7 @@ static menuitem_t CRLMenu_1[]=
     {-1, "", 0, '\0'},        // GAME MODE
     { 2, "SPECTATING",        M_CRL_Spectating,     's'},
     { 2, "FREEZE",            M_CRL_Freeze,         'f'},
-    {-1, "", 0, '\0'},
+    { 2, "NOTARGET",          M_CRL_NoTarget,       'n'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     { 1, "",                  M_ChooseCRL_2,        'n'}
@@ -711,6 +712,13 @@ static void M_DrawCRL_1 (void)
                  demorecording || demoplayback ? cr[CR_DARKRED] :
                  crl_freeze ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
+    // Notarget
+    sprintf(str, !singleplayer ? "N/A" :
+            player->cheats & CF_NOTARGET ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 117, str,
+                 !singleplayer ? cr[CR_DARKRED] :
+                 player->cheats & CF_NOTARGET ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
     //
     // NEXT PAGE >
     //
@@ -811,6 +819,16 @@ static void M_CRL_Freeze (int choice)
     }
 
     crl_freeze ^= 1;
+}
+
+static void M_CRL_NoTarget (int choice)
+{
+    if (!singleplayer)
+    {
+        return;
+    }
+
+    player->cheats ^= CF_NOTARGET;
 }
 
 
@@ -2791,6 +2809,9 @@ void M_Init (void)
     messageString = NULL;
     messageLastMenuActive = menuactive;
     quickSaveSlot = -1;
+
+    // [JN] CRL - player is always local, "console" player.
+    player = &players[consoleplayer];
 
     // [JN] CRL - set cursor position in skill menu to default skill level.
     NewDef.lastOn = crl_default_skill;

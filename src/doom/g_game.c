@@ -914,6 +914,34 @@ boolean G_Responder (event_t* ev)
                        CRL_FREEZE_ON : CRL_FREEZE_OFF, false, NULL);
     }    
 
+    // [JN] CRL - Toggle notarget mode.
+    if (ev->data1 == key_crl_notarget)
+    {
+        player_t *player = &players[consoleplayer];
+
+        // Allow notarget only in single player game, otherwise desyncs may occur.
+        if (demorecording)
+        {
+            CRL_SetMessage(&players[consoleplayer], CRL_NOTARGET_NA_R , false, NULL);
+            return true;
+        }
+        if (demoplayback)
+        {
+            CRL_SetMessage(&players[consoleplayer], CRL_NOTARGET_NA_P , false, NULL);
+            return true;
+        }
+        if (netgame)
+        {
+            CRL_SetMessage(&players[consoleplayer], CRL_NOTARGET_NA_N , false, NULL);
+            return true;
+        }   
+
+        player->cheats ^= CF_NOTARGET;
+
+        CRL_SetMessage(player, player->cheats & CF_NOTARGET ?
+                       CRL_NOTARGET_ON : CRL_NOTARGET_OFF, false, NULL);
+    }
+
 	return true;    // eat key down events 
  
       case ev_keyup: 
