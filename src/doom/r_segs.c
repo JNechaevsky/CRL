@@ -134,9 +134,9 @@ void GAME_IdentifySubSector(void* __what, CRLSubData_t* __info)
 
 static byte medusa_ptr[129];
 
-static boolean medusa_indicator (void *data, int texture)
+static boolean medusa_indicator (const byte *data, int texture)
 {
-    void *composite;
+    byte *composite;
 
     // check if this column is composite
     composite = texturecomposite[texture];
@@ -264,7 +264,7 @@ R_RenderMaskedSegRange
 		(byte *)R_GetColumn(texnum,maskedtexturecol[dc_x]) -3);
 			
         // [JN] CRL - check if column possibly have a Medusa.
-        if(medusa_indicator((void*)col + 3, texnum))
+        if(medusa_indicator((byte*) col + 3, texnum))
         {
             R_DrawMaskedColumn (col);
         }

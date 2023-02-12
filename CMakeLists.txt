@@ -30,6 +30,7 @@ endif()
 
 option(ENABLE_SDL2_NET "Enable SDL2_net" On)
 option(ENABLE_SDL2_MIXER "Enable SDL2_mixer" On)
+Option(CMAKE_FIND_PACKAGE_PREFER_CONFIG "Prefer dependency search in config mode over find module mode" OFF)
 
 find_package(SDL2 2.0.7)
 if(ENABLE_SDL2_MIXER)
@@ -45,14 +46,14 @@ else()
 endif()
 
 # Check for libsamplerate.
-find_package(samplerate)
-if(SAMPLERATE_FOUND)
+find_package(SampleRate)
+if(SampleRate_FOUND)
     set(HAVE_LIBSAMPLERATE TRUE)
 endif()
 
 # Check for Miniz (replaces libpng).
 find_package(miniz 2.0.0)
-if(NOT MINIZ_FOUND)
+if(NOT miniz_FOUND)
     message(STATUS "Using vendored miniz library")
     add_subdirectory("miniz")
 endif()

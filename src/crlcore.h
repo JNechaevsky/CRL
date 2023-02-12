@@ -170,7 +170,7 @@ extern void CRL_SetColors (uint8_t* colors, void* ref);
 
 extern void M_WriteText (int x, int y, const char *string, byte *table);
 extern void M_WriteTextCentered (const int y, const char *string, byte *table);
-extern int  M_StringWidth (const char *string);
+extern const int M_StringWidth (const char *string);
 
 extern void CRL_WidgetsDrawer (void);
 extern void CRL_ReloadPalette (void);
