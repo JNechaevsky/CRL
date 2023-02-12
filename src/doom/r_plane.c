@@ -33,6 +33,7 @@
 
 #include "r_local.h"
 #include "r_sky.h"
+#include "p_local.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
@@ -281,6 +282,8 @@ R_FindPlane
 		
     if (lastvisplane - visplanes == CRL_MaxVisPlanes())
 	{
+    	// [JN] Print in-game warning.
+    	CRL_SetCriticalMessage("R_FindPlane: no more visplanes", 2);
     	longjmp(CRLJustIncaseBuf, CRL_JUMP_VPO);
 	}
 	
@@ -361,6 +364,12 @@ R_CheckPlane
     lastvisplane->picnum = pl->picnum;
     lastvisplane->lightlevel = pl->lightlevel;
     
+    if (lastvisplane - visplanes == MAXVISPLANES)
+    {
+        // [JN] Print in-game warning.
+        CRL_SetCriticalMessage("R_CheckPlane: no more visplanes", 2);
+    }
+
     pl = lastvisplane++;
     
 	// RestlessRodent -- Count plane before write
@@ -438,7 +447,12 @@ void R_DrawPlanes (void)
 		 ds_p - drawsegs);
     
     if (lastvisplane - visplanes > CRL_MaxVisPlanes())
+    {
+    	// [JN] Print in-game warning. No need to add counter into message,
+    	// since number is already presented in limits counter widget.
+    	CRL_SetCriticalMessage("R_DrawPlanes: visplane overflow", 2);
     	longjmp(CRLJustIncaseBuf, CRL_JUMP_VPO);
+    }
     
     if (lastopening - openings > MAXOPENINGS)
 	I_Error ("R_DrawPlanes: opening overflow (%i)",
