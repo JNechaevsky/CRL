@@ -27,6 +27,10 @@ int crl_startup_delay = 35;
 // Time to wait for the screen to be updated after resizing (ms).
 int crl_resize_delay = 35;
 
+// Game modes
+int crl_spectating = 0;
+int crl_freeze = 0;
+
 // Widgets
 int crl_widget_render = 1;
 int crl_widget_kis = 0;
@@ -36,10 +40,6 @@ int crl_widget_coords = 0;
 // Drawing
 int crl_hom_effect = 1;
 int crl_visplanes_drawing = 0;
-
-// Game mode
-int crl_spectating = 0;
-int crl_freeze = 0;
 
 // Automap
 int crl_automap_mode = 0;

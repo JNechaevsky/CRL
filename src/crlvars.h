@@ -25,6 +25,10 @@
 extern int crl_startup_delay;
 extern int crl_resize_delay;
 
+// Game modes
+extern int crl_spectating;
+extern int crl_freeze;
+
 // Widgets
 extern int crl_widget_render;
 extern int crl_widget_kis;
@@ -34,10 +38,6 @@ extern int crl_widget_coords;
 // Drawing
 extern int crl_hom_effect;
 extern int crl_visplanes_drawing;
-
-// Game mode
-extern int crl_spectating;
-extern int crl_freeze;
 
 // Automap
 extern int crl_automap_mode;

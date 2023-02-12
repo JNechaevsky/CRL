@@ -491,19 +491,20 @@ static menu_t SaveDef =
 
 #define CRL_MENU_LEFTOFFSET    (48)
 #define CRL_MENU_RIGHTOFFSET   (SCREENWIDTH - CRL_MENU_LEFTOFFSET)
+#define CRL_MENU_TITLEOFFSET   (CRL_MENU_LEFTOFFSET - 10)
 
 static player_t *player;
 
 static void M_DrawCRL_1 (void);
+static void M_CRL_Spectating (int choice);
+static void M_CRL_Freeze (int choice);
+static void M_CRL_NoTarget (int choice);
 static void M_CRL_Widget_Render (int choice);
 static void M_CRL_Widget_KIS (int choice);
 static void M_CRL_Widget_Time (int choice);
 static void M_CRL_Widget_Coords (int choice);
 static void M_CRL_HOMDraw (int choice);
 static void M_CRL_VisplanesDraw (int choice);
-static void M_CRL_Spectating (int choice);
-static void M_CRL_Freeze (int choice);
-static void M_CRL_NoTarget (int choice);
 static void M_ChooseCRL_2 (int choice);
 
 static void M_DrawCRL_2 (void);
@@ -545,26 +546,30 @@ static byte *DefSkillColor (const int skill)
 
 enum
 {
-    crl_1_render,           // 18
-    crl_1_kis,              // 27
-    crl_1_time,             // 36
-    crl_1_coords,           // 45
-  crl_1_drawing_title,      // 54
-    crl_1_visplanes,        // 63
-  crl_1_gamemode_title,     // 72
-    crl_1_spectating,       // 81
-    crl_1_empty1,           // 90
-    crl_1_empty2,           // 99
-    crl_1_empty3,           // 108
-    crl_1_empty4,           // 117
-    crl_1_empty5,           // 126
-  crl_1_next_menu,          // 135
-    crl_1_end
-} crl_1_e;
+    crl1_01,    // 18
+    crl1_02,    // 27
+    crl1_03,    // 36
+    crl1_04,    // 45
+    crl1_05,    // 54
+    crl1_06,    // 63
+    crl1_07,    // 72
+    crl1_08,    // 81
+    crl1_09,    // 90
+    crl1_10,    // 99
+    crl1_11,    // 108
+    crl1_12,    // 117
+    crl1_13,    // 126
+    crl1_14,    // 135
+    crl1_end
+} crl1_e;
 
 static menuitem_t CRLMenu_1[]=
 {
-                              // WIDGETS
+                              // GAME MODES
+    { 2, "SPECTATING",        M_CRL_Spectating,     's'},
+    { 2, "FREEZE",            M_CRL_Freeze,         'f'},
+    { 2, "NOTARGET",          M_CRL_NoTarget,       'n'},
+    {-1, "", 0, '\0'},        // WIDGETS
     { 2, "RENDER COUNTERS",   M_CRL_Widget_Render,  'r'},
     { 2, "K/I/S STATS",       M_CRL_Widget_KIS,     'k'},
     { 2, "LEVEL TIME",        M_CRL_Widget_Time,    'l'},
@@ -572,10 +577,6 @@ static menuitem_t CRLMenu_1[]=
     {-1, "", 0, '\0'},        // DRAWING
     { 2, "HOM EFFECT",        M_CRL_HOMDraw,        'h'},
     { 2, "VISPLANES DRAWING", M_CRL_VisplanesDraw,  'v'},
-    {-1, "", 0, '\0'},        // GAME MODE
-    { 2, "SPECTATING",        M_CRL_Spectating,     's'},
-    { 2, "FREEZE",            M_CRL_Freeze,         'f'},
-    { 2, "NOTARGET",          M_CRL_NoTarget,       'n'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     { 1, "",                  M_ChooseCRL_2,        'n'}
@@ -583,7 +584,7 @@ static menuitem_t CRLMenu_1[]=
 
 static menu_t CRLDef_1 =
 {
-    crl_1_end,
+    crl1_end,
     &MainDef,
     CRLMenu_1,
     M_DrawCRL_1,
@@ -597,22 +598,22 @@ static menu_t CRLDef_1 =
 
 enum
 {
-    crl_2_render,           // 18
-    crl_2_kis,              // 27
-    crl_2_time,             // 36
-    crl_2_coords,           // 45
-  crl_2_drawing_title,      // 54
-    crl_2_visplanes,        // 63
-  crl_2_gamemode_title,     // 72
-    crl_2_spectating,       // 81
-    crl_2_empty1,           // 90
-    crl_2_empty2,           // 99
-    crl_2_empty3,           // 108
-    crl_2_empty4,           // 117
-    crl_2_empty5,           // 126
-  crl_2_next_menu,          // 135
-    crl_2_end
-} crl_2_e;
+    crl2_01,    // 18
+    crl2_02,    // 27
+    crl2_03,    // 36
+    crl2_04,    // 45
+    crl2_05,    // 54
+    crl2_06,    // 63
+    crl2_07,    // 72
+    crl2_08,    // 81
+    crl2_09,    // 90
+    crl2_10,    // 99
+    crl2_11,    // 108
+    crl2_12,    // 117
+    crl2_13,    // 126
+    crl2_14,    // 135
+    crl2_end
+} crl2_e;
 
 static menuitem_t CRLMenu_2[]=
 {
@@ -635,7 +636,7 @@ static menuitem_t CRLMenu_2[]=
 
 static menu_t CRLDef_2 =
 {
-    crl_2_end,
+    crl2_end,
     &MainDef,
     CRLMenu_2,
     M_DrawCRL_2,
@@ -658,36 +659,57 @@ static void M_DrawCRL_1 (void)
 
     M_ShadeBackground();
 
-    M_WriteText(CRL_MENU_LEFTOFFSET-10, 18, "WIDGETS", cr[CR_YELLOW]);
+    M_WriteText(CRL_MENU_TITLEOFFSET, 18, "GAME MODES", cr[CR_YELLOW]);
+
+    // Spectating
+    sprintf(str, crl_spectating ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 27, str,
+                 crl_spectating ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
+    // Freeze
+    sprintf(str, !singleplayer ? "N/A" :
+            crl_freeze ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 36, str,
+                 !singleplayer ? cr[CR_DARKRED] :
+                 crl_freeze ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
+    // Notarget
+    sprintf(str, !singleplayer ? "N/A" :
+            player->cheats & CF_NOTARGET ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 45, str,
+                 !singleplayer ? cr[CR_DARKRED] :
+                 player->cheats & CF_NOTARGET ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
+    M_WriteText(CRL_MENU_TITLEOFFSET, 54, "WIDGETS", cr[CR_YELLOW]);
 
     // Rendering counters
     sprintf(str, crl_widget_render == 1 ? "ON" :
                  crl_widget_render == 2 ? "OVERFLOWS" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 27, str,
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 63, str,
                  crl_widget_render == 1 ? cr[CR_GREEN] :
                  crl_widget_render == 2 ? cr[CR_DARKGREEN] : cr[CR_DARKRED]);
 
     // K/I/S stats
     sprintf(str, crl_widget_kis ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 36, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 72, str, 
                  crl_widget_kis ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Level time
     sprintf(str, crl_widget_time ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 45, str,
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 81, str,
                  crl_widget_time ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Player coords
     sprintf(str, crl_widget_coords ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 54, str,
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 90, str,
                  crl_widget_coords ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
-    M_WriteText(CRL_MENU_LEFTOFFSET-10, 63, "DRAWING", cr[CR_YELLOW]);
+    M_WriteText(CRL_MENU_TITLEOFFSET, 99, "DRAWING", cr[CR_YELLOW]);
 
     // HOM effect
     sprintf(str, crl_hom_effect == 0 ? "OFF" :
                  crl_hom_effect == 1 ? "MULTICOLOR" : "BLACK");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 72, str,
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 108, str,
                  crl_hom_effect > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Visplanes drawing mode
@@ -695,29 +717,9 @@ static void M_DrawCRL_1 (void)
                  crl_visplanes_drawing == 1 ? "FILL" :
                  crl_visplanes_drawing == 2 ? "OVERFILL" :
                  crl_visplanes_drawing == 3 ? "BORDER" : "OVERBORDER");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 81, str,
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 117, str,
                  crl_visplanes_drawing > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
-    M_WriteText(CRL_MENU_LEFTOFFSET-10, 90, "GAME MODE", cr[CR_YELLOW]);
-
-    // Spectating
-    sprintf(str, crl_spectating ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 99, str,
-                 crl_spectating ? cr[CR_GREEN] : cr[CR_DARKRED]);
-
-    // Freeze
-    sprintf(str, !singleplayer ? "N/A" :
-            crl_freeze ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 108, str,
-                 !singleplayer ? cr[CR_DARKRED] :
-                 crl_freeze ? cr[CR_GREEN] : cr[CR_DARKRED]);
-
-    // Notarget
-    sprintf(str, !singleplayer ? "N/A" :
-            player->cheats & CF_NOTARGET ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 117, str,
-                 !singleplayer ? cr[CR_DARKRED] :
-                 player->cheats & CF_NOTARGET ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     //
     // NEXT PAGE >
@@ -844,7 +846,7 @@ static void M_DrawCRL_2 (void)
 
     M_ShadeBackground();
 
-    M_WriteText(CRL_MENU_LEFTOFFSET-10, 18, "AUTOMAP", cr[CR_YELLOW]);
+    M_WriteText(CRL_MENU_TITLEOFFSET, 18, "AUTOMAP", cr[CR_YELLOW]);
 
     // Drawing mode
     sprintf(str, crl_automap_mode == 1 ? "FLOOR VISPLANES" :
@@ -852,7 +854,7 @@ static void M_DrawCRL_2 (void)
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 27, str,
                  crl_automap_mode ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
-    M_WriteText(CRL_MENU_LEFTOFFSET-10, 36, "DEMOS", cr[CR_YELLOW]);
+    M_WriteText(CRL_MENU_TITLEOFFSET, 36, "DEMOS", cr[CR_YELLOW]);
 
     // Demo timer
     sprintf(str, crl_demo_timer == 1 ? "PLAYBACK" : 
@@ -871,7 +873,7 @@ static void M_DrawCRL_2 (void)
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 63, str, 
                  crl_demo_bar ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
-    M_WriteText(CRL_MENU_LEFTOFFSET-10, 72, "QOL FEATURES", cr[CR_YELLOW]);
+    M_WriteText(CRL_MENU_TITLEOFFSET, 72, "QOL FEATURES", cr[CR_YELLOW]);
 
     // Uncapped framerate
     sprintf(str, crl_uncapped_fps ? "ON" : "OFF");
