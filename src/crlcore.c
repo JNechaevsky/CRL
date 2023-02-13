@@ -693,15 +693,17 @@ void CRL_StatDrawer (void)
 
         // Planes (128 max)
         if (crl_widget_render == 1
-        || (crl_widget_render == 2 && CRLData.numcheckplanes + CRLData.numfindplanes > 128))
+        || (crl_widget_render == 2 && CRLData.numcheckplanes + CRLData.numfindplanes >= 128))
         {
             char vis[32];
             const int totalplanes = CRLData.numcheckplanes
                                   + CRLData.numfindplanes;
 
-            M_WriteText(0, 153 - yy, "PLN:", CRL_StatColor_Str(totalplanes, 128));
+            M_WriteText(0, 153 - yy, "PLN:", totalplanes >= 128 ? 
+                       (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
             M_snprintf(vis, 32, "%d/128", totalplanes);
-            M_WriteText(32, 153 - yy, vis, CRL_StatColor_Val(totalplanes, 128));
+            M_WriteText(32, 153 - yy, vis, totalplanes >= 128 ?
+                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
         }
 
         // Openings
