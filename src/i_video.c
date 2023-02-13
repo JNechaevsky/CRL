@@ -863,6 +863,26 @@ void I_FinishUpdate (void)
     V_RestoreDiskBackground();
 }
 
+void I_FinishDemoWarpUpdate (void)
+{
+    if (!initialized || noblit)
+        return;
+
+    UpdateGrab();
+
+    // Blit from the paletted 8-bit screen buffer to the intermediate
+    // 32-bit RGBA buffer that we can load into the texture.
+    SDL_LowerBlit(screenbuffer, &blit_rect, argbbuffer, &blit_rect);
+    
+    // Update the intermediate texture with the contents of the RGBA buffer.
+    SDL_UpdateTexture(texture, NULL, argbbuffer->pixels, argbbuffer->pitch);
+    
+    SDL_SetRenderTarget(renderer, NULL);
+    SDL_RenderCopy(renderer, texture, NULL, NULL);
+
+    // Draw!
+    SDL_RenderPresent(renderer);
+}
 
 //
 // I_ReadScreen

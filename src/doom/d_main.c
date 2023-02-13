@@ -203,6 +203,7 @@ static void CRL_DrawCriticalMessage (void)
 gamestate_t     wipegamestate = GS_DEMOSCREEN;
 extern  boolean setsizeneeded;
 void R_ExecuteSetViewSize (void);
+static int demowarp_count;
 
 void D_Display (void)
 {
@@ -213,6 +214,24 @@ void D_Display (void)
     int				y;
     boolean			done;
     boolean			wipe;
+
+    // [JN] Draw progress bar while demo warp.
+    // To make it visible, a simplified version of I_FinishUpdate is used.
+    // Also, calling it every frame tic is expensive and causes performace
+    // penalties, so call it only every 350th frame tic (basically, TICRATE*10).  
+    if (demoplayback && demowarp)
+    {
+        demowarp_count++;
+        
+        if (demowarp_count == 350)
+        {
+            CRL_DemoBar();
+            I_FinishDemoWarpUpdate();
+            demowarp_count = 0;
+        }
+
+        return;
+    }
 
     if (nodrawers)
 	return;                    // for comparative timing / profiling
