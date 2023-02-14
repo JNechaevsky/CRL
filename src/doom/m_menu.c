@@ -915,7 +915,7 @@ static void M_DrawCRL_2 (void)
                  crl_screenwipe ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Default skill level
-    sprintf(str, DefSkillName[crl_default_skill]);
+    DEH_snprintf(str, sizeof(str), DefSkillName[crl_default_skill]);
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 99, str, 
                  DefSkillColor(crl_default_skill));
 

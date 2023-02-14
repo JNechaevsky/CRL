@@ -473,7 +473,6 @@ void R_InitTextures (void)
     
     int*		patchlookup;
     
-    int			totalwidth;
     int			nummappatches;
     int			offset;
     int			maxoff;
@@ -531,8 +530,6 @@ void R_InitTextures (void)
     texturecompositesize = Z_Malloc (numtextures * sizeof(*texturecompositesize), PU_STATIC, 0);
     texturewidthmask = Z_Malloc (numtextures * sizeof(*texturewidthmask), PU_STATIC, 0);
     textureheight = Z_Malloc (numtextures * sizeof(*textureheight), PU_STATIC, 0);
-
-    totalwidth = 0;
     
     //	Really complex printing shit...
     temp1 = W_GetNumForName (DEH_String("S_START"));  // P_???????
@@ -607,7 +604,6 @@ void R_InitTextures (void)
 	texturewidthmask[i] = j-1;
 	textureheight[i] = texture->height<<FRACBITS;
 		
-	totalwidth += texture->width;
     }
 
     Z_Free(patchlookup);
