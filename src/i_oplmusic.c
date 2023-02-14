@@ -1649,6 +1649,14 @@ static void *I_OPL_RegisterSong(void *data, int len)
 
     filename = M_TempFile("doom.mid");
 
+    // [JN] CRL - print a warning about 96 kilobytes limit.
+    // Can't use CRL_SetCriticalMessage here. :(
+    if (len >= MAXMIDLENGTH)
+    {
+        printf ("I_OPL_RegisterSong: Warning. Music file is > 96 kilobytes,"
+                                     " vanilla Doom can't play it.\n");
+    }
+
     if (IsMid(data, len) && len < MAXMIDLENGTH)
     {
         M_WriteFile(filename, data, len);
