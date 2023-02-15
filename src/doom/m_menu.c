@@ -522,6 +522,25 @@ static void M_CRL_RevealedSecrets (int choice);
 static void M_CRL_Colorblind (int choice);
 static void M_ChooseCRL_1 (int choice);
 
+static const int M_INT_Slider (int val, int min, int max, int direction)
+{
+    switch (direction)
+    {
+        case 0:
+        val--;
+        if (val < min) 
+            val = max;
+        break;
+
+        case 1:
+        val++;
+        if (val > max)
+            val = min;
+        break;
+    }
+    return val;
+}
+
 static char *const DefSkillName[5] = 
 {
     "IMTYTD" ,
@@ -748,46 +767,12 @@ static void M_DrawCRL_1 (void)
 
 static void M_CRL_Widget_Playstate (int choice)
 {
-    switch (choice)
-    {
-        case 0:
-            crl_widget_playstate--;
-            if (crl_widget_playstate < 0)
-            {
-                crl_widget_playstate = 2;
-            }
-        break;
-
-        case 1:
-            crl_widget_playstate++;
-            if (crl_widget_playstate > 2)
-            {
-                crl_widget_playstate = 0;
-            }
-        break;
-    }
+    crl_widget_playstate = M_INT_Slider(crl_widget_playstate, 0, 2, choice);
 }
 
 static void M_CRL_Widget_Render (int choice)
 {
-    switch (choice)
-    {
-        case 0:
-            crl_widget_render--;
-            if (crl_widget_render < 0)
-            {
-                crl_widget_render = 2;
-            }
-        break;
-
-        case 1:
-            crl_widget_render++;
-            if (crl_widget_render > 2)
-            {
-                crl_widget_render = 0;
-            }
-        break;
-    }
+    crl_widget_render = M_INT_Slider(crl_widget_render, 0, 2, choice);
 }
 
 static void M_CRL_Widget_KIS (int choice)
@@ -807,68 +792,17 @@ static void M_CRL_Widget_Coords (int choice)
 
 static void M_CRL_Widget_Health (int choice)
 {
-    switch (choice)
-    {
-        case 0:
-            crl_widget_health--;
-            if (crl_widget_health < 0)
-            {
-                crl_widget_health = 2;
-            }
-        break;
-
-        case 1:
-            crl_widget_health++;
-            if (crl_widget_health > 2)
-            {
-                crl_widget_health = 0;
-            }
-        break;
-    }
+    crl_widget_health = M_INT_Slider(crl_widget_health, 0, 2, choice);
 }
 
 static void M_CRL_HOMDraw (int choice)
 {
-    switch (choice)
-    {
-        case 0:
-            crl_hom_effect--;
-            if (crl_hom_effect < 0)
-            {
-                crl_hom_effect = 2;
-            }
-        break;
-
-        case 1:
-            crl_hom_effect++;
-            if (crl_hom_effect > 2)
-            {
-                crl_hom_effect = 0;
-            }
-        break;
-    }
+    crl_hom_effect = M_INT_Slider(crl_hom_effect, 0, 2, choice);
 }
 
 static void M_CRL_VisplanesDraw (int choice)
 {
-    switch (choice)
-    {
-        case 0:
-            crl_visplanes_drawing--;
-            if (crl_visplanes_drawing < 0)
-            {
-                crl_visplanes_drawing = 4;
-            }
-        break;
-
-        case 1:
-            crl_visplanes_drawing++;
-            if (crl_visplanes_drawing > 4)
-            {
-                crl_visplanes_drawing = 0;
-            }
-        break;
-    }
+    crl_visplanes_drawing = M_INT_Slider(crl_visplanes_drawing, 0, 4, choice);
 }
 
 static void M_CRL_Spectating (int choice)
@@ -978,46 +912,12 @@ static void M_DrawCRL_2 (void)
 
 static void M_CRL_Automap (int choice)
 {
-    switch (choice)
-    {
-        case 0:
-            crl_automap_mode--;
-            if (crl_automap_mode < 0)
-            {
-                crl_automap_mode = 2;
-            }
-        break;
-
-        case 1:
-            crl_automap_mode++;
-            if (crl_automap_mode > 2)
-            {
-                crl_automap_mode = 0;
-            }
-        break;
-    }
+    crl_automap_mode = M_INT_Slider(crl_automap_mode, 0, 4, choice);
 }
 
 static void M_CRL_DemoTimer (int choice)
 {
-    switch (choice)
-    {
-        case 0:
-            crl_demo_timer--;
-            if (crl_demo_timer < 0)
-            {
-                crl_demo_timer = 3;
-            }
-        break;
-
-        case 1:
-            crl_demo_timer++;
-            if (crl_demo_timer > 3)
-            {
-                crl_demo_timer = 0;
-            }
-        break;
-    }
+    crl_demo_timer = M_INT_Slider(crl_demo_timer, 0, 3, choice);
 }
 
 static void M_CRL_TimerDirection (int choice)
@@ -1044,25 +944,8 @@ static void M_CRL_ScreenWipe (int choice)
 
 static void M_CRL_DefaulSkill (int choice)
 {
-    switch (choice)
-    {
-        case 0:
-            crl_default_skill--;
-            if (crl_default_skill < 0)
-            {
-                crl_default_skill = 4;
-            }
-        break;
-
-        case 1:
-            crl_default_skill++;
-            if (crl_default_skill > 4)
-            {
-                crl_default_skill = 0;
-            }
-        break;
-    }
-    
+    crl_default_skill = M_INT_Slider(crl_default_skill, 0, 4, choice);
+    // [JN] Set new skill in skill level menu.
     NewDef.lastOn = crl_default_skill;
 }
 
@@ -1078,25 +961,7 @@ static void M_CRL_RevealedSecrets (int choice)
 
 static void M_CRL_Colorblind (int choice)
 {
-    switch (choice)
-    {
-        case 0:
-            crl_colorblind--;
-            if (crl_colorblind < 0)
-            {
-                crl_colorblind = 3;
-            }
-        break;
-
-        case 1:
-            crl_colorblind++;
-            if (crl_colorblind > 3)
-            {
-                crl_colorblind = 0;
-            }
-        break;
-    }
-    
+    crl_colorblind = M_INT_Slider(crl_colorblind, 0, 3, choice);
     CRL_ReloadPalette();
 }
 
