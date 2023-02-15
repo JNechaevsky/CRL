@@ -30,6 +30,7 @@ extern int crl_spectating;
 extern int crl_freeze;
 
 // Widgets
+extern int crl_widget_playstate;
 extern int crl_widget_render;
 extern int crl_widget_kis;
 extern int crl_widget_time;

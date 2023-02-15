@@ -1634,6 +1634,7 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(crl_resize_delay),
 
     // Widgets
+    CONFIG_VARIABLE_INT(crl_widget_playstate),
     CONFIG_VARIABLE_INT(crl_widget_render),
     CONFIG_VARIABLE_INT(crl_widget_kis),
     CONFIG_VARIABLE_INT(crl_widget_time),

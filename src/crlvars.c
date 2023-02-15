@@ -32,6 +32,7 @@ int crl_spectating = 0;
 int crl_freeze = 0;
 
 // Widgets
+int crl_widget_playstate = 0;
 int crl_widget_render = 1;
 int crl_widget_kis = 0;
 int crl_widget_time = 0;
@@ -70,6 +71,7 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_resize_delay",               &crl_resize_delay);
 
     // Widgets
+    M_BindIntVariable("crl_widget_playstate",           &crl_widget_playstate);
     M_BindIntVariable("crl_widget_render",              &crl_widget_render);
     M_BindIntVariable("crl_widget_kis",                 &crl_widget_kis);
     M_BindIntVariable("crl_widget_time",                &crl_widget_time);

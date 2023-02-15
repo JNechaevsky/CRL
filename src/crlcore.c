@@ -630,69 +630,65 @@ void CRL_StatDrawer (void)
         M_WriteText(32, 45, str, cr[CR_GREEN]);
     }
 
-    // Render counters
-    if (crl_widget_render)
+    if (crl_widget_playstate)
     {
-        int yy = automapactive ? 9 : 
-                 screenblocks == 11 ? -32 : 9;
-
-        if (crl_widget_kis)     yy += 9;
-        if (crl_widget_time)    yy += 9;
-        if (screenblocks == 11) yy += 9;
-
         // Icon of Sin spitter targets (32 max)
-        if ((crl_widget_render == 1 
-        ||  (crl_widget_render == 2 && CRL_brain_counter > 32)) && CRL_brain_counter)
+        if ((crl_widget_playstate == 1 
+        ||  (crl_widget_playstate == 2 && CRL_brain_counter > 32)) && CRL_brain_counter)
         {
             char brn[32];
 
-            M_WriteText(0, 99 - yy, "BRN:", CRL_StatColor_Str(CRL_brain_counter, 32));
+            M_WriteText(0, 63, "BRN:", CRL_StatColor_Str(CRL_brain_counter, 32));
             M_snprintf(brn, 16, "%d/32", CRL_brain_counter);
-            M_WriteText(32, 99 - yy, brn, CRL_StatColor_Val(CRL_brain_counter, 32));
+            M_WriteText(32, 63, brn, CRL_StatColor_Val(CRL_brain_counter, 32));
         }
 
         // Animated lines (64 max)
-        if (crl_widget_render == 1
-        || (crl_widget_render == 2 && CRL_lineanims_counter > 64))
+        if (crl_widget_playstate == 1
+        || (crl_widget_playstate == 2 && CRL_lineanims_counter > 64))
         {
             char ani[32];
 
-            M_WriteText(0, 108 - yy, "ANI:", CRL_StatColor_Str(CRL_lineanims_counter, 64));
+            M_WriteText(0, 72, "ANI:", CRL_StatColor_Str(CRL_lineanims_counter, 64));
             M_snprintf(ani, 16, "%d/64", CRL_lineanims_counter);
-            M_WriteText(32, 108 - yy, ani, CRL_StatColor_Val(CRL_lineanims_counter, 64));
+            M_WriteText(32, 72, ani, CRL_StatColor_Val(CRL_lineanims_counter, 64));
         }
 
         // Buttons (16 max)
-        if (crl_widget_render == 1
-        || (crl_widget_render == 2 && CRL_buttons_counter > 16))
+        if (crl_widget_playstate == 1
+        || (crl_widget_playstate == 2 && CRL_buttons_counter > 16))
         {
             char btn[32];
 
-            M_WriteText(0, 117 - yy, "BTN:", CRL_StatColor_Str(CRL_buttons_counter, 16));
+            M_WriteText(0, 81, "BTN:", CRL_StatColor_Str(CRL_buttons_counter, 16));
             M_snprintf(btn, 16, "%d/16", CRL_buttons_counter);
-            M_WriteText(32, 117 - yy, btn, CRL_StatColor_Val(CRL_buttons_counter, 16));
+            M_WriteText(32, 81, btn, CRL_StatColor_Val(CRL_buttons_counter, 16));
         }
 
         // Plats (30 max)
-        if (crl_widget_render == 1
-        || (crl_widget_render == 2 && CRL_plats_counter > 30))
+        if (crl_widget_playstate == 1
+        || (crl_widget_playstate == 2 && CRL_plats_counter > 30))
         {
             char plt[32];
 
-            M_WriteText(0, 126 - yy, "PLT:", CRL_StatColor_Str(CRL_plats_counter, 30));
+            M_WriteText(0, 90, "PLT:", CRL_StatColor_Str(CRL_plats_counter, 30));
             M_snprintf(plt, 16, "%d/30", CRL_plats_counter);
-            M_WriteText(32, 126 - yy, plt, CRL_StatColor_Val(CRL_plats_counter, 30));
+            M_WriteText(32, 90, plt, CRL_StatColor_Val(CRL_plats_counter, 30));
         }
+    }
 
+    // Render counters
+    if (crl_widget_render)
+    {
         // Sprites (128 max)
         if (crl_widget_render == 1
         || (crl_widget_render == 2 && CRLData.numsprites > 128))
         {
             char spr[32];
 
-            M_WriteText(0, 135 - yy, "SPR:", CRL_StatColor_Str(CRLData.numsprites, 128));
+            M_WriteText(0, 108, "SPR:", CRL_StatColor_Str(CRLData.numsprites, 128));
             M_snprintf(spr, 16, "%d/128", CRLData.numsprites);
-            M_WriteText(32, 135 - yy, spr, CRL_StatColor_Val(CRLData.numsprites, 128));
+            M_WriteText(32, 108, spr, CRL_StatColor_Val(CRLData.numsprites, 128));
         }
 
         // Segments (256 max)
@@ -701,9 +697,9 @@ void CRL_StatDrawer (void)
         {
             char seg[32];
 
-            M_WriteText(0, 144 - yy, "SEG:", CRL_StatColor_Str(CRLData.numsegs, 256));
+            M_WriteText(0, 117, "SEG:", CRL_StatColor_Str(CRLData.numsegs, 256));
             M_snprintf(seg, 16, "%d/256", CRLData.numsegs);
-            M_WriteText(32, 144 - yy, seg, CRL_StatColor_Val(CRLData.numsegs, 256));
+            M_WriteText(32, 117, seg, CRL_StatColor_Val(CRLData.numsegs, 256));
         }
 
         // Planes (128 max)
@@ -714,10 +710,10 @@ void CRL_StatDrawer (void)
             const int totalplanes = CRLData.numcheckplanes
                                   + CRLData.numfindplanes;
 
-            M_WriteText(0, 153 - yy, "PLN:", totalplanes >= 128 ? 
+            M_WriteText(0, 126, "PLN:", totalplanes >= 128 ? 
                        (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
             M_snprintf(vis, 32, "%d/128", totalplanes);
-            M_WriteText(32, 153 - yy, vis, totalplanes >= 128 ?
+            M_WriteText(32, 126, vis, totalplanes >= 128 ?
                        (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
         }
 
@@ -727,9 +723,9 @@ void CRL_StatDrawer (void)
         {
             char opn[64];
 
-            M_WriteText(0, 162 - yy, "OPN:", CRL_StatColor_Str(CRLData.numopenings, 20480));
+            M_WriteText(0, 135, "OPN:", CRL_StatColor_Str(CRLData.numopenings, 20480));
             M_snprintf(opn, 16, "%d/20480", CRLData.numopenings);
-            M_WriteText(32, 162 - yy, opn, CRL_StatColor_Val(CRLData.numopenings, 20480));
+            M_WriteText(32, 135, opn, CRL_StatColor_Val(CRLData.numopenings, 20480));
         }
     }
 

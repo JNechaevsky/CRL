@@ -499,6 +499,7 @@ static void M_DrawCRL_1 (void);
 static void M_CRL_Spectating (int choice);
 static void M_CRL_Freeze (int choice);
 static void M_CRL_NoTarget (int choice);
+static void M_CRL_Widget_Playstate (int choice);
 static void M_CRL_Widget_Render (int choice);
 static void M_CRL_Widget_KIS (int choice);
 static void M_CRL_Widget_Time (int choice);
@@ -561,6 +562,7 @@ enum
     crl1_12,    // 117
     crl1_13,    // 126
     crl1_14,    // 135
+    crl1_15,    // 144
     crl1_end
 } crl1_e;
 
@@ -571,6 +573,7 @@ static menuitem_t CRLMenu_1[]=
     { 2, "FREEZE",            M_CRL_Freeze,         'f'},
     { 2, "NOTARGET",          M_CRL_NoTarget,       'n'},
     {-1, "", 0, '\0'},        // WIDGETS
+    { 2, "PLAYSTATE COUNTERS", M_CRL_Widget_Playstate, 'r'},
     { 2, "RENDER COUNTERS",   M_CRL_Widget_Render,  'r'},
     { 2, "K/I/S STATS",       M_CRL_Widget_KIS,     'k'},
     { 2, "LEVEL TIME",        M_CRL_Widget_Time,    'l'},
@@ -613,6 +616,7 @@ enum
     crl2_12,    // 117
     crl2_13,    // 126
     crl2_14,    // 135
+    crl2_15,    // 144
     crl2_end
 } crl2_e;
 
@@ -631,6 +635,7 @@ static menuitem_t CRLMenu_2[]=
     { 2, "COLORED STATUS BAR",       M_CRL_ColoredSTBar,    'c'},
     { 2, "REPORT REVEALED SECRETS",  M_CRL_RevealedSecrets, 'r'},
     { 2, "COLORBLIND",               M_CRL_Colorblind,      'c'},
+    {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     { 1, "",                         M_ChooseCRL_1,         's'}
 };
@@ -683,40 +688,47 @@ static void M_DrawCRL_1 (void)
 
     M_WriteText(CRL_MENU_TITLEOFFSET, 54, "WIDGETS", cr[CR_YELLOW]);
 
+    // Playstate counters
+    sprintf(str, crl_widget_playstate == 1 ? "ON" :
+                 crl_widget_playstate == 2 ? "OVERFLOWS" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 63, str,
+                 crl_widget_playstate == 1 ? cr[CR_GREEN] :
+                 crl_widget_playstate == 2 ? cr[CR_DARKGREEN] : cr[CR_DARKRED]);
+
     // Rendering counters
     sprintf(str, crl_widget_render == 1 ? "ON" :
                  crl_widget_render == 2 ? "OVERFLOWS" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 63, str,
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 72, str,
                  crl_widget_render == 1 ? cr[CR_GREEN] :
                  crl_widget_render == 2 ? cr[CR_DARKGREEN] : cr[CR_DARKRED]);
 
     // K/I/S stats
     sprintf(str, crl_widget_kis ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 72, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 81, str, 
                  crl_widget_kis ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Level time
     sprintf(str, crl_widget_time ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 81, str,
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 90, str,
                  crl_widget_time ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Player coords
     sprintf(str, crl_widget_coords ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 90, str,
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 99, str,
                  crl_widget_coords ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Target's health
     sprintf(str, crl_widget_health == 1 ? "TOP" : 
                  crl_widget_health == 2 ? "BOTTOM" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 99, str,
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 108, str,
                  crl_widget_health ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
-    M_WriteText(CRL_MENU_TITLEOFFSET, 108, "DRAWING", cr[CR_YELLOW]);
+    M_WriteText(CRL_MENU_TITLEOFFSET, 117, "DRAWING", cr[CR_YELLOW]);
 
     // HOM effect
     sprintf(str, crl_hom_effect == 0 ? "OFF" :
                  crl_hom_effect == 1 ? "MULTICOLOR" : "BLACK");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 117, str,
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 126, str,
                  crl_hom_effect > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Visplanes drawing mode
@@ -724,14 +736,36 @@ static void M_DrawCRL_1 (void)
                  crl_visplanes_drawing == 1 ? "FILL" :
                  crl_visplanes_drawing == 2 ? "OVERFILL" :
                  crl_visplanes_drawing == 3 ? "BORDER" : "OVERBORDER");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 126, str,
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 135, str,
                  crl_visplanes_drawing > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
 
     //
     // NEXT PAGE >
     //
-    M_WriteText(CRL_MENU_LEFTOFFSET, 144, "NEXT PAGE >", cr[CR_WHITE]);
+    M_WriteText(CRL_MENU_LEFTOFFSET, 153, "NEXT PAGE >", cr[CR_WHITE]);
+}
+
+static void M_CRL_Widget_Playstate (int choice)
+{
+    switch (choice)
+    {
+        case 0:
+            crl_widget_playstate--;
+            if (crl_widget_playstate < 0)
+            {
+                crl_widget_playstate = 2;
+            }
+        break;
+
+        case 1:
+            crl_widget_playstate++;
+            if (crl_widget_playstate > 2)
+            {
+                crl_widget_playstate = 0;
+            }
+        break;
+    }
 }
 
 static void M_CRL_Widget_Render (int choice)
@@ -939,7 +973,7 @@ static void M_DrawCRL_2 (void)
     //
     // < PREV PAGE
     //
-    M_WriteText(CRL_MENU_LEFTOFFSET, 144, "< PREV PAGE", cr[CR_WHITE]);
+    M_WriteText(CRL_MENU_LEFTOFFSET, 153, "< PREV PAGE", cr[CR_WHITE]);
 }
 
 static void M_CRL_Automap (int choice)
