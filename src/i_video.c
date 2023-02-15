@@ -424,7 +424,7 @@ static void HandleWindowEvent(SDL_WindowEvent *event)
 // black borders after window size has been changed.
 // -----------------------------------------------------------------------------
 
-static const int HandleWindowResize (void* data, SDL_Event *event) 
+static int HandleWindowResize (void* data, SDL_Event *event) 
 {
     if (event->type == SDL_WINDOWEVENT 
     &&  event->window.event == SDL_WINDOWEVENT_RESIZED)
