@@ -18,6 +18,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
+#endif
+
 #include "i_timer.h"
 #include "z_zone.h"
 #include "v_video.h"
@@ -1305,4 +1312,37 @@ void CRL_SetColors (uint8_t* colors, void* ref)
 			// Find it and put it in
 			_homtable[i++] = CRL_BestRGBMatch(qr, qg, qb);
 		}
+}
+
+// =============================================================================
+//
+//                            Console output coloring
+//
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// CRL_printf
+//  [JN] Prints colored message on Windows OS.
+//  On other OSes just using standard, uncolored printf.
+//  @param message: message to be printed.
+//  @param critical: if true, use red color, else use yellow color.
+// -----------------------------------------------------------------------------
+
+void CRL_printf (const char *message, const boolean critical)
+{
+#ifdef _WIN32
+    // Colorize text, depending on given type (critical or not).
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), critical ?
+                            (FOREGROUND_RED | FOREGROUND_INTENSITY) :
+                            (FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY));
+#endif
+
+    // Print message, obviously.
+    printf ("%s\n", message);
+
+#ifdef _WIN32
+    // Clear coloring, fallback to standard gray color.
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 
+                            FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+#endif
 }

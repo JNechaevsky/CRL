@@ -166,6 +166,12 @@ extern void CRL_StatDrawer (void);
 extern void CRL_SetColors (uint8_t* colors, void* ref);
 
 //
+// Console output coloring
+//
+
+extern void CRL_printf (const char *message, const boolean critical);
+
+//
 // The rest of externals
 //
 
