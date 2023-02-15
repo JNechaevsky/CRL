@@ -1192,6 +1192,8 @@ void P_UpdateSpecials (void)
 		}
 		S_StartSound(&buttonlist[i].soundorg,sfx_swtchn);
 		memset(&buttonlist[i],0,sizeof(button_t));
+		// [JN] CRL - decrease buttons counter.
+		CRL_buttons_counter--;
 	    }
 	}
 

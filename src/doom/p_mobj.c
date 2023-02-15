@@ -757,10 +757,10 @@ void P_SpawnPlayer (mapthing_t* mthing)
     {
         p->mo->flags |= MF_NOCLIP;
     }
-    // [JN] Reset animater lines counter.
+    // [JN] CRL - reset frame-independent limit counters.
     CRL_lineanims_counter = 0;
-    // [JN] Reset active plats counter.
     CRL_plats_counter = 0;
+    CRL_buttons_counter = 0;
 
     // [crispy] interpolate weapon bobbing
     pspr_interp = false;

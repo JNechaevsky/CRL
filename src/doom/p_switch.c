@@ -37,6 +37,8 @@
 #include "doomstat.h"
 #include "r_state.h"
 
+#include "crlcore.h"
+
 
 //
 // CHANGE THE TEXTURE OF A WALL SWITCH TO ITS OPPOSITE
@@ -178,11 +180,21 @@ P_StartButton
 	    buttonlist[i].btexture = texture;
 	    buttonlist[i].btimer = time;
 	    buttonlist[i].soundorg = &line->frontsector->soundorg;
+	    // [JN] CRL - increase buttons counter.
+	    CRL_buttons_counter++;
 	    return;
+	}
+	// [JN] CRL - Do not quit with I_Error, print warnings instead.
+	if (CRL_buttons_counter > 16)
+	{
+	    char *message = "P_StartButton: no button slots left!";
+
+	    printf("%s\n", message);
+	    CRL_SetCriticalMessage(message, MESSAGETICS);
 	}
     }
     
-    I_Error("P_StartButton: no button slots left!");
+    // I_Error("P_StartButton: no button slots left!");
 }
 
 

@@ -66,6 +66,10 @@ int CRL_lineanims_counter;
 // Will be reset on level restart.
 int CRL_plats_counter;
 
+// MAXBUTTONS counter (16 in vanilla)
+// Will be reset on level restart.
+int CRL_buttons_counter;
+
 
 // -----------------------------------------------------------------------------
 // CRL_Init
@@ -642,9 +646,9 @@ void CRL_StatDrawer (void)
         {
             char brn[32];
 
-            M_WriteText(0, 108 - yy, "BRN:", CRL_StatColor_Str(CRL_brain_counter, 32));
+            M_WriteText(0, 99 - yy, "BRN:", CRL_StatColor_Str(CRL_brain_counter, 32));
             M_snprintf(brn, 16, "%d/32", CRL_brain_counter);
-            M_WriteText(32, 108 - yy, brn, CRL_StatColor_Val(CRL_brain_counter, 32));
+            M_WriteText(32, 99 - yy, brn, CRL_StatColor_Val(CRL_brain_counter, 32));
         }
 
         // Animated lines (64 max)
@@ -653,9 +657,20 @@ void CRL_StatDrawer (void)
         {
             char ani[32];
 
-            M_WriteText(0, 117 - yy, "ANI:", CRL_StatColor_Str(CRL_lineanims_counter, 64));
+            M_WriteText(0, 108 - yy, "ANI:", CRL_StatColor_Str(CRL_lineanims_counter, 64));
             M_snprintf(ani, 16, "%d/64", CRL_lineanims_counter);
-            M_WriteText(32, 117 - yy, ani, CRL_StatColor_Val(CRL_lineanims_counter, 64));
+            M_WriteText(32, 108 - yy, ani, CRL_StatColor_Val(CRL_lineanims_counter, 64));
+        }
+
+        // Buttons (16 max)
+        if (crl_widget_render == 1
+        || (crl_widget_render == 2 && CRL_buttons_counter > 16))
+        {
+            char btn[32];
+
+            M_WriteText(0, 117 - yy, "BTN:", CRL_StatColor_Str(CRL_buttons_counter, 16));
+            M_snprintf(btn, 16, "%d/16", CRL_buttons_counter);
+            M_WriteText(32, 117 - yy, btn, CRL_StatColor_Val(CRL_buttons_counter, 16));
         }
 
         // Plats (30 max)

@@ -179,6 +179,7 @@ extern void CRL_ReloadPalette (void);
 extern int  CRL_lineanims_counter;
 extern int  CRL_plats_counter;
 extern int  CRL_brain_counter;
+extern int  CRL_buttons_counter;
 
 // [crispy] demo progress bar and timer widget
 extern void CRL_DemoTimer (const int time);
