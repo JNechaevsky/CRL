@@ -32,7 +32,7 @@
 #include "doomdef.h"
 #include "doomstat.h"
 #include "p_local.h"
-
+#include "m_misc.h"
 
 // State.
 #include "r_state.h"
@@ -631,10 +631,12 @@ static boolean PIT_AddLineIntercepts (line_t *ld)
         }
         else
         {
+            char *message = "Triggered INTERCEPTS overflow!";
+
             // [crispy] print a warning
-            fprintf(stderr, "PIT_AddLineIntercepts: Triggered INTERCEPTS overflow!\n");
+            CRL_printf(M_StringJoin("PIT_AddLineIntercepts: ", message, NULL), false);
             // [JN] CRL - print in-game warning.
-            CRL_SetCriticalMessage("TRIGGERED LINE INTERCEPTS OVERFLOW!", MESSAGETICS);
+            CRL_SetCriticalMessage(message, MESSAGETICS);
         }
     }
     intercept_p++;
@@ -706,10 +708,12 @@ static boolean PIT_AddThingIntercepts (mobj_t *thing)
         }
         else
         {
+            char *message = "Triggered INTERCEPTS overflow!";
+
             // [crispy] print a warning
-            fprintf(stderr, "PIT_AddThingIntercepts: Triggered INTERCEPTS overflow!\n");
+            CRL_printf(M_StringJoin("PIT_AddThingIntercepts: ", message, NULL), false);
             // [JN] CRL - print in-game warning.
-            CRL_SetCriticalMessage("TRIGGERED THING INTERCEPTS OVERFLOW!", MESSAGETICS);
+            CRL_SetCriticalMessage(message, MESSAGETICS);
         }
     }
 
