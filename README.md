@@ -14,24 +14,26 @@ CRL is currently under development.
 
 Old version of Chocorenderlimits ported to SDL2 can be found [here](https://github.com/JNechaevsky/ChocoRenderLimits/releases/tag/1.0).
 
-## Game modes
+<hr>
+
+### Game modes
 
 * **Spectating.** Allows camera to move freely though the level. Use moving keys for horizontal camera movement and mouse wheel for vertical.
 * **Freeze.** Freezes game world. Player will not be able to receive damage by touching monsters projectiles and environmental dagame.
 * **Notarget.** Monsters will not react to player neither after see them, not after hearing a player's sound.
 
-## Counters
+### Counters
 
 There are two type of counters: playstate and render. First one represeng map-specific limits, while second one representing rendering/drawing limits. Port will not crash in case of overflow will happen. Instead, counter will start to blink. Short names stands for:
 
-**Playstate counters**
+#### Playstate counters
 
 * **BRN:** Number of Icon of Sin monster spawner targets. The more vanilla limit of `32` is overflowed, the more chance of critical error increases, especially if multiple spawners are placed on map. This counter is appearing if at least one spawner target is placed on map.
 * **ANI:** Number of lines with scrolling animations (line effect №48). Vanilla will crash with "Too many scrolling wall linedefs" message if map contains `65` or more such lines.
 * **BTN:** Number buttons pressed in simultaneously. Vanilla will crash with "P_StartButton: no button slots left!" message if more than `16` plats will be pressed in one second.
 * **PLT:** Number of active of in-stasis platforms. Vanilla will crash with "P_AddActivePlat: no more plats!" message if more than `30` plats will be active.
 
-**Render counters**
+#### Render counters
 
 * **SPR:** Number of rendered sprites, but due to the nature of how engine handles them, not all of them might be really visible.
 * **SEG:** Number of rendered wall segments. Overflowing vanilla limit of `256` will resulting a HoM effect.
