@@ -8,13 +8,15 @@ Armed with new features, QoL and technical improvements, it provides the ability
 
 CRL is maintained by [Julia Nechaevskaya](mailto:julia.nechaevskaya@live.com).
 
-## Download:
+## Download
 
 CRL is currently under development.
 
 Old version of Chocorenderlimits ported to SDL2 can be found [here](https://github.com/JNechaevsky/ChocoRenderLimits/releases/tag/1.0).
 
-<hr>
+## Major features
+
+CRL keeps original Chocorenderlimits idea of being crash-prone source port, and instead of crashing on most of cases, it will print ingame/console warnings.
 
 ### Game modes
 
