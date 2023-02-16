@@ -22,6 +22,7 @@
 
 
 #include <stdio.h>
+#include <ctype.h>  // isdigit
 
 #include "i_system.h"
 #include "i_video.h"
@@ -121,6 +122,11 @@ cheatseq_t cheat_commercial_noclip = CHEAT("idclip", 0);
 cheatseq_t cheat_choppers = CHEAT("idchoppers", 0);
 cheatseq_t cheat_clev = CHEAT("idclev", 2);
 cheatseq_t cheat_mypos = CHEAT("idmypos", 0);
+
+// [crispy] pseudo cheats to eat up the first digit typed 
+// after a cheat expecting two parameters
+static cheatseq_t cheat_mus1 = CHEAT("idmus", 1);
+static cheatseq_t cheat_clev1 = CHEAT("idclev", 1);
 
 // [crispy] new cheats
 static cheatseq_t cheat_massacre1 = CHEAT("tntem", 0);
@@ -310,6 +316,9 @@ boolean ST_Responder (event_t *ev)
                     else
                     {
                         S_ChangeMusic(musnum, 1);
+                        // [crispy] eat key press, i.e. don't change weapon
+                        // upon music change
+                        return true;
                     }
                 }
                 else
@@ -323,8 +332,18 @@ boolean ST_Responder (event_t *ev)
                     else
                     {
                         S_ChangeMusic(musnum, 1);
+                        // [crispy] eat key press, i.e. don't change weapon
+                        // upon music change
+                        return true;
                     }
                 }
+            }
+            // [crispy] eat up the first digit typed after a cheat expecting two parameters
+            else if (cht_CheckCheat(&cheat_mus1, ev->data2))
+            {
+                char buf[2];
+                cht_GetParam(&cheat_mus1, buf);
+                return isdigit(buf[0]);
             }
             // Noclip cheat.
             // For Doom 1, use the idspipsopd cheat; for all others, use idclip            
@@ -479,6 +498,15 @@ boolean ST_Responder (event_t *ev)
             // So be it.
             CRL_SetMessage(plyr, DEH_String(STSTR_CLEV), false, NULL);
             G_DeferedInitNew(gameskill, epsd, map);
+            // [crispy] eat key press, i.e. don't change weapon upon level change
+            return true;
+        }
+        // [crispy] eat up the first digit typed after a cheat expecting two parameters
+        else if (!netgame && !menuactive && cht_CheckCheat(&cheat_clev1, ev->data2))
+        {
+            char buf[2];
+            cht_GetParam(&cheat_clev1, buf);
+            return isdigit(buf[0]);
         }
     }
 
