@@ -511,7 +511,8 @@ P_TouchSpecialThing
 	if (!P_GiveBody (player, 25))
 	    return;
 
-	if (player->health < 25)
+	// [JN] Fix for "Medikit that you really needed!"
+	if (player->health < 50)
 	    CRL_SetMessage(player, DEH_String(GOTMEDINEED), false, NULL);
 	else
 	    CRL_SetMessage(player, DEH_String(GOTMEDIKIT), false, NULL);
