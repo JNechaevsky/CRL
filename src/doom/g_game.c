@@ -2484,8 +2484,8 @@ boolean G_CheckDemoStatus (void)
         timingdemo = false;
         demoplayback = false;
 
-	I_Error ("timed %i gametics in %i realtics (%f fps)",
-                 gametic, realtics, fps);
+	I_Error ("Timed %i gametics in %i realtics.\n"
+             "Average fps: %f", gametic, realtics, fps);
     } 
 	 
     if (demoplayback) 
