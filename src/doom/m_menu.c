@@ -499,11 +499,11 @@ static void M_DrawCRL_1 (void);
 static void M_CRL_Spectating (int choice);
 static void M_CRL_Freeze (int choice);
 static void M_CRL_NoTarget (int choice);
+static void M_CRL_Widget_Coords (int choice);
 static void M_CRL_Widget_Playstate (int choice);
 static void M_CRL_Widget_Render (int choice);
 static void M_CRL_Widget_KIS (int choice);
 static void M_CRL_Widget_Time (int choice);
-static void M_CRL_Widget_Coords (int choice);
 static void M_CRL_Widget_Health (int choice);
 static void M_CRL_HOMDraw (int choice);
 static void M_CRL_VisplanesDraw (int choice);
@@ -592,11 +592,11 @@ static menuitem_t CRLMenu_1[]=
     { 2, "FREEZE",            M_CRL_Freeze,         'f'},
     { 2, "NOTARGET",          M_CRL_NoTarget,       'n'},
     {-1, "", 0, '\0'},        // WIDGETS
+    { 2, "PLAYER COORDS",     M_CRL_Widget_Coords,  'p'},
     { 2, "PLAYSTATE COUNTERS", M_CRL_Widget_Playstate, 'r'},
     { 2, "RENDER COUNTERS",   M_CRL_Widget_Render,  'r'},
     { 2, "K/I/S STATS",       M_CRL_Widget_KIS,     'k'},
     { 2, "LEVEL TIME",        M_CRL_Widget_Time,    'l'},
-    { 2, "PLAYER COORDS",     M_CRL_Widget_Coords,  'p'},
     { 2, "TARGET'S HEALTH",   M_CRL_Widget_Health,  't'},
     {-1, "", 0, '\0'},        // DRAWING
     { 2, "HOM EFFECT",        M_CRL_HOMDraw,        'h'},
@@ -707,34 +707,34 @@ static void M_DrawCRL_1 (void)
 
     M_WriteText(CRL_MENU_TITLEOFFSET, 54, "WIDGETS", cr[CR_YELLOW]);
 
+    // Player coords
+    sprintf(str, crl_widget_coords ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 63, str,
+                 crl_widget_coords ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
     // Playstate counters
     sprintf(str, crl_widget_playstate == 1 ? "ON" :
                  crl_widget_playstate == 2 ? "OVERFLOWS" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 63, str,
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 72, str,
                  crl_widget_playstate == 1 ? cr[CR_GREEN] :
                  crl_widget_playstate == 2 ? cr[CR_DARKGREEN] : cr[CR_DARKRED]);
 
     // Rendering counters
     sprintf(str, crl_widget_render == 1 ? "ON" :
                  crl_widget_render == 2 ? "OVERFLOWS" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 72, str,
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 81, str,
                  crl_widget_render == 1 ? cr[CR_GREEN] :
                  crl_widget_render == 2 ? cr[CR_DARKGREEN] : cr[CR_DARKRED]);
 
     // K/I/S stats
     sprintf(str, crl_widget_kis ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 81, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 90, str, 
                  crl_widget_kis ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Level time
     sprintf(str, crl_widget_time ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 90, str,
-                 crl_widget_time ? cr[CR_GREEN] : cr[CR_DARKRED]);
-
-    // Player coords
-    sprintf(str, crl_widget_coords ? "ON" : "OFF");
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 99, str,
-                 crl_widget_coords ? cr[CR_GREEN] : cr[CR_DARKRED]);
+                 crl_widget_time ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Target's health
     sprintf(str, crl_widget_health == 1 ? "TOP" : 
@@ -765,46 +765,6 @@ static void M_DrawCRL_1 (void)
     M_WriteText(CRL_MENU_LEFTOFFSET, 153, "NEXT PAGE >", cr[CR_WHITE]);
 }
 
-static void M_CRL_Widget_Playstate (int choice)
-{
-    crl_widget_playstate = M_INT_Slider(crl_widget_playstate, 0, 2, choice);
-}
-
-static void M_CRL_Widget_Render (int choice)
-{
-    crl_widget_render = M_INT_Slider(crl_widget_render, 0, 2, choice);
-}
-
-static void M_CRL_Widget_KIS (int choice)
-{
-    crl_widget_kis ^= 1;
-}
-
-static void M_CRL_Widget_Time (int choice)
-{
-    crl_widget_time ^= 1;
-}
-
-static void M_CRL_Widget_Coords (int choice)
-{
-    crl_widget_coords ^= 1;
-}
-
-static void M_CRL_Widget_Health (int choice)
-{
-    crl_widget_health = M_INT_Slider(crl_widget_health, 0, 2, choice);
-}
-
-static void M_CRL_HOMDraw (int choice)
-{
-    crl_hom_effect = M_INT_Slider(crl_hom_effect, 0, 2, choice);
-}
-
-static void M_CRL_VisplanesDraw (int choice)
-{
-    crl_visplanes_drawing = M_INT_Slider(crl_visplanes_drawing, 0, 4, choice);
-}
-
 static void M_CRL_Spectating (int choice)
 {
     crl_spectating ^= 1;
@@ -830,7 +790,45 @@ static void M_CRL_NoTarget (int choice)
     player->cheats ^= CF_NOTARGET;
 }
 
+static void M_CRL_Widget_Coords (int choice)
+{
+    crl_widget_coords ^= 1;
+}
 
+static void M_CRL_Widget_Playstate (int choice)
+{
+    crl_widget_playstate = M_INT_Slider(crl_widget_playstate, 0, 2, choice);
+}
+
+static void M_CRL_Widget_Render (int choice)
+{
+    crl_widget_render = M_INT_Slider(crl_widget_render, 0, 2, choice);
+}
+
+static void M_CRL_Widget_KIS (int choice)
+{
+    crl_widget_kis ^= 1;
+}
+
+static void M_CRL_Widget_Time (int choice)
+{
+    crl_widget_time ^= 1;
+}
+
+static void M_CRL_Widget_Health (int choice)
+{
+    crl_widget_health = M_INT_Slider(crl_widget_health, 0, 2, choice);
+}
+
+static void M_CRL_HOMDraw (int choice)
+{
+    crl_hom_effect = M_INT_Slider(crl_hom_effect, 0, 2, choice);
+}
+
+static void M_CRL_VisplanesDraw (int choice)
+{
+    crl_visplanes_drawing = M_INT_Slider(crl_visplanes_drawing, 0, 4, choice);
+}
 
 static void M_ChooseCRL_2 (int choice)
 {
