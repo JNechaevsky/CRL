@@ -174,13 +174,3 @@ if(MSVC)
     set_target_properties("${PROGRAM_PREFIX}setup" PROPERTIES
                           LINK_FLAGS "/MANIFEST:NO")
 endif()
-
-add_executable(midiread midifile.c z_native.c i_system.c m_argv.c m_misc.c d_iwad.c deh_str.c m_config.c)
-target_compile_definitions(midiread PRIVATE "-DTEST")
-target_include_directories(midiread PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../")
-target_link_libraries(midiread "$<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>" SDL2::SDL2)
-
-add_executable(mus2mid mus2mid.c memio.c z_native.c i_system.c m_argv.c m_misc.c d_iwad.c deh_str.c m_config.c)
-target_compile_definitions(mus2mid PRIVATE "-DSTANDALONE")
-target_include_directories(mus2mid PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../")
-target_link_libraries(mus2mid "$<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>" SDL2::SDL2)
