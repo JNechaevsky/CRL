@@ -189,7 +189,7 @@ P_StartButton
 	{
 	    char *message = "P_StartButton: no button slots left!";
 
-	    printf("%s\n", message);
+	    CRL_printf(message, true);
 	    CRL_SetCriticalMessage(message, MESSAGETICS);
 	}
     }

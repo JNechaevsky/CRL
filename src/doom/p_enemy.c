@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "m_misc.h"
 #include "m_random.h"
 #include "i_system.h"
 
@@ -40,6 +41,7 @@
 // Data.
 #include "sounds.h"
 
+#include "crlcore.h"
 
 
 
@@ -1950,7 +1952,7 @@ void A_BrainSpit (mobj_t*	mo)
 
         A_BrainAwake(NULL);
 
-        printf("A_BrainSpit: %s\n", message);
+        CRL_printf(M_StringJoin("A_BrainSpit: ", message, NULL), true);
         // [JN] CRL - print in-game warning as well.
         CRL_SetCriticalMessage(message, MESSAGETICS);
     }

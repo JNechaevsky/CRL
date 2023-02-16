@@ -1816,7 +1816,7 @@ void G_DoSaveGame (void)
 
         // [JN] CRL - print a warnings instead of quit with an error.
         // I_Error("Savegame buffer overrun");
-        printf("%s\n", message);
+        CRL_printf(message, true);
         CRL_SetCriticalMessage(message, MESSAGETICS);
     }
 
@@ -2165,7 +2165,8 @@ void G_WriteDemoTiccmd (ticcmd_t* cmd)
             */
             // [JN] CRL - print a warnings instead of quit.        
             char *message = "Demo overflow (vanilla stops record here)";
-            printf("%s\n", message);
+
+            CRL_printf(message, true);
             CRL_SetCriticalMessage(message, MESSAGETICS);
         }
         // else

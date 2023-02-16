@@ -276,7 +276,7 @@ boolean PIT_CheckLine (line_t* ld)
             {
                 char *message = "Triggered SPECHITS overflow!";
 
-                printf("PIT_CheckLine: %s\n", message);
+                CRL_printf(M_StringJoin("PIT_CheckLine: ", message, NULL), false);
 
                 // [JN] CRL - print in-game warning as well.
                 CRL_SetCriticalMessage(message, MESSAGETICS);
