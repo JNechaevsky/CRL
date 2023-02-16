@@ -31,28 +31,6 @@ extern int key_use;
 extern int key_strafe;
 extern int key_speed;
 
-extern int key_jump;
- 
-extern int key_flyup;
-extern int key_flydown;
-extern int key_flycenter;
-extern int key_lookup;
-extern int key_lookdown;
-extern int key_lookcenter;
-extern int key_invleft;
-extern int key_invright;
-extern int key_useartifact;
-
-// villsa [STRIFE] strife keys
-extern int key_usehealth;
-extern int key_invquery;
-extern int key_mission;
-extern int key_invpop;
-extern int key_invkey;
-extern int key_invhome;
-extern int key_invend;
-extern int key_invuse;
-extern int key_invdrop;
 
 extern int key_message_refresh;
 extern int key_pause;
@@ -169,9 +147,6 @@ extern int key_crl_reloadlevel; // [crispy]
 extern int key_crl_demospeed; // [crispy]
 
 void M_BindBaseControls(void);
-void M_BindHereticControls(void);
-void M_BindHexenControls(void);
-void M_BindStrifeControls(void);
 void M_BindWeaponControls(void);
 void M_BindMapControls(void);
 void M_BindMenuControls(void);

@@ -1045,11 +1045,6 @@ void ConfigJoystick(void)
         AddJoystickControl(window, "Speed", &joybspeed);
     }
 
-    if (gamemission == hexen || gamemission == strife)
-    {
-        AddJoystickControl(window, "Jump", &joybjump);
-    }
-
     AddJoystickControl(window, "Activate menu", &joybmenu);
 
     AddJoystickControl(window, "Toggle Automap", &joybautomap);

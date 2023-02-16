@@ -143,15 +143,6 @@ static default_t	doom_defaults_list[] =
     //!
     // @game strife
     //
-    // If non-zero, dialogue text is displayed over characters' pictures
-    // when engaging actors who have voices.
-    //
-
-    CONFIG_VARIABLE_INT(show_talk),
-
-    //!
-    // @game strife
-    //
     // Volume of voice sound effects, range 0-15.
     //
 
@@ -202,190 +193,6 @@ static default_t	doom_defaults_list[] =
     //
 
     CONFIG_VARIABLE_KEY(key_straferight),
-
-    //!
-    // @game strife
-    //
-    // Keyboard key to use health.
-    //
-
-    CONFIG_VARIABLE_KEY(key_useHealth),
-
-    //!
-    // @game hexen
-    //
-    // Keyboard key to jump.
-    //
-
-    CONFIG_VARIABLE_KEY(key_jump),
-
-    //!
-    // @game heretic hexen
-    //
-    // Keyboard key to fly upward.
-    //
-
-    CONFIG_VARIABLE_KEY(key_flyup),
-
-    //!
-    // @game heretic hexen
-    //
-    // Keyboard key to fly downwards.
-    //
-
-    CONFIG_VARIABLE_KEY(key_flydown),
-
-    //!
-    // @game heretic hexen
-    //
-    // Keyboard key to center flying.
-    //
-
-    CONFIG_VARIABLE_KEY(key_flycenter),
-
-    //!
-    // @game heretic hexen
-    //
-    // Keyboard key to look up.
-    //
-
-    CONFIG_VARIABLE_KEY(key_lookup),
-
-    //!
-    // @game heretic hexen
-    //
-    // Keyboard key to look down.
-    //
-
-    CONFIG_VARIABLE_KEY(key_lookdown),
-
-    //!
-    // @game heretic hexen
-    //
-    // Keyboard key to center the view.
-    //
-
-    CONFIG_VARIABLE_KEY(key_lookcenter),
-
-    //!
-    // @game strife
-    //
-    // Keyboard key to query inventory.
-    //
-
-    CONFIG_VARIABLE_KEY(key_invquery),
-
-    //!
-    // @game strife
-    //
-    // Keyboard key to display mission objective.
-    //
-
-    CONFIG_VARIABLE_KEY(key_mission),
-
-    //!
-    // @game strife
-    //
-    // Keyboard key to display inventory popup.
-    //
-
-    CONFIG_VARIABLE_KEY(key_invPop),
-
-    //!
-    // @game strife
-    //
-    // Keyboard key to display keys popup.
-    //
-
-    CONFIG_VARIABLE_KEY(key_invKey),
-
-    //!
-    // @game strife
-    //
-    // Keyboard key to jump to start of inventory.
-    //
-
-    CONFIG_VARIABLE_KEY(key_invHome),
-
-    //!
-    // @game strife
-    //
-    // Keyboard key to jump to end of inventory.
-    //
-
-    CONFIG_VARIABLE_KEY(key_invEnd),
-
-    //!
-    // @game heretic hexen
-    //
-    // Keyboard key to scroll left in the inventory.
-    //
-
-    CONFIG_VARIABLE_KEY(key_invleft),
-
-    //!
-    // @game heretic hexen
-    //
-    // Keyboard key to scroll right in the inventory.
-    //
-
-    CONFIG_VARIABLE_KEY(key_invright),
-
-    //!
-    // @game strife
-    //
-    // Keyboard key to scroll left in the inventory.
-    //
-
-    CONFIG_VARIABLE_KEY(key_invLeft),
-
-    //!
-    // @game strife
-    //
-    // Keyboard key to scroll right in the inventory.
-    //
-
-    CONFIG_VARIABLE_KEY(key_invRight),
-
-    //!
-    // @game heretic hexen
-    //
-    // Keyboard key to use the current item in the inventory.
-    //
-
-    CONFIG_VARIABLE_KEY(key_useartifact),
-
-    //!
-    // @game strife
-    //
-    // Keyboard key to use inventory item.
-    //
-
-    CONFIG_VARIABLE_KEY(key_invUse),
-
-    //!
-    // @game strife
-    //
-    // Keyboard key to drop an inventory item.
-    //
-
-    CONFIG_VARIABLE_KEY(key_invDrop),
-
-    //!
-    // @game strife
-    //
-    // Keyboard key to look up.
-    //
-
-    CONFIG_VARIABLE_KEY(key_lookUp),
-
-    //!
-    // @game strife
-    //
-    // Keyboard key to look down.
-    //
-
-    CONFIG_VARIABLE_KEY(key_lookDown),
 
     //!
     // Keyboard key to fire the currently selected weapon.
@@ -440,14 +247,6 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(mouseb_forward),
 
     //!
-    // @game hexen strife
-    //
-    // Mouse button to jump.
-    //
-
-    CONFIG_VARIABLE_INT(mouseb_jump),
-
-    //!
     // If non-zero, joystick input is enabled.
     //
 
@@ -483,14 +282,6 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(joyb_speed),
 
     //!
-    // @game hexen strife
-    //
-    // Joystick virtual button that makes the player jump.
-    //
-
-    CONFIG_VARIABLE_INT(joyb_jump),
-
-    //!
     // @game doom heretic hexen
     //
     // Screen size, range 3-11.
@@ -501,18 +292,6 @@ static default_t	doom_defaults_list[] =
     //
 
     CONFIG_VARIABLE_INT(screenblocks),
-
-    //!
-    // @game strife
-    //
-    // Screen size, range 3-11.
-    //
-    // A value of 11 gives a full-screen view with the status bar not
-    // displayed.  A value of 10 gives a full-screen view with the
-    // status bar displayed.
-    //
-
-    CONFIG_VARIABLE_INT(screensize),
 
     //!
     // @game doom
@@ -552,39 +331,6 @@ static default_t	doom_defaults_list[] =
     //
 
     CONFIG_VARIABLE_INT(usegamma),
-
-    //!
-    // @game hexen
-    //
-    // Directory in which to store savegames.
-    //
-
-    CONFIG_VARIABLE_STRING(savedir),
-
-    //!
-    // @game hexen
-    //
-    // Controls whether messages are displayed in the heads-up display.
-    // If this has a non-zero value, messages are displayed.
-    //
-
-    CONFIG_VARIABLE_INT(messageson),
-
-    //!
-    // @game strife
-    //
-    // Name of background flat used by view border.
-    //
-
-    CONFIG_VARIABLE_STRING(back_flat),
-
-    //!
-    // @game strife
-    //
-    // Multiplayer nickname (?).
-    //
-
-    CONFIG_VARIABLE_STRING(nickname),
 
     //!
     // Multiplayer chat macro: message to send when alt+0 is pressed.
@@ -645,14 +391,6 @@ static default_t	doom_defaults_list[] =
     //
 
     CONFIG_VARIABLE_STRING(chatmacro9),
-
-    //!
-    // @game strife
-    //
-    // Serial port number to use for SERSETUP.EXE (unused).
-    //
-
-    CONFIG_VARIABLE_INT(comport),
 
     //!
     // Name of the SDL video driver to use.  If this is an empty string,
@@ -760,14 +498,6 @@ static default_t	doom_defaults_list[] =
     // 16,000,000 pixels, which is enough to cover 4K monitor standards.
 
     CONFIG_VARIABLE_INT(max_scaling_buffer_pixels),
-
-    //!
-    // @game heretic hexen strife
-    //
-    // If non-zero, display the graphical startup screen.
-    //
-
-    CONFIG_VARIABLE_INT(graphical_startup),
 
     //!
     // @game doom heretic strife
@@ -1579,38 +1309,6 @@ static default_t	doom_defaults_list[] =
     //
 
     CONFIG_VARIABLE_KEY(key_multi_msgplayer4),
-
-    //!
-    // @game hexen strife
-    //
-    // Key to send a message to player 5 during multiplayer games.
-    //
-
-    CONFIG_VARIABLE_KEY(key_multi_msgplayer5),
-
-    //!
-    // @game hexen strife
-    //
-    // Key to send a message to player 6 during multiplayer games.
-    //
-
-    CONFIG_VARIABLE_KEY(key_multi_msgplayer6),
-
-    //!
-    // @game hexen strife
-    //
-    // Key to send a message to player 7 during multiplayer games.
-    //
-
-    CONFIG_VARIABLE_KEY(key_multi_msgplayer7),
-
-    //!
-    // @game hexen strife
-    //
-    // Key to send a message to player 8 during multiplayer games.
-    //
-
-    CONFIG_VARIABLE_KEY(key_multi_msgplayer8),
 
     //
     // [JN] CRL-specific config variables.

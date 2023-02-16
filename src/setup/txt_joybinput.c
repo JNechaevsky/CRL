@@ -55,7 +55,6 @@ static int *all_joystick_buttons[NUM_VIRTUAL_BUTTONS] =
     &joybstraferight,
     &joybprevweapon,
     &joybnextweapon,
-    &joybjump,
     &joybmenu,
     &joybautomap,
 };

@@ -44,7 +44,6 @@ static int *all_mouse_buttons[] = {
     &mousebstraferight,
     &mousebbackward,
     &mousebuse,
-    &mousebjump,
     &mousebprevweapon,
     &mousebnextweapon
 };
@@ -99,11 +98,6 @@ static void ConfigExtraButtons(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(unused))
     AddMouseControl(buttons_table, "Use", &mousebuse);
     AddMouseControl(buttons_table, "Strafe left", &mousebstrafeleft);
     AddMouseControl(buttons_table, "Strafe right", &mousebstraferight);
-
-    if (gamemission == hexen || gamemission == strife)
-    {
-        AddMouseControl(buttons_table, "Jump", &mousebjump);
-    }
 
     AddMouseControl(buttons_table, "Previous weapon", &mousebprevweapon);
     AddMouseControl(buttons_table, "Next weapon", &mousebnextweapon);
