@@ -296,6 +296,13 @@ static void InitTextscreen(void)
         exit(-1);
     }
 
+    // [JN] Apply CRL-styled colors.
+    TXT_SetColor(TXT_COLOR_BLUE,   0,  57, 134);
+    TXT_SetColor(TXT_COLOR_CYAN,   0, 137, 208);
+    TXT_SetColor(TXT_COLOR_GREY, 140, 151, 168);
+    TXT_SetColor(TXT_COLOR_BRIGHT_CYAN,   0, 168, 255);
+    TXT_SetColor(TXT_COLOR_BRIGHT_GREEN, 84, 255, 255);
+
     SetIcon();
     SetWindowTitle();
 }

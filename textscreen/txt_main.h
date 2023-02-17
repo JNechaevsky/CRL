@@ -135,6 +135,9 @@ unsigned char *TXT_GetScreenData(void);
 // Update an area of the screen
 void TXT_UpdateScreenArea(int x, int y, int w, int h);
 
+// Set the RGB value for a particular entry in the color palette:
+void TXT_SetColor(txt_color_t color, int r, int g, int b);
+
 // Update the whole screen
 void TXT_UpdateScreen(void);
 
