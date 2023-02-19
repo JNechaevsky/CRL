@@ -1095,9 +1095,21 @@ void P_PlayerInSpecialSector (player_t* player)
 	break;
 			
       default:
+      {
+	    char secnum[6];
+
+	    sprintf(secnum, "%i", sector->special);
+
+	    // [JN] CRL - do not crash, print an in-game instead.
+	    CRL_SetCriticalMessage(M_StringJoin("P_PlayerInSpecialSector:"
+	    "\runknown special ", secnum, " (vanilla crashes here)", NULL), 2);
+/*
+
 	I_Error ("P_PlayerInSpecialSector: "
 		 "unknown special %i",
 		 sector->special);
+*/
+      }
 	break;
     };
 }

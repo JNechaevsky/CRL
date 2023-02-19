@@ -104,7 +104,6 @@ typedef struct CRL_Widgets_s
 {
     int x;    // Player X coord
     int y;    // Player Y coord
-    int z;    // Player Z coord
     int ang;  // Player angle
 
     int time; // Time spent on the level.

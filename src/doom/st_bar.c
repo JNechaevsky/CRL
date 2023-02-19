@@ -823,7 +823,6 @@ void ST_Ticker (void)
 
     CRLWidgets.x = plyr->mo->x >> FRACBITS;
     CRLWidgets.y = plyr->mo->y >> FRACBITS;
-    CRLWidgets.z = plyr->mo->z >> FRACBITS;
     CRLWidgets.ang = plyr->mo->angle / ANG1;
 
     // Do red-/gold-shifts from damage/items

@@ -1737,6 +1737,16 @@ void M_WriteText (int x, int y, const char *string, byte *table)
             continue;
         }
 
+        // [JN] CRL - by providing \r symbol ("Carriage Return"), lesser vertical
+        // spacing will be applied. Needed for nicer spacing in critical messages.
+        // https://en.wikipedia.org/wiki/Escape_sequences_in_C
+        if (c == '\r')
+        {
+            cx = x;
+            cy += 9;
+            continue;
+        }
+
         c = toupper(c) - HU_FONTSTART;
 
         if (c < 0 || c >= HU_FONTSIZE)
