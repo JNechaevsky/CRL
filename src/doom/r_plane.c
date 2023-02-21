@@ -283,7 +283,8 @@ R_FindPlane
     if (lastvisplane - visplanes == CRL_MaxVisPlanes())
 	{
     	// [JN] Print in-game warning.
-    	CRL_SetCriticalMessage("R_FindPlane: no more visplanes", 2);
+    	CRL_SetCriticalMessage("R_FindPlane:"
+        "\rno more visplanes (vanilla crashes here)", 2);
     	longjmp(CRLJustIncaseBuf, CRL_JUMP_VPO);
 	}
 	
@@ -367,7 +368,8 @@ R_CheckPlane
     if (lastvisplane - visplanes == MAXVISPLANES)
     {
         // [JN] Print in-game warning.
-        CRL_SetCriticalMessage("R_CheckPlane: no more visplanes", 2);
+        CRL_SetCriticalMessage("R_CheckPlane:"
+        "\rno more visplanes (vanilla crashes here)", 2);
     }
 
     pl = lastvisplane++;
@@ -450,7 +452,8 @@ void R_DrawPlanes (void)
     {
     	// [JN] Print in-game warning. No need to add counter into message,
     	// since number is already presented in limits counter widget.
-    	CRL_SetCriticalMessage("R_DrawPlanes: visplane overflow", 2);
+    	CRL_SetCriticalMessage("R_DrawPlanes:"
+        "\rvisplane overflow (vanilla crashes here)", 2);
     	longjmp(CRLJustIncaseBuf, CRL_JUMP_VPO);
     }
     

@@ -138,7 +138,8 @@ void V_DrawPatch(int x, int y, patch_t *patch)
     {
 		// RestlessRodent -- Do not die
 		// [JN] ... print a critical message instead.
-		CRL_SetCriticalMessage("Bad V_DrawPatch (vanilla crashes here)", 2);
+		CRL_SetCriticalMessage("V_DrawPatch:"
+        "\rBad V_DrawPatch (vanilla crashes here)", 2);
 		return;
     }
 
@@ -199,7 +200,8 @@ void V_DrawPatchFlipped(int x, int y, patch_t *patch)
      || y + SHORT(patch->height) > SCREENHEIGHT)
     {
         // [JN] Do not crash, print a critical message instead.
-        CRL_SetCriticalMessage("Bad V_DrawPatchFlipped (vanilla crashes here)", 2);
+        CRL_SetCriticalMessage("V_DrawPatchFlipped:"
+        "\rBad V_DrawPatchFlipped (vanilla crashes here)", 2);
     }
 #endif
 
