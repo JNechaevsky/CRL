@@ -25,7 +25,7 @@
 #include "deh_main.h"
 #include "doomdef.h"
 #include "p_local.h"
-
+#include "m_misc.h"
 #include "g_game.h"
 
 #include "s_sound.h"
@@ -187,10 +187,11 @@ P_StartButton
 	// [JN] CRL - Do not quit with I_Error, print warnings instead.
 	if (CRL_buttons_counter > 16)
 	{
-	    char *message = "P_StartButton: no button slots left!";
+	    char *message = "no button slots left!";
 
-	    CRL_printf(message, true);
-	    CRL_SetCriticalMessage(message, MESSAGETICS);
+	    CRL_printf(M_StringJoin("P_StartButton:", message, NULL), true);
+	    CRL_SetCriticalMessage(M_StringJoin("P_StartButton:"
+        "\r", message, " (vanilla crashes here)", NULL), MESSAGETICS);
 	}
     }
     

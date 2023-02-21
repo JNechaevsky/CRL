@@ -24,6 +24,7 @@
 #include "doomdef.h"
 
 #include "m_bbox.h"
+#include "m_misc.h"
 
 #include "i_system.h"
 
@@ -582,7 +583,8 @@ void R_Subsector (int num)
     // [JN] CRL - Do not quit with I_Error, print in-game warning instead.
     if(newend > &solidsegs[32])
     {
-        CRL_SetCriticalMessage("SOLIDSEGS OVERFLOW (VANILLA MAY CRASH HERE)", 2);
+        CRL_SetCriticalMessage(M_StringJoin("R_Subsector:"
+        "\rSOLIDSEGS OVERFLOW (VANILLA MAY CRASH HERE)", NULL), 2);
     }
 }
 
