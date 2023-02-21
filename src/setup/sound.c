@@ -57,12 +57,9 @@ char *snd_dmxoption = "";
 static int numChannels = 8;
 static int sfxVolume = 8;
 static int musicVolume = 8;
-static int voiceVolume = 15;
-static int show_talk = 0;
 static int use_libsamplerate = 1;
 static float libsamplerate_scale = 0.65;
 
-static char *music_pack_path = NULL;
 static char *timidity_cfg_path = NULL;
 static char *gus_patch_path = NULL;
 static int gus_ram_kb = 1024;
@@ -126,19 +123,11 @@ void ConfigSound(void)
         TXT_NewRadioButton("Digital sound effects",
                            &snd_sfxdevice,
                            SNDDEVICE_SB),
-        TXT_If(gamemission == doom || gamemission == heretic
-            || gamemission == hexen,
-            TXT_NewConditional(&snd_sfxdevice, SNDDEVICE_SB,
-                TXT_NewHorizBox(
-                    TXT_NewStrut(4, 0),
-                    TXT_NewCheckBox("Pitch-shifted sounds", &snd_pitchshift),
-                    NULL))),
-        TXT_If(gamemission == strife,
-            TXT_NewConditional(&snd_sfxdevice, SNDDEVICE_SB,
-                TXT_NewHorizBox(
-                    TXT_NewStrut(4, 0),
-                    TXT_NewCheckBox("Show text with voices", &show_talk),
-                    NULL))),
+        TXT_NewConditional(&snd_sfxdevice, SNDDEVICE_SB,
+            TXT_NewHorizBox(
+                TXT_NewStrut(4, 0),
+                TXT_NewCheckBox("Pitch-shifted sounds", &snd_pitchshift),
+                NULL)),
 
         TXT_NewSeparator("Music"),
         TXT_NewRadioButton("Disabled", &snd_musicdevice, SNDDEVICE_NONE),
@@ -172,13 +161,6 @@ void ConfigSound(void)
                 TXT_NewFileSelector(&timidity_cfg_path, 34,
                                     "Select Timidity config file",
                                     cfg_extension),
-                TXT_NewStrut(4, 0),
-                TXT_NewLabel("Digital music pack directory: "),
-                TXT_NewStrut(4, 0),
-                TXT_NewFileSelector(&music_pack_path, 34,
-                                    "Select directory containing music pack "
-                                    "config files",
-                                    TXT_DIRECTORY),
                 NULL)),
         NULL);
 }
@@ -197,7 +179,6 @@ void BindSoundVariables(void)
 
     M_BindIntVariable("gus_ram_kb",               &gus_ram_kb);
     M_BindStringVariable("gus_patch_path",        &gus_patch_path);
-    M_BindStringVariable("music_pack_path",     &music_pack_path);
     M_BindStringVariable("timidity_cfg_path",     &timidity_cfg_path);
 
     M_BindIntVariable("snd_maxslicetime_ms",      &snd_maxslicetime_ms);
@@ -209,35 +190,12 @@ void BindSoundVariables(void)
 
     M_BindIntVariable("snd_pitchshift",           &snd_pitchshift);
 
-    if (gamemission == strife)
-    {
-        M_BindIntVariable("voice_volume",         &voiceVolume);
-        M_BindIntVariable("show_talk",            &show_talk);
-    }
-
-    music_pack_path = M_StringDuplicate("");
     timidity_cfg_path = M_StringDuplicate("");
     gus_patch_path = M_StringDuplicate("");
 
-    // All versions of Heretic and Hexen did pitch-shifting.
-    // Most versions of Doom did not and Strife never did.
-    snd_pitchshift = gamemission == heretic || gamemission == hexen;
+    snd_pitchshift = 0;
 
-    // Default sound volumes - different games use different values.
-
-    switch (gamemission)
-    {
-        case doom:
-        default:
-            sfxVolume = 8;  musicVolume = 8;
-            break;
-        case heretic:
-        case hexen:
-            sfxVolume = 10; musicVolume = 10;
-            break;
-        case strife:
-            sfxVolume = 8;  musicVolume = 13;
-            break;
-    }
+    // Default sound volumes.
+    sfxVolume = 8;  musicVolume = 8;
 }
 
