@@ -502,9 +502,9 @@ static menu_t SaveDef =
 #define CRL_MENU_TOPOFFSET     (36)
 #define CRL_MENU_LEFTOFFSET    (48)
 #define CRL_MENU_RIGHTOFFSET   (SCREENWIDTH - CRL_MENU_LEFTOFFSET)
-#define CRL_MENU_TITLEOFFSET   (27)
 
-//#define CRL_MENU_TITLEOFFSET   (CRL_MENU_LEFTOFFSET - 10)
+#define CRL_MENU_LEFTOFFSET_SML    (72)
+#define CRL_MENU_RIGHTOFFSET_SML   (SCREENWIDTH - CRL_MENU_LEFTOFFSET_SML)
 
 static player_t *player;
 
@@ -613,10 +613,10 @@ static char *const DefSkillName[5] =
     "NM"     
 };
 
+
 //
 // Main Menu
 //
-
 
 static menuitem_t CRLMenu_Main[]=
 {
@@ -643,7 +643,7 @@ static menu_t CRLDef_Main =
     NULL,  // [JN] Do not jump back to main Doom menu (&MainDef).
     CRLMenu_Main,
     M_DrawCRL_Main,
-    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    CRL_MENU_LEFTOFFSET_SML, CRL_MENU_TOPOFFSET,
     0,
     true
 };
@@ -662,20 +662,20 @@ static void M_DrawCRL_Main (void)
 
     // Spectating
     sprintf(str, crl_spectating ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 36, str,
+    M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth(str), 36, str,
                  crl_spectating ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Freeze
     sprintf(str, !singleplayer ? "N/A" :
             crl_freeze ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 45, str,
+    M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth(str), 45, str,
                  !singleplayer ? cr[CR_DARKRED] :
                  crl_freeze ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Notarget
     sprintf(str, !singleplayer ? "N/A" :
             player->cheats & CF_NOTARGET ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 54, str,
+    M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth(str), 54, str,
                  !singleplayer ? cr[CR_DARKRED] :
                  player->cheats & CF_NOTARGET ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
@@ -995,9 +995,9 @@ static menuitem_t CRLMenu_Gameplay[]=
     { 2, "REPORT REVEALED SECRETS",  M_CRL_RevealedSecrets,  'r'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
-    { 2, "DEMO TIMER",               M_CRL_DemoTimer,        'd'},
+    { 2, "SHOW DEMO TIMER",          M_CRL_DemoTimer,        's'},
     { 2, "TIMER DIRECTION",          M_CRL_TimerDirection,   't'},
-    { 2, "PROGRESS BAR",             M_CRL_ProgressBar,      'p'},
+    { 2, "SHOW PROGRESS BAR",        M_CRL_ProgressBar,      's'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
