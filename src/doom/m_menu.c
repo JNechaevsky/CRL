@@ -567,22 +567,22 @@ static byte *DefSkillColor (const int skill)
 
 enum
 {
-    crl1_01,    // 18
-    crl1_02,    // 27
-    crl1_03,    // 36
-    crl1_04,    // 45
-    crl1_05,    // 54
-    crl1_06,    // 63
-    crl1_07,    // 72
-    crl1_08,    // 81
-    crl1_09,    // 90
-    crl1_10,    // 99
-    crl1_11,    // 108
-    crl1_12,    // 117
-    crl1_13,    // 126
-    crl1_14,    // 135
-    crl1_15,    // 144
-    crl1_end
+    m_crl_01,    // 18
+    m_crl_02,    // 27
+    m_crl_03,    // 36
+    m_crl_04,    // 45
+    m_crl_05,    // 54
+    m_crl_06,    // 63
+    m_crl_07,    // 72
+    m_crl_08,    // 81
+    m_crl_09,    // 90
+    m_crl_10,    // 99
+    m_crl_11,    // 108
+    m_crl_12,    // 117
+    m_crl_13,    // 126
+    m_crl_14,    // 135
+    m_crl_15,    // 144
+    m_crl_end
 } crl1_e;
 
 static menuitem_t CRLMenu_1[]=
@@ -607,7 +607,7 @@ static menuitem_t CRLMenu_1[]=
 
 static menu_t CRLDef_1 =
 {
-    crl1_end,
+    m_crl_end,
     &MainDef,
     CRLMenu_1,
     M_DrawCRL_1,
@@ -618,26 +618,6 @@ static menu_t CRLDef_1 =
 //
 // Page 2
 //
-
-enum
-{
-    crl2_01,    // 18
-    crl2_02,    // 27
-    crl2_03,    // 36
-    crl2_04,    // 45
-    crl2_05,    // 54
-    crl2_06,    // 63
-    crl2_07,    // 72
-    crl2_08,    // 81
-    crl2_09,    // 90
-    crl2_10,    // 99
-    crl2_11,    // 108
-    crl2_12,    // 117
-    crl2_13,    // 126
-    crl2_14,    // 135
-    crl2_15,    // 144
-    crl2_end
-} crl2_e;
 
 static menuitem_t CRLMenu_2[]=
 {
@@ -661,7 +641,7 @@ static menuitem_t CRLMenu_2[]=
 
 static menu_t CRLDef_2 =
 {
-    crl2_end,
+    m_crl_end,
     &MainDef,
     CRLMenu_2,
     M_DrawCRL_2,
