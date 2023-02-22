@@ -45,6 +45,7 @@ extern int crl_visplanes_drawing;
 extern int crl_automap_mode;
 extern int crl_automap_rotate;
 extern int crl_automap_overlay;
+extern int crl_automap_secrets;
 
 // Demos
 extern int crl_demo_timer;

@@ -67,7 +67,7 @@
 #define CDWALLRANGE      YELLOWRANGE
 #define THINGCOLORS      GREENS
 #define THINGRANGE       GREENRANGE
-#define SECRETWALLCOLORS WALLCOLORS
+#define SECRETWALLCOLORS 252
 #define SECRETWALLRANGE  WALLRANGE
 #define GRIDCOLORS       (GRAYS + GRAYSRANGE/2)
 #define XHAIRCOLORS      GRAYS
@@ -1312,7 +1312,15 @@ static void AM_drawWalls (void)
 
             if (!lines[i].backsector)
             {
-                AM_drawMline(&l, WALLCOLORS);
+                // [JN] CRL - mark secret sectors.
+                if (crl_automap_secrets && lines[i].frontsector->special == 9)
+                {
+                    AM_drawMline(&l, SECRETWALLCOLORS);
+                }
+                else
+                {
+                    AM_drawMline(&l, WALLCOLORS);
+                }
             }
             else
             {
@@ -1323,14 +1331,16 @@ static void AM_drawWalls (void)
                 else
                 if (lines[i].flags & ML_SECRET) // secret door
                 {
-                    if (cheating)
-                    {
-                        AM_drawMline(&l, SECRETWALLCOLORS);
-                    }
-                    else
-                    {
-                        AM_drawMline(&l, WALLCOLORS);
-                    }
+                    // [JN] Note: this means "don't map as two sided".
+                    AM_drawMline(&l, WALLCOLORS);
+                }
+                // [JN] CRL - mark secret sectors.
+                else
+                if (crl_automap_secrets 
+                && (lines[i].frontsector->special == 9
+                ||  lines[i].backsector->special == 9))
+                {
+                    AM_drawMline(&l, SECRETWALLCOLORS);
                 }
                 else
                 if (lines[i].backsector->floorheight

@@ -534,6 +534,7 @@ static void M_CRL_Widget_KIS (int choice);
 static void M_CRL_Widget_Time (int choice);
 static void M_CRL_Widget_Health (int choice);
 static void M_CRL_Automap (int choice);
+static void M_CRL_Automap_Secrets (int choice);
 
 static void M_ChooseCRL_Gameplay (int choice);
 static void M_DrawCRL_Gameplay (void);
@@ -874,7 +875,7 @@ static menuitem_t CRLMenu_Widgets[]=
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     { 2, "DRAWING MODE",        M_CRL_Automap,           'a'},
-    {-1, "", 0, '\0'},
+    { 2, "MARK SECRET SECTORS", M_CRL_Automap_Secrets,   'm'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
@@ -947,6 +948,11 @@ static void M_DrawCRL_Widgets (void)
                  crl_automap_mode == 2 ? "CEILING VISPLANES" : "NORMAL");
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 108, str,
                  crl_automap_mode ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
+    // Mark secret sectors
+    sprintf(str, crl_automap_secrets ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 117, str,
+                 crl_automap_secrets ? cr[CR_GREEN] : cr[CR_DARKRED]);
 }
 
 static void M_CRL_Widget_Coords (int choice)
@@ -982,6 +988,11 @@ static void M_CRL_Widget_Health (int choice)
 static void M_CRL_Automap (int choice)
 {
     crl_automap_mode = M_INT_Slider(crl_automap_mode, 0, 2, choice);
+}
+
+static void M_CRL_Automap_Secrets (int choice)
+{
+    crl_automap_secrets ^= 1;
 }
 
 // -----------------------------------------------------------------------------

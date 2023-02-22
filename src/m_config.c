@@ -1338,6 +1338,7 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(crl_automap_mode),
     CONFIG_VARIABLE_INT(crl_automap_rotate),
     CONFIG_VARIABLE_INT(crl_automap_overlay),
+    CONFIG_VARIABLE_INT(crl_automap_secrets),
 
     // Demos
     CONFIG_VARIABLE_INT(crl_demo_timer),

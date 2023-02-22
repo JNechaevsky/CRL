@@ -47,6 +47,7 @@ int crl_visplanes_drawing = 0;
 int crl_automap_mode = 0;
 int crl_automap_rotate = 0;
 int crl_automap_overlay = 0;
+int crl_automap_secrets = 0;
 
 // Demos
 int crl_demo_timer = 0;
@@ -86,6 +87,7 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_automap_mode",               &crl_automap_mode);
     M_BindIntVariable("crl_automap_rotate",             &crl_automap_rotate);
     M_BindIntVariable("crl_automap_overlay",            &crl_automap_overlay);
+    M_BindIntVariable("crl_automap_secrets",            &crl_automap_secrets);
 
     // Demos
     M_BindIntVariable("crl_demo_timer",                 &crl_demo_timer);
