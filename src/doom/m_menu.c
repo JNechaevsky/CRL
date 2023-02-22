@@ -147,6 +147,7 @@ typedef struct menu_s
     short		x;
     short		y;		// x,y of menu
     short		lastOn;		// last item user was on in menu
+    boolean		smallFont;  // [JN] If true, use small font
 } menu_t;
 
 static short itemOn;            // menu item skull is on
@@ -241,7 +242,8 @@ static menu_t MainDef =
     MainMenu,
     M_DrawMainMenu,
     97,64,
-    0
+    0,
+    false
 };
 
 
@@ -272,7 +274,8 @@ static menu_t EpiDef =
     EpisodeMenu,	// menuitem_t ->
     M_DrawEpisode,	// drawing routine ->
     48,63,              // x,y
-    ep1			// lastOn
+    ep1,			// lastOn
+    false
 };
 
 //
@@ -304,7 +307,8 @@ static menu_t NewDef =
     NewGameMenu,	// menuitem_t ->
     M_DrawNewGame,	// drawing routine ->
     48,63,              // x,y
-    hurtme		// lastOn
+    hurtme,		// lastOn
+    false
 };
 
 
@@ -344,7 +348,8 @@ static menu_t OptionsDef =
     OptionsMenu,
     M_DrawOptions,
     60,37,
-    0
+    0,
+    false
 };
 
 //
@@ -368,7 +373,8 @@ static menu_t ReadDef1 =
     ReadMenu1,
     M_DrawReadThis1,
     280,185,
-    0
+    0,
+    false
 };
 
 enum
@@ -389,7 +395,8 @@ static menu_t ReadDef2 =
     ReadMenu2,
     M_DrawReadThis2,
     330,175,
-    0
+    0,
+    false
 };
 
 //
@@ -419,7 +426,8 @@ static menu_t SoundDef =
     SoundMenu,
     M_DrawSound,
     80,64,
-    0
+    0,
+    false
 };
 
 //
@@ -457,7 +465,8 @@ static menu_t LoadDef =
     LoadMenu,
     M_DrawLoad,
     67,37,
-    0
+    0,
+    false
 };
 
 //
@@ -482,88 +491,68 @@ static menu_t SaveDef =
     SaveMenu,
     M_DrawSave,
     67,37,
-    0
+    0,
+    false
 };
 
 // =============================================================================
 // [JN] CRL custom menu
 // =============================================================================
 
+#define CRL_MENU_TOPOFFSET     (36)
 #define CRL_MENU_LEFTOFFSET    (48)
 #define CRL_MENU_RIGHTOFFSET   (SCREENWIDTH - CRL_MENU_LEFTOFFSET)
-#define CRL_MENU_TITLEOFFSET   (CRL_MENU_LEFTOFFSET - 10)
+#define CRL_MENU_TITLEOFFSET   (27)
+
+//#define CRL_MENU_TITLEOFFSET   (CRL_MENU_LEFTOFFSET - 10)
 
 static player_t *player;
 
-static void M_DrawCRL_1 (void);
+//static void M_ChooseCRL_Main (int choice);
+static void M_DrawCRL_Main (void);
 static void M_CRL_Spectating (int choice);
 static void M_CRL_Freeze (int choice);
 static void M_CRL_NoTarget (int choice);
+
+static void M_ChooseCRL_Video (int choice);
+static void M_DrawCRL_Video (void);
+static void M_CRL_UncappedFPS (int choice);
+static void M_CRL_VisplanesDraw (int choice);
+static void M_CRL_HOMDraw (int choice);
+static void M_CRL_ScreenWipe (int choice);
+static void M_CRL_Colorblind (int choice);
+
+static void M_ChooseCRL_Sound (int choice);
+static void M_DrawCRL_Sound (void);
+
+static void M_ChooseCRL_Widgets (int choice);
+static void M_DrawCRL_Widgets (void);
 static void M_CRL_Widget_Coords (int choice);
 static void M_CRL_Widget_Playstate (int choice);
 static void M_CRL_Widget_Render (int choice);
 static void M_CRL_Widget_KIS (int choice);
 static void M_CRL_Widget_Time (int choice);
 static void M_CRL_Widget_Health (int choice);
-static void M_CRL_HOMDraw (int choice);
-static void M_CRL_VisplanesDraw (int choice);
-static void M_ChooseCRL_2 (int choice);
-
-static void M_DrawCRL_2 (void);
 static void M_CRL_Automap (int choice);
-static void M_CRL_DemoTimer (int choice);
-static void M_CRL_TimerDirection (int choice);
-static void M_CRL_ProgressBar (int choice);
-static void M_CRL_UncappedFPS (int choice);
-static void M_CRL_ScreenWipe (int choice);
+
+static void M_ChooseCRL_Gameplay (int choice);
+static void M_DrawCRL_Gameplay (void);
 static void M_CRL_DefaulSkill (int choice);
 static void M_CRL_ColoredSTBar (int choice);
 static void M_CRL_RevealedSecrets (int choice);
-static void M_CRL_Colorblind (int choice);
-static void M_ChooseCRL_1 (int choice);
+static void M_CRL_DemoTimer (int choice);
+static void M_CRL_TimerDirection (int choice);
+static void M_CRL_ProgressBar (int choice);
 
-static const int M_INT_Slider (int val, int min, int max, int direction)
+
+static void M_ShadeBackground (void)
 {
-    switch (direction)
+    // [JN] Shade background while in CRL menu.
+    for (int y = 0; y < SCREENWIDTH * SCREENHEIGHT; y++)
     {
-        case 0:
-        val--;
-        if (val < min) 
-            val = max;
-        break;
-
-        case 1:
-        val++;
-        if (val > max)
-            val = min;
-        break;
+        I_VideoBuffer[y] = colormaps[12 * 256 + I_VideoBuffer[y]];
     }
-    return val;
 }
-
-static char *const DefSkillName[5] = 
-{
-    "IMTYTD" ,
-    "HNTR"   ,
-    "HMP"    ,
-    "UV"     ,
-    "NM"     
-};
-
-static byte *DefSkillColor (const int skill)
-{
-    return
-        skill == 0 ? cr[CR_OLIVE]     :
-        skill == 1 ? cr[CR_DARKGREEN] :
-        skill == 2 ? cr[CR_GREEN]     :
-        skill == 3 ? cr[CR_YELLOW]    :
-        skill == 4 ? cr[CR_ORANGE]    :
-                     cr[CR_RED];
-}
-
-//
-// Page 1
-//
 
 enum
 {
@@ -585,164 +574,113 @@ enum
     m_crl_end
 } crl1_e;
 
-static menuitem_t CRLMenu_1[]=
+static const int M_INT_Slider (int val, int min, int max, int direction)
 {
-                              // GAME MODES
-    { 2, "SPECTATING",        M_CRL_Spectating,     's'},
-    { 2, "FREEZE",            M_CRL_Freeze,         'f'},
-    { 2, "NOTARGET",          M_CRL_NoTarget,       'n'},
-    {-1, "", 0, '\0'},        // WIDGETS
-    { 2, "PLAYER COORDS",     M_CRL_Widget_Coords,  'p'},
-    { 2, "PLAYSTATE COUNTERS", M_CRL_Widget_Playstate, 'r'},
-    { 2, "RENDER COUNTERS",   M_CRL_Widget_Render,  'r'},
-    { 2, "K/I/S STATS",       M_CRL_Widget_KIS,     'k'},
-    { 2, "LEVEL TIME",        M_CRL_Widget_Time,    'l'},
-    { 2, "TARGET'S HEALTH",   M_CRL_Widget_Health,  't'},
-    {-1, "", 0, '\0'},        // DRAWING
-    { 2, "HOM EFFECT",        M_CRL_HOMDraw,        'h'},
-    { 2, "VISPLANES DRAWING", M_CRL_VisplanesDraw,  'v'},
-    {-1, "", 0, '\0'},
-    { 1, "",                  M_ChooseCRL_2,        'n'}
-};
-
-static menu_t CRLDef_1 =
-{
-    m_crl_end,
-    &MainDef,
-    CRLMenu_1,
-    M_DrawCRL_1,
-    CRL_MENU_LEFTOFFSET, 27,
-    0
-};
-
-//
-// Page 2
-//
-
-static menuitem_t CRLMenu_2[]=
-{
-                                     // AUTOMAP
-    { 2, "DRAWING MODE",             M_CRL_Automap,         'a'},
-    {-1, "", 0, '\0'},               // DEMOS title
-    { 2, "DEMO TIMER",               M_CRL_DemoTimer,       'd'},
-    { 2, "TIMER DIRECTION",          M_CRL_TimerDirection,  't'},
-    { 2, "PROGRESS BAR",             M_CRL_ProgressBar,     'p'},
-    {-1, "", 0, '\0'},               // QOL FEATURES title
-    { 2, "UNCAPPED FRAMERATE",       M_CRL_UncappedFPS,     'u'},
-    { 2, "SCREEN WIPE EFFECT",       M_CRL_ScreenWipe,      's'},
-    { 2, "DEFAULT SKILL LEVEL",      M_CRL_DefaulSkill,     'd'},
-    { 2, "COLORED STATUS BAR",       M_CRL_ColoredSTBar,    'c'},
-    { 2, "REPORT REVEALED SECRETS",  M_CRL_RevealedSecrets, 'r'},
-    { 2, "COLORBLIND",               M_CRL_Colorblind,      'c'},
-    {-1, "", 0, '\0'},
-    {-1, "", 0, '\0'},
-    { 1, "",                         M_ChooseCRL_1,         's'}
-};
-
-static menu_t CRLDef_2 =
-{
-    m_crl_end,
-    &MainDef,
-    CRLMenu_2,
-    M_DrawCRL_2,
-    CRL_MENU_LEFTOFFSET, 27,
-    0
-};
-
-static void M_ShadeBackground (void)
-{
-    // [JN] Shade background while in CRL menu.
-    for (int y = 0; y < SCREENWIDTH * SCREENHEIGHT; y++)
+    switch (direction)
     {
-        I_VideoBuffer[y] = colormaps[12 * 256 + I_VideoBuffer[y]];
+        case 0:
+        val--;
+        if (val < min) 
+            val = max;
+        break;
+
+        case 1:
+        val++;
+        if (val > max)
+            val = min;
+        break;
     }
+    return val;
 }
 
-static void M_DrawCRL_1 (void)
+static byte *DefSkillColor (const int skill)
+{
+    return
+        skill == 0 ? cr[CR_OLIVE]     :
+        skill == 1 ? cr[CR_DARKGREEN] :
+        skill == 2 ? cr[CR_GREEN]     :
+        skill == 3 ? cr[CR_YELLOW]    :
+        skill == 4 ? cr[CR_ORANGE]    :
+                     cr[CR_RED];
+}
+
+static char *const DefSkillName[5] = 
+{
+    "IMTYTD" ,
+    "HNTR"   ,
+    "HMP"    ,
+    "UV"     ,
+    "NM"     
+};
+
+//
+// Main Menu
+//
+
+
+static menuitem_t CRLMenu_Main[]=
+{
+    { 2, "SPECTATING",           M_CRL_Spectating,      's'},
+    { 2, "FREEZE",               M_CRL_Freeze,          'f'},
+    { 2, "NOTARGET",             M_CRL_NoTarget,        'n'},
+    {-1, "", 0, '\0'},
+    { 1, "VIDEO OPTIONS",        M_ChooseCRL_Video,     'v'},
+    { 1, "SOUND OPTIONS",        M_ChooseCRL_Sound,     's'},
+    { 1, "WIDGETS AND AUTOMAP",  M_ChooseCRL_Widgets,   'w'},
+    { 1, "GAMEPLAY FEATURES",    M_ChooseCRL_Gameplay,  'g'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'}
+};
+
+static menu_t CRLDef_Main =
+{
+    m_crl_end,
+    NULL,  // [JN] Do not jump back to main Doom menu (&MainDef).
+    CRLMenu_Main,
+    M_DrawCRL_Main,
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    0,
+    true
+};
+
+// static void M_ChooseCRL_Main (int choice)
+// {
+//     M_SetupNextMenu (&CRLDef_Main);
+// }
+
+static void M_DrawCRL_Main (void)
 {
     static char str[32];
 
     M_ShadeBackground();
-
-    M_WriteText(CRL_MENU_TITLEOFFSET, 18, "GAME MODES", cr[CR_YELLOW]);
+    M_WriteTextCentered(27, "MAIN MENU", cr[CR_YELLOW]);
 
     // Spectating
     sprintf(str, crl_spectating ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 27, str,
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 36, str,
                  crl_spectating ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Freeze
     sprintf(str, !singleplayer ? "N/A" :
             crl_freeze ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 36, str,
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 45, str,
                  !singleplayer ? cr[CR_DARKRED] :
                  crl_freeze ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Notarget
     sprintf(str, !singleplayer ? "N/A" :
             player->cheats & CF_NOTARGET ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 45, str,
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 54, str,
                  !singleplayer ? cr[CR_DARKRED] :
                  player->cheats & CF_NOTARGET ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
-    M_WriteText(CRL_MENU_TITLEOFFSET, 54, "WIDGETS", cr[CR_YELLOW]);
-
-    // Player coords
-    sprintf(str, crl_widget_coords ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 63, str,
-                 crl_widget_coords ? cr[CR_GREEN] : cr[CR_DARKRED]);
-
-    // Playstate counters
-    sprintf(str, crl_widget_playstate == 1 ? "ON" :
-                 crl_widget_playstate == 2 ? "OVERFLOWS" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 72, str,
-                 crl_widget_playstate == 1 ? cr[CR_GREEN] :
-                 crl_widget_playstate == 2 ? cr[CR_DARKGREEN] : cr[CR_DARKRED]);
-
-    // Rendering counters
-    sprintf(str, crl_widget_render == 1 ? "ON" :
-                 crl_widget_render == 2 ? "OVERFLOWS" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 81, str,
-                 crl_widget_render == 1 ? cr[CR_GREEN] :
-                 crl_widget_render == 2 ? cr[CR_DARKGREEN] : cr[CR_DARKRED]);
-
-    // K/I/S stats
-    sprintf(str, crl_widget_kis ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 90, str, 
-                 crl_widget_kis ? cr[CR_GREEN] : cr[CR_DARKRED]);
-
-    // Level time
-    sprintf(str, crl_widget_time ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 99, str,
-                 crl_widget_time ? cr[CR_GREEN] : cr[CR_DARKRED]);
-
-    // Target's health
-    sprintf(str, crl_widget_health == 1 ? "TOP" : 
-                 crl_widget_health == 2 ? "BOTTOM" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 108, str,
-                 crl_widget_health ? cr[CR_GREEN] : cr[CR_DARKRED]);
-
-    M_WriteText(CRL_MENU_TITLEOFFSET, 117, "DRAWING", cr[CR_YELLOW]);
-
-    // HOM effect
-    sprintf(str, crl_hom_effect == 0 ? "OFF" :
-                 crl_hom_effect == 1 ? "MULTICOLOR" : "BLACK");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 126, str,
-                 crl_hom_effect > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
-
-    // Visplanes drawing mode
-    sprintf(str, crl_visplanes_drawing == 0 ? "NORMAL" :
-                 crl_visplanes_drawing == 1 ? "FILL" :
-                 crl_visplanes_drawing == 2 ? "OVERFILL" :
-                 crl_visplanes_drawing == 3 ? "BORDER" : "OVERBORDER");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 135, str,
-                 crl_visplanes_drawing > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
-
-
-    //
     // NEXT PAGE >
-    //
-    M_WriteText(CRL_MENU_LEFTOFFSET, 153, "NEXT PAGE >", cr[CR_WHITE]);
+    // M_WriteText(CRL_MENU_LEFTOFFSET, 153, "NEXT PAGE >", cr[CR_WHITE]);
 }
 
 static void M_CRL_Spectating (int choice)
@@ -768,6 +706,247 @@ static void M_CRL_NoTarget (int choice)
     }
 
     player->cheats ^= CF_NOTARGET;
+}
+
+// -----------------------------------------------------------------------------
+// Video options
+// -----------------------------------------------------------------------------
+
+static menuitem_t CRLMenu_Video[]=
+{
+    { 2, "UNCAPPED FRAMERATE",  M_CRL_UncappedFPS,    'u'},
+    { 2, "VISPLANES DRAWING",   M_CRL_VisplanesDraw,  'v'},
+    { 2, "HOM EFFECT",          M_CRL_HOMDraw,        'h'},
+    { 2, "SCREEN WIPE EFFECT",  M_CRL_ScreenWipe,     's'},
+    { 2, "COLORBLIND",          M_CRL_Colorblind,     'c'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'}
+};
+
+static menu_t CRLDef_Video =
+{
+    m_crl_end,
+    &CRLDef_Main,
+    CRLMenu_Video,
+    M_DrawCRL_Video,
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    0,
+    true
+};
+
+static void M_ChooseCRL_Video (int choice)
+{
+    M_SetupNextMenu (&CRLDef_Video);
+}
+
+static void M_DrawCRL_Video (void)
+{
+    static char str[32];
+
+    M_ShadeBackground();
+    M_WriteTextCentered(27, "VIDEO OPTIONS", cr[CR_YELLOW]);
+
+    // Uncapped framerate
+    sprintf(str, crl_uncapped_fps ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 36, str, 
+                 crl_uncapped_fps ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
+    // Visplanes drawing mode
+    sprintf(str, crl_visplanes_drawing == 0 ? "NORMAL" :
+                 crl_visplanes_drawing == 1 ? "FILL" :
+                 crl_visplanes_drawing == 2 ? "OVERFILL" :
+                 crl_visplanes_drawing == 3 ? "BORDER" : "OVERBORDER");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 45, str,
+                 crl_visplanes_drawing > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
+    // HOM effect
+    sprintf(str, crl_hom_effect == 0 ? "OFF" :
+                 crl_hom_effect == 1 ? "MULTICOLOR" : "BLACK");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 54, str,
+                 crl_hom_effect > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
+    // Screen wipe effect
+    sprintf(str, crl_screenwipe ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 63, str, 
+                 crl_screenwipe ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
+    // Colorblind
+    sprintf(str, crl_colorblind == 1 ? "RED/GREEN" :
+                 crl_colorblind == 2 ? "BLUE/YELLOW" :
+                 crl_colorblind == 3 ? "MONOCHROME" : "NONE");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 72, str, 
+                 crl_colorblind > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
+}
+
+static void M_CRL_UncappedFPS (int choice)
+{
+    crl_uncapped_fps ^= 1;
+    // [JN] Skip weapon bobbing interpolation for next frame.
+    pspr_interp = false;
+}
+
+static void M_CRL_VisplanesDraw (int choice)
+{
+    crl_visplanes_drawing = M_INT_Slider(crl_visplanes_drawing, 0, 4, choice);
+}
+
+static void M_CRL_HOMDraw (int choice)
+{
+    crl_hom_effect = M_INT_Slider(crl_hom_effect, 0, 2, choice);
+}
+
+static void M_CRL_ScreenWipe (int choice)
+{
+    crl_screenwipe ^= 1;
+}
+
+static void M_CRL_Colorblind (int choice)
+{
+    crl_colorblind = M_INT_Slider(crl_colorblind, 0, 3, choice);
+    CRL_ReloadPalette();
+}
+
+// -----------------------------------------------------------------------------
+// Sound options
+// -----------------------------------------------------------------------------
+
+static menuitem_t CRLMenu_Sound[]=
+{
+    { 2, "DUMMY",  M_CRL_Automap,  'a'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'}
+};
+
+static menu_t CRLDef_Sound =
+{
+    m_crl_end,
+    &CRLDef_Main,
+    CRLMenu_Sound,
+    M_DrawCRL_Sound,
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    0,
+    true
+};
+
+static void M_ChooseCRL_Sound (int choice)
+{
+    M_SetupNextMenu (&CRLDef_Sound);
+}
+
+static void M_DrawCRL_Sound (void)
+{
+    M_ShadeBackground();
+    M_WriteTextCentered(27, "SOUND OPTIONS", cr[CR_YELLOW]);
+}
+
+// -----------------------------------------------------------------------------
+// Widgets and Automap
+// -----------------------------------------------------------------------------
+
+static menuitem_t CRLMenu_Widgets[]=
+{
+    { 2, "PLAYER COORDS",       M_CRL_Widget_Coords,     'p'},
+    { 2, "PLAYSTATE COUNTERS",  M_CRL_Widget_Playstate,  'r'},
+    { 2, "RENDER COUNTERS",     M_CRL_Widget_Render,     'r'},
+    { 2, "K/I/S STATS",         M_CRL_Widget_KIS,        'k'},
+    { 2, "LEVEL TIME",          M_CRL_Widget_Time,       'l'},
+    { 2, "TARGET'S HEALTH",     M_CRL_Widget_Health,     't'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    { 2, "DRAWING MODE",        M_CRL_Automap,           'a'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'}
+};
+
+static menu_t CRLDef_Widgets =
+{
+    m_crl_end,
+    &CRLDef_Main,
+    CRLMenu_Widgets,
+    M_DrawCRL_Widgets,
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    0,
+    true
+};
+
+static void M_ChooseCRL_Widgets (int choice)
+{
+    M_SetupNextMenu (&CRLDef_Widgets);
+}
+
+static void M_DrawCRL_Widgets (void)
+{
+    static char str[32];
+
+    M_ShadeBackground();
+    M_WriteTextCentered(27, "WIDGETS", cr[CR_YELLOW]);
+
+    // Player coords
+    sprintf(str, crl_widget_coords ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 36, str,
+                 crl_widget_coords ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
+    // Playstate counters
+    sprintf(str, crl_widget_playstate == 1 ? "ON" :
+                 crl_widget_playstate == 2 ? "OVERFLOWS" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 45, str,
+                 crl_widget_playstate == 1 ? cr[CR_GREEN] :
+                 crl_widget_playstate == 2 ? cr[CR_DARKGREEN] : cr[CR_DARKRED]);
+
+    // Rendering counters
+    sprintf(str, crl_widget_render == 1 ? "ON" :
+                 crl_widget_render == 2 ? "OVERFLOWS" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 54, str,
+                 crl_widget_render == 1 ? cr[CR_GREEN] :
+                 crl_widget_render == 2 ? cr[CR_DARKGREEN] : cr[CR_DARKRED]);
+
+    // K/I/S stats
+    sprintf(str, crl_widget_kis ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 63, str, 
+                 crl_widget_kis ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
+    // Level time
+    sprintf(str, crl_widget_time ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 72, str,
+                 crl_widget_time ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
+    // Target's health
+    sprintf(str, crl_widget_health == 1 ? "TOP" : 
+                 crl_widget_health == 2 ? "BOTTOM" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 81, str,
+                 crl_widget_health ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
+    M_WriteTextCentered(99, "AUTOMAP", cr[CR_YELLOW]);
+
+    // Drawing mode
+    sprintf(str, crl_automap_mode == 1 ? "FLOOR VISPLANES" :
+                 crl_automap_mode == 2 ? "CEILING VISPLANES" : "NORMAL");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 108, str,
+                 crl_automap_mode ? cr[CR_GREEN] : cr[CR_DARKRED]);
 }
 
 static void M_CRL_Widget_Coords (int choice)
@@ -800,124 +979,90 @@ static void M_CRL_Widget_Health (int choice)
     crl_widget_health = M_INT_Slider(crl_widget_health, 0, 2, choice);
 }
 
-static void M_CRL_HOMDraw (int choice)
+static void M_CRL_Automap (int choice)
 {
-    crl_hom_effect = M_INT_Slider(crl_hom_effect, 0, 2, choice);
+    crl_automap_mode = M_INT_Slider(crl_automap_mode, 0, 2, choice);
 }
 
-static void M_CRL_VisplanesDraw (int choice)
+// -----------------------------------------------------------------------------
+// Gameplay features
+// -----------------------------------------------------------------------------
+
+static menuitem_t CRLMenu_Gameplay[]=
 {
-    crl_visplanes_drawing = M_INT_Slider(crl_visplanes_drawing, 0, 4, choice);
+    { 2, "DEFAULT SKILL LEVEL",      M_CRL_DefaulSkill,      'd'},
+    { 2, "COLORED STATUS BAR",       M_CRL_ColoredSTBar,     'c'},
+    { 2, "REPORT REVEALED SECRETS",  M_CRL_RevealedSecrets,  'r'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    { 2, "DEMO TIMER",               M_CRL_DemoTimer,        'd'},
+    { 2, "TIMER DIRECTION",          M_CRL_TimerDirection,   't'},
+    { 2, "PROGRESS BAR",             M_CRL_ProgressBar,      'p'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'}
+};
+
+static menu_t CRLDef_Gameplay =
+{
+    m_crl_end,
+    &CRLDef_Main,
+    CRLMenu_Gameplay,
+    M_DrawCRL_Gameplay,
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    0,
+    true
+};
+
+static void M_ChooseCRL_Gameplay (int choice)
+{
+    M_SetupNextMenu (&CRLDef_Gameplay);
 }
 
-static void M_ChooseCRL_2 (int choice)
-{
-    M_SetupNextMenu (&CRLDef_2);
-}
-
-static void M_DrawCRL_2 (void)
+static void M_DrawCRL_Gameplay (void)
 {
     static char str[32];
 
     M_ShadeBackground();
+    M_WriteTextCentered(27, "GAMEPLAY FEATURES", cr[CR_YELLOW]);
 
-    M_WriteText(CRL_MENU_TITLEOFFSET, 18, "AUTOMAP", cr[CR_YELLOW]);
+    // Default skill level
+    DEH_snprintf(str, sizeof(str), DefSkillName[crl_default_skill]);
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 36, str, 
+                 DefSkillColor(crl_default_skill));
 
-    // Drawing mode
-    sprintf(str, crl_automap_mode == 1 ? "FLOOR VISPLANES" :
-                 crl_automap_mode == 2 ? "CEILING VISPLANES" : "NORMAL");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 27, str,
-                 crl_automap_mode ? cr[CR_GREEN] : cr[CR_DARKRED]);
+    // Colored status bar
+    sprintf(str, crl_colored_stbar ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 45, str, 
+                 crl_colored_stbar ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
-    M_WriteText(CRL_MENU_TITLEOFFSET, 36, "DEMOS", cr[CR_YELLOW]);
+    // Report revealed secrets
+    sprintf(str, crl_revealed_secrets ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 54, str, 
+                 crl_revealed_secrets ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
+    M_WriteTextCentered(72, "DEMOS", cr[CR_YELLOW]);
 
     // Demo timer
     sprintf(str, crl_demo_timer == 1 ? "PLAYBACK" : 
                  crl_demo_timer == 2 ? "RECORDING" : 
                  crl_demo_timer == 3 ? "ALWAYS" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 45, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 81, str, 
                  crl_demo_timer ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Timer direction
     sprintf(str, crl_demo_timerdir ? "BACKWARD" : "FORWARD");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 54, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 90, str, 
                  crl_demo_timer ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Progress bar
     sprintf(str, crl_demo_bar ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 63, str, 
-                 crl_demo_bar ? cr[CR_GREEN] : cr[CR_DARKRED]);
-
-    M_WriteText(CRL_MENU_TITLEOFFSET, 72, "QOL FEATURES", cr[CR_YELLOW]);
-
-    // Uncapped framerate
-    sprintf(str, crl_uncapped_fps ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 81, str, 
-                 crl_uncapped_fps ? cr[CR_GREEN] : cr[CR_DARKRED]);
-
-    // Screen wipe effect
-    sprintf(str, crl_screenwipe ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 90, str, 
-                 crl_screenwipe ? cr[CR_GREEN] : cr[CR_DARKRED]);
-
-    // Default skill level
-    DEH_snprintf(str, sizeof(str), DefSkillName[crl_default_skill]);
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 99, str, 
-                 DefSkillColor(crl_default_skill));
-
-    // Colored status bar
-    sprintf(str, crl_colored_stbar ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 108, str, 
-                 crl_colored_stbar ? cr[CR_GREEN] : cr[CR_DARKRED]);
-
-    // Report revealed secrets
-    sprintf(str, crl_revealed_secrets ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 117, str, 
-                 crl_revealed_secrets ? cr[CR_GREEN] : cr[CR_DARKRED]);
-
-    // Colorblind
-    sprintf(str, crl_colorblind == 1 ? "RED/GREEN" :
-                 crl_colorblind == 2 ? "BLUE/YELLOW" :
-                 crl_colorblind == 3 ? "MONOCHROME" : "NONE");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 126, str, 
-                 crl_colorblind > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
-
-    //
-    // < PREV PAGE
-    //
-    M_WriteText(CRL_MENU_LEFTOFFSET, 153, "< PREV PAGE", cr[CR_WHITE]);
-}
-
-static void M_CRL_Automap (int choice)
-{
-    crl_automap_mode = M_INT_Slider(crl_automap_mode, 0, 4, choice);
-}
-
-static void M_CRL_DemoTimer (int choice)
-{
-    crl_demo_timer = M_INT_Slider(crl_demo_timer, 0, 3, choice);
-}
-
-static void M_CRL_TimerDirection (int choice)
-{
-    crl_demo_timerdir ^= 1;
-}
-
-static void M_CRL_ProgressBar (int choice)
-{
-    crl_demo_bar ^= 1;
-}
-
-static void M_CRL_UncappedFPS (int choice)
-{
-    crl_uncapped_fps ^= 1;
-    // [JN] Skip weapon bobbing interpolation for next frame.
-    pspr_interp = false;
-}
-
-static void M_CRL_ScreenWipe (int choice)
-{
-    crl_screenwipe ^= 1;
+                 crl_demo_bar ? cr[CR_GREEN] : cr[CR_DARKRED]);
 }
 
 static void M_CRL_DefaulSkill (int choice)
@@ -937,16 +1082,21 @@ static void M_CRL_RevealedSecrets (int choice)
     crl_revealed_secrets ^= 1;
 }
 
-static void M_CRL_Colorblind (int choice)
+static void M_CRL_DemoTimer (int choice)
 {
-    crl_colorblind = M_INT_Slider(crl_colorblind, 0, 3, choice);
-    CRL_ReloadPalette();
+    crl_demo_timer = M_INT_Slider(crl_demo_timer, 0, 3, choice);
 }
 
-static void M_ChooseCRL_1 (int choice)
+static void M_CRL_TimerDirection (int choice)
 {
-    M_SetupNextMenu (&CRLDef_1);
+    crl_demo_timerdir ^= 1;
 }
+
+static void M_CRL_ProgressBar (int choice)
+{
+    crl_demo_bar ^= 1;
+}
+
 
 // =============================================================================
 
@@ -2370,7 +2520,7 @@ boolean M_Responder (event_t* ev)
 		
 		// Spawn CRL menu
 		if (key == key_crl_menu)
-			M_SetupNextMenu(&CRLDef_1);
+			M_SetupNextMenu(&CRLDef_Main);
 		
 		S_StartSound(NULL,sfx_swtchn);
 		return true;
@@ -2648,7 +2798,7 @@ void M_Drawer (void)
     {
         name = DEH_String(currentMenu->menuitems[i].name);
 
-        if (currentMenu == &CRLDef_1 || currentMenu == &CRLDef_2)
+        if (currentMenu->smallFont)
         {
             M_WriteText (x, y, name, NULL);
             y += LINEHEIGHT_SMALL;
@@ -2663,7 +2813,7 @@ void M_Drawer (void)
         }
     }
 
-    if (currentMenu == &CRLDef_1 || currentMenu == &CRLDef_2)
+    if (currentMenu->smallFont)
     {
         // [JN] Draw blinking * symbol.
         M_WriteText(x - 10, currentMenu->y + itemOn * LINEHEIGHT_SMALL, "*",
