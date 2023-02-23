@@ -56,6 +56,7 @@ extern int crl_demo_bar;
 extern int crl_uncapped_fps;
 extern int crl_screenwipe;
 extern int crl_default_skill;
+extern int crl_pistol_start;
 extern int crl_colored_stbar;
 extern int crl_revealed_secrets;
 extern int crl_colorblind;

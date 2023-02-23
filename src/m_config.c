@@ -1349,6 +1349,7 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(crl_uncapped_fps),
     CONFIG_VARIABLE_INT(crl_screenwipe),
     CONFIG_VARIABLE_INT(crl_default_skill),
+    CONFIG_VARIABLE_INT(crl_pistol_start),
     CONFIG_VARIABLE_INT(crl_colored_stbar),
     CONFIG_VARIABLE_INT(crl_revealed_secrets),
     CONFIG_VARIABLE_INT(crl_colorblind),

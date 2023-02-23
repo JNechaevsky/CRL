@@ -539,6 +539,7 @@ static void M_CRL_Automap_Secrets (int choice);
 static void M_ChooseCRL_Gameplay (int choice);
 static void M_DrawCRL_Gameplay (void);
 static void M_CRL_DefaulSkill (int choice);
+static void M_CRL_PistolStart (int choice);
 static void M_CRL_ColoredSTBar (int choice);
 static void M_CRL_RevealedSecrets (int choice);
 static void M_CRL_DemoTimer (int choice);
@@ -1026,6 +1027,7 @@ static void M_CRL_Automap_Secrets (int choice)
 static menuitem_t CRLMenu_Gameplay[]=
 {
     { 2, "DEFAULT SKILL LEVEL",      M_CRL_DefaulSkill,      'd'},
+    { 2, "PISTOL START GAME MODE",   M_CRL_PistolStart,      'p'},
     { 2, "COLORED STATUS BAR",       M_CRL_ColoredSTBar,     'c'},
     { 2, "REPORT REVEALED SECRETS",  M_CRL_RevealedSecrets,  'r'},
     {-1, "", 0, '\0'},
@@ -1033,7 +1035,6 @@ static menuitem_t CRLMenu_Gameplay[]=
     { 2, "SHOW DEMO TIMER",          M_CRL_DemoTimer,        's'},
     { 2, "TIMER DIRECTION",          M_CRL_TimerDirection,   't'},
     { 2, "SHOW PROGRESS BAR",        M_CRL_ProgressBar,      's'},
-    {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
@@ -1070,33 +1071,38 @@ static void M_DrawCRL_Gameplay (void)
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 36, str, 
                  DefSkillColor(crl_default_skill));
 
+    // Pistol start game mode
+    sprintf(str, crl_pistol_start ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 45, str, 
+                 crl_pistol_start ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
     // Colored status bar
     sprintf(str, crl_colored_stbar ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 45, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 54, str, 
                  crl_colored_stbar ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Report revealed secrets
     sprintf(str, crl_revealed_secrets ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 54, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 63, str, 
                  crl_revealed_secrets ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
-    M_WriteTextCentered(72, "DEMOS", cr[CR_YELLOW]);
+    M_WriteTextCentered(81, "DEMOS", cr[CR_YELLOW]);
 
     // Demo timer
     sprintf(str, crl_demo_timer == 1 ? "PLAYBACK" : 
                  crl_demo_timer == 2 ? "RECORDING" : 
                  crl_demo_timer == 3 ? "ALWAYS" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 81, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 90, str, 
                  crl_demo_timer ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Timer direction
     sprintf(str, crl_demo_timerdir ? "BACKWARD" : "FORWARD");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 90, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 99, str, 
                  crl_demo_timer ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Progress bar
     sprintf(str, crl_demo_bar ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 99, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 108, str, 
                  crl_demo_bar ? cr[CR_GREEN] : cr[CR_DARKRED]);
 }
 
@@ -1105,6 +1111,11 @@ static void M_CRL_DefaulSkill (int choice)
     crl_default_skill = M_INT_Slider(crl_default_skill, 0, 4, choice);
     // [JN] Set new skill in skill level menu.
     NewDef.lastOn = crl_default_skill;
+}
+
+static void M_CRL_PistolStart (int choice)
+{
+    crl_pistol_start ^= 1;
 }
 
 static void M_CRL_ColoredSTBar (int choice)
