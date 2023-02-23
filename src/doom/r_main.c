@@ -787,6 +787,12 @@ void R_SetupFrame (player_t* player)
     
     viewplayer = player;
     
+    // Figure out how far into the current tic we're in as a fixed_t
+    if (crl_uncapped_fps)
+    {
+        fractionaltic = I_GetTimeMS() * TICRATE % 1000 * FRACUNIT / 1000;
+    }
+
     if (crl_spectating)
     {
     	// Get camera position
@@ -799,11 +805,6 @@ void R_SetupFrame (player_t* player)
     else
     {
         // [AM] Interpolate the player camera if the feature is enabled.
-
-        // Figure out how far into the current tic we're in as a fixed_t
-        if (crl_uncapped_fps)
-            fractionaltic = I_GetTimeMS() * TICRATE % 1000 * FRACUNIT / 1000;
-
         if (crl_uncapped_fps &&
             // Don't interpolate on the first tic of a level,
             // otherwise oldviewz might be garbage.
