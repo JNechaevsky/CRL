@@ -1324,6 +1324,11 @@ void D_DoomMain (void)
     char demolumpname[9];
     int numiwadlumps;
 
+#ifdef _WIN32
+    // [JN] Allocate console before any prints.
+    CRL_CreateWindowsConsole();
+#endif
+
     // print banner
 
     I_PrintBanner(PACKAGE_STRING);
@@ -1509,6 +1514,11 @@ void D_DoomMain (void)
     M_SetConfigFilenames(PROGRAM_PREFIX "doom.ini");
     D_BindVariables();
     M_LoadDefaults();
+
+#ifdef _WIN32
+    // [JN] See if console window need to appear after config file is loaded.
+    CRL_ShowWindowsConsole();
+#endif
 
     // Save configuration at exit.
     I_AtExit(M_SaveDefaults, false);

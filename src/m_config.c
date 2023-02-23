@@ -1352,6 +1352,8 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(crl_colored_stbar),
     CONFIG_VARIABLE_INT(crl_revealed_secrets),
     CONFIG_VARIABLE_INT(crl_colorblind),
+
+    CONFIG_VARIABLE_INT(crl_console),
 };
 
 static default_collection_t doom_defaults =

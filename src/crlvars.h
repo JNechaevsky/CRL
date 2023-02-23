@@ -60,5 +60,6 @@ extern int crl_colored_stbar;
 extern int crl_revealed_secrets;
 extern int crl_colorblind;
 
+extern int crl_console;
 
 extern void CRL_BindVariables (void);

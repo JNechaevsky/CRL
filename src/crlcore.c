@@ -1317,6 +1317,64 @@ void CRL_SetColors (uint8_t* colors, void* ref)
 //
 // =============================================================================
 
+#ifdef _WIN32
+// -----------------------------------------------------------------------------
+// CRL_CreateWindowsConsole
+// [JN] Creates console output Window. For Windows OS only.
+// -----------------------------------------------------------------------------
+
+static HWND CRL_Console;
+
+void CRL_CreateWindowsConsole (void)
+{
+    CONSOLE_FONT_INFOEX cfi;    // [JN] Purely to shut up compiler warning.
+
+    // Allocate console.
+    AllocConsole();
+
+    CRL_Console = GetConsoleWindow();
+
+    // Head text outputs.
+    freopen("CONIN$", "r",stdin); 
+    freopen("CONOUT$","w",stdout); 
+    freopen("CONOUT$","w",stderr); 
+
+    // Set a proper codepage.
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
+
+    // Set console font to "Consolas".
+    cfi.cbSize = sizeof cfi;
+    cfi.nFont = 0;
+    cfi.dwFontSize.X = 0;
+    cfi.dwFontSize.Y = 16;
+    cfi.FontFamily = FF_DONTCARE;
+    cfi.FontWeight = FW_NORMAL;
+    wcscpy(cfi.FaceName, L"Consolas");
+    SetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), FALSE, &cfi);
+}
+
+// -----------------------------------------------------------------------------
+// CRL_ShowWindowsConsole
+//  [JN] Shows or hides console output window.
+// -----------------------------------------------------------------------------
+
+void CRL_ShowWindowsConsole (void)
+{
+    ShowWindow(CRL_Console, crl_console ? SW_SHOWNOACTIVATE : SW_HIDE);
+}
+
+// -----------------------------------------------------------------------------
+// CRL_ToggleWindowsConsole
+//  [JN] Toggles crl_console variable.
+// -----------------------------------------------------------------------------
+
+void CRL_ToggleWindowsConsole (void)
+{
+    crl_console ^= 1;
+}
+#endif
+
 // -----------------------------------------------------------------------------
 // CRL_printf
 //  [JN] Prints colored message on Windows OS.

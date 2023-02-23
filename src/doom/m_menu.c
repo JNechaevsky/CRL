@@ -545,6 +545,9 @@ static void M_CRL_DemoTimer (int choice);
 static void M_CRL_TimerDirection (int choice);
 static void M_CRL_ProgressBar (int choice);
 
+#ifdef _WIN32
+static void M_ChooseCRL_Console (int choice);
+#endif
 
 static void M_ShadeBackground (void)
 {
@@ -621,16 +624,20 @@ static char *const DefSkillName[5] =
 
 static menuitem_t CRLMenu_Main[]=
 {
-    { 2, "SPECTATING",           M_CRL_Spectating,      's'},
-    { 2, "FREEZE",               M_CRL_Freeze,          'f'},
-    { 2, "NOTARGET",             M_CRL_NoTarget,        'n'},
+    { 2, "SPECTATOR MODE",       M_CRL_Spectating,      's'},
+    { 2, "FREEZE MODE",          M_CRL_Freeze,          'f'},
+    { 2, "NOTARGET MODE",        M_CRL_NoTarget,        'n'},
+    {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     { 1, "VIDEO OPTIONS",        M_ChooseCRL_Video,     'v'},
     { 1, "SOUND OPTIONS",        M_ChooseCRL_Sound,     's'},
     { 1, "WIDGETS AND AUTOMAP",  M_ChooseCRL_Widgets,   'w'},
     { 1, "GAMEPLAY FEATURES",    M_ChooseCRL_Gameplay,  'g'},
+#ifdef _WIN32
+    { 2, "SHOW CONSOLE WINDOW",  M_ChooseCRL_Console,   's'},
+#else
     {-1, "", 0, '\0'},
-    {-1, "", 0, '\0'},
+#endif
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
@@ -680,6 +687,15 @@ static void M_DrawCRL_Main (void)
                  !singleplayer ? cr[CR_DARKRED] :
                  player->cheats & CF_NOTARGET ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
+#ifdef _WIN32
+    M_WriteTextCentered(72, "SETTINGS", cr[CR_YELLOW]);
+
+    // Show console window
+    sprintf(str, crl_console ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth(str), 117, str,
+                 crl_console ? cr[CR_GREEN] : cr[CR_DARKRED]);
+#endif
+
     // NEXT PAGE >
     // M_WriteText(CRL_MENU_LEFTOFFSET, 153, "NEXT PAGE >", cr[CR_WHITE]);
 }
@@ -708,6 +724,14 @@ static void M_CRL_NoTarget (int choice)
 
     player->cheats ^= CF_NOTARGET;
 }
+
+#ifdef _WIN32
+static void M_ChooseCRL_Console (int choice)
+{
+    CRL_ToggleWindowsConsole();
+    CRL_ShowWindowsConsole();
+}
+#endif
 
 // -----------------------------------------------------------------------------
 // Video options

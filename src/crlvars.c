@@ -62,6 +62,8 @@ int crl_colored_stbar = 0;
 int crl_revealed_secrets = 0;
 int crl_colorblind = 0;
 
+int crl_console = 0;
+
 // -----------------------------------------------------------------------------
 // [JN] CRL-specific config variables binding function.
 // -----------------------------------------------------------------------------
@@ -101,4 +103,6 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_colored_stbar",              &crl_colored_stbar);
     M_BindIntVariable("crl_revealed_secrets",           &crl_revealed_secrets);
     M_BindIntVariable("crl_colorblind",                 &crl_colorblind);
+
+    M_BindIntVariable("crl_console",                    &crl_console);
 }
