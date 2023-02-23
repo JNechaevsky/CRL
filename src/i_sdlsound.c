@@ -823,7 +823,7 @@ static void I_SDL_PrecacheSounds(sfxinfo_t *sounds, int num_sounds)
     char namebuf[9];
     int i;
 
-    printf("I_SDL_PrecacheSounds: Precaching all sound effects..");
+    printf("I_SDL_PrecacheSounds: Precaching all sound effects - [");
 
     for (i=0; i<num_sounds; ++i)
     {
@@ -843,7 +843,7 @@ static void I_SDL_PrecacheSounds(sfxinfo_t *sounds, int num_sounds)
         }
     }
 
-    printf("\n");
+    printf("]\n");
 }
 
 // Load a SFX chunk into memory and ensure that it is locked.

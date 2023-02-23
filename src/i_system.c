@@ -147,7 +147,7 @@ byte *I_ZoneBase (int *size)
 
     zonemem = AutoAllocMemory(size, default_ram, min_ram);
 
-    printf("zone memory: %p, %x MiB allocated for zone\n", 
+    printf("  zone memory: %p, %x MiB allocated for zone.\n", 
            zonemem, *size >> 20); // [crispy] human-understandable zone heap size
 
     return zonemem;

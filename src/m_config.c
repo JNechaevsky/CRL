@@ -1700,7 +1700,7 @@ void M_LoadDefaults (void)
             = M_StringJoin(configdir, default_main_config, NULL);
     }
 
-    printf("saving config in %s\n", doom_defaults.filename);
+    printf("  saving config in %s\n", doom_defaults.filename);
 
     LoadDefaultCollection(&doom_defaults);
 }

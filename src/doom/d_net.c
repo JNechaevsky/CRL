@@ -38,6 +38,8 @@
 
 #include "d_loop.h"
 
+#include "crlvars.h"
+
 ticcmd_t *netcmds;
 
 // Called when a player leaves the game
@@ -251,10 +253,10 @@ void D_CheckNetGame (void)
     D_StartNetGame(&settings, NULL);
     LoadGameSettings(&settings);
 
-    DEH_printf("startskill %i  deathmatch: %i  startmap: %i  startepisode: %i\n",
-               startskill, deathmatch, startmap, startepisode);
+    DEH_printf("  startskill: %i  deathmatch: %i  startmap: %i  startepisode: %i\n",
+               startskill+1, deathmatch, startmap, startepisode);
 
-    DEH_printf("player %i of %i (%i nodes)\n",
+    DEH_printf("  player %i of %i (%i nodes)\n",
                consoleplayer+1, settings.num_players, settings.num_players);
 
     // Show players here; the server might have specified a time limit

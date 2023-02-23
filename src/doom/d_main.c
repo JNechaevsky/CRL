@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <SDL.h>
 
 #include "config.h"
 #include "deh_main.h"
@@ -968,7 +969,7 @@ static boolean D_AddFile(char *filename)
 {
     wad_file_t *handle;
 
-    printf(" adding %s\n", filename);
+    printf("  adding %s\n", filename);
     handle = W_AddFile(filename);
 
     return handle != NULL;
@@ -1323,6 +1324,8 @@ void D_DoomMain (void)
     char file[256];
     char demolumpname[9];
     int numiwadlumps;
+    unsigned int starttime = SDL_GetTicks();
+    unsigned int endtime;
 
 #ifdef _WIN32
     // [JN] Allocate console before any prints.
@@ -1930,7 +1933,7 @@ void D_DoomMain (void)
     DEH_printf("M_Init: Init miscellaneous info.\n");
     M_Init ();
 
-    DEH_printf("R_Init: Init DOOM refresh daemon - ");
+    DEH_printf("R_Init: Init DOOM refresh daemon - [");
     R_Init ();
 
     DEH_printf("\nP_Init: Init Playloop state.\n");
@@ -1949,6 +1952,10 @@ void D_DoomMain (void)
 
     DEH_printf("ST_Init: Init status bar.\n");
     ST_Init ();
+
+    // [JN] Show startup process time.
+    endtime = SDL_GetTicks() - starttime;
+    DEH_printf("Startup process took %d ms.\n", endtime);
 
     // If Doom II without a MAP01 lump, this is a store demo.
     // Moved this here so that MAP01 isn't constantly looked up
