@@ -825,9 +825,6 @@ int	R_TextureNumForName (char* name)
 // R_PrecacheLevel
 // Preloads all relevant graphics for the level.
 //
-int		flatmemory;
-int		texturememory;
-int		spritememory;
 
 void R_PrecacheLevel (void)
 {
@@ -857,14 +854,11 @@ void R_PrecacheLevel (void)
 	flatpresent[sectors[i].ceilingpic] = 1;
     }
 	
-    flatmemory = 0;
-
     for (i=0 ; i<numflats ; i++)
     {
 	if (flatpresent[i])
 	{
 	    lump = firstflat + i;
-	    flatmemory += lumpinfo[lump]->size;
 	    W_CacheLumpNum(lump, PU_CACHE);
 	}
     }
@@ -890,7 +884,6 @@ void R_PrecacheLevel (void)
     //  name.
     texturepresent[skytexture] = 1;
 	
-    texturememory = 0;
     for (i=0 ; i<numtextures ; i++)
     {
 	if (!texturepresent[i])
@@ -901,7 +894,6 @@ void R_PrecacheLevel (void)
 	for (j=0 ; j<texture->patchcount ; j++)
 	{
 	    lump = texture->patches[j].patch;
-	    texturememory += lumpinfo[lump]->size;
 	    W_CacheLumpNum(lump , PU_CACHE);
 	}
     }
@@ -918,7 +910,6 @@ void R_PrecacheLevel (void)
 	    spritepresent[((mobj_t *)th)->sprite] = 1;
     }
 	
-    spritememory = 0;
     for (i=0 ; i<numsprites ; i++)
     {
 	if (!spritepresent[i])
@@ -930,7 +921,6 @@ void R_PrecacheLevel (void)
 	    for (k=0 ; k<8 ; k++)
 	    {
 		lump = firstspritelump + sf->lump[k];
-		spritememory += lumpinfo[lump]->size;
 		W_CacheLumpNum(lump , PU_CACHE);
 	    }
 	}
