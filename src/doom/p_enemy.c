@@ -76,12 +76,6 @@ dirtype_t diags[] =
 };
 
 
-
-
-
-void A_Fall (mobj_t *actor);
-
-
 //
 // ENEMY THINKING
 // Enemies are allways spawned
@@ -1799,35 +1793,7 @@ void A_BabyMetal (mobj_t* mo)
     A_Chase (mo);
 }
 
-void
-A_OpenShotgun2
-( player_t*	player,
-  pspdef_t*	psp )
-{
-    S_StartSound (player->mo, sfx_dbopn);
-}
 
-void
-A_LoadShotgun2
-( player_t*	player,
-  pspdef_t*	psp )
-{
-    S_StartSound (player->mo, sfx_dbload);
-}
-
-void
-A_ReFire
-( player_t*	player,
-  pspdef_t*	psp );
-
-void
-A_CloseShotgun2
-( player_t*	player,
-  pspdef_t*	psp )
-{
-    S_StartSound (player->mo, sfx_dbcls);
-    A_ReFire(player,psp);
-}
 
 
 

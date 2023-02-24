@@ -180,8 +180,6 @@ static int ST_cheat_massacre (void)
 {
     int killcount = 0;
     thinker_t *th;
-    // extern int numbraintargets;
-    extern void A_PainDie(mobj_t *);
 
     for (th = thinkercap.next; th != &thinkercap; th = th->next)
     {
