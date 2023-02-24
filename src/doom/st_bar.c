@@ -34,7 +34,6 @@
 #include "deh_misc.h"
 #include "g_game.h"
 #include "p_local.h"
-#include "p_inter.h"
 #include "m_menu.h"
 #include "s_sound.h"
 #include "v_video.h"

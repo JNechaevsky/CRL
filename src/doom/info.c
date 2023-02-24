@@ -29,7 +29,6 @@
 
 #include "info.h"
 
-#include "p_mobj.h"
 #include "p_local.h"
 
 

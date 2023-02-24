@@ -22,7 +22,6 @@
 #ifndef __S_SOUND__
 #define __S_SOUND__
 
-#include "p_mobj.h"
 #include "sounds.h"
 
 //

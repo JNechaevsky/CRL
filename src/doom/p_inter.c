@@ -39,8 +39,6 @@
 
 #include "s_sound.h"
 
-#include "p_inter.h"
-
 #include "crlcore.h"
 
 

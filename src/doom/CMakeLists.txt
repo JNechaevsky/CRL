@@ -15,7 +15,6 @@ add_library(doom STATIC
             d_items.c       d_items.h
             d_main.c        d_main.h
             d_net.c
-                            doomdata.h
             doomdef.c       doomdef.h
             doomstat.c      doomstat.h
                             d_player.h
@@ -32,21 +31,21 @@ add_library(doom STATIC
             p_doors.c
             p_enemy.c
             p_floor.c
-            p_inter.c       p_inter.h
+            p_inter.c
             p_lights.c
                             p_local.h
             p_map.c
             p_maputl.c
-            p_mobj.c        p_mobj.h
+            p_mobj.c
             p_plats.c
-            p_pspr.c        p_pspr.h
-            p_saveg.c       p_saveg.h
-            p_setup.c       p_setup.h
+            p_pspr.c
+            p_saveg.c
+            p_setup.c
             p_sight.c
-            p_spec.c        p_spec.h
+            p_spec.c
             p_switch.c
             p_telept.c
-            p_tick.c        p_tick.h
+            p_tick.c
             p_user.c
             r_bsp.c         r_bsp.h
             r_data.c        r_data.h
