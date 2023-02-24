@@ -19,18 +19,10 @@
 //
 
 
-
 #include "z_zone.h"
-#include "doomdef.h"
 #include "p_local.h"
-
 #include "s_sound.h"
-
-// State.
 #include "doomstat.h"
-#include "r_state.h"
-// Data.
-#include "sounds.h"
 
 
 //

@@ -22,27 +22,15 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
 #include "m_misc.h"
 #include "m_random.h"
 #include "i_system.h"
-
-#include "doomdef.h"
 #include "p_local.h"
-
 #include "s_sound.h"
-
 #include "g_game.h"
-
-// State.
 #include "doomstat.h"
-#include "r_state.h"
-
-// Data.
-#include "sounds.h"
 
 #include "crlcore.h"
-
 
 
 typedef enum

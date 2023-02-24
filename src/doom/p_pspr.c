@@ -20,20 +20,12 @@
 //
 
 
-#include "doomdef.h"
 #include "d_event.h"
-
 #include "deh_misc.h"
-
 #include "m_random.h"
 #include "p_local.h"
 #include "s_sound.h"
-
-// State.
 #include "doomstat.h"
-
-// Data.
-#include "sounds.h"
 
 
 #define LOWERSPEED		FRACUNIT*6

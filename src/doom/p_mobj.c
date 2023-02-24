@@ -18,21 +18,16 @@
 //	Moving object handling. Spawn functions.
 //
 
-#include <stdio.h>
 
+#include <stdio.h>
 #include "i_system.h"
 #include "z_zone.h"
 #include "m_random.h"
-
-#include "doomdef.h"
 #include "p_local.h"
-#include "sounds.h"
-
 #include "st_bar.h"
-
 #include "s_sound.h"
-
 #include "doomstat.h"
+
 #include "crlcore.h"
 
 

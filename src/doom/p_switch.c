@@ -19,23 +19,14 @@
 //	Switches, buttons. Two-state animation. Exits.
 //
 
-#include <stdio.h>
 
-#include "i_system.h"
+#include <stdio.h>
 #include "deh_main.h"
-#include "doomdef.h"
 #include "p_local.h"
 #include "m_misc.h"
 #include "g_game.h"
-
 #include "s_sound.h"
-
-// Data.
-#include "sounds.h"
-
-// State.
 #include "doomstat.h"
-#include "r_state.h"
 
 #include "crlcore.h"
 

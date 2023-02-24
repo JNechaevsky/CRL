@@ -18,36 +18,12 @@
 //
 
 
-
 #include "z_zone.h"
-#include "doomdef.h"
 #include "deh_main.h"
 #include "p_local.h"
 #include "i_system.h"
-
 #include "s_sound.h"
-
-
-// State.
-#include "doomstat.h"
-#include "r_state.h"
-
-// Data.
 #include "dstrings.h"
-#include "sounds.h"
-
-#if 0
-//
-// Sliding door frame information
-//
-slidename_t	slideFrameNames[MAXSLIDEDOORS] =
-{
-    {"GDOORF1","GDOORF2","GDOORF3","GDOORF4",	// front
-     "GDOORB1","GDOORB2","GDOORB3","GDOORB4"},	// back
-	 
-    {"\0","\0","\0","\0"}
-};
-#endif
 
 
 //

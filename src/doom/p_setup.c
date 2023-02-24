@@ -22,24 +22,16 @@
 
 #include <SDL.h>  // [JN] SDL_GetTicks()
 #include <math.h>
-
 #include "z_zone.h"
-
 #include "deh_main.h"
 #include "i_swap.h"
 #include "m_argv.h"
 #include "m_bbox.h"
-
 #include "g_game.h"
-
 #include "i_system.h"
 #include "w_wad.h"
-
-#include "doomdef.h"
 #include "p_local.h"
-
 #include "s_sound.h"
-
 #include "doomstat.h"
 #include "d_englsh.h"
 

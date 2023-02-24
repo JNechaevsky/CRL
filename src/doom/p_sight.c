@@ -19,14 +19,9 @@
 //
 
 
-
-#include "doomdef.h"
-
 #include "i_system.h"
 #include "p_local.h"
 
-// State.
-#include "r_state.h"
 
 //
 // P_CheckSight

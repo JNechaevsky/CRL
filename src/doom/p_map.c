@@ -21,28 +21,19 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
 #include "deh_misc.h"
-
 #include "m_bbox.h"
 #include "m_random.h"
 #include "i_system.h"
-
-#include "doomdef.h"
 #include "m_argv.h"
 #include "m_misc.h"
 #include "p_local.h"
-
 #include "s_sound.h"
-
-// State.
 #include "doomstat.h"
-#include "r_state.h"
-// Data.
-#include "sounds.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
+
 
 // Spechit overrun magic value.
 //
