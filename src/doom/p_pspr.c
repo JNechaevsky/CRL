@@ -20,22 +20,13 @@
 //
 
 
-#include "doomdef.h"
 #include "d_event.h"
-
 #include "deh_misc.h"
-
 #include "m_random.h"
 #include "p_local.h"
 #include "s_sound.h"
-
-// State.
 #include "doomstat.h"
 
-// Data.
-#include "sounds.h"
-
-#include "p_pspr.h"
 
 #define LOWERSPEED		FRACUNIT*6
 #define RAISESPEED		FRACUNIT*6
@@ -734,6 +725,31 @@ A_FireShotgun2
 		      MISSILERANGE,
 		      bulletslope + (P_SubRandom() << 5), damage);
     }
+}
+
+void
+A_OpenShotgun2
+( player_t*	player,
+  pspdef_t*	psp )
+{
+    S_StartSound (player->mo, sfx_dbopn);
+}
+
+void
+A_LoadShotgun2
+( player_t*	player,
+  pspdef_t*	psp )
+{
+    S_StartSound (player->mo, sfx_dbload);
+}
+
+void
+A_CloseShotgun2
+( player_t*	player,
+  pspdef_t*	psp )
+{
+    S_StartSound (player->mo, sfx_dbcls);
+    A_ReFire(player,psp);
 }
 
 

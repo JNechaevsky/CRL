@@ -21,19 +21,15 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
 #include "dstrings.h"
 #include "deh_main.h"
 #include "i_system.h"
 #include "z_zone.h"
 #include "p_local.h"
-#include "p_saveg.h"
-
-// State.
 #include "doomstat.h"
 #include "g_game.h"
 #include "m_misc.h"
-#include "r_state.h"
+
 
 FILE *save_stream;
 int savegamelength;

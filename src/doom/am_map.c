@@ -1577,7 +1577,6 @@ static void AM_drawThings (int colors, int colorrange)
     angle_t   actualangle;
     // RestlessRodent -- Carbon copy from ReMooD
     int       color = colors;
-    extern void A_Look();
 
     for (i = 0 ; i < numsectors ; i++)
     {

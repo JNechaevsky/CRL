@@ -23,21 +23,14 @@
 //
 
 
-
 #include <stdlib.h>
-
-
 #include "m_bbox.h"
-
-#include "doomdef.h"
 #include "doomstat.h"
 #include "p_local.h"
 #include "m_misc.h"
 
-// State.
-#include "r_state.h"
-
 #include "crlcore.h"
+
 
 //
 // P_AproxDistance

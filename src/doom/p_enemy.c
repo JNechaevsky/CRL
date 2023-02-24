@@ -22,27 +22,15 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
 #include "m_misc.h"
 #include "m_random.h"
 #include "i_system.h"
-
-#include "doomdef.h"
 #include "p_local.h"
-
 #include "s_sound.h"
-
 #include "g_game.h"
-
-// State.
 #include "doomstat.h"
-#include "r_state.h"
-
-// Data.
-#include "sounds.h"
 
 #include "crlcore.h"
-
 
 
 typedef enum
@@ -74,12 +62,6 @@ dirtype_t diags[] =
 {
     DI_NORTHWEST, DI_NORTHEAST, DI_SOUTHWEST, DI_SOUTHEAST
 };
-
-
-
-
-
-void A_Fall (mobj_t *actor);
 
 
 //
@@ -1799,35 +1781,7 @@ void A_BabyMetal (mobj_t* mo)
     A_Chase (mo);
 }
 
-void
-A_OpenShotgun2
-( player_t*	player,
-  pspdef_t*	psp )
-{
-    S_StartSound (player->mo, sfx_dbopn);
-}
 
-void
-A_LoadShotgun2
-( player_t*	player,
-  pspdef_t*	psp )
-{
-    S_StartSound (player->mo, sfx_dbload);
-}
-
-void
-A_ReFire
-( player_t*	player,
-  pspdef_t*	psp );
-
-void
-A_CloseShotgun2
-( player_t*	player,
-  pspdef_t*	psp )
-{
-    S_StartSound (player->mo, sfx_dbcls);
-    A_ReFire(player,psp);
-}
 
 
 

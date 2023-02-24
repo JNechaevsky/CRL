@@ -24,10 +24,7 @@
 
 
 #include <stdlib.h>
-
-#include "doomdef.h"
 #include "doomstat.h"
-
 #include "deh_main.h"
 #include "i_system.h"
 #include "z_zone.h"
@@ -35,19 +32,9 @@
 #include "m_misc.h"
 #include "m_random.h"
 #include "w_wad.h"
-
-#include "r_local.h"
 #include "p_local.h"
-
 #include "g_game.h"
-
 #include "s_sound.h"
-
-// State.
-#include "r_state.h"
-
-// Data.
-#include "sounds.h"
 #include "d_englsh.h"
 #include "v_trans.h"
 

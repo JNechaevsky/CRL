@@ -54,7 +54,6 @@
 #include "m_misc.h"
 #include "m_menu.h"
 #include "p_local.h"
-#include "p_saveg.h"
 
 #include "i_endoom.h"
 #include "i_input.h"
@@ -72,7 +71,6 @@
 #include "net_dedicated.h"
 #include "net_query.h"
 
-#include "p_setup.h"
 #include "r_local.h"
 #include "statdump.h"
 

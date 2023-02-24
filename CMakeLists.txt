@@ -25,7 +25,7 @@ if(MSVC)
                     "/D_CRT_NONSTDC_NO_DEPRECATE")
 else()
     add_compile_options("-Wall" "-Wdeclaration-after-statement"
-                        "-Wredundant-decls")
+                        "-Wredundant-decls" "-Wdeprecated-non-prototype")
 endif()
 
 option(ENABLE_SDL2_NET "Enable SDL2_net" On)

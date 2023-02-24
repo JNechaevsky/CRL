@@ -21,15 +21,9 @@
 //
 
 
-
-
-#include "doomdef.h"
 #include "d_event.h"
-
 #include "p_local.h"
-
 #include "doomstat.h"
-
 
 
 // Index of the special effects (INVUL inverse) map.
