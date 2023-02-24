@@ -83,7 +83,9 @@ void P_CalcHeight (player_t* player)
     if (player->bob>MAXBOB)
 	player->bob = MAXBOB;
 
-    if ((player->cheats & CF_NOMOMENTUM) || !onground)
+    // [JN] CRL - keep update viewz while no momentum mode
+    // to prevent camera dive into the floor after stepping down any heights.
+    if (/*(player->cheats & CF_NOMOMENTUM) || */!onground)
     {
 	player->viewz = player->mo->z + VIEWHEIGHT;
 

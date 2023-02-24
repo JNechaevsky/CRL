@@ -512,6 +512,7 @@ static void M_DrawCRL_Main (void);
 static void M_CRL_Spectating (int choice);
 static void M_CRL_Freeze (int choice);
 static void M_CRL_NoTarget (int choice);
+static void M_CRL_NoMomentum (int choice);
 
 static void M_ChooseCRL_Video (int choice);
 static void M_DrawCRL_Video (void);
@@ -627,7 +628,8 @@ static menuitem_t CRLMenu_Main[]=
 {
     { 2, "SPECTATOR MODE",       M_CRL_Spectating,      's'},
     { 2, "FREEZE MODE",          M_CRL_Freeze,          'f'},
-    { 2, "NOTARGET MODE",        M_CRL_NoTarget,        'n'},
+    { 2, "NO TARGET MODE",       M_CRL_NoTarget,        'n'},
+    { 2, "NO MOMENTUM MODE",     M_CRL_NoMomentum,      'n'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     { 1, "VIDEO OPTIONS",        M_ChooseCRL_Video,     'v'},
@@ -639,7 +641,6 @@ static menuitem_t CRLMenu_Main[]=
 #else
     {-1, "", 0, '\0'},
 #endif
-    {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
@@ -681,19 +682,26 @@ static void M_DrawCRL_Main (void)
                  !singleplayer ? cr[CR_DARKRED] :
                  crl_freeze ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
-    // Notarget
+    // No target
     sprintf(str, !singleplayer ? "N/A" :
             player->cheats & CF_NOTARGET ? "ON" : "OFF");
     M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth(str), 54, str,
                  !singleplayer ? cr[CR_DARKRED] :
                  player->cheats & CF_NOTARGET ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
-#ifdef _WIN32
-    M_WriteTextCentered(72, "SETTINGS", cr[CR_YELLOW]);
+    // No momentum
+    sprintf(str, !singleplayer ? "N/A" :
+            player->cheats & CF_NOMOMENTUM ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth(str), 63, str,
+                 !singleplayer ? cr[CR_DARKRED] :
+                 player->cheats & CF_NOMOMENTUM ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
+    M_WriteTextCentered(81, "SETTINGS", cr[CR_YELLOW]);
+
+#ifdef _WIN32
     // Show console window
     sprintf(str, crl_console ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth(str), 117, str,
+    M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth(str), 126, str,
                  crl_console ? cr[CR_GREEN] : cr[CR_DARKRED]);
 #endif
 
@@ -724,6 +732,16 @@ static void M_CRL_NoTarget (int choice)
     }
 
     player->cheats ^= CF_NOTARGET;
+}
+
+static void M_CRL_NoMomentum (int choice)
+{
+    if (!singleplayer)
+    {
+        return;
+    }
+
+    player->cheats ^= CF_NOMOMENTUM;
 }
 
 #ifdef _WIN32
