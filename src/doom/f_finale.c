@@ -36,9 +36,8 @@
 #include "d_main.h"
 #include "dstrings.h"
 #include "sounds.h"
-
 #include "doomstat.h"
-#include "r_state.h"
+#include "r_local.h"
 
 #include "crlcore.h"
 

@@ -63,8 +63,6 @@
 #include "sounds.h"
 
 // SKY handling - still the wrong place.
-#include "r_data.h"
-#include "r_sky.h"
 
 #include "crlcore.h"
 #include "crlvars.h"

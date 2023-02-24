@@ -47,17 +47,14 @@ add_library(doom STATIC
             p_telept.c
             p_tick.c
             p_user.c
-            r_bsp.c         r_bsp.h
-            r_data.c        r_data.h
-                            r_defs.h
-            r_draw.c        r_draw.h
+            r_bsp.c
+            r_data.c
+            r_draw.c
                             r_local.h
-            r_main.c        r_main.h
-            r_plane.c       r_plane.h
-            r_segs.c        r_segs.h
-            r_sky.c         r_sky.h
-                            r_state.h
-            r_things.c      r_things.h
+            r_main.c
+            r_plane.c
+            r_segs.c
+            r_things.c
             s_sound.c       s_sound.h
             sounds.c        sounds.h
             statdump.c      statdump.h

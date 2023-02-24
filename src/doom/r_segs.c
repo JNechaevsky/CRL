@@ -19,23 +19,14 @@
 //
 
 
-
-
-
-
 #include <stdio.h>
 #include <stdlib.h>
-
 #include "i_system.h"
-
-#include "doomdef.h"
 #include "doomstat.h"
-
-#include "r_local.h"
-#include "r_sky.h"
 #include "p_local.h"
 
 #include "crlcore.h"
+
 
 // OPTIMIZE: closed two sided lines as single sided
 

@@ -617,6 +617,7 @@ extern void    P_PlayerInSpecialSector (player_t *player);
 extern void    P_ShootSpecialLine (mobj_t *thing, line_t *line);
 extern void    P_SpawnSpecials (void);
 extern void    P_UpdateSpecials (void);
+extern void    R_InterpolateTextureOffsets (void);
 
 extern int       twoSided (int sector, int line);
 extern sector_t *getSector (int currentSector, int line, int side);

@@ -21,28 +21,16 @@
 //
 
 
-
-
-
 #include <stdlib.h>
 #include <math.h>
-
-
-#include "doomdef.h"
 #include "doomstat.h" // [AM] leveltime, paused, menuactive
-#include "d_loop.h"
-
 #include "m_bbox.h"
 #include "m_menu.h"
-
-#include "r_local.h"
-#include "r_sky.h"
+#include "p_local.h"
 #include "v_video.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
-
-
 
 
 // Fineangles in the SCREENWIDTH wide window.
@@ -57,7 +45,7 @@ int			validcount = 1;
 
 
 lighttable_t*		fixedcolormap;
-extern lighttable_t**	walllights;
+
 
 int			centerx;
 int			centery;
@@ -598,6 +586,19 @@ void R_InitLightTables (void)
 	    zlight[i][j] = colormaps + level*256;
 	}
     }
+}
+
+//
+// R_InitSkyMap
+// Called whenever the view size changes.
+//
+int			skyflatnum;
+int			skytexture;
+int			skytexturemid;
+
+static void R_InitSkyMap (void)
+{
+    skytexturemid = SCREENHEIGHT/2*FRACUNIT;
 }
 
 

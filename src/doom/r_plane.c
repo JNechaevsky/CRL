@@ -23,24 +23,15 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
 #include "i_system.h"
 #include "z_zone.h"
 #include "w_wad.h"
-
-#include "doomdef.h"
 #include "doomstat.h"
-
-#include "r_local.h"
-#include "r_sky.h"
 #include "p_local.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
 
-
-planefunction_t		floorfunc;
-planefunction_t		ceilingfunc;
 
 //
 // opening

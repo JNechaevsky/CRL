@@ -19,28 +19,13 @@
 //
 
 
-
-
-#include "doomdef.h"
-
 #include "m_bbox.h"
 #include "m_misc.h"
-
 #include "i_system.h"
-
-#include "r_main.h"
-#include "r_plane.h"
-#include "r_things.h"
-
-// State.
 #include "doomstat.h"
-#include "r_state.h"
 #include "p_local.h"
 
 #include "crlvars.h"
-
-//#include "r_local.h"
-
 
 
 seg_t*		curline;
