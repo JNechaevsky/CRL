@@ -77,6 +77,13 @@ int CRL_plats_counter;
 // Will be reset on level restart.
 int CRL_buttons_counter;
 
+// Powerup timers.
+// Will be reset on level restart.
+int CRL_invul_counter;
+int CRL_invis_counter;
+int CRL_rad_counter;
+int CRL_amp_counter;
+
 
 // -----------------------------------------------------------------------------
 // CRL_Init
@@ -610,6 +617,14 @@ static byte *CRL_StatColor_Val (const int val1, const int val2)
                        cr[CR_GREEN];
 }
 
+static byte *CRL_PowerupColor (const int val1, const int val2)
+{
+    return
+        val1 > val2/2 ? cr[CR_GREEN]  :
+        val1 > val2/4 ? cr[CR_YELLOW] :
+                        cr[CR_RED]    ;
+}
+
 // -----------------------------------------------------------------------------
 // Draws CRL stats.
 //  [JN] Draw all the widgets and counters.
@@ -803,6 +818,46 @@ void CRL_StatDrawer (void)
                     CRLWidgets.totalsecrets == 0 ? cr[CR_GREEN] :
                     CRLWidgets.secrets == 0 ? cr[CR_RED] :
                     CRLWidgets.secrets < CRLWidgets.totalsecrets ? cr[CR_YELLOW] : cr[CR_GREEN]);
+    }
+
+    // Powerup timers.
+    if (crl_widget_powerups)
+    {
+        if (CRL_invul_counter)
+        {
+            char invl[4];
+
+            M_WriteText(292 - M_StringWidth("INVL:"), 108, "INVL:", cr[CR_GRAY]);
+            M_snprintf(invl, 4, "%d", CRL_invul_counter);
+            M_WriteText(296, 108, invl, CRL_PowerupColor(CRL_invul_counter, 30));
+        }
+
+        if (CRL_invis_counter)
+        {
+            char invs[4];
+
+            M_WriteText(292 - M_StringWidth("INVS:"), 117, "INVS:", cr[CR_GRAY]);
+            M_snprintf(invs, 4, "%d", CRL_invis_counter);
+            M_WriteText(296, 117, invs, CRL_PowerupColor(CRL_invis_counter, 60));
+        }
+
+        if (CRL_rad_counter)
+        {
+            char rad[4];
+
+            M_WriteText(292 - M_StringWidth("RAD:"), 126, "RAD:", cr[CR_GRAY]);
+            M_snprintf(rad, 4, "%d", CRL_rad_counter);
+            M_WriteText(296, 126, rad, CRL_PowerupColor(CRL_rad_counter, 60));
+        }
+
+        if (CRL_amp_counter)
+        {
+            char amp[4];
+
+            M_WriteText(292 - M_StringWidth("AMP:"), 135, "AMP:", cr[CR_GRAY]);
+            M_snprintf(amp, 4, "%d", CRL_amp_counter);
+            M_WriteText(296, 135, amp, CRL_PowerupColor(CRL_amp_counter, 120));
+        }
     }
 }
 

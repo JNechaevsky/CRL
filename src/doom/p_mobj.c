@@ -756,6 +756,11 @@ void P_SpawnPlayer (mapthing_t* mthing)
     CRL_lineanims_counter = 0;
     CRL_plats_counter = 0;
     CRL_buttons_counter = 0;
+    // [JN] CRL - reset powerup counters.
+    CRL_invul_counter = 0;
+    CRL_invis_counter = 0;
+    CRL_rad_counter = 0;
+    CRL_amp_counter = 0;
 
     // [crispy] interpolate weapon bobbing
     pspr_interp = false;

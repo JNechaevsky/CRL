@@ -25,6 +25,8 @@
 #include "p_local.h"
 #include "doomstat.h"
 
+#include "crlcore.h"
+
 
 // Index of the special effects (INVUL inverse) map.
 #define INVERSECOLORMAP		32
@@ -336,17 +338,29 @@ void P_PlayerThink (player_t* player)
 	player->powers[pw_strength]++;	
 		
     if (player->powers[pw_invulnerability])
+	{
 	player->powers[pw_invulnerability]--;
+	CRL_invul_counter = player->powers[pw_invulnerability] / TICRATE;
+	}
 
     if (player->powers[pw_invisibility])
+	{
 	if (! --player->powers[pw_invisibility] )
 	    player->mo->flags &= ~MF_SHADOW;
+	CRL_invis_counter = player->powers[pw_invisibility] / TICRATE;
+	}
 			
     if (player->powers[pw_infrared])
+	{
 	player->powers[pw_infrared]--;
+	CRL_amp_counter = player->powers[pw_infrared] / TICRATE;
+	}
 		
     if (player->powers[pw_ironfeet])
+	{
 	player->powers[pw_ironfeet]--;
+	CRL_rad_counter = player->powers[pw_ironfeet] / TICRATE;
+	}
 		
     if (player->damagecount)
 	player->damagecount--;
