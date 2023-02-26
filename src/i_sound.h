@@ -27,6 +27,8 @@
 // so that the individual game logic and sound driver code agree
 #define NORM_PITCH 127
 
+extern char *snd_dmxoption;
+
 //
 // SoundFX struct.
 //

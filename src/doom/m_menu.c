@@ -525,6 +525,9 @@ static void M_CRL_Colorblind (int choice);
 
 static void M_ChooseCRL_Sound (int choice);
 static void M_DrawCRL_Sound (void);
+static void M_CRL_MusicSystem (int choice);
+static void M_CRL_SFXMode (int choice);
+static void M_CRL_PitchShift (int choice);
 
 static void M_ChooseCRL_Widgets (int choice);
 static void M_DrawCRL_Widgets (void);
@@ -875,15 +878,16 @@ static void M_CRL_Colorblind (int choice)
 
 static menuitem_t CRLMenu_Sound[]=
 {
-    { 2, "DUMMY",  M_CRL_Automap,  'a'},
+    { 2, "SFX VOLUME",  M_SfxVol,  's'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    { 2, "MUSIC VOLUME",  M_MusicVol,  'm'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
-    {-1, "", 0, '\0'},
-    {-1, "", 0, '\0'},
-    {-1, "", 0, '\0'},
-    {-1, "", 0, '\0'},
-    {-1, "", 0, '\0'},
+    { 2, "MUSIC PLAYBACK",  M_CRL_MusicSystem,  'p'},
+    { 2, "SOUNDS EFFECTS MODE",  M_CRL_SFXMode,  's'},
+    { 2, "PITCH-SHIFTED SOUNDS",  M_CRL_PitchShift,  'p'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
@@ -910,8 +914,126 @@ static void M_ChooseCRL_Sound (int choice)
 
 static void M_DrawCRL_Sound (void)
 {
+    static char str[16];
+
     M_ShadeBackground();
-    M_WriteTextCentered(27, "SOUND OPTIONS", cr[CR_YELLOW]);
+    M_WriteTextCentered(27, "VOLUME", cr[CR_YELLOW]);
+
+    M_DrawThermo(46, 45, 16, sfxVolume);
+    sprintf(str,"%d", sfxVolume);
+    M_WriteText (192, 48, str, sfxVolume ? NULL : cr[CR_DARK]);
+
+    M_DrawThermo(46, 72, 16, musicVolume);
+    sprintf(str,"%d", musicVolume);
+    M_WriteText (192, 75, str, musicVolume ? NULL : cr[CR_DARK]);
+
+    M_WriteTextCentered(90, "SOUND SYSTEM", cr[CR_YELLOW]);
+
+    // Music playback
+    sprintf(str, snd_musicdevice == 0 ? "DISABLED" :
+                (snd_musicdevice == 3 && !strcmp(snd_dmxoption, "")) ? "OPL2 SYNTH" : 
+                (snd_musicdevice == 3 && !strcmp(snd_dmxoption, "-opl3")) ? "OPL3 SYNTH" : 
+                 snd_musicdevice == 5 ? "GUS (EMULATED)" :
+                 snd_musicdevice == 8 ? "NATIVE MIDI" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 99, str,
+                 snd_musicdevice ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
+    // Pitch-shifted sounds
+    sprintf(str, !crl_monosfx ? "STEREO" : "MONO");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 108, str,
+                 !crl_monosfx ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
+    // Pitch-shifted sounds
+    sprintf(str, snd_pitchshift ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 117, str,
+                 snd_pitchshift ? cr[CR_GREEN] : cr[CR_DARKRED]);
+}
+
+static void M_CRL_MusicSystem (int choice)
+{
+    switch (choice)
+    {
+        case 0:
+            if (snd_musicdevice == 0)
+            {
+                snd_musicdevice = 5;    // Set to GUS
+            }
+            else if (snd_musicdevice == 5)
+            {
+                snd_musicdevice = 8;    // Set to Native MIDI
+            }
+            else if (snd_musicdevice == 8)
+            {
+                snd_musicdevice = 3;    // Set to OPL3
+                snd_dmxoption = "-opl3";
+            }
+            else if (snd_musicdevice == 3  && !strcmp(snd_dmxoption, "-opl3"))
+            {
+                snd_musicdevice = 3;    // Set to OPL2
+                snd_dmxoption = "";
+            }
+            else if (snd_musicdevice == 3 && !strcmp(snd_dmxoption, ""))
+            {
+                snd_musicdevice = 0;    // Disable
+            }
+            break;
+        case 1:
+            if (snd_musicdevice == 0)
+            {
+                snd_musicdevice  = 3;   // Set to OPL2
+                snd_dmxoption = "";
+            }
+            else if (snd_musicdevice == 3 && !strcmp(snd_dmxoption, ""))
+            {
+                snd_musicdevice  = 3;   // Set to OPL3
+                snd_dmxoption = "-opl3";
+            }
+            else if (snd_musicdevice == 3 && !strcmp(snd_dmxoption, "-opl3"))
+            {
+                snd_musicdevice  = 8;   // Set to Native MIDI
+            }
+            else if (snd_musicdevice == 8)
+            {
+                snd_musicdevice  = 5;   // Set to GUS
+            }
+            else if (snd_musicdevice == 5)
+            {
+                snd_musicdevice  = 0;   // Disable
+            }
+            break;
+        default:
+            {
+                break;
+            }
+    }
+
+    // Shut down current music
+    S_StopMusic();
+
+    // Shut down music system
+    S_Shutdown();
+    
+    // Start music system
+    I_InitSound(true);
+
+    // Reinitialize music volume
+    S_SetMusicVolume(musicVolume * 8);
+
+    // Restart current music
+    S_ChangeMusic(crl_musicnum, true);
+}
+
+static void M_CRL_SFXMode (int choice)
+{
+    crl_monosfx ^= 1;
+
+    // Update stereo separation
+    S_UpdateStereoSeparation();
+}
+
+static void M_CRL_PitchShift (int choice)
+{
+    snd_pitchshift ^= 1;
 }
 
 // -----------------------------------------------------------------------------

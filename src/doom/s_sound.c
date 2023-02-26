@@ -40,6 +40,7 @@
 #include "z_zone.h"
 
 #include "crlcore.h"
+#include "crlvars.h"
 
 // when to clip out sounds
 // Does not fit the large outdoor areas.
@@ -61,6 +62,7 @@
 // Stereo separation
 
 #define S_STEREO_SWING (96 * FRACUNIT)
+static int stereo_swing;
 
 #define NORM_PRIORITY 64
 #define NORM_SEP 128
@@ -108,6 +110,9 @@ static musicinfo_t *mus_playing = NULL;
 // Number of channels to use
 
 int snd_channels = 8;
+
+// [JN] External music number, used for music playback hot-swapping.
+int crl_musicnum;
 
 //
 // Initializes sound stuff, including volume
@@ -167,6 +172,33 @@ void S_Init(int sfxVolume, int musicVolume)
     }
 
     I_AtExit(S_Shutdown, true);
+
+    // [crispy] handle stereo separation for mono-sfx and flipped levels
+    S_UpdateStereoSeparation();
+}
+
+// -----------------------------------------------------------------------------
+// S_UpdateStereoSeparation
+// [JN] Defines stereo separtion for mono sfx mode and flipped levels.
+// -----------------------------------------------------------------------------
+
+void S_UpdateStereoSeparation (void)
+{
+	// [crispy] play all sound effects in mono
+	if (crl_monosfx)
+	{
+		stereo_swing = 0;
+	}
+    /*
+	else if (flip_levels)
+	{
+		stereo_swing = -S_STEREO_SWING;
+	}
+    */
+	else
+	{
+		stereo_swing = S_STEREO_SWING;
+	}
 }
 
 void S_Shutdown(void)
@@ -386,7 +418,7 @@ static int S_AdjustSoundParams(mobj_t *listener, mobj_t *source,
     angle >>= ANGLETOFINESHIFT;
 
     // stereo separation
-    *sep = 128 - (FixedMul(S_STEREO_SWING, finesine[angle]) >> FRACBITS);
+    *sep = 128 - (FixedMul(stereo_swing, finesine[angle]) >> FRACBITS);
 
     // volume calculation
     if (approx_dist < S_CLOSE_DIST)
@@ -695,6 +727,10 @@ void S_ChangeMusic(int musicnum, int looping)
     {
         return;
     }
+
+    // [JN] After inner muscial number has been set, sync it with
+    // external number, used in M_CRL_MusicSystem.
+    crl_musicnum = musicnum;
 
     // shutdown old music
     S_StopMusic();

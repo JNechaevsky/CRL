@@ -26,6 +26,8 @@
 int crl_startup_delay = 35;
 // Time to wait for the screen to be updated after resizing (ms).
 int crl_resize_delay = 35;
+// SFX mono mode.
+int crl_monosfx = 0;
 
 // Game modes
 int crl_spectating = 0;
@@ -74,6 +76,7 @@ void CRL_BindVariables (void)
 {
     M_BindIntVariable("crl_startup_delay",              &crl_startup_delay);
     M_BindIntVariable("crl_resize_delay",               &crl_resize_delay);
+    M_BindIntVariable("crl_monosfx",                    &crl_monosfx);
 
     // Widgets
     M_BindIntVariable("crl_widget_playstate",           &crl_widget_playstate);
