@@ -525,6 +525,7 @@ static void M_CRL_Colorblind (int choice);
 
 static void M_ChooseCRL_Sound (int choice);
 static void M_DrawCRL_Sound (void);
+static void M_CRL_SFXSystem (int choice);
 static void M_CRL_MusicSystem (int choice);
 static void M_CRL_SFXMode (int choice);
 static void M_CRL_PitchShift (int choice);
@@ -878,17 +879,17 @@ static void M_CRL_Colorblind (int choice)
 
 static menuitem_t CRLMenu_Sound[]=
 {
-    { 2, "SFX VOLUME",  M_SfxVol,  's'},
+    { 2, "SFX VOLUME",            M_SfxVol,           's'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
-    { 2, "MUSIC VOLUME",  M_MusicVol,  'm'},
+    { 2, "MUSIC VOLUME",          M_MusicVol,         'm'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
-    { 2, "MUSIC PLAYBACK",  M_CRL_MusicSystem,  'p'},
-    { 2, "SOUNDS EFFECTS MODE",  M_CRL_SFXMode,  's'},
-    { 2, "PITCH-SHIFTED SOUNDS",  M_CRL_PitchShift,  'p'},
-    {-1, "", 0, '\0'},
+    { 2, "SFX PLAYBACK",          M_CRL_SFXSystem,    's'},
+    { 2, "MUSIC PLAYBACK",        M_CRL_MusicSystem,  'm'},
+    { 2, "SOUNDS EFFECTS MODE",   M_CRL_SFXMode,      's'},
+    { 2, "PITCH-SHIFTED SOUNDS",  M_CRL_PitchShift,   'p'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
@@ -921,32 +922,95 @@ static void M_DrawCRL_Sound (void)
 
     M_DrawThermo(46, 45, 16, sfxVolume);
     sprintf(str,"%d", sfxVolume);
-    M_WriteText (192, 48, str, sfxVolume ? NULL : cr[CR_DARK]);
+    M_WriteText (192, 48, str, !snd_sfxdevice ? cr[CR_DARKRED] :
+                                    sfxVolume ? NULL : cr[CR_DARK]);
 
     M_DrawThermo(46, 72, 16, musicVolume);
     sprintf(str,"%d", musicVolume);
-    M_WriteText (192, 75, str, musicVolume ? NULL : cr[CR_DARK]);
+    M_WriteText (192, 75, str, !snd_musicdevice ? cr[CR_DARKRED] :
+                                    musicVolume ? NULL : cr[CR_DARK]);
 
     M_WriteTextCentered(90, "SOUND SYSTEM", cr[CR_YELLOW]);
+
+    // SFX playback
+    sprintf(str, snd_sfxdevice == 0 ? "DISABLED"    :
+                 snd_sfxdevice == 1 ? "PC SPEAKER"  :
+                 snd_sfxdevice == 3 ? "DIGITAL SFX" :
+                                      "UNKNOWN");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 99, str,
+                 snd_sfxdevice ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Music playback
     sprintf(str, snd_musicdevice == 0 ? "DISABLED" :
                 (snd_musicdevice == 3 && !strcmp(snd_dmxoption, "")) ? "OPL2 SYNTH" : 
                 (snd_musicdevice == 3 && !strcmp(snd_dmxoption, "-opl3")) ? "OPL3 SYNTH" : 
                  snd_musicdevice == 5 ? "GUS (EMULATED)" :
-                 snd_musicdevice == 8 ? "NATIVE MIDI" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 99, str,
+                 snd_musicdevice == 8 ? "NATIVE MIDI" :
+                                        "UNKNOWN");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 108, str,
                  snd_musicdevice ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Pitch-shifted sounds
     sprintf(str, !crl_monosfx ? "STEREO" : "MONO");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 108, str,
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 117, str,
                  !crl_monosfx ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Pitch-shifted sounds
     sprintf(str, snd_pitchshift ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 117, str,
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 126, str,
                  snd_pitchshift ? cr[CR_GREEN] : cr[CR_DARKRED]);
+}
+
+static void M_CRL_SFXSystem (int choice)
+{
+    switch (choice)
+    {
+        case 0:
+            if (snd_sfxdevice == 0)
+                snd_sfxdevice = 3;
+            else
+            if (snd_sfxdevice == 3)
+                snd_sfxdevice = 1;
+            else
+            if (snd_sfxdevice == 1)
+                snd_sfxdevice = 0;
+            break;
+        case 1:
+            if (snd_sfxdevice == 0)
+                snd_sfxdevice = 1;
+            else
+            if (snd_sfxdevice == 1)
+                snd_sfxdevice = 3;
+            else
+            if (snd_sfxdevice == 3)
+                snd_sfxdevice = 0;
+        default:
+            break;
+    }
+
+    // Shut down current music
+    S_StopMusic();
+
+    // Free all sound channels/usefulness
+    S_ChangeSFXSystem();
+
+    // Shut down sound/music system
+    I_ShutdownSound();
+
+    // Start sound/music system
+    I_InitSound(true);
+
+    // Re-generate SFX cache
+    I_PrecacheSounds(S_sfx, NUMSFX);
+
+    // Reinitialize sound volume
+    S_SetSfxVolume(sfxVolume * 8);
+
+    // Reinitialize music volume
+    S_SetMusicVolume(musicVolume * 8);
+
+    // Restart current music
+    S_ChangeMusic(crl_musicnum, true);
 }
 
 static void M_CRL_MusicSystem (int choice)

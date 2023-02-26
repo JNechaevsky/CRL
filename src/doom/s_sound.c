@@ -178,6 +178,28 @@ void S_Init(int sfxVolume, int musicVolume)
 }
 
 // -----------------------------------------------------------------------------
+// S_ChangeSFXSystem
+// [JN] Routine for sfx device hot-swapping.
+// -----------------------------------------------------------------------------
+
+void S_ChangeSFXSystem (void)
+{
+    int i;
+
+    // Free all channels for use
+    for (i = 0 ; i < snd_channels ; i++)
+    {
+        channels[i].sfxinfo = 0;
+    }
+
+    // Reinitialize sfx usefulness
+    for (i = 1 ; i < NUMSFX ; i++)
+    {
+        S_sfx[i].lumpnum = S_sfx[i].usefulness = -1;
+    }
+}
+
+// -----------------------------------------------------------------------------
 // S_UpdateStereoSeparation
 // [JN] Defines stereo separtion for mono sfx mode and flipped levels.
 // -----------------------------------------------------------------------------

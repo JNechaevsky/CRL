@@ -84,6 +84,7 @@ void S_UpdateSounds(mobj_t *listener);
 void S_SetMusicVolume(int volume);
 void S_SetSfxVolume(int volume);
 
+extern void S_ChangeSFXSystem (void);
 extern void S_UpdateStereoSeparation (void);
 
 extern int snd_channels;
