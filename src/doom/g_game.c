@@ -976,6 +976,13 @@ boolean G_Responder (event_t* ev)
 } 
  
  
+// [crispy] re-read game parameters from command line
+static void G_ReadGameParms (void)
+{
+    respawnparm = M_CheckParm ("-respawn");
+    fastparm = M_CheckParm ("-fast");
+    nomonsters = M_CheckParm ("-nomonsters");
+}
  
 //
 // G_Ticker
@@ -1001,9 +1008,13 @@ void G_Ticker (void)
 	    G_DoLoadLevel (); 
 	    break; 
 	  case ga_newgame: 
+	    // [crispy] re-read game parameters from command line
+	    G_ReadGameParms();
 	    G_DoNewGame (); 
 	    break; 
 	  case ga_loadgame: 
+	    // [crispy] re-read game parameters from command line
+	    G_ReadGameParms();
 	    G_DoLoadGame (); 
 	    break; 
 	  case ga_savegame: 
@@ -1709,6 +1720,16 @@ void G_DoLoadGame (void)
 { 
     int savedleveltime;
 	 
+    // [crispy] loaded game must always be single player.
+    // Needed for ability to use a further game loading, as well as
+    // cheat codes and other single player only specifics.
+    if (startloadgame == -1)
+    {
+        netdemo = false;
+        netgame = false;
+        deathmatch = false;
+    }
+
     gameaction = ga_nothing; 
 	 
     save_stream = fopen(savename, "rb");

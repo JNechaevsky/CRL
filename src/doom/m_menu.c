@@ -1456,7 +1456,8 @@ static void M_LoadSelect(int choice)
 //
 static void M_LoadGame (int choice)
 {
-    if (netgame)
+    // [crispy] allow loading game while multiplayer demo playback
+    if (netgame && !demoplayback)
     {
 	M_StartMessage(DEH_String(LOADNET),NULL,false);
 	return;
@@ -1596,7 +1597,8 @@ static void M_QuickSave(void)
 //
 static void M_QuickLoad(void)
 {
-    if (netgame)
+    // [crispy] allow quickloading game while multiplayer demo playback
+    if (netgame && !demoplayback)
     {
 	M_StartMessage(DEH_String(QLOADNET),NULL,false);
 	return;
