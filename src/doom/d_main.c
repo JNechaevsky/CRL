@@ -164,7 +164,15 @@ void D_ProcessEvents (void)
 
 static void CRL_DrawMessage (void)
 {
-    player_t *player = &players[consoleplayer];
+    player_t *player = &players[displayplayer];
+
+    // [JN] Activate message counter in non-level or paused states.
+    // Make messages go away in menu, finale and help screens.
+    // Tics can't go negative.
+    if ((gamestate != GS_LEVEL || paused || menuactive) && player->messageTics > 0)
+    {
+        player->messageTics--;
+    }
 
     if (player->messageTics <= 0 || !player->message)
     {
@@ -181,7 +189,7 @@ static void CRL_DrawMessage (void)
 
 static void CRL_DrawCriticalMessage (void)
 {
-    player_t *player = &players[consoleplayer];
+    player_t *player = &players[displayplayer];
 
     if (player->criticalmessageTics <= 0 || !player->criticalmessage)
     {
@@ -545,7 +553,7 @@ void D_DoomLoop (void)
 
    	TryRunTics (); // will run at least one tic
 
-	S_UpdateSounds (players[consoleplayer].mo);// move positional sounds
+	S_UpdateSounds (players[displayplayer].mo);// move positional sounds
 
 	// Update display, next frame, with current state.
         if (screenvisible)

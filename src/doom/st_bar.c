@@ -102,7 +102,7 @@ static patch_t *shortnum_y[10];      // 0-9, short, yellow numbers
 static patch_t *shortnum_g[10];      // 0-9, short, gray numbers
 static patch_t *keys[NUMCARDS];      // 3 key-cards, 3 skulls
 static patch_t *faces[ST_NUMFACES];  // face status patches
-static patch_t *faceback;            // face background
+static patch_t *faceback[MAXPLAYERS];// [JN] killough 3/7/98: make array
 static patch_t *armsbg;              // ARMS background
 
 static int st_fragscount; // number of frags so far in deathmatch
@@ -402,9 +402,9 @@ boolean ST_Responder (event_t *ev)
                 static char buf[52];
 
                 M_snprintf(buf, sizeof(buf), "ang=0x%x;x,y=(0x%x,0x%x)",
-                           players[consoleplayer].mo->angle,
-                           players[consoleplayer].mo->x,
-                           players[consoleplayer].mo->y);
+                           players[displayplayer].mo->angle,
+                           players[displayplayer].mo->x,
+                           players[displayplayer].mo->y);
                 CRL_SetMessage(plyr, buf, false, NULL);
             }
             // [crispy] implement Boom's "tntem" cheat
@@ -1114,12 +1114,15 @@ static void ST_DrawWeaponNumberFunc (const int val, const int x, const int y, co
 
 void ST_Drawer (void)
 {
+    plyr = &players[displayplayer];
+
     V_UseBuffer(st_backing_screen);
     V_DrawPatch(0, 0, sbar);
 	if (netgame)
     {
         // Player face background
-	    V_DrawPatch(143, 0, faceback);
+        // [JN] killough 3/7/98: make face background change with displayplayer
+	    V_DrawPatch(143, 0, faceback[displayplayer]);
     }
     V_RestoreBuffer();
     V_CopyRect(0, 0, st_backing_screen, ST_WIDTH, ST_HEIGHT, 0, ST_Y);
@@ -1243,8 +1246,13 @@ static void ST_loadUnloadGraphics(load_callback_t callback)
     callback(DEH_String("STARMS"), &armsbg);
 
     // face backgrounds for different color players
-    DEH_snprintf(namebuf, 9, "STFB%d", consoleplayer);
-    callback(namebuf, &faceback);
+    // [JN] killough 3/7/98: add better support for spy mode by loading
+    // all player face backgrounds and using displayplayer to choose them:
+    for (i=0; i<MAXPLAYERS; i++)
+    {
+    DEH_snprintf(namebuf, 9, "STFB%d", i);
+    callback(namebuf, &faceback[i]);
+    }
 
     // status bar background bits
     callback(DEH_String("STBAR"), &sbar);
@@ -1318,7 +1326,7 @@ void ST_Start (void)
 {
     I_SetPalette (W_CacheLumpNum (lu_palette, PU_CACHE));
 
-    plyr = &players[consoleplayer];
+    plyr = &players[displayplayer];
     faceindex = 1; // [crispy] fix status bar face hysteresis across level changes
     st_faceindex = 1;
     st_palette = -1;

@@ -141,7 +141,7 @@ void P_RunThinkers (void)
 void P_Ticker (void)
 {
     int		i;
-    player_t *player = &players[consoleplayer];
+    player_t *player = &players[displayplayer];
     
     if (player->messageTics > 0)
     {
@@ -151,9 +151,9 @@ void P_Ticker (void)
     {                           // Refresh the screen when a message goes away
         ultimatemsg = false;    // clear out any chat messages.
     }
-    if (players[consoleplayer].criticalmessageTics > 0)
+    if (players[displayplayer].criticalmessageTics > 0)
     {
-        players[consoleplayer].criticalmessageTics--;
+        players[displayplayer].criticalmessageTics--;
     }
 
     
