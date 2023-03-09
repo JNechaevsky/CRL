@@ -799,6 +799,40 @@ void ST_doPaletteStuff (void)
 }
 
 // -----------------------------------------------------------------------------
+// ST_UpdateFragsCounter
+// [JN] Updated to int type, allowing to show frags of any player.
+// -----------------------------------------------------------------------------
+
+static const int ST_UpdateFragsCounter (const int playernum, const boolean big_values)
+{
+    st_fragscount = 0;
+
+    for (int i = 0 ; i < MAXPLAYERS ; i++)
+    {
+        if (i != playernum)
+        {
+            st_fragscount += players[playernum].frags[i];
+        }
+        else
+        {
+            st_fragscount -= players[playernum].frags[i];
+        }
+    }
+    
+    // [JN] Prevent overflow, ST_DrawBigNumber can only draw three 
+    // digit number, and status bar fits well only two digits number
+    if (!big_values)
+    {
+        if (st_fragscount > 99)
+            st_fragscount = 99;
+        if (st_fragscount < -99)
+            st_fragscount = -99;
+    }
+
+    return st_fragscount;
+}
+
+// -----------------------------------------------------------------------------
 // ST_Ticker
 // -----------------------------------------------------------------------------
 
@@ -821,6 +855,26 @@ void ST_Ticker (void)
     CRLWidgets.x = plyr->mo->x >> FRACBITS;
     CRLWidgets.y = plyr->mo->y >> FRACBITS;
     CRLWidgets.ang = plyr->mo->angle / ANG1;
+
+    if (deathmatch)
+    {
+        if (playeringame[0])
+        {
+            CRLWidgets.frags_g = ST_UpdateFragsCounter(0, true);
+        }
+        if (playeringame[1])
+        {
+            CRLWidgets.frags_i = ST_UpdateFragsCounter(1, true);
+        }
+        if (playeringame[2])
+        {
+            CRLWidgets.frags_b = ST_UpdateFragsCounter(2, true);
+        }
+        if (playeringame[3])
+        {
+            CRLWidgets.frags_r = ST_UpdateFragsCounter(3, true);
+        }
+    }
 
     // Do red-/gold-shifts from damage/items
     ST_doPaletteStuff();
@@ -1051,40 +1105,6 @@ static void ST_DrawSmallNumberG (int val, const int x, const int y)
 static void ST_DrawWeaponNumberFunc (const int val, const int x, const int y, const boolean have_it)
 {
     have_it ? ST_DrawSmallNumberY(val, x, y) : ST_DrawSmallNumberG(val, x, y);
-}
-
-// -----------------------------------------------------------------------------
-// ST_UpdateFragsCounter
-// [JN] Updated to int type, allowing to show frags of any player.
-// -----------------------------------------------------------------------------
-
-static const int ST_UpdateFragsCounter (const int playernum, const boolean big_values)
-{
-    st_fragscount = 0;
-
-    for (int i = 0 ; i < MAXPLAYERS ; i++)
-    {
-        if (i != playernum)
-        {
-            st_fragscount += players[playernum].frags[i];
-        }
-        else
-        {
-            st_fragscount -= players[playernum].frags[i];
-        }
-    }
-    
-    // [JN] Prevent overflow, ST_DrawBigNumber can only draw three 
-    // digit number, and status bar fits well only two digits number
-    if (!big_values)
-    {
-        if (st_fragscount > 99)
-            st_fragscount = 99;
-        if (st_fragscount < -99)
-            st_fragscount = -99;
-    }
-
-    return st_fragscount;
 }
 
 // -----------------------------------------------------------------------------

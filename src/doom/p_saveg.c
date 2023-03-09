@@ -30,6 +30,7 @@
 #include "g_game.h"
 #include "m_misc.h"
 
+#include "crlcore.h"
 
 FILE *save_stream;
 int savegamelength;

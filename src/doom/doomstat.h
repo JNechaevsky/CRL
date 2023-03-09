@@ -103,9 +103,6 @@ extern  boolean         respawnmonsters;
 // Netgame? Only true if >1 player.
 extern  boolean	netgame;
 
-// 0=Cooperative; 1=Deathmatch; 2=Altdeath
-extern int deathmatch;
-
 // -------------------------
 // Internal parameters for sound rendering.
 // These have been taken from the DOS version,
@@ -215,10 +212,6 @@ extern  gamestate_t     gamestate;
 
 // Bookkeeping on players - state.
 extern	player_t	players[MAXPLAYERS];
-
-// Alive? Disconnected?
-extern  boolean		playeringame[MAXPLAYERS];
-
 
 // Player spawn spots for deathmatch.
 #define MAX_DM_STARTS   10

@@ -772,52 +772,125 @@ void CRL_StatDrawer (void)
     // K/I/S stats
     if (crl_widget_kis)
     {
-        char str1[8], str2[16];  // kills
-        char str3[8], str4[16];  // items
-        char str5[8], str6[16];  // secret
-
         int yy = automapactive ? 8 : 
                 screenblocks == 11 ? -32 : 0;
-        
-        // Kills:
-        sprintf(str1, "K ");
-        M_WriteText(0, 160 - yy, str1, cr[CR_GRAY]);
 
-        sprintf(str2, "%d/%d ", CRLWidgets.kills, CRLWidgets.totalkills);
-        M_WriteText(0 + M_StringWidth(str1), 160 - yy, str2,
-                    CRLWidgets.totalkills == 0 ? cr[CR_GREEN] :
-                    CRLWidgets.kills == 0 ? cr[CR_RED] :
-                    CRLWidgets.kills < CRLWidgets.totalkills ? cr[CR_YELLOW] : cr[CR_GREEN]);
+        if (!deathmatch)
+        {
+            char str1[8], str2[16];  // kills
+            char str3[8], str4[16];  // items
+            char str5[8], str6[16];  // secret
 
-        // Items:
-        sprintf(str3, "I ");
-        M_WriteText(M_StringWidth(str1) + M_StringWidth(str2), 160 - yy, str3, cr[CR_GRAY]);
-     
-        sprintf(str4, "%d/%d ", CRLWidgets.items, CRLWidgets.totalitems);
-        M_WriteText(M_StringWidth(str1) +
-                    M_StringWidth(str2) +
-                    M_StringWidth(str3), 160 - yy, str4,
-                    CRLWidgets.totalitems == 0 ? cr[CR_GREEN] :
-                    CRLWidgets.items == 0 ? cr[CR_RED] :
-                    CRLWidgets.items < CRLWidgets.totalitems ? cr[CR_YELLOW] : cr[CR_GREEN]);
+            // Kills:
+            sprintf(str1, "K ");
+            M_WriteText(0, 160 - yy, str1, cr[CR_GRAY]);
+            
+            sprintf(str2, "%d/%d ", CRLWidgets.kills, CRLWidgets.totalkills);
+            M_WriteText(0 + M_StringWidth(str1), 160 - yy, str2,
+                        CRLWidgets.totalkills == 0 ? cr[CR_GREEN] :
+                        CRLWidgets.kills == 0 ? cr[CR_RED] :
+                        CRLWidgets.kills < CRLWidgets.totalkills ? cr[CR_YELLOW] : cr[CR_GREEN]);
 
+            // Items:
+            sprintf(str3, "I ");
+            M_WriteText(M_StringWidth(str1) + M_StringWidth(str2), 160 - yy, str3, cr[CR_GRAY]);
+            
+            sprintf(str4, "%d/%d ", CRLWidgets.items, CRLWidgets.totalitems);
+            M_WriteText(M_StringWidth(str1) +
+                        M_StringWidth(str2) +
+                        M_StringWidth(str3), 160 - yy, str4,
+                        CRLWidgets.totalitems == 0 ? cr[CR_GREEN] :
+                        CRLWidgets.items == 0 ? cr[CR_RED] :
+                        CRLWidgets.items < CRLWidgets.totalitems ? cr[CR_YELLOW] : cr[CR_GREEN]);
 
-        // Secret:
-        sprintf(str5, "S ");
-        M_WriteText(M_StringWidth(str1) +
-                    M_StringWidth(str2) +
-                    M_StringWidth(str3) +
-                    M_StringWidth(str4), 160 - yy, str5, cr[CR_GRAY]);
+            // Secret:
+            sprintf(str5, "S ");
+            M_WriteText(M_StringWidth(str1) +
+                        M_StringWidth(str2) +
+                        M_StringWidth(str3) +
+                        M_StringWidth(str4), 160 - yy, str5, cr[CR_GRAY]);
 
-        sprintf(str6, "%d/%d ", CRLWidgets.secrets, CRLWidgets.totalsecrets);
-        M_WriteText(M_StringWidth(str1) +
-                    M_StringWidth(str2) + 
-                    M_StringWidth(str3) +
-                    M_StringWidth(str4) +
-                    M_StringWidth(str5), 160 - yy, str6,
-                    CRLWidgets.totalsecrets == 0 ? cr[CR_GREEN] :
-                    CRLWidgets.secrets == 0 ? cr[CR_RED] :
-                    CRLWidgets.secrets < CRLWidgets.totalsecrets ? cr[CR_YELLOW] : cr[CR_GREEN]);
+            sprintf(str6, "%d/%d ", CRLWidgets.secrets, CRLWidgets.totalsecrets);
+            M_WriteText(M_StringWidth(str1) +
+                        M_StringWidth(str2) + 
+                        M_StringWidth(str3) +
+                        M_StringWidth(str4) +
+                        M_StringWidth(str5), 160 - yy, str6,
+                        CRLWidgets.totalsecrets == 0 ? cr[CR_GREEN] :
+                        CRLWidgets.secrets == 0 ? cr[CR_RED] :
+                        CRLWidgets.secrets < CRLWidgets.totalsecrets ? cr[CR_YELLOW] : cr[CR_GREEN]);
+        }
+        else
+        {
+            char str1[8], str2[16];  // Green
+            char str3[8], str4[16];  // Indigo
+            char str5[8], str6[16];  // Brown
+            char str7[8], str8[16];  // Red
+
+            // Green
+            if (playeringame[0])
+            {
+                sprintf(str1, "G ");
+                M_WriteText(0, 160 - yy, str1, cr[CR_GREEN]);
+
+                sprintf(str2, "%d ", CRLWidgets.frags_g);
+                M_WriteText(M_StringWidth(str1), 160 - yy, str2, cr[CR_GREEN]);
+            }
+            // Indigo
+            if (playeringame[1])
+            {
+                sprintf(str3, "I ");
+                M_WriteText(M_StringWidth(str1) +
+                            M_StringWidth(str2),
+                            160 - yy, str3, cr[CR_GRAY]);
+
+                sprintf(str4, "%d ", CRLWidgets.frags_i);
+                M_WriteText(M_StringWidth(str1) +
+                            M_StringWidth(str2) +
+                            M_StringWidth(str3),
+                            160 - yy, str4, cr[CR_GRAY]);
+            }
+            // Brown
+            if (playeringame[2])
+            {
+                sprintf(str5, "B ");
+                M_WriteText(M_StringWidth(str1) +
+                            M_StringWidth(str2) +
+                            M_StringWidth(str3) +
+                            M_StringWidth(str4),
+                            160 - yy, str5, cr[CR_BROWN]);
+
+                sprintf(str6, "%d ", CRLWidgets.frags_b);
+                M_WriteText(M_StringWidth(str1) +
+                            M_StringWidth(str2) +
+                            M_StringWidth(str3) +
+                            M_StringWidth(str4) +
+                            M_StringWidth(str5),
+                            160 - yy, str6, cr[CR_BROWN]);
+            }
+            // Red
+            if (playeringame[3])
+            {
+                sprintf(str7, "R ");
+                M_WriteText(M_StringWidth(str1) +
+                            M_StringWidth(str2) +
+                            M_StringWidth(str3) +
+                            M_StringWidth(str4) +
+                            M_StringWidth(str5) +
+                            M_StringWidth(str6),
+                            160 - yy, str7, cr[CR_RED]);
+
+                sprintf(str8, "%d ", CRLWidgets.frags_r);
+                M_WriteText(M_StringWidth(str1) +
+                            M_StringWidth(str2) +
+                            M_StringWidth(str3) +
+                            M_StringWidth(str4) +
+                            M_StringWidth(str5) +
+                            M_StringWidth(str6) +
+                            M_StringWidth(str7),
+                            160 - yy, str8, cr[CR_RED]);
+            }
+        }
     }
 
     // Powerup timers.

@@ -114,6 +114,11 @@ typedef struct CRL_Widgets_s
     int totalitems;    // Total item count on the level
     int secrets;       // Current secrets count
     int totalsecrets;  // Total secrets on the level
+
+    int frags_g;       // Frags counter of green player
+    int frags_i;       // Frags counter of indigo player
+    int frags_b;       // Frags counter of brown player
+    int frags_r;       // Frags counter of red player
 } CRL_Widgets_t;
 
 extern CRL_Widgets_t CRLWidgets;
@@ -204,4 +209,8 @@ extern int  demowarp;
 
 extern boolean  menuactive;
 extern boolean  automapactive;
+
+extern int      deathmatch;      // 0 = Cooperative; 1 = Deathmatch; 2 = Altdeath
+extern boolean  playeringame[4]; // [MAXPLAYERS]
+
 extern int      screenblocks;

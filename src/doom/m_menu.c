@@ -1109,7 +1109,7 @@ static menuitem_t CRLMenu_Widgets[]=
     { 2, "PLAYER COORDS",       M_CRL_Widget_Coords,     'p'},
     { 2, "PLAYSTATE COUNTERS",  M_CRL_Widget_Playstate,  'r'},
     { 2, "RENDER COUNTERS",     M_CRL_Widget_Render,     'r'},
-    { 2, "K/I/S STATS",         M_CRL_Widget_KIS,        'k'},
+    { 2, "KIS STATS/FRAGS",     M_CRL_Widget_KIS,        'k'},
     { 2, "LEVEL TIME",          M_CRL_Widget_Time,       'l'},
     { 2, "POWERUP TIMERS",      M_CRL_Widget_Powerups,   'p'},
     { 2, "TARGET'S HEALTH",     M_CRL_Widget_Health,     't'},

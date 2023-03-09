@@ -38,6 +38,7 @@
 
 #include "d_loop.h"
 
+#include "crlcore.h"
 #include "crlvars.h"
 
 ticcmd_t *netcmds;
