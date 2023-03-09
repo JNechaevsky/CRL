@@ -564,6 +564,30 @@ boolean M_StrToInt(const char *str, int *result)
         || sscanf(str, " %d", result) == 1;
 }
 
+// Returns the base filename described by the given path (without the
+// directory name). The result points inside path and nothing new is
+// allocated.
+const char *M_BaseName(const char *path)
+{
+    const char *pf, *pb;
+
+    pf = strrchr(path, '/');
+#ifdef _WIN32
+    pb = strrchr(path, '\\');
+#else
+    pb = NULL;
+#endif
+    if (pf == NULL && pb == NULL)
+    {
+        return path;
+    }
+    else
+    {
+        const char *p = (pb > pf) ? pb : pf;
+        return p + 1;
+    }
+}
+
 void M_ExtractFileBase(char *path, char *dest)
 {
     char *src;
