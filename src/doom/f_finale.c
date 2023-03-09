@@ -123,6 +123,10 @@ void F_StartFinale (void)
     viewactive = false;
     automapactive = false;
     finale_wipe_done = false;
+    players[consoleplayer].messageTics = 1;
+    players[consoleplayer].criticalmessageTics = 1;
+    players[consoleplayer].message = NULL;
+    players[consoleplayer].criticalmessage = NULL;
 
     if (logical_gamemission == doom)
     {
