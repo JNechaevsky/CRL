@@ -29,6 +29,7 @@
 #include "p_local.h"
 #include "doomstat.h"
 #include "v_trans.h"
+#include "v_video.h"
 
 #include "crlcore.h"
 
@@ -714,7 +715,54 @@ void R_InitColormaps (void)
     }
 }
 
+// -----------------------------------------------------------------------------
+// [crispy] initialize translucency filter map
+// based in parts on the implementation from boom202s/R_DATA.C:676-787
+// -----------------------------------------------------------------------------
 
+enum {
+    r, g, b
+} rgb_t;
+
+
+static void R_InitTintMap (void)
+{
+    // Compose a default transparent filter map based on PLAYPAL.
+    unsigned char *playpal = W_CacheLumpName("PLAYPAL", PU_STATIC);
+
+    tintmap = Z_Malloc(256*256, PU_STATIC, 0);
+
+    {
+        byte *fg, *bg, blend[3];
+        byte *tm = tintmap;
+        int i, j;
+
+        // [crispy] background color
+        for (i = 0; i < 256; i++)
+        {
+            // [crispy] foreground color
+            for (j = 0; j < 256; j++)
+            {
+                // [crispy] shortcut: identical foreground and background
+                if (i == j)
+                {
+                    *tm++ = i;
+                    continue;
+                }
+
+                bg = playpal + 3*i;
+                fg = playpal + 3*j;
+
+                blend[r] = (50 * fg[r] + (100 - 50) * bg[r]) / 100;
+                blend[g] = (50 * fg[g] + (100 - 50) * bg[g]) / 100;
+                blend[b] = (50 * fg[b] + (100 - 50) * bg[b]) / 100;
+                *tm++ = V_GetPaletteIndex(playpal, blend[r], blend[g], blend[b]);
+            }
+        }
+    }
+
+    W_ReleaseLumpName("PLAYPAL");
+}
 
 //
 // R_InitData
@@ -731,6 +779,8 @@ void R_InitData (void)
     R_InitSpriteLumps ();
     printf (".");
     R_InitColormaps ();
+    
+    R_InitTintMap ();
 }
 
 

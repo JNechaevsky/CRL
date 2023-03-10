@@ -41,10 +41,15 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
+#include "crlvars.h"
+
 
 // TODO: There are separate RANGECHECK defines for different games, but this
 // is common code. Fix this.
 #define RANGECHECK
+
+// [JN] Blending table used for text shadows.
+byte *tintmap = NULL;
 
 // [JN] Color translation.
 byte *dp_translation = NULL;
@@ -202,6 +207,7 @@ void V_DrawPatchFlipped(int x, int y, patch_t *patch)
         // [JN] Do not crash, print a critical message instead.
         CRL_SetCriticalMessage("V_DrawPatchFlipped:"
         "\rBad V_DrawPatchFlipped (vanilla crashes here)", 2);
+        return;
     }
 #endif
 
@@ -229,6 +235,71 @@ void V_DrawPatchFlipped(int x, int y, patch_t *patch)
                 dest += SCREENWIDTH;
             }
             column = (column_t *)((byte *)column + column->length + 4);
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------
+// V_DrawShadowedPatch
+// Masks a column based masked pic to the screen, with casted shadow
+// -----------------------------------------------------------------------------
+
+void V_DrawShadowedPatch (int x, int y, const patch_t *patch)
+{
+    int       count, col, w;
+    byte     *source, *sourcetrans;
+    pixel_t  *desttop, *dest, *desttop2, *dest2;
+    column_t *column;
+
+    y -= SHORT(patch->topoffset);
+    x -= SHORT(patch->leftoffset);
+
+#ifdef RANGECHECK
+    if (x < 0
+    ||  x + SHORT(patch->width) > SCREENWIDTH
+    ||  y < 0
+    ||  y + SHORT(patch->height) > SCREENHEIGHT)
+    {
+        // [JN] Do not crash, print a critical message instead.
+        CRL_SetCriticalMessage("V_DrawShadowedPatch:"
+        "\rBad V_DrawShadowedPatch (vanilla crashes here)", 2);
+        return;
+    }
+#endif
+
+    col = 0;
+    desttop = dest_screen + y * SCREENWIDTH + x;
+    desttop2 = dest_screen + (y + 1) * SCREENWIDTH + x + 1;
+
+    w = SHORT(patch->width);
+
+    for (; col < w; x++, col++, desttop++, desttop2++)
+    {
+        column = (column_t *) ((byte *) patch + LONG(patch->columnofs[col]));
+
+        // step through the posts in a column
+        while (column->topdelta != 0xff)
+        {
+            source = sourcetrans = (byte *) column + 3;
+            dest = desttop + column->topdelta * SCREENWIDTH;
+            dest2 = desttop2 + column->topdelta * SCREENWIDTH;
+            count = column->length;
+
+            while (count--)
+            {
+                if (dp_translation)
+                {
+                    sourcetrans = &dp_translation[*source++];
+                }
+                if (crl_text_shadows)
+                {
+                    *dest2 = tintmap[((*dest2) << 8)];
+                    dest2 += SCREENWIDTH;
+                }
+                *dest = *sourcetrans++;
+                dest += SCREENWIDTH;
+            }
+            column = (column_t *) ((byte *) column + column->length + 4);
         }
     }
 }

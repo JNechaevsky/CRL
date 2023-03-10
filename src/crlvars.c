@@ -60,6 +60,7 @@ int crl_demo_bar = 0;
 // QOL Features
 int crl_uncapped_fps = 0;
 int crl_screenwipe = 0;
+int crl_text_shadows = 0;
 int crl_default_skill = 2;
 int crl_pistol_start = 0;
 int crl_colored_stbar = 0;
@@ -105,6 +106,7 @@ void CRL_BindVariables (void)
     // QOL Features
     M_BindIntVariable("crl_uncapped_fps",               &crl_uncapped_fps);
     M_BindIntVariable("crl_screenwipe",                 &crl_screenwipe);
+    M_BindIntVariable("crl_text_shadows",               &crl_text_shadows);
     M_BindIntVariable("crl_default_skill",              &crl_default_skill);
     M_BindIntVariable("crl_pistol_start",               &crl_pistol_start);
     M_BindIntVariable("crl_colored_stbar",              &crl_colored_stbar);

@@ -1350,6 +1350,7 @@ static default_t	doom_defaults_list[] =
     // QOL Features
     CONFIG_VARIABLE_INT(crl_uncapped_fps),
     CONFIG_VARIABLE_INT(crl_screenwipe),
+    CONFIG_VARIABLE_INT(crl_text_shadows),
     CONFIG_VARIABLE_INT(crl_default_skill),
     CONFIG_VARIABLE_INT(crl_pistol_start),
     CONFIG_VARIABLE_INT(crl_colored_stbar),

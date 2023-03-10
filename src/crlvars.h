@@ -57,6 +57,7 @@ extern int crl_demo_bar;
 // QOL Features
 extern int crl_uncapped_fps;
 extern int crl_screenwipe;
+extern int crl_text_shadows;
 extern int crl_default_skill;
 extern int crl_pistol_start;
 extern int crl_colored_stbar;

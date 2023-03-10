@@ -38,6 +38,7 @@
 
 extern int dirtybox[4];
 
+extern byte *tintmap;
 extern byte *dp_translation;
 
 
@@ -49,6 +50,7 @@ void V_CopyRect(int srcx, int srcy, pixel_t *source,
 
 void V_DrawPatch(int x, int y, patch_t *patch);
 void V_DrawPatchFlipped(int x, int y, patch_t *patch);
+void V_DrawShadowedPatch(int x, int y, const patch_t *patch);
 
 // Draw a linear block of pixels into the view buffer.
 

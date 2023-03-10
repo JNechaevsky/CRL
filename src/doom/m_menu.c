@@ -520,6 +520,7 @@ static void M_CRL_UncappedFPS (int choice);
 static void M_CRL_VisplanesDraw (int choice);
 static void M_CRL_HOMDraw (int choice);
 static void M_CRL_ScreenWipe (int choice);
+static void M_CRL_TextShadows (int choice);
 static void M_CRL_ShowENDOOM (int choice);
 static void M_CRL_Colorblind (int choice);
 
@@ -767,9 +768,9 @@ static menuitem_t CRLMenu_Video[]=
     { 2, "VISPLANES DRAWING",   M_CRL_VisplanesDraw,  'v'},
     { 2, "HOM EFFECT",          M_CRL_HOMDraw,        'h'},
     { 2, "SCREEN WIPE EFFECT",  M_CRL_ScreenWipe,     's'},
+    { 2, "TEXT CASTS SHADOWS",  M_CRL_TextShadows,    't'},
     { 2, "SHOW ENDOOM SCREEN",  M_CRL_ShowENDOOM,     's'},
     { 2, "COLORBLIND",          M_CRL_Colorblind,     'c'},
-    {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
@@ -827,16 +828,21 @@ static void M_DrawCRL_Video (void)
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 63, str, 
                  crl_screenwipe ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
+    // Text casts shadows
+    sprintf(str, crl_text_shadows ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 72, str, 
+                 crl_text_shadows ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
     // Screen wipe effect
     sprintf(str, show_endoom ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 72, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 81, str, 
                  show_endoom ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Colorblind
     sprintf(str, crl_colorblind == 1 ? "RED/GREEN" :
                  crl_colorblind == 2 ? "BLUE/YELLOW" :
                  crl_colorblind == 3 ? "MONOCHROME" : "NONE");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 81, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 90, str, 
                  crl_colorblind > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
 }
 
@@ -860,6 +866,11 @@ static void M_CRL_HOMDraw (int choice)
 static void M_CRL_ScreenWipe (int choice)
 {
     crl_screenwipe ^= 1;
+}
+
+static void M_CRL_TextShadows (int choice)
+{
+    crl_text_shadows ^= 1;
 }
 
 static void M_CRL_ShowENDOOM (int choice)
@@ -1718,8 +1729,8 @@ static void M_DrawMainMenu(void)
 //
 static void M_DrawNewGame(void)
 {
-    V_DrawPatch(96, 14, W_CacheLumpName(DEH_String("M_NEWG"), PU_CACHE));
-    V_DrawPatch(54, 38, W_CacheLumpName(DEH_String("M_SKILL"), PU_CACHE));
+    V_DrawShadowedPatch(96, 14, W_CacheLumpName(DEH_String("M_NEWG"), PU_CACHE));
+    V_DrawShadowedPatch(54, 38, W_CacheLumpName(DEH_String("M_SKILL"), PU_CACHE));
 }
 
 static void M_NewGame(int choice)
@@ -1746,7 +1757,7 @@ static int epi;
 
 static void M_DrawEpisode(void)
 {
-    V_DrawPatch(54, 38, W_CacheLumpName(DEH_String("M_EPISOD"), PU_CACHE));
+    V_DrawShadowedPatch(54, 38, W_CacheLumpName(DEH_String("M_EPISOD"), PU_CACHE));
 }
 
 static void M_VerifyNightmare(int key)
@@ -2044,14 +2055,14 @@ M_DrawThermo
     int		i;
 
     xx = x;
-    V_DrawPatch(xx, y, W_CacheLumpName(DEH_String("M_THERML"), PU_CACHE));
+    V_DrawShadowedPatch(xx, y, W_CacheLumpName(DEH_String("M_THERML"), PU_CACHE));
     xx += 8;
     for (i=0;i<thermWidth;i++)
     {
-	V_DrawPatch(xx, y, W_CacheLumpName(DEH_String("M_THERMM"), PU_CACHE));
+	V_DrawShadowedPatch(xx, y, W_CacheLumpName(DEH_String("M_THERMM"), PU_CACHE));
 	xx += 8;
     }
-    V_DrawPatch(xx, y, W_CacheLumpName(DEH_String("M_THERMR"), PU_CACHE));
+    V_DrawShadowedPatch(xx, y, W_CacheLumpName(DEH_String("M_THERMR"), PU_CACHE));
 
     V_DrawPatch((x + 8) + thermDot * 8, y, W_CacheLumpName(DEH_String("M_THERMO"), PU_CACHE));
 }
@@ -2169,7 +2180,7 @@ void M_WriteText (int x, int y, const char *string, byte *table)
             break;
         }
 
-        V_DrawPatch(cx, cy, hu_font[c]);
+        V_DrawShadowedPatch(cx, cy, hu_font[c]);
         cx+=w;
     }
 
@@ -2244,7 +2255,7 @@ void M_WriteTextCentered (const int y, const char *string, byte *table)
             break;
         }
         
-        V_DrawPatch(cx, cy, hu_font[c]);
+        V_DrawShadowedPatch(cx, cy, hu_font[c]);
         cx += w;
     }
     
@@ -3085,7 +3096,7 @@ void M_Drawer (void)
         {
             if (name[0])
             {
-                V_DrawPatch(x, y, W_CacheLumpName(name, PU_CACHE));
+                V_DrawShadowedPatch(x, y, W_CacheLumpName(name, PU_CACHE));
             }
             y += LINEHEIGHT;
         }
