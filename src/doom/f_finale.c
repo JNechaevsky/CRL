@@ -607,57 +607,6 @@ boolean F_CastResponder (event_t* ev)
 }
 
 
-void F_CastPrint (char* text)
-{
-    char*	ch;
-    int		c;
-    int		cx;
-    int		w;
-    int		width;
-    
-    // find width
-    ch = text;
-    width = 0;
-	
-    while (ch)
-    {
-	c = *ch++;
-	if (!c)
-	    break;
-	c = toupper(c) - HU_FONTSTART;
-	if (c < 0 || c> HU_FONTSIZE)
-	{
-	    width += 4;
-	    continue;
-	}
-		
-	w = SHORT (hu_font[c]->width);
-	width += w;
-    }
-    
-    // draw it
-    cx = SCREENWIDTH/2-width/2;
-    ch = text;
-    while (ch)
-    {
-	c = *ch++;
-	if (!c)
-	    break;
-	c = toupper(c) - HU_FONTSTART;
-	if (c < 0 || c> HU_FONTSIZE)
-	{
-	    cx += 4;
-	    continue;
-	}
-		
-	w = SHORT (hu_font[c]->width);
-	V_DrawShadowedPatch(cx, 180, hu_font[c]);
-	cx+=w;
-    }
-	
-}
-
-
 //
 // F_CastDrawer
 //
@@ -673,7 +622,8 @@ void F_CastDrawer (void)
     // erase the entire screen to a background
     V_DrawPatch (0, 0, W_CacheLumpName (DEH_String("BOSSBACK"), PU_CACHE));
 
-    F_CastPrint (DEH_String(castorder[castnum].name));
+    // [JN] Simplify to use common text drawing function.
+    M_WriteTextCentered(180, DEH_String(castorder[castnum].name), NULL);
     
     // draw the current frame in the middle of the screen
     sprdef = &sprites[caststate->sprite];
