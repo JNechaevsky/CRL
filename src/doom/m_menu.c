@@ -2806,14 +2806,26 @@ boolean M_Responder (event_t* ev)
 	{
 		M_StartControlPanel ();
 		
-		// Spawn CRL menu
+		// RestlessRodent - Spawn CRL menu
 		if (key == key_crl_menu)
+		{
 			M_SetupNextMenu(&CRLDef_Main);
+		}
 		
 		S_StartSound(NULL,sfx_swtchn);
 		return true;
 	}
 	return false;
+    }
+    else
+    {
+        // [JN] Deactivate CRL menu by pressing ~ key again.
+        if (key == key_crl_menu)
+        {
+            M_ClearMenus();
+            S_StartSound(NULL, sfx_swtchx);
+            return true;
+        }
     }
 
     // Keys usable within menu
