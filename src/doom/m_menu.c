@@ -767,12 +767,12 @@ static menuitem_t CRLMenu_Video[]=
     { 2, "UNCAPPED FRAMERATE",  M_CRL_UncappedFPS,    'u'},
     { 2, "VISPLANES DRAWING",   M_CRL_VisplanesDraw,  'v'},
     { 2, "HOM EFFECT",          M_CRL_HOMDraw,        'h'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
     { 2, "SCREEN WIPE EFFECT",  M_CRL_ScreenWipe,     's'},
     { 2, "TEXT CASTS SHADOWS",  M_CRL_TextShadows,    't'},
     { 2, "SHOW ENDOOM SCREEN",  M_CRL_ShowENDOOM,     's'},
     { 2, "COLORBLIND",          M_CRL_Colorblind,     'c'},
-    {-1, "", 0, '\0'},
-    {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
@@ -823,26 +823,28 @@ static void M_DrawCRL_Video (void)
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 54, str,
                  crl_hom_effect > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
+    M_WriteTextCentered(72, "MISCELLANEOUS", cr[CR_YELLOW]);
+
     // Screen wipe effect
     sprintf(str, crl_screenwipe ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 63, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 81, str, 
                  crl_screenwipe ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Text casts shadows
     sprintf(str, crl_text_shadows ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 72, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 90, str, 
                  crl_text_shadows ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Screen wipe effect
     sprintf(str, show_endoom ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 81, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 99, str, 
                  show_endoom ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Colorblind
     sprintf(str, crl_colorblind == 1 ? "RED/GREEN" :
                  crl_colorblind == 2 ? "BLUE/YELLOW" :
                  crl_colorblind == 3 ? "MONOCHROME" : "NONE");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 90, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 108, str, 
                  crl_colorblind > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
 }
 
