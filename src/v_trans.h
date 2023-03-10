@@ -39,6 +39,7 @@
 enum
 {
     CR_DARK,
+    CR_BRIGHT,
     CR_THIRDSATURTION,
     CR_MONOCHROME,
 

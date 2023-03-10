@@ -28,6 +28,7 @@
 // -----------------------------------------------------------------------------
 
 static byte cr_dark[256];
+static byte cr_bright[256];
 static byte cr_thirdsaturtion[256];
 static byte cr_monochrome[256];
 
@@ -111,6 +112,7 @@ static byte cr_red2gray[256] =
 byte *cr[] =
 {
     (byte *) &cr_dark,
+    (byte *) &cr_bright,
     (byte *) &cr_thirdsaturtion,
     (byte *) &cr_monochrome,
 
@@ -354,6 +356,10 @@ byte V_Colorize (byte *playpal, int cr, byte source, boolean keepgray109)
     if (cr == CR_DARK)
     {
         hsv.z *= 0.666;
+    }
+    else if (cr == CR_BRIGHT)
+    {
+        hsv.z *= 1.5;
     }
     else if (cr == CR_THIRDSATURTION)
     {

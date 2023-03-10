@@ -3077,7 +3077,8 @@ void M_Drawer (void)
 
         if (currentMenu->smallFont)
         {
-            M_WriteText (x, y, name, NULL);
+            // [JN] Highlight menu item on which the cursor is positioned.
+            M_WriteText (x, y, name, itemOn == i ? cr[CR_BRIGHT] : NULL);
             y += LINEHEIGHT_SMALL;
         }
         else
@@ -3094,7 +3095,7 @@ void M_Drawer (void)
     {
         // [JN] Draw blinking * symbol.
         M_WriteText(x - 10, currentMenu->y + itemOn * LINEHEIGHT_SMALL, "*",
-                    whichSkull ? cr[CR_DARK] : NULL);
+                    whichSkull ? cr[CR_BRIGHT] : NULL);
     }
     else
     {
