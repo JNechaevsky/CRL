@@ -87,8 +87,17 @@ static boolean messageNeedsInput;
 
 static void (*messageRoutine)(int response);
 
-static char gammamsg[5][26] =
+static char gammamsg[14][32] =
 {
+    GAMMALVL05,
+    GAMMALVL055,
+    GAMMALVL06,
+    GAMMALVL065,
+    GAMMALVL07,
+    GAMMALVL075,
+    GAMMALVL08,
+    GAMMALVL085,
+    GAMMALVL09,
     GAMMALVL0,
     GAMMALVL1,
     GAMMALVL2,
@@ -2781,7 +2790,7 @@ boolean M_Responder (event_t* ev)
         else if (key == key_menu_gamma)    // gamma toggle
         {
 	    usegamma++;
-	    if (usegamma > 4)
+	    if (usegamma > 13)
 		usegamma = 0;
 	    CRL_SetMessage(&players[consoleplayer], DEH_String(gammamsg[usegamma]), false, NULL);
             I_SetPalette (W_CacheLumpName (DEH_String("PLAYPAL"),PU_CACHE));
