@@ -28,6 +28,13 @@
 #include <string.h>
 #include <SDL.h>
 
+#ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
+#endif
+
 #include "config.h"
 #include "deh_main.h"
 #include "doomdef.h"
@@ -1338,11 +1345,25 @@ void D_DoomMain (void)
 #ifdef _WIN32
     // [JN] Allocate console before any prints.
     CRL_CreateWindowsConsole();
-#endif
 
+    // [JN] Print colorized title.
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), BACKGROUND_BLUE
+                           | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE
+                           | FOREGROUND_INTENSITY);
+
+    for (p = 0 ; p < 34 ; p++) DEH_printf(" ");
+    DEH_printf(PACKAGE_STRING);
+    for (p = 0 ; p < 34 ; p++) DEH_printf(" ");
+    DEH_printf("\n");
+
+    // [JN] Fallback to standard console colos.
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 
+                            FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+#else
     // print banner
 
     I_PrintBanner(PACKAGE_STRING);
+#endif
 
     DEH_printf("Z_Init: Init zone memory allocation daemon. \n");
     Z_Init ();
