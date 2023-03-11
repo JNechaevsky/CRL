@@ -87,8 +87,17 @@ static boolean messageNeedsInput;
 
 static void (*messageRoutine)(int response);
 
-static char gammamsg[5][26] =
+static char gammamsg[14][32] =
 {
+    GAMMALVL05,
+    GAMMALVL055,
+    GAMMALVL06,
+    GAMMALVL065,
+    GAMMALVL07,
+    GAMMALVL075,
+    GAMMALVL08,
+    GAMMALVL085,
+    GAMMALVL09,
     GAMMALVL0,
     GAMMALVL1,
     GAMMALVL2,
@@ -519,6 +528,7 @@ static void M_DrawCRL_Video (void);
 static void M_CRL_UncappedFPS (int choice);
 static void M_CRL_VisplanesDraw (int choice);
 static void M_CRL_HOMDraw (int choice);
+static void M_CRL_Gamma (int choice);
 static void M_CRL_ScreenWipe (int choice);
 static void M_CRL_TextShadows (int choice);
 static void M_CRL_ShowENDOOM (int choice);
@@ -557,6 +567,7 @@ static void M_CRL_ProgressBar (int choice);
 static void M_ChooseCRL_Console (int choice);
 #endif
 
+static int  shade_wait; // [JN] Delay before shading.
 static void M_ShadeBackground (void)
 {
     // [JN] Shade background while in CRL menu.
@@ -767,14 +778,14 @@ static menuitem_t CRLMenu_Video[]=
     { 2, "UNCAPPED FRAMERATE",  M_CRL_UncappedFPS,    'u'},
     { 2, "VISPLANES DRAWING",   M_CRL_VisplanesDraw,  'v'},
     { 2, "HOM EFFECT",          M_CRL_HOMDraw,        'h'},
+    { 2, "GAMMA-CORRECTION",    M_CRL_Gamma,          'g'},
+    {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     { 2, "SCREEN WIPE EFFECT",  M_CRL_ScreenWipe,     's'},
     { 2, "TEXT CASTS SHADOWS",  M_CRL_TextShadows,    't'},
     { 2, "SHOW ENDOOM SCREEN",  M_CRL_ShowENDOOM,     's'},
     { 2, "COLORBLIND",          M_CRL_Colorblind,     'c'},
-    {-1, "", 0, '\0'},
-    {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
@@ -801,7 +812,12 @@ static void M_DrawCRL_Video (void)
 {
     static char str[32];
 
-    M_ShadeBackground();
+    // Temporary unshade background while changing gamma-correction.
+    if (shade_wait < I_GetTime())
+    {
+        M_ShadeBackground();
+    }
+
     M_WriteTextCentered(27, "VIDEO OPTIONS", cr[CR_YELLOW]);
 
     // Uncapped framerate
@@ -823,28 +839,45 @@ static void M_DrawCRL_Video (void)
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 54, str,
                  crl_hom_effect > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
-    M_WriteTextCentered(72, "MISCELLANEOUS", cr[CR_YELLOW]);
+    // Gamma-correction slider and num
+    M_DrawThermo(46, 71, 14, usegamma);
+    M_WriteText (176, 74, usegamma ==  0 ? "0.50" :
+                          usegamma ==  1 ? "0.55" :
+                          usegamma ==  2 ? "0.60" :
+                          usegamma ==  3 ? "0.65" :
+                          usegamma ==  4 ? "0.70" :
+                          usegamma ==  5 ? "0.75" :
+                          usegamma ==  6 ? "0.80" :
+                          usegamma ==  7 ? "0.85" :
+                          usegamma ==  8 ? "0.90" :
+                          usegamma ==  9 ? "OFF"  :
+                          usegamma == 10 ? "1"    :
+                          usegamma == 11 ? "2"    :
+                          usegamma == 12 ? "3"    :
+                                           "4", NULL);
+
+    M_WriteTextCentered(90, "MISCELLANEOUS", cr[CR_YELLOW]);
 
     // Screen wipe effect
     sprintf(str, crl_screenwipe ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 81, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 99, str, 
                  crl_screenwipe ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Text casts shadows
     sprintf(str, crl_text_shadows ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 90, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 108, str, 
                  crl_text_shadows ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Screen wipe effect
     sprintf(str, show_endoom ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 99, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 117, str, 
                  show_endoom ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Colorblind
     sprintf(str, crl_colorblind == 1 ? "RED/GREEN" :
                  crl_colorblind == 2 ? "BLUE/YELLOW" :
                  crl_colorblind == 3 ? "MONOCHROME" : "NONE");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 108, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 126, str, 
                  crl_colorblind > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
 }
 
@@ -863,6 +896,26 @@ static void M_CRL_VisplanesDraw (int choice)
 static void M_CRL_HOMDraw (int choice)
 {
     crl_hom_effect = M_INT_Slider(crl_hom_effect, 0, 2, choice);
+}
+
+static void M_CRL_Gamma (int choice)
+{
+    shade_wait = I_GetTime() + 25;
+
+    switch (choice)
+    {
+        case 0:
+            if (usegamma)
+                usegamma--;
+            break;
+        case 1:
+            if (usegamma < 13)
+                usegamma++;
+        default:
+            break;
+    }
+
+    I_SetPalette (W_CacheLumpName (DEH_String("PLAYPAL"),PU_CACHE));
 }
 
 static void M_CRL_ScreenWipe (int choice)
@@ -2781,7 +2834,7 @@ boolean M_Responder (event_t* ev)
         else if (key == key_menu_gamma)    // gamma toggle
         {
 	    usegamma++;
-	    if (usegamma > 4)
+	    if (usegamma > 13)
 		usegamma = 0;
 	    CRL_SetMessage(&players[consoleplayer], DEH_String(gammamsg[usegamma]), false, NULL);
             I_SetPalette (W_CacheLumpName (DEH_String("PLAYPAL"),PU_CACHE));
