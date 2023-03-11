@@ -623,7 +623,9 @@ void D_DoAdvanceDemo (void)
     // However! There is an alternate version of Final Doom that
     // includes a fixed executable.
 
-    if (gameversion == exe_ultimate || gameversion == exe_final)
+    // [JN] Play DEMO4 only in Ultimate Doom.
+
+    if (gameversion == exe_ultimate /*|| gameversion == exe_final*/)
       demosequence = (demosequence+1)%7;
     else
       demosequence = (demosequence+1)%6;
