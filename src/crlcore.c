@@ -1459,6 +1459,7 @@ void CRL_CreateWindowsConsole (void)
 
     // Allocate console.
     AllocConsole();
+    SetConsoleTitle("CRL Console");
 
     CRL_Console = GetConsoleWindow();
 
