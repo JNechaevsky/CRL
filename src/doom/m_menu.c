@@ -562,6 +562,7 @@ static void M_CRL_RevealedSecrets (int choice);
 static void M_CRL_DemoTimer (int choice);
 static void M_CRL_TimerDirection (int choice);
 static void M_CRL_ProgressBar (int choice);
+static void M_CRL_InternalDemos (int choice);
 
 #ifdef _WIN32
 static void M_ChooseCRL_Console (int choice);
@@ -1326,7 +1327,7 @@ static menuitem_t CRLMenu_Gameplay[]=
     { 2, "SHOW DEMO TIMER",          M_CRL_DemoTimer,        's'},
     { 2, "TIMER DIRECTION",          M_CRL_TimerDirection,   't'},
     { 2, "SHOW PROGRESS BAR",        M_CRL_ProgressBar,      's'},
-    {-1, "", 0, '\0'},
+    { 2, "PLAY INTERNAL DEMOS",      M_CRL_InternalDemos,    'p'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
@@ -1395,6 +1396,11 @@ static void M_DrawCRL_Gameplay (void)
     sprintf(str, crl_demo_bar ? "ON" : "OFF");
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 108, str, 
                  crl_demo_bar ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
+    // Play internal demos
+    sprintf(str, crl_internal_demos ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 117, str, 
+                 crl_internal_demos ? cr[CR_GREEN] : cr[CR_DARKRED]);
 }
 
 static void M_CRL_DefaulSkill (int choice)
@@ -1432,6 +1438,11 @@ static void M_CRL_TimerDirection (int choice)
 static void M_CRL_ProgressBar (int choice)
 {
     crl_demo_bar ^= 1;
+}
+
+static void M_CRL_InternalDemos (int choice)
+{
+    crl_internal_demos ^= 1;
 }
 
 

@@ -1346,6 +1346,7 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(crl_demo_timer),
     CONFIG_VARIABLE_INT(crl_demo_timerdir),
     CONFIG_VARIABLE_INT(crl_demo_bar),
+    CONFIG_VARIABLE_INT(crl_internal_demos),
 
     // QOL Features
     CONFIG_VARIABLE_INT(crl_uncapped_fps),

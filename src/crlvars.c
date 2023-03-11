@@ -56,6 +56,7 @@ int crl_automap_secrets = 0;
 int crl_demo_timer = 0;
 int crl_demo_timerdir = 0;
 int crl_demo_bar = 0;
+int crl_internal_demos = 1;
 
 // QOL Features
 int crl_uncapped_fps = 0;
@@ -102,6 +103,7 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_demo_timer",                 &crl_demo_timer);
     M_BindIntVariable("crl_demo_timerdir",              &crl_demo_timerdir);
     M_BindIntVariable("crl_demo_bar",                   &crl_demo_bar);
+    M_BindIntVariable("crl_internal_demos",             &crl_internal_demos);
 
     // QOL Features
     M_BindIntVariable("crl_uncapped_fps",               &crl_uncapped_fps);

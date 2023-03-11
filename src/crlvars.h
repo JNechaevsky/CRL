@@ -53,6 +53,7 @@ extern int crl_automap_secrets;
 extern int crl_demo_timer;
 extern int crl_demo_timerdir;
 extern int crl_demo_bar;
+extern int crl_internal_demos;
 
 // QOL Features
 extern int crl_uncapped_fps;

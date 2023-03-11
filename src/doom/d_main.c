@@ -652,6 +652,7 @@ void D_DoAdvanceDemo (void)
 	  S_StartMusic (mus_intro);
 	break;
       case 1:
+	if (crl_internal_demos)
 	G_DeferedPlayDemo(DEH_String("demo1"));
 	break;
       case 2:
@@ -660,6 +661,7 @@ void D_DoAdvanceDemo (void)
 	pagename = DEH_String("CREDIT");
 	break;
       case 3:
+	if (crl_internal_demos)
 	G_DeferedPlayDemo(DEH_String("demo2"));
 	break;
       case 4:
@@ -681,10 +683,12 @@ void D_DoAdvanceDemo (void)
 	}
 	break;
       case 5:
+	if (crl_internal_demos)
 	G_DeferedPlayDemo(DEH_String("demo3"));
 	break;
         // THE DEFINITIVE DOOM Special Edition demo
       case 6:
+	if (crl_internal_demos)
 	G_DeferedPlayDemo(DEH_String("demo4"));
 	break;
     }
