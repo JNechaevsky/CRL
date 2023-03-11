@@ -925,7 +925,7 @@ int M_snprintf(char *buf, size_t buf_len, const char *s, ...)
     va_end(args);
     return result;
 }
-
+/*
 #ifdef _WIN32
 
 char *M_OEMToUTF8(const char *oem)
@@ -944,4 +944,4 @@ char *M_OEMToUTF8(const char *oem)
 }
 
 #endif
-
+*/

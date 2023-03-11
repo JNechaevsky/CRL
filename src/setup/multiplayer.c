@@ -1066,6 +1066,7 @@ void SetChatMacroDefaults(void)
 
 void SetPlayerNameDefault(void)
 {
+/*
     if (net_player_name == NULL)
     {
         net_player_name = getenv("USER");
@@ -1075,12 +1076,12 @@ void SetPlayerNameDefault(void)
     {
         net_player_name = getenv("USERNAME");
     }
-
+*/
     if (net_player_name == NULL)
     {
         net_player_name = "player";
     }
-
+/*
     // Now strdup() the string so that it's in a mutable form
     // that can be freed when the value changes.
 
@@ -1091,6 +1092,7 @@ void SetPlayerNameDefault(void)
 #else
     net_player_name = M_StringDuplicate(net_player_name);
 #endif
+*/
 }
 
 void MultiplayerConfig(void)

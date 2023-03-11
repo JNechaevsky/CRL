@@ -1075,6 +1075,7 @@ void NET_CL_Disconnect(void)
 
 void NET_CL_Init(void)
 {
+    /*
     // Try to set from the USER and USERNAME environment variables
     // Otherwise, fallback to "Player"
 
@@ -1092,7 +1093,7 @@ void NET_CL_Init(void)
         net_player_name = M_OEMToUTF8(net_player_name);
     }
 #endif
-
+*/
     if (net_player_name == NULL)
         net_player_name = "Player";
 }

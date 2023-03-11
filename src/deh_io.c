@@ -90,7 +90,7 @@ deh_context_t *DEH_OpenFile(char *filename)
     FILE *fstream;
     deh_context_t *context;
 
-    fstream = fopen(filename, "r");
+    fstream = M_fopen(filename, "r");
 
     if (fstream == NULL)
         return NULL;
