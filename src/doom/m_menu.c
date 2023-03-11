@@ -567,6 +567,7 @@ static void M_CRL_ProgressBar (int choice);
 static void M_ChooseCRL_Console (int choice);
 #endif
 
+static int  shade_wait; // [JN] Delay before shading.
 static void M_ShadeBackground (void)
 {
     // [JN] Shade background while in CRL menu.
@@ -811,7 +812,12 @@ static void M_DrawCRL_Video (void)
 {
     static char str[32];
 
-    M_ShadeBackground();
+    // Temporary unshade background while changing gamma-correction.
+    if (shade_wait < I_GetTime())
+    {
+        M_ShadeBackground();
+    }
+
     M_WriteTextCentered(27, "VIDEO OPTIONS", cr[CR_YELLOW]);
 
     // Uncapped framerate
@@ -894,6 +900,8 @@ static void M_CRL_HOMDraw (int choice)
 
 static void M_CRL_Gamma (int choice)
 {
+    shade_wait = I_GetTime() + 25;
+
     switch (choice)
     {
         case 0:
