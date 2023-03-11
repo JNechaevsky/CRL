@@ -1473,7 +1473,7 @@ static void M_DrawLoad(void)
 {
     int             i;
 	
-    V_DrawPatch(72, 12, W_CacheLumpName(DEH_String("M_LOADG"), PU_CACHE));
+    V_DrawShadowedPatch(72, 12, W_CacheLumpName(DEH_String("M_LOADG"), PU_CACHE));
 
     for (i = 0;i < load_end; i++)
     {
@@ -1491,15 +1491,15 @@ static void M_DrawSaveLoadBorder(int x,int y)
 {
     int             i;
 	
-    V_DrawPatch(x - 8, y + 7, W_CacheLumpName(DEH_String("M_LSLEFT"), PU_CACHE));
+    V_DrawShadowedPatch(x - 8, y + 7, W_CacheLumpName(DEH_String("M_LSLEFT"), PU_CACHE));
 	
     for (i = 0;i < 24;i++)
     {
-	V_DrawPatch(x, y + 7, W_CacheLumpName(DEH_String("M_LSCNTR"), PU_CACHE));
+	V_DrawShadowedPatch(x, y + 7, W_CacheLumpName(DEH_String("M_LSCNTR"), PU_CACHE));
 	x += 8;
     }
 
-    V_DrawPatch(x, y + 7, W_CacheLumpName(DEH_String("M_LSRGHT"), PU_CACHE));
+    V_DrawShadowedPatch(x, y + 7, W_CacheLumpName(DEH_String("M_LSRGHT"), PU_CACHE));
 }
 
 
@@ -1541,7 +1541,7 @@ static void M_DrawSave(void)
 {
     int             i;
 	
-    V_DrawPatch(72, 12, W_CacheLumpName(DEH_String("M_SAVEG"), PU_CACHE));
+    V_DrawShadowedPatch(72, 12, W_CacheLumpName(DEH_String("M_SAVEG"), PU_CACHE));
     for (i = 0;i < load_end; i++)
     {
 	M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i);
@@ -1717,7 +1717,7 @@ static void M_DrawReadThisCommercial(void)
 //
 static void M_DrawSound(void)
 {
-    V_DrawPatch(60, 38, W_CacheLumpName(DEH_String("M_SVOL"), PU_CACHE));
+    V_DrawShadowedPatch(60, 38, W_CacheLumpName(DEH_String("M_SVOL"), PU_CACHE));
 
     M_DrawThermo(SoundDef.x,SoundDef.y+LINEHEIGHT*(sfx_vol+1),
 		 16,sfxVolume);
@@ -1860,12 +1860,12 @@ static char *msgNames[2] = {"M_MSGOFF","M_MSGON"};
 
 static void M_DrawOptions(void)
 {
-    V_DrawPatch(108, 15, W_CacheLumpName(DEH_String("M_OPTTTL"), PU_CACHE));
+    V_DrawShadowedPatch(108, 15, W_CacheLumpName(DEH_String("M_OPTTTL"), PU_CACHE));
 	
-    V_DrawPatch(OptionsDef.x + 175, OptionsDef.y + LINEHEIGHT * detail,
+    V_DrawShadowedPatch(OptionsDef.x + 175, OptionsDef.y + LINEHEIGHT * detail,
 		        W_CacheLumpName(DEH_String(detailNames[detailLevel]), PU_CACHE));
 
-    V_DrawPatch(OptionsDef.x + 120, OptionsDef.y + LINEHEIGHT * messages,
+    V_DrawShadowedPatch(OptionsDef.x + 120, OptionsDef.y + LINEHEIGHT * messages,
                 W_CacheLumpName(DEH_String(msgNames[showMessages]), PU_CACHE));
 
     M_DrawThermo(OptionsDef.x, OptionsDef.y + LINEHEIGHT * (mousesens + 1),
@@ -3178,7 +3178,7 @@ void M_Drawer (void)
     else
     {
         // DRAW SKULL
-        V_DrawPatch(x + SKULLXOFF, currentMenu->y - 5 + itemOn*LINEHEIGHT,
+        V_DrawShadowedPatch(x + SKULLXOFF, currentMenu->y - 5 + itemOn*LINEHEIGHT,
 	    	        W_CacheLumpName(DEH_String(skullName[whichSkull]), PU_CACHE));
     }
 }

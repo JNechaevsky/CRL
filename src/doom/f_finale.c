@@ -710,9 +710,9 @@ void F_BunnyScroll (void)
 	return;
     if (finalecount < 1180)
     {
-        V_DrawShadowedPatch((SCREENWIDTH - 13 * 8) / 2,
-                            (SCREENHEIGHT - 8 * 8) / 2, 
-                            W_CacheLumpName(DEH_String("END0"), PU_CACHE));
+        V_DrawPatch((SCREENWIDTH - 13 * 8) / 2,
+                    (SCREENHEIGHT - 8 * 8) / 2, 
+                     W_CacheLumpName(DEH_String("END0"), PU_CACHE));
 	laststage = 0;
 	return;
     }
@@ -727,9 +727,9 @@ void F_BunnyScroll (void)
     }
 	
     DEH_snprintf(name, 10, "END%i", stage);
-    V_DrawShadowedPatch((SCREENWIDTH - 13 * 8) / 2, 
-                        (SCREENHEIGHT - 8 * 8) / 2, 
-                        W_CacheLumpName (name,PU_CACHE));
+    V_DrawPatch((SCREENWIDTH - 13 * 8) / 2, 
+                (SCREENHEIGHT - 8 * 8) / 2, 
+                W_CacheLumpName (name,PU_CACHE));
 }
 
 static void F_ArtScreenDrawer(void)
