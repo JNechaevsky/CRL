@@ -91,7 +91,7 @@ static void LoadResponseFile(int argv_index)
     response_filename = myargv[argv_index] + 1;
 
     // Read the response file into memory
-    handle = fopen(response_filename, "rb");
+    handle = M_fopen(response_filename, "rb");
 
     if (handle == NULL)
     {
