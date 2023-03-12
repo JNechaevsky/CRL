@@ -701,7 +701,7 @@ void CRL_StatDrawer (void)
     {
         // Sprites (128 max)
         if (crl_widget_render == 1
-        || (crl_widget_render == 2 && CRLData.numsprites > 128))
+        || (crl_widget_render == 2 && CRLData.numsprites >= 128))
         {
             char spr[32];
 
@@ -712,7 +712,7 @@ void CRL_StatDrawer (void)
 
         // Segments (256 max)
         if (crl_widget_render == 1
-        || (crl_widget_render == 2 && CRLData.numsegs > 256))
+        || (crl_widget_render == 2 && CRLData.numsegs >= 256))
         {
             char seg[32];
 
@@ -738,7 +738,7 @@ void CRL_StatDrawer (void)
 
         // Openings
         if (crl_widget_render == 1
-        || (crl_widget_render == 2 && CRLData.numopenings > 20480))
+        || (crl_widget_render == 2 && CRLData.numopenings >= 20480))
         {
             char opn[64];
 
