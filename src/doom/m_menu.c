@@ -142,9 +142,15 @@ typedef struct
     
     // hotkey in menu
     char	alphaKey;			
+    
+    // [JN] Menu item timer for glowing effect.
+    short   tics;
 } menuitem_t;
 
 
+// [JN] Small cursor timer for glowing effect.
+static short   cursor_tics = 0;
+static boolean cursor_direction = false;
 
 typedef struct menu_s
 {
@@ -597,6 +603,29 @@ enum
     m_crl_15,    // 144
     m_crl_end
 } crl1_e;
+
+static byte *M_Line_Glow (const int tics)
+{
+    return
+        tics == 5 ? cr[CR_MENU_BRIGHT5] :
+        tics == 4 ? cr[CR_MENU_BRIGHT4] :
+        tics == 3 ? cr[CR_MENU_BRIGHT3] :
+        tics == 2 ? cr[CR_MENU_BRIGHT2] :
+        tics == 1 ? cr[CR_MENU_BRIGHT1] : NULL;
+}
+
+static byte *M_Cursor_Glow (const int tics)
+{
+    return
+        tics >  6 ? cr[CR_MENU_BRIGHT3] :
+        tics >  4 ? cr[CR_MENU_BRIGHT2] :
+        tics >  2 ? cr[CR_MENU_BRIGHT1] :
+        tics > -1 ? NULL                :
+        tics > -3 ? cr[CR_MENU_DARK1]   :
+        tics > -5 ? cr[CR_MENU_DARK2]   :
+        tics > -7 ? cr[CR_MENU_DARK3]   :
+        tics > -9 ? cr[CR_MENU_DARK4]   : NULL;
+}
 
 static const int M_INT_Slider (int val, int min, int max, int direction)
 {
@@ -3167,7 +3196,16 @@ void M_Drawer (void)
         if (currentMenu->smallFont)
         {
             // [JN] Highlight menu item on which the cursor is positioned.
-            M_WriteText (x, y, name, itemOn == i ? cr[CR_BRIGHT] : NULL);
+            if (itemOn == i)
+            {
+                currentMenu->menuitems[i].tics = 5; // Keep menu item bright.
+                M_WriteText (x, y, name, cr[CR_MENU_BRIGHT5]);
+            }
+            else
+            {
+                currentMenu->menuitems[i].tics--; // Decrease tics for glowing effect.
+                M_WriteText (x, y, name, M_Line_Glow(currentMenu->menuitems[i].tics));
+            }
             y += LINEHEIGHT_SMALL;
         }
         else
@@ -3182,9 +3220,8 @@ void M_Drawer (void)
 
     if (currentMenu->smallFont)
     {
-        // [JN] Draw blinking * symbol.
-        M_WriteText(x - 10, currentMenu->y + itemOn * LINEHEIGHT_SMALL, "*",
-                    whichSkull ? cr[CR_BRIGHT] : NULL);
+        // [JN] Draw glowing * symbol.
+        M_WriteText(x - 10, currentMenu->y + itemOn * LINEHEIGHT_SMALL, "*", M_Cursor_Glow(cursor_tics));
     }
     else
     {
@@ -3225,6 +3262,32 @@ void M_Ticker (void)
     {
 	whichSkull ^= 1;
 	skullAnimCounter = 8;
+    }
+
+    // [JN] Menu glowing animation:
+    if (!cursor_direction)
+    {
+        // Brightening
+        if (cursor_tics  < 9)
+        {
+            cursor_tics++;
+        }
+        if (cursor_tics == 8)
+        {
+            cursor_direction = true;
+        }
+    }
+    else
+    {
+        // Darkening
+        if (cursor_tics  > -9)
+        {
+            cursor_tics--;
+        }
+        if (cursor_tics == -8)
+        {
+            cursor_direction = false;
+        }
     }
 }
 

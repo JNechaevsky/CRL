@@ -32,6 +32,16 @@ static byte cr_bright[256];
 static byte cr_thirdsaturtion[256];
 static byte cr_monochrome[256];
 
+static byte cr_menu_bright5[256];
+static byte cr_menu_bright4[256];
+static byte cr_menu_bright3[256];
+static byte cr_menu_bright2[256];
+static byte cr_menu_bright1[256];
+static byte cr_menu_dark1[256];
+static byte cr_menu_dark2[256];
+static byte cr_menu_dark3[256];
+static byte cr_menu_dark4[256];
+
 static byte cr_red[256];
 static byte cr_darkred[256];
 static byte cr_green[256];
@@ -115,6 +125,16 @@ byte *cr[] =
     (byte *) &cr_bright,
     (byte *) &cr_thirdsaturtion,
     (byte *) &cr_monochrome,
+    
+    (byte *) &cr_menu_bright5,
+    (byte *) &cr_menu_bright4,
+    (byte *) &cr_menu_bright3,
+    (byte *) &cr_menu_bright2,
+    (byte *) &cr_menu_bright1,
+    (byte *) &cr_menu_dark1,
+    (byte *) &cr_menu_dark2,
+    (byte *) &cr_menu_dark3,
+    (byte *) &cr_menu_dark4,
 
     (byte *) &cr_red,
     (byte *) &cr_darkred,
@@ -368,6 +388,43 @@ byte V_Colorize (byte *playpal, int cr, byte source, boolean keepgray109)
     else if (cr == CR_MONOCHROME)
     {
         hsv.y = 0;
+    }
+    // [JN] Menu glowing effects.
+    else if (cr == CR_MENU_BRIGHT5)
+    {
+        hsv.z *= 1.5;
+    }
+    else if (cr == CR_MENU_BRIGHT4)
+    {
+        hsv.z *= 1.4;
+    }
+    else if (cr == CR_MENU_BRIGHT3)
+    {
+        hsv.z *= 1.3;
+    }
+    else if (cr == CR_MENU_BRIGHT2)
+    {
+        hsv.z *= 1.2;
+    }
+    else if (cr == CR_MENU_BRIGHT1)
+    {
+        hsv.z *= 1.1;
+    }
+    else if (cr == CR_MENU_DARK1)
+    {
+        hsv.z *= 0.9;
+    }
+    else if (cr == CR_MENU_DARK2)
+    {
+        hsv.z *= 0.8;
+    }
+    else if (cr == CR_MENU_DARK3)
+    {
+        hsv.z *= 0.7;
+    }    
+    else if (cr == CR_MENU_DARK4)
+    {
+        hsv.z *= 0.6;
     }
     else
     {
