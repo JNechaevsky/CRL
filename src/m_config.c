@@ -325,14 +325,6 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(snd_sfxdevice),
 
     //!
-    // Gamma correction level.  A value of zero disables gamma
-    // correction, while a value in the range 1-4 gives increasing
-    // levels of gamma correction.
-    //
-
-    CONFIG_VARIABLE_INT(usegamma),
-
-    //!
     // Multiplayer chat macro: message to send when alt+0 is pressed.
     //
 
@@ -1321,6 +1313,7 @@ static default_t	doom_defaults_list[] =
     // System
     CONFIG_VARIABLE_INT(crl_startup_delay),
     CONFIG_VARIABLE_INT(crl_resize_delay),
+    CONFIG_VARIABLE_INT(crl_gamma),
     CONFIG_VARIABLE_INT(crl_monosfx),
 
     // Widgets

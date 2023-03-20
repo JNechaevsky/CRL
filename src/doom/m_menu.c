@@ -870,20 +870,20 @@ static void M_DrawCRL_Video (void)
                  crl_hom_effect > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Gamma-correction slider and num
-    M_DrawThermo(46, 71, 14, usegamma);
-    M_WriteText (176, 74, usegamma ==  0 ? "0.50" :
-                          usegamma ==  1 ? "0.55" :
-                          usegamma ==  2 ? "0.60" :
-                          usegamma ==  3 ? "0.65" :
-                          usegamma ==  4 ? "0.70" :
-                          usegamma ==  5 ? "0.75" :
-                          usegamma ==  6 ? "0.80" :
-                          usegamma ==  7 ? "0.85" :
-                          usegamma ==  8 ? "0.90" :
-                          usegamma ==  9 ? "OFF"  :
-                          usegamma == 10 ? "1"    :
-                          usegamma == 11 ? "2"    :
-                          usegamma == 12 ? "3"    :
+    M_DrawThermo(46, 71, 14, crl_gamma);
+    M_WriteText (176, 74, crl_gamma ==  0 ? "0.50" :
+                          crl_gamma ==  1 ? "0.55" :
+                          crl_gamma ==  2 ? "0.60" :
+                          crl_gamma ==  3 ? "0.65" :
+                          crl_gamma ==  4 ? "0.70" :
+                          crl_gamma ==  5 ? "0.75" :
+                          crl_gamma ==  6 ? "0.80" :
+                          crl_gamma ==  7 ? "0.85" :
+                          crl_gamma ==  8 ? "0.90" :
+                          crl_gamma ==  9 ? "OFF"  :
+                          crl_gamma == 10 ? "1"    :
+                          crl_gamma == 11 ? "2"    :
+                          crl_gamma == 12 ? "3"    :
                                            "4", NULL);
 
     M_WriteTextCentered(90, "MISCELLANEOUS", cr[CR_YELLOW]);
@@ -935,12 +935,12 @@ static void M_CRL_Gamma (int choice)
     switch (choice)
     {
         case 0:
-            if (usegamma)
-                usegamma--;
+            if (crl_gamma)
+                crl_gamma--;
             break;
         case 1:
-            if (usegamma < 13)
-                usegamma++;
+            if (crl_gamma < 13)
+                crl_gamma++;
         default:
             break;
     }
@@ -2873,10 +2873,10 @@ boolean M_Responder (event_t* ev)
         }
         else if (key == key_menu_gamma)    // gamma toggle
         {
-	    usegamma++;
-	    if (usegamma > 13)
-		usegamma = 0;
-	    CRL_SetMessage(&players[consoleplayer], DEH_String(gammamsg[usegamma]), false, NULL);
+	    crl_gamma++;
+	    if (crl_gamma > 13)
+		crl_gamma = 0;
+	    CRL_SetMessage(&players[consoleplayer], DEH_String(gammamsg[crl_gamma]), false, NULL);
             I_SetPalette (W_CacheLumpName (DEH_String("PLAYPAL"),PU_CACHE));
 	    return true;
         }

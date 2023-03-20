@@ -195,10 +195,6 @@ static boolean window_focused = true;
 static boolean need_resize = false;
 static unsigned int last_resize_time;
 
-// Gamma correction level to use
-
-int usegamma = 9;
-
 // [JN] Multiplying factors of improved gamma-correction levels.
 static byte gamma2table[9][256];
 static const float gammalevels[9] =
@@ -931,14 +927,14 @@ void I_SetPalette (byte *doompalette)
     usepal = palcopy;
     CRL_SetColors(palcopy, doompalette);
 
-    if (usegamma < 9)
+    if (crl_gamma < 9)
     {
         // [JN] Improved gamma levels.
         for (i=0; i<256; ++i)
         {
-            palette[i].r = gamma2table[usegamma][*usepal++];
-            palette[i].g = gamma2table[usegamma][*usepal++];
-            palette[i].b = gamma2table[usegamma][*usepal++];
+            palette[i].r = gamma2table[crl_gamma][*usepal++];
+            palette[i].g = gamma2table[crl_gamma][*usepal++];
+            palette[i].b = gamma2table[crl_gamma][*usepal++];
         }
     }
     else
@@ -949,9 +945,9 @@ void I_SetPalette (byte *doompalette)
             // Zero out the bottom two bits of each channel - the PC VGA
             // controller only supports 6 bits of accuracy.
 
-            palette[i].r = gammatable[usegamma-9][*usepal++] & ~3;
-            palette[i].g = gammatable[usegamma-9][*usepal++] & ~3;
-            palette[i].b = gammatable[usegamma-9][*usepal++] & ~3;
+            palette[i].r = gammatable[crl_gamma-9][*usepal++] & ~3;
+            palette[i].g = gammatable[crl_gamma-9][*usepal++] & ~3;
+            palette[i].b = gammatable[crl_gamma-9][*usepal++] & ~3;
         }
     }
 
@@ -1569,6 +1565,5 @@ void I_BindVideoVariables(void)
     M_BindStringVariable("video_driver",           &video_driver);
     M_BindIntVariable("window_position_x",           &window_position_x);
     M_BindIntVariable("window_position_y",           &window_position_y);
-    M_BindIntVariable("usegamma",                  &usegamma);
     M_BindIntVariable("png_screenshots",           &png_screenshots);
 }

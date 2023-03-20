@@ -24,6 +24,7 @@
 
 extern int crl_startup_delay;
 extern int crl_resize_delay;
+extern int crl_gamma;
 extern int crl_monosfx;
 
 // Game modes

@@ -26,6 +26,9 @@
 int crl_startup_delay = 35;
 // Time to wait for the screen to be updated after resizing (ms).
 int crl_resize_delay = 35;
+// Improved and original gamma-correction (default is OFF).
+int crl_gamma = 9;
+
 // SFX mono mode.
 int crl_monosfx = 0;
 
@@ -78,6 +81,7 @@ void CRL_BindVariables (void)
 {
     M_BindIntVariable("crl_startup_delay",              &crl_startup_delay);
     M_BindIntVariable("crl_resize_delay",               &crl_resize_delay);
+    M_BindIntVariable("crl_gamma",                      &crl_gamma);
     M_BindIntVariable("crl_monosfx",                    &crl_monosfx);
 
     // Widgets
