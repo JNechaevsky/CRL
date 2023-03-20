@@ -69,9 +69,6 @@ int			showMessages = 1;
 int			detailLevel = 0;
 int			screenblocks = 10;
 
-// temp for screenblocks (0-9)
-int			screenSize;
-
 // -1 = no quicksave slot picked!
 static int quickSaveSlot;
 
@@ -1920,7 +1917,7 @@ static void M_DrawOptions(void)
 		 10, mouseSensitivity);
 
     M_DrawThermo(OptionsDef.x,OptionsDef.y+LINEHEIGHT*(scrnsize+1),
-		 9,screenSize);
+		 9,screenblocks-3);
 }
 
 static void M_Options(int choice)
@@ -2122,17 +2119,15 @@ static void M_SizeDisplay(int choice)
     switch(choice)
     {
       case 0:
-	if (screenSize > 0)
+	if (screenblocks > 3)
 	{
 	    screenblocks--;
-	    screenSize--;
 	}
 	break;
       case 1:
-	if (screenSize < 8)
+	if (screenblocks < 11)
 	{
 	    screenblocks++;
-	    screenSize++;
 	}
 	break;
     }
@@ -3307,7 +3302,6 @@ void M_Init (void)
     itemOn = currentMenu->lastOn;
     whichSkull = 0;
     skullAnimCounter = 10;
-    screenSize = screenblocks - 3;
     messageToPrint = 0;
     messageString = NULL;
     messageLastMenuActive = menuactive;
