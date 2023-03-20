@@ -139,8 +139,6 @@ extern  boolean statusbaractive;
 extern  boolean	paused;		// Game Pause?
 
 
-extern  boolean		viewactive;
-
 extern  boolean		nodrawers;
 
 

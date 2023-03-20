@@ -120,7 +120,6 @@ void F_StartFinale (void)
 
     gameaction = ga_nothing;
     gamestate = GS_FINALE;
-    viewactive = false;
     automapactive = false;
     finale_wipe_done = false;
     players[consoleplayer].messageTics = 1;

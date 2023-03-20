@@ -638,12 +638,10 @@ boolean AM_Responder (event_t *ev)
         if (!automapactive)
         {
             AM_Start ();
-            viewactive = false;
         }
         else
         {
             bigstate = 0;
-            viewactive = true;
             AM_Stop ();
         }
 
@@ -655,7 +653,6 @@ boolean AM_Responder (event_t *ev)
         if (ev->type == ev_keydown && ev->data1 == key_map_toggle)
         {
             AM_Start ();
-            viewactive = false;
             rc = true;
         }
     }
@@ -721,7 +718,6 @@ boolean AM_Responder (event_t *ev)
         else if (key == key_map_toggle)
         {
             bigstate = 0;
-            viewactive = true;
             AM_Stop ();
         }
         else if (key == key_map_maxzoom)

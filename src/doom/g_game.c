@@ -110,8 +110,6 @@ boolean         timingdemo;             // if true, exit with report on completi
 boolean         nodrawers;              // for comparative timing purposes 
 int             starttime;          	// for comparative timing purposes  	 
  
-boolean         viewactive; 
- 
 int             deathmatch;           	// only if started as net death 
 boolean         netgame;                // only true if packets are broadcast 
 boolean         playeringame[MAXPLAYERS]; 
@@ -1656,7 +1654,6 @@ void G_DoCompleted (void)
     } 
  
     gamestate = GS_INTERMISSION; 
-    viewactive = false; 
     automapactive = false; 
 
     StatCopy(&wminfo);
@@ -1699,7 +1696,6 @@ void G_DoWorldDone (void)
     gamemap = wminfo.next+1; 
     G_DoLoadLevel (); 
     gameaction = ga_nothing; 
-    viewactive = true; 
 } 
  
 
@@ -2026,14 +2022,11 @@ G_InitNew
     paused = false;
     demoplayback = false;
     automapactive = false;
-    viewactive = true;
     gameepisode = episode;
     gamemap = map;
     gameskill = skill;
 
     demostarttic = gametic; // [crispy] fix revenant internal demo bug
-
-    viewactive = true;
 
     // Set the sky to use.
     //
