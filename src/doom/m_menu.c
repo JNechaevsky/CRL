@@ -28,6 +28,7 @@
 #include "dstrings.h"
 #include "d_main.h"
 #include "deh_main.h"
+#include "gusconf.h"
 #include "i_input.h"
 #include "i_swap.h"
 #include "i_system.h"
@@ -1055,6 +1056,13 @@ static void M_DrawCRL_Sound (void)
     sprintf(str, snd_pitchshift ? "ON" : "OFF");
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 126, str,
                  snd_pitchshift ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
+    // Inform if GUS patches patch isn't set.
+    if (itemOn == 8 && snd_musicdevice == 5 && strcmp(gus_patch_path, "") == 0)
+    {
+        M_WriteTextCentered(144, "\"GUS_PATCH_PATH\" VARIABLE IS NOT SET.\n", cr[CR_GRAY]);
+        M_WriteTextCentered(153, "USE SETUP UTILITY OR EDIT CRL CONFIG FILE.", cr[CR_GRAY]);
+    }
 }
 
 static void M_CRL_SFXSystem (int choice)
@@ -2290,10 +2298,10 @@ void M_WriteText (int x, int y, const char *string, byte *table)
 void M_WriteTextCentered (const int y, const char *string, byte *table)
 {
     const char *ch;
-    int w, c, cx, cy, width;
+    const int width = M_StringWidth(string);
+    int w, c, cx, cy;
 
     ch = string;
-    width = 0;
     cx = SCREENWIDTH/2-width/2;
     cy = y;
 
@@ -2313,12 +2321,10 @@ void M_WriteTextCentered (const int y, const char *string, byte *table)
 
         if (c < 0 || c> HU_FONTSIZE)
         {
-            width += 7;
             continue;
         }
 
         w = SHORT (hu_font[c]->width);
-        width += w;
     }
 
     // draw it
@@ -2343,7 +2349,6 @@ void M_WriteTextCentered (const int y, const char *string, byte *table)
         }
 
         w = SHORT (hu_font[c]->width);
-        width += w;
 
         if (cx+w > SCREENWIDTH)
         {
