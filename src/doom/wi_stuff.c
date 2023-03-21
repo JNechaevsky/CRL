@@ -709,7 +709,8 @@ void
 WI_drawTime
 ( int		x,
   int		y,
-  int		t )
+  int		t,
+  boolean	suck )
 {
 
     int		div;
@@ -718,7 +719,7 @@ WI_drawTime
     if (t<0)
 	return;
 
-    if (t <= 61*59)
+    if (t <= 61*59 || !suck)
     {
 	div = 1;
 
@@ -1480,12 +1481,23 @@ void WI_drawStats(void)
     WI_drawPercent(SCREENWIDTH - SP_STATSX, SP_STATSY+2*lh, cnt_secret[0]);
 
     V_DrawShadowedPatch(SP_TIMEX, SP_TIMEY, timepatch);
-    WI_drawTime(SCREENWIDTH/2 - SP_TIMEX, SP_TIMEY, cnt_time);
+    WI_drawTime(SCREENWIDTH/2 - SP_TIMEX, SP_TIMEY, cnt_time, true);
 
     if (wbs->epsd < 3)
     {
 	V_DrawShadowedPatch(SCREENWIDTH/2 + SP_TIMEX, SP_TIMEY, par);
-	WI_drawTime(SCREENWIDTH - SP_TIMEX, SP_TIMEY, cnt_par);
+	WI_drawTime(SCREENWIDTH - SP_TIMEX, SP_TIMEY, cnt_par, true);
+    }
+
+    // [crispy] draw total time after level time and par time
+    if (sp_state > 8)
+    {
+        const int ttime = wbs->totaltimes / TICRATE;
+        const boolean wide = (ttime > 61*59) || (SP_TIMEX + SHORT(total->width) >= SCREENWIDTH/4);
+
+        V_DrawShadowedPatch((SP_TIMEX), SP_TIMEY + 16, total);
+        // [crispy] choose x-position depending on width of time string
+        WI_drawTime((wide ? SCREENWIDTH : SCREENWIDTH/2) - SP_TIMEX, SP_TIMEY + 16, ttime, false);
     }
 
     // [crispy] demo timer widget
