@@ -64,7 +64,7 @@ static mission_config_t mission_configs[] =
         doom,
         IWAD_MASK_DOOM,
         "doom",
-        PROGRAM_PREFIX "doom.ini",
+        "default.cfg",
         PROGRAM_PREFIX "doom"
     }
 };

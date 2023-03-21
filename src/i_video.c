@@ -202,6 +202,12 @@ static const float gammalevels[9] =
     0.50f, 0.55f, 0.60f, 0.65f, 0.70f, 0.75f, 0.80f, 0.85f, 0.90f
 };
 
+// [JN] DOS-specific variable. No longer used, since CRL using own
+// "crl_gamma" variable with extended range. Maintained only for
+// compatibility with vanilla Doom config file.
+
+static int usegamma = 0;
+
 // Joystick/gamepad hysteresis
 unsigned int joywait = 0;
 
@@ -1565,5 +1571,6 @@ void I_BindVideoVariables(void)
     M_BindStringVariable("video_driver",           &video_driver);
     M_BindIntVariable("window_position_x",           &window_position_x);
     M_BindIntVariable("window_position_y",           &window_position_y);
+    M_BindIntVariable("usegamma",                  &usegamma);
     M_BindIntVariable("png_screenshots",           &png_screenshots);
 }

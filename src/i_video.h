@@ -88,7 +88,6 @@ extern boolean screenvisible;
 
 extern int vanilla_keyboard_mapping;
 extern boolean screensaver_mode;
-extern int usegamma;
 extern pixel_t *I_VideoBuffer;
 
 extern int screen_width;

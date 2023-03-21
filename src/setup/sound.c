@@ -64,6 +64,16 @@ static char *timidity_cfg_path = NULL;
 static char *gus_patch_path = NULL;
 static int gus_ram_kb = 1024;
 
+// DOS-specific options: These are unused but should be maintained
+// so that the config file can be shared between chocolate
+// doom and doom.exe
+// [JN] Use DOSBox-friendly default values.
+
+static int snd_sbport = 544;
+static int snd_sbirq = 7;
+static int snd_sbdma = 1;
+static int snd_mport = 816;
+
 static int snd_oplmode;
 
 static void UpdateSndDevices(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(data))
@@ -181,6 +191,10 @@ void BindSoundVariables(void)
     M_BindStringVariable("gus_patch_path",        &gus_patch_path);
     M_BindStringVariable("timidity_cfg_path",     &timidity_cfg_path);
 
+    M_BindIntVariable("snd_sbport",               &snd_sbport);
+    M_BindIntVariable("snd_sbirq",                &snd_sbirq);
+    M_BindIntVariable("snd_sbdma",                &snd_sbdma);
+    M_BindIntVariable("snd_mport",                &snd_mport);
     M_BindIntVariable("snd_maxslicetime_ms",      &snd_maxslicetime_ms);
     M_BindStringVariable("snd_musiccmd",          &snd_musiccmd);
     M_BindStringVariable("snd_dmxoption",         &snd_dmxoption);

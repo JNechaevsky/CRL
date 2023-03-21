@@ -89,6 +89,16 @@ static sound_module_t *sound_modules[] =
     NULL,
 };
 
+// DOS-specific options: These are unused but should be maintained
+// so that the config file can be shared between chocolate
+// doom and doom.exe
+// [JN] Use DOSBox-friendly default values.
+
+static int snd_sbport = 544;
+static int snd_sbirq = 7;
+static int snd_sbdma = 1;
+static int snd_mport = 816;
+
 // Compiled-in music modules:
 
 static music_module_t *music_modules[] =
@@ -448,6 +458,10 @@ void I_BindSoundVariables(void)
 
     M_BindIntVariable("snd_musicdevice",         &snd_musicdevice);
     M_BindIntVariable("snd_sfxdevice",           &snd_sfxdevice);
+    M_BindIntVariable("snd_sbport",              &snd_sbport);
+    M_BindIntVariable("snd_sbirq",               &snd_sbirq);
+    M_BindIntVariable("snd_sbdma",               &snd_sbdma);
+    M_BindIntVariable("snd_mport",               &snd_mport);
     M_BindIntVariable("snd_maxslicetime_ms",     &snd_maxslicetime_ms);
     M_BindStringVariable("snd_musiccmd",         &snd_musiccmd);
     M_BindStringVariable("snd_dmxoption",        &snd_dmxoption);
