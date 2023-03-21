@@ -78,7 +78,8 @@ static byte saveg_read8(void)
 {
     byte result = -1;
 
-    if (fread(&result, 1, 1, save_stream) < 1)
+    // [JN] Supress warning, CRL writes total level times after EOF terminator.
+    if (fread(&result, 1, 1, save_stream) < 1 && false)
     {
         if (!savegame_error)
         {
@@ -1883,5 +1884,32 @@ void P_UnArchiveSpecials (void)
 	
     }
 
+}
+
+// -----------------------------------------------------------------------------
+// [JN] Save and restote total level times for intermission screen.
+// -----------------------------------------------------------------------------
+
+void P_ArchiveTotalTimes (void)
+{
+    saveg_write8((totalleveltimes >> 16) & 0xff);
+    saveg_write8((totalleveltimes >> 8) & 0xff);
+    saveg_write8(totalleveltimes & 0xff);
+}
+
+void P_UnArchiveTotalTimes (void)
+{
+    byte a = saveg_read8();
+    byte b = saveg_read8();
+    byte c = saveg_read8();
+    
+    if (a == 255 && b == 255 && c == 255)
+    {
+        totalleveltimes = 0;
+    }
+    else
+    {    
+        totalleveltimes = (a<<16) + (b<<8) + c;
+    }
 }
 

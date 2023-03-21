@@ -213,6 +213,9 @@ typedef struct
 
     wbplayerstruct_t	plyr[MAXPLAYERS];
 
+    // [crispy] CPhipps - total game time for completed levels so far
+    int		totaltimes;
+
 } wbstartstruct_t;
 
 

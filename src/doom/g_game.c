@@ -121,6 +121,7 @@ int             consoleplayer;          // player taking events and displaying
 int             displayplayer;          // view being displayed 
 int             levelstarttic;          // gametic at level start 
 int             totalkills, totalitems, totalsecret;    // for intermission 
+int             totalleveltimes;        // [crispy] CPhipps - total time for all completed levels
 int             demostarttic;           // [crispy] fix revenant internal demo bug
  
 char           *demoname;
@@ -1653,6 +1654,13 @@ void G_DoCompleted (void)
 		, sizeof(wminfo.plyr[i].frags)); 
     } 
  
+    // [crispy] CPhipps - total time for all completed levels
+    // cph - modified so that only whole seconds are added to the totalleveltimes
+    // value; so our total is compatible with the "naive" total of just adding
+    // the times in seconds shown for each level. Also means our total time
+    // will agree with Compet-n.
+    wminfo.totaltimes = (totalleveltimes += (leveltime - leveltime % TICRATE));
+ 
     gamestate = GS_INTERMISSION; 
     automapactive = false; 
 
@@ -1762,6 +1770,9 @@ void G_DoLoadGame (void)
     if (!P_ReadSaveGameEOF())
 	I_Error ("Bad savegame");
 
+    // [JN] Restore total level times.
+    P_UnArchiveTotalTimes ();
+
     fclose(save_stream);
     
     if (setsizeneeded)
@@ -1826,6 +1837,10 @@ void G_DoSaveGame (void)
     P_ArchiveSpecials ();
 
     P_WriteSaveGameEOF();
+
+    // [JN] Write total level times after EOF terminator
+    // to keep compatibility with vanilla save games.
+    P_ArchiveTotalTimes ();
 
     // Enforce the same savegame size limit as in Vanilla Doom,
     // except if the vanilla_savegame_limit setting is turned off.
@@ -2026,6 +2041,8 @@ G_InitNew
     gamemap = map;
     gameskill = skill;
 
+    // [crispy] CPhipps - total time for all completed levels
+    totalleveltimes = 0;
     demostarttic = gametic; // [crispy] fix revenant internal demo bug
 
     // Set the sky to use.
