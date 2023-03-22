@@ -640,6 +640,14 @@ static void I_OPL_SetMusicVolume(int volume)
 {
     unsigned int i;
 
+    // [JN] OPL volume is notably lower than MIDI/GUS.
+    // Double the value, but don't let it go out of bounds.
+    volume *= 2;
+    if (volume > 127)
+    {
+        volume = 127;
+    }
+
     if (current_music_volume == volume)
     {
         return;
