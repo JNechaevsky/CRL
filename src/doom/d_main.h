@@ -48,6 +48,7 @@ extern void D_StartTitle (void);
 // GLOBAL VARIABLES
 //
 
+extern  int show_endoom;
 extern  gameaction_t    gameaction;
 
 

@@ -54,13 +54,12 @@
 #include "crlvars.h"
 
 
-extern int			show_endoom;
+#define SKULLXOFF		-32
+#define LINEHEIGHT       16
+#define LINEHEIGHT_SMALL 9
 
 
-
-	
-
-
+boolean menuactive;
 
 // -1 = no quicksave slot picked!
 static int quickSaveSlot;
@@ -104,12 +103,6 @@ static boolean joypadSave = false; // was the save action initiated by joypad?
 
 // old save description before edit
 static char saveOldString[SAVESTRINGSIZE];  
-
-boolean			menuactive;
-
-#define SKULLXOFF		-32
-#define LINEHEIGHT       16
-#define LINEHEIGHT_SMALL 9
 
 static char savegamestrings[10][SAVESTRINGSIZE];
 static char endstring[160];
@@ -213,11 +206,10 @@ static void M_StartMessage(char *string,void *routine,boolean input);
 static void M_ClearMenus (void);
 
 
-
-
 //
 // DOOM MENU
 //
+
 enum
 {
     newgame = 0,
@@ -251,10 +243,10 @@ static menu_t MainDef =
     false
 };
 
-
 //
 // EPISODE SELECT
 //
+
 enum
 {
     ep1,
@@ -286,6 +278,7 @@ static menu_t EpiDef =
 //
 // NEW GAME
 //
+
 enum
 {
     killthings,
@@ -316,11 +309,10 @@ static menu_t NewDef =
     false
 };
 
-
-
 //
 // OPTIONS MENU
 //
+
 enum
 {
     endgame,
@@ -360,6 +352,7 @@ static menu_t OptionsDef =
 //
 // Read This! MENU 1 & 2
 //
+
 enum
 {
     rdthsempty1,
@@ -407,6 +400,7 @@ static menu_t ReadDef2 =
 //
 // SOUND VOLUME MENU
 //
+
 enum
 {
     sfx_vol,
@@ -438,6 +432,7 @@ static menu_t SoundDef =
 //
 // LOAD GAME MENU
 //
+
 enum
 {
     load1,
@@ -477,6 +472,7 @@ static menu_t LoadDef =
 //
 // SAVE GAME MENU
 //
+
 static menuitem_t SaveMenu[]=
 {
     {1,"", M_SaveSelect,'1'},
