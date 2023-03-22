@@ -213,4 +213,3 @@ extern boolean  automapactive;
 extern int      deathmatch;      // 0 = Cooperative; 1 = Deathmatch; 2 = Altdeath
 extern boolean  playeringame[4]; // [MAXPLAYERS]
 
-extern int      screenblocks;

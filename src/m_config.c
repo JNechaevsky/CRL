@@ -306,6 +306,7 @@ static default_t	doom_defaults_list[] =
     // System
     CONFIG_VARIABLE_INT(crl_startup_delay),
     CONFIG_VARIABLE_INT(crl_resize_delay),
+    CONFIG_VARIABLE_INT(crl_screen_size),
     CONFIG_VARIABLE_INT(crl_gamma),
     CONFIG_VARIABLE_INT(crl_monosfx),
 

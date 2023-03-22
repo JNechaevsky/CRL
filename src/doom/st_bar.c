@@ -1116,17 +1116,28 @@ void ST_Drawer (void)
 {
     plyr = &players[displayplayer];
 
-    V_UseBuffer(st_backing_screen);
-    V_DrawPatch(0, 0, sbar);
-	if (netgame)
+    // Status bar background.
+    if (crl_screen_size <= 10 || (automapactive && !crl_automap_overlay))
     {
-        // Player face background
-        // [JN] killough 3/7/98: make face background change with displayplayer
-	    V_DrawPatch(143, 0, faceback[displayplayer]);
-    }
-    V_RestoreBuffer();
-    V_CopyRect(0, 0, st_backing_screen, ST_WIDTH, ST_HEIGHT, 0, ST_Y);
+        V_UseBuffer(st_backing_screen);
+        V_DrawPatch(0, 0, sbar);
 
+        if (netgame)
+        {
+            // Player face background
+            // [JN] killough 3/7/98: make face background change with displayplayer
+            V_DrawPatch(143, 0, faceback[displayplayer]);
+        }
+
+        V_RestoreBuffer();
+        V_CopyRect(0, 0, st_backing_screen, ST_WIDTH, ST_HEIGHT, 0, ST_Y);
+
+        // ARMS background
+        if (!deathmatch)
+        {
+            V_DrawPatch(104, 168, armsbg);
+        }
+    }
 
     // Ammo amount for current weapon
     if (weaponinfo[plyr->readyweapon].ammo != am_noammo)
@@ -1149,9 +1160,6 @@ void ST_Drawer (void)
     }
     else
     {
-        // ARMS background
-        V_DrawPatch(104, 168, armsbg);
-
         // Pistol
         ST_DrawWeaponNumberFunc(2, 107, 172, plyr->weaponowned[1]);
         // Shotgun or Super Shotgun
@@ -1166,8 +1174,16 @@ void ST_Drawer (void)
         ST_DrawWeaponNumberFunc(7, 131, 182, plyr->weaponowned[6]);
     }
 
+    // Player face background
+    if (crl_screen_size == 11)
+    {
+        V_DrawPatch(143, 169, netgame ? faceback[displayplayer] : faceback[1]);
+    }
     // Player face
-    V_DrawPatch(143, 168, faces[st_faceindex]);
+    if (crl_screen_size <= 11 || (automapactive && !crl_automap_overlay))
+    {
+        V_DrawPatch(143, 168, faces[st_faceindex]);
+    }
 
     // Armor
     ST_DrawBigNumber(plyr->armorpoints, 183, 171, ST_WidgetColor(hudcolor_armor));

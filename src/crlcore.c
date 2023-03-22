@@ -755,12 +755,7 @@ void CRL_StatDrawer (void)
         const int time = leveltime / 35;
         char stra[8];
         char strb[16];
- 
-         int yy = automapactive ? 8 : 
-                screenblocks == 11 ? -32 : 0;
-
-        if (!crl_widget_kis)
-            yy -= 9;
+        const int yy = automapactive ? 8 : 0;
 
         sprintf(stra, "TIME ");
         M_WriteText(0, 152 - yy, stra, cr[CR_GRAY]);
@@ -772,8 +767,7 @@ void CRL_StatDrawer (void)
     // K/I/S stats
     if (crl_widget_kis)
     {
-        int yy = automapactive ? 8 : 
-                screenblocks == 11 ? -32 : 0;
+        const int yy = automapactive ? 8 : 0;
 
         if (!deathmatch)
         {

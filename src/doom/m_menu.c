@@ -67,7 +67,6 @@ int			showMessages = 1;
 
 // Blocky mode, has default, 0 = high, 1 = normal
 int			detailLevel = 0;
-int			screenblocks = 10;
 
 // -1 = no quicksave slot picked!
 static int quickSaveSlot;
@@ -1917,7 +1916,7 @@ static void M_DrawOptions(void)
 		 10, mouseSensitivity);
 
     M_DrawThermo(OptionsDef.x,OptionsDef.y+LINEHEIGHT*(scrnsize+1),
-		 9,screenblocks-3);
+		 9,crl_screen_size-3);
 }
 
 static void M_Options(int choice)
@@ -2103,7 +2102,7 @@ static void M_ChangeDetail(int choice)
     choice = 0;
     detailLevel = 1 - detailLevel;
 
-    R_SetViewSize (screenblocks, detailLevel);
+    R_SetViewSize (crl_screen_size, detailLevel);
 
     if (!detailLevel)
 	CRL_SetMessage(&players[consoleplayer], DEH_String(DETAILHI), false, NULL);
@@ -2119,21 +2118,21 @@ static void M_SizeDisplay(int choice)
     switch(choice)
     {
       case 0:
-	if (screenblocks > 3)
+	if (crl_screen_size > 3)
 	{
-	    screenblocks--;
+	    crl_screen_size--;
 	}
 	break;
       case 1:
-	if (screenblocks < 11)
+	if (crl_screen_size < 13)
 	{
-	    screenblocks++;
+	    crl_screen_size++;
 	}
 	break;
     }
 	
 
-    R_SetViewSize (screenblocks, detailLevel);
+    R_SetViewSize (crl_screen_size, detailLevel);
 }
 
 
@@ -2161,6 +2160,12 @@ M_DrawThermo
 	xx += 8;
     }
     V_DrawShadowedPatch(xx, y, W_CacheLumpName(DEH_String("M_THERMR"), PU_CACHE));
+
+    // [crispy] do not crash anymore if value exceeds thermometer range
+    if (thermDot >= thermWidth)
+    {
+        thermDot = thermWidth - 1;
+    }
 
     V_DrawPatch((x + 8) + thermDot * 8, y, W_CacheLumpName(DEH_String("M_THERMO"), PU_CACHE));
 }

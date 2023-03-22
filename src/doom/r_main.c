@@ -639,7 +639,7 @@ void R_ExecuteSetViewSize (void)
 
     setsizeneeded = false;
 
-    if (setblocks == 11)
+    if (setblocks >= 11)
     {
 	scaledviewwidth = SCREENWIDTH;
 	viewheight = SCREENHEIGHT;
@@ -735,7 +735,7 @@ void R_Init (void)
     R_InitData ();
     printf (".");
     // viewwidth / viewheight / detailLevel are set by the defaults
-    R_SetViewSize (screenblocks, detailLevel);
+    R_SetViewSize (crl_screen_size, detailLevel);
     R_InitPlanes ();
     printf (".");
     R_InitLightTables ();
