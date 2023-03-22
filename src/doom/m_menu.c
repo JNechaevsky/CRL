@@ -2161,6 +2161,12 @@ M_DrawThermo
     }
     V_DrawShadowedPatch(xx, y, W_CacheLumpName(DEH_String("M_THERMR"), PU_CACHE));
 
+    // [crispy] do not crash anymore if value exceeds thermometer range
+    if (thermDot >= thermWidth)
+    {
+        thermDot = thermWidth - 1;
+    }
+
     V_DrawPatch((x + 8) + thermDot * 8, y, W_CacheLumpName(DEH_String("M_THERMO"), PU_CACHE));
 }
 
