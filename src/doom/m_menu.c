@@ -2125,7 +2125,7 @@ static void M_SizeDisplay(int choice)
 	}
 	break;
       case 1:
-	if (screenblocks < 11)
+	if (screenblocks < 13)
 	{
 	    screenblocks++;
 	}

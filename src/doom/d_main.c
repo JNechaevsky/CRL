@@ -270,15 +270,6 @@ void D_Display (void)
     // do buffered drawing
     switch (gamestate)
     {
-      case GS_LEVEL:
-	if (!gametic)
-	    break;
-	if (screenblocks <= 10)
-	{
-	    ST_Drawer ();
-	}
-	break;
-
       case GS_INTERMISSION:
 	WI_Drawer ();
 	break;
@@ -316,9 +307,6 @@ void D_Display (void)
     if (automapactive)
     {
         AM_Drawer();
-
-        if (screenblocks == 11 && !crl_automap_overlay)
-        ST_Drawer();  // [JN] Draw status bar if needed.
     }
 
     if (testcontrols)
@@ -373,6 +361,12 @@ void D_Display (void)
             {
                 CRL_TargetHealth(linetarget->health, linetarget->info->spawnhealth, crl_widget_health);
             }
+        }
+
+        // [JN] Main status bar drawing function.
+        if (screenblocks <= 12 || (automapactive && !crl_automap_overlay))
+        {
+            ST_Drawer();
         }
     }
 
