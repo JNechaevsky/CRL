@@ -107,6 +107,11 @@ static boolean mus_paused;
 
 static musicinfo_t *mus_playing = NULL;
 
+// [JN] Always allocate 8 SFX channels.
+// No memory reallocation will be needed upon changing of channels number.
+
+#define MAX_SND_CHANNELS 8  
+
 // Number of channels to use
 
 int snd_channels = 8;
@@ -148,10 +153,10 @@ void S_Init(int sfxVolume, int musicVolume)
     // Allocating the internal channels for mixing
     // (the maximum numer of sounds rendered
     // simultaneously) within zone memory.
-    channels = Z_Malloc(snd_channels*sizeof(channel_t), PU_STATIC, 0);
+    channels = Z_Malloc(MAX_SND_CHANNELS*sizeof(channel_t), PU_STATIC, 0);
 
     // Free all channels for use
-    for (i=0 ; i<snd_channels ; i++)
+    for (i=0 ; i<MAX_SND_CHANNELS ; i++)
     {
         channels[i].sfxinfo = 0;
     }
@@ -187,7 +192,7 @@ void S_ChangeSFXSystem (void)
     int i;
 
     // Free all channels for use
-    for (i = 0 ; i < snd_channels ; i++)
+    for (i = 0 ; i < MAX_SND_CHANNELS ; i++)
     {
         channels[i].sfxinfo = 0;
     }

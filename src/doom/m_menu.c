@@ -532,6 +532,7 @@ static void M_DrawCRL_Sound (void);
 static void M_CRL_SFXSystem (int choice);
 static void M_CRL_MusicSystem (int choice);
 static void M_CRL_SFXMode (int choice);
+static void M_CRL_SFXChannels (int choice);
 static void M_CRL_PitchShift (int choice);
 
 static void M_ChooseCRL_Widgets (int choice);
@@ -973,7 +974,7 @@ static menuitem_t CRLMenu_Sound[]=
     { 2, "MUSIC PLAYBACK",        M_CRL_MusicSystem,  'm'},
     { 2, "SOUNDS EFFECTS MODE",   M_CRL_SFXMode,      's'},
     { 2, "PITCH-SHIFTED SOUNDS",  M_CRL_PitchShift,   'p'},
-    {-1, "", 0, '\0'},
+    { 2, "NUMBER OF SFX TO MIX",  M_CRL_SFXChannels,  'n'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
@@ -1033,7 +1034,7 @@ static void M_DrawCRL_Sound (void)
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 108, str,
                  snd_musicdevice ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
-    // Pitch-shifted sounds
+    // Sound effects mode
     sprintf(str, !crl_monosfx ? "STEREO" : "MONO");
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 117, str,
                  !crl_monosfx ? cr[CR_GREEN] : cr[CR_DARKRED]);
@@ -1043,11 +1044,17 @@ static void M_DrawCRL_Sound (void)
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 126, str,
                  snd_pitchshift ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
+    // Number of SFX to mix
+    sprintf(str, "%i", snd_channels);
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 135, str,
+                 snd_channels == 8 ? cr[CR_GREEN] :
+                 snd_channels == 1 ? cr[CR_DARKRED] : cr[CR_RED]);
+
     // Inform if GUS patches patch isn't set.
     if (itemOn == 8 && snd_musicdevice == 5 && strcmp(gus_patch_path, "") == 0)
     {
         M_WriteTextCentered(144, "\"GUS_PATCH_PATH\" VARIABLE IS NOT SET.\n", cr[CR_GRAY]);
-        M_WriteTextCentered(153, "USE SETUP UTILITY OR EDIT CRL CONFIG FILE.", cr[CR_GRAY]);
+        M_WriteTextCentered(153, "USE SETUP UTILITY OR EDIT DEFAULT.CFG FILE.", cr[CR_GRAY]);
     }
 }
 
@@ -1188,6 +1195,22 @@ static void M_CRL_SFXMode (int choice)
 static void M_CRL_PitchShift (int choice)
 {
     snd_pitchshift ^= 1;
+}
+
+static void M_CRL_SFXChannels (int choice)
+{
+    switch (choice)
+    {
+        case 0:
+            if (snd_channels > 1)
+                snd_channels--;
+            break;
+        case 1:
+            if (snd_channels < 8)
+                snd_channels++;
+        default:
+            break;
+    }
 }
 
 // -----------------------------------------------------------------------------
