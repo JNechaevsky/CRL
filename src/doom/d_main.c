@@ -139,6 +139,10 @@ char		mapdir[1024];           // directory of development maps
 int             show_endoom = 0;    // [JN] disable
 int             show_diskicon = 1;
 
+// [JN] DOS-specific option: now replaced with "crl_screen_size", which is 
+// using extended range and because of this can't be used in DOS version.
+// Still used for config file compatibility.
+static int screenblocks = 10;
 
 void D_ConnectNetGame(void);
 void D_CheckNetGame(void);
@@ -270,6 +274,9 @@ void D_Display (void)
     // do buffered drawing
     switch (gamestate)
     {
+      case GS_LEVEL:
+	break;
+
       case GS_INTERMISSION:
 	WI_Drawer ();
 	break;
@@ -364,7 +371,7 @@ void D_Display (void)
         }
 
         // [JN] Main status bar drawing function.
-        if (screenblocks <= 12 || (automapactive && !crl_automap_overlay))
+        if (crl_screen_size <= 12 || (automapactive && !crl_automap_overlay))
         {
             ST_Drawer();
         }

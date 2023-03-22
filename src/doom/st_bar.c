@@ -1117,7 +1117,7 @@ void ST_Drawer (void)
     plyr = &players[displayplayer];
 
     // Status bar background.
-    if (screenblocks <= 10 || (automapactive && !crl_automap_overlay))
+    if (crl_screen_size <= 10 || (automapactive && !crl_automap_overlay))
     {
         V_UseBuffer(st_backing_screen);
         V_DrawPatch(0, 0, sbar);
@@ -1175,12 +1175,12 @@ void ST_Drawer (void)
     }
 
     // Player face background
-    if (screenblocks == 11)
+    if (crl_screen_size == 11)
     {
         V_DrawPatch(143, 169, netgame ? faceback[displayplayer] : faceback[1]);
     }
     // Player face
-    if (screenblocks <= 11 || (automapactive && !crl_automap_overlay))
+    if (crl_screen_size <= 11 || (automapactive && !crl_automap_overlay))
     {
         V_DrawPatch(143, 168, faces[st_faceindex]);
     }
