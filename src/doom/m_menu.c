@@ -56,17 +56,11 @@
 
 extern int			show_endoom;
 
-//
-// defaulted values
-//
-int			mouseSensitivity = 5;
 
-// Show messages has default, 0 = off, 1 = on
-int			showMessages = 1;
+
 	
 
-// Blocky mode, has default, 0 = high, 1 = normal
-int			detailLevel = 0;
+
 
 // -1 = no quicksave slot picked!
 static int quickSaveSlot;

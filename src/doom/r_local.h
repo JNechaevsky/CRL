@@ -565,6 +565,7 @@ extern visplane_t   *dc_visplaneused;
 // R_MAIN
 // -----------------------------------------------------------------------------
 
+extern void    R_ExecuteSetViewSize (void);
 extern void    R_Init (void);
 extern void    R_RenderPlayerView (player_t *player);
 extern void    R_SetViewSize (int blocks, int detail);
@@ -601,6 +602,8 @@ extern int     centery;
 extern int     validcount;
 extern int     viewwindowx;
 extern int     viewwindowy;
+
+extern boolean setsizeneeded;
 
 // Lighting LUT.
 // Used for z-depth cuing per column/row,

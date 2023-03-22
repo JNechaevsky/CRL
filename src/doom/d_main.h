@@ -35,11 +35,14 @@ void D_ProcessEvents (void);
 //
 // BASE LEVEL
 //
-void D_PageTicker (void);
-void D_PageDrawer (void);
-void D_AdvanceDemo (void);
-void D_DoAdvanceDemo (void);
-void D_StartTitle (void);
+extern void D_DoomLoop (void);
+extern void D_ConnectNetGame (void);
+extern void D_CheckNetGame (void);
+extern void D_PageTicker (void);
+extern void D_PageDrawer (void);
+extern void D_AdvanceDemo (void);
+extern void D_DoAdvanceDemo (void);
+extern void D_StartTitle (void);
  
 //
 // GLOBAL VARIABLES
