@@ -77,7 +77,7 @@ static boolean messageNeedsInput;
 
 static void (*messageRoutine)(int response);
 
-static char gammamsg[14][32] =
+static char gammamsg[15][32] =
 {
     GAMMALVL05,
     GAMMALVL055,
@@ -88,6 +88,7 @@ static char gammamsg[14][32] =
     GAMMALVL08,
     GAMMALVL085,
     GAMMALVL09,
+    GAMMALVL095,
     GAMMALVL0,
     GAMMALVL1,
     GAMMALVL2,
@@ -858,8 +859,8 @@ static void M_DrawCRL_Video (void)
                  crl_hom_effect > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Gamma-correction slider and num
-    M_DrawThermo(46, 71, 14, crl_gamma);
-    M_WriteText (176, 74, crl_gamma ==  0 ? "0.50" :
+    M_DrawThermo(46, 71, 15, crl_gamma);
+    M_WriteText (184, 74, crl_gamma ==  0 ? "0.50" :
                           crl_gamma ==  1 ? "0.55" :
                           crl_gamma ==  2 ? "0.60" :
                           crl_gamma ==  3 ? "0.65" :
@@ -868,11 +869,12 @@ static void M_DrawCRL_Video (void)
                           crl_gamma ==  6 ? "0.80" :
                           crl_gamma ==  7 ? "0.85" :
                           crl_gamma ==  8 ? "0.90" :
-                          crl_gamma ==  9 ? "OFF"  :
-                          crl_gamma == 10 ? "1"    :
-                          crl_gamma == 11 ? "2"    :
-                          crl_gamma == 12 ? "3"    :
-                                           "4", NULL);
+                          crl_gamma ==  9 ? "0.95" :
+                          crl_gamma == 10 ? "OFF"  :
+                          crl_gamma == 11 ? "1"    :
+                          crl_gamma == 12 ? "2"    :
+                          crl_gamma == 13 ? "3"    :
+                                            "4", NULL);
 
     M_WriteTextCentered(90, "MISCELLANEOUS", cr[CR_YELLOW]);
 
@@ -927,7 +929,7 @@ static void M_CRL_Gamma (int choice)
                 crl_gamma--;
             break;
         case 1:
-            if (crl_gamma < 13)
+            if (crl_gamma < 14)
                 crl_gamma++;
         default:
             break;

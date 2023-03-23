@@ -195,13 +195,6 @@ static boolean window_focused = true;
 static boolean need_resize = false;
 static unsigned int last_resize_time;
 
-// [JN] Multiplying factors of improved gamma-correction levels.
-static byte gamma2table[9][256];
-static const float gammalevels[9] =
-{
-    0.50f, 0.55f, 0.60f, 0.65f, 0.70f, 0.75f, 0.80f, 0.85f, 0.90f
-};
-
 // [JN] DOS-specific variable. No longer used, since CRL using own
 // "crl_gamma" variable with extended range. Maintained only for
 // compatibility with vanilla Doom config file.
@@ -901,23 +894,6 @@ void I_ReadScreen (pixel_t* scr)
     memcpy(scr, I_VideoBuffer, SCREENWIDTH*SCREENHEIGHT*sizeof(*scr));
 }
 
-// -----------------------------------------------------------------------------
-// I_InitImprovedGammaTables
-// [JN] Initialize and generate improved gamma-correction levels.
-// Based on implementation from DOOM Retro.
-// -----------------------------------------------------------------------------
-
-static void I_InitImprovedGammaTables (void)
-{
-    for (int i = 0; i < 9; i++)
-    {
-        for (int j = 0; j < 256; j++)
-        {
-            gamma2table[i][j] = (byte)(pow(j / 255.0, 1.0 / gammalevels[i]) * 255.0 + 0.5);
-        }
-    }
-}
-
 //
 // I_SetPalette
 //
@@ -933,28 +909,14 @@ void I_SetPalette (byte *doompalette)
     usepal = palcopy;
     CRL_SetColors(palcopy, doompalette);
 
-    if (crl_gamma < 9)
+    for (i = 0 ; i < 256 ; ++i)
     {
-        // [JN] Improved gamma levels.
-        for (i=0; i<256; ++i)
-        {
-            palette[i].r = gamma2table[crl_gamma][*usepal++];
-            palette[i].g = gamma2table[crl_gamma][*usepal++];
-            palette[i].b = gamma2table[crl_gamma][*usepal++];
-        }
-    }
-    else
-    {
-        // [JN] Original gamma levels.
-        for (i=0; i<256; ++i)
-        {
-            // Zero out the bottom two bits of each channel - the PC VGA
-            // controller only supports 6 bits of accuracy.
+        // Zero out the bottom two bits of each channel - the PC VGA
+        // controller only supports 6 bits of accuracy.
 
-            palette[i].r = gammatable[crl_gamma-9][*usepal++] & ~3;
-            palette[i].g = gammatable[crl_gamma-9][*usepal++] & ~3;
-            palette[i].b = gammatable[crl_gamma-9][*usepal++] & ~3;
-        }
+        palette[i].r = gammatable[crl_gamma][*usepal++] & ~3;
+        palette[i].g = gammatable[crl_gamma][*usepal++] & ~3;
+        palette[i].b = gammatable[crl_gamma][*usepal++] & ~3;
     }
 
     palette_to_set = true;
@@ -1503,10 +1465,6 @@ void I_InitGraphics(void)
     // (screen will be flipped after we set the palette)
 
     SDL_FillRect(screenbuffer, NULL, 0);
-
-    // [JN] Initialize and generate improved gamma-correction levels.
-
-    I_InitImprovedGammaTables();
 
     // Set the palette
 

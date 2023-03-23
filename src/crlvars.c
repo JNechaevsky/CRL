@@ -29,7 +29,7 @@ int crl_resize_delay = 35;
 // Size of game screen (previously "screenblocks").
 int crl_screen_size = 10;
 // Improved and original gamma-correction (default is OFF).
-int crl_gamma = 9;
+int crl_gamma = 10;
 
 // SFX mono mode.
 int crl_monosfx = 0;
