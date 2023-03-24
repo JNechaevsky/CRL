@@ -818,10 +818,17 @@ static void GetSfxLumpName(sfxinfo_t *sfx, char *buf, size_t buf_len)
 
 // Preload all the sound effects - stops nasty ingame freezes
 
+static boolean precached = false;  // [JN] Precache SFX only once.
+
 static void I_SDL_PrecacheSounds(sfxinfo_t *sounds, int num_sounds)
 {
     char namebuf[9];
     int i;
+
+    if (precached)
+    {
+        return;
+    }
 
     printf("I_SDL_PrecacheSounds: Precaching all sound effects - [");
 
@@ -844,6 +851,8 @@ static void I_SDL_PrecacheSounds(sfxinfo_t *sounds, int num_sounds)
     }
 
     printf("]\n");
+    
+    precached = true;
 }
 
 // Load a SFX chunk into memory and ensure that it is locked.
