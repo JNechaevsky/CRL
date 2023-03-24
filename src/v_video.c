@@ -280,9 +280,11 @@ void V_DrawShadowedPatch (int x, int y, const patch_t *patch)
         // step through the posts in a column
         while (column->topdelta != 0xff)
         {
+            const short column_delta = column->topdelta * SCREENWIDTH;
+
             source = sourcetrans = (byte *) column + 3;
-            dest = desttop + column->topdelta * SCREENWIDTH;
-            dest2 = desttop2 + column->topdelta * SCREENWIDTH;
+            dest = desttop + column_delta;
+            dest2 = desttop2 + column_delta;
             count = column->length;
 
             while (count--)
