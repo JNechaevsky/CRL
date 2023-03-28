@@ -1474,7 +1474,6 @@ void CRL_CreateWindowsConsole (void)
     cfi.FontFamily = FF_DONTCARE;
     cfi.FontWeight = FW_NORMAL;
     wcscpy(cfi.FaceName, L"Consolas");
-    SetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), FALSE, &cfi);
 }
 
 // -----------------------------------------------------------------------------
