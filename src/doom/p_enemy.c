@@ -1230,8 +1230,6 @@ void A_VileStart (mobj_t* actor)
 // A_Fire
 // Keep fire in front of player unless out of sight
 //
-void A_Fire (mobj_t* actor);
-
 void A_StartFire (mobj_t* actor)
 {
     S_StartSound(actor,sfx_flamst);
@@ -1930,8 +1928,6 @@ void A_BrainSpit (mobj_t*	mo)
 }
 
 
-
-void A_SpawnFly (mobj_t* mo);
 
 // travelling cube sound
 void A_SpawnSound (mobj_t* mo)	

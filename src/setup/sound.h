@@ -20,6 +20,4 @@
 void ConfigSound(void);
 void BindSoundVariables(void);
 
-extern char *snd_dmxoption;
-
 #endif /* #ifndef SETUP_SOUND_H */
