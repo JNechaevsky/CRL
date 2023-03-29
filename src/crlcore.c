@@ -1449,8 +1449,6 @@ static HWND CRL_Console;
 
 void CRL_CreateWindowsConsole (void)
 {
-    CONSOLE_FONT_INFOEX cfi;    // [JN] Purely to shut up compiler warning.
-
     // Allocate console.
     AllocConsole();
     SetConsoleTitle("CRL Console");
@@ -1465,15 +1463,6 @@ void CRL_CreateWindowsConsole (void)
     // Set a proper codepage.
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
-
-    // Set console font to "Consolas".
-    cfi.cbSize = sizeof cfi;
-    cfi.nFont = 0;
-    cfi.dwFontSize.X = 0;
-    cfi.dwFontSize.Y = 16;
-    cfi.FontFamily = FF_DONTCARE;
-    cfi.FontWeight = FW_NORMAL;
-    wcscpy(cfi.FaceName, L"Consolas");
 }
 
 // -----------------------------------------------------------------------------
