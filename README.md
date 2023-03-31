@@ -10,9 +10,10 @@ CRL is maintained by [Julia Nechaevskaya](mailto:julia.nechaevskaya@live.com).
 
 ## Download
 
-CRL is currently under development.
+* Windows (32-bit): [crl-1.0-win32.zip](https://github.com/JNechaevsky/CRL/releases/download/crl-1.0/crl-1.0-win32.zip)
+* Windows (64-bit): [crl-1.0-win64.zip](https://github.com/JNechaevsky/CRL/releases/download/crl-1.0/crl-1.0-win64.zip)
 
-Old version of Chocorenderlimits ported to SDL2 can be found [here](https://github.com/JNechaevsky/ChocoRenderLimits/releases/tag/1.0).
+Previous versions can be found on [Releases](https://github.com/JNechaevsky/CRL/releases) page.
 
 ## Major features
 
