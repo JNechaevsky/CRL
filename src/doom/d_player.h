@@ -119,6 +119,8 @@ typedef struct player_s
     int			attackdown;
     int			usedown;
 
+    boolean		vilebombdown;
+
     // Bit flags, for cheats and debug.
     // See cheat_t, above.
     int			cheats;		

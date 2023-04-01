@@ -201,6 +201,8 @@ extern int CRL_invis_counter;
 extern int CRL_rad_counter;
 extern int CRL_amp_counter;
 
+extern boolean vile_jump;
+
 // [crispy] demo progress bar and timer widget
 extern void CRL_DemoTimer (const int time);
 extern void CRL_DemoBar (void);
