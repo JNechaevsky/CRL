@@ -50,7 +50,7 @@ void V_CopyRect(int srcx, int srcy, pixel_t *source,
 
 void V_DrawPatch(int x, int y, patch_t *patch);
 void V_DrawPatchFlipped(int x, int y, patch_t *patch);
-void V_DrawShadowedPatch(int x, int y, const patch_t *patch);
+void V_DrawShadowedPatch(int x, int y, const patch_t *patch, char *name);
 
 // Draw a linear block of pixels into the view buffer.
 

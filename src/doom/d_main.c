@@ -311,6 +311,8 @@ static void D_Display (void)
     // draw pause pic
     if (paused)
     {
+        char *m_pause = DEH_String("M_PAUSE");
+
         if (automapactive)
         {
             y = 4;
@@ -321,7 +323,7 @@ static void D_Display (void)
         }
 
         V_DrawShadowedPatch(viewwindowx + (scaledviewwidth - 68) / 2, y,
-                            W_CacheLumpName (DEH_String("M_PAUSE"), PU_CACHE));
+                            W_CacheLumpName (m_pause, PU_CACHE), m_pause);
     }
 
     // [JN] Do not draw any CRL widgets if not in game level.
@@ -373,11 +375,13 @@ static void D_Display (void)
 
     // Handle player messages
     CRL_DrawMessage();
-    CRL_DrawCriticalMessage();
 
     // menus go directly to the screen
     M_Drawer ();   // menu is drawn even on top of everything
     NetUpdate ();  // send out any new accumulation
+
+    // [JN] Critical messages are drawn even higher than on top everything!
+    CRL_DrawCriticalMessage();
 
     // normal update
     if (!wipe)

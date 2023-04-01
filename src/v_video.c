@@ -244,7 +244,7 @@ void V_DrawPatchFlipped(int x, int y, patch_t *patch)
 // Masks a column based masked pic to the screen, with casted shadow
 // -----------------------------------------------------------------------------
 
-void V_DrawShadowedPatch (int x, int y, const patch_t *patch)
+void V_DrawShadowedPatch (int x, int y, const patch_t *patch, char *name)
 {
     int       count, col, w;
     byte     *source, *sourcetrans;
@@ -261,8 +261,8 @@ void V_DrawShadowedPatch (int x, int y, const patch_t *patch)
     ||  y + SHORT(patch->height) > SCREENHEIGHT)
     {
         // [JN] Do not crash, print a critical message instead.
-        CRL_SetCriticalMessage("V_DrawShadowedPatch:"
-        "\rBad V_DrawShadowedPatch (vanilla crashes here)", 2);
+        CRL_SetCriticalMessage(M_StringJoin("V_DrawPatch error:",
+        "\rBad V_DrawPatch \"", name, "\"", NULL), 2);
         return;
     }
 #endif

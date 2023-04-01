@@ -358,6 +358,7 @@ void F_TextWrite (void)
     int		c;
     int		cx;
     int		cy;
+    char	name[9];
     
     // erase the entire screen to a tiled background
     src = W_CacheLumpName ( finaleflat , PU_CACHE);
@@ -409,7 +410,9 @@ void F_TextWrite (void)
 	w = SHORT (hu_font[c]->width);
 	if (cx+w > SCREENWIDTH)
 	    break;
-	V_DrawShadowedPatch(cx, cy, hu_font[c]);
+	// [JN] Construct proper patch name for possible error handling:
+	sprintf(name, "STCFN%03d", c + HU_FONTSTART);
+	V_DrawShadowedPatch(cx, cy, hu_font[c], name);
 	cx+=w;
     }
 	
