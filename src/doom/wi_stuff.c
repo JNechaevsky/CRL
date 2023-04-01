@@ -1319,6 +1319,7 @@ void WI_drawNetgameStats(void)
     int		x;
     int		y;
     int		pwidth = SHORT(percent->width);
+    char	name[9];
 
     WI_slamBackground();
     
