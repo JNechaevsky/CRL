@@ -483,7 +483,7 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
 
     next_weapon = 0;
 
-    // [JN] CRL - simulate jump by Arch-Vile's attack.
+    // [JN] CRL - imitate jump by Arch-Vile's attack.
     if (gamekeydown[key_crl_vilebomb] && singleplayer)
     {
         CRL_vilebomb = true;

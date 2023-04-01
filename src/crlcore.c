@@ -84,7 +84,7 @@ int CRL_invis_counter;
 int CRL_rad_counter;
 int CRL_amp_counter;
 
-// [JN] Simulate jump by Arch-Vile's attack.
+// [JN] Imitate jump by Arch-Vile's attack.
 // Do not modify buttoncode_t (d_event.h) for consistency.
 boolean CRL_vilebomb;
 

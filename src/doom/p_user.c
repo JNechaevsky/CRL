@@ -328,11 +328,12 @@ void P_PlayerThink (player_t* player)
     else
 	player->usedown = false;
     
-    // [JN] CRL - simulate jump by Arch-Vile's attack.
+    // [JN] CRL - imitate jump by Arch-Vile's attack.
     if (CRL_vilebomb)
     {
         if (!player->vilebombdown)
         {
+            // Copied over from A_VileAttack:
             player->mo->momz = 1000*FRACUNIT / player->mo->info->mass;
             player->vilebombdown = true;
         }
