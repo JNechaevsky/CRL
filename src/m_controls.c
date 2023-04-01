@@ -154,6 +154,7 @@ int key_crl_freeze = 0;
 int key_crl_notarget = 0;
 int key_crl_map_rotate = 'r';
 int key_crl_map_overlay = 'o';
+int key_crl_autorun = KEY_CAPSLOCK; // [crispy]
 int key_crl_vilebomb = 0;
  
 int key_crl_nextlevel = 0; // [crispy]
@@ -276,6 +277,7 @@ void M_BindMenuControls(void)
     M_BindIntVariable("key_crl_notarget",     &key_crl_notarget);
     M_BindIntVariable("key_crl_map_rotate",   &key_crl_map_rotate);
     M_BindIntVariable("key_crl_map_overlay",  &key_crl_map_overlay);
+    M_BindIntVariable("key_crl_autorun",      &key_crl_autorun); // [crispy]
     M_BindIntVariable("key_crl_vilebomb",     &key_crl_vilebomb);
 
     M_BindIntVariable("key_crl_nextlevel",   &key_crl_nextlevel); // [crispy]

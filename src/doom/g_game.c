@@ -377,6 +377,29 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
     else 
 	tspeed = speed;
     
+    // [crispy] toggle "always run"
+    if (gamekeydown[key_crl_autorun])
+    {
+        static int joybspeed_old = 2;
+
+        if (joybspeed >= MAX_JOY_BUTTONS)
+        {
+            joybspeed = joybspeed_old;
+        }
+        else
+        {
+            joybspeed_old = joybspeed;
+            joybspeed = MAX_JOY_BUTTONS;
+        }
+
+        CRL_SetMessage(&players[consoleplayer], joybspeed >= MAX_JOY_BUTTONS ?
+                       CRL_AUTORUN_ON : CRL_AUTORUN_OFF, false, NULL);
+
+        S_StartSound(NULL, sfx_swtchn);
+
+        gamekeydown[key_crl_autorun] = false;
+    }
+
     // let movement keys cancel each other out
     if (strafe) 
     { 
