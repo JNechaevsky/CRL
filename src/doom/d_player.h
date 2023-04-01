@@ -119,6 +119,9 @@ typedef struct player_s
     int			attackdown;
     int			usedown;
 
+    // [JN] CRL - if true, jumping condition will be allowed.
+    boolean		vilebombdown;
+
     // Bit flags, for cheats and debug.
     // See cheat_t, above.
     int			cheats;		
