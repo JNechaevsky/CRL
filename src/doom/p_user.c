@@ -329,7 +329,7 @@ void P_PlayerThink (player_t* player)
 	player->usedown = false;
     
     // [JN] CRL - simulate jump by Arch-Vile's attack.
-    if (vile_jump)
+    if (CRL_vilebomb)
     {
         if (!player->vilebombdown)
         {

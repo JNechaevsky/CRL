@@ -486,11 +486,11 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
     // [JN] CRL - simulate jump by Arch-Vile's attack.
     if (gamekeydown[key_crl_vilebomb] && singleplayer)
     {
-        vile_jump = true;
+        CRL_vilebomb = true;
     }
     else
     {
-        vile_jump = false;
+        CRL_vilebomb = false;
     }
 
     // mouse
