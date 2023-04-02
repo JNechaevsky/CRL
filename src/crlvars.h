@@ -24,6 +24,8 @@
 
 extern int crl_startup_delay;
 extern int crl_resize_delay;
+extern int crl_vsync;
+extern int crl_fpslimit;
 extern int crl_screen_size;
 extern int crl_gamma;
 extern int crl_monosfx;

@@ -127,6 +127,10 @@ extern CRL_Widgets_t CRLWidgets;
 // Drawing functions
 //
 
+// [AM] Fractional part of the current tic, in the half-open
+//      range of [0.0, 1.0).  Used for interpolation.
+extern fixed_t fractionaltic;
+
 extern void CRL_Init (int* __colorset, int __numcolors, int __pllim);
 extern void CRL_ChangeFrame (int __err);
 extern void CRL_MarkPixelP (void** __surface, void* __what, void* __drawp);

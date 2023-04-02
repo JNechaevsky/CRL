@@ -26,6 +26,10 @@
 int crl_startup_delay = 35;
 // Time to wait for the screen to be updated after resizing (ms).
 int crl_resize_delay = 35;
+// Vertical sync.
+int crl_vsync = 1;
+// Frame rate limiting.
+int crl_fpslimit = 60;
 // Size of game screen (previously "screenblocks").
 int crl_screen_size = 10;
 // Improved and original gamma-correction (default is OFF).
@@ -83,6 +87,8 @@ void CRL_BindVariables (void)
 {
     M_BindIntVariable("crl_startup_delay",              &crl_startup_delay);
     M_BindIntVariable("crl_resize_delay",               &crl_resize_delay);
+    M_BindIntVariable("crl_vsync",                      &crl_vsync);
+    M_BindIntVariable("crl_fpslimit",                   &crl_fpslimit);
     M_BindIntVariable("crl_screen_size",                &crl_screen_size);
     M_BindIntVariable("crl_gamma",                      &crl_gamma);
     M_BindIntVariable("crl_monosfx",                    &crl_monosfx);

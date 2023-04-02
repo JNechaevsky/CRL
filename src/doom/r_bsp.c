@@ -25,6 +25,7 @@
 #include "doomstat.h"
 #include "p_local.h"
 
+#include "crlcore.h"
 #include "crlvars.h"
 
 

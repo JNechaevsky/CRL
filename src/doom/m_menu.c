@@ -520,6 +520,8 @@ static void M_CRL_NoMomentum (int choice);
 static void M_ChooseCRL_Video (int choice);
 static void M_DrawCRL_Video (void);
 static void M_CRL_UncappedFPS (int choice);
+static void M_CRL_LimitFPS (int choice);
+static void M_CRL_VSync (int choice);
 static void M_CRL_VisplanesDraw (int choice);
 static void M_CRL_HOMDraw (int choice);
 static void M_CRL_Gamma (int choice);
@@ -795,6 +797,8 @@ static void M_ChooseCRL_Console (int choice)
 static menuitem_t CRLMenu_Video[]=
 {
     { 2, "UNCAPPED FRAMERATE",  M_CRL_UncappedFPS,    'u'},
+    { 2, "FRAMERATE LIMIT",     M_CRL_LimitFPS,       'f'},
+    { 2, "ENABLE VSYNC",        M_CRL_VSync,          'e'},
     { 2, "VISPLANES DRAWING",   M_CRL_VisplanesDraw,  'v'},
     { 2, "HOM EFFECT",          M_CRL_HOMDraw,        'h'},
     { 2, "GAMMA-CORRECTION",    M_CRL_Gamma,          'g'},
@@ -805,8 +809,6 @@ static menuitem_t CRLMenu_Video[]=
     { 2, "TEXT CASTS SHADOWS",  M_CRL_TextShadows,    't'},
     { 2, "SHOW ENDOOM SCREEN",  M_CRL_ShowENDOOM,     's'},
     { 2, "COLORBLIND",          M_CRL_Colorblind,     'c'},
-    {-1, "", 0, '\0'},
-    {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'}
 };
@@ -844,23 +846,36 @@ static void M_DrawCRL_Video (void)
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 36, str, 
                  crl_uncapped_fps ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
+    // Framerate limit
+    sprintf(str, !crl_uncapped_fps ? "35" :
+                 crl_fpslimit ? "%d" : "NONE", crl_fpslimit);
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 45, str, 
+                 !crl_uncapped_fps ? cr[CR_DARKRED] :
+                 crl_fpslimit ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
+    // Enable vsync
+    sprintf(str, crl_vsync ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 54, str, 
+                 crl_vsync ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
     // Visplanes drawing mode
     sprintf(str, crl_visplanes_drawing == 0 ? "NORMAL" :
                  crl_visplanes_drawing == 1 ? "FILL" :
                  crl_visplanes_drawing == 2 ? "OVERFILL" :
                  crl_visplanes_drawing == 3 ? "BORDER" : "OVERBORDER");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 45, str,
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 63, str,
                  crl_visplanes_drawing > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // HOM effect
     sprintf(str, crl_hom_effect == 0 ? "OFF" :
                  crl_hom_effect == 1 ? "MULTICOLOR" : "BLACK");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 54, str,
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 72, str,
                  crl_hom_effect > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
+
     // Gamma-correction slider and num
-    M_DrawThermo(46, 71, 15, crl_gamma);
-    M_WriteText (184, 74, crl_gamma ==  0 ? "0.50" :
+    M_DrawThermo(46, 89, 15, crl_gamma);
+    M_WriteText (184, 92, crl_gamma ==  0 ? "0.50" :
                           crl_gamma ==  1 ? "0.55" :
                           crl_gamma ==  2 ? "0.60" :
                           crl_gamma ==  3 ? "0.65" :
@@ -876,28 +891,28 @@ static void M_DrawCRL_Video (void)
                           crl_gamma == 13 ? "3"    :
                                             "4", NULL);
 
-    M_WriteTextCentered(90, "MISCELLANEOUS", cr[CR_YELLOW]);
+    M_WriteTextCentered(108, "MISCELLANEOUS", cr[CR_YELLOW]);
 
     // Screen wipe effect
     sprintf(str, crl_screenwipe ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 99, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 117, str, 
                  crl_screenwipe ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Text casts shadows
     sprintf(str, crl_text_shadows ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 108, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 126, str, 
                  crl_text_shadows ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Screen wipe effect
     sprintf(str, show_endoom ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 117, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 135, str, 
                  show_endoom ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Colorblind
     sprintf(str, crl_colorblind == 1 ? "RED/GREEN" :
                  crl_colorblind == 2 ? "BLUE/YELLOW" :
                  crl_colorblind == 3 ? "MONOCHROME" : "NONE");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 126, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 144, str, 
                  crl_colorblind > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
 }
 
@@ -906,6 +921,42 @@ static void M_CRL_UncappedFPS (int choice)
     crl_uncapped_fps ^= 1;
     // [JN] Skip weapon bobbing interpolation for next frame.
     pspr_interp = false;
+}
+
+static void M_CRL_LimitFPS (int choice)
+{
+    if (!crl_uncapped_fps)
+    {
+        return;  // Do not allow change value in capped framerate.
+    }
+    
+    switch (choice)
+    {
+        case 0:
+            if (crl_fpslimit)
+                crl_fpslimit--;
+
+            if (crl_fpslimit < TICRATE)
+                crl_fpslimit = 0;
+
+            break;
+        case 1:
+            if (crl_fpslimit < 501)
+                crl_fpslimit++;
+
+            if (crl_fpslimit < TICRATE)
+                crl_fpslimit = TICRATE;
+
+        default:
+            break;
+    }
+}
+
+static void M_CRL_VSync (int choice)
+{
+    crl_vsync ^= 1;
+
+    I_ReInitGraphics(REINIT_RENDERER | REINIT_TEXTURES | REINIT_ASPECTRATIO);
 }
 
 static void M_CRL_VisplanesDraw (int choice)
