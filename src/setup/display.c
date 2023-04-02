@@ -71,6 +71,8 @@ static int integer_scaling = 0;
 static int vga_porch_flash = 0;
 static int force_software_renderer = 0;
 static int fullscreen = 1;
+static int window_position_y = 0;
+static int window_position_x = 0;
 static int fullscreen_width = 0, fullscreen_height = 0;
 static int window_width = 640, window_height = 480;
 static int max_scaling_buffer_pixels = 16000000;
@@ -254,6 +256,8 @@ void BindDisplayVariables(void)
     M_BindIntVariable("smooth_scaling",            &smooth_scaling);
     M_BindIntVariable("integer_scaling",           &integer_scaling);
     M_BindIntVariable("fullscreen",                &fullscreen);
+    M_BindIntVariable("window_position_x",         &window_position_x);
+    M_BindIntVariable("window_position_y",         &window_position_y);
     M_BindIntVariable("fullscreen_width",          &fullscreen_width);
     M_BindIntVariable("fullscreen_height",         &fullscreen_height);
     M_BindIntVariable("window_width",              &window_width);
