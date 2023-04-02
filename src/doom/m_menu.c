@@ -1531,8 +1531,9 @@ static void M_ReadSaveStrings(void)
 static void M_DrawLoad(void)
 {
     int             i;
+    char *m_loadg = DEH_String("M_LOADG");
 	
-    V_DrawShadowedPatch(72, 12, W_CacheLumpName(DEH_String("M_LOADG"), PU_CACHE));
+    V_DrawShadowedPatch(72, 12, W_CacheLumpName(m_loadg, PU_CACHE), m_loadg);
 
     for (i = 0;i < load_end; i++)
     {
@@ -1549,16 +1550,19 @@ static void M_DrawLoad(void)
 static void M_DrawSaveLoadBorder(int x,int y)
 {
     int             i;
+    char *m_lsleft = DEH_String("M_LSLEFT");
+    char *m_lscntr = DEH_String("M_LSCNTR");
+    char *m_lsrght = DEH_String("M_LSRGHT");
 	
-    V_DrawShadowedPatch(x - 8, y + 7, W_CacheLumpName(DEH_String("M_LSLEFT"), PU_CACHE));
+    V_DrawShadowedPatch(x - 8, y + 7, W_CacheLumpName(m_lsleft, PU_CACHE), m_lsleft);
 	
     for (i = 0;i < 24;i++)
     {
-	V_DrawShadowedPatch(x, y + 7, W_CacheLumpName(DEH_String("M_LSCNTR"), PU_CACHE));
+	V_DrawShadowedPatch(x, y + 7, W_CacheLumpName(m_lscntr, PU_CACHE), m_lscntr);
 	x += 8;
     }
 
-    V_DrawShadowedPatch(x, y + 7, W_CacheLumpName(DEH_String("M_LSRGHT"), PU_CACHE));
+    V_DrawShadowedPatch(x, y + 7, W_CacheLumpName(m_lsrght, PU_CACHE),m_lsrght);
 }
 
 
@@ -1599,8 +1603,9 @@ static void M_LoadGame (int choice)
 static void M_DrawSave(void)
 {
     int             i;
+    char *m_saveg = DEH_String("M_SAVEG");
 	
-    V_DrawShadowedPatch(72, 12, W_CacheLumpName(DEH_String("M_SAVEG"), PU_CACHE));
+    V_DrawShadowedPatch(72, 12, W_CacheLumpName(m_saveg, PU_CACHE), m_saveg);
     for (i = 0;i < load_end; i++)
     {
 	M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i);
@@ -1749,7 +1754,9 @@ static void M_QuickLoad(void)
 //
 static void M_DrawReadThis1(void)
 {
-    V_DrawPatch(0, 0, W_CacheLumpName(DEH_String("HELP2"), PU_CACHE));
+    char *help2 = DEH_String("HELP2");
+
+    V_DrawPatch(0, 0, W_CacheLumpName(help2, PU_CACHE), help2);
 }
 
 
@@ -1759,15 +1766,19 @@ static void M_DrawReadThis1(void)
 //
 static void M_DrawReadThis2(void)
 {
+    char *help1 = DEH_String("HELP1");
+
     // We only ever draw the second page if this is 
     // gameversion == exe_doom_1_9 and gamemode == registered
 
-    V_DrawPatch(0, 0, W_CacheLumpName(DEH_String("HELP1"), PU_CACHE));
+    V_DrawPatch(0, 0, W_CacheLumpName(help1, PU_CACHE), help1);
 }
 
 static void M_DrawReadThisCommercial(void)
 {
-    V_DrawPatch(0, 0, W_CacheLumpName(DEH_String("HELP"), PU_CACHE));
+    char *help = DEH_String("HELP");
+
+    V_DrawPatch(0, 0, W_CacheLumpName(help, PU_CACHE), help);
 }
 
 
@@ -1776,7 +1787,9 @@ static void M_DrawReadThisCommercial(void)
 //
 static void M_DrawSound(void)
 {
-    V_DrawShadowedPatch(60, 38, W_CacheLumpName(DEH_String("M_SVOL"), PU_CACHE));
+    char *m_svol = DEH_String("M_SVOL");
+
+    V_DrawShadowedPatch(60, 38, W_CacheLumpName(m_svol, PU_CACHE), m_svol);
 
     M_DrawThermo(SoundDef.x,SoundDef.y+LINEHEIGHT*(sfx_vol+1),
 		 16,sfxVolume);
@@ -1832,7 +1845,9 @@ static void M_MusicVol(int choice)
 //
 static void M_DrawMainMenu(void)
 {
-    V_DrawPatch(94, 2, W_CacheLumpName(DEH_String("M_DOOM"), PU_CACHE));
+    char *m_doom = DEH_String("M_DOOM");
+
+    V_DrawPatch(94, 2, W_CacheLumpName(m_doom, PU_CACHE), m_doom);
 }
 
 
@@ -1843,8 +1858,11 @@ static void M_DrawMainMenu(void)
 //
 static void M_DrawNewGame(void)
 {
-    V_DrawShadowedPatch(96, 14, W_CacheLumpName(DEH_String("M_NEWG"), PU_CACHE));
-    V_DrawShadowedPatch(54, 38, W_CacheLumpName(DEH_String("M_SKILL"), PU_CACHE));
+    char *m_newg = DEH_String("M_NEWG");
+    char *m_skill = DEH_String("M_SKILL");
+
+    V_DrawShadowedPatch(96, 14, W_CacheLumpName(m_newg, PU_CACHE), m_newg);
+    V_DrawShadowedPatch(54, 38, W_CacheLumpName(m_skill, PU_CACHE), m_skill);
 }
 
 static void M_NewGame(int choice)
@@ -1871,7 +1889,9 @@ static int epi;
 
 static void M_DrawEpisode(void)
 {
-    V_DrawShadowedPatch(54, 38, W_CacheLumpName(DEH_String("M_EPISOD"), PU_CACHE));
+    char *m_episod = DEH_String("M_EPISOD");
+
+    V_DrawShadowedPatch(54, 38, W_CacheLumpName(m_episod, PU_CACHE), m_episod);
 }
 
 static void M_VerifyNightmare(int key)
@@ -1919,13 +1939,17 @@ static char *msgNames[2] = {"M_MSGOFF","M_MSGON"};
 
 static void M_DrawOptions(void)
 {
-    V_DrawShadowedPatch(108, 15, W_CacheLumpName(DEH_String("M_OPTTTL"), PU_CACHE));
+    char *m_optttl = DEH_String("M_OPTTTL");
+
+    V_DrawShadowedPatch(108, 15, W_CacheLumpName(m_optttl, PU_CACHE), m_optttl);
 	
     V_DrawShadowedPatch(OptionsDef.x + 175, OptionsDef.y + LINEHEIGHT * detail,
-		        W_CacheLumpName(DEH_String(detailNames[detailLevel]), PU_CACHE));
+		        W_CacheLumpName(DEH_String(detailNames[detailLevel]), PU_CACHE),
+                                DEH_String(detailNames[detailLevel]));
 
     V_DrawShadowedPatch(OptionsDef.x + 120, OptionsDef.y + LINEHEIGHT * messages,
-                W_CacheLumpName(DEH_String(msgNames[showMessages]), PU_CACHE));
+                W_CacheLumpName(DEH_String(msgNames[showMessages]), PU_CACHE),
+                                DEH_String(msgNames[showMessages]));
 
     M_DrawThermo(OptionsDef.x, OptionsDef.y + LINEHEIGHT * (mousesens + 1),
 		 10, mouseSensitivity);
@@ -2165,16 +2189,20 @@ M_DrawThermo
 {
     int		xx;
     int		i;
+    char	*m_therml = DEH_String("M_THERML");
+    char	*m_thermm = DEH_String("M_THERMM");
+    char	*m_thermr = DEH_String("M_THERMR");
+    char	*m_thermo = DEH_String("M_THERMO");
 
     xx = x;
-    V_DrawShadowedPatch(xx, y, W_CacheLumpName(DEH_String("M_THERML"), PU_CACHE));
+    V_DrawShadowedPatch(xx, y, W_CacheLumpName(m_therml, PU_CACHE), m_therml);
     xx += 8;
     for (i=0;i<thermWidth;i++)
     {
-	V_DrawShadowedPatch(xx, y, W_CacheLumpName(DEH_String("M_THERMM"), PU_CACHE));
+	V_DrawShadowedPatch(xx, y, W_CacheLumpName(m_thermm, PU_CACHE), m_thermm);
 	xx += 8;
     }
-    V_DrawShadowedPatch(xx, y, W_CacheLumpName(DEH_String("M_THERMR"), PU_CACHE));
+    V_DrawShadowedPatch(xx, y, W_CacheLumpName(m_thermr, PU_CACHE), m_thermr);
 
     // [crispy] do not crash anymore if value exceeds thermometer range
     if (thermDot >= thermWidth)
@@ -2182,7 +2210,7 @@ M_DrawThermo
         thermDot = thermWidth - 1;
     }
 
-    V_DrawPatch((x + 8) + thermDot * 8, y, W_CacheLumpName(DEH_String("M_THERMO"), PU_CACHE));
+    V_DrawPatch((x + 8) + thermDot * 8, y, W_CacheLumpName(m_thermo, PU_CACHE), m_thermo);
 }
 
 static void
@@ -2250,6 +2278,7 @@ void M_WriteText (int x, int y, const char *string, byte *table)
 {
     const char*	ch;
     int w, c, cx, cy;
+    char name[9];
 
     ch = string;
     cx = x;
@@ -2298,7 +2327,9 @@ void M_WriteText (int x, int y, const char *string, byte *table)
             break;
         }
 
-        V_DrawShadowedPatch(cx, cy, hu_font[c]);
+        // [JN] Construct proper patch name for possible error handling:
+        sprintf(name, "STCFN%03d", c + HU_FONTSTART);
+        V_DrawShadowedPatch(cx, cy, hu_font[c], name);
         cx+=w;
     }
 
@@ -2315,6 +2346,7 @@ void M_WriteTextCentered (const int y, const char *string, byte *table)
     const char *ch;
     const int width = M_StringWidth(string);
     int w, c, cx, cy;
+    char name[9];
 
     ch = string;
     cx = SCREENWIDTH/2-width/2;
@@ -2370,7 +2402,9 @@ void M_WriteTextCentered (const int y, const char *string, byte *table)
             break;
         }
         
-        V_DrawShadowedPatch(cx, cy, hu_font[c]);
+        // [JN] Construct proper patch name for possible error handling:
+        sprintf(name, "STCFN%03d", c + HU_FONTSTART);
+        V_DrawShadowedPatch(cx, cy, hu_font[c], name);
         cx += w;
     }
     
@@ -3232,7 +3266,7 @@ void M_Drawer (void)
         {
             if (name[0])
             {
-                V_DrawShadowedPatch(x, y, W_CacheLumpName(name, PU_CACHE));
+                V_DrawShadowedPatch(x, y, W_CacheLumpName(name, PU_CACHE), name);
             }
             y += LINEHEIGHT;
         }
@@ -3247,7 +3281,8 @@ void M_Drawer (void)
     {
         // DRAW SKULL
         V_DrawShadowedPatch(x + SKULLXOFF, currentMenu->y - 5 + itemOn*LINEHEIGHT,
-	    	        W_CacheLumpName(DEH_String(skullName[whichSkull]), PU_CACHE));
+                            W_CacheLumpName(DEH_String(skullName[whichSkull]), PU_CACHE),
+                            DEH_String(skullName[whichSkull]));
     }
 }
 

@@ -1654,6 +1654,7 @@ static void AM_drawMarks (void)
 {
     int i, fx, fy;
     mpoint_t pt;
+    char name[9];
 
     for ( i = 0 ; i < AM_NUMMARKPOINTS ; i++)
     {
@@ -1673,7 +1674,9 @@ static void AM_drawMarks (void)
 
             if (fx >= f_x && fx <= f_w - 5 && fy >= f_y && fy <= f_h - 6)
             {
-                V_DrawPatch(fx, fy, marknums[i]);
+                // [JN] Construct proper patch name for possible error handling:
+                sprintf(name, "AMMNUM%d", i);
+                V_DrawPatch(fx, fy, marknums[i], name);
             }
         }
     }

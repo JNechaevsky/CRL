@@ -80,7 +80,7 @@ static void SaveDiskData(char *disk_lump, int xoffs, int yoffs)
 
     // Draw the patch and save the result to disk_data.
     disk = W_CacheLumpName(disk_lump, PU_STATIC);
-    V_DrawPatch(loading_disk_xoffs, loading_disk_yoffs, disk);
+    V_DrawPatch(loading_disk_xoffs, loading_disk_yoffs, disk, disk_lump);
     CopyRegion(disk_data, LOADING_DISK_W,
                tmpscreen + yoffs * SCREENWIDTH + xoffs, SCREENWIDTH,
                LOADING_DISK_W, LOADING_DISK_H);
