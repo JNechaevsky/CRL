@@ -46,6 +46,7 @@
 #include "v_video.h"
 
 #include "wi_stuff.h"
+#include "p_local.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
@@ -555,7 +556,13 @@ WI_drawOnLnode
     else
     {
 	// DEBUG
-	printf("Could not place patch on level %d\n", n+1); 
+	// printf("Could not place patch on level %d\n", n+1); 
+	// [JN] CRL - print clarified in-game message.
+	char num[1];
+
+	sprintf(num, "%d", n+1);
+	CRL_SetCriticalMessage(M_StringJoin("WI_drawOnLnode:"
+	"\rCould not place \"WISPLAT\" patch on level ", num, NULL), 2);
     }
 }
 
