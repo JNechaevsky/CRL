@@ -902,6 +902,46 @@ static void P_LoadReject(int lumpnum)
     }
 }
 
+// -----------------------------------------------------------------------------
+// P_CheckMapFormat
+// [JN] CRL - check for map nodes format, abort if is not supported.
+// Adapted from Crispy Doom.
+// -----------------------------------------------------------------------------
+
+static void P_CheckMapFormat (int lumpnum)
+{
+    byte *nodes = NULL;
+    int b;
+
+    if ((b = lumpnum+ML_BLOCKMAP+1) < numlumps
+    && !strncasecmp(lumpinfo[b]->name, "BEHAVIOR", 8))
+    {
+        I_Error ("Maps in Hexen formap are not supported.");
+    }
+
+    if (!((b = lumpnum+ML_NODES) < numlumps
+    && (nodes = W_CacheLumpNum(b, PU_CACHE))
+    && W_LumpLength(b) > 0))
+    {
+        I_Error ("Map does not contain nodes.");
+    }
+    else
+    if (!memcmp(nodes, "XNOD", 4))
+    {
+        I_Error ("ZDBSP nodes are not supported.");
+    }
+    else
+    if (!memcmp(nodes, "ZNOD", 4))
+    {
+        I_Error ("ZDBSP nodes are not supported.");
+    }
+
+    if (nodes)
+    {
+        W_ReleaseLumpNum(b);
+    }
+}
+
 //
 // P_SetupLevel
 //
@@ -974,6 +1014,9 @@ P_SetupLevel
     {
         fprintf(stderr, "P_SetupLevel: E%dM%d, ", gameepisode, gamemap);
     }
+
+    // [JN] CRL - check for unsupported nodes.
+    P_CheckMapFormat(lumpnum);
 
     // note: most of this ordering is important	
     P_LoadBlockMap (lumpnum+ML_BLOCKMAP);
