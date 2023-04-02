@@ -18,6 +18,7 @@
 //	Main program, simply calls D_DoomMain high level loop.
 //
 
+#include <assert.h>
 #include <stdio.h>
 #include <SDL.h>
 
@@ -25,6 +26,7 @@
 #include "doomtype.h"
 #include "i_system.h"
 #include "m_argv.h"
+#include "m_misc.h"
 
 
 
@@ -42,7 +44,13 @@ int main(int argc, char **argv)
     // save arguments
 
     myargc = argc;
-    myargv = argv;
+    myargv = malloc(argc * sizeof(char *));
+    assert(myargv != NULL);
+
+    for (int i = 0; i < argc; i++)
+    {
+        myargv[i] = M_StringDuplicate(argv[i]);
+    }
 
 #if defined(_WIN32)
     // compose a proper command line from loose file paths passed as arguments
