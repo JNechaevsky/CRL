@@ -406,7 +406,23 @@ static patch_t *background;
 // slam background
 void WI_slamBackground(void)
 {
-    V_DrawPatch(0, 0, background);
+    char *name1 = DEH_String("INTERPIC");
+    char  name2[9];
+
+    // [JN] Construct proper patch name for possible error handling:
+    if (gamemode == commercial)
+    {
+        V_DrawPatch(0, 0, background, name1);
+    }
+    else if (gameversion >= exe_ultimate && wbs->epsd == 3)
+    {
+        V_DrawPatch(0, 0, background, name1);
+    }
+    else
+    {
+        sprintf(name2, "WIMAP%d", wbs->epsd);
+        V_DrawPatch(0, 0, background, name2);
+    }
 }
 
 // The ticker is used to detect keys
@@ -458,7 +474,7 @@ void WI_drawLF(void)
         patch_t tmp = { SCREENWIDTH, SCREENHEIGHT, 1, 1, 
                         { 0, 0, 0, 0, 0, 0, 0, 0 } };
 
-        V_DrawPatch(0, y, &tmp);
+        V_DrawPatch(0, y, &tmp, "NULL");
     }
 }
 
@@ -629,6 +645,7 @@ void WI_drawAnimatedBack(void)
 {
     int			i;
     anim_t*		a;
+    char		name[9];
 
     if (gamemode == commercial)
 	return;
@@ -640,8 +657,10 @@ void WI_drawAnimatedBack(void)
     {
 	a = &anims[wbs->epsd][i];
 
+	// [JN] Construct proper patch name for possible error handling:
+	sprintf(name, "WIA%d%.2d%.2d", wbs->epsd, i, a->ctr);
 	if (a->ctr >= 0)
-	    V_DrawPatch(a->loc.x, a->loc.y, a->p[a->ctr]);
+	    V_DrawPatch(a->loc.x, a->loc.y, a->p[a->ctr], name);
     }
 
 }

@@ -122,7 +122,7 @@ void V_CopyRect(int srcx, int srcy, pixel_t *source,
 // Masks a column based masked pic to the screen. 
 //
 
-void V_DrawPatch(int x, int y, patch_t *patch)
+void V_DrawPatch(int x, int y, patch_t *patch, char *name)
 { 
     int count;
     int col;
@@ -143,8 +143,8 @@ void V_DrawPatch(int x, int y, patch_t *patch)
     {
 		// RestlessRodent -- Do not die
 		// [JN] ... print a critical message instead.
-		CRL_SetCriticalMessage("V_DrawPatch:"
-        "\rBad V_DrawPatch (vanilla crashes here)", 2);
+        CRL_SetCriticalMessage(M_StringJoin("V_DrawPatch error:",
+        "\rBad V_DrawPatch \"", name, "\"", NULL), 2);
 		return;
     }
 

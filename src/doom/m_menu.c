@@ -1754,7 +1754,9 @@ static void M_QuickLoad(void)
 //
 static void M_DrawReadThis1(void)
 {
-    V_DrawPatch(0, 0, W_CacheLumpName(DEH_String("HELP2"), PU_CACHE));
+    char *help2 = DEH_String("HELP2");
+
+    V_DrawPatch(0, 0, W_CacheLumpName(help2, PU_CACHE), help2);
 }
 
 
@@ -1764,15 +1766,19 @@ static void M_DrawReadThis1(void)
 //
 static void M_DrawReadThis2(void)
 {
+    char *help1 = DEH_String("HELP1");
+
     // We only ever draw the second page if this is 
     // gameversion == exe_doom_1_9 and gamemode == registered
 
-    V_DrawPatch(0, 0, W_CacheLumpName(DEH_String("HELP1"), PU_CACHE));
+    V_DrawPatch(0, 0, W_CacheLumpName(help1, PU_CACHE), help1);
 }
 
 static void M_DrawReadThisCommercial(void)
 {
-    V_DrawPatch(0, 0, W_CacheLumpName(DEH_String("HELP"), PU_CACHE));
+    char *help = DEH_String("HELP");
+
+    V_DrawPatch(0, 0, W_CacheLumpName(help, PU_CACHE), help);
 }
 
 
@@ -1839,7 +1845,9 @@ static void M_MusicVol(int choice)
 //
 static void M_DrawMainMenu(void)
 {
-    V_DrawPatch(94, 2, W_CacheLumpName(DEH_String("M_DOOM"), PU_CACHE));
+    char *m_doom = DEH_String("M_DOOM");
+
+    V_DrawPatch(94, 2, W_CacheLumpName(m_doom, PU_CACHE), m_doom);
 }
 
 
@@ -2202,7 +2210,7 @@ M_DrawThermo
         thermDot = thermWidth - 1;
     }
 
-    V_DrawPatch((x + 8) + thermDot * 8, y, W_CacheLumpName(m_thermo, PU_CACHE));
+    V_DrawPatch((x + 8) + thermDot * 8, y, W_CacheLumpName(m_thermo, PU_CACHE), m_thermo);
 }
 
 static void

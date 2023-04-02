@@ -142,6 +142,32 @@ cheatseq_t cheat_powerup[7] =
     CHEAT("idbehold", 0),
 };
 
+// [JN] Patch names used for possible error handling in V_DrawPatch.
+// Just line in IWAD, they are numbered by st_faceindex num.
+static char *facenames[] =
+{
+    "STFST00", "STFST01", "STFST02",   // 0, 1, 2
+    "STFTR00", "STFTL00", "STFOUCH0",  // 3, 4, 5
+    "STFEVL0", "STFKILL0",             // 6, 7
+
+    "STFST10", "STFST11", "STFST12",   // 8, 9, 10
+    "STFTR10", "STFTL10", "STFOUCH1",  // 11, 12, 13
+    "STFEVL1", "STFKILL1",             // 14, 15
+
+    "STFST20", "STFST21", "STFST22",   // 16, 17, 18
+    "STFTR20", "STFTL20", "STFOUCH2",  // 19, 20, 21
+    "STFEVL2", "STFKILL2",             // 22, 23
+
+    "STFST30", "STFST31", "STFST32",   // 24, 25, 26
+    "STFTR30", "STFTL30", "STFOUCH3",  // 27, 28, 29
+    "STFEVL3", "STFKILL3",             // 30, 31
+
+    "STFST40", "STFST41", "STFST42",   // 32, 33, 34
+    "STFTR40", "STFTL40", "STFOUCH4",  // 35, 36, 37
+    "STFEVL4", "STFKILL4",             // 38, 39
+
+    "STFGOD0", "STFDEAD0"              // 40, 41
+};
 
 // -----------------------------------------------------------------------------
 // GiveBackpack
@@ -984,6 +1010,7 @@ static void ST_DrawBigNumber (int val, const int x, const int y, byte *table)
 {
     int oldval = val;
     int xpos = x;
+    char name[9];
 
     dp_translation = table;
 
@@ -999,7 +1026,7 @@ static void ST_DrawBigNumber (int val, const int x, const int y, byte *table)
 
         // [JN] Draw minus symbol with respection of digits placement.
         // However, values below -10 requires some correction in "x" placement.
-        V_DrawPatch(xpos + (val <= 9 ? 20 : 5) - 4, y, tallminus);
+        V_DrawPatch(xpos + (val <= 9 ? 20 : 5) - 4, y, tallminus, DEH_String("STTMINUS"));
     }
     if (val > 999)
     {
@@ -1008,7 +1035,9 @@ static void ST_DrawBigNumber (int val, const int x, const int y, byte *table)
 
     if (val > 99)
     {
-        V_DrawPatch(xpos - 4, y, tallnum[val / 100]);
+        // [JN] Construct proper patch name for possible error handling:
+        sprintf(name, "STTNUM%d", val/100);
+        V_DrawPatch(xpos - 4, y, tallnum[val / 100], name);
     }
 
     val = val % 100;
@@ -1016,13 +1045,17 @@ static void ST_DrawBigNumber (int val, const int x, const int y, byte *table)
 
     if (val > 9 || oldval > 99)
     {
-        V_DrawPatch(xpos - 4, y, tallnum[val / 10]);
+        // [JN] Construct proper patch name for possible error handling:
+        sprintf(name, "STTNUM%d", val/10);
+        V_DrawPatch(xpos - 4, y, tallnum[val / 10], name);
     }
 
     val = val % 10;
     xpos += 14;
 
-    V_DrawPatch(xpos - 4, y, tallnum[val]);
+    // [JN] Construct proper patch name for possible error handling:
+    sprintf(name, "STTNUM%d", val);
+    V_DrawPatch(xpos - 4, y, tallnum[val], name);
     
     dp_translation = NULL;
 }
@@ -1035,7 +1068,7 @@ static void ST_DrawBigNumber (int val, const int x, const int y, byte *table)
 static void ST_DrawPercent (const int x, const int y, byte *table)
 {
     dp_translation = table;
-    V_DrawPatch(x, y, tallpercent);
+    V_DrawPatch(x, y, tallpercent, DEH_String("STTPRCNT"));
     dp_translation = NULL;
 }
 
@@ -1048,6 +1081,7 @@ static void ST_DrawSmallNumberY (int val, const int x, const int y)
 {
     int oldval = val;
     int xpos = x;
+    char name[9];
 
     if (val < 0)
     {
@@ -1060,7 +1094,9 @@ static void ST_DrawSmallNumberY (int val, const int x, const int y)
 
     if (val > 99)
     {
-        V_DrawPatch(xpos - 4, y, shortnum_y[val / 100]);
+        // [JN] Construct proper patch name for possible error handling:
+        sprintf(name, "STYSNUM%d", val/100);
+        V_DrawPatch(xpos - 4, y, shortnum_y[val / 100], name);
     }
 
     val = val % 100;
@@ -1068,13 +1104,17 @@ static void ST_DrawSmallNumberY (int val, const int x, const int y)
 
     if (val > 9 || oldval > 99)
     {
-        V_DrawPatch(xpos - 4, y, shortnum_y[val / 10]);
+        // [JN] Construct proper patch name for possible error handling:
+        sprintf(name, "STYSNUM%d", val/10);
+        V_DrawPatch(xpos - 4, y, shortnum_y[val / 10], name);
     }
 
     val = val % 10;
     xpos += 4;
 
-    V_DrawPatch(xpos - 4, y, shortnum_y[val]);
+    // [JN] Construct proper patch name for possible error handling:
+    sprintf(name, "STYSNUM%d", val);
+    V_DrawPatch(xpos - 4, y, shortnum_y[val], name);
 }
 
 // -----------------------------------------------------------------------------
@@ -1084,6 +1124,8 @@ static void ST_DrawSmallNumberY (int val, const int x, const int y)
 
 static void ST_DrawSmallNumberG (int val, const int x, const int y)
 {
+    char name[9];
+
     if (val < 0)
     {
         val = 0;
@@ -1093,7 +1135,9 @@ static void ST_DrawSmallNumberG (int val, const int x, const int y)
         val = 9;
     }
 
-    V_DrawPatch(x + 4, y, shortnum_g[val]);
+    // [JN] Construct proper patch name for possible error handling:
+    sprintf(name, "STGNUM%d", val);
+    V_DrawPatch(x + 4, y, shortnum_g[val], name);
 }
 
 // -----------------------------------------------------------------------------
@@ -1114,19 +1158,23 @@ static void ST_DrawWeaponNumberFunc (const int val, const int x, const int y, co
 
 void ST_Drawer (void)
 {
+    char  name[9];
+    char *facename;
     plyr = &players[displayplayer];
 
     // Status bar background.
     if (crl_screen_size <= 10 || (automapactive && !crl_automap_overlay))
     {
         V_UseBuffer(st_backing_screen);
-        V_DrawPatch(0, 0, sbar);
+        V_DrawPatch(0, 0, sbar, DEH_String("STBAR"));
 
         if (netgame)
         {
             // Player face background
+            // [JN] Construct proper patch name for possible error handling:
+            sprintf(name, "STFB%d", displayplayer);
             // [JN] killough 3/7/98: make face background change with displayplayer
-            V_DrawPatch(143, 0, faceback[displayplayer]);
+            V_DrawPatch(143, 0, faceback[displayplayer], name);
         }
 
         V_RestoreBuffer();
@@ -1135,7 +1183,7 @@ void ST_Drawer (void)
         // ARMS background
         if (!deathmatch)
         {
-            V_DrawPatch(104, 168, armsbg);
+            V_DrawPatch(104, 168, armsbg, DEH_String("STARMS"));
         }
     }
 
@@ -1177,12 +1225,16 @@ void ST_Drawer (void)
     // Player face background
     if (crl_screen_size == 11)
     {
-        V_DrawPatch(143, 169, netgame ? faceback[displayplayer] : faceback[1]);
+        // [JN] Construct proper patch name for possible error handling:
+        sprintf(name, "STFB%d", netgame ? displayplayer : 1);
+        V_DrawPatch(143, 169, netgame ? faceback[displayplayer] : faceback[1], name);
     }
     // Player face
     if (crl_screen_size <= 11 || (automapactive && !crl_automap_overlay))
     {
-        V_DrawPatch(143, 168, faces[st_faceindex]);
+        // [JN] Construct proper patch name for possible error handling:
+        facename = facenames[st_faceindex];
+        V_DrawPatch(143, 168, faces[st_faceindex], facename);
     }
 
     // Armor
@@ -1191,19 +1243,19 @@ void ST_Drawer (void)
 
     // Keys
     if (plyr->cards[it_blueskull])
-    V_DrawPatch(239, 171, keys[3]);
+    V_DrawPatch(239, 171, keys[3], DEH_String("STKEYS3"));
     else if (plyr->cards[it_bluecard])
-    V_DrawPatch(239, 171, keys[0]);
+    V_DrawPatch(239, 171, keys[0], DEH_String("STKEYS0"));
 
     if (plyr->cards[it_yellowskull])
-    V_DrawPatch(239, 181, keys[4]);
+    V_DrawPatch(239, 181, keys[4], DEH_String("STKEYS4"));
     else if (plyr->cards[it_yellowcard])
-    V_DrawPatch(239, 181, keys[1]);
+    V_DrawPatch(239, 181, keys[1], DEH_String("STKEYS1"));
 
     if (plyr->cards[it_redskull])
-    V_DrawPatch(239, 191, keys[5]);
+    V_DrawPatch(239, 191, keys[5], DEH_String("STKEYS5"));
     else if (plyr->cards[it_redcard])
-    V_DrawPatch(239, 191, keys[2]);
+    V_DrawPatch(239, 191, keys[2], DEH_String("STKEYS2"));
 
     // Ammo (current)
     ST_DrawSmallNumberY(plyr->ammo[0], 280, 173);
