@@ -2979,7 +2979,7 @@ boolean M_Responder (event_t* ev)
         else if (key == key_menu_gamma)    // gamma toggle
         {
 	    crl_gamma++;
-	    if (crl_gamma > 13)
+	    if (crl_gamma > 14)
 		crl_gamma = 0;
 	    CRL_SetMessage(&players[consoleplayer], DEH_String(gammamsg[crl_gamma]), false, NULL);
             I_SetPalette (W_CacheLumpName (DEH_String("PLAYPAL"),PU_CACHE));
