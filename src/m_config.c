@@ -295,6 +295,8 @@ static default_t	doom_defaults_list[] =
 
     CONFIG_VARIABLE_KEY(key_crl_menu),
     CONFIG_VARIABLE_KEY(key_crl_spectator),
+    CONFIG_VARIABLE_KEY(key_crl_cameraup),
+    CONFIG_VARIABLE_KEY(key_crl_cameradown),
     CONFIG_VARIABLE_KEY(key_crl_freeze),
     CONFIG_VARIABLE_KEY(key_crl_notarget),
     CONFIG_VARIABLE_KEY(key_crl_map_rotate),

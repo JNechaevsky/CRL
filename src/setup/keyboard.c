@@ -62,7 +62,8 @@ static int *map_keys[] = { &key_map_north, &key_map_south, &key_map_east,
                            NULL };
 
 static int *crl_keys[] = { &key_crl_menu,
-                           &key_crl_spectator, &key_crl_freeze, &key_crl_notarget,
+                           &key_crl_spectator, &key_crl_cameraup, &key_crl_cameradown, 
+                           &key_crl_freeze, &key_crl_notarget,
                            &key_crl_map_rotate, &key_crl_map_overlay,
                            &key_crl_autorun, &key_crl_vilebomb,
                            &key_crl_nextlevel, &key_crl_reloadlevel,
@@ -307,12 +308,17 @@ void CRLKeysDialog(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(unused))
     AddSectionLabel(table, "Main functions", false);
     
     AddKeyControl(table, "CRL Control Menu",    &key_crl_menu);
-    AddKeyControl(table, "Spectator mode",      &key_crl_spectator);
-    AddKeyControl(table, "Freeze mode",         &key_crl_freeze);
-    AddKeyControl(table, "Notarget mode",       &key_crl_notarget);
     AddKeyControl(table, "Restart level/demo",  &key_crl_reloadlevel);
     AddKeyControl(table, "Go to next level",    &key_crl_nextlevel);
     AddKeyControl(table, "Demo fast-forward",   &key_crl_demospeed);
+
+    AddSectionLabel(table, "Game modes", true);
+    
+    AddKeyControl(table, "Spectator mode",      &key_crl_spectator);
+    AddKeyControl(table, "Move camera up",      &key_crl_cameraup);
+    AddKeyControl(table, "Move camera down",    &key_crl_cameradown);
+    AddKeyControl(table, "Freeze mode",         &key_crl_freeze);
+    AddKeyControl(table, "Notarget mode",       &key_crl_notarget);
 
     AddSectionLabel(table, "Movement", true);
 

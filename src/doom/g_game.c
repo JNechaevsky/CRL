@@ -506,6 +506,19 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
 
     next_weapon = 0;
 
+    // [JN] CRL - move spectator camera up and down.
+    if (crl_spectating)
+    {
+        if (gamekeydown[key_crl_cameraup])
+        {
+            CRL_ImpulseCameraVert(true, crl_camzspeed ? 16 : 8);
+        }
+        if (gamekeydown[key_crl_cameradown])
+        {
+            CRL_ImpulseCameraVert(false, crl_camzspeed ? 16 : 8);
+        }
+    }
+
     // [JN] CRL - imitate jump by Arch-Vile's attack.
     if (gamekeydown[key_crl_vilebomb] && singleplayer)
     {

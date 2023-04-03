@@ -149,11 +149,16 @@ int dclick_use = 1;
 
 // RestlessRodent -- CRL
 int key_crl_menu = '`';
+
 int key_crl_spectator = 0;
+int key_crl_cameraup = 0;
+int key_crl_cameradown = 0;
+
 int key_crl_freeze = 0;
 int key_crl_notarget = 0;
 int key_crl_map_rotate = 'r';
 int key_crl_map_overlay = 'o';
+
 int key_crl_autorun = KEY_CAPSLOCK; // [crispy]
 int key_crl_vilebomb = 0;
  
@@ -273,6 +278,9 @@ void M_BindMenuControls(void)
     // RestlessRodent -- CRL
     M_BindIntVariable("key_crl_menu",		  &key_crl_menu);
     M_BindIntVariable("key_crl_spectator",    &key_crl_spectator);
+    M_BindIntVariable("key_crl_cameraup",     &key_crl_cameraup);
+    M_BindIntVariable("key_crl_cameradown",   &key_crl_cameradown);
+
     M_BindIntVariable("key_crl_freeze",       &key_crl_freeze);
     M_BindIntVariable("key_crl_notarget",     &key_crl_notarget);
     M_BindIntVariable("key_crl_map_rotate",   &key_crl_map_rotate);

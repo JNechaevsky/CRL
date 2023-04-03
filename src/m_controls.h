@@ -138,6 +138,8 @@ extern int dclick_use;
 // GhostlyDeath -- CRL
 extern int key_crl_menu;
 extern int key_crl_spectator;
+extern int key_crl_cameraup;
+extern int key_crl_cameradown;
 extern int key_crl_freeze;
 extern int key_crl_notarget;
 extern int key_crl_map_rotate;
