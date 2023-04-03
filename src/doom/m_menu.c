@@ -1010,7 +1010,7 @@ static void M_CRL_Colorblind (int choice)
     crl_colorblind = M_INT_Slider(crl_colorblind, 0, 3, choice);
 
     // [JN] 1 - always do a full palette reset when colorblind is changed.
-    I_SetPalette (W_CacheLumpName (DEH_String("PLAYPAL"), PU_CACHE), 1);
+    I_SetPalette ((byte *)W_CacheLumpName(DEH_String("PLAYPAL"), PU_CACHE) + st_palette * 768, 1);
 }
 
 // -----------------------------------------------------------------------------
