@@ -89,7 +89,7 @@ static player_t *plyr;
 
 // lump number for PLAYPAL
 static int lu_palette;
-static int st_palette = 0;
+int st_palette = 0;
 
 // used for evil grin
 static boolean	oldweaponsowned[NUMWEAPONS]; 
@@ -751,7 +751,8 @@ static void ST_updateFaceWidget (void)
 void CRL_ReloadPalette (void)
 {
     byte *pal = (byte *) W_CacheLumpNum (lu_palette, PU_CACHE)+st_palette*768;
-    I_SetPalette (pal);
+    // [JN] crl_colorblind - do full palette reset if colorblind is enabled.
+    I_SetPalette (pal, crl_colorblind);
 }
 
 // -----------------------------------------------------------------------------
@@ -1392,7 +1393,7 @@ void ST_unloadData(void)
 
 void ST_Start (void)
 {
-    I_SetPalette (W_CacheLumpNum (lu_palette, PU_CACHE));
+    CRL_ReloadPalette();
 
     plyr = &players[displayplayer];
     faceindex = 1; // [crispy] fix status bar face hysteresis across level changes
