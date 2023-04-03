@@ -751,7 +751,7 @@ static void ST_updateFaceWidget (void)
 void CRL_ReloadPalette (void)
 {
     byte *pal = (byte *) W_CacheLumpNum (lu_palette, PU_CACHE)+st_palette*768;
-    I_SetPalette (pal);
+    I_SetPalette (pal, crl_colorblind);
 }
 
 // -----------------------------------------------------------------------------
@@ -1392,7 +1392,7 @@ void ST_unloadData(void)
 
 void ST_Start (void)
 {
-    I_SetPalette (W_CacheLumpNum (lu_palette, PU_CACHE));
+    I_SetPalette (W_CacheLumpNum (lu_palette, PU_CACHE), 0);
 
     plyr = &players[displayplayer];
     faceindex = 1; // [crispy] fix status bar face hysteresis across level changes

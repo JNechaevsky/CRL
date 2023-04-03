@@ -48,7 +48,7 @@ void I_ShutdownGraphics(void);
 void I_RenderReadPixels (byte **data, int *w, int *h);
 
 // Takes full 8 bit values.
-void I_SetPalette (byte* palette);
+void I_SetPalette (byte* palette, int full_reset);
 int I_GetPaletteIndex(int r, int g, int b);
 
 void I_FinishUpdate (void);

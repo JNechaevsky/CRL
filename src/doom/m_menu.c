@@ -851,7 +851,7 @@ static void M_DrawCRL_Video (void)
                  crl_fpslimit ? "%d" : "NONE", crl_fpslimit);
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 45, str, 
                  !crl_uncapped_fps ? cr[CR_DARKRED] :
-                 crl_fpslimit ? cr[CR_GREEN] : cr[CR_DARKRED]);
+                 crl_fpslimit ? cr[CR_GREEN] : cr[CR_DARKGREEN]);
 
     // Enable vsync
     sprintf(str, crl_vsync ? "ON" : "OFF");
@@ -986,7 +986,7 @@ static void M_CRL_Gamma (int choice)
             break;
     }
 
-    I_SetPalette (W_CacheLumpName (DEH_String("PLAYPAL"),PU_CACHE));
+    I_SetPalette (W_CacheLumpName (DEH_String("PLAYPAL"),PU_CACHE), crl_colorblind);
 }
 
 static void M_CRL_ScreenWipe (int choice)
@@ -1007,7 +1007,8 @@ static void M_CRL_ShowENDOOM (int choice)
 static void M_CRL_Colorblind (int choice)
 {
     crl_colorblind = M_INT_Slider(crl_colorblind, 0, 3, choice);
-    CRL_ReloadPalette();
+
+    I_SetPalette (W_CacheLumpName (DEH_String("PLAYPAL"), PU_CACHE), 1);
 }
 
 // -----------------------------------------------------------------------------
@@ -2982,7 +2983,7 @@ boolean M_Responder (event_t* ev)
 	    if (crl_gamma > 14)
 		crl_gamma = 0;
 	    CRL_SetMessage(&players[consoleplayer], DEH_String(gammamsg[crl_gamma]), false, NULL);
-            I_SetPalette (W_CacheLumpName (DEH_String("PLAYPAL"),PU_CACHE));
+            I_SetPalette (W_CacheLumpName (DEH_String("PLAYPAL"),PU_CACHE), crl_colorblind);
 	    return true;
         }
         // [crispy] those two can be considered as shortcuts for the IDCLEV cheat

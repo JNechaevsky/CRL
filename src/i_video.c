@@ -921,7 +921,7 @@ void I_ReadScreen (pixel_t* scr)
 //
 // I_SetPalette
 //
-void I_SetPalette (byte *doompalette)
+void I_SetPalette (byte *doompalette, int full_reset)
 {
     int i;
     byte palcopy[768];
@@ -929,9 +929,19 @@ void I_SetPalette (byte *doompalette)
     
     // RestlessRodent -- Make a copy since it the lump is cached,
     // which in this case the colorblindness needs to be set
-    memmove(palcopy, doompalette, sizeof(palcopy));
-    usepal = palcopy;
-    CRL_SetColors(palcopy, doompalette);
+    // [JN] Invoking CRL_SetColors is a bit expensive and 
+    // not really needed if not using colorblind mode.
+    if (full_reset)
+    {
+        memmove(palcopy, doompalette, sizeof(palcopy));
+        usepal = palcopy;
+        CRL_SetColors(palcopy, doompalette);
+        printf("\n !! done full reset !!");
+    }
+    else
+    {
+        usepal = doompalette;
+    }
 
     for (i = 0 ; i < 256 ; ++i)
     {
@@ -1496,8 +1506,9 @@ void I_InitGraphics(void)
 
     // Set the palette
 
+    // [JN] 1 - always generate HOM colors at startup.
     doompal = W_CacheLumpName(DEH_String("PLAYPAL"), PU_CACHE);
-    I_SetPalette(doompal);
+    I_SetPalette(doompal, 1);
     SDL_SetPaletteColors(screenbuffer->format->palette, palette, 0, 256);
 
     // SDL2-TODO UpdateFocus();
