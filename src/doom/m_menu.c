@@ -851,7 +851,7 @@ static void M_DrawCRL_Video (void)
                  crl_fpslimit ? "%d" : "NONE", crl_fpslimit);
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 45, str, 
                  !crl_uncapped_fps ? cr[CR_DARKRED] :
-                 crl_fpslimit ? cr[CR_GREEN] : cr[CR_DARKRED]);
+                 crl_fpslimit ? cr[CR_GREEN] : cr[CR_DARKGREEN]);
 
     // Enable vsync
     sprintf(str, crl_vsync ? "ON" : "OFF");
