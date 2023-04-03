@@ -305,17 +305,22 @@ void CRLKeysDialog(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(unused))
     TXT_SetColumnWidths(table, 19, 3);
 
     AddSectionLabel(table, "Main functions", false);
+    
     AddKeyControl(table, "CRL Control Menu",    &key_crl_menu);
     AddKeyControl(table, "Spectator mode",      &key_crl_spectator);
     AddKeyControl(table, "Freeze mode",         &key_crl_freeze);
     AddKeyControl(table, "Notarget mode",       &key_crl_notarget);
-    AddKeyControl(table, "Always run",          &key_crl_autorun);
-    AddKeyControl(table, "Arch-Vile jump",      &key_crl_vilebomb);
     AddKeyControl(table, "Restart level/demo",  &key_crl_reloadlevel);
     AddKeyControl(table, "Go to next level",    &key_crl_nextlevel);
     AddKeyControl(table, "Demo fast-forward",   &key_crl_demospeed);
 
-    AddSectionLabel(table, "Automap", false);
+    AddSectionLabel(table, "Movement", true);
+
+    AddKeyControl(table, "Always run",          &key_crl_autorun);
+    AddKeyControl(table, "Arch-Vile jump",      &key_crl_vilebomb);    
+
+    AddSectionLabel(table, "Automap", true);
+
     AddKeyControl(table, "Rotate mode",         &key_crl_map_rotate);
     AddKeyControl(table, "Overlay mode",        &key_crl_map_overlay);
 
