@@ -49,6 +49,7 @@
 #include "p_local.h"
 #include "ct_chat.h"
 #include "v_trans.h"
+#include "st_bar.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
@@ -986,7 +987,7 @@ static void M_CRL_Gamma (int choice)
             break;
     }
 
-    I_SetPalette (W_CacheLumpName (DEH_String("PLAYPAL"),PU_CACHE), crl_colorblind);
+    CRL_ReloadPalette();
 }
 
 static void M_CRL_ScreenWipe (int choice)
@@ -1008,6 +1009,7 @@ static void M_CRL_Colorblind (int choice)
 {
     crl_colorblind = M_INT_Slider(crl_colorblind, 0, 3, choice);
 
+    // [JN] 1 - always do a full palette reset when colorblind is changed.
     I_SetPalette (W_CacheLumpName (DEH_String("PLAYPAL"), PU_CACHE), 1);
 }
 
@@ -2045,6 +2047,7 @@ static void M_EndGameResponse(int key)
     players[consoleplayer].criticalmessageTics = 1;
     players[consoleplayer].message = NULL;
     players[consoleplayer].criticalmessage = NULL;
+    st_palette = 0;
     D_StartTitle ();
 }
 
@@ -2983,7 +2986,7 @@ boolean M_Responder (event_t* ev)
 	    if (crl_gamma > 14)
 		crl_gamma = 0;
 	    CRL_SetMessage(&players[consoleplayer], DEH_String(gammamsg[crl_gamma]), false, NULL);
-            I_SetPalette (W_CacheLumpName (DEH_String("PLAYPAL"),PU_CACHE), crl_colorblind);
+	    CRL_ReloadPalette();
 	    return true;
         }
         // [crispy] those two can be considered as shortcuts for the IDCLEV cheat

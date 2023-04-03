@@ -936,7 +936,6 @@ void I_SetPalette (byte *doompalette, int full_reset)
         memmove(palcopy, doompalette, sizeof(palcopy));
         usepal = palcopy;
         CRL_SetColors(palcopy, doompalette);
-        printf("\n !! done full reset !!");
     }
     else
     {
