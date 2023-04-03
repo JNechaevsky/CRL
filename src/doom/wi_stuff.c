@@ -558,7 +558,7 @@ WI_drawOnLnode
 	// DEBUG
 	// printf("Could not place patch on level %d\n", n+1); 
 	// [JN] CRL - print clarified in-game message.
-	char num[1];
+	char num[2];
 
 	sprintf(num, "%d", n+1);
 	CRL_SetCriticalMessage(M_StringJoin("WI_drawOnLnode:"
