@@ -315,8 +315,8 @@ void CRLKeysDialog(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(unused))
     AddSectionLabel(table, "Game modes", true);
     
     AddKeyControl(table, "Spectator mode",      &key_crl_spectator);
-    AddKeyControl(table, "Move camera up",      &key_crl_cameraup);
-    AddKeyControl(table, "Move camera down",    &key_crl_cameradown);
+    AddKeyControl(table, " Move camera up",     &key_crl_cameraup);
+    AddKeyControl(table, " Move camera down",   &key_crl_cameradown);
     AddKeyControl(table, "Freeze mode",         &key_crl_freeze);
     AddKeyControl(table, "Notarget mode",       &key_crl_notarget);
 
