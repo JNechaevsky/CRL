@@ -571,6 +571,7 @@ extern void     P_ArchiveSpecials (void);
 extern void     P_ArchiveThinkers (void);
 extern void     P_ArchiveTotalTimes (void);
 extern void     P_ArchiveWorld (void);
+extern void     P_RestoreTargets (void);
 extern void     P_UnArchivePlayers (void);
 extern void     P_UnArchiveSpecials (void);
 extern void     P_UnArchiveThinkers (void);
@@ -581,6 +582,8 @@ extern void     P_WriteSaveGameHeader(char *description);
 
 extern FILE    *save_stream;
 extern boolean  savegame_error;
+
+extern const uint32_t P_ThinkerToIndex (const thinker_t *thinker);
 
 // -----------------------------------------------------------------------------
 // P_SETUP

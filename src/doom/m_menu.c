@@ -557,6 +557,7 @@ static void M_CRL_DefaulSkill (int choice);
 static void M_CRL_PistolStart (int choice);
 static void M_CRL_ColoredSTBar (int choice);
 static void M_CRL_RevealedSecrets (int choice);
+static void M_CRL_RestoreTargets (int choice);
 static void M_CRL_DemoTimer (int choice);
 static void M_CRL_TimerDirection (int choice);
 static void M_CRL_ProgressBar (int choice);
@@ -1424,13 +1425,13 @@ static menuitem_t CRLMenu_Gameplay[]=
     { 2, "PISTOL START GAME MODE",   M_CRL_PistolStart,      'p'},
     { 2, "COLORED STATUS BAR",       M_CRL_ColoredSTBar,     'c'},
     { 2, "REPORT REVEALED SECRETS",  M_CRL_RevealedSecrets,  'r'},
+    { 2, "RESTORE MONSTER TARGETS",  M_CRL_RestoreTargets,   'r'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     { 2, "SHOW DEMO TIMER",          M_CRL_DemoTimer,        's'},
     { 2, "TIMER DIRECTION",          M_CRL_TimerDirection,   't'},
     { 2, "SHOW PROGRESS BAR",        M_CRL_ProgressBar,      's'},
     { 2, "PLAY INTERNAL DEMOS",      M_CRL_InternalDemos,    'p'},
-    {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
@@ -1480,28 +1481,33 @@ static void M_DrawCRL_Gameplay (void)
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 63, str, 
                  crl_revealed_secrets ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
-    M_WriteTextCentered(81, "DEMOS", cr[CR_YELLOW]);
+    // Restore monster target from savegames
+    sprintf(str, crl_restore_targets ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 72, str, 
+                 crl_restore_targets ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
+    M_WriteTextCentered(90, "DEMOS", cr[CR_YELLOW]);
 
     // Demo timer
     sprintf(str, crl_demo_timer == 1 ? "PLAYBACK" : 
                  crl_demo_timer == 2 ? "RECORDING" : 
                  crl_demo_timer == 3 ? "ALWAYS" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 90, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 99, str, 
                  crl_demo_timer ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Timer direction
     sprintf(str, crl_demo_timerdir ? "BACKWARD" : "FORWARD");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 99, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 108, str, 
                  crl_demo_timer ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Progress bar
     sprintf(str, crl_demo_bar ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 108, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 117, str, 
                  crl_demo_bar ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Play internal demos
     sprintf(str, crl_internal_demos ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 117, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 126, str, 
                  crl_internal_demos ? cr[CR_GREEN] : cr[CR_DARKRED]);
 }
 
@@ -1525,6 +1531,11 @@ static void M_CRL_ColoredSTBar (int choice)
 static void M_CRL_RevealedSecrets (int choice)
 {
     crl_revealed_secrets ^= 1;
+}
+
+static void M_CRL_RestoreTargets (int choice)
+{
+    crl_restore_targets ^= 1;
 }
 
 static void M_CRL_DemoTimer (int choice)

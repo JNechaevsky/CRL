@@ -1817,6 +1817,8 @@ void G_DoLoadGame (void)
 
     // [JN] Restore total level times.
     P_UnArchiveTotalTimes ();
+    // [JN] Restore monster targets.
+    P_RestoreTargets ();
 
     fclose(save_stream);
     
