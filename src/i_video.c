@@ -884,23 +884,33 @@ void I_FinishUpdate (void)
 
     SDL_RenderPresent(renderer);
 
-    if (crl_uncapped_fps)
+    if (crl_uncapped_fps && !singletics)
     {
         // Limit framerate
-        if (crl_fpslimit > 0)
+        if (crl_fpslimit >= TICRATE)
         {
-            static uint64_t last_frame;
-            uint64_t current_frame;
+            uint64_t target_time = 1000000ull / crl_fpslimit;
+            static uint64_t start_time;
 
-            current_frame = (I_GetTimeMS() * crl_fpslimit) / 1000;
-
-            while (current_frame == last_frame)
+            while (1)
             {
-                I_Sleep(1);
-                current_frame = (I_GetTimeMS() * crl_fpslimit) / 1000;
-            }
+                uint64_t current_time = I_GetTimeUS();
+                uint64_t elapsed_time = current_time - start_time;
+                uint64_t remaining_time = 0;
 
-            last_frame = current_frame;
+                if (elapsed_time >= target_time)
+                {
+                    start_time = current_time;
+                    break;
+                }
+
+                remaining_time = target_time - elapsed_time;
+
+                if (remaining_time > 1000)
+                {
+                    I_Sleep((remaining_time - 1000) / 1000);
+                }
+            }
         }
 
         // [AM] Figure out how far into the current tic we're in as a fixed_t.

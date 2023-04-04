@@ -31,6 +31,8 @@
 //
 
 static Uint32 basetime = 0;
+static uint64_t basecounter = 0; // [crispy]
+static uint64_t basefreq = 0; // [crispy]
 
 int  I_GetTime (void)
 {
@@ -62,6 +64,20 @@ int I_GetTimeMS(void)
     return ticks - basetime;
 }
 
+// [crispy] Get time in microseconds
+
+uint64_t I_GetTimeUS(void)
+{
+    uint64_t counter;
+
+    counter = SDL_GetPerformanceCounter();
+
+    if (basecounter == 0)
+        basecounter = counter;
+
+    return ((counter - basecounter) * 1000000ull) / basefreq;
+}
+
 // Sleep for a specified number of ms
 
 void I_Sleep(int ms)
@@ -80,6 +96,8 @@ void I_InitTimer(void)
     // initialize timer
 
     SDL_Init(SDL_INIT_TIMER);
+
+    basefreq = SDL_GetPerformanceFrequency(); // [crispy]
 }
 
 // [crispy]
