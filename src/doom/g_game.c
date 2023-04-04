@@ -1227,6 +1227,8 @@ void G_Ticker (void)
 	P_Ticker (); 
 	ST_Ticker (); 
 	AM_Ticker (); 
+	// [JN] CRL - make multicolor HOM drawing framerate-independent.
+	CRL_GetHOMMultiColor ();
 	break; 
 	 
       case GS_INTERMISSION: 

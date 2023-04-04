@@ -371,30 +371,21 @@ void CRL_ViewDrawer (void)
 }
 
 // -----------------------------------------------------------------------------
-// CRL_DrawHOMBack
-//  Draws the HOM detection background.
-//  @param __x X position.
-//  @param __y Y position,
-//  @param __w Width.
-//  @param __h Height.
-//  @since 2015/12/17
+// CRL_GetHOMMultiColor
+//  [JN] Framerate-independent HOM multi coloring. Called in G_Ticker.
 // -----------------------------------------------------------------------------
 
 // HOM color table.
 #define HOMCOUNT 256
 #define HOMQUAD (HOMCOUNT / 4)
 static int _homtable[HOMCOUNT];
+int CRL_homcolor;  // Color to use
 
-void CRL_DrawHOMBack (int __x, int __y, int __w, int __h)
+void CRL_GetHOMMultiColor (void)
 {
-	static int tic;
-	int usecolor;
-	
-	// Color to use
-	usecolor = _homtable[(++tic) & (HOMCOUNT - 1)];
-	
-	// Draw it
-	V_DrawFilledBox(__x, __y, __w, __h, usecolor);
+    static int tic;
+
+    CRL_homcolor = _homtable[(++tic) & (HOMCOUNT - 1)];
 }
 
 

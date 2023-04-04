@@ -138,7 +138,8 @@ extern void CRL_DrawVisPlanes (int __over);
 extern void CRL_CountPlane (void* __key, int __chorf, int __id);
 extern int  CRL_MaxVisPlanes (void);
 extern void CRL_ViewDrawer (void);
-extern void CRL_DrawHOMBack (int __x, int __y, int __w, int __h);
+extern void CRL_GetHOMMultiColor (void);
+extern int  CRL_homcolor;
 
 extern void GAME_IdentifyPlane (void* __what, CRLPlaneData_t* __info);
 extern void GAME_IdentifySeg (void* __what, CRLSegData_t* __info);
