@@ -2888,6 +2888,8 @@ boolean M_Responder (event_t* ev)
 	if (messageRoutine)
 	    messageRoutine(key);
 
+	// [JN] Do not close Save/Load menu after deleting a savegame.
+	if (currentMenu != &SaveDef && currentMenu != &LoadDef)
 	menuactive = false;
 	S_StartSound(NULL,sfx_swtchx);
 	return true;
