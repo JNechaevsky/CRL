@@ -1369,6 +1369,10 @@ void D_DoomMain (void)
     // Initializes CRL
     CRL_Init(c_PlaneBorderColors, NUMPLANEBORDERCOLORS, 128);
     
+    // Call I_ShutdownGraphics on quit
+
+   	I_AtExit(I_ShutdownGraphics, true);
+
    	I_AtExit(D_Endoom, false);
 
     //!

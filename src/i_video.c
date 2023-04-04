@@ -48,6 +48,7 @@
 #include "v_video.h"
 #include "w_wad.h"
 #include "z_zone.h"
+#include "txt_main.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
@@ -203,6 +204,19 @@ static int usegamma = 0;
 
 // Joystick/gamepad hysteresis
 unsigned int joywait = 0;
+
+// [JN] Used for realtime resizing of ENDOOM screen.
+boolean endoom_screen_active = false;
+
+void *I_GetSDLWindow(void)
+{
+    return screen;
+}
+
+void *I_GetSDLRenderer(void)
+{
+    return renderer;
+}
 
 static boolean MouseShouldBeGrabbed()
 {
@@ -431,8 +445,16 @@ static int HandleWindowResize (void* data, SDL_Event *event)
     if (event->type == SDL_WINDOWEVENT 
     &&  event->window.event == SDL_WINDOWEVENT_RESIZED)
     {
-        // Redraw window contents
-        I_FinishUpdate();
+        // Redraw window contents:
+        if (endoom_screen_active)
+        {
+            TXT_UpdateScreen();
+        }
+        else
+        {
+            I_FinishUpdate();
+        }
+        
     }
     return 0;
 }
@@ -1540,10 +1562,6 @@ void I_InitGraphics(void)
     while (SDL_PollEvent(&dummy));
 
     initialized = true;
-
-    // Call I_ShutdownGraphics on quit
-
-    I_AtExit(I_ShutdownGraphics, true);
 }
 
 // -----------------------------------------------------------------------------

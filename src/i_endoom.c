@@ -39,13 +39,12 @@ void I_Endoom(byte *endoom_data)
     int y;
     int indent;
 
+    endoom_screen_active = true;
+
     // Set up text mode screen
+    TXT_PreInit(I_GetSDLWindow(), I_GetSDLRenderer());
 
     TXT_Init();
-
-    TXT_SetWindowTitle(PACKAGE_STRING);
-    // SDL2-TODO I_InitWindowTitle();
-    // SDL2-TODO I_InitWindowIcon();
 
     // Write the data to the screen memory
 
