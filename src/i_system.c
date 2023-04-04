@@ -259,10 +259,6 @@ static boolean already_quitting = false;
 void I_Error (char *error, ...)
 {
     char msgbuf[512];
-#ifdef _WIN32
-    wchar_t win_error_message[1024];  // [JN] UTF-8 retranslation of error message
-    wchar_t win_error_title[128];     // [JN] UTF-8 retranslation of window title
-#endif
     va_list argptr;
     atexit_listentry_t *entry;
     boolean exit_gui_popup;
@@ -313,7 +309,11 @@ void I_Error (char *error, ...)
     if (exit_gui_popup && !I_ConsoleStdout())
     {
 #ifdef _WIN32
-        // [JN] On Windows OS use system, nicer diaalog box.
+        // [JN] UTF-8 retranslations of error message and window title.
+        wchar_t win_error_message[1024];
+        wchar_t win_error_title[128];
+
+        // [JN] On Windows OS use system, nicer dialog box.
         MultiByteToWideChar(CP_UTF8, 0, msgbuf, -1, win_error_message, 1024);
         MultiByteToWideChar(CP_UTF8, 0, PACKAGE_STRING, -1, win_error_title, 128);
         MessageBoxW(NULL, win_error_message, win_error_title, MB_ICONSTOP);
