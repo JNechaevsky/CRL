@@ -2993,15 +2993,6 @@ boolean M_Responder (event_t* ev)
 	    M_QuitDOOM(0);
 	    return true;
         }
-        else if (key == key_menu_gamma)    // gamma toggle
-        {
-	    crl_gamma++;
-	    if (crl_gamma > 14)
-		crl_gamma = 0;
-	    CRL_SetMessage(&players[consoleplayer], DEH_String(gammamsg[crl_gamma]), false, NULL);
-	    CRL_ReloadPalette();
-	    return true;
-        }
         // [crispy] those two can be considered as shortcuts for the IDCLEV cheat
         // and should be treated as such, i.e. add "if (!netgame)"
         else if (!netgame && key != 0 && key == key_crl_reloadlevel)
@@ -3014,6 +3005,18 @@ boolean M_Responder (event_t* ev)
             if (G_GotoNextLevel())
             return true;
         }
+    }
+
+    // [JN] Allow to change gamma while active menu.
+    if (key == key_menu_gamma)    // gamma toggle
+    {
+        if (++crl_gamma > 14)
+        {
+            crl_gamma = 0;
+        }
+        CRL_SetMessage(&players[consoleplayer], DEH_String(gammamsg[crl_gamma]), false, NULL);
+        CRL_ReloadPalette();
+        return true;
     }
 
     // Pop-up menu?
