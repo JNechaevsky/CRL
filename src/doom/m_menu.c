@@ -34,6 +34,7 @@
 #include "i_system.h"
 #include "i_timer.h"
 #include "i_video.h"
+#include "m_controls.h"
 #include "m_misc.h"
 #include "v_video.h"
 #include "w_wad.h"
@@ -539,6 +540,14 @@ static void M_CRL_SFXMode (int choice);
 static void M_CRL_SFXChannels (int choice);
 static void M_CRL_PitchShift (int choice);
 
+static void M_ChooseCRL_Controls (int choice);
+static void M_DrawCRL_Controls (void);
+static void M_CRL_Controls_Sensivity (int choice);
+static void M_CRL_Controls_Acceleration (int choice);
+static void M_CRL_Controls_Threshold (int choice);
+static void M_CRL_Controls_NoVert (int choice);
+static void M_CRL_Controls_DblClck (int choice);
+
 static void M_ChooseCRL_Widgets (int choice);
 static void M_DrawCRL_Widgets (void);
 static void M_CRL_Widget_Coords (int choice);
@@ -674,6 +683,7 @@ static menuitem_t CRLMenu_Main[]=
     {-1, "", 0, '\0'},
     { 1, "VIDEO OPTIONS",        M_ChooseCRL_Video,     'v'},
     { 1, "SOUND OPTIONS",        M_ChooseCRL_Sound,     's'},
+    { 1, "CONTROL SETTINGS",     M_ChooseCRL_Controls,  'c'},
     { 1, "WIDGETS AND AUTOMAP",  M_ChooseCRL_Widgets,   'w'},
     { 1, "GAMEPLAY FEATURES",    M_ChooseCRL_Gameplay,  'g'},
 #ifdef _WIN32
@@ -681,7 +691,6 @@ static menuitem_t CRLMenu_Main[]=
 #else
     {-1, "", 0, '\0'},
 #endif
-    {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'}
@@ -741,7 +750,7 @@ static void M_DrawCRL_Main (void)
 #ifdef _WIN32
     // Show console window
     sprintf(str, crl_console ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth(str), 126, str,
+    M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth(str), 135, str,
                  crl_console ? cr[CR_GREEN] : cr[CR_DARKRED]);
 #endif
 
@@ -1268,6 +1277,145 @@ static void M_CRL_SFXChannels (int choice)
         default:
             break;
     }
+}
+
+// -----------------------------------------------------------------------------
+// Control settings
+// -----------------------------------------------------------------------------
+
+static menuitem_t CRLMenu_Controls[]=
+{
+    { 2, "SENSIVITY",                    M_CRL_Controls_Sensivity,    's'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    { 2, "ACCELERATION",                 M_CRL_Controls_Acceleration, 'a'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    { 2, "ACCELERATION THRESHOLD",       M_CRL_Controls_Threshold,    'a'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    { 2, "VERTICAL MOUSE MOVEMENT",      M_CRL_Controls_NoVert,       'v'},
+    { 2, "DOUBLE CLICK ACTS AS \"USE\"", M_CRL_Controls_DblClck,      'd'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'}
+};
+
+static menu_t CRLDef_Controls =
+{
+    m_crl_end,
+    &CRLDef_Main,
+    CRLMenu_Controls,
+    M_DrawCRL_Controls,
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    0,
+    true
+};
+
+static void M_ChooseCRL_Controls (int choice)
+{
+    M_SetupNextMenu (&CRLDef_Controls);
+}
+
+static void M_DrawCRL_Controls (void)
+{
+    static char str[32];
+
+    M_ShadeBackground();
+    M_WriteTextCentered(27, "MOUSE CONFIGURATION", cr[CR_YELLOW]);
+
+    M_DrawThermo(46, 45, 10, mouseSensitivity - 1);
+    sprintf(str,"%d", mouseSensitivity);
+    M_WriteText (144, 48, str, mouseSensitivity == 1 ? cr[CR_DARKRED] :
+                               mouseSensitivity > 10 ? cr[CR_GREEN] : NULL);
+
+    M_DrawThermo(46, 72, 12, (mouse_acceleration * 3) - 3);
+    sprintf(str,"%.1f", mouse_acceleration);
+    M_WriteText (160, 75, str, mouse_acceleration == 1.000000f ? cr[CR_DARKRED] :
+                               mouse_acceleration >  4.900000f ? cr[CR_GREEN] : NULL);
+
+    M_DrawThermo(46, 99, 15, mouse_threshold / 2);
+    sprintf(str,"%d", mouse_threshold);
+    M_WriteText (184, 102, str, mouse_threshold == 0 ? cr[CR_DARKRED] :
+                                mouse_threshold > 31 ? cr[CR_GREEN] : NULL);
+
+    M_WriteTextCentered(117, "OTHER FUNCTIONS", cr[CR_YELLOW]);
+
+    // Vertical mouse movement
+    sprintf(str, !novert ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 126, str,
+                 !novert ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
+    // Double click acts as "use"
+    sprintf(str, dclick_use ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 135, str,
+                 dclick_use ? cr[CR_GREEN] : cr[CR_DARKRED]);
+}
+
+static void M_CRL_Controls_Sensivity (int choice)
+{
+    switch (choice)
+    {
+        case 0:
+        if (mouseSensitivity > 1)
+            mouseSensitivity--;
+        break;
+        case 1:
+        if (mouseSensitivity < 255) // [crispy] extended range
+            mouseSensitivity++;
+        break;
+    }
+}
+
+static void M_CRL_Controls_Acceleration (int choice)
+{
+    switch (choice)
+    {   // 1.0 ... 5.0
+        case 0:
+        if (mouse_acceleration > 1.000000f)
+            mouse_acceleration -= 0.100000f;
+
+        if (mouse_acceleration < 1)
+            mouse_acceleration = 1;
+
+        break;
+
+        case 1:
+        if (mouse_acceleration < 4.900000f)
+            mouse_acceleration += 0.100000f;
+
+        if (mouse_acceleration > 5)
+            mouse_acceleration = 5;
+
+        break;
+    }
+}
+
+static void M_CRL_Controls_Threshold (int choice)
+{
+    switch (choice)
+    {   // 0 ... 32
+        case 0:
+        if (mouse_threshold)
+            mouse_threshold--;
+        break;
+        case 1:
+        if (mouse_threshold < 32)
+            mouse_threshold++;
+        break;
+    }
+}
+
+static void M_CRL_Controls_NoVert (int choice)
+{
+    novert ^= 1;
+}
+
+static void M_CRL_Controls_DblClck (int choice)
+{
+    dclick_use ^= 1;
 }
 
 // -----------------------------------------------------------------------------
