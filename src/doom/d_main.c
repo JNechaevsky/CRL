@@ -493,11 +493,6 @@ void D_BindVariables(void)
 
 boolean D_GrabMouseCallback(void)
 {
-    // [JN] CRL - always grab mouse in spectator mode,
-    // because this mode is supposed to be controlled by hand.
-    if (crl_spectating)
-        return true;
-
     // Drone players don't need mouse focus
 
     if (drone)
@@ -509,8 +504,10 @@ boolean D_GrabMouseCallback(void)
         return false;
 
     // only grab mouse when playing levels (but not demos)
+    // [JN] CRL - always grab mouse in spectator mode,
+    // because this mode is supposed to be controlled by hand.
 
-    return (gamestate == GS_LEVEL) && !demoplayback && !advancedemo;
+    return (gamestate == GS_LEVEL) && ((!demoplayback && !advancedemo) || crl_spectating);
 }
 
 //
