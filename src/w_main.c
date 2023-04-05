@@ -58,7 +58,7 @@ boolean W_ParseCommandLine(void)
 
             filename = D_TryFindWADByName(myargv[p]);
 
-            printf(" merging %s\n", filename);
+            printf("  merging %s\n", filename);
             W_MergeFile(filename);
         }
     }
@@ -210,7 +210,7 @@ void W_AutoLoadWADs(const char *path)
         {
             break;
         }
-        printf("  [autoload] merging %s\n", filename);
+        printf("  [autoload]  merging %s\n", filename);
         W_MergeFile(filename);
     }
 

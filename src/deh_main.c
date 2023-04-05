@@ -387,7 +387,7 @@ int DEH_LoadFile(const char *filename)
     deh_allow_long_cheats = false;
     deh_allow_extended_strings = false;
 
-    printf(" loading %s\n", filename);
+    printf("  loading %s\n", filename);
 
     context = DEH_OpenFile(filename);
 
