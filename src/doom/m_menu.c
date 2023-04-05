@@ -542,6 +542,9 @@ static void M_CRL_PitchShift (int choice);
 
 static void M_ChooseCRL_Controls (int choice);
 static void M_DrawCRL_Controls (void);
+static void M_CRL_Controls_Sensivity (int choice);
+static void M_CRL_Controls_Acceleration (int choice);
+static void M_CRL_Controls_Threshold (int choice);
 static void M_CRL_Controls_NoVert (int choice);
 static void M_CRL_Controls_DblClck (int choice);
 
@@ -1282,18 +1285,18 @@ static void M_CRL_SFXChannels (int choice)
 
 static menuitem_t CRLMenu_Controls[]=
 {
-    { 2, "SENSIVITY",                    M_ChangeSensitivity,    's'},
+    { 2, "SENSIVITY",                    M_CRL_Controls_Sensivity,    's'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
-    { 2, "ACCELERATION",                 M_CRL_MusicSystem,      'a'},
+    { 2, "ACCELERATION",                 M_CRL_Controls_Acceleration, 'a'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
-    { 2, "ACCELERATION THRESHOLD",       M_CRL_SFXChannels,      'a'},
+    { 2, "ACCELERATION THRESHOLD",       M_CRL_Controls_Threshold,    'a'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
-    { 2, "VERTICAL MOUSE MOVEMENT",      M_CRL_Controls_NoVert,  'v'},
-    { 2, "DOUBLE CLICK ACTS AS \"USE\"", M_CRL_Controls_DblClck, 'd'},
+    { 2, "VERTICAL MOUSE MOVEMENT",      M_CRL_Controls_NoVert,       'v'},
+    { 2, "DOUBLE CLICK ACTS AS \"USE\"", M_CRL_Controls_DblClck,      'd'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
@@ -1346,6 +1349,51 @@ static void M_DrawCRL_Controls (void)
     sprintf(str, dclick_use ? "ON" : "OFF");
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 135, str,
                  dclick_use ? cr[CR_GREEN] : cr[CR_DARKRED]);
+}
+
+static void M_CRL_Controls_Sensivity (int choice)
+{
+    switch (choice)
+    {
+        case 0:
+        if (mouseSensitivity)
+            mouseSensitivity--;
+        break;
+        case 1:
+        if (mouseSensitivity < 255) // [crispy] extended range
+            mouseSensitivity++;
+        break;
+    }
+}
+
+static void M_CRL_Controls_Acceleration (int choice)
+{
+    switch (choice)
+    {   // 1.0 ... 5.0
+        case 0:
+        if (mouse_acceleration > 1.000000f)
+            mouse_acceleration -= 0.100000f;
+        break;
+        case 1:
+        if (mouse_acceleration < 4.900000f)
+            mouse_acceleration += 0.100000f;
+        break;
+    }
+}
+
+static void M_CRL_Controls_Threshold (int choice)
+{
+    switch (choice)
+    {   // 0 ... 32
+        case 0:
+        if (mouse_threshold)
+            mouse_threshold--;
+        break;
+        case 1:
+        if (mouse_threshold < 32)
+            mouse_threshold++;
+        break;
+    }
 }
 
 static void M_CRL_Controls_NoVert (int choice)
