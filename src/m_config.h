@@ -37,6 +37,7 @@ const char *M_GetStringVariable(char *name);
 float M_GetFloatVariable(char *name);
 void M_SetConfigFilenames(char *main_config);
 char *M_GetSaveGameDir(char *iwadname);
+char *M_GetAutoloadDir(const char *iwadname);
 
 extern char *configdir;
 

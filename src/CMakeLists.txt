@@ -45,6 +45,7 @@ set(GAME_SOURCE_FILES
     deh_str.c           deh_str.h
     gusconf.c           gusconf.h
     i_endoom.c          i_endoom.h
+    i_glob.c            i_glob.h
     i_input.c           i_input.h
     i_joystick.c        i_joystick.h
                         i_swap.h
