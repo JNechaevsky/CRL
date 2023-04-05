@@ -34,6 +34,7 @@
 #include "i_system.h"
 #include "i_timer.h"
 #include "i_video.h"
+#include "m_controls.h"
 #include "m_misc.h"
 #include "v_video.h"
 #include "w_wad.h"
@@ -539,6 +540,11 @@ static void M_CRL_SFXMode (int choice);
 static void M_CRL_SFXChannels (int choice);
 static void M_CRL_PitchShift (int choice);
 
+static void M_ChooseCRL_Controls (int choice);
+static void M_DrawCRL_Controls (void);
+static void M_CRL_Controls_NoVert (int choice);
+static void M_CRL_Controls_DblClck (int choice);
+
 static void M_ChooseCRL_Widgets (int choice);
 static void M_DrawCRL_Widgets (void);
 static void M_CRL_Widget_Coords (int choice);
@@ -674,6 +680,7 @@ static menuitem_t CRLMenu_Main[]=
     {-1, "", 0, '\0'},
     { 1, "VIDEO OPTIONS",        M_ChooseCRL_Video,     'v'},
     { 1, "SOUND OPTIONS",        M_ChooseCRL_Sound,     's'},
+    { 1, "CONTROL SETTINGS",     M_ChooseCRL_Controls,  'c'},
     { 1, "WIDGETS AND AUTOMAP",  M_ChooseCRL_Widgets,   'w'},
     { 1, "GAMEPLAY FEATURES",    M_ChooseCRL_Gameplay,  'g'},
 #ifdef _WIN32
@@ -681,7 +688,6 @@ static menuitem_t CRLMenu_Main[]=
 #else
     {-1, "", 0, '\0'},
 #endif
-    {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'}
@@ -1268,6 +1274,88 @@ static void M_CRL_SFXChannels (int choice)
         default:
             break;
     }
+}
+
+// -----------------------------------------------------------------------------
+// Control settings
+// -----------------------------------------------------------------------------
+
+static menuitem_t CRLMenu_Controls[]=
+{
+    { 2, "SENSIVITY",                    M_ChangeSensitivity,    's'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    { 2, "ACCELERATION",                 M_CRL_MusicSystem,      'a'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    { 2, "ACCELERATION THRESHOLD",       M_CRL_SFXChannels,      'a'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    { 2, "VERTICAL MOUSE MOVEMENT",      M_CRL_Controls_NoVert,  'v'},
+    { 2, "DOUBLE CLICK ACTS AS \"USE\"", M_CRL_Controls_DblClck, 'd'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'}
+};
+
+static menu_t CRLDef_Controls =
+{
+    m_crl_end,
+    &CRLDef_Main,
+    CRLMenu_Controls,
+    M_DrawCRL_Controls,
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    0,
+    true
+};
+
+static void M_ChooseCRL_Controls (int choice)
+{
+    M_SetupNextMenu (&CRLDef_Controls);
+}
+
+static void M_DrawCRL_Controls (void)
+{
+    static char str[32];
+
+    M_ShadeBackground();
+    M_WriteTextCentered(27, "MOUSE CONFIGURATION", cr[CR_YELLOW]);
+
+    M_DrawThermo(46, 45, 16, mouseSensitivity);
+    sprintf(str,"%d", mouseSensitivity);
+    M_WriteText (192, 45, str, NULL);
+
+    M_DrawThermo(46, 72, 16, mouse_acceleration);
+    sprintf(str,"%.1f", mouse_acceleration);
+    M_WriteText (192, 72, str, NULL);
+
+    M_DrawThermo(46, 99, 16, mouse_threshold);
+    sprintf(str,"%d", mouse_threshold);
+    M_WriteText (192, 99, str, NULL);
+
+    M_WriteTextCentered(117, "OTHER FUNCTIONS", cr[CR_YELLOW]);
+
+    // Vertical mouse movement
+    sprintf(str, !novert ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 126, str,
+                 !novert ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
+    // Double click acts as "use"
+    sprintf(str, dclick_use ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 135, str,
+                 dclick_use ? cr[CR_GREEN] : cr[CR_DARKRED]);
+}
+
+static void M_CRL_Controls_NoVert (int choice)
+{
+    novert ^= 1;
+}
+
+static void M_CRL_Controls_DblClck (int choice)
+{
+    dclick_use ^= 1;
 }
 
 // -----------------------------------------------------------------------------

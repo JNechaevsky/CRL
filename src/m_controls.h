@@ -133,6 +133,7 @@ extern int joybnextweapon;
 extern int joybmenu;
 extern int joybautomap;
 
+extern int novert;
 extern int dclick_use;
 
 // GhostlyDeath -- CRL
