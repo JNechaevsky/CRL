@@ -1326,17 +1326,20 @@ static void M_DrawCRL_Controls (void)
     M_ShadeBackground();
     M_WriteTextCentered(27, "MOUSE CONFIGURATION", cr[CR_YELLOW]);
 
-    M_DrawThermo(46, 45, 16, mouseSensitivity);
+    M_DrawThermo(46, 45, 10, mouseSensitivity - 1);
     sprintf(str,"%d", mouseSensitivity);
-    M_WriteText (192, 45, str, NULL);
+    M_WriteText (144, 48, str, mouseSensitivity == 1 ? cr[CR_DARKRED] :
+                               mouseSensitivity > 10 ? cr[CR_GREEN] : NULL);
 
-    M_DrawThermo(46, 72, 16, mouse_acceleration);
+    M_DrawThermo(46, 72, 12, (mouse_acceleration * 3) - 3);
     sprintf(str,"%.1f", mouse_acceleration);
-    M_WriteText (192, 72, str, NULL);
+    M_WriteText (160, 75, str, mouse_acceleration == 1.000000f ? cr[CR_DARKRED] :
+                               mouse_acceleration >  4.900000f ? cr[CR_GREEN] : NULL);
 
-    M_DrawThermo(46, 99, 16, mouse_threshold);
+    M_DrawThermo(46, 99, 15, mouse_threshold / 2);
     sprintf(str,"%d", mouse_threshold);
-    M_WriteText (192, 99, str, NULL);
+    M_WriteText (184, 102, str, mouse_threshold == 0 ? cr[CR_DARKRED] :
+                                mouse_threshold > 31 ? cr[CR_GREEN] : NULL);
 
     M_WriteTextCentered(117, "OTHER FUNCTIONS", cr[CR_YELLOW]);
 
@@ -1356,7 +1359,7 @@ static void M_CRL_Controls_Sensivity (int choice)
     switch (choice)
     {
         case 0:
-        if (mouseSensitivity)
+        if (mouseSensitivity > 1)
             mouseSensitivity--;
         break;
         case 1:
@@ -1373,10 +1376,19 @@ static void M_CRL_Controls_Acceleration (int choice)
         case 0:
         if (mouse_acceleration > 1.000000f)
             mouse_acceleration -= 0.100000f;
+
+        if (mouse_acceleration < 1)
+            mouse_acceleration = 1;
+
         break;
+
         case 1:
         if (mouse_acceleration < 4.900000f)
             mouse_acceleration += 0.100000f;
+
+        if (mouse_acceleration > 5)
+            mouse_acceleration = 5;
+
         break;
     }
 }
