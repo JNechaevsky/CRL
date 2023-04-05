@@ -750,7 +750,7 @@ static void M_DrawCRL_Main (void)
 #ifdef _WIN32
     // Show console window
     sprintf(str, crl_console ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth(str), 126, str,
+    M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth(str), 135, str,
                  crl_console ? cr[CR_GREEN] : cr[CR_DARKRED]);
 #endif
 
