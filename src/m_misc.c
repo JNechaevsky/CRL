@@ -588,10 +588,10 @@ const char *M_BaseName(const char *path)
     }
 }
 
-void M_ExtractFileBase(char *path, char *dest)
+void M_ExtractFileBase(const char *path, char *dest)
 {
-    char *src;
-    char *filename;
+    const char *src;
+    const char *filename;
     int length;
 
     src = path + strlen(path) - 1;
