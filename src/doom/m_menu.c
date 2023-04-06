@@ -1333,8 +1333,8 @@ static void M_DrawCRL_Controls (void)
 
     M_DrawThermo(46, 72, 12, (mouse_acceleration * 3) - 3);
     sprintf(str,"%.1f", mouse_acceleration);
-    M_WriteText (160, 75, str, mouse_acceleration == 1.000000f ? cr[CR_DARKRED] :
-                               mouse_acceleration >  4.900000f ? cr[CR_GREEN] : NULL);
+    M_WriteText (160, 75, str, mouse_acceleration == 1.0f ? cr[CR_DARKRED] :
+                               mouse_acceleration >  4.9f ? cr[CR_GREEN] : NULL);
 
     M_DrawThermo(46, 99, 15, mouse_threshold / 2);
     sprintf(str,"%d", mouse_threshold);
@@ -1371,26 +1371,24 @@ static void M_CRL_Controls_Sensivity (int choice)
 
 static void M_CRL_Controls_Acceleration (int choice)
 {
+    char buf[9];
+
     switch (choice)
     {   // 1.0 ... 5.0
         case 0:
-        if (mouse_acceleration > 1.000000f)
-            mouse_acceleration -= 0.100000f;
-
-        if (mouse_acceleration < 1)
-            mouse_acceleration = 1;
-
+        if (mouse_acceleration > 1.0f)
+            mouse_acceleration -= 0.1f;
         break;
 
         case 1:
-        if (mouse_acceleration < 4.900000f)
-            mouse_acceleration += 0.100000f;
-
-        if (mouse_acceleration > 5)
-            mouse_acceleration = 5;
-
+        if (mouse_acceleration < 5.0f)
+            mouse_acceleration += 0.1f;
         break;
     }
+
+    // [JN] Do a float correction to always get x.x00000 values:
+    sprintf (buf, "%f", mouse_acceleration);
+    mouse_acceleration = (float) atof(buf);
 }
 
 static void M_CRL_Controls_Threshold (int choice)
