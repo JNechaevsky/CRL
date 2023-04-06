@@ -22,36 +22,48 @@
 // [JN] CRL-specific config variables.
 // -----------------------------------------------------------------------------
 
+// System and video
 extern int crl_startup_delay;
 extern int crl_resize_delay;
-extern int crl_vsync;
+extern int crl_uncapped_fps;
 extern int crl_fpslimit;
-extern int crl_screen_size;
+extern int crl_vsync;
+extern int crl_visplanes_drawing;
+extern int crl_hom_effect;
 extern int crl_gamma;
-extern int crl_monosfx;
+extern int crl_screen_size;
+extern int crl_screenwipe;
+extern int crl_text_shadows;
+extern int crl_colorblind;
 
 // Game modes
 extern int crl_spectating;
 extern int crl_freeze;
 
 // Widgets
+extern int crl_widget_coords;
 extern int crl_widget_playstate;
 extern int crl_widget_render;
 extern int crl_widget_kis;
 extern int crl_widget_time;
 extern int crl_widget_powerups;
-extern int crl_widget_coords;
 extern int crl_widget_health;
 
-// Drawing
-extern int crl_hom_effect;
-extern int crl_visplanes_drawing;
+// Sound
+extern int crl_monosfx;
 
 // Automap
 extern int crl_automap_mode;
+extern int crl_automap_secrets;
 extern int crl_automap_rotate;
 extern int crl_automap_overlay;
-extern int crl_automap_secrets;
+
+// Gameplay features
+extern int crl_default_skill;
+extern int crl_pistol_start;
+extern int crl_colored_stbar;
+extern int crl_revealed_secrets;
+extern int crl_restore_targets;
 
 // Demos
 extern int crl_demo_timer;
@@ -60,16 +72,6 @@ extern int crl_demo_bar;
 extern int crl_internal_demos;
 
 // QOL Features
-extern int crl_uncapped_fps;
-extern int crl_screenwipe;
-extern int crl_text_shadows;
-extern int crl_default_skill;
-extern int crl_pistol_start;
-extern int crl_colored_stbar;
-extern int crl_revealed_secrets;
-extern int crl_colorblind;
-extern int crl_restore_targets;
-
 extern int crl_console;
 
 extern void CRL_BindVariables (void);

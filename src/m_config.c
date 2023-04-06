@@ -311,33 +311,44 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_KEY(key_crl_reloadlevel),
     CONFIG_VARIABLE_KEY(key_crl_demospeed),
 
-    // System
+    // System and video
     CONFIG_VARIABLE_INT(crl_startup_delay),
     CONFIG_VARIABLE_INT(crl_resize_delay),
-    CONFIG_VARIABLE_INT(crl_vsync),
+    CONFIG_VARIABLE_INT(crl_uncapped_fps),
     CONFIG_VARIABLE_INT(crl_fpslimit),
-    CONFIG_VARIABLE_INT(crl_screen_size),
+    CONFIG_VARIABLE_INT(crl_vsync),
+    CONFIG_VARIABLE_INT(crl_visplanes_drawing),
+    CONFIG_VARIABLE_INT(crl_hom_effect),
     CONFIG_VARIABLE_INT(crl_gamma),
-    CONFIG_VARIABLE_INT(crl_monosfx),
+    CONFIG_VARIABLE_INT(crl_screen_size),
+    CONFIG_VARIABLE_INT(crl_screenwipe),
+    CONFIG_VARIABLE_INT(crl_text_shadows),
+    CONFIG_VARIABLE_INT(crl_colorblind),
 
     // Widgets
+    CONFIG_VARIABLE_INT(crl_widget_coords),
     CONFIG_VARIABLE_INT(crl_widget_playstate),
     CONFIG_VARIABLE_INT(crl_widget_render),
     CONFIG_VARIABLE_INT(crl_widget_kis),
     CONFIG_VARIABLE_INT(crl_widget_time),
     CONFIG_VARIABLE_INT(crl_widget_powerups),
-    CONFIG_VARIABLE_INT(crl_widget_coords),
     CONFIG_VARIABLE_INT(crl_widget_health),
 
-    // Drawing
-    CONFIG_VARIABLE_INT(crl_hom_effect),
-    CONFIG_VARIABLE_INT(crl_visplanes_drawing),
+    // Sound
+    CONFIG_VARIABLE_INT(crl_monosfx),
 
     // Automap
     CONFIG_VARIABLE_INT(crl_automap_mode),
-    CONFIG_VARIABLE_INT(crl_automap_rotate),
-    CONFIG_VARIABLE_INT(crl_automap_overlay),
     CONFIG_VARIABLE_INT(crl_automap_secrets),
+    CONFIG_VARIABLE_INT(crl_automap_rotate),
+    CONFIG_VARIABLE_INT(crl_automap_overlay),    
+
+    // Gameplay features
+    CONFIG_VARIABLE_INT(crl_default_skill),
+    CONFIG_VARIABLE_INT(crl_pistol_start),
+    CONFIG_VARIABLE_INT(crl_colored_stbar),
+    CONFIG_VARIABLE_INT(crl_revealed_secrets),
+    CONFIG_VARIABLE_INT(crl_restore_targets),
 
     // Demos
     CONFIG_VARIABLE_INT(crl_demo_timer),
@@ -345,17 +356,7 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(crl_demo_bar),
     CONFIG_VARIABLE_INT(crl_internal_demos),
 
-    // QOL Features
-    CONFIG_VARIABLE_INT(crl_uncapped_fps),
-    CONFIG_VARIABLE_INT(crl_screenwipe),
-    CONFIG_VARIABLE_INT(crl_text_shadows),
-    CONFIG_VARIABLE_INT(crl_default_skill),
-    CONFIG_VARIABLE_INT(crl_pistol_start),
-    CONFIG_VARIABLE_INT(crl_colored_stbar),
-    CONFIG_VARIABLE_INT(crl_revealed_secrets),
-    CONFIG_VARIABLE_INT(crl_colorblind),
-    CONFIG_VARIABLE_INT(crl_restore_targets),
-
+    // Console window
     CONFIG_VARIABLE_INT(crl_console),
 };
 
