@@ -1633,8 +1633,8 @@ static void AM_drawThings (int colors, int colorrange)
                                      t->flags & MF_COUNTKILL ? (t->health > 0 ? color : GRAYS) :
                                      // Lost Souls and Explosive barrels (does not have a MF_COUNTKILL flag)
                                      t->type == MT_SKULL || t->type == MT_BARREL ? YELLOWS :
-                                     // Pickups
-                                     t->flags & MF_SPECIAL ? GREENS :
+                                     // Countable items
+                                     t->flags & MF_COUNTITEM ? GREENS :
                                      // Everything else
                                      GRAYS,
                                      pt.x, pt.y);
