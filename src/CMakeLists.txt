@@ -136,6 +136,9 @@ if(MSVC)
                           LINK_FLAGS "/MANIFEST:NO")
 endif()
 
+set_target_properties("${PROGRAM_PREFIX}doom" PROPERTIES
+                      INTERPROCEDURAL_OPTIMIZATION ${ENABLE_LTO})
+
 # Source files needed for chocolate-setup:
 
 set(SETUP_FILES
@@ -175,3 +178,6 @@ if(MSVC)
     set_target_properties("${PROGRAM_PREFIX}setup" PROPERTIES
                           LINK_FLAGS "/MANIFEST:NO")
 endif()
+
+set_target_properties("${PROGRAM_PREFIX}setup" PROPERTIES
+                      INTERPROCEDURAL_OPTIMIZATION ${ENABLE_LTO})

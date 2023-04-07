@@ -1,7 +1,20 @@
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-cmake_minimum_required(VERSION 3.7.2)
+cmake_minimum_required(VERSION 3.9)
 project("CRL" VERSION 1.1.0 LANGUAGES C)
+
+# Enable LTO if available.  Hovewer, CMake does not appear to support
+# LTO properly for MinGW GCC which results in much longer linking time.
+# Consider only enabling it when making a release.
+if(POLICY CMP0069)
+    cmake_policy(SET CMP0069 NEW)
+endif()
+
+include(CheckIPOSupported)
+check_ipo_supported(RESULT HAVE_LTO)
+
+include(CMakeDependentOption) # Note: replace first OFF to ON to enable.
+cmake_dependent_option(ENABLE_LTO "Use link-time optimisation" OFF "HAVE_LTO" OFF)
 
 # Autotools variables
 set(top_srcdir ${CMAKE_CURRENT_SOURCE_DIR})
