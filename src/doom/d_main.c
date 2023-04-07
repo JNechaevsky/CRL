@@ -1339,8 +1339,7 @@ void D_DoomMain (void)
     char file[256];
     char demolumpname[9];
     int numiwadlumps;
-    unsigned int starttime = SDL_GetTicks();
-    unsigned int endtime;
+    const int starttime = SDL_GetTicks();
 
 #ifdef _WIN32
     // [JN] Allocate console before any prints.
@@ -1351,10 +1350,10 @@ void D_DoomMain (void)
                            | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE
                            | FOREGROUND_INTENSITY);
 
-    for (p = 0 ; p < 34 ; p++) DEH_printf(" ");
-    DEH_printf(PACKAGE_STRING);
-    for (p = 0 ; p < 34 ; p++) DEH_printf(" ");
-    DEH_printf("\n");
+    for (p = 0 ; p < 34 ; p++) printf(" ");
+    printf(PACKAGE_STRING);
+    for (p = 0 ; p < 34 ; p++) printf(" ");
+    printf("\n");
 
     // [JN] Fallback to standard console colos.
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 
@@ -2001,8 +2000,7 @@ void D_DoomMain (void)
     ST_Init ();
 
     // [JN] Show startup process time.
-    endtime = SDL_GetTicks() - starttime;
-    DEH_printf("Startup process took %d ms.\n", endtime);
+    printf("Startup process took %d ms.\n", SDL_GetTicks() - starttime);
 
     // If Doom II without a MAP01 lump, this is a store demo.
     // Moved this here so that MAP01 isn't constantly looked up

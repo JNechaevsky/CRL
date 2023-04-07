@@ -956,8 +956,7 @@ P_SetupLevel
     char	lumpname[9];
     int		lumpnum;
     // [JN] CRL - indicate level loading time in console.
-    unsigned const int starttime = SDL_GetTicks();
-    unsigned int endtime;
+    const int starttime = SDL_GetTicks();
 	
     totalkills = totalitems = totalsecret = wminfo.maxfrags = 0;
     wminfo.partime = 180;
@@ -1069,8 +1068,7 @@ P_SetupLevel
     crl_freeze = 0;
 
     // [JN] Print amount of level loading time.
-    endtime = SDL_GetTicks() - starttime;
-    DEH_printf("loaded in %d ms.\n", endtime);
+    printf("loaded in %d ms.\n", SDL_GetTicks() - starttime);
 
     //printf ("free memory: 0x%x\n", Z_FreeMemory());
 
