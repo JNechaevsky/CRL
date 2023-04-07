@@ -968,7 +968,7 @@ char *M_GetAutoloadDir(const char *iwadname)
 
 #ifdef _WIN32
         // [JN] On Windows, create "autoload" directory in program folder.
-        prefdir = GetDefaultConfigDir();
+        prefdir = SDL_GetBasePath();
 #else
         // [JN] On other OSes use system home folder.
         prefdir = SDL_GetPrefPath("", PACKAGE_TARNAME);
