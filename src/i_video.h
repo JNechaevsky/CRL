@@ -108,15 +108,7 @@ void I_GetWindowPosition(int *x, int *y, int w, int h);
 // Joystic/gamepad hysteresis
 extern unsigned int joywait;
 
-enum
-{
-	REINIT_FRAMEBUFFERS = 1,
-	REINIT_RENDERER = 2,
-	REINIT_TEXTURES = 4,
-	REINIT_ASPECTRATIO = 8,
-};
-
-extern void I_ReInitGraphics (int reinit);
+extern void I_ToggleVsync (void);
 
 extern boolean endoom_screen_active;
 

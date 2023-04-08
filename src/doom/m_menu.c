@@ -967,7 +967,7 @@ static void M_CRL_VSync (int choice)
 {
     crl_vsync ^= 1;
 
-    I_ReInitGraphics(REINIT_RENDERER | REINIT_TEXTURES | REINIT_ASPECTRATIO);
+    I_ToggleVsync();
 }
 
 static void M_CRL_VisplanesDraw (int choice)
