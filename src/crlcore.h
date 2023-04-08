@@ -206,6 +206,9 @@ extern int CRL_invis_counter;
 extern int CRL_rad_counter;
 extern int CRL_amp_counter;
 
+extern void CRL_DrawFPS (void);
+extern int  CRL_fps;
+
 extern boolean CRL_vilebomb;
 
 // [crispy] demo progress bar and timer widget

@@ -524,6 +524,7 @@ static void M_DrawCRL_Video (void);
 static void M_CRL_UncappedFPS (int choice);
 static void M_CRL_LimitFPS (int choice);
 static void M_CRL_VSync (int choice);
+static void M_CRL_ShowFPS (int choice);
 static void M_CRL_VisplanesDraw (int choice);
 static void M_CRL_HOMDraw (int choice);
 static void M_CRL_Gamma (int choice);
@@ -810,6 +811,7 @@ static menuitem_t CRLMenu_Video[]=
     { 2, "UNCAPPED FRAMERATE",  M_CRL_UncappedFPS,    'u'},
     { 2, "FRAMERATE LIMIT",     M_CRL_LimitFPS,       'f'},
     { 2, "ENABLE VSYNC",        M_CRL_VSync,          'e'},
+    { 2, "SHOW FPS COUNTER",    M_CRL_ShowFPS,        's'},
     { 2, "VISPLANES DRAWING",   M_CRL_VisplanesDraw,  'v'},
     { 2, "HOM EFFECT",          M_CRL_HOMDraw,        'h'},
     { 2, "GAMMA-CORRECTION",    M_CRL_Gamma,          'g'},
@@ -820,7 +822,6 @@ static menuitem_t CRLMenu_Video[]=
     { 2, "TEXT CASTS SHADOWS",  M_CRL_TextShadows,    't'},
     { 2, "SHOW ENDOOM SCREEN",  M_CRL_ShowENDOOM,     's'},
     { 2, "COLORBLIND",          M_CRL_Colorblind,     'c'},
-    {-1, "", 0, '\0'},
     {-1, "", 0, '\0'}
 };
 
@@ -869,24 +870,29 @@ static void M_DrawCRL_Video (void)
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 54, str, 
                  crl_vsync ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
+    // Show FPS counter
+    sprintf(str, crl_showfps ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 63, str, 
+                 crl_showfps ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
     // Visplanes drawing mode
     sprintf(str, crl_visplanes_drawing == 0 ? "NORMAL" :
                  crl_visplanes_drawing == 1 ? "FILL" :
                  crl_visplanes_drawing == 2 ? "OVERFILL" :
                  crl_visplanes_drawing == 3 ? "BORDER" : "OVERBORDER");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 63, str,
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 72, str,
                  crl_visplanes_drawing > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // HOM effect
     sprintf(str, crl_hom_effect == 0 ? "OFF" :
                  crl_hom_effect == 1 ? "MULTICOLOR" : "BLACK");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 72, str,
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 81, str,
                  crl_hom_effect > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
 
     // Gamma-correction slider and num
-    M_DrawThermo(46, 89, 15, crl_gamma);
-    M_WriteText (184, 92, crl_gamma ==  0 ? "0.50" :
+    M_DrawThermo(46, 98, 15, crl_gamma);
+    M_WriteText (184, 101, crl_gamma ==  0 ? "0.50" :
                           crl_gamma ==  1 ? "0.55" :
                           crl_gamma ==  2 ? "0.60" :
                           crl_gamma ==  3 ? "0.65" :
@@ -902,28 +908,28 @@ static void M_DrawCRL_Video (void)
                           crl_gamma == 13 ? "3"    :
                                             "4", NULL);
 
-    M_WriteTextCentered(108, "MISCELLANEOUS", cr[CR_YELLOW]);
+    M_WriteTextCentered(117, "MISCELLANEOUS", cr[CR_YELLOW]);
 
     // Screen wipe effect
     sprintf(str, crl_screenwipe ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 117, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 126, str, 
                  crl_screenwipe ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Text casts shadows
     sprintf(str, crl_text_shadows ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 126, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 135, str, 
                  crl_text_shadows ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Screen wipe effect
     sprintf(str, show_endoom ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 135, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 144, str, 
                  show_endoom ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Colorblind
     sprintf(str, crl_colorblind == 1 ? "RED/GREEN" :
                  crl_colorblind == 2 ? "BLUE/YELLOW" :
                  crl_colorblind == 3 ? "MONOCHROME" : "NONE");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 144, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 153, str, 
                  crl_colorblind > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
 }
 
@@ -968,6 +974,11 @@ static void M_CRL_VSync (int choice)
     crl_vsync ^= 1;
 
     I_ToggleVsync();
+}
+
+static void M_CRL_ShowFPS (int choice)
+{
+    crl_showfps ^= 1;
 }
 
 static void M_CRL_VisplanesDraw (int choice)

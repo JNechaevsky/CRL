@@ -373,6 +373,12 @@ static void D_Display (void)
         CRL_DemoBar();
     }
 
+    // [JN] Draw FPS counter.
+    if (crl_showfps)
+    {
+        CRL_DrawFPS();
+    }
+
     // Handle player messages
     CRL_DrawMessage();
 

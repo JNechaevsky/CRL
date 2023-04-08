@@ -28,6 +28,7 @@ int crl_resize_delay = 35;
 int crl_uncapped_fps = 0;
 int crl_fpslimit = 60;
 int crl_vsync = 1;
+int crl_showfps = 0;
 int crl_visplanes_drawing = 0;
 int crl_hom_effect = 1;
 int crl_gamma = 10;
@@ -86,6 +87,7 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_uncapped_fps",               &crl_uncapped_fps);
     M_BindIntVariable("crl_fpslimit",                   &crl_fpslimit);
     M_BindIntVariable("crl_vsync",                      &crl_vsync);
+    M_BindIntVariable("crl_showfps",                    &crl_showfps);
     M_BindIntVariable("crl_visplanes_drawing",          &crl_visplanes_drawing);
     M_BindIntVariable("crl_hom_effect",                 &crl_hom_effect);
     M_BindIntVariable("crl_gamma",                      &crl_gamma);

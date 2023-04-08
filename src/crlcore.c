@@ -84,6 +84,9 @@ int CRL_invis_counter;
 int CRL_rad_counter;
 int CRL_amp_counter;
 
+// FPS counter.
+int CRL_fps;
+
 // [JN] Imitate jump by Arch-Vile's attack.
 // Do not modify buttoncode_t (d_event.h) for consistency.
 boolean CRL_vilebomb;
@@ -923,6 +926,26 @@ void CRL_StatDrawer (void)
     }
 }
 
+// -----------------------------------------------------------------------------
+// CRL_DrawFPS.
+//  [JN] Draw actual frames per second value.
+//  Some M_StringWidth adjustments are needed for proper positioning
+//  in case of custom font is thinner or thicker.
+// -----------------------------------------------------------------------------
+
+void CRL_DrawFPS (void)
+{
+    char fps[4];
+    char fps_str[4];
+
+    sprintf(fps, "%d", CRL_fps);
+    sprintf(fps_str, "FPS");
+
+    M_WriteText(SCREENWIDTH - 11 - M_StringWidth(fps) 
+                                 - M_StringWidth(fps_str), 27, fps, cr[CR_GRAY]);
+
+    M_WriteText(SCREENWIDTH - 7 - M_StringWidth(fps_str), 27, "FPS", cr[CR_GRAY]);
+}
 
 // =============================================================================
 //
@@ -946,7 +969,7 @@ void CRL_DemoTimer (const int time)
     const int mins = time / (60 * TICRATE) % 60;
     const float secs = (float)(time % (60 * TICRATE)) / TICRATE;
     char n[16];
-    int x = 238;
+    int x = 237;
 
     if (hours)
     {

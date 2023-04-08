@@ -836,6 +836,26 @@ void I_FinishUpdate (void)
 	    I_VideoBuffer[ (SCREENHEIGHT-1)*SCREENWIDTH + i] = 0x0;
     }
 
+	// [crispy] [AM] Real FPS counter
+	{
+		static int lastmili;
+		static int fpscount;
+		int mili;
+
+		fpscount++;
+
+		i = SDL_GetTicks();
+		mili = i - lastmili;
+
+		// Update FPS counter every 1/4th of second
+		if (mili >= 250)
+		{
+			CRL_fps = (fpscount * 1000) / mili;
+			fpscount = 0;
+			lastmili = i;
+		}
+	}
+
     // Draw disk icon before blit, if necessary.
     V_DrawDiskIcon();
 

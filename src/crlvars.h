@@ -28,6 +28,7 @@ extern int crl_resize_delay;
 extern int crl_uncapped_fps;
 extern int crl_fpslimit;
 extern int crl_vsync;
+extern int crl_showfps;
 extern int crl_visplanes_drawing;
 extern int crl_hom_effect;
 extern int crl_gamma;
