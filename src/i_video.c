@@ -1580,114 +1580,13 @@ void I_InitGraphics(void)
 }
 
 // -----------------------------------------------------------------------------
-// I_ReInitGraphics
-// [crispy] re-initialize only the parts of the rendering stack that are really necessary
+// I_ToggleVsync
+// [JN] Uses native SDL VSync toggling function.
 // -----------------------------------------------------------------------------
 
-void I_ReInitGraphics (int reinit)
+void I_ToggleVsync (void)
 {
-	// [crispy] re-set rendering resolution and re-create framebuffers
-	if (reinit & REINIT_FRAMEBUFFERS)
-	{
-		unsigned int rmask, gmask, bmask, amask;
-		int unused_bpp;
-
-		//I_GetScreenDimensions();
-
-		blit_rect.w = SCREENWIDTH;
-		blit_rect.h = SCREENHEIGHT;
-
-		SDL_FreeSurface(screenbuffer);
-		screenbuffer = SDL_CreateRGBSurface(0,
-				                    SCREENWIDTH, SCREENHEIGHT, 8,
-				                    0, 0, 0, 0);
-
-		SDL_FreeSurface(argbbuffer);
-		SDL_PixelFormatEnumToMasks(pixel_format, &unused_bpp,
-		                           &rmask, &gmask, &bmask, &amask);
-		argbbuffer = SDL_CreateRGBSurface(0,
-		                                  SCREENWIDTH, SCREENHEIGHT, 32,
-		                                  rmask, gmask, bmask, amask);
-
-		// [crispy] re-set the framebuffer pointer
-		I_VideoBuffer = screenbuffer->pixels;
-
-		V_RestoreBuffer();
-
-		// [crispy] it will get re-created below with the new resolution
-		SDL_DestroyTexture(texture);
-	}
-
-	// [crispy] re-create renderer
-	if (reinit & REINIT_RENDERER)
-	{
-		SDL_RendererInfo info = {0};
-		int flags;
-
-		SDL_GetRendererInfo(renderer, &info);
-		flags = info.flags;
-
-		if (crl_vsync && !(flags & SDL_RENDERER_SOFTWARE))
-		{
-			flags |= SDL_RENDERER_PRESENTVSYNC;
-		}
-		else
-		{
-			flags &= ~SDL_RENDERER_PRESENTVSYNC;
-		}
-
-		SDL_DestroyRenderer(renderer);
-		renderer = SDL_CreateRenderer(screen, -1, flags);
-		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-
-		// [crispy] the texture gets destroyed in SDL_DestroyRenderer(), force its re-creation
-		texture_upscaled = NULL;
-	}
-
-	// [crispy] re-create textures
-	if (reinit & REINIT_TEXTURES)
-	{
-		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
-
-		texture = SDL_CreateTexture(renderer,
-		                            pixel_format,
-		                            SDL_TEXTUREACCESS_STREAMING,
-		                            SCREENWIDTH, SCREENHEIGHT);
-
-		// [crispy] force its re-creation
-		CreateUpscaledTexture(true);
-	}
-
-	// [crispy] re-set logical rendering resolution
-	if (reinit & REINIT_ASPECTRATIO)
-	{
-		if (aspect_ratio_correct == 1)
-		{
-			actualheight = 6 * SCREENHEIGHT / 5;
-		}
-		else
-		{
-			actualheight = SCREENHEIGHT;
-		}
-
-		if (aspect_ratio_correct || integer_scaling)
-		{
-			SDL_RenderSetLogicalSize(renderer,
-			                         SCREENWIDTH,
-			                         actualheight);
-		}
-		else
-		{
-			SDL_RenderSetLogicalSize(renderer, 0, 0);
-		}
-
-		#if SDL_VERSION_ATLEAST(2, 0, 5)
-		SDL_RenderSetIntegerScale(renderer, integer_scaling);
-		#endif
-	}
-
-	// [crispy] adjust the window size and re-set the palette
-	need_resize = true;
+    SDL_RenderSetVSync(renderer, crl_vsync);
 }
 
 // Bind all variables controlling video options into the configuration
