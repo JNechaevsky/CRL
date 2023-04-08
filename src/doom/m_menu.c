@@ -3289,6 +3289,13 @@ boolean M_Responder (event_t* ev)
 	    itemOn = currentMenu->lastOn;
 	    S_StartSound(NULL,sfx_swtchn);
 	}
+	// [JN] Close menu if pressed "back" in Doom main or CRL main menu.
+	else
+	if (currentMenu == &MainDef || currentMenu == &CRLDef_Main)
+	{
+	    S_StartSound(NULL,sfx_swtchx);
+	    M_ClearMenus();
+	}
 	return true;
     }
     // [crispy] delete a savegame
