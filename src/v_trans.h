@@ -39,9 +39,6 @@
 enum
 {
     CR_DARK,
-    CR_BRIGHT,
-    CR_THIRDSATURTION,
-    CR_MONOCHROME,
 
     CR_MENU_BRIGHT5,
     CR_MENU_BRIGHT4,
@@ -58,30 +55,16 @@ enum
     CR_GREEN,
     CR_DARKGREEN,
     CR_OLIVE,
-    CR_BLUE,
     CR_BLUE2,
-    CR_DARKBLUE,
     CR_YELLOW,
     CR_ORANGE,
     CR_WHITE,
     CR_GRAY,
     CR_LIGHTGRAY,
-    CR_DARKGRAY,
-    CR_TAN,
     CR_BROWN,
-    CR_ALMOND,
-    CR_KHAKI,
-    CR_PINK,
-    CR_BURGUNDY,
-
-    // Doom (colored blood and slider gem)
-    CR_RED2BLUE, // Terminator - don't override tablified colors starting from this line
-    CR_RED2GREEN,
-    CR_RED2GRAY,
 
     CRMAX,
     CR_NONE,
-    CR__STOP = CR_RED2BLUE
 };
 
 extern byte  *cr[CRMAX];
