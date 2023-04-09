@@ -1497,6 +1497,14 @@ void D_DoomMain (void)
     if (devparm)
 	DEH_printf(D_DEVSTR);
     
+    //!
+    // @category game
+    //
+    // Start single player game with items spawns as in cooperative netgame.
+    //
+
+    coop_spawns = M_CheckParm ("-coop_spawns");
+
     // find which dir to use for config files
 
 #ifdef _WIN32

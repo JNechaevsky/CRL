@@ -103,6 +103,9 @@ extern  boolean         respawnmonsters;
 // Netgame? Only true if >1 player.
 extern  boolean	netgame;
 
+// Start single player game with items spawns as in cooperative netgame.
+extern boolean coop_spawns;
+
 // -------------------------
 // Internal parameters for sound rendering.
 // These have been taken from the DOS version,
