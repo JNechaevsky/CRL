@@ -3558,11 +3558,7 @@ void M_Ticker (void)
     if (!cursor_direction)
     {
         // Brightening
-        if (cursor_tics  < 9)
-        {
-            cursor_tics++;
-        }
-        if (cursor_tics == 8)
+        if (++cursor_tics == 8)
         {
             cursor_direction = true;
         }
@@ -3570,11 +3566,7 @@ void M_Ticker (void)
     else
     {
         // Darkening
-        if (cursor_tics  > -9)
-        {
-            cursor_tics--;
-        }
-        if (cursor_tics == -8)
+        if (--cursor_tics == -8)
         {
             cursor_direction = false;
         }
