@@ -504,8 +504,6 @@ static void I_ToggleFullScreen(void)
 
 void I_GetEvent(void)
 {
-    extern void I_HandleKeyboardEvent(SDL_Event *sdlevent);
-    extern void I_HandleMouseEvent(SDL_Event *sdlevent);
     SDL_Event sdlevent;
 
     SDL_PumpEvents();
@@ -695,6 +693,8 @@ static void CreateUpscaledTexture(boolean force)
     int h_upscale, w_upscale;
     static int h_upscale_old, w_upscale_old;
 
+    SDL_Texture *new_texture, *old_texture;
+
     // Get the size of the renderer output. The units this gives us will be
     // real world pixels, which are not necessarily equivalent to the screen's
     // window size (because of highdpi).
@@ -750,22 +750,25 @@ static void CreateUpscaledTexture(boolean force)
     h_upscale_old = h_upscale;
     w_upscale_old = w_upscale;
 
-    if (texture_upscaled)
-    {
-        SDL_DestroyTexture(texture_upscaled);
-    }
-
     // Set the scaling quality for rendering the upscaled texture to "linear",
     // which looks much softer and smoother than "nearest" but does a better
     // job at downscaling from the upscaled texture to screen.
 
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, smooth_scaling ? "linear" : "nearest");
 
-    texture_upscaled = SDL_CreateTexture(renderer,
+    new_texture = SDL_CreateTexture(renderer,
                                 pixel_format,
                                 SDL_TEXTUREACCESS_TARGET,
                                 w_upscale*SCREENWIDTH,
                                 h_upscale*SCREENHEIGHT);
+
+    old_texture = texture_upscaled;
+    texture_upscaled = new_texture;
+
+    if (old_texture != NULL)
+    {
+        SDL_DestroyTexture(old_texture);
+    }
 }
 
 //
@@ -1074,8 +1077,8 @@ void I_InitWindowIcon(void)
 
     surface = SDL_CreateRGBSurfaceFrom((void *) icon_data, icon_w, icon_h,
                                        32, icon_w * 4,
-                                       0xff << 24, 0xff << 16,
-                                       0xff << 8, 0xff << 0);
+                                       0xffu << 24, 0xffu << 16,
+                                       0xffu << 8, 0xffu << 0);
 
     SDL_SetWindowIcon(screen, surface);
     SDL_FreeSurface(surface);
@@ -1288,7 +1291,7 @@ static void SetVideoMode(void)
     int w, h;
     int x = 0, y = 0;
     unsigned int rmask, gmask, bmask, amask;
-    int unused_bpp;
+    int bpp;
     int window_flags = 0, renderer_flags = 0;
     SDL_DisplayMode mode;
 
@@ -1389,9 +1392,29 @@ static void SetVideoMode(void)
     if (renderer != NULL)
     {
         SDL_DestroyRenderer(renderer);
+        // all associated textures get destroyed
+        texture = NULL;
+        texture_upscaled = NULL;
     }
 
     renderer = SDL_CreateRenderer(screen, -1, renderer_flags);
+
+    // If we could not find a matching render driver,
+    // try again without hardware acceleration.
+
+    if (renderer == NULL && !force_software_renderer)
+    {
+        renderer_flags |= SDL_RENDERER_SOFTWARE;
+        renderer_flags &= ~SDL_RENDERER_PRESENTVSYNC;
+
+        renderer = SDL_CreateRenderer(screen, -1, renderer_flags);
+
+        // If this helped, save the setting for later.
+        if (renderer != NULL)
+        {
+            force_software_renderer = 1;
+        }
+    }
 
     if (renderer == NULL)
     {
@@ -1409,9 +1432,7 @@ static void SetVideoMode(void)
 
     // Force integer scales for resolution-independent rendering.
 
-#if SDL_VERSION_ATLEAST(2, 0, 5)
     SDL_RenderSetIntegerScale(renderer, integer_scaling);
-#endif
 
     // Blank out the full screen area in case there is any junk in
     // the borders that won't otherwise be overwritten.
@@ -1421,6 +1442,12 @@ static void SetVideoMode(void)
     SDL_RenderPresent(renderer);
 
     // Create the 8-bit paletted and the 32-bit RGBA screenbuffer surfaces.
+
+    if (screenbuffer != NULL)
+    {
+        SDL_FreeSurface(screenbuffer);
+        screenbuffer = NULL;
+    }
 
     if (screenbuffer == NULL)
     {
@@ -1432,12 +1459,19 @@ static void SetVideoMode(void)
 
     // Format of argbbuffer must match the screen pixel format because we
     // import the surface data into the texture.
+
+    if (argbbuffer != NULL)
+    {
+        SDL_FreeSurface(argbbuffer);
+        argbbuffer = NULL;
+    }
+
     if (argbbuffer == NULL)
     {
-        SDL_PixelFormatEnumToMasks(pixel_format, &unused_bpp,
+        SDL_PixelFormatEnumToMasks(pixel_format, &bpp,
                                    &rmask, &gmask, &bmask, &amask);
         argbbuffer = SDL_CreateRGBSurface(0,
-                                          SCREENWIDTH, SCREENHEIGHT, 32,
+                                          SCREENWIDTH, SCREENHEIGHT, bpp,
                                           rmask, gmask, bmask, amask);
         SDL_FillRect(argbbuffer, NULL, 0);
     }
@@ -1462,33 +1496,14 @@ static void SetVideoMode(void)
                                 SDL_TEXTUREACCESS_STREAMING,
                                 SCREENWIDTH, SCREENHEIGHT);
 
+    // [JN] Workaround for SDL 2.0.14+ alt-tab bug
+#if defined(_WIN32)
+    SDL_SetHintWithPriority(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "1", SDL_HINT_OVERRIDE);
+#endif
+
     // Initially create the upscaled texture for rendering to screen
 
     CreateUpscaledTexture(true);
-}
-
-static const char *hw_emu_warning = 
-"===========================================================================\n"
-"WARNING: it looks like you are using a software GL implementation.\n"
-"To improve performance, try setting force_software_renderer in your\n"
-"configuration file.\n"
-"===========================================================================\n";
-
-static void CheckGLVersion(void)
-{
-    const char * version;
-    typedef const GLubyte* (APIENTRY * glStringFn_t)(GLenum);
-    glStringFn_t glfp = (glStringFn_t)SDL_GL_GetProcAddress("glGetString");
-
-    if (glfp)
-    {
-        version = (const char *)glfp(GL_VERSION);
-
-        if (version && strstr(version, "Mesa"))
-        {
-            printf("%s", hw_emu_warning);
-        }
-    }
 }
 
 void I_InitGraphics(void)
@@ -1545,15 +1560,6 @@ void I_InitGraphics(void)
     // on configuration.
     AdjustWindowSize();
     SetVideoMode();
-
-    // [JN] Set window hint with a high priority.
-    // Fixes not working Win-key combinations on SDL 2.0.14.
-    SDL_SetHintWithPriority(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS,
-                            "1", SDL_HINT_OVERRIDE);
-
-    // We might have poor performance if we are using an emulated
-    // HW accelerator. Check for Mesa and warn if we're using it.
-    CheckGLVersion();
 
     // Start with a clear black screen
     // (screen will be flipped after we set the palette)
