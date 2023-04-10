@@ -1024,32 +1024,6 @@ boolean PTR_ShootTraverse (intercept_t* in)
 		return false;		
 	}
 
-	// [crispy] check if the pullet puff's z-coordinate is below of above
-	// its spawning sector's floor or ceiling, respectively, and move its
-	// coordinates to the point where the trajectory hits the plane
-	if (crl_uncapped_fps && aimslope)
-	{
-	    const int lineside = P_PointOnLineSide(x, y, li);
-	    int side;
-
-	    if ((side = li->sidenum[lineside]) != -1)
-	    {
-	        const sector_t *const sector = sides[side].sector;
-
-	        if (z < sector->floorheight
-	        || (z > sector->ceilingheight && sector->ceilingpic != skyflatnum))
-	        {
-	            z = BETWEEN(sector->floorheight, sector->ceilingheight, z);
-	            // [JN] Let's keep vanilla behavior.
-	            // Commenting following lines will prevent bullet puff from
-	            // slippering to closest wall in uncapped framerate mode.
-	            // frac = FixedDiv(z - shootz, FixedMul(aimslope, attackrange));
-	            // x = trace.x + FixedMul (trace.dx, frac);
-	            // y = trace.y + FixedMul (trace.dy, frac);
-	        }
-	    }
-	}
-
 	// Spawn bullet puffs.
 	P_SpawnPuff (x,y,z);
 	
