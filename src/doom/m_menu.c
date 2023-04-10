@@ -3555,21 +3555,17 @@ void M_Ticker (void)
     }
 
     // [JN] Menu glowing animation:
-    if (!cursor_direction)
+    
+    // Brightening
+    if (!cursor_direction && ++cursor_tics == 8)
     {
-        // Brightening
-        if (++cursor_tics == 8)
-        {
-            cursor_direction = true;
-        }
+        cursor_direction = true;
     }
+    // Darkening
     else
+    if (cursor_direction && --cursor_tics == -8)
     {
-        // Darkening
-        if (--cursor_tics == -8)
-        {
-            cursor_direction = false;
-        }
+        cursor_direction = false;
     }
 }
 
