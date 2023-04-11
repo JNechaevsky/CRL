@@ -116,6 +116,12 @@ static int m_zoomout;
 static  int     iddt_reds_active;
 static  int     iddt_reds_inactive = 176;
 static  boolean iddt_reds_direction = false;
+// [JN] Pulse player arrow in Spectator mode.
+#define ARROW_WHITE_RANGE (10)
+#define ARROW_WHITE_MIN   (80)
+#define ARROW_WHITE_MAX   (96)
+static  int     arrow_color = 80;
+static  boolean arrow_color_direction = false;
 
 typedef struct
 {
@@ -940,6 +946,20 @@ void AM_Ticker (void)
 
     // Active:
     iddt_reds_active = (REDS - 4) + ((gametic >> 1) % IDDT_REDS_RANGE);
+
+    // [JN] Pulse player arrow in Spectator mode:
+
+    // Brightening
+    if (!arrow_color_direction && ++arrow_color == ARROW_WHITE_MAX)
+    {
+        arrow_color_direction = true;
+    }
+    // Darkening
+    else
+    if (arrow_color_direction && --arrow_color == ARROW_WHITE_MIN)
+    {
+        arrow_color_direction = false;
+    }
 }
 
 // -----------------------------------------------------------------------------
@@ -1536,7 +1556,7 @@ static void AM_drawPlayers (void)
 
         AM_drawLineCharacter(cheat_player_arrow, cheating ?
                              arrlen(cheat_player_arrow) : arrlen(player_arrow), 0,
-                             smoothangle, WHITE, pt.x, pt.y);
+                             smoothangle, crl_spectating ? arrow_color : WHITE, pt.x, pt.y);
 
         return;
     }
@@ -1681,6 +1701,62 @@ static void AM_drawThings (int colors, int colorrange)
             }
 
             t = t->snext;
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------
+// AM_drawThings
+// Draws the things on the automap in double IDDT cheat mode.
+// -----------------------------------------------------------------------------
+
+static void AM_drawSpectator (void)
+{
+    int       i;
+    mpoint_t  pt;
+    mobj_t   *t;
+    angle_t   actualangle;
+
+    for (i = 0 ; i < numsectors ; i++)
+    {
+        t = sectors[i].thinglist;
+        while (t)
+        {
+            // [JN] Interpolate things if possible.
+            if (crl_uncapped_fps && leveltime > oldleveltime)
+            {
+                pt.x = (t->oldx + FixedMul(t->x - t->oldx, fractionaltic)) >> FRACTOMAPBITS;
+                pt.y = (t->oldy + FixedMul(t->y - t->oldy, fractionaltic)) >> FRACTOMAPBITS;
+                actualangle = R_InterpolateAngle(t->oldangle, t->angle, fractionaltic);
+            }
+            else
+            {
+                pt.x = t->x >> FRACTOMAPBITS;
+                pt.y = t->y >> FRACTOMAPBITS;
+                actualangle = t->angle;
+            }
+
+            // [JN] Keep things static in Spectator + rotate mode.
+            if (crl_spectating && crl_automap_rotate)
+            {
+                actualangle = t->angle - mapangle - viewangle + ANG90;
+            }
+
+            if (crl_automap_rotate)
+            {
+                AM_rotatePoint(&pt);
+            }
+
+            // [crispy] do not draw an extra triangle for the player
+            if (t == plr->mo)
+            {
+                AM_drawLineCharacter(thintriangle_guy, arrlen(thintriangle_guy),
+                                     t->radius >> FRACTOMAPBITS, actualangle,
+                                     arrow_color, pt.x, pt.y);
+            }
+
+            t = t->snext;
+            continue;
         }
     }
 }
@@ -1851,6 +1927,12 @@ void AM_Drawer (void)
     if (cheating == 2)
     {
         AM_drawThings(THINGCOLORS, THINGRANGE);
+    }
+
+    // [JN] CRL - draw pulsing triangle for player in Spectator mode.
+    if (crl_spectating)
+    {
+        AM_drawSpectator();
     }
 
     // [JN] Do not draw in following mode.
