@@ -1520,7 +1520,10 @@ static void AM_drawPlayers (void)
     if (!netgame)
     {
         // [JN] Smooth player arrow rotation.
-        const angle_t smoothangle = crl_automap_rotate ? plr->mo->angle : viewangle;
+        // Keep arrow static in Spectator + rotate mode.
+        const angle_t smoothangle = (crl_spectating && crl_automap_rotate) ?
+                                     plr->mo->angle :
+                                     crl_automap_rotate ? plr->mo->angle : viewangle;
 
         // [JN] Interpolate player arrow.
         pt.x = viewx >> FRACTOMAPBITS;
@@ -1632,6 +1635,12 @@ static void AM_drawThings (int colors, int colorrange)
                 pt.x = t->x >> FRACTOMAPBITS;
                 pt.y = t->y >> FRACTOMAPBITS;
                 actualangle = t->angle;
+            }
+
+            // [JN] Keep things static in Spectator + rotate mode.
+            if (crl_spectating && crl_automap_rotate)
+            {
+                actualangle = t->angle - mapangle - viewangle + ANG90;
             }
 
             if (crl_automap_rotate)
