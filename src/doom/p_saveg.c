@@ -80,7 +80,8 @@ static byte saveg_read8(void)
 {
     byte result = -1;
 
-    // [JN] Supress warning, CRL writes total level times after EOF terminator.
+    // [JN] Supress warning, CRL writes some extra data after EOF terminator.
+    /*
     if (fread(&result, 1, 1, save_stream) < 1 && false)
     {
         if (!savegame_error)
@@ -91,6 +92,7 @@ static byte saveg_read8(void)
             savegame_error = true;
         }
     }
+    */
 
     return result;
 }
