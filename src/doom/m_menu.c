@@ -558,7 +558,9 @@ static void M_CRL_Widget_KIS (int choice);
 static void M_CRL_Widget_Time (int choice);
 static void M_CRL_Widget_Powerups (int choice);
 static void M_CRL_Widget_Health (int choice);
-static void M_CRL_Automap (int choice);
+static void M_CRL_Automap_Rotate (int choice);
+static void M_CRL_Automap_Overlay (int choice);
+static void M_CRL_Automap_Drawing (int choice);
 static void M_CRL_Automap_Secrets (int choice);
 
 static void M_ChooseCRL_Gameplay (int choice);
@@ -1442,10 +1444,10 @@ static menuitem_t CRLMenu_Widgets[]=
     { 2, "TARGET'S HEALTH",     M_CRL_Widget_Health,     't'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
-    { 2, "DRAWING MODE",        M_CRL_Automap,           'a'},
+    { 2, "ROTATE MODE",         M_CRL_Automap_Rotate,    'r'},
+    { 2, "OVERLAY MODE",        M_CRL_Automap_Overlay,   'o'},
+    { 2, "DRAWING MODE",        M_CRL_Automap_Drawing,   'd'},
     { 2, "MARK SECRET SECTORS", M_CRL_Automap_Secrets,   'm'},
-    {-1, "", 0, '\0'},
-    {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'}
 };
@@ -1515,15 +1517,25 @@ static void M_DrawCRL_Widgets (void)
 
     M_WriteTextCentered(108, "AUTOMAP", cr[CR_YELLOW]);
 
+    // Rotate mode
+    sprintf(str, crl_automap_rotate ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 117, str,
+                 crl_automap_rotate ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
+    // Overlay mode
+    sprintf(str, crl_automap_overlay ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 126, str,
+                 crl_automap_overlay ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
     // Drawing mode
     sprintf(str, crl_automap_mode == 1 ? "FLOOR VISPLANES" :
                  crl_automap_mode == 2 ? "CEILING VISPLANES" : "NORMAL");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 117, str,
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 135, str,
                  crl_automap_mode ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Mark secret sectors
     sprintf(str, crl_automap_secrets ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 126, str,
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 144, str,
                  crl_automap_secrets ? cr[CR_GREEN] : cr[CR_DARKRED]);
 }
 
@@ -1562,7 +1574,17 @@ static void M_CRL_Widget_Health (int choice)
     crl_widget_health = M_INT_Slider(crl_widget_health, 0, 2, choice);
 }
 
-static void M_CRL_Automap (int choice)
+static void M_CRL_Automap_Rotate (int choice)
+{
+    crl_automap_rotate ^= 1;
+}
+
+static void M_CRL_Automap_Overlay (int choice)
+{
+    crl_automap_overlay ^= 1;
+}
+
+static void M_CRL_Automap_Drawing (int choice)
 {
     crl_automap_mode = M_INT_Slider(crl_automap_mode, 0, 2, choice);
 }
