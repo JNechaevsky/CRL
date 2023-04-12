@@ -438,7 +438,7 @@ boolean WI_Responder(event_t* ev)
 void WI_drawLF(void)
 {
     int y = WI_TITLEY;
-    char lvlname[9];
+    char lvlname[17];
 
     if (gamemode != commercial || wbs->last < NUMCMAPS)
     {
@@ -558,7 +558,7 @@ WI_drawOnLnode
 	// DEBUG
 	// printf("Could not place patch on level %d\n", n+1); 
 	// [JN] CRL - print clarified in-game message.
-	char num[2];
+	char num[12];
 
 	sprintf(num, "%d", n+1);
 	CRL_SetCriticalMessage(M_StringJoin("WI_drawOnLnode:"
@@ -652,7 +652,7 @@ void WI_drawAnimatedBack(void)
 {
     int			i;
     anim_t*		a;
-    char		name[9];
+    char		name[36];
 
     if (gamemode == commercial)
 	return;
@@ -690,7 +690,7 @@ WI_drawNum
     int		fontwidth = SHORT(num[0]->width);
     int		neg;
     int		temp;
-    char	name[9];
+    char	name[16];
 
     if (digits < 0)
     {
