@@ -522,10 +522,11 @@ void TXT_OpenURL(char *url)
 
 #else
 
-void TXT_OpenURL(char *url)
+void TXT_OpenURL(const char *url)
 {
     char *cmd;
     size_t cmd_len;
+    int retval;
 
     cmd_len = strlen(url) + 30;
     cmd = malloc(cmd_len);
@@ -546,7 +547,12 @@ void TXT_OpenURL(char *url)
     TXT_snprintf(cmd, cmd_len, "xdg-open \"%s\"", url);
 #endif
 
-    system(cmd);
+    retval = system(cmd);
+    if (retval != 0)
+    {
+        fprintf(stderr, "TXT_OpenURL: error executing '%s'; return code %d\n",
+            cmd, retval);
+    }
     free(cmd);
 }
 
