@@ -80,7 +80,7 @@ static byte saveg_read8(void)
 {
     byte result = -1;
 
-    if (fread(&result, 1, 1, save_stream) < 1 && false)
+    if (fread(&result, 1, 1, save_stream) < 1)
     {
         if (!savegame_error)
         {
