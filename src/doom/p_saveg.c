@@ -80,13 +80,15 @@ static byte saveg_read8(void)
 {
     byte result = -1;
 
-    // [JN] Supress warning, CRL writes total level times after EOF terminator.
-    if (fread(&result, 1, 1, save_stream) < 1 && false)
+    if (fread(&result, 1, 1, save_stream) < 1)
     {
         if (!savegame_error)
         {
+            // [JN] Supress warning, CRL writes some extra data after EOF marker.
+            /*
             fprintf(stderr, "saveg_read8: Unexpected end of file while "
                             "reading save game\n");
+            */
 
             savegame_error = true;
         }

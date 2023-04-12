@@ -344,7 +344,7 @@ void R_GenerateLookup (int texnum)
     {
 	if (!patchcount[x])
 	{
-        char badtexture[8];
+        char badtexture[10];
 
         // [crispy] fix absurd texture name in error message
         // [JN] CRL - clarify than we are handing texture here.

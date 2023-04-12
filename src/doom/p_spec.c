@@ -1083,7 +1083,7 @@ void P_PlayerInSpecialSector (player_t* player)
 			
       default:
       {
-	    char secnum[6];
+	    char secnum[7];
 
 	    sprintf(secnum, "%i", sector->special);
 
