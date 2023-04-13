@@ -356,9 +356,6 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(crl_demo_timerdir),
     CONFIG_VARIABLE_INT(crl_demo_bar),
     CONFIG_VARIABLE_INT(crl_internal_demos),
-
-    // Console window
-    CONFIG_VARIABLE_INT(crl_console),
 };
 
 static default_collection_t doom_defaults =

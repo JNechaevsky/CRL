@@ -575,10 +575,6 @@ static void M_CRL_TimerDirection (int choice);
 static void M_CRL_ProgressBar (int choice);
 static void M_CRL_InternalDemos (int choice);
 
-#ifdef _WIN32
-static void M_ChooseCRL_Console (int choice);
-#endif
-
 static int  shade_wait; // [JN] Delay before shading.
 static void M_ShadeBackground (void)
 {
@@ -689,11 +685,7 @@ static menuitem_t CRLMenu_Main[]=
     { 1, "CONTROL SETTINGS",     M_ChooseCRL_Controls,  'c'},
     { 1, "WIDGETS AND AUTOMAP",  M_ChooseCRL_Widgets,   'w'},
     { 1, "GAMEPLAY FEATURES",    M_ChooseCRL_Gameplay,  'g'},
-#ifdef _WIN32
-    { 2, "SHOW CONSOLE WINDOW",  M_ChooseCRL_Console,   's'},
-#else
     {-1, "", 0, '\0'},
-#endif
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'}
@@ -750,13 +742,6 @@ static void M_DrawCRL_Main (void)
 
     M_WriteTextCentered(81, "SETTINGS", cr[CR_YELLOW]);
 
-#ifdef _WIN32
-    // Show console window
-    sprintf(str, crl_console ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth(str), 135, str,
-                 crl_console ? cr[CR_GREEN] : cr[CR_DARKRED]);
-#endif
-
     // NEXT PAGE >
     // M_WriteText(CRL_MENU_LEFTOFFSET, 153, "NEXT PAGE >", cr[CR_WHITE]);
 }
@@ -795,14 +780,6 @@ static void M_CRL_NoMomentum (int choice)
 
     player->cheats ^= CF_NOMOMENTUM;
 }
-
-#ifdef _WIN32
-static void M_ChooseCRL_Console (int choice)
-{
-    CRL_ToggleWindowsConsole();
-    CRL_ShowWindowsConsole();
-}
-#endif
 
 // -----------------------------------------------------------------------------
 // Video options

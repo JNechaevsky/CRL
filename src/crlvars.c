@@ -72,9 +72,6 @@ int crl_demo_timerdir = 0;
 int crl_demo_bar = 0;
 int crl_internal_demos = 1;
 
-// Console window
-int crl_console = 0;
-
 // -----------------------------------------------------------------------------
 // [JN] CRL-specific config variables binding function.
 // -----------------------------------------------------------------------------
@@ -126,7 +123,4 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_demo_timerdir",              &crl_demo_timerdir);
     M_BindIntVariable("crl_demo_bar",                   &crl_demo_bar);
     M_BindIntVariable("crl_internal_demos",             &crl_internal_demos);
-
-    // Console window
-    M_BindIntVariable("crl_console",                    &crl_console);
 }

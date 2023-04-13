@@ -1348,9 +1348,6 @@ void D_DoomMain (void)
     const int starttime = SDL_GetTicks();
 
 #ifdef _WIN32
-    // [JN] Allocate console before any prints.
-    CRL_CreateWindowsConsole();
-
     // [JN] Print colorized title.
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), BACKGROUND_BLUE
                            | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE
@@ -1563,11 +1560,6 @@ void D_DoomMain (void)
     M_SetConfigFilenames("default.cfg");
     D_BindVariables();
     M_LoadDefaults();
-
-#ifdef _WIN32
-    // [JN] See if console window need to appear after config file is loaded.
-    CRL_ShowWindowsConsole();
-#endif
 
     // Save configuration at exit.
     I_AtExit(M_SaveDefaults, true); // [crispy] always save configuration at exit

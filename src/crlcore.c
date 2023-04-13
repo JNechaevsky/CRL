@@ -1457,53 +1457,6 @@ void CRL_SetColors (uint8_t* colors, void* ref)
 //
 // =============================================================================
 
-#ifdef _WIN32
-// -----------------------------------------------------------------------------
-// CRL_CreateWindowsConsole
-// [JN] Creates console output Window. For Windows OS only.
-// -----------------------------------------------------------------------------
-
-static HWND CRL_Console;
-
-void CRL_CreateWindowsConsole (void)
-{
-    // Allocate console.
-    AllocConsole();
-    SetConsoleTitle("CRL Console");
-
-    CRL_Console = GetConsoleWindow();
-
-    // Head text outputs.
-    freopen("CONIN$", "r",stdin); 
-    freopen("CONOUT$","w",stdout); 
-    freopen("CONOUT$","w",stderr); 
-
-    // Set a proper codepage.
-    SetConsoleOutputCP(CP_UTF8);
-    SetConsoleCP(CP_UTF8);
-}
-
-// -----------------------------------------------------------------------------
-// CRL_ShowWindowsConsole
-//  [JN] Shows or hides console output window.
-// -----------------------------------------------------------------------------
-
-void CRL_ShowWindowsConsole (void)
-{
-    ShowWindow(CRL_Console, crl_console ? SW_SHOWNOACTIVATE : SW_HIDE);
-}
-
-// -----------------------------------------------------------------------------
-// CRL_ToggleWindowsConsole
-//  [JN] Toggles crl_console variable.
-// -----------------------------------------------------------------------------
-
-void CRL_ToggleWindowsConsole (void)
-{
-    crl_console ^= 1;
-}
-#endif
-
 // -----------------------------------------------------------------------------
 // CRL_printf
 //  [JN] Prints colored message on Windows OS.

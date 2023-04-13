@@ -22,13 +22,44 @@
 #include <stdio.h>
 #include <SDL.h>
 
+#ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
+#endif
+
 #include "config.h"
 #include "doomtype.h"
 #include "i_system.h"
 #include "m_argv.h"
 #include "m_misc.h"
 
+#include "crlcore.h"
 
+
+#ifdef _WIN32
+// -----------------------------------------------------------------------------
+// CRL_CreateWindowsConsole
+// [JN] Creates console output Window. For Windows OS only.
+// -----------------------------------------------------------------------------
+
+static void CRL_CreateWindowsConsole (void)
+{
+    // Allocate console.
+    AllocConsole();
+    SetConsoleTitle("CRL Console");
+
+    // Head text outputs.
+    freopen("CONIN$", "r",stdin); 
+    freopen("CONOUT$","w",stdout); 
+    freopen("CONOUT$","w",stderr); 
+
+    // Set a proper codepage.
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
+}
+#endif
 
 
 //
@@ -53,6 +84,12 @@ int main(int argc, char **argv)
     }
 
 #if defined(_WIN32)
+    // [JN] Activate console if "-console" is present.
+    if (M_CheckParm ("-console"))
+    {
+        CRL_CreateWindowsConsole();
+    }
+
     // compose a proper command line from loose file paths passed as arguments
     // to allow for loading WADs and DEHACKED patches by drag-and-drop
     M_AddLooseFiles();
