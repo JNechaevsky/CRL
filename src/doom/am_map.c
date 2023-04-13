@@ -31,6 +31,7 @@
 #include "doomstat.h"
 #include "dstrings.h"
 #include "am_map.h"
+#include "v_trans.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
@@ -71,6 +72,7 @@
 #define SECRETWALLRANGE  WALLRANGE
 #define GRIDCOLORS       (GRAYS + GRAYSRANGE/2)
 #define XHAIRCOLORS      GRAYS
+static  int secretwallcolors;
 
 // drawing stuff
 #define AM_NUMMARKPOINTS 10
@@ -451,6 +453,8 @@ static void AM_changeWindowLoc (void)
 
 void AM_initVariables (void)
 {
+    static boolean colors_initialized = false;
+
     automapactive = true;
 
     m_paninc.x = m_paninc.y = 0;
@@ -474,6 +478,17 @@ void AM_initVariables (void)
     old_m_y = m_y;
     old_m_w = m_w;
     old_m_h = m_h;
+
+    if (!colors_initialized)
+    {
+        unsigned char *playpal = W_CacheLumpName("PLAYPAL", PU_STATIC);
+
+        secretwallcolors = V_GetPaletteIndex(playpal, 255, 0, 255);
+
+        W_ReleaseLumpName("PLAYPAL");
+        
+        colors_initialized = true;
+    }
 }
 
 // -----------------------------------------------------------------------------
@@ -1362,7 +1377,7 @@ static void AM_drawWalls (void)
                 // [JN] CRL - mark secret sectors.
                 if (crl_automap_secrets && lines[i].frontsector->special == 9)
                 {
-                    AM_drawMline(&l, SECRETWALLCOLORS);
+                    AM_drawMline(&l, secretwallcolors);
                 }
                 else
                 {
@@ -1387,7 +1402,7 @@ static void AM_drawWalls (void)
                 && (lines[i].frontsector->special == 9
                 ||  lines[i].backsector->special == 9))
                 {
-                    AM_drawMline(&l, SECRETWALLCOLORS);
+                    AM_drawMline(&l, secretwallcolors);
                 }
                 else
                 if (lines[i].backsector->floorheight
