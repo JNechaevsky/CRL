@@ -200,8 +200,8 @@ boolean     automapactive = false;
 static int  cheating = 0;
 static int  grid = 0;
 
-static int  finit_width = SCREENWIDTH;
-static int  finit_height = SCREENHEIGHT - ST_HEIGHT;
+static const int  finit_width = SCREENWIDTH;
+static const int  finit_height = SCREENHEIGHT - ST_HEIGHT;
 
 // location of window on screen
 static int  f_x;
@@ -1824,9 +1824,11 @@ static void AM_drawMarks (void)
 // AM_drawCrosshair
 // -----------------------------------------------------------------------------
 
-static void AM_drawCrosshair (int color)
+static void AM_drawCrosshair (void)
 {
-    I_VideoBuffer[(f_w*(f_h+1))/2] = color; // single point for now
+    // [JN] Simplify: (f_w*(f_h+1))/2) = (320 * (200 - 32 + 1) / 2) = 27040.
+    // Color is always same, so macro can be used here safely.
+    I_VideoBuffer[27040] = XHAIRCOLORS; // single point for now
 }
 
 // -----------------------------------------------------------------------------
@@ -1960,7 +1962,7 @@ void AM_Drawer (void)
     // [JN] Do not draw in following mode.
     if (!followplayer)
     {
-        AM_drawCrosshair(XHAIRCOLORS);
+        AM_drawCrosshair();
     }
 
     AM_drawMarks();
