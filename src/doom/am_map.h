@@ -30,6 +30,8 @@
 #define AM_MSGEXITED (AM_MSGHEADER | ('x'<<8))
 
 
+extern void AM_Init (void);
+
 // Called by main loop.
 boolean AM_Responder (event_t* ev);
 void AM_initVariables (void);

@@ -267,6 +267,24 @@ static angle_t mapangle;
 
 
 // -----------------------------------------------------------------------------
+// AM_Init
+// [JN] Predefine some variables at program startup.
+// -----------------------------------------------------------------------------
+
+void AM_Init (void)
+{
+    if (original_playpal)
+    {
+        secretwallcolors = SECRETWALLCOLORS;
+    }
+    else
+    {
+        secretwallcolors = V_GetPaletteIndex(W_CacheLumpName("PLAYPAL", PU_CACHE),
+                                                                     255, 0, 255);
+    }
+}
+
+// -----------------------------------------------------------------------------
 // AM_activateNewScale
 // Changes the map scale after zooming or translating.
 // -----------------------------------------------------------------------------
@@ -455,8 +473,6 @@ static void AM_changeWindowLoc (void)
 
 void AM_initVariables (void)
 {
-    static boolean colors_initialized = false;
-
     automapactive = true;
 
     m_paninc.x = m_paninc.y = 0;
@@ -480,15 +496,6 @@ void AM_initVariables (void)
     old_m_y = m_y;
     old_m_w = m_w;
     old_m_h = m_h;
-
-    if (!colors_initialized)
-    {
-        secretwallcolors = original_playpal ? SECRETWALLCOLORS :
-                           V_GetPaletteIndex(W_CacheLumpName("PLAYPAL", PU_CACHE),
-                                             255, 0, 255);
-
-        colors_initialized = true;
-    }
 }
 
 // -----------------------------------------------------------------------------
