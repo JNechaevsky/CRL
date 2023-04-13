@@ -604,6 +604,7 @@ extern int     viewwindowx;
 extern int     viewwindowy;
 
 extern boolean setsizeneeded;
+extern boolean original_playpal;
 
 // Lighting LUT.
 // Used for z-depth cuing per column/row,

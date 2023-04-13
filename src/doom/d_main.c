@@ -2005,6 +2005,9 @@ void D_DoomMain (void)
     DEH_printf("ST_Init: Init status bar.\n");
     ST_Init ();
 
+    // [JN] CRL - predefine some automap variables at program startup.
+    AM_Init ();
+
     // [JN] Show startup process time.
     printf("Startup process took %d ms.\n", SDL_GetTicks() - starttime);
 

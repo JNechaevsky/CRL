@@ -733,7 +733,7 @@ static void R_InitTintMap (void)
 {
     // [JN] Check if we have a modified PLAYPAL palette to decide
     // how to load translucency table: as pregenerated or as generated dynamically.
-    if (W_CheckMultipleLumps("PLAYPAL") < 2)
+    if (original_playpal)
     {
         // [JN] We don't. Load pregenerated table for faster startup.
         tintmap = tintmap_original;
