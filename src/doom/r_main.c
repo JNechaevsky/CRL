@@ -28,6 +28,7 @@
 #include "m_menu.h"
 #include "p_local.h"
 #include "v_video.h"
+#include "w_wad.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
@@ -37,6 +38,8 @@
 #define FIELDOFVIEW		2048	
 
 
+// [JN] Will be false if modified PLAYPAL lump is loaded.
+boolean original_playpal = true;
 
 int			viewangleoffset;
 
@@ -732,6 +735,12 @@ void R_ExecuteSetViewSize (void)
 
 void R_Init (void)
 {
+    // [JN] Check for modified PLAYPAL lump.
+    if (W_CheckMultipleLumps("PLAYPAL") > 1)
+    {
+        original_playpal = false;
+    }
+
     R_InitData ();
     printf (".");
     // viewwidth / viewheight / detailLevel are set by the defaults

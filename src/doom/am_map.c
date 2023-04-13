@@ -72,7 +72,9 @@
 #define SECRETWALLRANGE  WALLRANGE
 #define GRIDCOLORS       (GRAYS + GRAYSRANGE/2)
 #define XHAIRCOLORS      GRAYS
-static  int secretwallcolors;
+
+// [JN] Make wall colors of secret sectors palette-independent.
+static int secretwallcolors;
 
 // drawing stuff
 #define AM_NUMMARKPOINTS 10
@@ -481,12 +483,10 @@ void AM_initVariables (void)
 
     if (!colors_initialized)
     {
-        unsigned char *playpal = W_CacheLumpName("PLAYPAL", PU_STATIC);
+        secretwallcolors = original_playpal ? SECRETWALLCOLORS :
+                           V_GetPaletteIndex(W_CacheLumpName("PLAYPAL", PU_CACHE),
+                                             255, 0, 255);
 
-        secretwallcolors = V_GetPaletteIndex(playpal, 255, 0, 255);
-
-        W_ReleaseLumpName("PLAYPAL");
-        
         colors_initialized = true;
     }
 }
