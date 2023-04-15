@@ -191,22 +191,6 @@ void I_PrintStartupBanner(char *gamedescription)
     I_PrintDivider();
 }
 
-// 
-// I_ConsoleStdout
-//
-// Returns true if stdout is a real console, false if it is a file
-//
-
-boolean I_ConsoleStdout(void)
-{
-#ifdef _WIN32
-    // SDL "helpfully" always redirects stdout to a file.
-    return false;
-#else
-    return isatty(fileno(stdout));
-#endif
-}
-
 //
 // I_Init
 //
@@ -306,7 +290,7 @@ void I_Error (char *error, ...)
     // Pop up a GUI dialog box to show the error message, if the
     // game was not run from the console (and the user will
     // therefore be unable to otherwise see the message).
-    if (exit_gui_popup && !I_ConsoleStdout())
+    if (exit_gui_popup)
     {
 #ifdef _WIN32
         // [JN] UTF-8 retranslations of error message and window title.
