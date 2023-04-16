@@ -26,6 +26,7 @@
 #include "p_local.h"
 
 #include "crlcore.h"
+#include "crlvars.h"
 
 
 // OPTIMIZE: closed two sided lines as single sided
@@ -467,7 +468,7 @@ R_StoreWallRange
     int			lightnum;
 
     // don't overflow and crash
-    if (ds_p == &drawsegs[MAXDRAWSEGS])
+    if (ds_p == &drawsegs[crl_vanilla_limits ? MAXDRAWSEGS : MAXREALDRAWSEGS])
 	return;		
 		
 #ifdef RANGECHECK

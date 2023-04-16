@@ -32,6 +32,7 @@
 
 #define MAXVISSPRITES   128
 #define MAXDRAWSEGS     256
+#define MAXREALDRAWSEGS 2048
 
 // Silhouette, needed for clipping Segs (mainly) and sprites representing things.
 #define SIL_NONE    0
@@ -495,7 +496,7 @@ extern boolean segtextured;
 extern boolean markfloor;		
 extern boolean markceiling;
 
-extern drawseg_t  drawsegs[MAXDRAWSEGS];
+extern drawseg_t  drawsegs[MAXREALDRAWSEGS];
 extern drawseg_t *ds_p;
 
 extern lighttable_t **hscalelight;

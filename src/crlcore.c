@@ -363,6 +363,16 @@ int CRL_MaxVisPlanes (void)
 }
 
 // -----------------------------------------------------------------------------
+// CRL_MaxDrawSegs
+//  [JN] Returns the maximum number of drawsegs.
+// -----------------------------------------------------------------------------
+
+int CRL_MaxDrawSegs (void)
+{
+    return crl_vanilla_limits ? 256 : 2048;
+}
+
+// -----------------------------------------------------------------------------
 // CRL_ViewDrawer
 //  Draw view.
 // -----------------------------------------------------------------------------
@@ -710,13 +720,13 @@ void CRL_StatDrawer (void)
 
         // Segments (256 max)
         if (crl_widget_render == 1
-        || (crl_widget_render == 2 && CRLData.numsegs >= 256))
+        || (crl_widget_render == 2 && CRLData.numsegs >= CRL_MaxDrawSegs()))
         {
             char seg[32];
 
-            M_WriteText(0, 117, "SEG:", CRL_StatColor_Str(CRLData.numsegs, 256));
-            M_snprintf(seg, 16, "%d/256", CRLData.numsegs);
-            M_WriteText(32, 117, seg, CRL_StatColor_Val(CRLData.numsegs, 256));
+            M_WriteText(0, 117, "SEG:", CRL_StatColor_Str(CRLData.numsegs, CRL_MaxDrawSegs()));
+            M_snprintf(seg, 16, "%d/%d", CRLData.numsegs, CRL_MaxDrawSegs());
+            M_WriteText(32, 117, seg, CRL_StatColor_Val(CRLData.numsegs, CRL_MaxDrawSegs()));
         }
 
         // Planes (vanilla: 128, doom+: 1024)

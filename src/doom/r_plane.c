@@ -447,9 +447,29 @@ void R_DrawPlanes (void)
     CRLData.numopenings = lastopening - openings;
 
 #ifdef RANGECHECK
-    if (ds_p - drawsegs > MAXDRAWSEGS)
-	I_Error ("R_DrawPlanes: drawsegs overflow (%i)",
-		 ds_p - drawsegs);
+    if (ds_p - drawsegs > CRL_MaxDrawSegs())
+    {
+        char msg[32];
+
+        // [JN] Print in-game warning. No need to add counter into message,
+    	// since number is already presented in limits counter widget.
+        if (crl_vanilla_limits)
+        {
+            sprintf(msg, "R_DRAWPLANES: \rdrawsegs overflow: %i (vanilla crashes here)", ds_p - drawsegs);
+        }
+        else
+        {
+            sprintf(msg, "R_DRAWPLANES: \rdrawsegs overflow: %i (doom+ crashes here)", ds_p - drawsegs);
+        }
+
+        CRL_SetCriticalMessage(msg, 2);
+
+        return;
+
+        //I_Error ("R_DrawPlanes: drawsegs overflow (%i)",
+        //	 ds_p - drawsegs);
+    }
+
     
     if (lastvisplane - visplanes > CRL_MaxVisPlanes())
     {

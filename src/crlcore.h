@@ -137,6 +137,7 @@ extern void CRL_MarkPixelP (void** __surface, void* __what, void* __drawp);
 extern void CRL_DrawVisPlanes (int __over);
 extern void CRL_CountPlane (void* __key, int __chorf, int __id);
 extern int  CRL_MaxVisPlanes (void);
+extern int  CRL_MaxDrawSegs (void);
 extern void CRL_ViewDrawer (void);
 extern void CRL_GetHOMMultiColor (void);
 extern int  CRL_homcolor;
