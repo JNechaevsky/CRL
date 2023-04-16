@@ -575,6 +575,10 @@ static void M_CRL_TimerDirection (int choice);
 static void M_CRL_ProgressBar (int choice);
 static void M_CRL_InternalDemos (int choice);
 
+static void M_ChooseCRL_Limits (int choice);
+static void M_DrawCRL_Limits (void);
+static void M_CRL_Limits (int choice);
+
 static int  shade_wait; // [JN] Delay before shading.
 static void M_ShadeBackground (void)
 {
@@ -685,7 +689,7 @@ static menuitem_t CRLMenu_Main[]=
     { 1, "CONTROL SETTINGS",     M_ChooseCRL_Controls,  'c'},
     { 1, "WIDGETS AND AUTOMAP",  M_ChooseCRL_Widgets,   'w'},
     { 1, "GAMEPLAY FEATURES",    M_ChooseCRL_Gameplay,  'g'},
-    {-1, "", 0, '\0'},
+    { 1, "STATIC ENGINE LIMITS", M_ChooseCRL_Limits,    's'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'}
@@ -1712,6 +1716,89 @@ static void M_CRL_ProgressBar (int choice)
 static void M_CRL_InternalDemos (int choice)
 {
     crl_internal_demos ^= 1;
+}
+
+// -----------------------------------------------------------------------------
+// Static engine limits
+// -----------------------------------------------------------------------------
+
+static menuitem_t CRLMenu_Limits[]=
+{
+    { 2, "LIMITS LEVEL", M_CRL_Limits, 'd'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'}
+};
+
+static menu_t CRLDef_Limits =
+{
+    m_crl_end,
+    &CRLDef_Main,
+    CRLMenu_Limits,
+    M_DrawCRL_Limits,
+    CRL_MENU_LEFTOFFSET_SML, CRL_MENU_TOPOFFSET,
+    0,
+    true
+};
+
+static void M_ChooseCRL_Limits (int choice)
+{
+    M_SetupNextMenu (&CRLDef_Limits);
+}
+
+static void M_DrawCRL_Limits (void)
+{
+    static char str[32];
+
+    M_ShadeBackground();
+    M_WriteTextCentered(27, "STATIC ENGINE LIMITS", cr[CR_YELLOW]);
+
+    // Level of the limits
+    sprintf(str, crl_vanilla_limits ? "VANILLA" : "DOOM-PLUS");
+    M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth(str), 36, str, 
+                 crl_vanilla_limits ? cr[CR_RED] : cr[CR_GREEN]);
+
+    M_WriteText (CRL_MENU_LEFTOFFSET_SML, 45, "MAXVISPLANES", cr[CR_GRAY]);
+    M_WriteText (CRL_MENU_LEFTOFFSET_SML, 54, "MAXDRAWSEGS",  cr[CR_GRAY]);
+    M_WriteText (CRL_MENU_LEFTOFFSET_SML, 63, "MAXVISSPRITE", cr[CR_GRAY]);
+    M_WriteText (CRL_MENU_LEFTOFFSET_SML, 72, "MAXPLATS",     cr[CR_GRAY]);
+    M_WriteText (CRL_MENU_LEFTOFFSET_SML, 81, "MAXLINEANIMS", cr[CR_GRAY]);
+    M_WriteText (CRL_MENU_LEFTOFFSET_SML, 90, "MAXOPENINGS",  cr[CR_GRAY]);
+    
+    if (crl_vanilla_limits)
+    {
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("128"),   45,   "128", cr[CR_RED]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("256"),   54,   "256", cr[CR_RED]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("128"),   63,   "128", cr[CR_RED]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("30"),    72,    "30", cr[CR_RED]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("64"),    81,    "64", cr[CR_RED]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("20480"), 90, "20480", cr[CR_RED]);
+    }
+    else
+    {
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("1024"),  45,  "1024", cr[CR_GREEN]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("2048"),  54,  "2048", cr[CR_GREEN]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("1024"),  63,  "1024", cr[CR_GREEN]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("7680"),  72,  "7680", cr[CR_GREEN]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("16384"), 81, "16384", cr[CR_GREEN]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("65536"), 90, "65536", cr[CR_GREEN]);
+    }
+}
+
+static void M_CRL_Limits (int choice)
+{
+    crl_vanilla_limits ^= 1;
 }
 
 
