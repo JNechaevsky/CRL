@@ -354,12 +354,12 @@ void CRL_CountPlane (void* __key, int __chorf, int __id)
 //  Returns the maximum number of visplanes.
 //  @return The visplane limit.
 //  @since 2015/12/17
+//  [JN] Make variable limit.
 // -----------------------------------------------------------------------------
 
 int CRL_MaxVisPlanes (void)
 {
-    // [JN] Left only vanilla value, since we representing vanilla Doom.
-    return 128;
+    return crl_vanilla_limits ? 128 : 1024;
 }
 
 // -----------------------------------------------------------------------------
@@ -719,18 +719,18 @@ void CRL_StatDrawer (void)
             M_WriteText(32, 117, seg, CRL_StatColor_Val(CRLData.numsegs, 256));
         }
 
-        // Planes (128 max)
+        // Planes (vanilla: 128, doom+: 1024)
         if (crl_widget_render == 1
-        || (crl_widget_render == 2 && CRLData.numcheckplanes + CRLData.numfindplanes >= 128))
+        || (crl_widget_render == 2 && CRLData.numcheckplanes + CRLData.numfindplanes >= CRL_MaxVisPlanes()))
         {
             char vis[32];
             const int totalplanes = CRLData.numcheckplanes
                                   + CRLData.numfindplanes;
 
-            M_WriteText(0, 126, "PLN:", totalplanes >= 128 ? 
+            M_WriteText(0, 126, "PLN:", totalplanes >= CRL_MaxVisPlanes() ? 
                        (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
-            M_snprintf(vis, 32, "%d/128", totalplanes);
-            M_WriteText(32, 126, vis, totalplanes >= 128 ?
+            M_snprintf(vis, 32, "%d/%d", totalplanes, CRL_MaxVisPlanes());
+            M_WriteText(32, 126, vis, totalplanes >= CRL_MaxVisPlanes() ?
                        (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
         }
 

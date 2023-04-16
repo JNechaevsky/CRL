@@ -274,8 +274,14 @@ R_FindPlane
     if (lastvisplane - visplanes == CRL_MaxVisPlanes())
 	{
     	// [JN] Print in-game warning.
-    	CRL_SetCriticalMessage("R_FindPlane:"
-        "\rno more visplanes (vanilla crashes here)", 2);
+        if (crl_vanilla_limits)
+        {
+            CRL_SetCriticalMessage("R_FindPlane: \rno more visplanes (vanilla crashes here)", 2);
+        }
+        else
+        {
+            CRL_SetCriticalMessage("R_FindPlane: \rno more visplanes (doom+ crashes here)", 2);
+        }
     	longjmp(CRLJustIncaseBuf, CRL_JUMP_VPO);
 	}
 	
@@ -356,11 +362,17 @@ R_CheckPlane
     lastvisplane->picnum = pl->picnum;
     lastvisplane->lightlevel = pl->lightlevel;
     
-    if (lastvisplane - visplanes == MAXVISPLANES)
+    if (lastvisplane - visplanes == CRL_MaxVisPlanes())
     {
         // [JN] Print in-game warning.
-        CRL_SetCriticalMessage("R_CheckPlane:"
-        "\rno more visplanes (vanilla crashes here)", 2);
+        if (crl_vanilla_limits)
+        {
+            CRL_SetCriticalMessage("R_CheckPlane: \rno more visplanes (vanilla crashes here)", 2);
+        }
+        else
+        {
+            CRL_SetCriticalMessage("R_CheckPlane: \rno more visplanes (doom+ crashes here)", 2);
+        }
     }
 
     pl = lastvisplane++;
@@ -443,8 +455,14 @@ void R_DrawPlanes (void)
     {
     	// [JN] Print in-game warning. No need to add counter into message,
     	// since number is already presented in limits counter widget.
-    	CRL_SetCriticalMessage("R_DrawPlanes:"
-        "\rvisplane overflow (vanilla crashes here)", 2);
+        if (crl_vanilla_limits)
+        {
+            CRL_SetCriticalMessage("R_DrawPlanes: \rvisplane overflow (vanilla crashes here)", 2);
+        }
+        else
+        {
+            CRL_SetCriticalMessage("R_DrawPlanes: \rvisplane overflow (doom+ crashes here)", 2);
+        }
     	longjmp(CRLJustIncaseBuf, CRL_JUMP_VPO);
     }
     
