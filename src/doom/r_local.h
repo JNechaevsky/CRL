@@ -31,6 +31,7 @@
 
 
 #define MAXVISSPRITES   128
+#define MAXREALVISSPRITES   1024
 #define MAXDRAWSEGS     256
 #define MAXREALDRAWSEGS 2048
 
@@ -691,7 +692,7 @@ extern void R_DrawSprites (void);
 extern void R_InitSprites (char **namelist);
 extern void R_SortVisSprites (void);
 
-extern vissprite_t  vissprites[MAXVISSPRITES];
+extern vissprite_t  vissprites[MAXREALVISSPRITES];
 extern vissprite_t *vissprite_p;
 extern vissprite_t  vsprsortedhead;
 

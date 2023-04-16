@@ -373,6 +373,16 @@ int CRL_MaxDrawSegs (void)
 }
 
 // -----------------------------------------------------------------------------
+// CRL_MaxVisSprite
+//  [JN] Returns the maximum number of vissprites.
+// -----------------------------------------------------------------------------
+
+int CRL_MaxVisSprites (void)
+{
+    return crl_vanilla_limits ? 128 : 1024;
+}
+
+// -----------------------------------------------------------------------------
 // CRL_ViewDrawer
 //  Draw view.
 // -----------------------------------------------------------------------------
@@ -707,15 +717,15 @@ void CRL_StatDrawer (void)
     // Render counters
     if (crl_widget_render)
     {
-        // Sprites (128 max)
+        // Sprites (vanilla: 128, doom+: 1024)
         if (crl_widget_render == 1
-        || (crl_widget_render == 2 && CRLData.numsprites >= 128))
+        || (crl_widget_render == 2 && CRLData.numsprites >= CRL_MaxVisSprites()))
         {
             char spr[32];
 
-            M_WriteText(0, 108, "SPR:", CRL_StatColor_Str(CRLData.numsprites, 128));
-            M_snprintf(spr, 16, "%d/128", CRLData.numsprites);
-            M_WriteText(32, 108, spr, CRL_StatColor_Val(CRLData.numsprites, 128));
+            M_WriteText(0, 108, "SPR:", CRL_StatColor_Str(CRLData.numsprites, CRL_MaxVisSprites()));
+            M_snprintf(spr, 16, "%d/%d", CRLData.numsprites, CRL_MaxVisSprites());
+            M_WriteText(32, 108, spr, CRL_StatColor_Val(CRLData.numsprites, CRL_MaxVisSprites()));
         }
 
         // Segments (256 max)

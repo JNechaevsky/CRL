@@ -282,7 +282,7 @@ void R_InitSpriteDefs (char** namelist)
 //
 // GAME FUNCTIONS
 //
-vissprite_t	vissprites[MAXVISSPRITES];
+vissprite_t	vissprites[MAXREALVISSPRITES];
 vissprite_t*	vissprite_p;
 int		newvissprite;
 
@@ -323,7 +323,7 @@ vissprite_t	overflowsprite;
 
 vissprite_t* R_NewVisSprite (void)
 {
-    if (vissprite_p == &vissprites[MAXVISSPRITES])
+    if (vissprite_p == &vissprites[crl_vanilla_limits ? MAXVISSPRITES : MAXREALVISSPRITES])
 	return &overflowsprite;
     
     vissprite_p++;

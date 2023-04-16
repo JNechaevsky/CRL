@@ -1769,12 +1769,12 @@ static void M_DrawCRL_Limits (void)
     M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth(str), 36, str, 
                  crl_vanilla_limits ? cr[CR_RED] : cr[CR_GREEN]);
 
-    M_WriteText (CRL_MENU_LEFTOFFSET_SML, 45, "MAXVISPLANES", cr[CR_GRAY]);
-    M_WriteText (CRL_MENU_LEFTOFFSET_SML, 54, "MAXDRAWSEGS",  cr[CR_GRAY]);
-    M_WriteText (CRL_MENU_LEFTOFFSET_SML, 63, "MAXVISSPRITE", cr[CR_GRAY]);
-    M_WriteText (CRL_MENU_LEFTOFFSET_SML, 72, "MAXPLATS",     cr[CR_GRAY]);
-    M_WriteText (CRL_MENU_LEFTOFFSET_SML, 81, "MAXLINEANIMS", cr[CR_GRAY]);
-    M_WriteText (CRL_MENU_LEFTOFFSET_SML, 90, "MAXOPENINGS",  cr[CR_GRAY]);
+    M_WriteText (CRL_MENU_LEFTOFFSET_SML, 45, "MAXVISPLANES",  cr[CR_GRAY]);
+    M_WriteText (CRL_MENU_LEFTOFFSET_SML, 54, "MAXDRAWSEGS",   cr[CR_GRAY]);
+    M_WriteText (CRL_MENU_LEFTOFFSET_SML, 63, "MAXVISSPRITES", cr[CR_GRAY]);
+    M_WriteText (CRL_MENU_LEFTOFFSET_SML, 72, "MAXPLATS",      cr[CR_GRAY]);
+    M_WriteText (CRL_MENU_LEFTOFFSET_SML, 81, "MAXLINEANIMS",  cr[CR_GRAY]);
+    M_WriteText (CRL_MENU_LEFTOFFSET_SML, 90, "MAXOPENINGS",   cr[CR_GRAY]);
     
     if (crl_vanilla_limits)
     {
