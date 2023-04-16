@@ -392,6 +392,8 @@ extern boolean  safe_intercept;
 // Extended MAXINTERCEPTS, to allow for intercepts overrun emulation.
 #define MAXINTERCEPTS_ORIGINAL 128
 #define MAXINTERCEPTS          (MAXINTERCEPTS_ORIGINAL + 61)
+// [JN] CRL - a number of triggered intercepts which is causing All-Ghosts effect.
+#define MAXINTERCEPTS_ALLGHOSTS 147
 
 #define PT_ADDLINES     1
 #define PT_ADDTHINGS    2
