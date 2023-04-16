@@ -624,7 +624,7 @@ static boolean PIT_AddLineIntercepts (line_t *ld)
         }
         else
         {
-            char *message = "Triggered INTERCEPTS overflow!";
+            char *message = "Triggered INTERCEPTS overflow.";
 
             // [crispy] print a warning
             CRL_printf(M_StringJoin("PIT_AddLineIntercepts: ", message, NULL), false);
@@ -632,6 +632,16 @@ static boolean PIT_AddLineIntercepts (line_t *ld)
             CRL_SetCriticalMessage(M_StringJoin("PIT_AddLineIntercepts:"
             "\r", message, NULL), MESSAGETICS);
         }
+    }
+    else
+    if (intercept_p - intercepts >= MAXINTERCEPTS_ALLGHOSTS) // 147
+    {
+        char *message = "INTERCEPTS overflow, all-ghosts effect!";
+    
+        // [JN] CRL - print console and in-game warnings.
+        CRL_printf(M_StringJoin("PIT_AddLineIntercepts: ", message, NULL), true);
+        CRL_SetCriticalMessage(M_StringJoin("PIT_AddLineIntercepts:"
+        "\r", message, NULL), MESSAGETICS);
     }
     intercept_p++;
 
@@ -702,7 +712,7 @@ static boolean PIT_AddThingIntercepts (mobj_t *thing)
         }
         else
         {
-            char *message = "Triggered INTERCEPTS overflow!";
+            char *message = "Triggered INTERCEPTS overflow.";
 
             // [crispy] print a warning
             CRL_printf(M_StringJoin("PIT_AddThingIntercepts: ", message, NULL), false);
@@ -710,6 +720,16 @@ static boolean PIT_AddThingIntercepts (mobj_t *thing)
             CRL_SetCriticalMessage(M_StringJoin("PIT_AddThingIntercepts:"
             "\r", message, NULL), MESSAGETICS);
         }
+    }
+    else
+    if (intercept_p - intercepts >= MAXINTERCEPTS_ALLGHOSTS) // 147
+    {
+        char *message = "INTERCEPTS overflow, all-ghosts effect!";
+    
+        // [JN] CRL - print console and in-game warnings.
+        CRL_printf(M_StringJoin("PIT_AddThingIntercepts: ", message, NULL), true);
+        CRL_SetCriticalMessage(M_StringJoin("PIT_AddThingIntercepts:"
+        "\r", message, NULL), MESSAGETICS);
     }
 
     intercept_p++;
