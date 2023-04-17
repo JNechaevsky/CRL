@@ -129,8 +129,8 @@ int CRL_MaxVisPlanes;
 int CRL_MaxDrawSegs;
 int CRL_MaxVisSprites;
 int CRL_MaxOpenings;
-int CRL_MaxAnims;
 int CRL_MaxPlats;
+int CRL_MaxAnims;
 
 void CRL_SetStaticLimits (void)
 {
@@ -140,8 +140,8 @@ void CRL_SetStaticLimits (void)
         CRL_MaxDrawSegs   = 256;
         CRL_MaxVisSprites = 128;
         CRL_MaxOpenings   = 20480;
-        CRL_MaxAnims      = 64;
         CRL_MaxPlats      = 30;
+        CRL_MaxAnims      = 64;
     }
     else
     {
@@ -149,8 +149,8 @@ void CRL_SetStaticLimits (void)
         CRL_MaxDrawSegs   = 2048;
         CRL_MaxVisSprites = 1024;
         CRL_MaxOpenings   = 65536;
-        CRL_MaxAnims      = 16384;
         CRL_MaxPlats      = 7680;
+        CRL_MaxAnims      = 16384;
     }
 }
 
@@ -682,26 +682,15 @@ void CRL_StatDrawer (void)
             M_WriteText(32, 63, brn, CRL_StatColor_Val(CRL_brain_counter, 32));
         }
 
-        // Animated lines (64 max)
-        if (crl_widget_playstate == 1
-        || (crl_widget_playstate == 2 && CRL_lineanims_counter > CRL_MaxAnims))
-        {
-            char ani[32];
-
-            M_WriteText(0, 72, "ANI:", CRL_StatColor_Str(CRL_lineanims_counter, CRL_MaxAnims));
-            M_snprintf(ani, 16, "%d/%d", CRL_lineanims_counter, CRL_MaxAnims);
-            M_WriteText(32, 72, ani, CRL_StatColor_Val(CRL_lineanims_counter, CRL_MaxAnims));
-        }
-
         // Buttons (16 max)
         if (crl_widget_playstate == 1
         || (crl_widget_playstate == 2 && CRL_buttons_counter > 16))
         {
             char btn[32];
 
-            M_WriteText(0, 81, "BTN:", CRL_StatColor_Str(CRL_buttons_counter, 16));
+            M_WriteText(0, 72, "BTN:", CRL_StatColor_Str(CRL_buttons_counter, 16));
             M_snprintf(btn, 16, "%d/16", CRL_buttons_counter);
-            M_WriteText(32, 81, btn, CRL_StatColor_Val(CRL_buttons_counter, 16));
+            M_WriteText(32, 72, btn, CRL_StatColor_Val(CRL_buttons_counter, 16));
         }
 
         // Plats (30 max)
@@ -710,9 +699,20 @@ void CRL_StatDrawer (void)
         {
             char plt[32];
 
-            M_WriteText(0, 90, "PLT:", CRL_StatColor_Str(CRL_plats_counter, CRL_MaxPlats));
+            M_WriteText(0, 81, "PLT:", CRL_StatColor_Str(CRL_plats_counter, CRL_MaxPlats));
             M_snprintf(plt, 16, "%d/%d", CRL_plats_counter, CRL_MaxPlats);
-            M_WriteText(32, 90, plt, CRL_StatColor_Val(CRL_plats_counter, CRL_MaxPlats));
+            M_WriteText(32, 81, plt, CRL_StatColor_Val(CRL_plats_counter, CRL_MaxPlats));
+        }
+
+        // Animated lines (64 max)
+        if (crl_widget_playstate == 1
+        || (crl_widget_playstate == 2 && CRL_lineanims_counter > CRL_MaxAnims))
+        {
+            char ani[32];
+
+            M_WriteText(0, 90, "ANI:", CRL_StatColor_Str(CRL_lineanims_counter, CRL_MaxAnims));
+            M_snprintf(ani, 16, "%d/%d", CRL_lineanims_counter, CRL_MaxAnims);
+            M_WriteText(32, 90, ani, CRL_StatColor_Val(CRL_lineanims_counter, CRL_MaxAnims));
         }
     }
 

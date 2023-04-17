@@ -1772,27 +1772,27 @@ static void M_DrawCRL_Limits (void)
     M_WriteText (CRL_MENU_LEFTOFFSET_SML, 45, "MAXVISPLANES",  cr[CR_GRAY]);
     M_WriteText (CRL_MENU_LEFTOFFSET_SML, 54, "MAXDRAWSEGS",   cr[CR_GRAY]);
     M_WriteText (CRL_MENU_LEFTOFFSET_SML, 63, "MAXVISSPRITES", cr[CR_GRAY]);
-    M_WriteText (CRL_MENU_LEFTOFFSET_SML, 72, "MAXPLATS",      cr[CR_GRAY]);
-    M_WriteText (CRL_MENU_LEFTOFFSET_SML, 81, "MAXLINEANIMS",  cr[CR_GRAY]);
-    M_WriteText (CRL_MENU_LEFTOFFSET_SML, 90, "MAXOPENINGS",   cr[CR_GRAY]);
-    
+    M_WriteText (CRL_MENU_LEFTOFFSET_SML, 72, "MAXOPENINGS",   cr[CR_GRAY]);
+    M_WriteText (CRL_MENU_LEFTOFFSET_SML, 81, "MAXPLATS",      cr[CR_GRAY]);
+    M_WriteText (CRL_MENU_LEFTOFFSET_SML, 90, "MAXLINEANIMS",  cr[CR_GRAY]);
+
     if (crl_vanilla_limits)
     {
         M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("128"),   45,   "128", cr[CR_RED]);
         M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("256"),   54,   "256", cr[CR_RED]);
         M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("128"),   63,   "128", cr[CR_RED]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("30"),    72,    "30", cr[CR_RED]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("64"),    81,    "64", cr[CR_RED]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("20480"), 90, "20480", cr[CR_RED]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("20480"), 72, "20480", cr[CR_RED]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("30"),    81,    "30", cr[CR_RED]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("64"),    90,    "64", cr[CR_RED]);
     }
     else
     {
         M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("1024"),  45,  "1024", cr[CR_GREEN]);
         M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("2048"),  54,  "2048", cr[CR_GREEN]);
         M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("1024"),  63,  "1024", cr[CR_GREEN]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("7680"),  72,  "7680", cr[CR_GREEN]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("16384"), 81, "16384", cr[CR_GREEN]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("65536"), 90, "65536", cr[CR_GREEN]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("65536"), 72, "65536", cr[CR_GREEN]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("7680"),  81,  "7680", cr[CR_GREEN]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("16384"), 90, "16384", cr[CR_GREEN]);
     }
 }
 
