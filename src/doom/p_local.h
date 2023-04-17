@@ -476,7 +476,7 @@ extern int        iquetail;
 
 // [JN] CRL - increase actual limit, render counter will blink
 // if active plats value reaches 31 and above.
-#define MAXPLATS    (30*256)
+#define MAXPLATS    7680
 
 typedef enum
 {

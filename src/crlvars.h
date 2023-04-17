@@ -72,4 +72,7 @@ extern int crl_demo_timerdir;
 extern int crl_demo_bar;
 extern int crl_internal_demos;
 
+// Static limits
+extern int crl_vanilla_limits;
+
 extern void CRL_BindVariables (void);

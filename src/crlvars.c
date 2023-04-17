@@ -72,6 +72,9 @@ int crl_demo_timerdir = 0;
 int crl_demo_bar = 0;
 int crl_internal_demos = 1;
 
+// Static limits
+int crl_vanilla_limits = 1;
+
 // -----------------------------------------------------------------------------
 // [JN] CRL-specific config variables binding function.
 // -----------------------------------------------------------------------------
@@ -123,4 +126,7 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_demo_timerdir",              &crl_demo_timerdir);
     M_BindIntVariable("crl_demo_bar",                   &crl_demo_bar);
     M_BindIntVariable("crl_internal_demos",             &crl_internal_demos);
+
+    // Static limits
+    M_BindIntVariable("crl_vanilla_limits",             &crl_vanilla_limits);
 }

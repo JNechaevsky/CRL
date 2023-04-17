@@ -741,6 +741,9 @@ void R_Init (void)
         original_playpal = false;
     }
 
+    // [JN] CRL - define static engine limits.
+    CRL_SetStaticLimits();
+
     R_InitData ();
     printf (".");
     // viewwidth / viewheight / detailLevel are set by the defaults

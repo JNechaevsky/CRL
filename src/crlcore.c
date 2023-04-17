@@ -119,6 +119,47 @@ void CRL_Init (int* __colorset, int __numcolors, int __pllim)
 //
 // =============================================================================
 
+// -----------------------------------------------------------------------------
+// CRL_SetStaticLimits
+//  [JN] Allows to toggle between vanilla and doom-plus static engine limits.
+//  Called at game startup (R_Init) and on toggling in CRL menu.
+// -----------------------------------------------------------------------------
+
+int CRL_MaxVisPlanes;
+int CRL_MaxDrawSegs;
+int CRL_MaxVisSprites;
+int CRL_MaxOpenings;
+int CRL_MaxPlats;
+int CRL_MaxAnims;
+
+void CRL_SetStaticLimits (void)
+{
+    if (crl_vanilla_limits)
+    {
+        CRL_MaxVisPlanes  = 128;
+        CRL_MaxDrawSegs   = 256;
+        CRL_MaxVisSprites = 128;
+        CRL_MaxOpenings   = 20480;
+        CRL_MaxPlats      = 30;
+        CRL_MaxAnims      = 64;
+    }
+    else
+    {
+        CRL_MaxVisPlanes  = 1024;
+        CRL_MaxDrawSegs   = 2048;
+        CRL_MaxVisSprites = 1024;
+        CRL_MaxOpenings   = 65536;
+        CRL_MaxPlats      = 7680;
+        CRL_MaxAnims      = 16384;
+    }
+}
+
+// -----------------------------------------------------------------------------
+// CRL_ChangeFrame
+//  Starts the rendering of a new CRL, resetting any values.
+//  @param __err Frame error, 0 starts, < 0 ends OK, else renderer crashed.
+// -----------------------------------------------------------------------------
+
 uint8_t* CRLSurface = NULL;
 void**   CRLPlaneSurface = NULL;
 
@@ -126,12 +167,6 @@ static int _frame;
 static int _pulse;
 static int _pulsewas;
 static int _pulsestage;
-
-// -----------------------------------------------------------------------------
-// CRL_ChangeFrame
-//  Starts the rendering of a new CRL, resetting any values.
-//  @param __err Frame error, 0 starts, < 0 ends OK, else renderer crashed.
-// -----------------------------------------------------------------------------
 
 void CRL_ChangeFrame (int __err)
 {
@@ -347,19 +382,6 @@ void CRL_CountPlane (void* __key, int __chorf, int __id)
     {
         _planelist[_numplanes++] = __key;
     }
-}
-
-// -----------------------------------------------------------------------------
-// CRL_MaxVisPlanes
-//  Returns the maximum number of visplanes.
-//  @return The visplane limit.
-//  @since 2015/12/17
-// -----------------------------------------------------------------------------
-
-int CRL_MaxVisPlanes (void)
-{
-    // [JN] Left only vanilla value, since we representing vanilla Doom.
-    return 128;
 }
 
 // -----------------------------------------------------------------------------
@@ -660,89 +682,89 @@ void CRL_StatDrawer (void)
             M_WriteText(32, 63, brn, CRL_StatColor_Val(CRL_brain_counter, 32));
         }
 
-        // Animated lines (64 max)
-        if (crl_widget_playstate == 1
-        || (crl_widget_playstate == 2 && CRL_lineanims_counter > 64))
-        {
-            char ani[32];
-
-            M_WriteText(0, 72, "ANI:", CRL_StatColor_Str(CRL_lineanims_counter, 64));
-            M_snprintf(ani, 16, "%d/64", CRL_lineanims_counter);
-            M_WriteText(32, 72, ani, CRL_StatColor_Val(CRL_lineanims_counter, 64));
-        }
-
         // Buttons (16 max)
         if (crl_widget_playstate == 1
         || (crl_widget_playstate == 2 && CRL_buttons_counter > 16))
         {
             char btn[32];
 
-            M_WriteText(0, 81, "BTN:", CRL_StatColor_Str(CRL_buttons_counter, 16));
+            M_WriteText(0, 72, "BTN:", CRL_StatColor_Str(CRL_buttons_counter, 16));
             M_snprintf(btn, 16, "%d/16", CRL_buttons_counter);
-            M_WriteText(32, 81, btn, CRL_StatColor_Val(CRL_buttons_counter, 16));
+            M_WriteText(32, 72, btn, CRL_StatColor_Val(CRL_buttons_counter, 16));
         }
 
         // Plats (30 max)
         if (crl_widget_playstate == 1
-        || (crl_widget_playstate == 2 && CRL_plats_counter > 30))
+        || (crl_widget_playstate == 2 && CRL_plats_counter > CRL_MaxPlats))
         {
             char plt[32];
 
-            M_WriteText(0, 90, "PLT:", CRL_StatColor_Str(CRL_plats_counter, 30));
-            M_snprintf(plt, 16, "%d/30", CRL_plats_counter);
-            M_WriteText(32, 90, plt, CRL_StatColor_Val(CRL_plats_counter, 30));
+            M_WriteText(0, 81, "PLT:", CRL_StatColor_Str(CRL_plats_counter, CRL_MaxPlats));
+            M_snprintf(plt, 16, "%d/%d", CRL_plats_counter, CRL_MaxPlats);
+            M_WriteText(32, 81, plt, CRL_StatColor_Val(CRL_plats_counter, CRL_MaxPlats));
+        }
+
+        // Animated lines (64 max)
+        if (crl_widget_playstate == 1
+        || (crl_widget_playstate == 2 && CRL_lineanims_counter > CRL_MaxAnims))
+        {
+            char ani[32];
+
+            M_WriteText(0, 90, "ANI:", CRL_StatColor_Str(CRL_lineanims_counter, CRL_MaxAnims));
+            M_snprintf(ani, 16, "%d/%d", CRL_lineanims_counter, CRL_MaxAnims);
+            M_WriteText(32, 90, ani, CRL_StatColor_Val(CRL_lineanims_counter, CRL_MaxAnims));
         }
     }
 
     // Render counters
     if (crl_widget_render)
     {
-        // Sprites (128 max)
+        // Sprites (vanilla: 128, doom+: 1024)
         if (crl_widget_render == 1
-        || (crl_widget_render == 2 && CRLData.numsprites >= 128))
+        || (crl_widget_render == 2 && CRLData.numsprites >= CRL_MaxVisSprites))
         {
             char spr[32];
 
-            M_WriteText(0, 108, "SPR:", CRL_StatColor_Str(CRLData.numsprites, 128));
-            M_snprintf(spr, 16, "%d/128", CRLData.numsprites);
-            M_WriteText(32, 108, spr, CRL_StatColor_Val(CRLData.numsprites, 128));
+            M_WriteText(0, 108, "SPR:", CRL_StatColor_Str(CRLData.numsprites, CRL_MaxVisSprites));
+            M_snprintf(spr, 16, "%d/%d", CRLData.numsprites, CRL_MaxVisSprites);
+            M_WriteText(32, 108, spr, CRL_StatColor_Val(CRLData.numsprites, CRL_MaxVisSprites));
         }
 
         // Segments (256 max)
         if (crl_widget_render == 1
-        || (crl_widget_render == 2 && CRLData.numsegs >= 256))
+        || (crl_widget_render == 2 && CRLData.numsegs >= CRL_MaxDrawSegs))
         {
             char seg[32];
 
-            M_WriteText(0, 117, "SEG:", CRL_StatColor_Str(CRLData.numsegs, 256));
-            M_snprintf(seg, 16, "%d/256", CRLData.numsegs);
-            M_WriteText(32, 117, seg, CRL_StatColor_Val(CRLData.numsegs, 256));
+            M_WriteText(0, 117, "SEG:", CRL_StatColor_Str(CRLData.numsegs, CRL_MaxDrawSegs));
+            M_snprintf(seg, 16, "%d/%d", CRLData.numsegs, CRL_MaxDrawSegs);
+            M_WriteText(32, 117, seg, CRL_StatColor_Val(CRLData.numsegs, CRL_MaxDrawSegs));
         }
 
-        // Planes (128 max)
+        // Planes (vanilla: 128, doom+: 1024)
         if (crl_widget_render == 1
-        || (crl_widget_render == 2 && CRLData.numcheckplanes + CRLData.numfindplanes >= 128))
+        || (crl_widget_render == 2 && CRLData.numcheckplanes + CRLData.numfindplanes >= CRL_MaxVisPlanes))
         {
             char vis[32];
             const int totalplanes = CRLData.numcheckplanes
                                   + CRLData.numfindplanes;
 
-            M_WriteText(0, 126, "PLN:", totalplanes >= 128 ? 
+            M_WriteText(0, 126, "PLN:", totalplanes >= CRL_MaxVisPlanes ? 
                        (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
-            M_snprintf(vis, 32, "%d/128", totalplanes);
-            M_WriteText(32, 126, vis, totalplanes >= 128 ?
+            M_snprintf(vis, 32, "%d/%d", totalplanes, CRL_MaxVisPlanes);
+            M_WriteText(32, 126, vis, totalplanes >= CRL_MaxVisPlanes ?
                        (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
         }
 
         // Openings
         if (crl_widget_render == 1
-        || (crl_widget_render == 2 && CRLData.numopenings >= 20480))
+        || (crl_widget_render == 2 && CRLData.numopenings >= CRL_MaxOpenings))
         {
             char opn[64];
 
-            M_WriteText(0, 135, "OPN:", CRL_StatColor_Str(CRLData.numopenings, 20480));
-            M_snprintf(opn, 16, "%d/20480", CRLData.numopenings);
-            M_WriteText(32, 135, opn, CRL_StatColor_Val(CRLData.numopenings, 20480));
+            M_WriteText(0, 135, "OPN:", CRL_StatColor_Str(CRLData.numopenings, CRL_MaxOpenings));
+            M_snprintf(opn, 16, "%d/%d", CRLData.numopenings, CRL_MaxOpenings);
+            M_WriteText(32, 135, opn, CRL_StatColor_Val(CRLData.numopenings, CRL_MaxOpenings));
         }
     }
 

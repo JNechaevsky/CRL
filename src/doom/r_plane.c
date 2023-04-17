@@ -46,9 +46,9 @@ visplane_t*		floorplane;
 visplane_t*		ceilingplane;
 
 // ?
-#define MAXOPENINGS	SCREENWIDTH*64
-short			openings[MAXOPENINGS];
-short*			lastopening;
+#define MAXOPENINGS 65536    // [JN] Originally: SCREENWIDTH*64
+int  openings[MAXOPENINGS];  // [JN] 32-bit integer math
+int *lastopening;            // [JN] 32-bit integer math
 
 
 //
@@ -56,8 +56,8 @@ short*			lastopening;
 //  floorclip starts out SCREENHEIGHT
 //  ceilingclip starts out -1
 //
-short			floorclip[SCREENWIDTH];
-short			ceilingclip[SCREENWIDTH];
+int  floorclip[SCREENWIDTH];    // [JN] 32-bit integer math
+int  ceilingclip[SCREENWIDTH];  // [JN] 32-bit integer math
 
 //
 // spanstart holds the start of a plane span
@@ -271,11 +271,17 @@ R_FindPlane
     if (check < lastvisplane)
 	return check;
 		
-    if (lastvisplane - visplanes == CRL_MaxVisPlanes())
+    if (lastvisplane - visplanes == CRL_MaxVisPlanes)
 	{
     	// [JN] Print in-game warning.
-    	CRL_SetCriticalMessage("R_FindPlane:"
-        "\rno more visplanes (vanilla crashes here)", 2);
+        if (crl_vanilla_limits)
+        {
+            CRL_SetCriticalMessage("R_FindPlane: \rno more visplanes (vanilla crashes here)", 2);
+        }
+        else
+        {
+            CRL_SetCriticalMessage("R_FindPlane: \rno more visplanes (doom+ crashes here)", 2);
+        }
     	longjmp(CRLJustIncaseBuf, CRL_JUMP_VPO);
 	}
 	
@@ -356,11 +362,17 @@ R_CheckPlane
     lastvisplane->picnum = pl->picnum;
     lastvisplane->lightlevel = pl->lightlevel;
     
-    if (lastvisplane - visplanes == MAXVISPLANES)
+    if (lastvisplane - visplanes == CRL_MaxVisPlanes)
     {
         // [JN] Print in-game warning.
-        CRL_SetCriticalMessage("R_CheckPlane:"
-        "\rno more visplanes (vanilla crashes here)", 2);
+        if (crl_vanilla_limits)
+        {
+            CRL_SetCriticalMessage("R_CheckPlane: \rno more visplanes (vanilla crashes here)", 2);
+        }
+        else
+        {
+            CRL_SetCriticalMessage("R_CheckPlane: \rno more visplanes (doom+ crashes here)", 2);
+        }
     }
 
     pl = lastvisplane++;
@@ -430,21 +442,48 @@ void R_DrawPlanes (void)
     int			stop;
     int			angle;
     int                 lumpnum;
+    const int dsegs = ds_p - drawsegs;  // [JN] Shortcut.
 				
     // [JN] CRL - openings counter.
     CRLData.numopenings = lastopening - openings;
 
 #ifdef RANGECHECK
-    if (ds_p - drawsegs > MAXDRAWSEGS)
-	I_Error ("R_DrawPlanes: drawsegs overflow (%i)",
-		 ds_p - drawsegs);
+    if (dsegs > CRL_MaxDrawSegs)
+    {
+        char msg[76];
+
+        // [JN] Print in-game warning. No need to add counter into message,
+    	// since number is already presented in limits counter widget.
+        if (crl_vanilla_limits)
+        {
+            sprintf(msg, "R_DRAWPLANES: \rdrawsegs overflow: %d (vanilla crashes here)", dsegs);
+        }
+        else
+        {
+            sprintf(msg, "R_DRAWPLANES: \rdrawsegs overflow: %d (doom+ crashes here)", dsegs);
+        }
+
+        CRL_SetCriticalMessage(msg, 2);
+
+        return;
+
+        //I_Error ("R_DrawPlanes: drawsegs overflow (%i)",
+        //	 ds_p - drawsegs);
+    }
+
     
-    if (lastvisplane - visplanes > CRL_MaxVisPlanes())
+    if (lastvisplane - visplanes > CRL_MaxVisPlanes)
     {
     	// [JN] Print in-game warning. No need to add counter into message,
     	// since number is already presented in limits counter widget.
-    	CRL_SetCriticalMessage("R_DrawPlanes:"
-        "\rvisplane overflow (vanilla crashes here)", 2);
+        if (crl_vanilla_limits)
+        {
+            CRL_SetCriticalMessage("R_DrawPlanes: \rvisplane overflow (vanilla crashes here)", 2);
+        }
+        else
+        {
+            CRL_SetCriticalMessage("R_DrawPlanes: \rvisplane overflow (doom+ crashes here)", 2);
+        }
     	longjmp(CRLJustIncaseBuf, CRL_JUMP_VPO);
     }
     

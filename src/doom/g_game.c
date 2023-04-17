@@ -997,6 +997,18 @@ boolean G_Responder (event_t* ev)
                        CRL_NOTARGET_ON : CRL_NOTARGET_OFF, false, NULL);
     }
 
+    // [JN] CRL - Toggle static engine limits.
+    if (ev->data1 == key_crl_limits)
+    {
+        crl_vanilla_limits ^= 1;
+    
+        // [JN] CRL - re-define static engine limits.
+        CRL_SetStaticLimits();
+
+         CRL_SetMessage(&players[consoleplayer], crl_vanilla_limits ?
+                        CRL_VANILLA_LIMITS_ON : CRL_VANILLA_LIMITS_OFF, false, NULL);
+    }     
+
 	return true;    // eat key down events 
  
       case ev_keyup: 
