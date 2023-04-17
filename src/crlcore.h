@@ -127,6 +127,11 @@ extern CRL_Widgets_t CRLWidgets;
 // Drawing functions
 //
 
+extern void CRL_SetStaticLimits (void);
+extern int  CRL_MaxVisPlanes;
+extern int  CRL_MaxDrawSegs;
+extern int  CRL_MaxVisSprites;
+
 // [AM] Fractional part of the current tic, in the half-open
 //      range of [0.0, 1.0).  Used for interpolation.
 extern fixed_t fractionaltic;
@@ -136,9 +141,6 @@ extern void CRL_ChangeFrame (int __err);
 extern void CRL_MarkPixelP (void** __surface, void* __what, void* __drawp);
 extern void CRL_DrawVisPlanes (int __over);
 extern void CRL_CountPlane (void* __key, int __chorf, int __id);
-extern int  CRL_MaxVisPlanes (void);
-extern int  CRL_MaxDrawSegs (void);
-extern int  CRL_MaxVisSprites (void);
 extern void CRL_ViewDrawer (void);
 extern void CRL_GetHOMMultiColor (void);
 extern int  CRL_homcolor;
