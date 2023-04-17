@@ -81,7 +81,7 @@ fixed_t		bottomstep;
 
 lighttable_t**	walllights;
 
-short*		maskedtexturecol;
+int *maskedtexturecol;  // [JN] 32-bit integer math
 
 
 /**

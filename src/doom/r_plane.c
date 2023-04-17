@@ -46,9 +46,9 @@ visplane_t*		floorplane;
 visplane_t*		ceilingplane;
 
 // ?
-#define MAXOPENINGS	SCREENWIDTH*64
-short			openings[MAXOPENINGS];
-short*			lastopening;
+#define MAXOPENINGS 65536    // [JN] Originally: SCREENWIDTH*64
+int  openings[MAXOPENINGS];  // [JN] 32-bit integer math
+int *lastopening;            // [JN] 32-bit integer math
 
 
 //
@@ -56,8 +56,8 @@ short*			lastopening;
 //  floorclip starts out SCREENHEIGHT
 //  ceilingclip starts out -1
 //
-short			floorclip[SCREENWIDTH];
-short			ceilingclip[SCREENWIDTH];
+int  floorclip[SCREENWIDTH];    // [JN] 32-bit integer math
+int  ceilingclip[SCREENWIDTH];  // [JN] 32-bit integer math
 
 //
 // spanstart holds the start of a plane span

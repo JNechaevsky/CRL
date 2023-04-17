@@ -287,9 +287,9 @@ typedef struct drawseg_s
     
     // Pointers to lists for sprite clipping,
     //  all three adjusted so [x1] is first value.
-    short *sprtopclip;		
-    short *sprbottomclip;	
-    short *maskedtexturecol;
+    int *sprtopclip;        // [JN] 32-bit integer math
+    int *sprbottomclip;     // [JN] 32-bit integer math
+    int *maskedtexturecol;  // [JN] 32-bit integer math
 } drawseg_t;
 
 // A vissprite_t is a thing that will be drawn during a refresh.
@@ -645,9 +645,9 @@ extern void R_InitPlanes (void);
 extern void R_MakeSpans (int x, int t1, int b1, int t2, int b2, visplane_t *__plane);
 extern void R_MapPlane (int y, int x1, int x2, visplane_t *__plane);
 
-extern short  floorclip[SCREENWIDTH];
-extern short  ceilingclip[SCREENWIDTH];
-extern short *lastopening;
+extern int  floorclip[SCREENWIDTH];    // [JN] 32-bit integer math
+extern int  ceilingclip[SCREENWIDTH];  // [JN] 32-bit integer math
+extern int *lastopening;               // [JN] 32-bit integer math
 
 extern fixed_t yslope[SCREENHEIGHT];
 extern fixed_t distscale[SCREENWIDTH];
@@ -697,12 +697,12 @@ extern vissprite_t *vissprite_p;
 extern vissprite_t  vsprsortedhead;
 
 // Constant arrays used for psprite clipping and initializing clipping.
-extern short negonearray[SCREENWIDTH];
-extern short screenheightarray[SCREENWIDTH];
+extern int negonearray[SCREENWIDTH];        // [JN] 32-bit integer math
+extern int screenheightarray[SCREENWIDTH];  // [JN] 32-bit integer math
 
 // vars for R_DrawMaskedColumn
-extern short   *mfloorclip;
-extern short   *mceilingclip;
+extern int *mfloorclip;    // [JN] 32-bit integer math
+extern int *mceilingclip;  // [JN] 32-bit integer math
 extern fixed_t  spryscale;
 extern fixed_t  sprtopscreen;
 

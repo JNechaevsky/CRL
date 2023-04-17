@@ -128,6 +128,7 @@ void CRL_Init (int* __colorset, int __numcolors, int __pllim)
 int CRL_MaxVisPlanes;
 int CRL_MaxDrawSegs;
 int CRL_MaxVisSprites;
+int CRL_MaxOpenings;
 
 void CRL_SetStaticLimits (void)
 {
@@ -136,12 +137,14 @@ void CRL_SetStaticLimits (void)
         CRL_MaxVisPlanes  = 128;
         CRL_MaxDrawSegs   = 256;
         CRL_MaxVisSprites = 128;
+        CRL_MaxOpenings   = 20480;
     }
     else
     {
         CRL_MaxVisPlanes  = 1024;
         CRL_MaxDrawSegs   = 2048;
         CRL_MaxVisSprites = 1024;
+        CRL_MaxOpenings   = 65536;
     }
 }
 
@@ -749,13 +752,13 @@ void CRL_StatDrawer (void)
 
         // Openings
         if (crl_widget_render == 1
-        || (crl_widget_render == 2 && CRLData.numopenings >= 20480))
+        || (crl_widget_render == 2 && CRLData.numopenings >= CRL_MaxOpenings))
         {
             char opn[64];
 
-            M_WriteText(0, 135, "OPN:", CRL_StatColor_Str(CRLData.numopenings, 20480));
-            M_snprintf(opn, 16, "%d/20480", CRLData.numopenings);
-            M_WriteText(32, 135, opn, CRL_StatColor_Val(CRLData.numopenings, 20480));
+            M_WriteText(0, 135, "OPN:", CRL_StatColor_Str(CRLData.numopenings, CRL_MaxOpenings));
+            M_snprintf(opn, 16, "%d/%d", CRLData.numopenings, CRL_MaxOpenings);
+            M_WriteText(32, 135, opn, CRL_StatColor_Val(CRLData.numopenings, CRL_MaxOpenings));
         }
     }
 
