@@ -753,6 +753,7 @@ static void M_DrawCRL_Main (void)
 static void M_CRL_Spectating (int choice)
 {
     crl_spectating ^= 1;
+    pspr_interp = false;
 }
 
 static void M_CRL_Freeze (int choice)
