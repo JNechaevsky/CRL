@@ -293,8 +293,6 @@ void R_RenderSegLoop (void)
     int			top;
     int			bottom;
 
-    CRLData.numsegs++;
-
     for ( ; rw_x < rw_stopx ; rw_x++)
     {
 	// mark floor / ceiling areas
@@ -466,6 +464,8 @@ R_StoreWallRange
     angle_t		distangle, offsetangle;
     fixed_t		vtop;
     int			lightnum;
+
+    CRLData.numsegs++;
 
     // don't overflow and crash
     if (ds_p == &drawsegs[crl_vanilla_limits ? MAXDRAWSEGS : MAXREALDRAWSEGS])
