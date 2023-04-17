@@ -67,7 +67,7 @@ static int *crl_keys[] = { &key_crl_menu,
                            &key_crl_map_rotate, &key_crl_map_overlay,
                            &key_crl_autorun, &key_crl_vilebomb,
                            &key_crl_nextlevel, &key_crl_reloadlevel,
-                           &key_crl_demospeed,
+                           &key_crl_demospeed, &key_crl_limits,
                            NULL };
 
 static void UpdateJoybSpeed(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(var))
@@ -329,6 +329,10 @@ void CRLKeysDialog(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(unused))
 
     AddKeyControl(table, "Rotate mode",         &key_crl_map_rotate);
     AddKeyControl(table, "Overlay mode",        &key_crl_map_overlay);
+
+    AddSectionLabel(table, "Static engine limits", true);
+
+    AddKeyControl(table, "Toggle limits",       &key_crl_limits);
 
     scrollpane = TXT_NewScrollPane(0, 10, table);
 

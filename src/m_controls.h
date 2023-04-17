@@ -136,7 +136,7 @@ extern int joybautomap;
 extern int novert;
 extern int dclick_use;
 
-// GhostlyDeath -- CRL
+// RestlessRodent -- CRL
 extern int key_crl_menu;
 extern int key_crl_spectator;
 extern int key_crl_cameraup;
@@ -150,6 +150,8 @@ extern int key_crl_vilebomb;
 extern int key_crl_nextlevel; // [crispy]
 extern int key_crl_reloadlevel; // [crispy]
 extern int key_crl_demospeed; // [crispy]
+
+extern int key_crl_limits;
 
 void M_BindBaseControls(void);
 void M_BindWeaponControls(void);

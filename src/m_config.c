@@ -310,6 +310,7 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_KEY(key_crl_nextlevel),
     CONFIG_VARIABLE_KEY(key_crl_reloadlevel),
     CONFIG_VARIABLE_KEY(key_crl_demospeed),
+    CONFIG_VARIABLE_KEY(key_crl_limits),
 
     // System and video
     CONFIG_VARIABLE_INT(crl_startup_delay),
