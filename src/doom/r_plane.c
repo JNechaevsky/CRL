@@ -442,26 +442,25 @@ void R_DrawPlanes (void)
     int			stop;
     int			angle;
     int                 lumpnum;
+    const int dsegs = ds_p - drawsegs;  // [JN] Shortcut.
 				
     // [JN] CRL - openings counter.
     CRLData.numopenings = lastopening - openings;
 
 #ifdef RANGECHECK
-    if (ds_p - drawsegs > CRL_MaxDrawSegs)
+    if (dsegs > CRL_MaxDrawSegs)
     {
-        char msg[64];
+        char msg[76];
 
         // [JN] Print in-game warning. No need to add counter into message,
     	// since number is already presented in limits counter widget.
         if (crl_vanilla_limits)
         {
-            sprintf(msg, "R_DRAWPLANES: \rdrawsegs overflow: %lli (vanilla crashes here)",
-                    ds_p - drawsegs);
+            sprintf(msg, "R_DRAWPLANES: \rdrawsegs overflow: %d (vanilla crashes here)", dsegs);
         }
         else
         {
-            sprintf(msg, "R_DRAWPLANES: \rdrawsegs overflow: %lli (doom+ crashes here)",
-                    ds_p - drawsegs);
+            sprintf(msg, "R_DRAWPLANES: \rdrawsegs overflow: %d (doom+ crashes here)", dsegs);
         }
 
         CRL_SetCriticalMessage(msg, 2);
