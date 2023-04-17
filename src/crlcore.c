@@ -129,6 +129,7 @@ int CRL_MaxVisPlanes;
 int CRL_MaxDrawSegs;
 int CRL_MaxVisSprites;
 int CRL_MaxOpenings;
+int CRL_MaxPlats;
 
 void CRL_SetStaticLimits (void)
 {
@@ -138,6 +139,8 @@ void CRL_SetStaticLimits (void)
         CRL_MaxDrawSegs   = 256;
         CRL_MaxVisSprites = 128;
         CRL_MaxOpenings   = 20480;
+
+        CRL_MaxPlats      = 30;
     }
     else
     {
@@ -145,6 +148,8 @@ void CRL_SetStaticLimits (void)
         CRL_MaxDrawSegs   = 2048;
         CRL_MaxVisSprites = 1024;
         CRL_MaxOpenings   = 65536;
+
+        CRL_MaxPlats      = 7680;
     }
 }
 
@@ -700,13 +705,13 @@ void CRL_StatDrawer (void)
 
         // Plats (30 max)
         if (crl_widget_playstate == 1
-        || (crl_widget_playstate == 2 && CRL_plats_counter > 30))
+        || (crl_widget_playstate == 2 && CRL_plats_counter > CRL_MaxPlats))
         {
             char plt[32];
 
-            M_WriteText(0, 90, "PLT:", CRL_StatColor_Str(CRL_plats_counter, 30));
-            M_snprintf(plt, 16, "%d/30", CRL_plats_counter);
-            M_WriteText(32, 90, plt, CRL_StatColor_Val(CRL_plats_counter, 30));
+            M_WriteText(0, 90, "PLT:", CRL_StatColor_Str(CRL_plats_counter, CRL_MaxPlats));
+            M_snprintf(plt, 16, "%d/%d", CRL_plats_counter, CRL_MaxPlats);
+            M_WriteText(32, 90, plt, CRL_StatColor_Val(CRL_plats_counter, CRL_MaxPlats));
         }
     }
 

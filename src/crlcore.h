@@ -131,6 +131,8 @@ extern void CRL_SetStaticLimits (void);
 extern int  CRL_MaxVisPlanes;
 extern int  CRL_MaxDrawSegs;
 extern int  CRL_MaxVisSprites;
+extern int  CRL_MaxOpenings;
+extern int  CRL_MaxPlats;
 
 // [AM] Fractional part of the current tic, in the half-open
 //      range of [0.0, 1.0).  Used for interpolation.
