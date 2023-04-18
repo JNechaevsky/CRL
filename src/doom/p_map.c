@@ -283,6 +283,37 @@ boolean PIT_CheckLine (line_t* ld)
     return true;
 }
 
+static char *CRL_GetMobjName (mobjtype_t type)
+{
+    switch (type)
+    {
+        case MT_POSSESSED:  return CC_ZOMBIE;   break;
+        case MT_SHOTGUY:    return CC_SHOTGUN;  break;
+        case MT_CHAINGUY:   return CC_HEAVY;    break;
+        case MT_TROOP:      return CC_IMP;      break;
+        case MT_SERGEANT:
+        case MT_SHADOWS:    return CC_DEMON;    break;
+        case MT_SKULL:      return CC_LOST;     break;
+        case MT_HEAD:       return CC_CACO;     break;
+        case MT_KNIGHT:     return CC_HELL;     break;
+        case MT_BRUISER:    return CC_BARON;    break;
+        case MT_BABY:       return CC_ARACH;    break;
+        case MT_PAIN:       return CC_PAIN;     break;
+        case MT_UNDEAD:     return CC_REVEN;    break;
+        case MT_FATSO:      return CC_MANCU;    break;
+        case MT_VILE:       return CC_ARCH;     break;
+        case MT_SPIDER:     return CC_SPIDER;   break;
+        case MT_CYBORG:     return CC_CYBER;    break;
+        case MT_PLAYER:     return "PLAYER";    break;
+        
+        // Wolfenstein guard is not Dehackedable, so leave it nameless.
+        //case MT_WOLFSS:   return "WOLFENSTEIN SS";    break;
+        
+        default:            return "";
+    }
+}
+
+
 //
 // PIT_CheckThing
 //
@@ -914,22 +945,22 @@ PTR_AimTraverse (intercept_t* in)
     // Run following code only for overflow-safe trace.
     if (safe_intercept && th->tics > 0)
     {
+        player_t *player = &players[displayplayer];
+
+        if (th->type == MT_BARREL)
+        {
+            player->targetsheath = 0;
+        }
+        else
         if (th->flags & MF_SHOOTABLE || th->flags & MF_COUNTKILL)
         {
-            player_t *player = &players[displayplayer];
-            
             // Don't draw negative values (looks odd).
             player->targetsheath = th->health < 0 ? 0 : th->health;
             player->targetsmaxheath = th->info->spawnhealth;
 
-            // TODO - tablify
-            if (th->type == MT_CYBORG)
-                player->targetsname = DEH_String(CC_CYBER);
-            else
-                player->targetsname = "";
+            // Get Dehackedable name.
+            player->targetsname = DEH_String(CRL_GetMobjName(th->type));
         }
-        
-
     }
 
     if (!(th->flags&MF_SHOOTABLE))
