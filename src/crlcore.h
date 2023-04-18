@@ -172,7 +172,6 @@ extern void CRL_ImpulseCameraVert(boolean direction, const int32_t intensity);
 // Render Counters and Widgets
 //
 
-extern void CRL_TargetHealth (const int cur_health, const int max_health, const int where);
 extern void CRL_StatDrawer (void);
 
 //

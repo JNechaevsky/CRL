@@ -1243,6 +1243,15 @@ void G_Ticker (void)
 	AM_Ticker (); 
 	// [JN] CRL - make multicolor HOM drawing framerate-independent.
 	CRL_GetHOMMultiColor ();
+	// [JN] Target's health widget.
+	if (crl_widget_health)
+	{
+		player_t *player = &players[displayplayer];
+
+		// Do an overflow-safe trace to gather target's health.
+		P_AimLineAttack(player->mo, player->mo->angle, MISSILERANGE, true);
+	}
+
 	break; 
 	 
       case GS_INTERMISSION: 
@@ -1292,6 +1301,7 @@ void G_PlayerFinishLevel (int player)
     memset (p->cards, 0, sizeof (p->cards)); 
     p->messageTics = 0;
     p->criticalmessageTics = 0;
+    p->targetsheathTics = 0;
     p->mo->flags &= ~MF_SHADOW;		// cancel invisibility 
     p->extralight = 0;			// cancel gun flashes 
     p->fixedcolormap = 0;		// cancel ir gogles 
@@ -1337,6 +1347,7 @@ void G_PlayerReborn (int player)
     p->ammo[am_clip] = deh_initial_bullets; 
     p->messageTics = 0;
     p->criticalmessageTics = 0;
+    p->targetsheathTics = 0;
 	 
     for (i=0 ; i<NUMAMMO ; i++) 
 	p->maxammo[i] = maxammo[i]; 

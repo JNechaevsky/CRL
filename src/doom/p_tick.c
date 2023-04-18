@@ -155,6 +155,10 @@ void P_Ticker (void)
     {
         players[displayplayer].criticalmessageTics--;
     }
+    if (players[displayplayer].targetsheathTics > 0)
+    {
+        players[displayplayer].targetsheathTics--;
+    }
 
     
     // run the tic

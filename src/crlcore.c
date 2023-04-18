@@ -591,30 +591,7 @@ void CRL_ImpulseCameraVert (boolean direction, const int32_t intensity)
 //
 // =============================================================================
 
-
 extern int gametic;
-
-// -----------------------------------------------------------------------------
-// CRL_HealthColor, CRL_TargetHealth
-//  [JN] Indicates and colorizes current target's health.
-// -----------------------------------------------------------------------------
-
-static byte *CRL_HealthColor (const int val1, const int val2)
-{
-    return
-        val1 <= val2/4 ? cr[CR_RED]    :
-        val1 <= val2/2 ? cr[CR_YELLOW] :
-                         cr[CR_GREEN]  ;
-}
-
-void CRL_TargetHealth (const int cur_health, const int max_health, const int where)
-{
-    char str[16];
-
-    sprintf(str, "%d/%d", cur_health, max_health);
-
-    M_WriteTextCentered(where == 1 ? 18 : 153, str, CRL_HealthColor(cur_health, max_health));
-}
 
 // -----------------------------------------------------------------------------
 // CRL_StatColor_Str, CRL_StatColor_Val

@@ -30,6 +30,8 @@
 #include "p_local.h"
 #include "s_sound.h"
 #include "doomstat.h"
+#include "deh_str.h"
+#include "d_englsh.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
@@ -279,6 +281,34 @@ boolean PIT_CheckLine (line_t* ld)
     }
 
     return true;
+}
+
+static char *CRL_GetMobjName (mobjtype_t type)
+{
+    switch (type)
+    {
+        case MT_POSSESSED:  return CC_ZOMBIE;   break;
+        case MT_SHOTGUY:    return CC_SHOTGUN;  break;
+        case MT_CHAINGUY:   return CC_HEAVY;    break;
+        case MT_TROOP:      return CC_IMP;      break;
+        case MT_SERGEANT:
+        case MT_SHADOWS:    return CC_DEMON;    break;
+        case MT_SKULL:      return CC_LOST;     break;
+        case MT_HEAD:       return CC_CACO;     break;
+        case MT_KNIGHT:     return CC_HELL;     break;
+        case MT_BRUISER:    return CC_BARON;    break;
+        case MT_BABY:       return CC_ARACH;    break;
+        case MT_PAIN:       return CC_PAIN;     break;
+        case MT_UNDEAD:     return CC_REVEN;    break;
+        case MT_FATSO:      return CC_MANCU;    break;
+        case MT_VILE:       return CC_ARCH;     break;
+        case MT_SPIDER:     return CC_SPIDER;   break;
+        case MT_CYBORG:     return CC_CYBER;    break;
+        case MT_PLAYER:     return "PLAYER";    break;
+        // Wolfenstein guard is not Dehackedable, so leave it nameless.
+        //case MT_WOLFSS:   return "WOLFENSTEIN SS";    break;
+        default:            return "";
+    }
 }
 
 //
@@ -908,6 +938,25 @@ PTR_AimTraverse (intercept_t* in)
     if (th == shootthing)
 	return true;			// can't shoot self
     
+    // [JN] CRL - gather thing health for target's health widget.
+    // Run following code only for overflow-safe trace,
+    // and don't gather health of explosive barrels.
+    if (safe_intercept && th->tics > 0 && th->type != MT_BARREL)
+    {
+        player_t *player = &players[displayplayer];
+
+        if (th->flags & MF_SHOOTABLE || th->flags & MF_COUNTKILL)
+        {
+            // Don't draw negative values (looks odd).
+            player->targetsheath = th->health < 0 ? 0 : th->health;
+            player->targetsmaxheath = th->info->spawnhealth;
+            player->targetsheathTics = TICRATE;
+
+            // Get Dehackedable name.
+            player->targetsname = DEH_String(CRL_GetMobjName(th->type));
+        }
+    }
+
     if (!(th->flags&MF_SHOOTABLE))
 	return true;			// corpse or something
 

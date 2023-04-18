@@ -1492,8 +1492,10 @@ static void M_DrawCRL_Widgets (void)
                  crl_widget_powerups ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Target's health
-    sprintf(str, crl_widget_health == 1 ? "TOP" : 
-                 crl_widget_health == 2 ? "BOTTOM" : "OFF");
+    sprintf(str, crl_widget_health == 1 ? "TOP" :
+                 crl_widget_health == 2 ? "TOP+NAME" :
+                 crl_widget_health == 3 ? "BOTTOM" :
+                 crl_widget_health == 4 ? "BOTTOM+NAME" : "OFF");
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 90, str,
                  crl_widget_health ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
@@ -1553,7 +1555,7 @@ static void M_CRL_Widget_Powerups (int choice)
 
 static void M_CRL_Widget_Health (int choice)
 {
-    crl_widget_health = M_INT_Slider(crl_widget_health, 0, 2, choice);
+    crl_widget_health = M_INT_Slider(crl_widget_health, 0, 4, choice);
 }
 
 static void M_CRL_Automap_Rotate (int choice)
