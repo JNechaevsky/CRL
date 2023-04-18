@@ -218,6 +218,10 @@ static void CRL_DrawTargetsHealth (void)
     M_WriteTextCentered(crl_widget_health == 2 ? 153 : 18, // Bottom : Top
                         str, CRL_HealthColor(player->targetsheath, player->targetsmaxheath));
 
+    // TODO - Divide to top/top+name/bottom/bottom+name
+    M_WriteTextCentered(crl_widget_health == 2 ? 144 : 9, // Bottom : Top
+                        player->targetsname, CRL_HealthColor(player->targetsheath, player->targetsmaxheath));
+
 }
 
 // -----------------------------------------------------------------------------

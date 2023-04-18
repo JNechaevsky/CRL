@@ -30,6 +30,8 @@
 #include "p_local.h"
 #include "s_sound.h"
 #include "doomstat.h"
+#include "deh_str.h"
+#include "d_englsh.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
@@ -919,7 +921,15 @@ PTR_AimTraverse (intercept_t* in)
             // Don't draw negative values (looks odd).
             player->targetsheath = th->health < 0 ? 0 : th->health;
             player->targetsmaxheath = th->info->spawnhealth;
+
+            // TODO - tablify
+            if (th->type == MT_CYBORG)
+                player->targetsname = DEH_String(CC_CYBER);
+            else
+                player->targetsname = "";
         }
+        
+
     }
 
     if (!(th->flags&MF_SHOOTABLE))
