@@ -215,12 +215,36 @@ static void CRL_DrawTargetsHealth (void)
 
     sprintf(str, "%d/%d", player->targetsheath, player->targetsmaxheath);
 
-    // TODO - Divide to top/top+name/bottom/bottom+name
-    M_WriteTextCentered(crl_widget_health == 2 ? 144 : 9, // Bottom : Top
-                        player->targetsname, CRL_HealthColor(player->targetsheath, player->targetsmaxheath));
+    if (crl_widget_health == 1)  // Top
+    {
+        M_WriteTextCentered(18, str, CRL_HealthColor(player->targetsheath,
+                                                     player->targetsmaxheath));
+    }
+    else
+    if (crl_widget_health == 2)  // Top + name
+    {
+        M_WriteTextCentered(9, player->targetsname, CRL_HealthColor(player->targetsheath,
+                                                                    player->targetsmaxheath));
+        M_WriteTextCentered(18, str, CRL_HealthColor(player->targetsheath,
+                                                     player->targetsmaxheath));
+    }
+    else
+    if (crl_widget_health == 3)  // Bottom
+    {
+        M_WriteTextCentered(152, str, CRL_HealthColor(player->targetsheath,
+                                                      player->targetsmaxheath));
+    }
+    else
+    if (crl_widget_health == 4)  // Bottom + name
+    {
+        M_WriteTextCentered(144, player->targetsname, CRL_HealthColor(player->targetsheath,
+                                                                      player->targetsmaxheath));
+        M_WriteTextCentered(152, str, CRL_HealthColor(player->targetsheath,
+                                                      player->targetsmaxheath));
+    }
+    
+    
 
-    M_WriteTextCentered(crl_widget_health == 2 ? 152 : 18, // Bottom : Top
-                        str, CRL_HealthColor(player->targetsheath, player->targetsmaxheath));
 }
 
 // -----------------------------------------------------------------------------
