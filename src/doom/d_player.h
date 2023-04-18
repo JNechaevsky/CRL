@@ -144,6 +144,7 @@ typedef struct player_s
     int			criticalmessageTics;
     
     // [JN] CRL - target's health.
+    char*		targetsname;
     int 		targetsheath;
     int 		targetsmaxheath;
     int			targetsheathTics;    

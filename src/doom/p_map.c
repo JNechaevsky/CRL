@@ -912,7 +912,7 @@ PTR_AimTraverse (intercept_t* in)
     
     // [JN] CRL - gather thing health for target's health widget.
     // Run following code only for overflow-safe trace.
-    if (safe_intercept)
+    if (safe_intercept && th->tics > 0)
     {
         if (th->flags & MF_SHOOTABLE || th->flags & MF_COUNTKILL)
         {
