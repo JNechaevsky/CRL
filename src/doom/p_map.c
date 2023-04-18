@@ -942,21 +942,18 @@ PTR_AimTraverse (intercept_t* in)
 	return true;			// can't shoot self
     
     // [JN] CRL - gather thing health for target's health widget.
-    // Run following code only for overflow-safe trace.
-    if (safe_intercept && th->tics > 0)
+    // Run following code only for overflow-safe trace,
+    // and don't gather health of explosive barrels.
+    if (safe_intercept && th->tics > 0 && th->type != MT_BARREL)
     {
         player_t *player = &players[displayplayer];
 
-        if (th->type == MT_BARREL)
-        {
-            player->targetsheath = 0;
-        }
-        else
         if (th->flags & MF_SHOOTABLE || th->flags & MF_COUNTKILL)
         {
             // Don't draw negative values (looks odd).
             player->targetsheath = th->health < 0 ? 0 : th->health;
             player->targetsmaxheath = th->info->spawnhealth;
+            player->targetsheathTics = TICRATE;
 
             // Get Dehackedable name.
             player->targetsname = DEH_String(CRL_GetMobjName(th->type));
