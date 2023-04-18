@@ -143,6 +143,11 @@ typedef struct player_s
     char*		criticalmessage;	
     int			criticalmessageTics;
     
+    // [JN] CRL - target's health.
+    int 		targetsheath;
+    int 		targetsmaxheath;
+    int			targetsheathTics;    
+
     // For screen flashing (red or bright).
     int			damagecount;
     int			bonuscount;

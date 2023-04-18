@@ -191,6 +191,36 @@ static void CRL_DrawCriticalMessage (void)
 }
 
 // -----------------------------------------------------------------------------
+// CRL_HealthColor, CRL_TargetHealth
+//  [JN] Indicates and colorizes current target's health.
+// -----------------------------------------------------------------------------
+
+static byte *CRL_HealthColor (const int val1, const int val2)
+{
+    return
+        val1 <= val2/4 ? cr[CR_RED]    :
+        val1 <= val2/2 ? cr[CR_YELLOW] :
+                         cr[CR_GREEN]  ;
+}
+
+static void CRL_DrawTargetsHealth (void)
+{
+    char str[16];
+    player_t *player = &players[displayplayer];
+
+    if (player->targetsheathTics <= 0 || !player->targetsheath)
+    {
+        return;  // No tics or target is dead, nothing to display.
+    }
+
+    sprintf(str, "%d/%d", player->targetsheath, player->targetsmaxheath);
+
+    M_WriteTextCentered(crl_widget_health == 2 ? 153 : 18, // Bottom : Top
+                        str, CRL_HealthColor(player->targetsheath, player->targetsmaxheath));
+
+}
+
+// -----------------------------------------------------------------------------
 // D_Display
 //  draw current display, possibly wiping it from the previous
 // -----------------------------------------------------------------------------
@@ -353,11 +383,18 @@ static void D_Display (void)
             // Do an overflow-safe trace to gather target's health.
             P_AimLineAttack(player->mo, player->mo->angle, MISSILERANGE, true);
 
-            // If target is present, draw it's health.
+            // Set widget's timer to 1 second if target is found.
             if (linetarget)
             {
-                CRL_TargetHealth(linetarget->health, linetarget->info->spawnhealth, crl_widget_health);
+                player->targetsheathTics = TICRATE;
             }
+            // else
+            // {
+            //     player->targetsheathTics = 0;
+            // }
+
+            // Draw!
+            CRL_DrawTargetsHealth();
         }
 
         // [JN] Main status bar drawing function.

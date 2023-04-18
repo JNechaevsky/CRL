@@ -908,6 +908,20 @@ PTR_AimTraverse (intercept_t* in)
     if (th == shootthing)
 	return true;			// can't shoot self
     
+    // [JN] CRL - gather thing health for target's health widget.
+    // Run following code only for overflow-safe trace.
+    if (safe_intercept)
+    {
+        if (th->flags & MF_SHOOTABLE || th->flags & MF_COUNTKILL)
+        {
+            player_t *player = &players[displayplayer];
+            
+            // Don't draw negative values (looks odd).
+            player->targetsheath = th->health < 0 ? 0 : th->health;
+            player->targetsmaxheath = th->info->spawnhealth;
+        }
+    }
+
     if (!(th->flags&MF_SHOOTABLE))
 	return true;			// corpse or something
 
