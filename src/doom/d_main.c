@@ -379,24 +379,9 @@ static void D_Display (void)
         }
 
         // [JN] Target's health widget.
+        // Actual health values are gathered in G_Ticker.
         if (crl_widget_health)
         {
-            player_t *player = &players[displayplayer];
-
-            // Do an overflow-safe trace to gather target's health.
-            P_AimLineAttack(player->mo, player->mo->angle, MISSILERANGE, true);
-
-            // Set widget's timer to 1 second if target is found.
-            if (linetarget)
-            {
-                player->targetsheathTics = TICRATE;
-            }
-            // else
-            // {
-            //     player->targetsheathTics = 0;
-            // }
-
-            // Draw!
             CRL_DrawTargetsHealth();
         }
 
