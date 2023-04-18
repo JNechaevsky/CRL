@@ -305,14 +305,11 @@ static char *CRL_GetMobjName (mobjtype_t type)
         case MT_SPIDER:     return CC_SPIDER;   break;
         case MT_CYBORG:     return CC_CYBER;    break;
         case MT_PLAYER:     return "PLAYER";    break;
-        
         // Wolfenstein guard is not Dehackedable, so leave it nameless.
         //case MT_WOLFSS:   return "WOLFENSTEIN SS";    break;
-        
         default:            return "";
     }
 }
-
 
 //
 // PIT_CheckThing

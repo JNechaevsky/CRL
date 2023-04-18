@@ -242,9 +242,6 @@ static void CRL_DrawTargetsHealth (void)
         M_WriteTextCentered(152, str, CRL_HealthColor(player->targetsheath,
                                                       player->targetsmaxheath));
     }
-    
-    
-
 }
 
 // -----------------------------------------------------------------------------
