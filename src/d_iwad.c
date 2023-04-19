@@ -40,11 +40,12 @@ static const iwad_t iwads[] =
     { "tnt.wad",      pack_tnt,  commercial, "Final Doom: TNT: Evilution" },
     { "doom.wad",     doom,      retail,     "Doom" },
     { "doom1.wad",    doom,      shareware,  "Doom Shareware" },
+    { "doom2f.wad",   doom2,     commercial, "Doom II: L'Enfer sur Terre" },
     { "chex.wad",     pack_chex, retail,     "Chex Quest" },
     { "hacx.wad",     pack_hacx, commercial, "Hacx" },
-    { "freedm.wad",   doom2,     commercial, "FreeDM" },
     { "freedoom2.wad", doom2,    commercial, "Freedoom: Phase 2" },
     { "freedoom1.wad", doom,     retail,     "Freedoom: Phase 1" },
+    { "freedm.wad",   doom2,     commercial, "FreeDM" },
     { "heretic.wad",  heretic,   retail,     "Heretic" },
     { "heretic1.wad", heretic,   shareware,  "Heretic Shareware" },
     { "hexen.wad",    hexen,     commercial, "Hexen" },
@@ -179,6 +180,14 @@ static registry_value_t root_path_keys[] =
         "PATH",
     },
 
+    // Doom 3: BFG Edition
+
+    {
+        HKEY_LOCAL_MACHINE,
+        SOFTWARE_KEY "\\GOG.com\\Games\\1135892318",
+        "PATH",
+    },
+
     // Final Doom
 
     {
@@ -214,6 +223,7 @@ static char *root_path_subdirs[] =
     "Ultimate Doom",
     "Plutonia",
     "TNT",
+    "base\\wads",
 };
 
 // Location where Steam is installed
@@ -230,6 +240,7 @@ static registry_value_t steam_install_location =
 static char *steam_install_subdirs[] =
 {
     "steamapps\\common\\doom 2\\base",
+    "steamapps\\common\\doom 2\\finaldoombase",
     "steamapps\\common\\final doom\\base",
     "steamapps\\common\\ultimate doom\\base",
     "steamapps\\common\\heretic shadow of the serpent riders\\base",
@@ -393,8 +404,7 @@ static void CheckSteamGUSPatches(void)
 {
     const char *current_path;
     char *install_path;
-    char *patch_path;
-    int len;
+    char *test_patch_path, *patch_path;
 
     // Already configured? Don't stomp on the user's choices.
     current_path = M_GetStringVariable("gus_patch_path");
@@ -410,19 +420,17 @@ static void CheckSteamGUSPatches(void)
         return;
     }
 
-    len = strlen(install_path) + strlen(STEAM_BFG_GUS_PATCHES) + 20;
-    patch_path = malloc(len);
-    M_snprintf(patch_path, len, "%s\\%s\\ACBASS.PAT",
-               install_path, STEAM_BFG_GUS_PATCHES);
+    patch_path = M_StringJoin(install_path, "\\", STEAM_BFG_GUS_PATCHES,
+                              NULL);
+    test_patch_path = M_StringJoin(patch_path, "\\ACBASS.PAT", NULL);
 
     // Does acbass.pat exist? If so, then set gus_patch_path.
-    if (M_FileExists(patch_path))
+    if (M_FileExists(test_patch_path))
     {
-        M_snprintf(patch_path, len, "%s\\%s",
-                   install_path, STEAM_BFG_GUS_PATCHES);
         M_SetVariable("gus_patch_path", patch_path);
     }
 
+    free(test_patch_path);
     free(patch_path);
     free(install_path);
 }
@@ -458,15 +466,8 @@ static void CheckDOSDefaults(void)
 
 static boolean DirIsFile(char *path, char *filename)
 {
-    size_t path_len;
-    size_t filename_len;
-
-    path_len = strlen(path);
-    filename_len = strlen(filename);
-
-    return path_len >= filename_len + 1
-        && path[path_len - filename_len - 1] == DIR_SEPARATOR
-        && !strcasecmp(&path[path_len - filename_len], filename);
+    return strchr(path, DIR_SEPARATOR) != NULL
+        && !strcasecmp(M_BaseName(path), filename);
 }
 
 // Check if the specified directory contains the specified IWAD
@@ -499,13 +500,13 @@ static char *CheckDirectoryHasIWAD(char *dir, char *iwadname)
         filename = M_StringJoin(dir, DIR_SEPARATOR_S, iwadname, NULL);
     }
 
+    free(probe);
     probe = M_FileCaseExists(filename);
+    free(filename);
     if (probe != NULL)
     {
         return probe;
     }
-
-    free(filename);
 
     return NULL;
 }
@@ -541,19 +542,12 @@ static char *SearchDirectoryForIWAD(char *dir, int mask, GameMission_t *mission)
 // When given an IWAD with the '-iwad' parameter,
 // attempt to identify it by its name.
 
-static GameMission_t IdentifyIWADByName(char *name, int mask)
+static GameMission_t IdentifyIWADByName(const char *name, int mask)
 {
     size_t i;
     GameMission_t mission;
-    char *p;
 
-    p = strrchr(name, DIR_SEPARATOR);
-
-    if (p != NULL)
-    {
-        name = p + 1;
-    }
-
+    name = M_BaseName(name);
     mission = none;
 
     for (i=0; i<arrlen(iwads); ++i)
@@ -582,12 +576,12 @@ static GameMission_t IdentifyIWADByName(char *name, int mask)
 // to the end of the paths before adding them.
 static void AddIWADPath(char *path, char *suffix)
 {
-    char *left, *p;
+    char *left, *p, *dup_path;
 
-    path = M_StringDuplicate(path);
+    dup_path = M_StringDuplicate(path);
 
     // Split into individual dirs within the list.
-    left = path;
+    left = dup_path;
 
     for (;;)
     {
@@ -609,7 +603,7 @@ static void AddIWADPath(char *path, char *suffix)
 
     AddIWADDir(M_StringJoin(left, suffix, NULL));
 
-    free(path);
+    free(dup_path);
 }
 
 #ifndef _WIN32
@@ -667,13 +661,46 @@ static void AddXdgDirs(void)
     // source ports is /usr/share/games/doom - we support this through the
     // XDG_DATA_DIRS mechanism, through which it can be overridden.
     AddIWADPath(env, "/games/doom");
+    AddIWADPath(env, "/doom");
 
     // The convention set by RBDOOM-3-BFG is to install Doom 3: BFG
     // Edition into this directory, under which includes the Doom
     // Classic WADs.
     AddIWADPath(env, "/games/doom3bfg/base/wads");
 }
-#endif
+
+#ifndef __MACOSX__
+// Steam on Linux allows installing some select Windows games,
+// including the classic Doom series (running DOSBox via Wine).  We
+// could parse *.vdf files to more accurately detect installation
+// locations, but the defaults are likely to be good enough for just
+// about everyone.
+static void AddSteamDirs(void)
+{
+    const char *homedir;
+    char *steampath;
+
+    homedir = getenv("HOME");
+    if (homedir == NULL)
+    {
+        homedir = "/";
+    }
+    steampath = M_StringJoin(homedir, "/.steam/root/steamapps/common", NULL);
+
+    AddIWADPath(steampath, "/Doom 2/base");
+    AddIWADPath(steampath, "/Doom 2/finaldoombase");
+    AddIWADPath(steampath, "/Master Levels of Doom/doom2");
+    AddIWADPath(steampath, "/Ultimate Doom/base");
+    AddIWADPath(steampath, "/Final Doom/base");
+    AddIWADPath(steampath, "/DOOM 3 BFG Edition/base/wads");
+    AddIWADPath(steampath, "/Heretic Shadow of the Serpent Riders/base");
+    AddIWADPath(steampath, "/Hexen/base");
+    AddIWADPath(steampath, "/Hexen Deathkings of the Dark Citadel/base");
+    AddIWADPath(steampath, "/Strife");
+    free(steampath);
+}
+#endif // __MACOSX__
+#endif // !_WIN32
 
 //
 // Build a list of IWAD files
@@ -720,6 +747,9 @@ static void BuildIWADDirList(void)
 
 #else
     AddXdgDirs();
+#ifndef __MACOSX__
+    AddSteamDirs();
+#endif
 #endif
 
     // Don't run this function again.
@@ -760,6 +790,7 @@ char *D_FindWADByName(char *name)
         {
             return probe;
         }
+        free(probe);
 
         // Construct a string for the full path
 
@@ -782,7 +813,7 @@ char *D_FindWADByName(char *name)
 //
 // D_TryWADByName
 //
-// Searches for a WAD by its filename, or passes through the filename
+// Searches for a WAD by its filename, or returns a copy of the filename
 // if not found.
 //
 
@@ -798,7 +829,7 @@ char *D_TryFindWADByName(char *filename)
     }
     else
     {
-        return filename;
+        return M_StringDuplicate(filename);
     }
 }
 
@@ -899,7 +930,7 @@ const iwad_t **D_FindAllIWADs(int mask)
 // Get the IWAD name used for savegames.
 //
 
-char *D_SaveGameIWADName(GameMission_t gamemission)
+char *D_SaveGameIWADName(GameMission_t gamemission, GameVariant_t gamevariant)
 {
     size_t i;
 
@@ -909,6 +940,22 @@ char *D_SaveGameIWADName(GameMission_t gamemission)
     // Note that we match on gamemission rather than on IWAD name.
     // This ensures that doom1.wad and doom.wad saves are stored
     // in the same place.
+
+    if (gamevariant == freedoom)
+    {
+        if (gamemission == doom)
+        {
+            return "freedoom1.wad";
+        }
+        else if (gamemission == doom2)
+        {
+            return "freedoom2.wad";
+        }
+    }
+    else if (gamevariant == freedm && gamemission == doom2)
+    {
+        return "freedm.wad";
+    }
 
     for (i=0; i<arrlen(iwads); ++i)
     {
