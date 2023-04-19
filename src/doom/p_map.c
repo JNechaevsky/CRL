@@ -938,25 +938,6 @@ PTR_AimTraverse (intercept_t* in)
     if (th == shootthing)
 	return true;			// can't shoot self
     
-    // [JN] CRL - gather thing health for target's health widget.
-    // Run following code only for overflow-safe trace,
-    // and don't gather health of explosive barrels.
-    if (safe_intercept && th->tics > 0 && th->type != MT_BARREL)
-    {
-        player_t *player = &players[displayplayer];
-
-        if (th->flags & MF_SHOOTABLE || th->flags & MF_COUNTKILL)
-        {
-            // Don't draw negative values (looks odd).
-            player->targetsheath = th->health < 0 ? 0 : th->health;
-            player->targetsmaxheath = th->info->spawnhealth;
-            player->targetsheathTics = TICRATE;
-
-            // Get Dehackedable name.
-            player->targetsname = DEH_String(CRL_GetMobjName(th->type));
-        }
-    }
-
     if (!(th->flags&MF_SHOOTABLE))
 	return true;			// corpse or something
 
@@ -981,6 +962,24 @@ PTR_AimTraverse (intercept_t* in)
 
     aimslope = (thingtopslope+thingbottomslope)/2;
     linetarget = th;
+
+    // [JN] CRL - gather thing health for target's health widget.
+    // Run following code only for overflow-safe trace,
+    // and don't gather health of explosive barrels.
+    if (safe_intercept && th->tics > 0
+    && th->flags & MF_SHOOTABLE && th->type != MT_BARREL)
+    {
+        player_t *player = &players[displayplayer];
+
+        // Don't draw negative values (looks odd).
+        player->targetsheath = th->health < 0 ? 0 : th->health;
+        // Get target's maximum health.
+        player->targetsmaxheath = th->info->spawnhealth;
+        // Set widget's timer to 1 second.
+        player->targetsheathTics = TICRATE;
+        // Get target's Dehackedable name.
+        player->targetsname = DEH_String(CRL_GetMobjName(th->type));
+    }
 
     return false;			// don't go any farther
 }
