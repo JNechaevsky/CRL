@@ -46,7 +46,9 @@ visplane_t*		floorplane;
 visplane_t*		ceilingplane;
 
 // ?
-#define MAXOPENINGS 65536    // [JN] Originally: SCREENWIDTH*64
+// [JN] CRL - Originally: SCREENWIDTH*64. Extended by multipler of four (81920),
+// to cover both vanilla (20480) and doom-plus (65536) limits.
+#define MAXOPENINGS SCREENWIDTH*64*4
 int  openings[MAXOPENINGS];  // [JN] 32-bit integer math
 int *lastopening;            // [JN] 32-bit integer math
 
@@ -487,9 +489,22 @@ void R_DrawPlanes (void)
     	longjmp(CRLJustIncaseBuf, CRL_JUMP_VPO);
     }
     
-    if (lastopening - openings > MAXOPENINGS)
-	I_Error ("R_DrawPlanes: opening overflow (%i)",
-		 lastopening - openings);
+    if (lastopening - openings > CRL_MaxOpenings)
+    {
+        CRL_SetCriticalMessage("R_DrawPlanes: \ropening overflow (doom+ crashes here)", 2);
+        // [JN] Print in-game warning. No need to add counter into message,
+        // since number is already presented in limits counter widget.
+        if (crl_vanilla_limits)
+        {
+            CRL_SetCriticalMessage("R_DrawPlanes: \ropening overflow (vanilla crashes here)", 2);
+        }
+        else
+        {
+            CRL_SetCriticalMessage("R_DrawPlanes: \ropening overflow (doom+ crashes here)", 2);
+        }
+        //I_Error ("R_DrawPlanes: opening overflow (%i)",
+        //	 lastopening - openings);
+    }
 #endif
 
     for (pl = visplanes ; pl < lastvisplane ; pl++)
