@@ -360,6 +360,7 @@ static default_t	doom_defaults_list[] =
 
     // Static limits
     CONFIG_VARIABLE_INT(crl_vanilla_limits),
+    CONFIG_VARIABLE_INT(crl_prevent_zmalloc),
 };
 
 static default_collection_t doom_defaults =

@@ -74,5 +74,6 @@ extern int crl_internal_demos;
 
 // Static limits
 extern int crl_vanilla_limits;
+extern int crl_prevent_zmalloc;
 
 extern void CRL_BindVariables (void);

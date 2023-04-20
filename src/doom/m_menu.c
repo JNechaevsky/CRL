@@ -578,6 +578,7 @@ static void M_CRL_InternalDemos (int choice);
 static void M_ChooseCRL_Limits (int choice);
 static void M_DrawCRL_Limits (void);
 static void M_CRL_Limits (int choice);
+static void M_CRL_ZMalloc (int choice);
 
 static int  shade_wait; // [JN] Delay before shading.
 static void M_ShadeBackground (void)
@@ -1727,8 +1728,8 @@ static void M_CRL_InternalDemos (int choice)
 
 static menuitem_t CRLMenu_Limits[]=
 {
-    { 2, "LIMITS LEVEL", M_CRL_Limits, 'd'},
-    {-1, "", 0, '\0'},
+    { 2, "PREVENT Z_MALLOC ERRORS", M_CRL_ZMalloc, 'Z'},
+    { 2, "RENDER LIMITS LEVEL", M_CRL_Limits, 'd'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
@@ -1750,7 +1751,7 @@ static menu_t CRLDef_Limits =
     &CRLDef_Main,
     CRLMenu_Limits,
     M_DrawCRL_Limits,
-    CRL_MENU_LEFTOFFSET_SML, CRL_MENU_TOPOFFSET,
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     0,
     true
 };
@@ -1767,35 +1768,40 @@ static void M_DrawCRL_Limits (void)
     M_ShadeBackground();
     M_WriteTextCentered(27, "STATIC ENGINE LIMITS", cr[CR_YELLOW]);
 
+    // Prevent Z_Malloc errors
+    sprintf(str, crl_prevent_zmalloc ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 36, str, 
+                 crl_prevent_zmalloc ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
     // Level of the limits
     sprintf(str, crl_vanilla_limits ? "VANILLA" : "DOOM-PLUS");
-    M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth(str), 36, str, 
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 45, str, 
                  crl_vanilla_limits ? cr[CR_RED] : cr[CR_GREEN]);
 
-    M_WriteText (CRL_MENU_LEFTOFFSET_SML, 45, "MAXVISPLANES",  cr[CR_GRAY]);
-    M_WriteText (CRL_MENU_LEFTOFFSET_SML, 54, "MAXDRAWSEGS",   cr[CR_GRAY]);
-    M_WriteText (CRL_MENU_LEFTOFFSET_SML, 63, "MAXVISSPRITES", cr[CR_GRAY]);
-    M_WriteText (CRL_MENU_LEFTOFFSET_SML, 72, "MAXOPENINGS",   cr[CR_GRAY]);
-    M_WriteText (CRL_MENU_LEFTOFFSET_SML, 81, "MAXPLATS",      cr[CR_GRAY]);
-    M_WriteText (CRL_MENU_LEFTOFFSET_SML, 90, "MAXLINEANIMS",  cr[CR_GRAY]);
+    M_WriteText (CRL_MENU_LEFTOFFSET_SML+16,  63, "MAXVISPLANES",  cr[CR_GRAY]);
+    M_WriteText (CRL_MENU_LEFTOFFSET_SML+16,  72, "MAXDRAWSEGS",   cr[CR_GRAY]);
+    M_WriteText (CRL_MENU_LEFTOFFSET_SML+16,  81, "MAXVISSPRITES", cr[CR_GRAY]);
+    M_WriteText (CRL_MENU_LEFTOFFSET_SML+16,  90, "MAXOPENINGS",   cr[CR_GRAY]);
+    M_WriteText (CRL_MENU_LEFTOFFSET_SML+16,  99, "MAXPLATS",      cr[CR_GRAY]);
+    M_WriteText (CRL_MENU_LEFTOFFSET_SML+16, 108, "MAXLINEANIMS",  cr[CR_GRAY]);
 
     if (crl_vanilla_limits)
     {
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("128"),   45,   "128", cr[CR_RED]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("256"),   54,   "256", cr[CR_RED]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("128"),   63,   "128", cr[CR_RED]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("20480"), 72, "20480", cr[CR_RED]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("30"),    81,    "30", cr[CR_RED]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("64"),    90,    "64", cr[CR_RED]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("128"),    63,   "128", cr[CR_RED]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("256"),    72,   "256", cr[CR_RED]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("128"),    81,   "128", cr[CR_RED]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("20480"),  90, "20480", cr[CR_RED]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("30"),     99,    "30", cr[CR_RED]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("64"),    108,    "64", cr[CR_RED]);
     }
     else
     {
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("1024"),  45,  "1024", cr[CR_GREEN]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("2048"),  54,  "2048", cr[CR_GREEN]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("1024"),  63,  "1024", cr[CR_GREEN]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("65536"), 72, "65536", cr[CR_GREEN]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("7680"),  81,  "7680", cr[CR_GREEN]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth("16384"), 90, "16384", cr[CR_GREEN]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("1024"),   63,  "1024", cr[CR_GREEN]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("2048"),   72,  "2048", cr[CR_GREEN]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("1024"),   81,  "1024", cr[CR_GREEN]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("65536"),  90, "65536", cr[CR_GREEN]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("7680"),   99,  "7680", cr[CR_GREEN]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("16384"), 108, "16384", cr[CR_GREEN]);
     }
 }
 
@@ -1805,6 +1811,11 @@ static void M_CRL_Limits (int choice)
 
     // [JN] CRL - re-define static engine limits.
     CRL_SetStaticLimits();
+}
+
+static void M_CRL_ZMalloc (int choice)
+{
+    crl_prevent_zmalloc ^= 1;
 }
 
 

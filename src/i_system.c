@@ -125,6 +125,7 @@ byte *I_ZoneBase (int *size)
     byte *zonemem;
     int min_ram, default_ram;
     int p;
+    static int i = 1;
 
     //!
     // @arg <mb>
@@ -144,6 +145,15 @@ byte *I_ZoneBase (int *size)
         default_ram = DEFAULT_RAM;
         min_ram = MIN_RAM;
     }
+
+    // [crispy] do not allocate new zones ad infinitum
+    if (i > 16)
+    {
+        min_ram = default_ram + 1;
+    }
+
+    // [crispy] if called again, allocate another zone twice as big
+    i *= 2;
 
     zonemem = AutoAllocMemory(size, default_ram, min_ram);
 
