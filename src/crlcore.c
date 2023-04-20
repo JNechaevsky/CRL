@@ -388,17 +388,6 @@ void CRL_CountPlane (void* __key, int __chorf, int __id)
 }
 
 // -----------------------------------------------------------------------------
-// CRL_ViewDrawer
-//  Draw view.
-// -----------------------------------------------------------------------------
-
-void CRL_ViewDrawer (void)
-{
-	// Draw visplanes if overlayed
-	CRL_DrawVisPlanes(1);
-}
-
-// -----------------------------------------------------------------------------
 // CRL_GetHOMMultiColor
 //  [JN] Framerate-independent HOM multi coloring. Called in G_Ticker.
 // -----------------------------------------------------------------------------

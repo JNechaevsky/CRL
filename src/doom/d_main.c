@@ -383,8 +383,8 @@ static void D_Display (void)
     // [JN] Do not draw any CRL widgets if not in game level.
     if (gamestate == GS_LEVEL)
     {
-        // RestlessRodent -- CRL markers and indicators
-        CRL_ViewDrawer();
+        // RestlessRodent -- draw visplanes if overlayed
+        CRL_DrawVisPlanes(1);
 
         // RestlessRodent -- CRL Stats
         CRL_StatDrawer();
