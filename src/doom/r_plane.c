@@ -28,6 +28,7 @@
 #include "w_wad.h"
 #include "doomstat.h"
 #include "p_local.h"
+#include "m_misc.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
@@ -276,14 +277,8 @@ R_FindPlane
     if (lastvisplane - visplanes == CRL_MaxVisPlanes)
 	{
     	// [JN] Print in-game warning.
-        if (crl_vanilla_limits)
-        {
-            CRL_SetCriticalMessage("R_FindPlane: \rno more visplanes (vanilla crashes here)", 2);
-        }
-        else
-        {
-            CRL_SetCriticalMessage("R_FindPlane: \rno more visplanes (doom+ crashes here)", 2);
-        }
+        CRL_SetCriticalMessage(M_StringJoin("R_FindPlane: \rno more visplanes (",
+                                            CRL_LimitsName, " crashes here)", NULL), 2);
     	longjmp(CRLJustIncaseBuf, CRL_JUMP_VPO);
 	}
 	
@@ -367,14 +362,8 @@ R_CheckPlane
     if (lastvisplane - visplanes == CRL_MaxVisPlanes)
     {
         // [JN] Print in-game warning.
-        if (crl_vanilla_limits)
-        {
-            CRL_SetCriticalMessage("R_CheckPlane: \rno more visplanes (vanilla crashes here)", 2);
-        }
-        else
-        {
-            CRL_SetCriticalMessage("R_CheckPlane: \rno more visplanes (doom+ crashes here)", 2);
-        }
+        CRL_SetCriticalMessage(M_StringJoin("R_CheckPlane: \rno more visplanes (",
+                                            CRL_LimitsName, " crashes here)", NULL), 2);
     }
 
     pl = lastvisplane++;
@@ -450,56 +439,29 @@ void R_DrawPlanes (void)
     CRLData.numopenings = lastopening - openings;
 
 #ifdef RANGECHECK
+    // [JN] Print in-game warning about MAXDRAWSEGS overflow.
     if (dsegs > CRL_MaxDrawSegs)
     {
-        char msg[76];
+        CRL_SetCriticalMessage(M_StringJoin("R_DrawPlanes: \rdrawsegs overflow (",
+                                            CRL_LimitsName, " crashes here)", NULL), 2);
 
-        // [JN] Print in-game warning. No need to add counter into message,
-    	// since number is already presented in limits counter widget.
-        if (crl_vanilla_limits)
-        {
-            sprintf(msg, "R_DRAWPLANES: \rdrawsegs overflow: %d (vanilla crashes here)", dsegs);
-        }
-        else
-        {
-            sprintf(msg, "R_DRAWPLANES: \rdrawsegs overflow: %d (doom+ crashes here)", dsegs);
-        }
-
-        CRL_SetCriticalMessage(msg, 2);
-
+        // Supress render and don't go any farther.
         return;
-
-        //I_Error ("R_DrawPlanes: drawsegs overflow (%i)",
-        //	 ds_p - drawsegs);
     }
 
-    
+    // [JN] Print in-game warning about MAVVISPLANES overflow.
     if (lastvisplane - visplanes > CRL_MaxVisPlanes)
     {
-    	// [JN] Print in-game warning. No need to add counter into message,
-    	// since number is already presented in limits counter widget.
-        if (crl_vanilla_limits)
-        {
-            CRL_SetCriticalMessage("R_DrawPlanes: \rvisplane overflow (vanilla crashes here)", 2);
-        }
-        else
-        {
-            CRL_SetCriticalMessage("R_DrawPlanes: \rvisplane overflow (doom+ crashes here)", 2);
-        }
+        CRL_SetCriticalMessage(M_StringJoin("R_DrawPlanes: \rvisplane overflow (",
+                                            CRL_LimitsName, " crashes here)", NULL), 2);
     	longjmp(CRLJustIncaseBuf, CRL_JUMP_VPO);
     }
     
     // [JN] Print in-game warning about MAXOPENINGS overflow.
     if (lastopening - openings > CRL_MaxOpenings)
     {
-        if (crl_vanilla_limits)
-        {
-            CRL_SetCriticalMessage("R_DrawPlanes: \ropening overflow (vanilla crashes here)", 2);
-        }
-        else
-        {
-            CRL_SetCriticalMessage("R_DrawPlanes: \ropening overflow (doom+ crashes here)", 2);
-        }
+        CRL_SetCriticalMessage(M_StringJoin("R_DrawPlanes: \ropening overflow (",
+                                            CRL_LimitsName, " crashes here)", NULL), 2);
 
         // Supress render and don't go any farther.
         return;

@@ -125,6 +125,7 @@ void CRL_Init (int* __colorset, int __numcolors, int __pllim)
 //  Called at game startup (R_Init) and on toggling in CRL menu.
 // -----------------------------------------------------------------------------
 
+char *CRL_LimitsName;
 int CRL_MaxVisPlanes;
 int CRL_MaxDrawSegs;
 int CRL_MaxVisSprites;
@@ -136,6 +137,7 @@ void CRL_SetStaticLimits (void)
 {
     if (crl_vanilla_limits)
     {
+        CRL_LimitsName    = "VANILLA";
         CRL_MaxVisPlanes  = 128;
         CRL_MaxDrawSegs   = 256;
         CRL_MaxVisSprites = 128;
@@ -145,6 +147,7 @@ void CRL_SetStaticLimits (void)
     }
     else
     {
+        CRL_LimitsName    = "DOOM+";
         CRL_MaxVisPlanes  = 1024;
         CRL_MaxDrawSegs   = 2048;
         CRL_MaxVisSprites = 1024;
