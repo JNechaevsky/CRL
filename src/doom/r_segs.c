@@ -497,6 +497,40 @@ R_StoreWallRange
     ds_p->curline = curline;
     rw_stopx = stop+1;
     
+    // [JN] killough 1/6/98, 2/1/98: remove limit on openings
+    {
+        size_t pos = lastopening - openings;
+        size_t need = (rw_stopx - start)*sizeof(*lastopening) + pos;
+
+        if (need > maxopenings)
+        {
+            drawseg_t *ds;                //jff 8/9/98 needed for fix from ZDoom
+            int *oldopenings = openings; // dropoff overflow
+            int *oldlast = lastopening; // dropoff overflow
+
+            do
+            {
+                maxopenings = maxopenings ? maxopenings*2 : 16384;
+            } while (need > maxopenings);
+
+            openings = I_Realloc(openings, maxopenings * sizeof(*openings));
+            lastopening = openings + pos;
+
+            // jff 8/9/98 borrowed fix for openings from ZDOOM1.14
+            // [RH] We also need to adjust the openings pointers that
+            //    were already stored in drawsegs.
+            for (ds = drawsegs; ds < ds_p; ds++)
+            {
+#define ADJUST(p) if (ds->p + ds->x1 >= oldopenings && ds->p + ds->x1 <= oldlast)\
+                      ds->p = ds->p - oldopenings + openings;
+                ADJUST (maskedtexturecol);
+                ADJUST (sprtopclip);
+                ADJUST (sprbottomclip);
+            }
+#undef ADJUST
+            }
+    }
+
     // calculate scale at both ends and step
     ds_p->scale1 = rw_scale = 
 	R_ScaleFromGlobalAngle (viewangle + xtoviewangle[start]);

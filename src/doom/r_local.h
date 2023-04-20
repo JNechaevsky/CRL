@@ -647,7 +647,11 @@ extern void R_MapPlane (int y, int x1, int x2, visplane_t *__plane);
 
 extern int  floorclip[SCREENWIDTH];    // [JN] 32-bit integer math
 extern int  ceilingclip[SCREENWIDTH];  // [JN] 32-bit integer math
-extern int *lastopening;               // [JN] 32-bit integer math
+
+extern size_t  maxopenings;            // [JN] 32-bit integer maths
+extern int    *lastopening;
+extern int    *openings;
+
 
 extern fixed_t yslope[SCREENHEIGHT];
 extern fixed_t distscale[SCREENWIDTH];
