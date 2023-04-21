@@ -640,6 +640,7 @@ static boolean PIT_AddLineIntercepts (line_t *ld)
         CRL_SetCriticalMessage(M_StringJoin("PIT_AddLineIntercepts:"
         "\r", message, NULL), MESSAGETICS);
     }
+
     intercept_p++;
 
     return true;  // continue
@@ -713,9 +714,6 @@ static boolean PIT_AddThingIntercepts (mobj_t *thing)
 
             // [crispy] print a warning
             CRL_printf(M_StringJoin("PIT_AddThingIntercepts: ", message, NULL), false);
-            // [JN] CRL - print in-game warning.
-            CRL_SetCriticalMessage(M_StringJoin("PIT_AddThingIntercepts:"
-            "\r", message, NULL), MESSAGETICS);
         }
     }
     else
