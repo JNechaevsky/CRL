@@ -27,6 +27,7 @@
 #include "g_game.h"
 #include "s_sound.h"
 #include "doomstat.h"
+#include "i_system.h"
 
 #include "crlcore.h"
 
