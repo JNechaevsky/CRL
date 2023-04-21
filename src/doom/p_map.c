@@ -889,6 +889,7 @@ PTR_AimTraverse (intercept_t* in)
     fixed_t		thingtopslope;
     fixed_t		thingbottomslope;
     fixed_t		dist;
+    player_t 	*player = &players[displayplayer];
 		
     if (in->isaline)
     {
@@ -935,7 +936,17 @@ PTR_AimTraverse (intercept_t* in)
 	return true;			// can't shoot self
     
     if (!(th->flags&MF_SHOOTABLE))
-	return true;			// corpse or something
+    {
+        // [JN] Stop showing target's health, if target is dead.
+        if (safe_intercept && th->health <= 0
+        && (th->state == &states[th->info->deathstate]
+        ||  th->state == &states[th->info->xdeathstate]))
+        {
+            player->targetsheathTics = 0;
+            return false;
+        }
+		return true;		// corpse or something
+    }
 
     // check angles to see if the thing can be aimed at
     dist = FixedMul (attackrange, in->frac);
@@ -965,10 +976,8 @@ PTR_AimTraverse (intercept_t* in)
     if (safe_intercept && th->tics > 0
     && th->flags & MF_SHOOTABLE && th->type != MT_BARREL)
     {
-        player_t *player = &players[displayplayer];
-
-        // Don't draw negative values (looks odd).
-        player->targetsheath = th->health < 0 ? 0 : th->health;
+        // Get target's current health.
+        player->targetsheath = th->health;
         // Get target's maximum health.
         player->targetsmaxheath = th->info->spawnhealth;
         // Set widget's timer to 1 second.
