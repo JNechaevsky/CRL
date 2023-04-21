@@ -26,6 +26,7 @@
 #include "p_local.h"
 #include "s_sound.h"
 #include "doomstat.h"
+#include "m_misc.h"
 
 #include "crlcore.h"
 
@@ -279,6 +280,13 @@ void P_AddActivePlat(plat_t* plat)
 	{
 	    activeplats[i] = plat;
 	    CRL_plats_counter++;
+	
+	    if (CRL_plats_counter > CRL_MaxPlats)
+	    {
+	        // [JN] Print in-game warning.
+	        CRL_SetCriticalMessage(M_StringJoin("P_AddActivePlat: \rno more plats! (",
+	                                            CRL_LimitsName, " crashes here)", NULL), 4 * TICRATE);
+	    }
 
 	    return;
 	}
