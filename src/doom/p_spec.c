@@ -1535,7 +1535,7 @@ void P_SpawnSpecials (void)
 	    {
 	        // [JN] Print in-game warning.
 	        CRL_SetCriticalMessage(M_StringJoin("P_SpawnSpecials: \rToo many scrollers! (",
-	                                            CRL_LimitsName, " crashes here)", NULL), 4 * TICRATE);
+	                                            CRL_LimitsName, " crashes here)", NULL), MESSAGETICS);
 	    }
 
 	    break;

@@ -175,18 +175,15 @@ P_StartButton
 	    CRL_buttons_counter++;
 	    return;
 	}
-	// [JN] CRL - Do not quit with I_Error, print warnings instead.
+
 	if (CRL_buttons_counter > 16)
 	{
-	    char *message = "no button slots left!";
-
-	    CRL_printf(M_StringJoin("P_StartButton:", message, NULL), true);
-	    CRL_SetCriticalMessage(M_StringJoin("P_StartButton:"
-        "\r", message, " (vanilla crashes here)", NULL), MESSAGETICS);
+	    // [JN] Print in-game warning.
+	    CRL_SetCriticalMessage("P_StartButton: \rno button slots left! (vanilla crashes here)", MESSAGETICS);
 	}
     }
     
-    // I_Error("P_StartButton: no button slots left!");
+    I_Error("P_StartButton: no button slots left!");
 }
 
 

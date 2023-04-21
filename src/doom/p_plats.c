@@ -285,7 +285,7 @@ void P_AddActivePlat(plat_t* plat)
 	    {
 	        // [JN] Print in-game warning.
 	        CRL_SetCriticalMessage(M_StringJoin("P_AddActivePlat: \rno more plats! (",
-	                                            CRL_LimitsName, " crashes here)", NULL), 4 * TICRATE);
+	                                            CRL_LimitsName, " crashes here)", NULL), MESSAGETICS);
 	    }
 
 	    return;
