@@ -1530,6 +1530,14 @@ void P_SpawnSpecials (void)
 	    linespeciallist[numlinespecials] = &lines[i];
 	    numlinespecials++;
 	    CRL_lineanims_counter++;
+
+	    if (CRL_lineanims_counter > CRL_MaxAnims)
+	    {
+	        // [JN] Print in-game warning.
+	        CRL_SetCriticalMessage(M_StringJoin("P_SpawnSpecials: \rToo many scrollers! (",
+	                                            CRL_LimitsName, " crashes here)", NULL), 4 * TICRATE);
+	    }
+
 	    break;
 	}
     }
