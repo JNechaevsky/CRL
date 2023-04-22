@@ -547,7 +547,7 @@ void V_ScreenShot(char *format)
         ext = "pcx";
     }
 
-    for (i=0; i<=99; i++)
+    for (i=0; i<=9999; i++)
     {
         M_snprintf(lbmname, sizeof(lbmname), format, i, ext);
 
@@ -557,7 +557,7 @@ void V_ScreenShot(char *format)
         }
     }
 
-    if (i == 100)
+    if (i == 10000)
     {
         if (png_screenshots)
         {
