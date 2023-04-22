@@ -1064,9 +1064,8 @@ P_SetupLevel
     // [JN] Set level name.
     P_LevelNameInit();
 
-    // [JN] Force to disable spectator and freeze modes.
+    // [JN] Force to disable spectator mode.
     crl_spectating = 0;
-    crl_freeze = 0;
 
     // [JN] Print amount of level loading time.
     printf("loaded in %d ms.\n", SDL_GetTicks() - starttime);
