@@ -1102,7 +1102,10 @@ void G_Ticker (void)
 	    break; 
 	  case ga_screenshot: 
 	    V_ScreenShot("DOOM%02i.%s"); 
-            CRL_SetMessage(&players[consoleplayer], DEH_String("screen shot"), false, NULL);
+            if (devparm)
+            {
+                CRL_SetMessage(&players[consoleplayer], DEH_String("screen shot"), false, NULL);
+            }
 	    gameaction = ga_nothing; 
 	    break; 
 	  case ga_nothing: 
