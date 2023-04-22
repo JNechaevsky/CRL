@@ -106,7 +106,8 @@ void P_RunThinkers (void)
     if (crl_freeze)
     {
         mobj_t *mo = (mobj_t *)currentthinker;
-        if (mo->type != MT_PLAYER)
+
+        if (mo->type != MT_PLAYER || currentthinker->function.acp1 != (actionf_p1) P_MobjThinker)
         {
             goto skip;
         }
