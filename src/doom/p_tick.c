@@ -29,6 +29,7 @@
 
 
 int	leveltime;
+int	realleveltime;
 
 //
 // THINKERS
@@ -186,8 +187,9 @@ void P_Ticker (void)
     {
     P_UpdateSpecials ();
     P_RespawnSpecials ();
-    }
-
     // for par times
     leveltime++;	
+    }
+
+    realleveltime++;
 }
