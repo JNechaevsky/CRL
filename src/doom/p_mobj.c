@@ -747,6 +747,7 @@ void P_SpawnPlayer (mapthing_t* mthing)
     // [JN] Reset ultimatemsg, so other messages may appear.
     // See: https://github.com/chocolate-doom/chocolate-doom/issues/781
     ultimatemsg = false;
+    lastmessage = NULL;
     p->damagecount = 0;
     p->bonuscount = 0;
     p->extralight = 0;

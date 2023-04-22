@@ -279,6 +279,7 @@ extern void CRL_SetMessage (player_t *player, char *message, boolean ultmsg, byt
 extern void CRL_SetCriticalMessage (char *message, const int tics);
 extern int     showMessages;
 extern boolean ultimatemsg;
+extern char   *lastmessage;
 
 extern boolean P_GivePower(player_t*, int);
 extern void    P_TouchSpecialThing (mobj_t *special, mobj_t *toucher);

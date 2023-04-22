@@ -530,6 +530,12 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
         CRL_vilebomb = false;
     }
 
+    // [JN] Repeat last message.
+    if (gamekeydown[key_message_refresh])
+    {
+        CRL_SetMessage(&players[displayplayer], lastmessage, false, NULL);
+    }
+
     // mouse
     if (mousebuttons[mousebforward]) 
     {

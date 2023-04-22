@@ -49,9 +49,12 @@ int	clipammo[NUMAMMO] = {10, 4, 20, 1};
 // -----------------------------------------------------------------------------
 
 boolean ultimatemsg;
+char   *lastmessage;
 
 void CRL_SetMessage (player_t *player, char *message, boolean ultmsg, byte *table)
 {
+    lastmessage = message;
+
     if ((ultimatemsg || !showMessages) && !ultmsg)
     {
         return;
