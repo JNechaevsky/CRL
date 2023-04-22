@@ -426,7 +426,7 @@ static void AM_changeWindowLoc (void)
         followplayer = 0;
     }
 
-    if (crl_uncapped_fps && leveltime > oldleveltime)
+    if (crl_uncapped_fps && realleveltime > oldleveltime)
     {
         incx = FixedMul(m_paninc.x, fractionaltic);
         incy = FixedMul(m_paninc.y, fractionaltic);
@@ -875,7 +875,7 @@ boolean AM_Responder (event_t *ev)
 
 static void AM_changeWindowScale (void)
 {
-    if (crl_uncapped_fps && leveltime > oldleveltime)
+    if (crl_uncapped_fps && realleveltime > oldleveltime)
     {
         float f_paninc_smooth = (float)f_paninc / (float)FRACUNIT * (float)fractionaltic;
 
@@ -1610,7 +1610,7 @@ static void AM_drawPlayers (void)
         }
 
         // [JN] Interpolate other player arrows.
-        if (crl_uncapped_fps && leveltime > oldleveltime)
+        if (crl_uncapped_fps && realleveltime > oldleveltime)
         {
             pt.x = (p->mo->oldx + FixedMul(p->mo->x - p->mo->oldx, fractionaltic)) >> FRACTOMAPBITS;
             pt.y = (p->mo->oldy + FixedMul(p->mo->y - p->mo->oldy, fractionaltic)) >> FRACTOMAPBITS;
@@ -1666,7 +1666,7 @@ static void AM_drawThings (int colors, int colorrange)
             }
 
             // [JN] Interpolate things if possible.
-            if (crl_uncapped_fps && leveltime > oldleveltime)
+            if (crl_uncapped_fps && realleveltime > oldleveltime)
             {
                 pt.x = (t->oldx + FixedMul(t->x - t->oldx, fractionaltic)) >> FRACTOMAPBITS;
                 pt.y = (t->oldy + FixedMul(t->y - t->oldy, fractionaltic)) >> FRACTOMAPBITS;
@@ -1745,7 +1745,7 @@ static void AM_drawSpectator (void)
         while (t)
         {
             // [JN] Interpolate things if possible.
-            if (crl_uncapped_fps && leveltime > oldleveltime)
+            if (crl_uncapped_fps && realleveltime > oldleveltime)
             {
                 pt.x = (t->oldx + FixedMul(t->x - t->oldx, fractionaltic)) >> FRACTOMAPBITS;
                 pt.y = (t->oldy + FixedMul(t->y - t->oldy, fractionaltic)) >> FRACTOMAPBITS;

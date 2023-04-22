@@ -1002,6 +1002,7 @@ P_SetupLevel
     lumpnum = W_GetNumForName (lumpname);
 	
     leveltime = 0;
+    realleveltime = 0;
     oldleveltime = 0;
 	
     // [JN] Indicate the map we are loading.
