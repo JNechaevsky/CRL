@@ -500,6 +500,19 @@ static void I_ToggleFullScreen(void)
         AdjustWindowSize();
         SDL_SetWindowSize(screen, window_width, window_height);
     }
+
+    // [JN] Hack to fix missing window icon after starting in fullscreen mode.
+#ifdef _WIN32
+    {
+        static boolean icon_reinit = false;
+
+        if (!icon_reinit && !fullscreen)
+        {
+            I_InitWindowIcon();
+            icon_reinit = true;
+        }
+    }
+#endif
 }
 
 void I_GetEvent(void)
