@@ -1233,7 +1233,7 @@ void G_Ticker (void)
     }
 
     oldgamestate = gamestate;
-    oldleveltime = leveltime;
+    oldleveltime = realleveltime;
     
     // [crispy] no pause at intermission screen during demo playback 
     // to avoid desyncs (from prboom-plus)

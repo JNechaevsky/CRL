@@ -693,8 +693,8 @@ void TryRunTics (void)
 
     // [AM] If we've uncapped the framerate and there are no tics
     //      to run, return early instead of waiting around.
-    extern int leveltime;
-    #define return_early (crl_uncapped_fps && counts == 0 && leveltime > oldleveltime && screenvisible)
+    extern int realleveltime;
+    #define return_early (crl_uncapped_fps && counts == 0 && realleveltime > oldleveltime && screenvisible)
 
     // get real tics
     entertic = I_GetTime() / ticdup;

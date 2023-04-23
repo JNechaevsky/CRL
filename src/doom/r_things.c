@@ -487,7 +487,7 @@ void R_ProjectSprite (mobj_t* thing)
         // that would necessitate turning it off for a tic.
         thing->interp == true &&
         // Don't interpolate during a paused state.
-        leveltime > oldleveltime &&
+        realleveltime > oldleveltime &&
         // [JN] Don't interpolate things while freeze mode.
         !crl_freeze)
     {
