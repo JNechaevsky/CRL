@@ -28,6 +28,11 @@
 #include "crlvars.h"
 
 
+// [JN] CRL - now there are two timers:
+// 1) leveltime: used by all mobjs, thinkers and level time.
+//    Not ticking in Freeze mode.
+// 2) realleveltime: used by player, render and interpolation.
+//    Always ticking.
 int	leveltime;
 int	realleveltime;
 
@@ -182,7 +187,7 @@ void P_Ticker (void)
 			
     P_RunThinkers ();
     
-    // [JN] CRL - do not update specials in freeze mode.
+    // [JN] CRL - do not update mobjs and thinkers in freeze mode.
     if (!crl_freeze)
     {
     P_UpdateSpecials ();
