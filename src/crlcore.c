@@ -299,29 +299,27 @@ static int CRL_ColorizeThisPlane (CRLPlaneData_t *__pl)
 
 void CRL_DrawVisPlanes (int __over)
 {
-    int dm, isover, x, y, i, isbord, c;
+    int isover, x, y, i, isbord, c;
     void* is;
     CRLPlaneData_t pd;
 
     // Get visplane drawing mode
-    // [JN] Use external config variable.
-    dm = crl_visplanes_drawing;
 
     // Drawing nothing
-    if (dm == 0)
+    if (crl_visplanes_drawing == 0)
     {
         return;
     }
 
     // Overlay but not overlaying?
-    isover = (dm == 2 || dm == 4);
+    isover = (crl_visplanes_drawing == 2 || crl_visplanes_drawing == 4);
     if (__over != isover)
     {
         return;
     }
 
     // Border colors
-    isbord = (dm == 3 || dm == 4);
+    isbord = (crl_visplanes_drawing == 3 || crl_visplanes_drawing == 4);
 
     // Go through all pixels and draw visplane if one is there
     memset(&pd, 0, sizeof(pd));
@@ -423,16 +421,13 @@ void CRL_GetHOMMultiColor (void)
 void CRL_DrawMap(void (*__fl)(int, int, int, int, int),
                  void (*__ml)(int, int, int, int, int))
 {
-    int i, dm, c, j;
+    int i, c, j;
     CRLPlaneData_t pd;
     CRLSegData_t sd;
     CRLSubData_t ud;
 
-    // [JN] Use external config variable.
-    dm = crl_automap_mode;
-
     // Visplane emitting segs
-    if (dm == 1 || dm == 2)
+    if (crl_automap_mode == 1 || crl_automap_mode == 2)
     {
         // Go through all planes
         for (i = 0; i < _numplanes; i++)
@@ -441,7 +436,7 @@ void CRL_DrawMap(void (*__fl)(int, int, int, int, int),
             GAME_IdentifyPlane(_planelist[i], &pd);
 
             // Floor/ceiling mismatch
-            if ((!!(dm == 1)) != (!!pd.onfloor))
+            if ((!!(crl_automap_mode == 1)) != (!!pd.onfloor))
             {
                 continue;
             }
