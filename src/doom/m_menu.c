@@ -1068,8 +1068,8 @@ static void M_DrawCRL_Sound (void)
 
     M_DrawThermo(46, 45, 16, sfxVolume);
     sprintf(str,"%d", sfxVolume);
-    M_WriteText (192, 48, str, !snd_sfxdevice ? cr[CR_DARKRED] :
-                                    sfxVolume ? NULL : cr[CR_DARK]);
+    M_WriteText (192, 48, str, snd_sfxdevice != 3 ? cr[CR_DARKRED] :
+                                        sfxVolume ? NULL : cr[CR_DARK]);
 
     M_DrawThermo(46, 72, 16, musicVolume);
     sprintf(str,"%d", musicVolume);
