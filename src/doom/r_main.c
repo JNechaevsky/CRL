@@ -804,10 +804,15 @@ void R_SetupFrame (player_t* player)
     {
     	// Get camera position
     	CRL_GetCameraPos(&bx, &by, &bz, &ba);
-		viewx = bx;
-		viewy = by;
-   	    viewz = bz;
-		viewangle = ba;
+		// viewx = bx;
+		// viewy = by;
+   	    // viewz = bz;
+        // viewangle = ba;
+        
+        viewx = _camposold[0] + FixedMul(_campos[0] - _camposold[0], fractionaltic);
+        viewy = _camposold[1] + FixedMul(_campos[1] - _camposold[1], fractionaltic);
+        viewz = _camposold[2] + FixedMul(_campos[2] - _camposold[2], fractionaltic);
+        viewangle = R_InterpolateAngle(_camangold, ba, fractionaltic);
     }
     else
     {

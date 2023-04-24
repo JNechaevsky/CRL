@@ -242,6 +242,18 @@ void P_PlayerThink (player_t* player)
     player->mo->oldangle = player->mo->angle;
     player->oldviewz = player->viewz;
 
+    {
+        int32_t bx, by, bz;
+        uint32_t ba;
+
+    	CRL_GetCameraPosOld(&bx, &by, &bz, &ba);
+        
+        _camposold[0] = bx;
+        _camposold[1] = by;
+        _camposold[2] = bz;
+        _camangold = ba;
+    }
+
     // chain saw run forward
     cmd = &player->cmd;
     if (player->mo->flags & MF_JUSTATTACKED)

@@ -484,8 +484,10 @@ void CRL_DrawMap(void (*__fl)(int, int, int, int, int),
 // =============================================================================
 
 // Camera position and orientation.
-static fixed_t  _campos[3];
-static uint32_t _camang;
+fixed_t  _campos[3];
+fixed_t  _camposold[3];
+uint32_t _camang;
+uint32_t _camangold;
 
 // -----------------------------------------------------------------------------
 // CRL_GetCameraPos
@@ -500,6 +502,14 @@ void CRL_GetCameraPos (int32_t* x, int32_t* y, int32_t* z, uint32_t* a)
     *a = _camang;
 }
 
+void CRL_GetCameraPosOld (int32_t* x, int32_t* y, int32_t* z, uint32_t* a)
+{
+    *x = _camposold[0];
+    *y = _camposold[1];
+    *z = _camposold[2];
+    *a = _camangold;
+}
+
 // -----------------------------------------------------------------------------
 // CRL_ReportPosition
 //  Reports the position of the camera.
@@ -511,10 +521,10 @@ void CRL_GetCameraPos (int32_t* x, int32_t* y, int32_t* z, uint32_t* a)
 
 void CRL_ReportPosition (fixed_t x, fixed_t y, fixed_t z, uint32_t angle)
 {
-	_campos[0] = x;
-	_campos[1] = y;
-	_campos[2] = z;
-	_camang = angle;
+	_camposold[0] = x;
+	_camposold[1] = y;
+	_camposold[2] = z;
+	_camangold = angle;
 }
 
 // -----------------------------------------------------------------------------
