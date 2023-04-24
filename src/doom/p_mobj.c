@@ -29,6 +29,7 @@
 #include "doomstat.h"
 
 #include "crlcore.h"
+#include "crlvars.h"
 
 
 void G_PlayerReborn (int player);
@@ -921,6 +922,22 @@ P_SpawnPuff
     if (th->tics < 1)
 	th->tics = 1;
 	
+    // [JN] CRL - prevent puffs appearing below floor and above ceiling levels.
+    // Just a cosmetical improvement, not needed outside of Freeze mode.
+    // Note: shifting puff's z *seems* to be safe for demos, but Freeze itself
+    // is not available in demo playing/recording, so keep this fix isolated.
+    if (crl_freeze)
+    {
+        if (th->z < th->floorz)
+        {
+            th->z = th->floorz;
+        }
+        if (th->z > th->ceilingz)
+        {
+            th->z = th->ceilingz;
+        }
+    }
+
     // don't make punches spark on the wall
     if (attackrange == MELEERANGE)
     P_SetMobjState (th, S_PUFF3);
