@@ -795,19 +795,31 @@ R_PointInSubsector
 void R_SetupFrame (player_t* player)
 {		
     int		i;
-    int32_t bx, by, bz;
-    uint32_t ba;
     
     viewplayer = player;
     
     if (crl_spectating)
     {
-    	// Get camera position
+        fixed_t bx, by, bz;
+        angle_t ba;
+
+    	// RestlessRodent -- Get camera position
     	CRL_GetCameraPos(&bx, &by, &bz, &ba);
-		viewx = bx;
-		viewy = by;
-   	    viewz = bz;
-		viewangle = ba;
+        
+        if (crl_uncapped_fps && realleveltime > oldleveltime)
+        {
+            viewx = CRL_camera_oldx + FixedMul(bx - CRL_camera_oldx, fractionaltic);
+            viewy = CRL_camera_oldy + FixedMul(by - CRL_camera_oldy, fractionaltic);
+            viewz = CRL_camera_oldz + FixedMul(bz - CRL_camera_oldz, fractionaltic);
+            viewangle = R_InterpolateAngle(CRL_camera_oldang, ba, fractionaltic);
+        }
+        else
+        {
+            viewx = bx;
+            viewy = by;
+            viewz = bz;
+            viewangle = ba;
+        }
     }
     else
     {
@@ -840,7 +852,7 @@ void R_SetupFrame (player_t* player)
     extralight = player->extralight;
 
     
-    // Just report it
+    // RestlessRodent -- Just report it
     CRL_ReportPosition(viewx, viewy, viewz, viewangle);
     
     viewsin = finesine[viewangle>>ANGLETOFINESHIFT];

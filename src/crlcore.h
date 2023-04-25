@@ -23,6 +23,7 @@
 #include "doomtype.h"
 #include "m_fixed.h"
 #include "i_video.h"
+#include "tables.h"
 
 #define BETWEEN(l,u,x) (((l)>(x))?(l):((x)>(u))?(u):(x))
 
@@ -163,10 +164,15 @@ extern void CRL_DrawMap(void (*__fl)(int, int, int, int, int),
 // Spectator Mode
 //
 
-extern void CRL_GetCameraPos (int32_t* x, int32_t* y, int32_t* z, uint32_t* a);
-extern void CRL_ReportPosition (fixed_t x, fixed_t y, fixed_t z, uint32_t angle);
-extern void CRL_ImpulseCamera(int32_t fwm, int32_t swm, uint32_t at);
-extern void CRL_ImpulseCameraVert(boolean direction, const int32_t intensity);
+extern fixed_t CRL_camera_x, CRL_camera_y, CRL_camera_z;
+extern fixed_t CRL_camera_oldx, CRL_camera_oldy, CRL_camera_oldz;
+extern angle_t CRL_camera_ang;
+extern angle_t CRL_camera_oldang;
+
+extern void CRL_GetCameraPos (fixed_t *x, fixed_t *y, fixed_t *z, angle_t *a);
+extern void CRL_ReportPosition (fixed_t x, fixed_t y, fixed_t z, angle_t angle);
+extern void CRL_ImpulseCamera(fixed_t fwm, fixed_t swm, angle_t at);
+extern void CRL_ImpulseCameraVert(boolean direction, fixed_t intensity);
 
 //
 // Render Counters and Widgets

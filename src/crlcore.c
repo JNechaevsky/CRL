@@ -30,7 +30,6 @@
 #include "v_video.h"
 #include "m_argv.h"
 #include "m_misc.h"
-#include "tables.h"
 #include "v_trans.h"
 
 #include "crlcore.h"
@@ -484,20 +483,24 @@ void CRL_DrawMap(void (*__fl)(int, int, int, int, int),
 // =============================================================================
 
 // Camera position and orientation.
-static fixed_t  _campos[3];
-static uint32_t _camang;
+fixed_t CRL_camera_x, CRL_camera_y, CRL_camera_z;
+angle_t CRL_camera_ang;
+
+// [JN] An "old" position and orientation used for interpolation.
+fixed_t CRL_camera_oldx, CRL_camera_oldy, CRL_camera_oldz;
+angle_t CRL_camera_oldang;
 
 // -----------------------------------------------------------------------------
 // CRL_GetCameraPos
 //  Returns the camera position.
 // -----------------------------------------------------------------------------
 
-void CRL_GetCameraPos (int32_t* x, int32_t* y, int32_t* z, uint32_t* a)
+void CRL_GetCameraPos (fixed_t *x, fixed_t *y, fixed_t *z, angle_t *a)
 {
-    *x = _campos[0];
-    *y = _campos[1];
-    *z = _campos[2];
-    *a = _camang;
+    *x = CRL_camera_x;
+    *y = CRL_camera_y;
+    *z = CRL_camera_z;
+    *a = CRL_camera_ang;
 }
 
 // -----------------------------------------------------------------------------
@@ -509,12 +512,12 @@ void CRL_GetCameraPos (int32_t* x, int32_t* y, int32_t* z, uint32_t* a)
 //  @param angle The angle used.
 // -----------------------------------------------------------------------------
 
-void CRL_ReportPosition (fixed_t x, fixed_t y, fixed_t z, uint32_t angle)
+void CRL_ReportPosition (fixed_t x, fixed_t y, fixed_t z, angle_t angle)
 {
-	_campos[0] = x;
-	_campos[1] = y;
-	_campos[2] = z;
-	_camang = angle;
+	CRL_camera_oldx = x;
+	CRL_camera_oldy = y;
+	CRL_camera_oldz = z;
+	CRL_camera_oldang = angle;
 }
 
 // -----------------------------------------------------------------------------
@@ -524,7 +527,7 @@ void CRL_ReportPosition (fixed_t x, fixed_t y, fixed_t z, uint32_t angle)
 //  @param at Angle turning.
 // -----------------------------------------------------------------------------
 
-void CRL_ImpulseCamera (int32_t fwm, int32_t swm, uint32_t at)
+void CRL_ImpulseCamera (fixed_t fwm, fixed_t swm, angle_t at)
 {
     // [JN] Don't move camera while active menu.
     if (menuactive)
@@ -533,17 +536,17 @@ void CRL_ImpulseCamera (int32_t fwm, int32_t swm, uint32_t at)
     }
 
     // Rotate camera first
-    _camang += at << FRACBITS;
+    CRL_camera_ang += at << FRACBITS;
 
     // Forward movement
-    at = _camang >> ANGLETOFINESHIFT;
-    _campos[0] += FixedMul(fwm * 32768, finecosine[at]); 
-    _campos[1] += FixedMul(fwm * 32768, finesine[at]);
+    at = CRL_camera_ang >> ANGLETOFINESHIFT;
+    CRL_camera_x += FixedMul(fwm * 32768, finecosine[at]); 
+    CRL_camera_y += FixedMul(fwm * 32768, finesine[at]);
 
     // Sideways movement
-    at = (_camang - ANG90) >> ANGLETOFINESHIFT;
-    _campos[0] += FixedMul(swm * 32768, finecosine[at]); 
-    _campos[1] += FixedMul(swm * 32768, finesine[at]);
+    at = (CRL_camera_ang - ANG90) >> ANGLETOFINESHIFT;
+    CRL_camera_x += FixedMul(swm * 32768, finecosine[at]); 
+    CRL_camera_y += FixedMul(swm * 32768, finesine[at]);
 }
 
 // -----------------------------------------------------------------------------
@@ -553,7 +556,7 @@ void CRL_ImpulseCamera (int32_t fwm, int32_t swm, uint32_t at)
 //  @param intensity: 32 of 64 map unit, depending on player run mode.
 // -----------------------------------------------------------------------------
 
-void CRL_ImpulseCameraVert (boolean direction, const int32_t intensity)
+void CRL_ImpulseCameraVert (boolean direction, fixed_t intensity)
 {
     // [JN] Don't move camera while active menu.
     if (menuactive)
@@ -563,11 +566,11 @@ void CRL_ImpulseCameraVert (boolean direction, const int32_t intensity)
 
     if (direction)
     {
-        _campos[2] += FRACUNIT*intensity;
+        CRL_camera_z += FRACUNIT*intensity;
     }
     else
     {
-        _campos[2] -= FRACUNIT*intensity;
+        CRL_camera_z -= FRACUNIT*intensity;
     }
 }
 
