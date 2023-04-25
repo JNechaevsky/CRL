@@ -795,13 +795,14 @@ R_PointInSubsector
 void R_SetupFrame (player_t* player)
 {		
     int		i;
-    fixed_t bx, by, bz;
-    angle_t ba;
     
     viewplayer = player;
     
     if (crl_spectating)
     {
+        fixed_t bx, by, bz;
+        angle_t ba;
+
     	// RestlessRodent -- Get camera position
     	CRL_GetCameraPos(&bx, &by, &bz, &ba);
         
