@@ -808,10 +808,10 @@ void R_SetupFrame (player_t* player)
         
         if (crl_uncapped_fps && realleveltime > oldleveltime)
         {
-            viewx = _camposold[0] + FixedMul(bx - _camposold[0], fractionaltic);
-            viewy = _camposold[1] + FixedMul(by - _camposold[1], fractionaltic);
-            viewz = _camposold[2] + FixedMul(bz - _camposold[2], fractionaltic);
-            viewangle = R_InterpolateAngle(_camangold, ba, fractionaltic);
+            viewx = CRL_camera_oldx + FixedMul(bx - CRL_camera_oldx, fractionaltic);
+            viewy = CRL_camera_oldy + FixedMul(by - CRL_camera_oldy, fractionaltic);
+            viewz = CRL_camera_oldz + FixedMul(bz - CRL_camera_oldz, fractionaltic);
+            viewangle = R_InterpolateAngle(CRL_camera_oldang, ba, fractionaltic);
         }
         else
         {

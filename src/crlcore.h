@@ -164,12 +164,12 @@ extern void CRL_DrawMap(void (*__fl)(int, int, int, int, int),
 // Spectator Mode
 //
 
-extern void CRL_GetCameraPos (fixed_t *x, fixed_t *y, fixed_t *z, angle_t* a);
+extern fixed_t CRL_camera_x, CRL_camera_y, CRL_camera_z;
+extern fixed_t CRL_camera_oldx, CRL_camera_oldy, CRL_camera_oldz;
+extern angle_t CRL_camera_ang;
+extern angle_t CRL_camera_oldang;
 
-extern fixed_t  _campos[3];
-extern fixed_t  _camposold[3];
-extern angle_t _camang;
-extern angle_t _camangold;
+extern void CRL_GetCameraPos (fixed_t *x, fixed_t *y, fixed_t *z, angle_t *a);
 extern void CRL_ReportPosition (fixed_t x, fixed_t y, fixed_t z, angle_t angle);
 extern void CRL_ImpulseCamera(fixed_t fwm, fixed_t swm, angle_t at);
 extern void CRL_ImpulseCameraVert(boolean direction, fixed_t intensity);

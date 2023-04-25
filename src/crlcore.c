@@ -483,22 +483,24 @@ void CRL_DrawMap(void (*__fl)(int, int, int, int, int),
 // =============================================================================
 
 // Camera position and orientation.
-fixed_t _campos[3];
-fixed_t _camposold[3];
-angle_t _camang;
-angle_t _camangold;
+fixed_t CRL_camera_x, CRL_camera_y, CRL_camera_z;
+angle_t CRL_camera_ang;
+
+// [JN] An "old" position and orientation used for interpolation.
+fixed_t CRL_camera_oldx, CRL_camera_oldy, CRL_camera_oldz;
+angle_t CRL_camera_oldang;
 
 // -----------------------------------------------------------------------------
 // CRL_GetCameraPos
 //  Returns the camera position.
 // -----------------------------------------------------------------------------
 
-void CRL_GetCameraPos (fixed_t* x, fixed_t* y, fixed_t* z, angle_t* a)
+void CRL_GetCameraPos (fixed_t *x, fixed_t *y, fixed_t *z, angle_t *a)
 {
-    *x = _campos[0];
-    *y = _campos[1];
-    *z = _campos[2];
-    *a = _camang;
+    *x = CRL_camera_x;
+    *y = CRL_camera_y;
+    *z = CRL_camera_z;
+    *a = CRL_camera_ang;
 }
 
 // -----------------------------------------------------------------------------
@@ -512,10 +514,10 @@ void CRL_GetCameraPos (fixed_t* x, fixed_t* y, fixed_t* z, angle_t* a)
 
 void CRL_ReportPosition (fixed_t x, fixed_t y, fixed_t z, angle_t angle)
 {
-	_camposold[0] = x;
-	_camposold[1] = y;
-	_camposold[2] = z;
-	_camangold = angle;
+	CRL_camera_oldx = x;
+	CRL_camera_oldy = y;
+	CRL_camera_oldz = z;
+	CRL_camera_oldang = angle;
 }
 
 // -----------------------------------------------------------------------------
@@ -534,17 +536,17 @@ void CRL_ImpulseCamera (fixed_t fwm, fixed_t swm, angle_t at)
     }
 
     // Rotate camera first
-    _camang += at << FRACBITS;
+    CRL_camera_ang += at << FRACBITS;
 
     // Forward movement
-    at = _camang >> ANGLETOFINESHIFT;
-    _campos[0] += FixedMul(fwm * 32768, finecosine[at]); 
-    _campos[1] += FixedMul(fwm * 32768, finesine[at]);
+    at = CRL_camera_ang >> ANGLETOFINESHIFT;
+    CRL_camera_x += FixedMul(fwm * 32768, finecosine[at]); 
+    CRL_camera_y += FixedMul(fwm * 32768, finesine[at]);
 
     // Sideways movement
-    at = (_camang - ANG90) >> ANGLETOFINESHIFT;
-    _campos[0] += FixedMul(swm * 32768, finecosine[at]); 
-    _campos[1] += FixedMul(swm * 32768, finesine[at]);
+    at = (CRL_camera_ang - ANG90) >> ANGLETOFINESHIFT;
+    CRL_camera_x += FixedMul(swm * 32768, finecosine[at]); 
+    CRL_camera_y += FixedMul(swm * 32768, finesine[at]);
 }
 
 // -----------------------------------------------------------------------------
@@ -564,11 +566,11 @@ void CRL_ImpulseCameraVert (boolean direction, fixed_t intensity)
 
     if (direction)
     {
-        _campos[2] += FRACUNIT*intensity;
+        CRL_camera_z += FRACUNIT*intensity;
     }
     else
     {
-        _campos[2] -= FRACUNIT*intensity;
+        CRL_camera_z -= FRACUNIT*intensity;
     }
 }
 
