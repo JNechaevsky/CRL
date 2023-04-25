@@ -1318,6 +1318,8 @@ void G_PlayerFinishLevel (int player)
     p->damagecount = 0;			// no palette changes 
     p->bonuscount = 0; 
     st_palette = 0;
+    // [JN] Return controls to the player.
+    crl_spectating = 0;
 } 
  
 
