@@ -26,6 +26,7 @@
 #include "doomstat.h"
 
 #include "crlcore.h"
+#include "crlvars.h"
 
 
 // Index of the special effects (INVUL inverse) map.
@@ -242,6 +243,7 @@ void P_PlayerThink (player_t* player)
     player->mo->oldangle = player->mo->angle;
     player->oldviewz = player->viewz;
 
+    if (crl_spectating)
     {
         int32_t bx, by, bz;
         uint32_t ba;
@@ -252,6 +254,13 @@ void P_PlayerThink (player_t* player)
         _camposold[1] = by;
         _camposold[2] = bz;
         _camangold = ba;
+    }
+    else
+    {
+        _campos[0] = player->mo->x;
+        _campos[1] = player->mo->y;
+        _campos[2] = player->mo->z + 41*FRACUNIT;
+        _camang = player->mo->angle;
     }
 
     // chain saw run forward
