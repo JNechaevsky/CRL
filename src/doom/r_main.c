@@ -806,7 +806,7 @@ void R_SetupFrame (player_t* player)
     	// RestlessRodent -- Get camera position
     	CRL_GetCameraPos(&bx, &by, &bz, &ba);
         
-        if (crl_uncapped_fps && realleveltime > oldleveltime)
+        if (crl_uncapped_fps)
         {
             viewx = CRL_camera_oldx + FixedMul(bx - CRL_camera_oldx, fractionaltic);
             viewy = CRL_camera_oldy + FixedMul(by - CRL_camera_oldy, fractionaltic);
