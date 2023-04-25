@@ -702,3 +702,4 @@ extern thinker_t thinkercap;
 // -----------------------------------------------------------------------------
 
 extern void P_PlayerThink (player_t *player);
+extern void P_CRL_CameraThink (player_t *player);

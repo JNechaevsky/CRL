@@ -168,6 +168,15 @@ void P_Ticker (void)
     }
 
     
+    // [JN] CRL - sync Spectator camera with player position.
+    for (i=0 ; i<MAXPLAYERS ; i++)
+    {
+        if (playeringame[i])
+        {
+            P_CRL_CameraThink (&players[i]);
+        }
+    }
+
     // run the tic
     if (paused)
 	return;
