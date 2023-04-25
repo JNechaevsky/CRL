@@ -550,16 +550,21 @@ boolean D_GrabMouseCallback(void)
     if (drone)
         return false;
 
+    // [JN] CRL - always grab mouse in spectator mode.
+    // It's supposed to be controlled by hand, even while pause.
+    // However, do not grab mouse while active game menu.
+
+    if (crl_spectating)
+        return menuactive ? false : true;
+
     // when menu is active or game is paused, release the mouse 
  
     if (menuactive || paused)
         return false;
 
     // only grab mouse when playing levels (but not demos)
-    // [JN] CRL - always grab mouse in spectator mode,
-    // because this mode is supposed to be controlled by hand.
 
-    return (gamestate == GS_LEVEL) && ((!demoplayback && !advancedemo) || crl_spectating);
+    return (gamestate == GS_LEVEL) && ((!demoplayback && !advancedemo));
 }
 
 //

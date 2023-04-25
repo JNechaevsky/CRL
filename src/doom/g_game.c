@@ -344,9 +344,10 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
 	// needed for net games
     cmd->consistancy = consistancy[consoleplayer][maketic%BACKUPTICS]; 
  	
- 	// If spectating then the player loses all input
+ 	// RestlessRodent -- If spectating then the player loses all input
  	memmove(&spect, cmd, sizeof(spect));
- 	if (crl_spectating)
+ 	// [JN] Allow saving and pausing while spectating.
+ 	if (crl_spectating && !sendsave && !sendpause)
  		cmd = &spect;
  	
     strafe = gamekeydown[key_strafe] || mousebuttons[mousebstrafe] 
