@@ -251,7 +251,7 @@ void P_PlayerThink (player_t* player)
     {
         _campos[0] = player->mo->x;
         _campos[1] = player->mo->y;
-        _campos[2] = player->mo->z + 41*FRACUNIT;
+        _campos[2] = player->mo->z + VIEWHEIGHT;
         _camang = player->mo->angle;
     }
 
