@@ -243,6 +243,24 @@ void P_PlayerThink (player_t* player)
     player->mo->oldangle = player->mo->angle;
     player->oldviewz = player->viewz;
 
+    // [JN] Handle Spectator camera:
+    if (crl_spectating)
+    {
+        // If spectating, set old position and orientation for interpolation.
+        CRL_ReportPosition(CRL_camera_oldx,
+                           CRL_camera_oldy,
+                           CRL_camera_oldz,
+                           CRL_camera_oldang);
+    }
+    else
+    {
+        // Else, just follow player's coords.
+        CRL_camera_x = player->mo->x;
+        CRL_camera_y = player->mo->y;
+        CRL_camera_z = player->mo->z + VIEWHEIGHT;
+        CRL_camera_ang = player->mo->angle;
+    }
+
     // chain saw run forward
     cmd = &player->cmd;
     if (player->mo->flags & MF_JUSTATTACKED)
@@ -407,30 +425,4 @@ void P_PlayerThink (player_t* player)
     }
     else
 	player->fixedcolormap = 0;
-}
-
-// -----------------------------------------------------------------------------
-// P_CRL_CameraThink
-// [JN] Sync Spectator camera with player position, including paused states.
-// -----------------------------------------------------------------------------
-
-void P_CRL_CameraThink (player_t *player)
-{
-    // [JN] Handle Spectator camera:
-    if (crl_spectating)
-    {
-        // If spectating, set old position and orientation for interpolation.
-        CRL_ReportPosition(CRL_camera_oldx,
-                           CRL_camera_oldy,
-                           CRL_camera_oldz,
-                           CRL_camera_oldang);
-    }
-    else
-    {
-        // Else, just follow player's coords.
-        CRL_camera_x = player->mo->x;
-        CRL_camera_y = player->mo->y;
-        CRL_camera_z = player->mo->z + VIEWHEIGHT;
-        CRL_camera_ang = player->mo->angle;
-    }
 }
