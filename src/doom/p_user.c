@@ -245,15 +245,7 @@ void P_PlayerThink (player_t* player)
 
     if (crl_spectating)
     {
-        fixed_t bx, by, bz;
-        angle_t ba;
-
-    	CRL_GetCameraPosOld(&bx, &by, &bz, &ba);
-        
-        _camposold[0] = bx;
-        _camposold[1] = by;
-        _camposold[2] = bz;
-        _camangold = ba;
+        CRL_ReportPosition(_camposold[0], _camposold[1], _camposold[2], _camangold);
     }
     else
     {

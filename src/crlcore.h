@@ -165,7 +165,6 @@ extern void CRL_DrawMap(void (*__fl)(int, int, int, int, int),
 //
 
 extern void CRL_GetCameraPos (fixed_t *x, fixed_t *y, fixed_t *z, angle_t* a);
-extern void CRL_GetCameraPosOld (fixed_t *x, fixed_t *y, fixed_t *z, angle_t* a);
 
 extern fixed_t  _campos[3];
 extern fixed_t  _camposold[3];

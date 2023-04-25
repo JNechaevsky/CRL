@@ -501,14 +501,6 @@ void CRL_GetCameraPos (fixed_t* x, fixed_t* y, fixed_t* z, angle_t* a)
     *a = _camang;
 }
 
-void CRL_GetCameraPosOld (fixed_t* x, fixed_t* y, fixed_t* z, angle_t* a)
-{
-    *x = _camposold[0];
-    *y = _camposold[1];
-    *z = _camposold[2];
-    *a = _camangold;
-}
-
 // -----------------------------------------------------------------------------
 // CRL_ReportPosition
 //  Reports the position of the camera.
