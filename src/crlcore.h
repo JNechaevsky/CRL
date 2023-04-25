@@ -23,6 +23,7 @@
 #include "doomtype.h"
 #include "m_fixed.h"
 #include "i_video.h"
+#include "tables.h"
 
 #define BETWEEN(l,u,x) (((l)>(x))?(l):((x)>(u))?(u):(x))
 
@@ -163,16 +164,16 @@ extern void CRL_DrawMap(void (*__fl)(int, int, int, int, int),
 // Spectator Mode
 //
 
-extern void CRL_GetCameraPos (int32_t* x, int32_t* y, int32_t* z, uint32_t* a);
-extern void CRL_GetCameraPosOld (int32_t* x, int32_t* y, int32_t* z, uint32_t* a);
+extern void CRL_GetCameraPos (fixed_t *x, fixed_t *y, fixed_t *z, angle_t* a);
+extern void CRL_GetCameraPosOld (fixed_t *x, fixed_t *y, fixed_t *z, angle_t* a);
 
 extern fixed_t  _campos[3];
 extern fixed_t  _camposold[3];
-extern uint32_t _camang;
-extern uint32_t _camangold;
-extern void CRL_ReportPosition (fixed_t x, fixed_t y, fixed_t z, uint32_t angle);
-extern void CRL_ImpulseCamera(int32_t fwm, int32_t swm, uint32_t at);
-extern void CRL_ImpulseCameraVert(boolean direction, const int32_t intensity);
+extern angle_t _camang;
+extern angle_t _camangold;
+extern void CRL_ReportPosition (fixed_t x, fixed_t y, fixed_t z, angle_t angle);
+extern void CRL_ImpulseCamera(fixed_t fwm, fixed_t swm, angle_t at);
+extern void CRL_ImpulseCameraVert(boolean direction, fixed_t intensity);
 
 //
 // Render Counters and Widgets

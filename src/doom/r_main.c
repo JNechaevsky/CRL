@@ -795,8 +795,8 @@ R_PointInSubsector
 void R_SetupFrame (player_t* player)
 {		
     int		i;
-    int32_t bx, by, bz;
-    uint32_t ba;
+    fixed_t bx, by, bz;
+    angle_t ba;
     
     viewplayer = player;
     

@@ -245,8 +245,8 @@ void P_PlayerThink (player_t* player)
 
     if (crl_spectating)
     {
-        int32_t bx, by, bz;
-        uint32_t ba;
+        fixed_t bx, by, bz;
+        angle_t ba;
 
     	CRL_GetCameraPosOld(&bx, &by, &bz, &ba);
         

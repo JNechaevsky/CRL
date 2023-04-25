@@ -30,7 +30,6 @@
 #include "v_video.h"
 #include "m_argv.h"
 #include "m_misc.h"
-#include "tables.h"
 #include "v_trans.h"
 
 #include "crlcore.h"
@@ -484,17 +483,17 @@ void CRL_DrawMap(void (*__fl)(int, int, int, int, int),
 // =============================================================================
 
 // Camera position and orientation.
-fixed_t  _campos[3];
-fixed_t  _camposold[3];
-uint32_t _camang;
-uint32_t _camangold;
+fixed_t _campos[3];
+fixed_t _camposold[3];
+angle_t _camang;
+angle_t _camangold;
 
 // -----------------------------------------------------------------------------
 // CRL_GetCameraPos
 //  Returns the camera position.
 // -----------------------------------------------------------------------------
 
-void CRL_GetCameraPos (int32_t* x, int32_t* y, int32_t* z, uint32_t* a)
+void CRL_GetCameraPos (fixed_t* x, fixed_t* y, fixed_t* z, angle_t* a)
 {
     *x = _campos[0];
     *y = _campos[1];
@@ -502,7 +501,7 @@ void CRL_GetCameraPos (int32_t* x, int32_t* y, int32_t* z, uint32_t* a)
     *a = _camang;
 }
 
-void CRL_GetCameraPosOld (int32_t* x, int32_t* y, int32_t* z, uint32_t* a)
+void CRL_GetCameraPosOld (fixed_t* x, fixed_t* y, fixed_t* z, angle_t* a)
 {
     *x = _camposold[0];
     *y = _camposold[1];
@@ -519,7 +518,7 @@ void CRL_GetCameraPosOld (int32_t* x, int32_t* y, int32_t* z, uint32_t* a)
 //  @param angle The angle used.
 // -----------------------------------------------------------------------------
 
-void CRL_ReportPosition (fixed_t x, fixed_t y, fixed_t z, uint32_t angle)
+void CRL_ReportPosition (fixed_t x, fixed_t y, fixed_t z, angle_t angle)
 {
 	_camposold[0] = x;
 	_camposold[1] = y;
@@ -534,7 +533,7 @@ void CRL_ReportPosition (fixed_t x, fixed_t y, fixed_t z, uint32_t angle)
 //  @param at Angle turning.
 // -----------------------------------------------------------------------------
 
-void CRL_ImpulseCamera (int32_t fwm, int32_t swm, uint32_t at)
+void CRL_ImpulseCamera (fixed_t fwm, fixed_t swm, angle_t at)
 {
     // [JN] Don't move camera while active menu.
     if (menuactive)
@@ -563,7 +562,7 @@ void CRL_ImpulseCamera (int32_t fwm, int32_t swm, uint32_t at)
 //  @param intensity: 32 of 64 map unit, depending on player run mode.
 // -----------------------------------------------------------------------------
 
-void CRL_ImpulseCameraVert (boolean direction, const int32_t intensity)
+void CRL_ImpulseCameraVert (boolean direction, fixed_t intensity)
 {
     // [JN] Don't move camera while active menu.
     if (menuactive)
