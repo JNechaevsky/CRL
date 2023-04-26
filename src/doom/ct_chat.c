@@ -194,6 +194,12 @@ boolean CT_Responder (event_t *ev)
     {
         sendto = 0;
 
+        if (ev->data1 == key_message_refresh)
+        {
+            players[consoleplayer].messageTics = MESSAGETICS;
+            return false;
+        }
+
         if (ev->data1 == key_multi_msg)
         {
             sendto = CT_PLR_ALL;
@@ -237,7 +243,7 @@ boolean CT_Responder (event_t *ev)
                     // macro 0 comes after macro 9
                     ev->data1 = '9' + 1;
                 }
-                macro = chat_macros[ev->data1 - SDL_SCANCODE_Z];
+                macro = chat_macros[ev->data1 - '1'];
                 CT_queueChatChar(KEY_ENTER);  // Send old message.
                 CT_queueChatChar(chat_dest[consoleplayer]);  // Chose the dest.
                 while (*macro)
@@ -368,12 +374,12 @@ void CT_Drawer (void)
             patch_t *patch = W_CacheLumpNum(ChatFontBaseLump + 
                                    chat_msg[consoleplayer][i] - 33,
                                    PU_STATIC);
-            V_DrawPatch(x, 10, patch, "STCFN"); // todo - incorrect name
+            V_DrawShadowedPatch(x, 10, patch, "STCFN"); // todo - incorrect name
             x += patch->width;
         }
     }
 
-    V_DrawPatch(x, 10, W_CacheLumpName  // [JN] Draw cursor.
+    V_DrawShadowedPatch(x, 10, W_CacheLumpName  // [JN] Draw cursor.
                             (DEH_String("STCFN095"), PU_STATIC), "STCFN095");
 }
 

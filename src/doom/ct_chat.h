@@ -32,6 +32,7 @@
 
 void CT_Ticker (void);
 void CT_Drawer (void);
+char CT_dequeueChatChar (void);
 
 extern boolean CT_Responder(event_t * ev);
 
