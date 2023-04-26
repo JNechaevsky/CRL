@@ -78,13 +78,6 @@ char *player_names[] =
     HUSTR_PLRRED
 };
 
-char *CT_FromPlrText[MAXPLAYERS] = {
-    HUSTR_PLRGREEN,
-    HUSTR_PLRINDIGO,
-    HUSTR_PLRBROWN,
-    HUSTR_PLRRED
-};
-
 static void CT_queueChatChar (char ch);
 static void CT_ClearChatMessage (int player);
 static void CT_AddChar(int player, char c);
@@ -162,15 +155,6 @@ boolean CT_Responder (event_t *ev)
 {
     int   sendto;
     const char *macro;
-
-    /*
-    if(BK_isKeyDown(ev, bk_show_message_list))
-    {
-        // TODO Show last N messages
-        players[consoleplayer].messageTics = messages_timeout * TICRATE;
-        return true;
-    }
-    */
 
     if (!netgame)
     {
@@ -318,7 +302,7 @@ void CT_Ticker (void)
                 CT_AddChar(i, 0);  // Set the end of message character.
 
                 // [JN] Always consolidate player name with message.
-                M_StringCopy(plr_lastmsg[i], DEH_String(CT_FromPlrText[i]), sizeof(plr_lastmsg[i]));
+                M_StringCopy(plr_lastmsg[i], DEH_String(player_names[i]), sizeof(plr_lastmsg[i]));
                 M_StringConcat(plr_lastmsg[i], chat_msg[i], sizeof(plr_lastmsg[i]));
 
                 if (i != consoleplayer && (chat_dest[i] == consoleplayer + 1
@@ -438,7 +422,7 @@ static void CT_AddChar (const int player, const char c)
     }
     else
     {
-        patch = W_CacheLumpNum(ChatFontBaseLump + c - 33, PU_CACHE);
+        patch = W_CacheLumpNum(ChatFontBaseLump + c - 33, PU_STATIC);
         msglen[player] += patch->width;
     }
 }
@@ -467,7 +451,7 @@ static void CT_BackSpace (const int player)
     }
     else
     {
-        patch = W_CacheLumpNum(ChatFontBaseLump + c - 33, PU_CACHE);
+        patch = W_CacheLumpNum(ChatFontBaseLump + c - 33, PU_STATIC);
         msglen[player] -= patch->width;
     }
 

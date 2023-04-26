@@ -37,6 +37,7 @@
 #include "deh_main.h"
 
 #include "d_loop.h"
+#include "p_local.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
@@ -61,7 +62,7 @@ static void PlayerQuitGame(player_t *player)
     exitmsg[7] += player_num;
 
     playeringame[player_num] = false;
-    players[consoleplayer].message = exitmsg;
+    CRL_SetMessage(&players[consoleplayer], exitmsg, true, NULL);
     // [crispy] don't interpolate players who left the game
     player->mo->interp = false;
 
