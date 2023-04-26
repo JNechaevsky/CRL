@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "d_event.h"
 #include "doomdef.h"
 #include "v_patch.h"
 
@@ -28,8 +29,16 @@
 // Calculate # of glyphs in font.
 #define HU_FONTSIZE (HU_FONTEND - HU_FONTSTART + 1)	
 
+
+void CT_Ticker (void);
+void CT_Drawer (void);
+char CT_dequeueChatChar (void);
+
+extern boolean CT_Responder(event_t * ev);
+
 extern patch_t *hu_font[HU_FONTSIZE];
 
+extern boolean chatmodeon;
 extern char *chat_macros[10];
 extern char *player_names[];
 

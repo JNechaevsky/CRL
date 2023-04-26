@@ -411,6 +411,12 @@ static void D_Display (void)
         {
             ST_Drawer();
         }
+
+        // [JN] Chat drawer
+        if (netgame && chatmodeon)
+        {
+            CT_Drawer();
+        }
     }
 
     // [crispy] demo progress bar

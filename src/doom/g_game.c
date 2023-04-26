@@ -61,6 +61,7 @@
 // Data.
 #include "dstrings.h"
 #include "sounds.h"
+#include "ct_chat.h"
 
 // SKY handling - still the wrong place.
 
@@ -466,6 +467,8 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
     }
 
     // buttons
+    cmd->chatchar = CT_dequeueChatChar();
+
     if (gamekeydown[key_fire] || mousebuttons[mousebfire] 
 	|| joybuttons[joybfire]) 
 	cmd->buttons |= BT_ATTACK; 
@@ -529,12 +532,6 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
     else
     {
         CRL_vilebomb = false;
-    }
-
-    // [JN] Repeat last message.
-    if (gamekeydown[key_message_refresh])
-    {
-        CRL_SetMessage(&players[displayplayer], lastmessage, false, NULL);
     }
 
     // mouse
@@ -895,7 +892,9 @@ boolean G_Responder (event_t* ev)
 	    G_DeathMatchSpawnPlayer (0); 
 	    return true; 
 	} 
-#endif 
+#endif
+	if (CT_Responder (ev)) 
+	    return true;	// chat ate the event 
 	if (ST_Responder (ev)) 
 	    return true;	// status window ate it 
 	if (AM_Responder (ev)) 
@@ -1156,7 +1155,6 @@ void G_Ticker (void)
              && turbodetected[i])
             {
                 static char turbomessage[80];
-                extern char *player_names[4];
                 M_snprintf(turbomessage, sizeof(turbomessage),
                            "%s is turbo!", player_names[i]);
                 CRL_SetMessage(&players[consoleplayer], turbomessage, false, NULL);
@@ -1251,6 +1249,11 @@ void G_Ticker (void)
 	P_Ticker (); 
 	ST_Ticker (); 
 	AM_Ticker (); 
+	// [JN] Not really needed in single player game.
+	if (netgame)
+	{
+		CT_Ticker ();
+	}
 	// [JN] CRL - make multicolor HOM drawing framerate-independent.
 	CRL_GetHOMMultiColor ();
 	// [JN] Target's health widget.
