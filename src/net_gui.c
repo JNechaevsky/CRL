@@ -237,7 +237,7 @@ static void CheckMasterStatus(void)
     }
 }
 
-static void PrintSHA1Digest(char *s, byte *digest)
+static void PrintSHA1Digest(const char *s, const byte *digest)
 {
     unsigned int i;
 
@@ -293,7 +293,7 @@ static void CheckSHA1Sums(void)
     if (!same_freedoom)
     {
         printf("Warning: Mixing Freedoom with non-Freedoom\n");
-        printf("Local: %i  Server: %i\n", 
+        printf("Local: %u  Server: %i\n",
                net_local_is_freedoom, 
                net_client_wait_data.is_freedoom);
     }
@@ -402,6 +402,13 @@ void NET_WaitForLaunch(void)
         exit(-1);
     }
 
+    // [JN] Apply CRL-styled colors.
+    TXT_SetColor(TXT_COLOR_BLUE,   0,  57, 134);
+    TXT_SetColor(TXT_COLOR_CYAN,   0, 137, 208);
+    TXT_SetColor(TXT_COLOR_GREY, 140, 151, 168);
+    TXT_SetColor(TXT_COLOR_BRIGHT_CYAN,   0, 168, 255);
+    TXT_SetColor(TXT_COLOR_BRIGHT_GREEN, 84, 255, 255);
+    
     I_InitWindowIcon();
 
     ParseCommandLineArgs();

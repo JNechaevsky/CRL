@@ -22,6 +22,7 @@
 #define __D_LOOP__
 
 #include "net_defs.h"
+#include "m_fixed.h"
 
 // Callback function invoked while waiting for the netgame to start.
 // The callback is invoked when new players are ready. The callback
@@ -86,6 +87,10 @@ boolean D_NonVanillaRecord(boolean conditional, char *feature);
 // Check if it is permitted to play back a demo with a non-vanilla feature.
 boolean D_NonVanillaPlayback(boolean conditional, int lumpnum,
                              char *feature);
+
+void D_ReceiveTic(ticcmd_t *ticcmds, boolean *playeringame);
+
+extern fixed_t offsetms;
 
 #endif
 

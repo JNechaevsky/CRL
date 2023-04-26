@@ -33,6 +33,8 @@
 #include "net_io.h"
 #include "net_query.h"
 
+#include "net_petname.h"
+
 #define MULTI_START_HELP_URL "https://www.chocolate-doom.org/setup-multi-start"
 #define MULTI_JOIN_HELP_URL "https://www.chocolate-doom.org/setup-multi-join"
 #define MULTI_CONFIG_HELP_URL "https://www.chocolate-doom.org/setup-multi-config"
@@ -1068,10 +1070,8 @@ void SetPlayerNameDefault(void)
 {
     if (net_player_name == NULL)
     {
-        net_player_name = "Player";
+        net_player_name = NET_GetRandomPetName();
     }
-
-    net_player_name = M_StringDuplicate(net_player_name);
 }
 
 void MultiplayerConfig(void)

@@ -73,6 +73,7 @@ set(GAME_SOURCE_FILES
     net_io.c            net_io.h
     net_loop.c          net_loop.h
     net_packet.c        net_packet.h
+    net_petname.c       net_petname.h
     net_query.c         net_query.h
     net_sdl.c           net_sdl.h
     net_server.c        net_server.h
@@ -150,6 +151,7 @@ set(SETUP_FILES
     m_controls.c        m_controls.h
     net_io.c            net_io.h
     net_packet.c        net_packet.h
+    net_petname.c       net_petname.h
     net_sdl.c           net_sdl.h
     net_query.c         net_query.h
     net_structrw.c      net_structrw.h
