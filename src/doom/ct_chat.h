@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "d_event.h"
 #include "doomdef.h"
 #include "v_patch.h"
 
@@ -31,6 +32,8 @@
 
 void CT_Ticker (void);
 void CT_Drawer (void);
+
+extern boolean CT_Responder(event_t * ev);
 
 extern patch_t *hu_font[HU_FONTSIZE];
 

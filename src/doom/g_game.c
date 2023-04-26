@@ -895,7 +895,9 @@ boolean G_Responder (event_t* ev)
 	    G_DeathMatchSpawnPlayer (0); 
 	    return true; 
 	} 
-#endif 
+#endif
+	if (CT_Responder (ev)) 
+	    return true;	// chat ate the event 
 	if (ST_Responder (ev)) 
 	    return true;	// status window ate it 
 	if (AM_Responder (ev)) 
@@ -1251,6 +1253,11 @@ void G_Ticker (void)
 	P_Ticker (); 
 	ST_Ticker (); 
 	AM_Ticker (); 
+    // [JN] Not really needed in single player game.
+    if (netgame)
+    {
+        CT_Ticker ();
+    }
 	// [JN] CRL - make multicolor HOM drawing framerate-independent.
 	CRL_GetHOMMultiColor ();
 	// [JN] Target's health widget.
