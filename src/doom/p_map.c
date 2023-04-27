@@ -300,7 +300,6 @@ static char *CRL_GetMobjName (mobjtype_t type)
         case MT_VILE:       return CC_ARCH;     break;
         case MT_SPIDER:     return CC_SPIDER;   break;
         case MT_CYBORG:     return CC_CYBER;    break;
-        case MT_PLAYER:     return "PLAYER";    break;
         // Wolfenstein guard is not Dehackedable, so leave it nameless.
         //case MT_WOLFSS:   return "WOLFENSTEIN SS";    break;
         default:            return "";
@@ -972,9 +971,9 @@ PTR_AimTraverse (intercept_t* in)
 
     // [JN] CRL - gather thing health for target's health widget.
     // Run following code only for overflow-safe trace,
-    // and don't gather health of explosive barrels.
+    // and don't gather health of explosive barrels and players.
     if (safe_intercept && th->tics > 0
-    && th->flags & MF_SHOOTABLE && th->type != MT_BARREL)
+    && th->flags & MF_SHOOTABLE && th->type != MT_BARREL && th->type != MT_PLAYER)
     {
         // Get target's current health.
         player->targetsheath = th->health;
