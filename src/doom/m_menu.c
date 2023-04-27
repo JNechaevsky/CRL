@@ -107,6 +107,10 @@ static boolean joypadSave = false; // was the save action initiated by joypad?
 // old save description before edit
 static char saveOldString[SAVESTRINGSIZE];  
 
+// [FG] support up to 8 pages of savegames
+int savepage = 0;
+static const int savepage_max = 7;
+
 static char savegamestrings[10][SAVESTRINGSIZE];
 static char endstring[160];
 
@@ -467,7 +471,7 @@ static menu_t LoadDef =
     &MainDef,
     LoadMenu,
     M_DrawLoad,
-    67,37,
+    67,27,
     0,
     false
 };
@@ -494,7 +498,7 @@ static menu_t SaveDef =
     &MainDef,
     SaveMenu,
     M_DrawSave,
-    67,37,
+    67,27,
     0,
     false
 };
@@ -1851,6 +1855,26 @@ static void M_ReadSaveStrings(void)
 }
 
 
+// [FG] support up to 8 pages of savegames
+static void M_DrawSaveLoadBottomLine (void)
+{
+    char pagestr[16];
+
+    if (savepage > 0)
+    {
+        M_WriteText(LoadDef.x, 152, "< PGUP", cr[CR_MENU_DARK2]);
+    }
+    if (savepage < savepage_max)
+    {
+        M_WriteText(LoadDef.x+(SAVESTRINGSIZE-6)*8, 152, "PGDN >", cr[CR_MENU_DARK2]);
+    }
+
+    M_snprintf(pagestr, sizeof(pagestr), "PAGE %d/%d", savepage + 1, savepage_max + 1);
+    
+    M_WriteTextCentered(152, pagestr, cr[CR_MENU_DARK1]);
+}
+
+
 //
 // M_LoadGame & Cie.
 //
@@ -1859,13 +1883,15 @@ static void M_DrawLoad(void)
     int             i;
     char *m_loadg = DEH_String("M_LOADG");
 	
-    V_DrawShadowedPatch(72, 12, W_CacheLumpName(m_loadg, PU_CACHE), m_loadg);
+    V_DrawShadowedPatch(72, 7, W_CacheLumpName(m_loadg, PU_CACHE), m_loadg);
 
     for (i = 0;i < load_end; i++)
     {
-	M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i);
+	M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i+7);
 	M_WriteText(LoadDef.x,LoadDef.y+LINEHEIGHT*i,savegamestrings[i], NULL);
     }
+
+    M_DrawSaveLoadBottomLine();
 }
 
 
@@ -1880,15 +1906,15 @@ static void M_DrawSaveLoadBorder(int x,int y)
     char *m_lscntr = DEH_String("M_LSCNTR");
     char *m_lsrght = DEH_String("M_LSRGHT");
 	
-    V_DrawShadowedPatch(x - 8, y + 7, W_CacheLumpName(m_lsleft, PU_CACHE), m_lsleft);
+    V_DrawShadowedPatch(x - 8, y, W_CacheLumpName(m_lsleft, PU_CACHE), m_lsleft);
 	
     for (i = 0;i < 24;i++)
     {
-	V_DrawShadowedPatch(x, y + 7, W_CacheLumpName(m_lscntr, PU_CACHE), m_lscntr);
+	V_DrawShadowedPatch(x, y, W_CacheLumpName(m_lscntr, PU_CACHE), m_lscntr);
 	x += 8;
     }
 
-    V_DrawShadowedPatch(x, y + 7, W_CacheLumpName(m_lsrght, PU_CACHE),m_lsrght);
+    V_DrawShadowedPatch(x, y, W_CacheLumpName(m_lsrght, PU_CACHE),m_lsrght);
 }
 
 
@@ -1931,10 +1957,10 @@ static void M_DrawSave(void)
     int             i;
     char *m_saveg = DEH_String("M_SAVEG");
 	
-    V_DrawShadowedPatch(72, 12, W_CacheLumpName(m_saveg, PU_CACHE), m_saveg);
+    V_DrawShadowedPatch(72, 7, W_CacheLumpName(m_saveg, PU_CACHE), m_saveg);
     for (i = 0;i < load_end; i++)
     {
-	M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i);
+	M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i+7);
 	M_WriteText(LoadDef.x,LoadDef.y+LINEHEIGHT*i,savegamestrings[i], NULL);
     }
 	
@@ -1943,6 +1969,8 @@ static void M_DrawSave(void)
 	i = M_StringWidth(savegamestrings[saveSlot]);
 	M_WriteText(LoadDef.x + i,LoadDef.y+LINEHEIGHT*saveSlot,"_", NULL);
     }
+
+    M_DrawSaveLoadBottomLine();
 }
 
 //
@@ -3428,6 +3456,37 @@ boolean M_Responder (event_t* ev)
 	    {
 		return true;
 	    }
+	}
+    }
+    // [crispy] next/prev Crispness menu
+    else if (key == KEY_PGUP)
+    {
+	currentMenu->lastOn = itemOn;
+	if (currentMenu == &LoadDef || currentMenu == &SaveDef)
+	{
+	    if (savepage > 0)
+	    {
+		savepage--;
+		quickSaveSlot = -1;
+		M_ReadSaveStrings();
+		S_StartSound(NULL, sfx_pstop);
+	    }
+	    return true;
+	}
+    }
+    else if (key == KEY_PGDN)
+    {
+	currentMenu->lastOn = itemOn;
+	if (currentMenu == &LoadDef || currentMenu == &SaveDef)
+	{
+	    if (savepage < savepage_max)
+	    {
+		savepage++;
+		quickSaveSlot = -1;
+		M_ReadSaveStrings();
+		S_StartSound(NULL, sfx_pstop); // sfx_stnmov, sfx_pstop
+	    }
+	    return true;
 	}
     }
 
