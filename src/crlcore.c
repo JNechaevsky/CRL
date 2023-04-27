@@ -735,11 +735,14 @@ void CRL_StatDrawer (void)
         }
     }
 
-    // Level timer
+    // Level / DeathMatch timer
     if (crl_widget_time)
     {
         extern int leveltime;
-        const int time = leveltime / 35;
+        extern int levelTimeCount;
+        extern boolean levelTimer;
+
+        const int time = (deathmatch && levelTimer ? levelTimeCount : leveltime) / TICRATE;
         char stra[8];
         char strb[16];
         const int yy = automapactive ? 8 : 0;
