@@ -1875,6 +1875,35 @@ static void M_DrawSaveLoadBottomLine (void)
 }
 
 
+// [JN] Go to previous (false) or next (true) page in Save/Load menu.
+static boolean M_ScrollSaveLoad (boolean direction)
+{
+    currentMenu->lastOn = itemOn;
+
+    if (direction)
+    {
+        if (savepage < savepage_max)
+        {
+            savepage++;
+            S_StartSound(NULL, sfx_pstop);
+        }
+    }
+    else
+    {
+        if (savepage > 0)
+        {
+            savepage--;
+            S_StartSound(NULL, sfx_pstop);
+        }
+    }
+
+    quickSaveSlot = -1;
+    M_ReadSaveStrings();
+    
+    return true;
+}
+
+
 //
 // M_LoadGame & Cie.
 //
@@ -3369,6 +3398,11 @@ boolean M_Responder (event_t* ev)
     }
     else if (key == key_menu_left)
     {
+        // [JN] Go to previous page in Save/Load menu.
+	if (currentMenu == &LoadDef || currentMenu == &SaveDef)
+	{
+	    M_ScrollSaveLoad(false);
+	}
         // Slide slider left
 
 	if (currentMenu->menuitems[itemOn].routine &&
@@ -3381,6 +3415,11 @@ boolean M_Responder (event_t* ev)
     }
     else if (key == key_menu_right)
     {
+        // [JN] Go to next page in Save/Load menu.
+	if (currentMenu == &LoadDef || currentMenu == &SaveDef)
+	{
+	    M_ScrollSaveLoad(true);
+	}
         // Slide slider right
 
 	if (currentMenu->menuitems[itemOn].routine &&
@@ -3461,32 +3500,16 @@ boolean M_Responder (event_t* ev)
     // [crispy] next/prev Crispness menu
     else if (key == KEY_PGUP)
     {
-	currentMenu->lastOn = itemOn;
 	if (currentMenu == &LoadDef || currentMenu == &SaveDef)
 	{
-	    if (savepage > 0)
-	    {
-		savepage--;
-		quickSaveSlot = -1;
-		M_ReadSaveStrings();
-		S_StartSound(NULL, sfx_pstop);
-	    }
-	    return true;
+	    M_ScrollSaveLoad(false);
 	}
     }
     else if (key == KEY_PGDN)
     {
-	currentMenu->lastOn = itemOn;
 	if (currentMenu == &LoadDef || currentMenu == &SaveDef)
 	{
-	    if (savepage < savepage_max)
-	    {
-		savepage++;
-		quickSaveSlot = -1;
-		M_ReadSaveStrings();
-		S_StartSound(NULL, sfx_pstop); // sfx_stnmov, sfx_pstop
-	    }
-	    return true;
+	    M_ScrollSaveLoad(true);
 	}
     }
 
