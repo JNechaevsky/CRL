@@ -534,6 +534,11 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
         CRL_vilebomb = false;
     }
 
+    if (gamekeydown[key_message_refresh])
+    {
+        players[consoleplayer].messageTics = MESSAGETICS;
+    }
+
     // mouse
     if (mousebuttons[mousebforward]) 
     {
