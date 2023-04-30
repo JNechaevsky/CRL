@@ -156,7 +156,7 @@ boolean CT_Responder (event_t *ev)
     int   sendto;
     const char *macro;
 
-    if (ev->data1 == key_message_refresh && !chatmodeon)
+    if (ev->data1 == key_message_refresh && !chatmodeon && !menuactive)
     {
         players[consoleplayer].messageTics = MESSAGETICS;
         return true;
