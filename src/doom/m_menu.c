@@ -1096,6 +1096,7 @@ static void M_DrawCRL_Sound (void)
                 (snd_musicdevice == 3 && !strcmp(snd_dmxoption, "-opl3")) ? "OPL3 SYNTH" : 
                  snd_musicdevice == 5 ? "GUS (EMULATED)" :
                  snd_musicdevice == 8 ? "NATIVE MIDI" :
+                 snd_musicdevice == 11 ? "FLUIDSYNTH" :
                                         "UNKNOWN");
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 108, str,
                  snd_musicdevice ? cr[CR_GREEN] : cr[CR_DARKRED]);
@@ -1187,6 +1188,10 @@ static void M_CRL_MusicSystem (int choice)
             }
             else if (snd_musicdevice == 5)
             {
+                snd_musicdevice = 11;    // Set to FluidSynth
+            }
+            else if (snd_musicdevice == 11)
+            {
                 snd_musicdevice = 8;    // Set to Native MIDI
             }
             else if (snd_musicdevice == 8)
@@ -1220,6 +1225,10 @@ static void M_CRL_MusicSystem (int choice)
                 snd_musicdevice  = 8;   // Set to Native MIDI
             }
             else if (snd_musicdevice == 8)
+            {
+                snd_musicdevice  = 11;   // Set to FluidSynth
+            }
+            else if (snd_musicdevice == 11)
             {
                 snd_musicdevice  = 5;   // Set to GUS
             }

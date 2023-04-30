@@ -42,6 +42,10 @@ static char *opltype_strings[] =
 
 static char *cfg_extension[] = { "cfg", NULL };
 
+#ifdef HAVE_FLUIDSYNTH
+static char *sf_extension[] = { "sf2", "sf3", NULL };
+#endif
+
 // Config file variables:
 
 int snd_sfxdevice = SNDDEVICE_SB;
@@ -63,6 +67,22 @@ static float libsamplerate_scale = 0.65;
 static char *timidity_cfg_path = NULL;
 static char *gus_patch_path = NULL;
 static int gus_ram_kb = 1024;
+
+#ifdef HAVE_FLUIDSYNTH
+char *fsynth_sf_path = "";
+int fsynth_chorus_active = 1;
+float fsynth_chorus_depth = 5.0f;
+float fsynth_chorus_level = 0.35f;
+int fsynth_chorus_nr = 3;
+float fsynth_chorus_speed = 0.3f;
+char *fsynth_midibankselect = "gs";
+int fsynth_polyphony = 256;
+int fsynth_reverb_active = 1;
+float fsynth_reverb_damp = 0.4f;
+float fsynth_reverb_level = 0.15f;
+float fsynth_reverb_roomsize = 0.6f;
+float fsynth_reverb_width = 4.0f;
+#endif // HAVE_FLUIDSYNTH
 
 // DOS-specific options: These are unused but should be maintained
 // so that the config file can be shared between chocolate
@@ -172,6 +192,18 @@ void ConfigSound(void)
                                     "Select Timidity config file",
                                     cfg_extension),
                 NULL)),
+#ifdef HAVE_FLUIDSYNTH
+        TXT_NewRadioButton("FluidSynth", &snd_musicdevice, SNDDEVICE_FSYNTH),
+        TXT_NewConditional(&snd_musicdevice, SNDDEVICE_FSYNTH,
+            TXT_MakeTable(2,
+                TXT_NewStrut(4, 0),
+                TXT_NewLabel("Soundfont file: "),
+                TXT_NewStrut(4, 0),
+                TXT_NewFileSelector(&fsynth_sf_path, 34,
+                                    "Select FluidSynth soundfont file",
+                                    sf_extension),
+                NULL)),
+#endif
         NULL);
 }
 
@@ -190,6 +222,22 @@ void BindSoundVariables(void)
     M_BindIntVariable("gus_ram_kb",               &gus_ram_kb);
     M_BindStringVariable("gus_patch_path",        &gus_patch_path);
     M_BindStringVariable("timidity_cfg_path",     &timidity_cfg_path);
+
+#ifdef HAVE_FLUIDSYNTH
+    M_BindIntVariable("fsynth_chorus_active",     &fsynth_chorus_active);
+    M_BindFloatVariable("fsynth_chorus_depth",    &fsynth_chorus_depth);
+    M_BindFloatVariable("fsynth_chorus_level",    &fsynth_chorus_level);
+    M_BindIntVariable("fsynth_chorus_nr",         &fsynth_chorus_nr);
+    M_BindFloatVariable("fsynth_chorus_speed",    &fsynth_chorus_speed);
+    M_BindStringVariable("fsynth_midibankselect", &fsynth_midibankselect);
+    M_BindIntVariable("fsynth_polyphony",         &fsynth_polyphony);
+    M_BindIntVariable("fsynth_reverb_active",     &fsynth_reverb_active);
+    M_BindFloatVariable("fsynth_reverb_damp",     &fsynth_reverb_damp);
+    M_BindFloatVariable("fsynth_reverb_level",    &fsynth_reverb_level);
+    M_BindFloatVariable("fsynth_reverb_roomsize", &fsynth_reverb_roomsize);
+    M_BindFloatVariable("fsynth_reverb_width",    &fsynth_reverb_width);
+    M_BindStringVariable("fsynth_sf_path",        &fsynth_sf_path);
+#endif // HAVE_FLUIDSYNTH
 
     M_BindIntVariable("snd_sbport",               &snd_sbport);
     M_BindIntVariable("snd_sbirq",                &snd_sbirq);

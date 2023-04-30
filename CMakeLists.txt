@@ -71,6 +71,12 @@ if(NOT miniz_FOUND)
     add_subdirectory("miniz")
 endif()
 
+# Check for FluidSynth.
+find_package(FluidSynth 2.2.0)
+if(FluidSynth_FOUND)
+    set(HAVE_FLUIDSYNTH TRUE)
+endif()
+
 find_package(m)
 
 include(CheckSymbolExists)

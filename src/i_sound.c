@@ -70,6 +70,7 @@ extern sound_module_t sound_pcsound_module;
 extern music_module_t music_win_module;
 extern music_module_t music_sdl_module;
 extern music_module_t music_opl_module;
+extern music_module_t music_fl_module;
 
 // For OPL module:
 
@@ -106,6 +107,9 @@ static music_module_t *music_modules[] =
 #ifdef _WIN32
     &music_win_module,
 #endif
+#ifdef HAVE_FLUIDSYNTH
+    &music_fl_module,
+#endif // HAVE_FLUIDSYNTH
 #ifndef DISABLE_SDL2MIXER
     &music_sdl_module,
 #endif // DISABLE_SDL2MIXER
@@ -178,11 +182,10 @@ static void InitMusicModule(void)
                             music_modules[i]->num_sound_devices))
         {
         #ifdef _WIN32
-            // Skip the native Windows MIDI module if using Timidity or
-            // FluidSynth.
+            // Skip the native Windows MIDI module if using Timidity.
 
-            if ((strcmp(timidity_cfg_path, ""))
-              && music_modules[i] == &music_win_module)
+            if (strcmp(timidity_cfg_path, "") &&
+                music_modules[i] == &music_win_module)
             {
                 continue;
             }
@@ -402,6 +405,20 @@ void I_ResumeSong(void)
     }
 }
 
+// Determine whether memory block is a .mid file
+
+boolean IsMid(byte *mem, int len)
+{
+    return len > 4 && !memcmp(mem, "MThd", 4);
+}
+
+// Determine whether memory block is a .mus file
+
+boolean IsMus(byte *mem, int len)
+{
+    return len > 4 && !memcmp(mem, "MUS\x1a", 4);
+}
+
 void *I_RegisterSong(void *data, int len)
 {
     if (music_module != NULL)
@@ -472,6 +489,22 @@ void I_BindSoundVariables(void)
     M_BindStringVariable("timidity_cfg_path",    &timidity_cfg_path);
     M_BindStringVariable("gus_patch_path",       &gus_patch_path);
     M_BindIntVariable("gus_ram_kb",              &gus_ram_kb);
+
+#ifdef HAVE_FLUIDSYNTH
+    M_BindIntVariable("fsynth_chorus_active",       &fsynth_chorus_active);
+    M_BindFloatVariable("fsynth_chorus_depth",      &fsynth_chorus_depth);
+    M_BindFloatVariable("fsynth_chorus_level",      &fsynth_chorus_level);
+    M_BindIntVariable("fsynth_chorus_nr",           &fsynth_chorus_nr);
+    M_BindFloatVariable("fsynth_chorus_speed",      &fsynth_chorus_speed);
+    M_BindStringVariable("fsynth_midibankselect",   &fsynth_midibankselect);
+    M_BindIntVariable("fsynth_polyphony",           &fsynth_polyphony);
+    M_BindIntVariable("fsynth_reverb_active",       &fsynth_reverb_active);
+    M_BindFloatVariable("fsynth_reverb_damp",       &fsynth_reverb_damp);
+    M_BindFloatVariable("fsynth_reverb_level",      &fsynth_reverb_level);
+    M_BindFloatVariable("fsynth_reverb_roomsize",   &fsynth_reverb_roomsize);
+    M_BindFloatVariable("fsynth_reverb_width",      &fsynth_reverb_width);
+    M_BindStringVariable("fsynth_sf_path",          &fsynth_sf_path);
+#endif // HAVE_FLUIDSYNTH
 
     M_BindIntVariable("use_libsamplerate",       &use_libsamplerate);
     M_BindFloatVariable("libsamplerate_scale",   &libsamplerate_scale);

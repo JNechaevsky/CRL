@@ -211,21 +211,6 @@ static boolean I_SDL_InitMusic(void)
 
     RemoveTimidityConfig();
 
-    // When using FluidSynth, proceed to set the soundfont path via
-    // Mix_SetSoundFonts if necessary.
-
-    if (snd_musicdevice != SNDDEVICE_GUS && strlen(fluidsynth_sf_path) > 0 && strlen(timidity_cfg_path) == 0)
-    {
-        printf("I_SDLMusic: Using FluidSynth soundfont from:\n \t%s\n", fluidsynth_sf_path);
-
-        Mix_SetSoundFonts(fluidsynth_sf_path);
-    }
-
-    if(snd_musicdevice != SNDDEVICE_GUS && strlen(fluidsynth_sf_path) == 0 && strlen(timidity_cfg_path) == 0)
-    {
-        printf("I_SDLMusic: Using SDL-defined MIDI backend\n");
-    }
-
     // If snd_musiccmd is set, we need to call Mix_SetMusicCMD to
     // configure an external music playback program.
 
@@ -346,11 +331,6 @@ static void I_SDL_UnRegisterSong(void *handle)
 }
 
 // Determine whether memory block is a .mid file 
-
-static boolean IsMid(byte *mem, int len)
-{
-    return len > 4 && !memcmp(mem, "MThd", 4);
-}
 
 static boolean ConvertMus(byte *musdata, int len, const char *filename)
 {

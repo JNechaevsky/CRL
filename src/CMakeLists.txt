@@ -45,6 +45,7 @@ set(GAME_SOURCE_FILES
     deh_str.c           deh_str.h
     gusconf.c           gusconf.h
     i_endoom.c          i_endoom.h
+    i_flmusic.c
     i_glob.c            i_glob.h
     i_input.c           i_input.h
     i_joystick.c        i_joystick.h
@@ -118,6 +119,9 @@ if(ENABLE_SDL2_NET)
 endif()
 if(SampleRate_FOUND)
     list(APPEND EXTRA_LIBS SampleRate::samplerate)
+endif()
+if(FluidSynth_FOUND)
+    list(APPEND EXTRA_LIBS FluidSynth::libfluidsynth)
 endif()
 if(WIN32)
 	list(APPEND EXTRA_LIBS winmm)

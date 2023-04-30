@@ -197,6 +197,23 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(use_libsamplerate),
     CONFIG_VARIABLE_FLOAT(libsamplerate_scale),
     CONFIG_VARIABLE_STRING(autoload_path),
+
+#ifdef HAVE_FLUIDSYNTH
+    CONFIG_VARIABLE_INT(fsynth_chorus_active),
+    CONFIG_VARIABLE_FLOAT(fsynth_chorus_depth),
+    CONFIG_VARIABLE_FLOAT(fsynth_chorus_level),
+    CONFIG_VARIABLE_INT(fsynth_chorus_nr),
+    CONFIG_VARIABLE_FLOAT(fsynth_chorus_speed),
+    CONFIG_VARIABLE_STRING(fsynth_midibankselect),
+    CONFIG_VARIABLE_INT(fsynth_polyphony),
+    CONFIG_VARIABLE_INT(fsynth_reverb_active),
+    CONFIG_VARIABLE_FLOAT(fsynth_reverb_damp),
+    CONFIG_VARIABLE_FLOAT(fsynth_reverb_level),
+    CONFIG_VARIABLE_FLOAT(fsynth_reverb_roomsize),
+    CONFIG_VARIABLE_FLOAT(fsynth_reverb_width),
+    CONFIG_VARIABLE_STRING(fsynth_sf_path),
+#endif // HAVE_FLUIDSYNTH
+
     CONFIG_VARIABLE_STRING(timidity_cfg_path),
     CONFIG_VARIABLE_STRING(gus_patch_path),
     CONFIG_VARIABLE_INT(gus_ram_kb),

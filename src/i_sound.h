@@ -104,6 +104,7 @@ typedef enum
     SNDDEVICE_GENMIDI = 8,
     SNDDEVICE_AWE32 = 9,
     SNDDEVICE_CD = 10,
+    SNDDEVICE_FSYNTH = 11,
 } snddevice_t;
 
 // Interface for sound modules
@@ -163,6 +164,8 @@ void I_UpdateSoundParams(int channel, int vol, int sep);
 int I_StartSound(sfxinfo_t *sfxinfo, int channel, int vol, int sep, int pitch);
 void I_StopSound(int channel);
 boolean I_SoundIsPlaying(int channel);
+boolean IsMid(byte *mem, int len);
+boolean IsMus(byte *mem, int len);
 void I_PrecacheSounds(sfxinfo_t *sounds, int num_sounds);
 
 // Interface for music modules
@@ -250,5 +253,22 @@ typedef enum {
 
 void I_SetOPLDriverVer(opl_driver_ver_t ver);
 
-#endif
+// For FluidSynth module:
 
+#ifdef HAVE_FLUIDSYNTH
+extern char *fsynth_sf_path;
+extern int fsynth_chorus_active;
+extern float fsynth_chorus_depth;
+extern float fsynth_chorus_level;
+extern int fsynth_chorus_nr;
+extern float fsynth_chorus_speed;
+extern char *fsynth_midibankselect;
+extern int fsynth_polyphony;
+extern int fsynth_reverb_active;
+extern float fsynth_reverb_damp;
+extern float fsynth_reverb_level;
+extern float fsynth_reverb_roomsize;
+extern float fsynth_reverb_width;
+#endif // HAVE_FLUIDSYNTH
+
+#endif
