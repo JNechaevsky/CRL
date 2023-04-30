@@ -156,6 +156,12 @@ boolean CT_Responder (event_t *ev)
     int   sendto;
     const char *macro;
 
+    if (ev->data1 == key_message_refresh && !chatmodeon)
+    {
+        players[consoleplayer].messageTics = MESSAGETICS;
+        return true;
+    }
+
     if (!netgame)
     {
         return false;
@@ -177,12 +183,6 @@ boolean CT_Responder (event_t *ev)
     if (!chatmodeon)
     {
         sendto = 0;
-
-        if (ev->data1 == key_message_refresh)
-        {
-            players[consoleplayer].messageTics = MESSAGETICS;
-            return false;
-        }
 
         if (ev->data1 == key_multi_msg)
         {
