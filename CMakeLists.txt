@@ -75,7 +75,6 @@ endif()
 find_package(FluidSynth 2.2.0)
 if(FluidSynth_FOUND)
     set(HAVE_FLUIDSYNTH TRUE)
-message(STATUS "АКЫМБА КЫМБА КЫМБА КЫМБА КЫМБА КЫМБА КЫМБА КЫМБА ")
 endif()
 
 find_package(m)
