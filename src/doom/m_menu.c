@@ -1187,10 +1187,12 @@ static void M_CRL_MusicSystem (int choice)
                 snd_musicdevice = 5;    // Set to GUS
             }
             else if (snd_musicdevice == 5)
+#ifdef HAVE_FLUIDSYNTH
             {
                 snd_musicdevice = 11;    // Set to FluidSynth
             }
             else if (snd_musicdevice == 11)
+#endif // HAVE_FLUIDSYNTH
             {
                 snd_musicdevice = 8;    // Set to Native MIDI
             }
@@ -1225,10 +1227,12 @@ static void M_CRL_MusicSystem (int choice)
                 snd_musicdevice  = 8;   // Set to Native MIDI
             }
             else if (snd_musicdevice == 8)
+#ifdef HAVE_FLUIDSYNTH
             {
                 snd_musicdevice  = 11;   // Set to FluidSynth
             }
             else if (snd_musicdevice == 11)
+#endif // HAVE_FLUIDSYNTH
             {
                 snd_musicdevice  = 5;   // Set to GUS
             }
