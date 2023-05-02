@@ -77,7 +77,12 @@ typedef struct
     boolean(*func) (int option);
     int option;
     MenuType_t menu;
+    short tics;  // [JN] Menu item timer for glowing effect.
 } MenuItem_t;
+
+// [JN] Small cursor timer for glowing effect.
+static short   cursor_tics = 0;
+static boolean cursor_direction = false;
 
 typedef struct
 {
@@ -326,6 +331,28 @@ static Menu_t Options2Menu = {
 #define SELECTOR_XOFFSET_SMALL  -10
 
 static player_t *player;
+
+static byte *M_Line_Glow (const int tics)
+{
+    return
+        tics == 5 ? cr[CR_MENU_BRIGHT2] :
+        tics == 4 ? cr[CR_MENU_BRIGHT1] :
+        tics == 3 ? NULL :
+        tics == 2 ? cr[CR_MENU_DARK1] : cr[CR_MENU_DARK2];
+}
+
+static byte *M_Cursor_Glow (const int tics)
+{
+    return
+        tics >  6 ? cr[CR_MENU_BRIGHT3] :
+        tics >  4 ? cr[CR_MENU_BRIGHT2] :
+        tics >  2 ? cr[CR_MENU_BRIGHT1] :
+        tics > -1 ? NULL                :
+        tics > -3 ? cr[CR_MENU_DARK1]   :
+        tics > -5 ? cr[CR_MENU_DARK2]   :
+        tics > -7 ? cr[CR_MENU_DARK3]   :
+        tics > -9 ? cr[CR_MENU_DARK4]   : NULL;
+}
 
 static void DrawCRLMenu (void);
 static boolean CRLDummy (int option);
@@ -637,6 +664,20 @@ void MN_Ticker(void)
         return;
     }
     MenuTime++;
+
+    // [JN] Menu glowing animation:
+    
+    // Brightening
+    if (!cursor_direction && ++cursor_tics == 8)
+    {
+        cursor_direction = true;
+    }
+    // Darkening
+    else
+    if (cursor_direction && --cursor_tics == -8)
+    {
+        cursor_direction = false;
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -711,7 +752,17 @@ void MN_Drawer(void)
             {
                 if (item->type != ITT_EMPTY && item->text)
                 {
-                    MN_DrTextA(DEH_String(item->text), x, y, cr[CR_MENU_DARK2]);
+                    // [JN] Highlight menu item on which the cursor is positioned.
+                    if (CurrentItPos == i)
+                    {
+                        CurrentMenu->items[i].tics = 5;  // Keep menu item bright.
+                        MN_DrTextA(DEH_String(item->text), x, y, cr[CR_MENU_BRIGHT2]);
+                    }
+                    else
+                    {
+                        CurrentMenu->items[i].tics--;  // Decrease tics for glowing effect.
+                        MN_DrTextA(DEH_String(item->text), x, y, M_Line_Glow(CurrentMenu->items[i].tics));
+                    }
                 }
                 y += ITEM_HEIGHT_SMALL;
             }
@@ -729,7 +780,7 @@ void MN_Drawer(void)
         if (CurrentMenu->smallFont)
         {
             y = CurrentMenu->y + (CurrentItPos * ITEM_HEIGHT_SMALL);
-            MN_DrTextA(MenuTime & 8 ? "*" : " ", x + SELECTOR_XOFFSET_SMALL, y, NULL);
+            MN_DrTextA("*", x + SELECTOR_XOFFSET_SMALL, y, M_Cursor_Glow(cursor_tics));
         }
         else
         {
