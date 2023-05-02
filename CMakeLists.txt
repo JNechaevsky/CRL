@@ -97,6 +97,7 @@ set(PROGRAM_PREFIX "${PROGRAM_SPREFIX}-")
 configure_file(cmake/config.h.cin config.h)
 
 configure_file(src/doom-res.rc.in src/doom-res.rc)
+configure_file(src/heretic-res.rc.in src/heretic-res.rc)
 configure_file(src/setup-res.rc.in src/setup-res.rc)
 configure_file(src/setup/setup-manifest.xml.in src/setup/setup-manifest.xml)
 
