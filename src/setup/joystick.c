@@ -1025,6 +1025,22 @@ void ConfigJoystick(void)
                    TXT_NewSeparator("Buttons"),
                    NULL);
 
+/*
+    if (gamemission == heretic || gamemission == hexen || gamemission == strife)
+    {
+        TXT_AddWidgets(window,
+                   TXT_NewLabel("Look up/down"),
+                   TXT_NewJoystickAxis(&joystick_look_axis,
+                                       &joystick_look_invert,
+                                        JOYSTICK_AXIS_VERTICAL),
+                   TXT_TABLE_OVERFLOW_RIGHT,
+                   TXT_TABLE_OVERFLOW_RIGHT,
+                   TXT_TABLE_EMPTY,
+                   TXT_TABLE_EMPTY,
+                   NULL);
+    }
+*/
+
     AddJoystickControl(window, "Fire/Attack", &joybfire);
     AddJoystickControl(window, "Strafe Left", &joybstrafeleft);
 

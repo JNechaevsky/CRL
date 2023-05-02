@@ -68,6 +68,40 @@ int key_arti_torch = 0;
 int key_arti_morph = 0;
 
 //
+// Hexen key controls
+//
+
+int key_jump = '/';
+
+int key_arti_all             = KEY_BACKSPACE;
+int key_arti_health          = '\\';
+int key_arti_poisonbag       = '0';
+int key_arti_blastradius     = '9';
+int key_arti_teleport        = '8';
+int key_arti_teleportother   = '7';
+int key_arti_egg             = '6';
+int key_arti_invulnerability = '5';
+
+//
+// Strife key controls
+//
+// haleyjd 09/01/10
+//
+
+// Note: Strife also uses key_invleft, key_invright, key_jump, key_lookup, and
+// key_lookdown, but with different default values.
+
+int key_usehealth = 'h';
+int key_invquery  = 'q';
+int key_mission   = 'w';
+int key_invpop    = 'z';
+int key_invkey    = 'k';
+int key_invhome   = KEY_HOME;
+int key_invend    = KEY_END;
+int key_invuse    = KEY_ENTER;
+int key_invdrop   = KEY_BACKSPACE;
+
+//
 // Mouse controls
 //
 
