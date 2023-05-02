@@ -66,6 +66,14 @@ static mission_config_t mission_configs[] =
         "doom",
         "default.cfg",
         PROGRAM_PREFIX "doom"
+    },
+    {
+        "Heretic",
+        heretic,
+        IWAD_MASK_HERETIC,
+        "heretic",
+        "heretic.cfg",
+        PROGRAM_PREFIX "heretic"
     }
 };
 
@@ -100,6 +108,11 @@ void InitBindings(void)
     M_BindWeaponControls();
     M_BindMapControls();
     M_BindMenuControls();
+
+    if (gamemission == heretic)
+    {
+        M_BindHereticControls();
+    }
 
     // All other variables
 

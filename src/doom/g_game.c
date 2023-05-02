@@ -65,10 +65,13 @@
 
 // SKY handling - still the wrong place.
 
+#include "g_game.h"
+
 #include "crlcore.h"
 #include "crlvars.h"
+#include "crlfuncs.h"
 
-#include "g_game.h"
+
 
 
 #define SAVEGAMESIZE	0x2c000
@@ -669,7 +672,7 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
     }
     
     // If spectating, send the movement commands instead
-    if (crl_spectating)
+    if (crl_spectating && !menuactive)
     	CRL_ImpulseCamera(cmd->forwardmove, cmd->sidemove, cmd->angleturn); 
 } 
  
@@ -798,7 +801,7 @@ static void SetMouseButtons(unsigned int buttons_mask)
             if (i == mousebprevweapon)
             {
                 // [JN] CRL - move spectator camera down.
-                if (crl_spectating)
+                if (crl_spectating && !menuactive)
                 {
                     CRL_ImpulseCameraVert(false, crl_camzspeed ? 64 : 32); 
                 }
@@ -808,7 +811,7 @@ static void SetMouseButtons(unsigned int buttons_mask)
             else if (i == mousebnextweapon)
             {
                 // [JN] CRL - move spectator camera up.
-                if (crl_spectating)
+                if (crl_spectating && !menuactive)
                 {
                     CRL_ImpulseCameraVert(true, crl_camzspeed ? 64 : 32);
                     

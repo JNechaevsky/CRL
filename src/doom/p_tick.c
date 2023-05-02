@@ -34,7 +34,6 @@
 // 2) realleveltime: used by player, render and interpolation.
 //    Always ticking.
 int	leveltime;
-int	realleveltime;
 
 //
 // THINKERS

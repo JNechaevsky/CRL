@@ -200,6 +200,8 @@ extern void M_WriteText (int x, int y, const char *string, byte *table);
 extern void M_WriteTextCentered (const int y, const char *string, byte *table);
 extern const int M_StringWidth (const char *string);
 
+extern void CRL_SetCriticalMessage (char *message, const int tics);
+
 extern void CRL_WidgetsDrawer (void);
 extern void CRL_ReloadPalette (void);
 
@@ -219,9 +221,6 @@ extern int  CRL_fps;
 extern boolean CRL_vilebomb;
 
 // [crispy] demo progress bar and timer widget
-extern void CRL_DemoTimer (const int time);
-extern void CRL_DemoBar (void);
-extern int  defdemotics, deftotaldemotics;
 extern int  demowarp;
 
 extern boolean  menuactive;

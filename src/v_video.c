@@ -41,6 +41,7 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
+#include "crlcore.h"
 #include "crlvars.h"
 
 
@@ -51,6 +52,10 @@
 // [JN] Blending table used for text shadows.
 byte *tintmap = NULL;
 
+// Blending table used for fuzzpatch, etc.
+// Only used in Heretic/Hexen
+byte *tinttable = NULL;
+
 // [JN] Color translation.
 byte *dp_translation = NULL;
 
@@ -60,7 +65,6 @@ static pixel_t *dest_screen = NULL;
 
 int dirtybox[4]; 
 
-extern void CRL_SetCriticalMessage (char *message, const int tics);
 
 
 //
@@ -304,6 +308,132 @@ void V_DrawShadowedPatch (int x, int y, const patch_t *patch, char *name)
             column = (column_t *) ((byte *) column + column->length + 4);
         }
     }
+}
+
+// -----------------------------------------------------------------------------
+// V_DrawShadowedPatchRaven
+// Masks a column based masked pic to the screen.
+// -----------------------------------------------------------------------------
+
+void V_DrawShadowedPatchRaven(int x, int y, patch_t *patch)
+{
+    int count, col;
+    column_t *column;
+    pixel_t *desttop, *dest;
+    byte *source;
+    pixel_t *desttop2, *dest2;
+    int w;
+
+    y -= SHORT(patch->topoffset);
+    x -= SHORT(patch->leftoffset);
+
+    if (x < 0
+     || x + SHORT(patch->width) > SCREENWIDTH
+     || y < 0
+     || y + SHORT(patch->height) > SCREENHEIGHT)
+    {
+        I_Error("Bad V_DrawShadowedPatch");
+    }
+
+    col = 0;
+    desttop = dest_screen + y * SCREENWIDTH + x;
+    desttop2 = dest_screen + (y + 2) * SCREENWIDTH + x + 2;
+
+    w = SHORT(patch->width);
+    for (; col < w; x++, col++, desttop++, desttop2++)
+    {
+        column = (column_t *) ((byte *) patch + LONG(patch->columnofs[col]));
+
+        // step through the posts in a column
+
+        while (column->topdelta != 0xff)
+        {
+            source = (byte *) column + 3;
+            dest = desttop + column->topdelta * SCREENWIDTH;
+            dest2 = desttop2 + column->topdelta * SCREENWIDTH;
+            count = column->length;
+
+            while (count--)
+            {
+                *dest2 = tinttable[((*dest2) << 8)];
+                dest2 += SCREENWIDTH;
+                *dest = *source++;
+                dest += SCREENWIDTH;
+
+            }
+            column = (column_t *) ((byte *) column + column->length + 4);
+        }
+    }
+}
+
+//
+// V_DrawTLPatch
+//
+// Masks a column based translucent masked pic to the screen.
+//
+
+void V_DrawTLPatch(int x, int y, patch_t * patch)
+{
+    int count, col;
+    column_t *column;
+    pixel_t *desttop, *dest;
+    byte *source;
+    int w;
+
+    y -= SHORT(patch->topoffset);
+    x -= SHORT(patch->leftoffset);
+
+    if (x < 0
+     || x + SHORT(patch->width) > SCREENWIDTH 
+     || y < 0
+     || y + SHORT(patch->height) > SCREENHEIGHT)
+    {
+        I_Error("Bad V_DrawTLPatch");
+    }
+
+    col = 0;
+    desttop = dest_screen + y * SCREENWIDTH + x;
+
+    w = SHORT(patch->width);
+    for (; col < w; x++, col++, desttop++)
+    {
+        column = (column_t *) ((byte *) patch + LONG(patch->columnofs[col]));
+
+        // step through the posts in a column
+
+        while (column->topdelta != 0xff)
+        {
+            source = (byte *) column + 3;
+            dest = desttop + column->topdelta * SCREENWIDTH;
+            count = column->length;
+
+            while (count--)
+            {
+                *dest = tinttable[((*dest) << 8) + *source++];
+                dest += SCREENWIDTH;
+            }
+            column = (column_t *) ((byte *) column + column->length + 4);
+        }
+    }
+}
+
+//
+// Draw a "raw" screen (lump containing raw data to blit directly
+// to the screen)
+//
+ 
+void V_DrawRawScreen (byte *raw)
+{
+    memcpy(dest_screen, raw, SCREENWIDTH * SCREENHEIGHT);
+}
+
+//
+// Load tint table from TINTTAB lump.
+//
+
+void V_LoadTintTable(void)
+{
+    tinttable = W_CacheLumpName("TINTTAB", PU_STATIC);
 }
 
 //
