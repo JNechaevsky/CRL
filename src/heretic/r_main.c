@@ -791,7 +791,6 @@ void R_SetupFrame(player_t * player)
     }
 
     extralight = player->extralight;
-    viewz = player->viewz;
 
     tempCentery = viewheight / 2 + pitch * screenblocks / 10;
     if (centery != tempCentery)

@@ -585,7 +585,7 @@ void R_ProjectSprite(mobj_t * thing)
 
     // foot clipping
     if (thing->flags2 & MF2_FEETARECLIPPED
-        && thing->z <= thing->subsector->sector->floorheight)
+        && interpz <= thing->subsector->sector->floorheight)
     {
         vis->footclip = 10;
     }

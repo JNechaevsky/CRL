@@ -190,14 +190,14 @@ typedef struct mobj_s
     mapthing_t spawnpoint;      // for nightmare respawn
 
     // [AM] If true, ok to interpolate this tic.
-    boolean             interp;
+    boolean interp;
 
     // [AM] Previous position of mobj before think.
     //      Used to interpolate between positions.
-    fixed_t		oldx;
-    fixed_t		oldy;
-    fixed_t		oldz;
-    angle_t		oldangle;
+    fixed_t oldx;
+    fixed_t oldy;
+    fixed_t oldz;
+    angle_t oldangle;
 } mobj_t;
 
 // each sector has a degenmobj_t in it's center for sound origin purposes

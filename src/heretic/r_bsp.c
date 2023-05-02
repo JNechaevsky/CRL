@@ -208,11 +208,13 @@ void R_ClearClipSegs(void)
 //=============================================================================
 
 // [AM] Interpolate the passed sector, if prudent.
-void R_MaybeInterpolateSector(sector_t* sector)
+void R_CheckInterpolateSector(sector_t* sector)
 {
     if (crl_uncapped_fps &&
-        // Only if we moved the sector last tic.
-        sector->oldgametic == gametic - 1)
+        // Only if we moved the sector last tic ...
+        sector->oldgametic == gametic - 1 &&
+        // ... and it has a thinker associated with it.
+        sector->specialdata)
     {
         // Interpolate between current and last floor/ceiling position.
         if (sector->floorheight != sector->oldfloorheight)
@@ -299,7 +301,7 @@ void R_AddLine(seg_t * line)
     // [AM] Interpolate sector movement before
     //      running clipping tests.  Frontsector
     //      should already be interpolated.
-    R_MaybeInterpolateSector(backsector);
+    R_CheckInterpolateSector(backsector);
 
     if (backsector->interpceilingheight <= frontsector->interpfloorheight
         || backsector->interpfloorheight >= frontsector->interpceilingheight)
@@ -459,7 +461,7 @@ void R_Subsector(int num)
 
     // [AM] Interpolate sector movement.  Usually only needed
     //      when you're standing inside the sector.
-    R_MaybeInterpolateSector(frontsector);
+    R_CheckInterpolateSector(frontsector);
 
     if (frontsector->interpfloorheight < viewz)
         floorplane = R_FindPlane(frontsector->interpfloorheight,
