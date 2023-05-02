@@ -68,10 +68,6 @@ fixed_t			viewsin;
 
 player_t*		viewplayer;
 
-// [AM] Fractional part of the current tic, in the half-open
-//      range of [0.0, 1.0).  Used for interpolation.
-fixed_t			fractionaltic;
-
 // 0 = high, 1 = low
 int			detailshift;	
 

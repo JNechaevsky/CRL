@@ -208,6 +208,11 @@ unsigned int joywait = 0;
 // [JN] Used for realtime resizing of ENDOOM screen.
 boolean endoom_screen_active = false;
 
+// [AM] Fractional part of the current tic, in the half-open
+//      range of [0.0, 1.0).  Used for interpolation.
+fixed_t fractionaltic;
+
+
 void *I_GetSDLWindow(void)
 {
     return screen;

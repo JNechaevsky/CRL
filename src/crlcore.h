@@ -219,9 +219,6 @@ extern int  CRL_fps;
 extern boolean CRL_vilebomb;
 
 // [crispy] demo progress bar and timer widget
-extern void CRL_DemoTimer (const int time);
-extern void CRL_DemoBar (void);
-extern int  defdemotics, deftotaldemotics;
 extern int  demowarp;
 
 extern boolean  menuactive;

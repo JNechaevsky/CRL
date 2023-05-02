@@ -80,6 +80,9 @@ static int recvtic;
 int gametic;
 int oldleveltime; // [crispy] check if leveltime keeps tickin'
 
+// [JN] used by player, render and interpolation. Always ticking.
+int realleveltime;
+
 // When set to true, a single tic is run each time TryRunTics() is called.
 // This is used for -timedemo mode.
 
@@ -694,7 +697,6 @@ void TryRunTics (void)
     // [AM] If we've uncapped the framerate and there are no tics
     //      to run, return early instead of waiting around.
     // [JN] CRL - Keep uncapped framerate while paused and Spectator mode.
-    extern int realleveltime;
     extern boolean paused;
     #define return_early (crl_uncapped_fps && counts == 0 && \
                          ((paused && crl_spectating) || realleveltime > oldleveltime) && \

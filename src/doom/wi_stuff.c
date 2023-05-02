@@ -50,6 +50,7 @@
 
 #include "crlcore.h"
 #include "crlvars.h"
+#include "crlfuncs.h"
 
 //
 // Data needed to add patches to full screen intermission pics.
