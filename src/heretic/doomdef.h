@@ -456,6 +456,11 @@ typedef struct player_s
     int killcount, itemcount, secretcount;      // for intermission
     char *message;              // hint messages
     int messageTics;            // counter for showing messages
+
+    // [JN] CRL - hint critical messages.
+    char *criticalmessage;	
+    int   criticalmessageTics;
+
     int damagecount, bonuscount;        // for screen flashing
     int flamecount;             // for flame thrower duration
     mobj_t *attacker;           // who did damage (NULL for floors)

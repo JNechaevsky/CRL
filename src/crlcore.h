@@ -200,6 +200,8 @@ extern void M_WriteText (int x, int y, const char *string, byte *table);
 extern void M_WriteTextCentered (const int y, const char *string, byte *table);
 extern const int M_StringWidth (const char *string);
 
+extern void CRL_SetCriticalMessage (char *message, const int tics);
+
 extern void CRL_WidgetsDrawer (void);
 extern void CRL_ReloadPalette (void);
 

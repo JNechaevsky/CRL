@@ -141,6 +141,17 @@ void P_SetMessage(player_t * player, char *message, boolean ultmsg)
     }
 }
 
+// -----------------------------------------------------------------------------
+// CRL_SetCriticalMessage
+// [JN] Sets critical message parameters.
+// -----------------------------------------------------------------------------
+
+void CRL_SetCriticalMessage (char *message, const int tics)
+{
+    players[consoleplayer].criticalmessage = message;
+    players[consoleplayer].criticalmessageTics = tics;
+}
+
 //--------------------------------------------------------------------------
 //
 // FUNC P_GiveAmmo

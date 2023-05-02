@@ -276,7 +276,6 @@ extern result_e T_MovePlane (sector_t *sector, fixed_t speed, fixed_t dest,
 #define MESSAGETICS (TICRATE*4)
 
 extern void CRL_SetMessage (player_t *player, char *message, boolean ultmsg, byte *table);
-extern void CRL_SetCriticalMessage (char *message, const int tics);
 extern int     showMessages;
 extern boolean ultimatemsg;
 extern char   *lastmessage;
