@@ -609,7 +609,7 @@ void IN_DrawOldLevel(void)
                             7) / 2;
     IN_DrTextB(LevelNames[(gameepisode - 1) * 9 + prevmap - 1] + 7, x, 3);
     x = 160 - MN_TextAWidth(DEH_String("FINISHED")) / 2;
-    MN_DrTextA(DEH_String("FINISHED"), x, 25);
+    MN_DrTextA(DEH_String("FINISHED"), x, 25, NULL);
 
     if (prevmap == 9)
     {
@@ -661,7 +661,7 @@ void IN_DrawYAH(void)
     int x;
 
     x = 160 - MN_TextAWidth(DEH_String("NOW ENTERING:")) / 2;
-    MN_DrTextA(DEH_String("NOW ENTERING:"), x, 10);
+    MN_DrTextA(DEH_String("NOW ENTERING:"), x, 10, NULL);
     x = 160 - MN_TextBWidth(LevelNames[(gameepisode - 1) * 9 + gamemap - 1] +
                             7) / 2;
     IN_DrTextB(LevelNames[(gameepisode - 1) * 9 + gamemap - 1] + 7, x, 20);
@@ -709,7 +709,7 @@ void IN_DrawSingleStats(void)
                             7) / 2;
     IN_DrTextB(LevelNames[(gameepisode - 1) * 9 + prevmap - 1] + 7, x, 3);
     x = 160 - MN_TextAWidth(DEH_String("FINISHED")) / 2;
-    MN_DrTextA(DEH_String("FINISHED"), x, 25);
+    MN_DrTextA(DEH_String("FINISHED"), x, 25, NULL);
 
     if (intertime < 30)
     {
@@ -766,7 +766,7 @@ void IN_DrawSingleStats(void)
     else
     {
         x = 160 - MN_TextAWidth(DEH_String("NOW ENTERING:")) / 2;
-        MN_DrTextA(DEH_String("NOW ENTERING:"), x, 160);
+        MN_DrTextA(DEH_String("NOW ENTERING:"), x, 160, NULL);
         x = 160 -
             MN_TextBWidth(LevelNames[(gameepisode - 1) * 9 + gamemap - 1] +
                           7) / 2;
@@ -797,7 +797,7 @@ void IN_DrawCoopStats(void)
                             7) / 2;
     IN_DrTextB(LevelNames[(gameepisode - 1) * 9 + prevmap - 1] + 7, x, 3);
     x = 160 - MN_TextAWidth(DEH_String("FINISHED")) / 2;
-    MN_DrTextA(DEH_String("FINISHED"), x, 25);
+    MN_DrTextA(DEH_String("FINISHED"), x, 25, NULL);
 
     ypos = 50;
     for (i = 0; i < MAXPLAYERS; i++)
@@ -849,10 +849,10 @@ void IN_DrawDMStats(void)
     ypos = 55;
 
     IN_DrTextB(DEH_String("TOTAL"), 265, 30);
-    MN_DrTextA(DEH_String("VICTIMS"), 140, 8);
+    MN_DrTextA(DEH_String("VICTIMS"), 140, 8, NULL);
     for (i = 0; i < 7; i++)
     {
-        MN_DrTextA(DEH_String(KillersText[i]), 10, 80 + 9 * i);
+        MN_DrTextA(DEH_String(KillersText[i]), 10, 80 + 9 * i, NULL);
     }
     if (intertime < 20)
     {

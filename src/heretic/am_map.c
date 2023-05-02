@@ -1536,7 +1536,7 @@ void AM_Drawer(void)
     if (gameepisode <= numepisodes && gamemap < 10)
     {
         level_name = LevelNames[(gameepisode - 1) * 9 + gamemap - 1];
-        MN_DrTextA(DEH_String(level_name), 20, 145);
+        MN_DrTextA(DEH_String(level_name), 20, 145, NULL);
     }
 //  I_Update();
 //  V_MarkRect(f_x, f_y, f_w, f_h);

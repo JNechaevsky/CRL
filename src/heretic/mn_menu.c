@@ -30,6 +30,7 @@
 #include "p_local.h"
 #include "r_local.h"
 #include "s_sound.h"
+#include "v_trans.h"
 #include "v_video.h"
 
 #include "crlcore.h"
@@ -153,6 +154,25 @@ static int slotptr;
 static int currentSlot;
 static int quicksave;
 static int quickload;
+
+static char gammamsg[15][32] =
+{
+    GAMMALVL05,
+    GAMMALVL055,
+    GAMMALVL06,
+    GAMMALVL065,
+    GAMMALVL07,
+    GAMMALVL075,
+    GAMMALVL08,
+    GAMMALVL085,
+    GAMMALVL09,
+    GAMMALVL095,
+    GAMMALVL0,
+    GAMMALVL1,
+    GAMMALVL2,
+    GAMMALVL3,
+    GAMMALVL4
+};
 
 static MenuItem_t MainItems[] = {
     {ITT_EFUNC, "NEW GAME", SCNetCheck, 1, MENU_EPISODE},
@@ -303,7 +323,7 @@ static Menu_t Options2Menu = {
 #define CRL_MENU_RIGHTOFFSET_SML   (SCREENWIDTH - CRL_MENU_LEFTOFFSET_SML)
 
 #define ITEM_HEIGHT_SMALL        10
-#define SELECTOR_XOFFSET_SMALL  -14
+#define SELECTOR_XOFFSET_SMALL  -10
 
 static player_t *player;
 
@@ -343,28 +363,30 @@ static void DrawCRLMenu (void)
     static char str[32];
 
     // M_ShadeBackground();
-    // M_WriteTextCentered(27, "MAIN MENU", cr[CR_YELLOW]);
 
-    MN_DrTextACentered ("MAIN MENU", 30);
+    MN_DrTextACentered("MAIN MENU", 30, cr[CR_YELLOW]);
 
     // Spectating
     sprintf(str, crl_spectating ? "ON" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET_SML - MN_TextAWidth(str), 40);
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET_SML - MN_TextAWidth(str), 40,
+               crl_spectating ? cr[CR_GREEN] : cr[CR_RED]);
 
     // Freeze
     sprintf(str, crl_freeze ? "ON" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET_SML - MN_TextAWidth(str), 50);
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET_SML - MN_TextAWidth(str), 50,
+               crl_freeze ? cr[CR_GREEN] : cr[CR_RED]);
 
     // No target
     sprintf(str, "N/A");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET_SML - MN_TextAWidth(str), 60);
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET_SML - MN_TextAWidth(str), 60, cr[CR_RED]);
 
     // No momentum
     sprintf(str, !singleplayer ? "N/A" :
             player->cheats & CF_NOMOMENTUM ? "ON" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET_SML - MN_TextAWidth(str), 70);
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET_SML - MN_TextAWidth(str), 70, 
+               player->cheats & CF_NOMOMENTUM ? cr[CR_GREEN] : cr[CR_RED]);
 
-    MN_DrTextACentered ("SETTINGS", 80);
+    MN_DrTextACentered ("SETTINGS", 80, cr[CR_YELLOW]);
 }
 
 static boolean CRLDummy (int option)
@@ -463,10 +485,12 @@ static void InitFonts(void)
 //
 //---------------------------------------------------------------------------
 
-void MN_DrTextA(char *text, int x, int y)
+void MN_DrTextA (char *text, int x, int y, byte *table)
 {
     char c;
     patch_t *p;
+
+    dp_translation = table;
 
     while ((c = *text++) != 0)
     {
@@ -477,10 +501,12 @@ void MN_DrTextA(char *text, int x, int y)
         else
         {
             p = W_CacheLumpNum(FontABaseLump + c - 33, PU_CACHE);
-            V_DrawPatch(x, y, p, "NULL"); // [JN] TODO - patch name
+            V_DrawShadowedPatchRavenSmall(x, y, p, "NULL"); // [JN] TODO - patch name
             x += SHORT(p->width) - 1;
         }
     }
+
+    dp_translation = NULL;
 }
 
 //---------------------------------------------------------------------------
@@ -513,13 +539,15 @@ int MN_TextAWidth(char *text)
     return (width);
 }
 
-void MN_DrTextACentered (char *text, int y)
+void MN_DrTextACentered (char *text, int y, byte *table)
 {
     char c;
     int cx;
     patch_t *p;
 
     cx = 160 - MN_TextAWidth(text) / 2;
+    
+    dp_translation = table;
 
     while ((c = *text++) != 0)
     {
@@ -534,6 +562,8 @@ void MN_DrTextACentered (char *text, int y)
             cx += SHORT(p->width) - 1;
         }
     }
+
+    dp_translation = NULL;
 }
 
 //---------------------------------------------------------------------------
@@ -637,20 +667,20 @@ void MN_Drawer(void)
         {
             message = DEH_String(QuitEndMsg[typeofask - 1]);
 
-            MN_DrTextA(message, 160 - MN_TextAWidth(message) / 2, 80);
+            MN_DrTextA(message, 160 - MN_TextAWidth(message) / 2, 80, NULL);
             if (typeofask == 3)
             {
                 MN_DrTextA(SlotText[quicksave - 1], 160 -
-                           MN_TextAWidth(SlotText[quicksave - 1]) / 2, 90);
+                           MN_TextAWidth(SlotText[quicksave - 1]) / 2, 90, NULL);
                 MN_DrTextA(DEH_String("?"), 160 +
-                           MN_TextAWidth(SlotText[quicksave - 1]) / 2, 90);
+                           MN_TextAWidth(SlotText[quicksave - 1]) / 2, 90, NULL);
             }
             if (typeofask == 4)
             {
                 MN_DrTextA(SlotText[quickload - 1], 160 -
-                           MN_TextAWidth(SlotText[quickload - 1]) / 2, 90);
+                           MN_TextAWidth(SlotText[quickload - 1]) / 2, 90, NULL);
                 MN_DrTextA(DEH_String("?"), 160 +
-                           MN_TextAWidth(SlotText[quickload - 1]) / 2, 90);
+                           MN_TextAWidth(SlotText[quickload - 1]) / 2, 90, NULL);
             }
             UpdateState |= I_FULLSCRN;
         }
@@ -681,7 +711,7 @@ void MN_Drawer(void)
             {
                 if (item->type != ITT_EMPTY && item->text)
                 {
-                    MN_DrTextA(DEH_String(item->text), x, y);
+                    MN_DrTextA(DEH_String(item->text), x, y, cr[CR_MENU_DARK2]);
                 }
                 y += ITEM_HEIGHT_SMALL;
             }
@@ -699,7 +729,7 @@ void MN_Drawer(void)
         if (CurrentMenu->smallFont)
         {
             y = CurrentMenu->y + (CurrentItPos * ITEM_HEIGHT_SMALL);
-            MN_DrTextA(MenuTime & 8 ? "*" : " ", x + SELECTOR_XOFFSET_SMALL, y);
+            MN_DrTextA(MenuTime & 8 ? "*" : " ", x + SELECTOR_XOFFSET_SMALL, y, NULL);
         }
         else
         {
@@ -854,7 +884,7 @@ static void DrawFileSlots(Menu_t * menu)
         V_DrawPatch(x, y, W_CacheLumpName(DEH_String("M_FSLOT"), PU_CACHE), "M_FSLOT");
         if (SlotStatus[i])
         {
-            MN_DrTextA(SlotText[i], x + 5, y + 5);
+            MN_DrTextA(SlotText[i], x + 5, y + 5, NULL);
         }
         y += ITEM_HEIGHT;
     }
@@ -1546,11 +1576,11 @@ boolean MN_Responder(event_t * event)
         }
         else if (key == key_menu_gamma)           // F11 (gamma correction)
         {
-            crl_gamma++;
-            if (crl_gamma > 4)
+            if (++crl_gamma > 14)
             {
                 crl_gamma = 0;
             }
+            P_SetMessage(&players[consoleplayer], gammamsg[crl_gamma], false);
             I_SetPalette((byte *) W_CacheLumpName("PLAYPAL", PU_CACHE), false); // [JN] TODO - colorblind
             return true;
         }

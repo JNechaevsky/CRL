@@ -245,7 +245,8 @@ void V_DrawPatchFlipped(int x, int y, patch_t *patch)
 
 // -----------------------------------------------------------------------------
 // V_DrawShadowedPatch
-// Masks a column based masked pic to the screen, with casted shadow
+// [JN] Masks a column based masked pic to the screen.
+// Used by Doom with tintmap map.
 // -----------------------------------------------------------------------------
 
 void V_DrawShadowedPatch (int x, int y, const patch_t *patch, char *name)
@@ -360,6 +361,74 @@ void V_DrawShadowedPatchRaven(int x, int y, patch_t *patch)
                 *dest = *source++;
                 dest += SCREENWIDTH;
 
+            }
+            column = (column_t *) ((byte *) column + column->length + 4);
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------
+// V_DrawShadowedPatchRavenSmall
+// [JN] Masks a column based masked pic to the screen.
+// Used by Heretic and Hexen with tinttable map.
+// -----------------------------------------------------------------------------
+
+void V_DrawShadowedPatchRavenSmall (int x, int y, const patch_t *patch, char *name)
+{
+    int       count, col, w;
+    byte     *source, *sourcetrans;
+    pixel_t  *desttop, *dest, *desttop2, *dest2;
+    column_t *column;
+
+    y -= SHORT(patch->topoffset);
+    x -= SHORT(patch->leftoffset);
+
+#ifdef RANGECHECK
+    if (x < 0
+    ||  x + SHORT(patch->width) > SCREENWIDTH
+    ||  y < 0
+    ||  y + SHORT(patch->height) > SCREENHEIGHT)
+    {
+        // [JN] Do not crash, print a critical message instead.
+        CRL_SetCriticalMessage(M_StringJoin("V_DrawShadowedPatchRavenSmall error:",
+        "\rBad V_DrawPatch \"", name, "\"", NULL), 2);
+        return;
+    }
+#endif
+
+    col = 0;
+    desttop = dest_screen + y * SCREENWIDTH + x;
+    desttop2 = dest_screen + (y + 1) * SCREENWIDTH + x + 1;
+
+    w = SHORT(patch->width);
+
+    for (; col < w; x++, col++, desttop++, desttop2++)
+    {
+        column = (column_t *) ((byte *) patch + LONG(patch->columnofs[col]));
+
+        // step through the posts in a column
+        while (column->topdelta != 0xff)
+        {
+            const short column_delta = column->topdelta * SCREENWIDTH;
+
+            source = sourcetrans = (byte *) column + 3;
+            dest = desttop + column_delta;
+            dest2 = desttop2 + column_delta;
+            count = column->length;
+
+            while (count--)
+            {
+                if (dp_translation)
+                {
+                    sourcetrans = &dp_translation[*source++];
+                }
+                if (crl_text_shadows)
+                {
+                    *dest2 = tinttable[((*dest2) << 8)];
+                    dest2 += SCREENWIDTH;
+                }
+                *dest = *sourcetrans++;
+                dest += SCREENWIDTH;
             }
             column = (column_t *) ((byte *) column + column->length + 4);
         }

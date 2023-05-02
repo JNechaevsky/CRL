@@ -129,7 +129,7 @@ void DrawMessage(void)
     {                           // No message
         return;
     }
-    MN_DrTextA(player->message, 160 - MN_TextAWidth(player->message) / 2, 1);
+    MN_DrTextA(player->message, 160 - MN_TextAWidth(player->message) / 2, 1, NULL);
 }
 
 //---------------------------------------------------------------------------
@@ -700,6 +700,9 @@ void D_BindVariables(void)
         M_snprintf(buf, sizeof(buf), "chatmacro%i", i);
         M_BindStringVariable(buf, &chat_macros[i]);
     }
+
+    // [JN] Bind CRL-specific config variables.
+    CRL_BindVariables();
 }
 
 // 
