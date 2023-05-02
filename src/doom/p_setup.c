@@ -712,17 +712,30 @@ void P_GroupLines (void)
     int			j;
     line_t*		li;
     sector_t*		sector;
-    subsector_t*	ss;
-    seg_t*		seg;
     fixed_t		bbox[4];
     int			block;
 	
     // look up sector number for each subsector
-    ss = subsectors;
-    for (i=0 ; i<numsubsectors ; i++, ss++)
+    // [JN] Fix infinite loop is subsector is not a part of any sector.
+    // Written by figgi, adapted from Pr-Boom+.
+    for (i=0 ; i<numsubsectors ; i++)
     {
-	seg = &segs[ss->firstline];
-	ss->sector = seg->sidedef->sector;
+	    seg_t *seg = &segs[subsectors[i].firstline];
+	    subsectors[i].sector = NULL;
+
+	    for (j=0 ; j<subsectors[i].numlines ; j++)
+	    {
+	        if(seg->sidedef)
+	        {
+	            subsectors[i].sector = seg->sidedef->sector;
+	            break;
+	        }
+	        seg++;
+	    }
+	    if (subsectors[i].sector == NULL)
+	    {
+	        I_Error("P_GroupLines: Subsector %d is not a part of any sector!\n", i);
+	    }
     }
 
     // count number of lines in each sector
