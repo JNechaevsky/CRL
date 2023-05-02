@@ -31,6 +31,15 @@ extern int key_use;
 extern int key_strafe;
 extern int key_speed;
 
+extern int key_flyup;
+extern int key_flydown;
+extern int key_flycenter;
+extern int key_lookup;
+extern int key_lookdown;
+extern int key_lookcenter;
+extern int key_invleft;
+extern int key_invright;
+extern int key_useartifact;
 
 extern int key_message_refresh;
 extern int key_pause;
@@ -116,6 +125,9 @@ extern int mousebuse;
 
 extern int mousebprevweapon;
 extern int mousebnextweapon;
+extern int mousebinvleft;
+extern int mousebinvright;
+extern int mousebuseartifact;
 
 extern int joybfire;
 extern int joybstrafe;
@@ -154,6 +166,7 @@ extern int key_crl_demospeed; // [crispy]
 extern int key_crl_limits;
 
 void M_BindBaseControls(void);
+void M_BindHereticControls(void);
 void M_BindWeaponControls(void);
 void M_BindMapControls(void);
 void M_BindMenuControls(void);

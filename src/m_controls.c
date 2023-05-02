@@ -40,6 +40,33 @@ int key_use = ' ';
 int key_strafe = KEY_RALT;
 int key_speed = KEY_RSHIFT; 
 
+// 
+// Heretic keyboard controls
+//
+ 
+int key_flyup = KEY_PGUP;
+int key_flydown = KEY_INS;
+int key_flycenter = KEY_HOME;
+
+int key_lookup = KEY_PGDN;
+int key_lookdown = KEY_DEL;
+int key_lookcenter = KEY_END;
+
+int key_invleft = '[';
+int key_invright = ']';
+int key_useartifact = KEY_ENTER;
+
+int key_arti_quartz = 0;
+int key_arti_urn = 0;
+int key_arti_bomb = 0;
+int key_arti_tome = 127;
+int key_arti_ring = 0;
+int key_arti_chaosdevice = 0;
+int key_arti_shadowsphere = 0;
+int key_arti_wings = 0;
+int key_arti_torch = 0;
+int key_arti_morph = 0;
+
 //
 // Mouse controls
 //
@@ -56,6 +83,9 @@ int mousebuse = -1;
 int mousebprevweapon = 4;
 int mousebnextweapon = 3;
 
+int mousebinvleft = -1;
+int mousebinvright = -1;
+int mousebuseartifact = -1;
 
 int key_message_refresh = KEY_ENTER;
 int key_pause = KEY_PAUSE;
@@ -208,6 +238,36 @@ void M_BindBaseControls(void)
     M_BindIntVariable("dclick_use",          &dclick_use);
     M_BindIntVariable("key_pause",           &key_pause);
     M_BindIntVariable("key_message_refresh", &key_message_refresh);
+}
+
+void M_BindHereticControls(void)
+{
+    M_BindIntVariable("key_flyup",          &key_flyup);
+    M_BindIntVariable("key_flydown",        &key_flydown);
+    M_BindIntVariable("key_flycenter",      &key_flycenter);
+
+    M_BindIntVariable("key_lookup",         &key_lookup);
+    M_BindIntVariable("key_lookdown",       &key_lookdown);
+    M_BindIntVariable("key_lookcenter",     &key_lookcenter);
+
+    M_BindIntVariable("key_invleft",        &key_invleft);
+    M_BindIntVariable("key_invright",       &key_invright);
+    M_BindIntVariable("key_useartifact",    &key_useartifact);
+
+    M_BindIntVariable("mouseb_invleft", &mousebinvleft);
+    M_BindIntVariable("mouseb_invright", &mousebinvright);
+    M_BindIntVariable("mouseb_useartifact", &mousebuseartifact);
+
+    M_BindIntVariable("key_arti_quartz",        &key_arti_quartz);
+    M_BindIntVariable("key_arti_urn",           &key_arti_urn);
+    M_BindIntVariable("key_arti_bomb",          &key_arti_bomb);
+    M_BindIntVariable("key_arti_tome",          &key_arti_tome);
+    M_BindIntVariable("key_arti_ring",          &key_arti_ring);
+    M_BindIntVariable("key_arti_chaosdevice",   &key_arti_chaosdevice);
+    M_BindIntVariable("key_arti_shadowsphere",  &key_arti_shadowsphere);
+    M_BindIntVariable("key_arti_wings",         &key_arti_wings);
+    M_BindIntVariable("key_arti_torch",         &key_arti_torch);
+    M_BindIntVariable("key_arti_morph",         &key_arti_morph);
 }
 
 void M_BindWeaponControls(void)

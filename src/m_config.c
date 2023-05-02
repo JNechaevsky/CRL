@@ -132,6 +132,17 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_KEY(key_down),
     CONFIG_VARIABLE_KEY(key_strafeleft),
     CONFIG_VARIABLE_KEY(key_straferight),
+
+    CONFIG_VARIABLE_KEY(key_flyup),
+    CONFIG_VARIABLE_KEY(key_flydown),
+    CONFIG_VARIABLE_KEY(key_flycenter),
+    CONFIG_VARIABLE_KEY(key_lookup),
+    CONFIG_VARIABLE_KEY(key_lookdown),
+    CONFIG_VARIABLE_KEY(key_lookcenter),
+    CONFIG_VARIABLE_KEY(key_invleft),
+    CONFIG_VARIABLE_KEY(key_invright),
+    CONFIG_VARIABLE_KEY(key_useartifact),
+
     CONFIG_VARIABLE_KEY(key_fire),
     CONFIG_VARIABLE_KEY(key_use),
     CONFIG_VARIABLE_KEY(key_strafe),
