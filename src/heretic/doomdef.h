@@ -826,6 +826,7 @@ void MN_Ticker(void);
 void MN_Drawer(void);
 void MN_DrTextA(char *text, int x, int y);
 int MN_TextAWidth(char *text);
+void MN_DrTextACentered (char *text, int y);
 void MN_DrTextB(char *text, int x, int y);
 int MN_TextBWidth(char *text);
 

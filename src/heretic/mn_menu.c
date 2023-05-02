@@ -32,6 +32,7 @@
 #include "s_sound.h"
 #include "v_video.h"
 
+#include "crlcore.h"
 #include "crlvars.h"
 
 // Macros
@@ -85,6 +86,7 @@ typedef struct
     int itemCount;
     MenuItem_t *items;
     int oldItPos;
+    boolean smallFont;  // [JN] If true, use small font
     MenuType_t prevMenu;
 } Menu_t;
 
@@ -165,6 +167,7 @@ static Menu_t MainMenu = {
     DrawMainMenu,
     5, MainItems,
     0,
+    false,
     MENU_NONE
 };
 
@@ -181,6 +184,7 @@ static Menu_t EpisodeMenu = {
     DrawEpisodeMenu,
     3, EpisodeItems,
     0,
+    false,
     MENU_MAIN
 };
 
@@ -194,6 +198,7 @@ static Menu_t FilesMenu = {
     DrawFilesMenu,
     2, FilesItems,
     0,
+    false,
     MENU_MAIN
 };
 
@@ -211,6 +216,7 @@ static Menu_t LoadMenu = {
     DrawLoadMenu,
     6, LoadItems,
     0,
+    false,
     MENU_FILES
 };
 
@@ -228,6 +234,7 @@ static Menu_t SaveMenu = {
     DrawSaveMenu,
     6, SaveItems,
     0,
+    false,
     MENU_FILES
 };
 
@@ -245,6 +252,7 @@ static Menu_t SkillMenu = {
     DrawSkillMenu,
     5, SkillItems,
     2,
+    false,
     MENU_EPISODE
 };
 
@@ -261,6 +269,7 @@ static Menu_t OptionsMenu = {
     DrawOptionsMenu,
     5, OptionsItems,
     0,
+    false,
     MENU_MAIN
 };
 
@@ -278,8 +287,125 @@ static Menu_t Options2Menu = {
     DrawOptions2Menu,
     6, Options2Items,
     0,
+    false,
     MENU_OPTIONS
 };
+
+// =============================================================================
+// [JN] CRL custom menu
+// =============================================================================
+
+#define CRL_MENU_TOPOFFSET     (40)
+#define CRL_MENU_LEFTOFFSET    (48)
+#define CRL_MENU_RIGHTOFFSET   (SCREENWIDTH - CRL_MENU_LEFTOFFSET)
+
+#define CRL_MENU_LEFTOFFSET_SML    (72)
+#define CRL_MENU_RIGHTOFFSET_SML   (SCREENWIDTH - CRL_MENU_LEFTOFFSET_SML)
+
+#define ITEM_HEIGHT_SMALL        10
+#define SELECTOR_XOFFSET_SMALL  -14
+
+static player_t *player;
+
+static void DrawCRLMenu (void);
+static boolean CRLDummy (int option);
+static boolean CRL_Spectating (int option);
+static boolean CRL_Freeze (int option);
+static boolean CRL_NoTarget (int option);
+static boolean CRL_NoMomentum (int option);
+
+static MenuItem_t CRLMainItems[] = {
+    {ITT_LRFUNC, "SPECTATOR MODE",          CRL_Spectating, 0, MENU_NONE},
+    {ITT_LRFUNC, "FREEZE MODE",             CRL_Freeze,     0, MENU_NONE},
+    {ITT_LRFUNC, "NO TARGET MODE",          CRL_NoTarget,   0, MENU_NONE},
+    {ITT_LRFUNC, "NO MOMENTUM MODE",        CRL_NoMomentum, 0, MENU_NONE},
+    {ITT_EMPTY, NULL, NULL, 0, MENU_NONE},
+    {ITT_LRFUNC, "VIDEO OPTIONS",           CRLDummy, 0, MENU_NONE},
+    {ITT_LRFUNC, "SOUND OPTIONS",           CRLDummy, 0, MENU_NONE},
+    {ITT_LRFUNC, "CONTROL SETTINGS",        CRLDummy, 0, MENU_NONE},
+    {ITT_LRFUNC, "WIDGETS AND AUTOMAP",     CRLDummy, 0, MENU_NONE},
+    {ITT_LRFUNC, "GAMEPLAY FEATURES",       CRLDummy, 0, MENU_NONE},
+    {ITT_LRFUNC, "STATIC ENGINE LIMITS",    CRLDummy, 0, MENU_NONE}
+
+};
+
+static Menu_t CRLMain = {
+    CRL_MENU_LEFTOFFSET_SML, CRL_MENU_TOPOFFSET,
+    DrawCRLMenu,
+    11, CRLMainItems,
+    0,
+    true,
+    MENU_NONE
+};
+
+static void DrawCRLMenu (void)
+{
+    static char str[32];
+
+    // M_ShadeBackground();
+    // M_WriteTextCentered(27, "MAIN MENU", cr[CR_YELLOW]);
+
+    MN_DrTextACentered ("MAIN MENU", 30);
+
+    // Spectating
+    sprintf(str, crl_spectating ? "ON" : "OFF");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET_SML - MN_TextAWidth(str), 40);
+
+    // Freeze
+    sprintf(str, crl_freeze ? "ON" : "OFF");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET_SML - MN_TextAWidth(str), 50);
+
+    // No target
+    sprintf(str, "N/A");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET_SML - MN_TextAWidth(str), 60);
+
+    // No momentum
+    sprintf(str, !singleplayer ? "N/A" :
+            player->cheats & CF_NOMOMENTUM ? "ON" : "OFF");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET_SML - MN_TextAWidth(str), 70);
+
+    MN_DrTextACentered ("SETTINGS", 80);
+}
+
+static boolean CRLDummy (int option)
+{
+    return true;
+}
+
+static boolean CRL_Spectating (int option)
+{
+    crl_spectating ^= 1;
+    return true;
+}
+
+static boolean CRL_Freeze (int option)
+{
+    crl_freeze ^= 1;
+    return true;
+}
+
+static boolean CRL_NoTarget (int choice)
+{
+    if (!singleplayer)
+    {
+        return false;
+    }
+
+    // player->cheats ^= CF_NOTARGET;
+    return true;
+}
+
+static boolean CRL_NoMomentum (int choice)
+{
+    if (!singleplayer)
+    {
+        return false;
+    }
+
+    player->cheats ^= CF_NOMOMENTUM;
+    return true;
+}
+
 
 static Menu_t *Menus[] = {
     &MainMenu,
@@ -289,7 +415,9 @@ static Menu_t *Menus[] = {
     &Options2Menu,
     &FilesMenu,
     &LoadMenu,
-    &SaveMenu
+    &SaveMenu,
+    // [JN] CRL menu
+    &CRLMain
 };
 
 //---------------------------------------------------------------------------
@@ -304,6 +432,9 @@ void MN_Init(void)
     MenuActive = false;
     messageson = true;
     SkullBaseLump = W_GetNumForName(DEH_String("M_SKL00"));
+
+    // [JN] CRL - player is always local, "console" player.
+    player = &players[consoleplayer];
 
     if (gamemode == retail)
     {                           // Add episodes 4 and 5 to the menu
@@ -380,6 +511,29 @@ int MN_TextAWidth(char *text)
         }
     }
     return (width);
+}
+
+void MN_DrTextACentered (char *text, int y)
+{
+    char c;
+    int cx;
+    patch_t *p;
+
+    cx = 160 - MN_TextAWidth(text) / 2;
+
+    while ((c = *text++) != 0)
+    {
+        if (c < 33)
+        {
+            cx += 5;
+        }
+        else
+        {
+            p = W_CacheLumpNum(FontABaseLump + c - 33, PU_CACHE);
+            V_DrawPatch(cx, y, p, "NULL"); // [JN] TODO - patch name
+            cx += SHORT(p->width) - 1;
+        }
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -523,17 +677,37 @@ void MN_Drawer(void)
         item = CurrentMenu->items;
         for (i = 0; i < CurrentMenu->itemCount; i++)
         {
-            if (item->type != ITT_EMPTY && item->text)
+            if (CurrentMenu->smallFont)
             {
-                MN_DrTextB(DEH_String(item->text), x, y);
+                if (item->type != ITT_EMPTY && item->text)
+                {
+                    MN_DrTextA(DEH_String(item->text), x, y);
+                }
+                y += ITEM_HEIGHT_SMALL;
             }
-            y += ITEM_HEIGHT;
+            else
+            {
+                if (item->type != ITT_EMPTY && item->text)
+                {
+                    MN_DrTextB(DEH_String(item->text), x, y);
+                }
+                y += ITEM_HEIGHT;
+            }
             item++;
         }
-        y = CurrentMenu->y + (CurrentItPos * ITEM_HEIGHT) + SELECTOR_YOFFSET;
-        selName = DEH_String(MenuTime & 16 ? "M_SLCTR1" : "M_SLCTR2");
-        V_DrawPatch(x + SELECTOR_XOFFSET, y,
-                    W_CacheLumpName(selName, PU_CACHE), selName);
+        
+        if (CurrentMenu->smallFont)
+        {
+            y = CurrentMenu->y + (CurrentItPos * ITEM_HEIGHT_SMALL);
+            MN_DrTextA(MenuTime & 8 ? "*" : " ", x + SELECTOR_XOFFSET_SMALL, y);
+        }
+        else
+        {
+            y = CurrentMenu->y + (CurrentItPos * ITEM_HEIGHT) + SELECTOR_YOFFSET;
+            selName = DEH_String(MenuTime & 16 ? "M_SLCTR1" : "M_SLCTR2");
+            V_DrawPatch(x + SELECTOR_XOFFSET, y,
+                        W_CacheLumpName(selName, PU_CACHE), selName);
+        }
     }
 }
 
@@ -1044,7 +1218,6 @@ boolean MN_Responder(event_t * event)
     int key;
     int i;
     MenuItem_t *item;
-    extern boolean automapactive;
     extern void D_StartTitle(void);
     extern void G_CheckDemoStatus(void);
     char *textBuffer;
@@ -1386,13 +1559,32 @@ boolean MN_Responder(event_t * event)
 
     if (!MenuActive)
     {
-        if (key == key_menu_activate || gamestate == GS_DEMOSCREEN || demoplayback)
+        if (key == key_menu_activate || key == key_crl_menu 
+        ||  gamestate == GS_DEMOSCREEN || demoplayback)
         {
             MN_ActivateMenu();
+
+            // [JN] Spawn CRL menu
+            if (key == key_crl_menu)
+            {
+                CurrentMenu = &CRLMain;
+                CurrentItPos = CurrentMenu->oldItPos;
+            }
+
             return (true);
         }
         return (false);
     }
+    else
+    {
+        // [JN] Deactivate CRL menu by pressing ~ key again.
+        if (key == key_crl_menu)
+        {
+            MN_DeactivateMenu();
+            return (true);
+        }
+    }
+
     if (!FileMenuKeySteal)
     {
         item = &CurrentMenu->items[CurrentItPos];
