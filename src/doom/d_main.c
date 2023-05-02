@@ -72,6 +72,7 @@
 
 #include "crlcore.h"
 #include "crlvars.h"
+#include "crlfuncs.h"
 
 
 // Location where savegames are stored
