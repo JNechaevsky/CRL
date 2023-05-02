@@ -167,4 +167,6 @@ void P_Ticker(void)
     P_UpdateSpecials();
     P_AmbientSound();
     leveltime++;
+    
+    realleveltime++;
 }

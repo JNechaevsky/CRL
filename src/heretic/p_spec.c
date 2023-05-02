@@ -25,6 +25,10 @@
 #include "s_sound.h"
 #include "v_video.h"
 
+#include "crlcore.h"
+#include "crlvars.h"
+
+
 // Macros
 
 #define MAX_AMBIENT_SFX 8       // Per level
@@ -991,10 +995,16 @@ void P_UpdateSpecials(void)
         switch (line->special)
         {
             case 48:           // Effect_Scroll_Left
-                sides[line->sidenum[0]].textureoffset += FRACUNIT;
+                // [crispy] smooth texture scrolling
+                sides[line->sidenum[0]].basetextureoffset += FRACUNIT;
+                sides[line->sidenum[0]].textureoffset =
+                sides[line->sidenum[0]].basetextureoffset;
                 break;
             case 99:           // Effect_Scroll_Right
-                sides[line->sidenum[0]].textureoffset -= FRACUNIT;
+                // [crispy] smooth texture scrolling
+                sides[line->sidenum[0]].basetextureoffset -= FRACUNIT;
+                sides[line->sidenum[0]].textureoffset =
+                sides[line->sidenum[0]].basetextureoffset;
                 break;
         }
     }
@@ -1026,6 +1036,31 @@ void P_UpdateSpecials(void)
             }
         }
     }
+}
+
+// [crispy] smooth texture scrolling
+void R_InterpolateTextureOffsets (void)
+{
+	if (crl_uncapped_fps && leveltime > oldleveltime)
+	{
+		int i;
+
+		for (i = 0; i < numlinespecials; i++)
+		{
+			const line_t *const line = linespeciallist[i];
+			side_t *const side = &sides[line->sidenum[0]];
+
+			if (line->special == 48)
+			{
+				side->textureoffset = side->basetextureoffset + fractionaltic;
+			}
+			else
+			if (line->special == 85)
+			{
+				side->textureoffset = side->basetextureoffset - fractionaltic;
+			}
+		}
+	}
 }
 
 //============================================================

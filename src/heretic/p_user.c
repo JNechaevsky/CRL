@@ -121,7 +121,7 @@ void P_CalcHeight(player_t * player)
         return;
     }
 
-    angle = (FINEANGLES / 20 * leveltime) & FINEMASK;
+    angle = (FINEANGLES / 20 * realleveltime) & FINEMASK;
     bob = FixedMul(player->bob / 2, finesine[angle]);
 
 //
@@ -537,6 +537,18 @@ void P_PlayerThink(player_t * player)
 {
     ticcmd_t *cmd;
     weapontype_t newweapon;
+
+    // [AM] Assume we can interpolate at the beginning
+    //      of the tic.
+    player->mo->interp = true;
+
+    // [AM] Store starting position for player interpolation.
+    player->mo->oldx = player->mo->x;
+    player->mo->oldy = player->mo->y;
+    player->mo->oldz = player->mo->z;
+    player->mo->oldangle = player->mo->angle;
+    player->oldviewz = player->viewz;
+    player->oldlookdir = player->lookdir;
 
     // No-clip cheat
     if (player->cheats & CF_NOCLIP)
