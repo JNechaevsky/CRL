@@ -1062,6 +1062,8 @@ void G_Ticker(void)
         inventory = false;
         cmd->arti = 0;
     }
+
+    oldleveltime = realleveltime;
 //
 // do main actions
 //
@@ -1159,7 +1161,7 @@ void G_PlayerFinishLevel(int player)
         p->chickenTics = 0;
     }
     p->messageTics = 0;
-    p->lookdir = 0;
+    p->lookdir = p->oldlookdir = 0;
     p->mo->flags &= ~MF_SHADOW; // Remove invisibility
     p->extralight = 0;          // Remove weapon flashes
     p->fixedcolormap = 0;       // Remove torch

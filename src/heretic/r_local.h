@@ -83,6 +83,24 @@ typedef struct
     void *specialdata;          // thinker_t for reversable actions
     int linecount;
     struct line_s **lines;      // [linecount] size
+
+    // [AM] Previous position of floor and ceiling before
+    //      think.  Used to interpolate between positions.
+    fixed_t	oldfloorheight;
+    fixed_t	oldceilingheight;
+
+    // [AM] Gametic when the old positions were recorded.
+    //      Has a dual purpose; it prevents movement thinkers
+    //      from storing old positions twice in a tic, and
+    //      prevents the renderer from attempting to interpolate
+    //      if old values were not updated recently.
+    int         oldgametic;
+
+    // [AM] Interpolated floor and ceiling height.
+    //      Calculated once per tic and used inside
+    //      the renderer.
+    fixed_t	interpfloorheight;
+    fixed_t	interpceilingheight;
 } sector_t;
 
 typedef struct
@@ -91,6 +109,9 @@ typedef struct
     fixed_t rowoffset;          // add this to the calculated texture top
     short toptexture, bottomtexture, midtexture;
     sector_t *sector;
+
+    // [crispy] smooth texture scrolling
+    fixed_t	basetextureoffset;
 } side_t;
 
 typedef enum
@@ -308,6 +329,8 @@ fixed_t R_ScaleFromGlobalAngle(angle_t visangle);
 subsector_t *R_PointInSubsector(fixed_t x, fixed_t y);
 void R_AddPointToBox(int x, int y, fixed_t * box);
 
+// [AM] Interpolate between two angles.
+angle_t R_InterpolateAngle(angle_t oangle, angle_t nangle, fixed_t scale);
 
 //
 // R_bsp.c
@@ -417,6 +440,9 @@ extern fixed_t sprtopscreen;
 extern fixed_t sprbotscreen;
 
 extern fixed_t pspritescale, pspriteiscale;
+
+// [crispy] interpolate weapon bobbing
+extern boolean pspr_interp;
 
 
 void R_DrawMaskedColumn(column_t * column, signed int baseclip);
