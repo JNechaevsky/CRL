@@ -274,6 +274,16 @@ static int G_NextWeapon(int direction)
     return weapon_order_table[i].weapon_num;
 }
 
+// -----------------------------------------------------------------------------
+// [crispy] holding down the "Run" key may trigger special behavior,
+// e.g. quick exit, clean screenshots, resurrection from savegames
+// -----------------------------------------------------------------------------
+boolean speedkeydown (void)
+{
+    return (key_speed < NUMKEYS && gamekeydown[key_speed]) ||
+           (joybspeed < MAX_JOY_BUTTONS && joybuttons[joybspeed]);
+}
+
 /*
 ====================
 =
@@ -320,9 +330,12 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
 
     strafe = gamekeydown[key_strafe] || mousebuttons[mousebstrafe]
         || joybuttons[joybstrafe];
-    speed = joybspeed >= MAX_JOY_BUTTONS
-         || gamekeydown[key_speed]
-         || joybuttons[joybspeed];
+
+    // [crispy] when "always run" is active,
+    // pressing the "run" key will result in walking
+    speed = (key_speed >= NUMKEYS || joybspeed >= MAX_JOY_BUTTONS);
+    speed ^= speedkeydown();
+    crl_camzspeed = speed;
 
     // haleyjd: removed externdriver crap
     
@@ -340,6 +353,27 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
         tspeed = 2;             // slow turn
     else
         tspeed = speed;
+
+    // [crispy] toggle "always run"
+    if (gamekeydown[key_crl_autorun])
+    {
+        static int joybspeed_old = 2;
+
+        if (joybspeed >= MAX_JOY_BUTTONS)
+        {
+            joybspeed = joybspeed_old;
+        }
+        else
+        {
+            joybspeed_old = joybspeed;
+            joybspeed = MAX_JOY_BUTTONS;
+        }
+
+        P_SetMessage(&players[consoleplayer], joybspeed >= MAX_JOY_BUTTONS ?
+                     CRL_AUTORUN_ON : CRL_AUTORUN_OFF, false);
+        S_StartSound(NULL, sfx_chat);
+        gamekeydown[key_crl_autorun] = false;
+    }
 
     if (gamekeydown[key_lookdown] || gamekeydown[key_lookup])
     {
