@@ -591,8 +591,8 @@ static void DrawCRLVideo (void)
                crl_gamma == 10 ? "OFF"  :
                crl_gamma == 11 ? "1"    :
                crl_gamma == 12 ? "2"    :
-               crl_gamma == 13 ? "3"    :
-                                 "4", 164, 105, NULL);
+               crl_gamma == 13 ? "3"    : "4",
+               164, 105, CurrentItPos == 6 ? cr[CR_MENU_BRIGHT2] : cr[CR_MENU_DARK2]);
 
     // Text casts shadows
     sprintf(str, crl_text_shadows ? "ON" : "OFF");
