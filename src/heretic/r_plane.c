@@ -295,7 +295,7 @@ visplane_t *R_FindPlane(fixed_t height, int picnum,
     check->minx = SCREENWIDTH;
     check->maxx = -1;
 
-    // RestlessRodent -- Store emitting seg
+    // [JN] RestlessRodent -- Store emitting seg
     check->isfindplane = 1;
     check->emitline = __line;
     check->emitsub = __sub;
@@ -367,7 +367,7 @@ visplane_t *R_CheckPlane(visplane_t * pl, int start, int stop,
     pl->minx = start;
     pl->maxx = stop;
 
-    // RestlessRodent -- Store emitting seg
+    // [JN] RestlessRodent -- Store emitting seg
     pl->isfindplane = 0;
     pl->emitline = __line;
     pl->emitsub = __sub;

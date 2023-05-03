@@ -180,9 +180,9 @@ typedef struct
     int minx, maxx;
 
     // [JN] CRL visplane data:
-    int     isfindplane; // Is a find plane.
-    seg_t  *emitline;  // The seg that emitted this.
-    subsector_t *emitsub;   // The subsector this visplane is in.
+    int         isfindplane;    // Is a find plane.
+    seg_t       *emitline;      // The seg that emitted this.
+    subsector_t *emitsub;       // The subsector this visplane is in.
 
     byte pad1;                  // leave pads for [minx-1]/[maxx+1]
     byte top[SCREENWIDTH];
@@ -499,8 +499,8 @@ extern byte *ds_source;         // start of a 64*64 tile image
 extern byte *translationtables;
 extern byte *dc_translation;
 
-// GhostlyDeath -- CRL
-extern visplane_t   *dc_visplaneused;
+// [JN] RestlessRodent -- CRL
+extern visplane_t *dc_visplaneused;
 
 void R_DrawSpan(void);
 void R_DrawSpanLow(void);
