@@ -521,7 +521,7 @@ static MenuItem_t CRLVideoItems[] = {
     {ITT_EMPTY, NULL, NULL, 0, MENU_NONE},
     {ITT_LRFUNC, "TEXT CASTS SHADOWS",        CRL_TextShadows, 0, MENU_NONE},
     {ITT_LRFUNC, "GRAPHICAL STARTUP",       CRL_GfxStartup, 0, MENU_NONE},
-    {ITT_LRFUNC, "SHOW ENDOOM SCREEN",     CRL_EndText, 0, MENU_NONE}
+    {ITT_LRFUNC, "SHOW ENDTEXT SCREEN",     CRL_EndText, 0, MENU_NONE}
 };
 
 static Menu_t CRLVideo = {
@@ -590,6 +590,15 @@ static void DrawCRLVideo (void)
     MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 120,
                crl_text_shadows ? cr[CR_GREEN] : cr[CR_RED]);
 
+    // Graphical startup
+    sprintf(str, graphical_startup ? "ON" : "OFF");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 130,
+               graphical_startup ? cr[CR_GREEN] : cr[CR_RED]);
+
+    // Show ENDTEXT screen
+    sprintf(str, show_endoom ? "ON" : "OFF");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 140,
+               show_endoom ? cr[CR_GREEN] : cr[CR_RED]);
 }
 
 static boolean CRL_UncappedFPS (int option)
@@ -673,17 +682,13 @@ static boolean CRL_TextShadows (int option)
 
 static boolean CRL_GfxStartup (int option)
 {
-    // extern int graphical_startup;
-    // 
-    // graphical_startup ^= 1;
+    graphical_startup ^= 1;
     return true;
 }
 
 static boolean CRL_EndText (int option)
 {
-    // extern int show_endoom;
-    // 
-    // show_endoom ^= 1;
+    show_endoom ^= 1;
     return true;
 }
 
