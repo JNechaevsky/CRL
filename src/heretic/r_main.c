@@ -768,8 +768,7 @@ void R_SetupFrame(player_t * player)
             viewy = CRL_camera_oldy + FixedMul(by - CRL_camera_oldy, fractionaltic);
             viewz = CRL_camera_oldz + FixedMul(bz - CRL_camera_oldz, fractionaltic);
             viewangle = R_InterpolateAngle(CRL_camera_oldang, ba, fractionaltic);
-            pitch = player->oldlookdir + (player->lookdir - player->oldlookdir) *
-                    FIXED2DOUBLE(fractionaltic);
+            pitch = 0; // [JN] TODO - look up/down for Spectator mode?
         }
         else
         {
@@ -777,7 +776,7 @@ void R_SetupFrame(player_t * player)
             viewy = by;
             viewz = bz;
             viewangle = ba;
-            pitch = player->lookdir; // [crispy]
+            pitch = 0;
         }
     }
     else
