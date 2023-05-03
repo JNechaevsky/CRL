@@ -168,7 +168,12 @@ void D_Display(void)
             if (automapactive)
                 AM_Drawer();
             else
+            {
                 R_RenderPlayerView(&players[displayplayer]);
+                // [JN] RestlessRodent -- draw visplanes if overlayed
+                CRL_DrawVisPlanes(1);
+            }
+
             CT_Drawer();
             UpdateState |= I_FULLVIEW;
             SB_Drawer();

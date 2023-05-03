@@ -392,6 +392,7 @@ static void DrawCRLVideo (void);
 static boolean CRL_UncappedFPS (int option);
 static boolean CRL_LimitFPS (int option);
 static boolean CRL_VSync (int option);
+static boolean CRL_VisplanesDraw (int option);
 static boolean CRL_HOMDraw (int option);
 static boolean CRL_Gamma (int option);
 static boolean CRL_TextShadows (int option);
@@ -514,7 +515,7 @@ static MenuItem_t CRLVideoItems[] = {
     {ITT_LRFUNC, "FRAMERATE LIMIT",             CRL_LimitFPS,     0, MENU_NONE},
     {ITT_LRFUNC, "ENABLE VSYNC",          CRL_VSync,   0, MENU_NONE},
     {ITT_LRFUNC, "SHOW FPS COUNTER",        CRLDummy, 0, MENU_NONE},
-    {ITT_LRFUNC, "VISPLANES DRAWING",           CRLDummy, 0, MENU_NONE},
+    {ITT_LRFUNC, "VISPLANES DRAWING",           CRL_VisplanesDraw, 0, MENU_NONE},
     {ITT_LRFUNC, "HOM EFFECT",           CRL_HOMDraw, 0, MENU_NONE},
     {ITT_LRFUNC, "GAMMA-CORRECTION",           CRL_Gamma, 0, MENU_NONE},
     {ITT_EMPTY, NULL, NULL, 0, MENU_NONE},
@@ -559,7 +560,12 @@ static void DrawCRLVideo (void)
     // 60
 
     // Visplanes drawing
-    // 70
+    sprintf(str, crl_visplanes_drawing == 0 ? "NORMAL" :
+                 crl_visplanes_drawing == 1 ? "FILL" :
+                 crl_visplanes_drawing == 2 ? "OVERFILL" :
+                 crl_visplanes_drawing == 3 ? "BORDER" : "OVERBORDER");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 70,
+               crl_visplanes_drawing ? cr[CR_GREEN] : cr[CR_RED]);
     
     // HOM effect
     sprintf(str, crl_hom_effect == 0 ? "OFF" :
@@ -606,7 +612,6 @@ static boolean CRL_UncappedFPS (int option)
     crl_uncapped_fps ^= 1;
     // [JN] Skip weapon bobbing interpolation for next frame.
     pspr_interp = false;
-
     return true;
 }
 
@@ -637,16 +642,19 @@ static boolean CRL_LimitFPS (int option)
         default:
             break;
     }
-    
     return true;
 }
 
 static boolean CRL_VSync (int option)
 {
     crl_vsync ^= 1;
-
     I_ToggleVsync();
+    return true;
+}
 
+static boolean CRL_VisplanesDraw (int option)
+{
+    crl_visplanes_drawing = M_INT_Slider(crl_visplanes_drawing, 0, 4, option);
     return true;
 }
 

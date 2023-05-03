@@ -178,6 +178,12 @@ typedef struct
     int lightlevel;
     int special;
     int minx, maxx;
+
+    // [JN] CRL visplane data:
+    int     isfindplane; // Is a find plane.
+    seg_t  *emitline;  // The seg that emitted this.
+    subsector_t *emitsub;   // The subsector this visplane is in.
+
     byte pad1;                  // leave pads for [minx-1]/[maxx+1]
     byte top[SCREENWIDTH];
     byte pad2;
@@ -385,13 +391,13 @@ extern fixed_t distscale[SCREENWIDTH];
 
 void R_InitPlanes(void);
 void R_ClearPlanes(void);
-void R_MapPlane(int y, int x1, int x2);
-void R_MakeSpans(int x, int t1, int b1, int t2, int b2);
+void R_MapPlane(int y, int x1, int x2, visplane_t* __plane);
+void R_MakeSpans(int x, int t1, int b1, int t2, int b2, visplane_t* __plane);
 void R_DrawPlanes(void);
 
 visplane_t *R_FindPlane(fixed_t height, int picnum, int lightlevel,
-                        int special);
-visplane_t *R_CheckPlane(visplane_t * pl, int start, int stop);
+                        int special, seg_t* __line, subsector_t* __sub);
+visplane_t *R_CheckPlane(visplane_t * pl, int start, int stop, seg_t* __line, subsector_t* __sub);
 
 
 //
@@ -492,6 +498,9 @@ extern byte *ds_source;         // start of a 64*64 tile image
 
 extern byte *translationtables;
 extern byte *dc_translation;
+
+// GhostlyDeath -- CRL
+extern visplane_t   *dc_visplaneused;
 
 void R_DrawSpan(void);
 void R_DrawSpanLow(void);

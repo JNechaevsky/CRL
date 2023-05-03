@@ -74,7 +74,33 @@ fixed_t cachedystep[SCREENHEIGHT];
 
 void GAME_IdentifyPlane(void* __what, CRLPlaneData_t* __info)
 {
-	raise(SIGABRT);
+	visplane_t* pl = ((visplane_t*)__what);
+	
+	// Set
+	__info->id = (intptr_t)(pl - visplanes);
+	__info->isf = pl->isfindplane;
+	
+	__info->emitline = pl->emitline;
+	__info->emitlineid = pl->emitline - segs;
+	if (__info->emitlineid < 0 || __info->emitlineid >= numsegs)
+		__info->emitlineid = -1;
+	
+	__info->emitsub = pl->emitsub;
+	__info->emitsubid = pl->emitsub - subsectors;
+	if (__info->emitsubid < 0 || __info->emitsubid >= numsubsectors)
+		__info->emitsubid = -1;
+	
+	__info->emitsect = NULL;
+	__info->emitsectid = 0;
+	if (pl->emitsub != NULL)
+	{
+		__info->emitsect = pl->emitsub->sector;
+		__info->emitsectid = pl->emitsub->sector - sectors;
+		if (__info->emitsectid < 0 || __info->emitsectid >= numsectors)
+			__info->emitsectid = -1;
+	}
+	
+	__info->onfloor = pl->height < viewz;
 }
 
 
@@ -128,7 +154,7 @@ BASIC PRIMITIVE
 ================
 */
 
-void R_MapPlane(int y, int x1, int x2)
+void R_MapPlane(int y, int x1, int x2, visplane_t* __plane)
 {
     angle_t angle;
     fixed_t distance, length;
@@ -173,7 +199,9 @@ void R_MapPlane(int y, int x1, int x2)
     ds_x1 = x1;
     ds_x2 = x2;
 
+    dc_visplaneused = __plane;
     spanfunc();                 // high or low detail
+    dc_visplaneused = NULL;
 }
 
 //=============================================================================
@@ -226,7 +254,8 @@ void R_ClearPlanes(void)
 */
 
 visplane_t *R_FindPlane(fixed_t height, int picnum,
-                        int lightlevel, int special)
+                        int lightlevel, int special,
+                        seg_t* __line, subsector_t* __sub)
 {
     visplane_t *check;
 
@@ -255,6 +284,9 @@ visplane_t *R_FindPlane(fixed_t height, int picnum,
         I_Error("R_FindPlane: no more visplanes");
     }
 
+    // [JN] RestlessRodent -- Count plane before write
+    CRL_CountPlane(check, 1, (intptr_t)(lastvisplane - visplanes));
+
     lastvisplane++;
     check->height = height;
     check->picnum = picnum;
@@ -262,6 +294,12 @@ visplane_t *R_FindPlane(fixed_t height, int picnum,
     check->special = special;
     check->minx = SCREENWIDTH;
     check->maxx = -1;
+
+    // RestlessRodent -- Store emitting seg
+    check->isfindplane = 1;
+    check->emitline = __line;
+    check->emitsub = __sub;
+
     memset(check->top, 0xff, sizeof(check->top));
     return (check);
 }
@@ -274,7 +312,8 @@ visplane_t *R_FindPlane(fixed_t height, int picnum,
 ===============
 */
 
-visplane_t *R_CheckPlane(visplane_t * pl, int start, int stop)
+visplane_t *R_CheckPlane(visplane_t * pl, int start, int stop,
+                         seg_t* __line, subsector_t* __sub)
 {
     int intrl, intrh;
     int unionl, unionh;
@@ -319,9 +358,20 @@ visplane_t *R_CheckPlane(visplane_t * pl, int start, int stop)
     lastvisplane->picnum = pl->picnum;
     lastvisplane->lightlevel = pl->lightlevel;
     lastvisplane->special = pl->special;
+
     pl = lastvisplane++;
+
+    // [JN] RestlessRodent -- Count plane before write
+    CRL_CountPlane(pl, 0, (intptr_t)((lastvisplane - 1) - visplanes));
+
     pl->minx = start;
     pl->maxx = stop;
+
+    // RestlessRodent -- Store emitting seg
+    pl->isfindplane = 0;
+    pl->emitline = __line;
+    pl->emitsub = __sub;
+
     memset(pl->top, 0xff, sizeof(pl->top));
 
     return pl;
@@ -339,16 +389,16 @@ visplane_t *R_CheckPlane(visplane_t * pl, int start, int stop)
 ================
 */
 
-void R_MakeSpans(int x, int t1, int b1, int t2, int b2)
+void R_MakeSpans(int x, int t1, int b1, int t2, int b2, visplane_t* __plane)
 {
     while (t1 < t2 && t1 <= b1)
     {
-        R_MapPlane(t1, spanstart[t1], x - 1);
+        R_MapPlane(t1, spanstart[t1], x - 1, __plane);
         t1++;
     }
     while (b1 > b2 && b1 >= t1)
     {
-        R_MapPlane(b1, spanstart[b1], x - 1);
+        R_MapPlane(b1, spanstart[b1], x - 1, __plane);
         b1--;
     }
 
@@ -513,7 +563,7 @@ void R_DrawPlanes(void)
         stop = pl->maxx + 1;
         for (x = pl->minx; x <= stop; x++)
             R_MakeSpans(x, pl->top[x - 1], pl->bottom[x - 1], pl->top[x],
-                        pl->bottom[x]);
+                        pl->bottom[x], pl);
 
         W_ReleaseLumpNum(lumpnum);
     }

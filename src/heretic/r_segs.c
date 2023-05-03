@@ -342,7 +342,7 @@ void R_RenderSegLoop(void)
 ======================
 */
 
-void R_StoreWallRange(int start, int stop)
+void R_StoreWallRange(int start, int stop, seg_t* __line, subsector_t* __sub)
 {
     fixed_t hyp;
     fixed_t sineval;
@@ -637,9 +637,9 @@ void R_StoreWallRange(int start, int stop)
 // render it
 //
     if (markceiling)
-        ceilingplane = R_CheckPlane(ceilingplane, rw_x, rw_stopx - 1);
+        ceilingplane = R_CheckPlane(ceilingplane, rw_x, rw_stopx - 1, __line, __sub);
     if (markfloor)
-        floorplane = R_CheckPlane(floorplane, rw_x, rw_stopx - 1);
+        floorplane = R_CheckPlane(floorplane, rw_x, rw_stopx - 1, __line, __sub);
 
     R_RenderSegLoop();
 

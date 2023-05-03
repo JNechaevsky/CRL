@@ -32,7 +32,7 @@ sector_t *frontsector, *backsector;
 
 drawseg_t drawsegs[MAXDRAWSEGS], *ds_p;
 
-void R_StoreWallRange(int start, int stop);
+void R_StoreWallRange(int start, int stop, seg_t* __line, subsector_t* __sub);
 
 /*
 ====================
@@ -76,7 +76,7 @@ typedef struct
 cliprange_t solidsegs[MAXSEGS], *newend;        // newend is one past the last valid seg
 
 
-void R_ClipSolidWallSegment(int first, int last)
+void R_ClipSolidWallSegment(int first, int last, seg_t* __line, subsector_t* __sub)
 {
     cliprange_t *next, *start;
 
@@ -89,7 +89,7 @@ void R_ClipSolidWallSegment(int first, int last)
     {
         if (last < start->first - 1)
         {                       // post is entirely visible (above start), so insert a new clippost
-            R_StoreWallRange(first, last);
+            R_StoreWallRange(first, last, __line, __sub);
             next = newend;
             newend++;
             while (next != start)
@@ -103,7 +103,7 @@ void R_ClipSolidWallSegment(int first, int last)
         }
 
         // there is a fragment above *start
-        R_StoreWallRange(first, start->first - 1);
+        R_StoreWallRange(first, start->first - 1, __line, __sub);
         start->first = first;   // adjust the clip size
     }
 
@@ -114,7 +114,7 @@ void R_ClipSolidWallSegment(int first, int last)
     while (last >= (next + 1)->first - 1)
     {
         // there is a fragment between two posts
-        R_StoreWallRange(next->last + 1, (next + 1)->first - 1);
+        R_StoreWallRange(next->last + 1, (next + 1)->first - 1, __line, __sub);
         next++;
         if (last <= next->last)
         {                       // bottom is contained in next
@@ -124,7 +124,7 @@ void R_ClipSolidWallSegment(int first, int last)
     }
 
     // there is a fragment after *next
-    R_StoreWallRange(next->last + 1, last);
+    R_StoreWallRange(next->last + 1, last, __line, __sub);
     start->last = last;         // adjust the clip size
 
 
@@ -148,7 +148,7 @@ void R_ClipSolidWallSegment(int first, int last)
 ===============================================================================
 */
 
-void R_ClipPassWallSegment(int first, int last)
+void R_ClipPassWallSegment(int first, int last, seg_t* __line, subsector_t* __sub)
 {
     cliprange_t *start;
 
@@ -161,12 +161,12 @@ void R_ClipPassWallSegment(int first, int last)
     {
         if (last < start->first - 1)
         {                       // post is entirely visible (above start)
-            R_StoreWallRange(first, last);
+            R_StoreWallRange(first, last, __line, __sub);
             return;
         }
 
         // there is a fragment above *start
-        R_StoreWallRange(first, start->first - 1);
+        R_StoreWallRange(first, start->first - 1, __line, __sub);
     }
 
     if (last <= start->last)
@@ -175,14 +175,14 @@ void R_ClipPassWallSegment(int first, int last)
     while (last >= (start + 1)->first - 1)
     {
         // there is a fragment between two posts
-        R_StoreWallRange(start->last + 1, (start + 1)->first - 1);
+        R_StoreWallRange(start->last + 1, (start + 1)->first - 1, __line, __sub);
         start++;
         if (last <= start->last)
             return;
     }
 
     // there is a fragment after *next
-    R_StoreWallRange(start->last + 1, last);
+    R_StoreWallRange(start->last + 1, last, __line, __sub);
 }
 
 
@@ -243,7 +243,7 @@ void R_CheckInterpolateSector(sector_t* sector)
 ======================
 */
 
-void R_AddLine(seg_t * line)
+void R_AddLine(seg_t * line, subsector_t* __sub)
 {
     int x1, x2;
     angle_t angle1, angle2, span, tspan;
@@ -319,11 +319,11 @@ void R_AddLine(seg_t * line)
         return;
 
   clippass:
-    R_ClipPassWallSegment(x1, x2 - 1);
+    R_ClipPassWallSegment(x1, x2 - 1, line, __sub);
     return;
 
   clipsolid:
-    R_ClipSolidWallSegment(x1, x2 - 1);
+    R_ClipSolidWallSegment(x1, x2 - 1, line, __sub);
 }
 
 //============================================================================
@@ -467,14 +467,14 @@ void R_Subsector(int num)
         floorplane = R_FindPlane(frontsector->interpfloorheight,
                                  frontsector->floorpic,
                                  frontsector->lightlevel,
-                                 frontsector->special);
+                                 frontsector->special, NULL, sub);
     else
         floorplane = NULL;
     if (frontsector->interpceilingheight > viewz
         || frontsector->ceilingpic == skyflatnum)
         ceilingplane = R_FindPlane(frontsector->interpceilingheight,
                                    frontsector->ceilingpic,
-                                   frontsector->lightlevel, 0);
+                                   frontsector->lightlevel, 0, NULL, sub);
     else
         ceilingplane = NULL;
 
@@ -482,7 +482,7 @@ void R_Subsector(int num)
 
     while (count--)
     {
-        R_AddLine(line);
+        R_AddLine(line, sub);
         line++;
     }
 
