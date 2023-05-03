@@ -1641,7 +1641,9 @@ boolean MN_Responder(event_t * event)
     if (!MenuActive)
     {
         if (key == key_menu_activate || key == key_crl_menu 
-        ||  gamestate == GS_DEMOSCREEN || demoplayback)
+        // [JN] Open Heretic/CRL menu only by pressing it's keys to allow 
+        // certain CRL features to be toggled. This behavior is same to Doom.
+        /*||  gamestate == GS_DEMOSCREEN || demoplayback*/)
         {
             MN_ActivateMenu();
 
