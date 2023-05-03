@@ -856,28 +856,31 @@ void P_PlayerInSpecialSector(player_t * player)
     switch (sector->special)
     {
         case 7:                // Damage_Sludge
-            if (!(leveltime & 31))
+            if (!(leveltime & 31) && !crl_freeze)
             {
                 P_DamageMobj(player->mo, NULL, NULL, 4);
             }
             break;
         case 5:                // Damage_LavaWimpy
-            if (!(leveltime & 15))
+            if (!(leveltime & 15) && !crl_freeze)
             {
                 P_DamageMobj(player->mo, &LavaInflictor, NULL, 5);
                 P_HitFloor(player->mo);
             }
             break;
         case 16:               // Damage_LavaHefty
-            if (!(leveltime & 15))
+            if (!(leveltime & 15) && !crl_freeze)
             {
                 P_DamageMobj(player->mo, &LavaInflictor, NULL, 8);
                 P_HitFloor(player->mo);
             }
             break;
         case 4:                // Scroll_EastLavaDamage
-            P_Thrust(player, 0, 2048 * 28);
-            if (!(leveltime & 15))
+            if (!crl_freeze)
+            {
+                P_Thrust(player, 0, 2048 * 28);
+            }
+            if (!(leveltime & 15) && !crl_freeze)
             {
                 P_DamageMobj(player->mo, &LavaInflictor, NULL, 5);
                 P_HitFloor(player->mo);
@@ -906,28 +909,40 @@ void P_PlayerInSpecialSector(player_t * player)
         case 27:
         case 28:
         case 29:               // Scroll_North
-            P_Thrust(player, ANG90, pushTab[sector->special - 25]);
+            if (!crl_freeze)
+            {
+                P_Thrust(player, ANG90, pushTab[sector->special - 25]);
+            }
             break;
         case 20:
         case 21:
         case 22:
         case 23:
         case 24:               // Scroll_East
-            P_Thrust(player, 0, pushTab[sector->special - 20]);
+            if (!crl_freeze)
+            {
+                P_Thrust(player, 0, pushTab[sector->special - 20]);
+            }
             break;
         case 30:
         case 31:
         case 32:
         case 33:
         case 34:               // Scroll_South
-            P_Thrust(player, ANG270, pushTab[sector->special - 30]);
+            if (!crl_freeze)
+            {
+                P_Thrust(player, ANG270, pushTab[sector->special - 30]);
+            }
             break;
         case 35:
         case 36:
         case 37:
         case 38:
         case 39:               // Scroll_West
-            P_Thrust(player, ANG180, pushTab[sector->special - 35]);
+            if (!crl_freeze)
+            {
+                P_Thrust(player, ANG180, pushTab[sector->special - 35]);
+            }
             break;
 
         case 40:

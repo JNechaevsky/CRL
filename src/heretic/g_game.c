@@ -954,6 +954,30 @@ boolean G_Responder(event_t * ev)
                              CRL_SPECTATOR_ON : CRL_SPECTATOR_OFF, false);
                 pspr_interp = false;
             }        
+            // [JN] CRL - Toggle freeze mode.
+            if (ev->data1 == key_crl_freeze)
+            {
+                // Allow freeze only in single player game, otherwise desyncs may occur.
+                if (demorecording)
+                {
+                    P_SetMessage(&players[consoleplayer], CRL_FREEZE_NA_R , false);
+                    return true;
+                }            
+                if (demoplayback)
+                {
+                    P_SetMessage(&players[consoleplayer], CRL_FREEZE_NA_P , false);
+                    return true;
+                }   
+                if (netgame)
+                {
+                    P_SetMessage(&players[consoleplayer], CRL_FREEZE_NA_N , false);
+                    return true;
+                }   
+                crl_freeze ^= 1;
+
+                P_SetMessage(&players[consoleplayer], crl_freeze ?
+                             CRL_FREEZE_ON : CRL_FREEZE_OFF, false);
+            }
             return (true);      // eat key down events
 
         case ev_keyup:

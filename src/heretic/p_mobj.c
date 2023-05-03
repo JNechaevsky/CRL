@@ -24,6 +24,7 @@
 #include "s_sound.h"
 
 #include "crlcore.h"
+#include "crlvars.h"
 
 
 void G_PlayerReborn(int player);
@@ -1245,6 +1246,23 @@ void P_SpawnPuff(fixed_t x, fixed_t y, fixed_t z)
         default:
             break;
     }
+
+    // [JN] CRL - prevent puffs appearing below floor and above ceiling levels.
+    // Just a cosmetical improvement, not needed outside of Freeze mode.
+    // Note: shifting puff's z *seems* to be safe for demos, but Freeze itself
+    // is not available in demo playing/recording, so keep this fix isolated.
+    if (crl_freeze)
+    {
+        if (puff->z < puff->floorz)
+        {
+            puff->z = puff->floorz;
+        }
+        if (puff->z > puff->ceilingz)
+        {
+            puff->z = puff->ceilingz;
+        }
+    }
+
     // [crispy] suppress interpolation for the first tic
     puff->interp = -1;
 }

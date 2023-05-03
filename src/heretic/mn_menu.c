@@ -399,8 +399,9 @@ static void DrawCRLMenu (void)
                crl_spectating ? cr[CR_GREEN] : cr[CR_RED]);
 
     // Freeze
-    sprintf(str, crl_freeze ? "ON" : "OFF");
+    sprintf(str, !singleplayer ? "N/A" : crl_freeze ? "ON" : "OFF");
     MN_DrTextA(str, CRL_MENU_RIGHTOFFSET_SML - MN_TextAWidth(str), 50,
+               !singleplayer ? cr[CR_DARKRED] :
                crl_freeze ? cr[CR_GREEN] : cr[CR_RED]);
 
     // No target
@@ -429,6 +430,10 @@ static boolean CRL_Spectating (int option)
 
 static boolean CRL_Freeze (int option)
 {
+    if (!singleplayer)
+    {
+        return false;
+    }
     crl_freeze ^= 1;
     return true;
 }

@@ -509,6 +509,27 @@ void R_ProjectSprite(mobj_t * thing)
         interpangle = thing->angle;
     }
 
+    // [JN] ... Hovewer, interpolate player while freeze mode,
+    // so it's sprite won't get desynced with moving camera.
+    // TODO - make it smarter and move to condition above?
+    if (crl_freeze && thing->type == MT_PLAYER)
+    {
+        if (crl_uncapped_fps)
+        {
+            interpx = thing->oldx + FixedMul(thing->x - thing->oldx, fractionaltic);
+            interpy = thing->oldy + FixedMul(thing->y - thing->oldy, fractionaltic);
+            interpz = thing->oldz + FixedMul(thing->z - thing->oldz, fractionaltic);
+            interpangle = R_InterpolateAngle(thing->oldangle, thing->angle, fractionaltic);
+        }
+        else
+        {
+            interpx = thing->x;
+            interpy = thing->y;
+            interpz = thing->z;
+            interpangle = thing->angle;
+        }
+    }
+
 //
 // transform the origin point
 //

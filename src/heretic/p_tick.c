@@ -22,6 +22,7 @@
 #include "v_video.h"
 
 #include "crlcore.h"
+#include "crlvars.h"
 
 
 int leveltime;
@@ -118,6 +119,17 @@ void P_RunThinkers(void)
     currentthinker = thinkercap.next;
     while (currentthinker != &thinkercap)
     {
+        // [JN] CRL - do not run other than player thinkers in freeze mode.
+        if (crl_freeze)
+        {
+            mobj_t *mo = (mobj_t *)currentthinker;
+
+            if (mo->type != MT_PLAYER || currentthinker->function != P_MobjThinker)
+            {
+                goto skip;
+            }
+        }
+
         if (currentthinker->function == (think_t) - 1)
         {                       // time to remove it
             nextthinker = currentthinker->next;
@@ -129,6 +141,8 @@ void P_RunThinkers(void)
         {
             if (currentthinker->function)
                 currentthinker->function(currentthinker);
+
+            skip:
             nextthinker = currentthinker->next;
         }
         currentthinker = nextthinker;
@@ -164,9 +178,14 @@ void P_Ticker(void)
         }
     }
     P_RunThinkers();
-    P_UpdateSpecials();
-    P_AmbientSound();
-    leveltime++;
+
+    // [JN] CRL - do not update mobjs and thinkers in freeze mode.
+    if (!crl_freeze)
+    {
+        P_UpdateSpecials();
+        P_AmbientSound();
+        leveltime++;
+    }
     
     realleveltime++;
 }
