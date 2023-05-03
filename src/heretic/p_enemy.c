@@ -144,6 +144,12 @@ void P_RecursiveSound(sector_t * sec, int soundblocks)
 
 void P_NoiseAlert(mobj_t * target, mobj_t * emmiter)
 {
+    // [crispy] [JN] monsters are deaf with NOTARGET mode
+    if (target && target->player && (target->player->cheats & CF_NOTARGET))
+    {
+        return;
+    }
+
     soundtarget = target;
     validcount++;
     P_RecursiveSound(emmiter->subsector->sector, 0);
@@ -548,6 +554,13 @@ boolean P_LookForPlayers(mobj_t * actor, boolean allaround)
             return false;       // done looking
 
         player = &players[actor->lastlook];
+
+        // [crispy] [JN] monsters don't look for players with NOTARGET mode
+        if (player->cheats & CF_NOTARGET)
+        {
+            continue;
+        }
+
         if (player->health <= 0)
             continue;           // dead
         if (!P_CheckSight(actor, player->mo))
@@ -610,6 +623,13 @@ void A_Look(mobj_t * actor)
 
     actor->threshold = 0;       // any shot will wake up
     targ = actor->subsector->sector->soundtarget;
+
+    // [crispy] [JN] monsters don't look for players with NOTARGET mode
+    if (targ && targ->player && (targ->player->cheats & CF_NOTARGET))
+    {
+        return;
+    }
+
     if (targ && (targ->flags & MF_SHOOTABLE))
     {
         actor->target = targ;

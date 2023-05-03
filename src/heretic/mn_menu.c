@@ -405,14 +405,18 @@ static void DrawCRLMenu (void)
                crl_freeze ? cr[CR_GREEN] : cr[CR_RED]);
 
     // No target
-    sprintf(str, "N/A");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET_SML - MN_TextAWidth(str), 60, cr[CR_RED]);
+    sprintf(str, !singleplayer ? "N/A" :
+            player->cheats & CF_NOTARGET ? "ON" : "OFF");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET_SML - MN_TextAWidth(str), 60,
+              !singleplayer ? cr[CR_DARKRED] :
+              player->cheats & CF_NOTARGET ? cr[CR_GREEN] : cr[CR_RED]);
 
     // No momentum
     sprintf(str, !singleplayer ? "N/A" :
             player->cheats & CF_NOMOMENTUM ? "ON" : "OFF");
     MN_DrTextA(str, CRL_MENU_RIGHTOFFSET_SML - MN_TextAWidth(str), 70, 
-               player->cheats & CF_NOMOMENTUM ? cr[CR_GREEN] : cr[CR_RED]);
+              !singleplayer ? cr[CR_DARKRED] :
+              player->cheats & CF_NOMOMENTUM ? cr[CR_GREEN] : cr[CR_RED]);
 
     MN_DrTextACentered ("SETTINGS", 80, cr[CR_YELLOW]);
 }
@@ -445,7 +449,7 @@ static boolean CRL_NoTarget (int choice)
         return false;
     }
 
-    // player->cheats ^= CF_NOTARGET;
+    player->cheats ^= CF_NOTARGET;
     return true;
 }
 
