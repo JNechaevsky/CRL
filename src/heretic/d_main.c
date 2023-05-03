@@ -219,17 +219,17 @@ void D_Display(void)
 
 boolean D_GrabMouseCallback(void)
 {
-    // when menu is active or game is paused, release the mouse
-
-    if (MenuActive || paused)
-        return false;
-
     // [JN] CRL - always grab mouse in spectator mode.
     // It's supposed to be controlled by hand, even while pause.
     // However, do not grab mouse while active game menu.
 
     if (crl_spectating)
         return MenuActive ? false : true;
+
+    // when menu is active or game is paused, release the mouse
+
+    if (MenuActive || paused)
+        return false;
 
     // only grab mouse when playing levels (but not demos)
 
