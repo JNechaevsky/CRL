@@ -928,6 +928,7 @@ void R_RenderPlayerView(player_t * player)
         R_RenderBSPNode(numnodes - 1);      // the head node is the last node output
         NetUpdate();                // check for new console commands
         R_DrawPlanes();
+        CRL_DrawVisPlanes(0);
         NetUpdate();                // check for new console commands
         R_DrawMasked();
         NetUpdate();                // check for new console commands

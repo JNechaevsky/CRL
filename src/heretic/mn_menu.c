@@ -25,6 +25,7 @@
 #include "i_input.h"
 #include "i_system.h"
 #include "i_swap.h"
+#include "i_timer.h"
 #include "m_controls.h"
 #include "m_misc.h"
 #include "p_local.h"
@@ -67,6 +68,8 @@ typedef enum
     MENU_FILES,
     MENU_LOAD,
     MENU_SAVE,
+    MENU_CRLMAIN,
+    MENU_CRLVIDEO,
     MENU_NONE
 } MenuType_t;
 
@@ -123,7 +126,7 @@ static void DrawFilesMenu(void);
 static void MN_DrawInfo(void);
 static void DrawLoadMenu(void);
 static void DrawSaveMenu(void);
-static void DrawSlider(Menu_t * menu, int item, int width, int slot);
+static void DrawSlider(Menu_t * menu, int item, int width, int slot, boolean bigspacing);
 void MN_LoadSlotText(void);
 
 // External Data
@@ -320,7 +323,7 @@ static Menu_t Options2Menu = {
 // [JN] CRL custom menu
 // =============================================================================
 
-#define CRL_MENU_TOPOFFSET     (40)
+#define CRL_MENU_TOPOFFSET     (30)
 #define CRL_MENU_LEFTOFFSET    (48)
 #define CRL_MENU_RIGHTOFFSET   (SCREENWIDTH - CRL_MENU_LEFTOFFSET)
 
@@ -338,7 +341,12 @@ static byte *M_Line_Glow (const int tics)
         tics == 5 ? cr[CR_MENU_BRIGHT2] :
         tics == 4 ? cr[CR_MENU_BRIGHT1] :
         tics == 3 ? NULL :
-        tics == 2 ? cr[CR_MENU_DARK1] : cr[CR_MENU_DARK2];
+        tics == 2 ? cr[CR_MENU_DARK1]   :
+                    cr[CR_MENU_DARK2]   ;
+        /*            
+        tics == 1 ? cr[CR_MENU_DARK2]  :
+                    cr[CR_MENU_DARK3]  ;
+        */
 }
 
 static byte *M_Cursor_Glow (const int tics)
@@ -354,12 +362,47 @@ static byte *M_Cursor_Glow (const int tics)
         tics > -9 ? cr[CR_MENU_DARK4]   : NULL;
 }
 
-static void DrawCRLMenu (void);
+static const int M_INT_Slider (int val, int min, int max, int direction)
+{
+    switch (direction)
+    {
+        case 0:
+        val--;
+        if (val < min) 
+            val = max;
+        break;
+
+        case 1:
+        val++;
+        if (val > max)
+            val = min;
+        break;
+    }
+    return val;
+}
+
+static void DrawCRLMain (void);
 static boolean CRLDummy (int option);
 static boolean CRL_Spectating (int option);
 static boolean CRL_Freeze (int option);
 static boolean CRL_NoTarget (int option);
 static boolean CRL_NoMomentum (int option);
+
+static void DrawCRLVideo (void);
+static boolean CRL_UncappedFPS (int option);
+static boolean CRL_LimitFPS (int option);
+static boolean CRL_VSync (int option);
+static boolean CRL_ShowFPS (int option);
+static boolean CRL_VisplanesDraw (int option);
+static boolean CRL_HOMDraw (int option);
+static boolean CRL_Gamma (int option);
+static boolean CRL_TextShadows (int option);
+static boolean CRL_GfxStartup (int option);
+static boolean CRL_EndText (int option);
+
+// -----------------------------------------------------------------------------
+// Main CRL Menu
+// -----------------------------------------------------------------------------
 
 static MenuItem_t CRLMainItems[] = {
     {ITT_LRFUNC, "SPECTATOR MODE",          CRL_Spectating, 0, MENU_NONE},
@@ -367,7 +410,7 @@ static MenuItem_t CRLMainItems[] = {
     {ITT_LRFUNC, "NO TARGET MODE",          CRL_NoTarget,   0, MENU_NONE},
     {ITT_LRFUNC, "NO MOMENTUM MODE",        CRL_NoMomentum, 0, MENU_NONE},
     {ITT_EMPTY, NULL, NULL, 0, MENU_NONE},
-    {ITT_LRFUNC, "VIDEO OPTIONS",           CRLDummy, 0, MENU_NONE},
+    {ITT_EFUNC,  "VIDEO OPTIONS",           CRLDummy, 0, MENU_CRLVIDEO},
     {ITT_LRFUNC, "SOUND OPTIONS",           CRLDummy, 0, MENU_NONE},
     {ITT_LRFUNC, "CONTROL SETTINGS",        CRLDummy, 0, MENU_NONE},
     {ITT_LRFUNC, "WIDGETS AND AUTOMAP",     CRLDummy, 0, MENU_NONE},
@@ -378,47 +421,47 @@ static MenuItem_t CRLMainItems[] = {
 
 static Menu_t CRLMain = {
     CRL_MENU_LEFTOFFSET_SML, CRL_MENU_TOPOFFSET,
-    DrawCRLMenu,
+    DrawCRLMain,
     11, CRLMainItems,
     0,
     true,
     MENU_NONE
 };
 
-static void DrawCRLMenu (void)
+static void DrawCRLMain (void)
 {
     static char str[32];
 
     // M_ShadeBackground();
 
-    MN_DrTextACentered("MAIN MENU", 30, cr[CR_YELLOW]);
+    MN_DrTextACentered("MAIN MENU", 20, cr[CR_YELLOW]);
 
     // Spectating
     sprintf(str, crl_spectating ? "ON" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET_SML - MN_TextAWidth(str), 40,
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET_SML - MN_TextAWidth(str), 30,
                crl_spectating ? cr[CR_GREEN] : cr[CR_RED]);
 
     // Freeze
     sprintf(str, !singleplayer ? "N/A" : crl_freeze ? "ON" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET_SML - MN_TextAWidth(str), 50,
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET_SML - MN_TextAWidth(str), 40,
                !singleplayer ? cr[CR_DARKRED] :
                crl_freeze ? cr[CR_GREEN] : cr[CR_RED]);
 
     // No target
     sprintf(str, !singleplayer ? "N/A" :
             player->cheats & CF_NOTARGET ? "ON" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET_SML - MN_TextAWidth(str), 60,
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET_SML - MN_TextAWidth(str), 50,
               !singleplayer ? cr[CR_DARKRED] :
               player->cheats & CF_NOTARGET ? cr[CR_GREEN] : cr[CR_RED]);
 
     // No momentum
     sprintf(str, !singleplayer ? "N/A" :
             player->cheats & CF_NOMOMENTUM ? "ON" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET_SML - MN_TextAWidth(str), 70, 
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET_SML - MN_TextAWidth(str), 60, 
               !singleplayer ? cr[CR_DARKRED] :
               player->cheats & CF_NOMOMENTUM ? cr[CR_GREEN] : cr[CR_RED]);
 
-    MN_DrTextACentered ("SETTINGS", 80, cr[CR_YELLOW]);
+    MN_DrTextACentered ("SETTINGS", 70, cr[CR_YELLOW]);
 }
 
 static boolean CRLDummy (int option)
@@ -464,6 +507,209 @@ static boolean CRL_NoMomentum (int choice)
     return true;
 }
 
+// -----------------------------------------------------------------------------
+// Video options
+// -----------------------------------------------------------------------------
+
+static MenuItem_t CRLVideoItems[] = {
+    {ITT_LRFUNC, "UNCAPPED FRAMERATE",  CRL_UncappedFPS,   0, MENU_NONE},
+    {ITT_LRFUNC, "FRAMERATE LIMIT",     CRL_LimitFPS,      0, MENU_NONE},
+    {ITT_LRFUNC, "ENABLE VSYNC",        CRL_VSync,         0, MENU_NONE},
+    {ITT_LRFUNC, "SHOW FPS COUNTER",    CRL_ShowFPS,       0, MENU_NONE},
+    {ITT_LRFUNC, "VISPLANES DRAWING",   CRL_VisplanesDraw, 0, MENU_NONE},
+    {ITT_LRFUNC, "HOM EFFECT",          CRL_HOMDraw,       0, MENU_NONE},
+    {ITT_LRFUNC, "GAMMA-CORRECTION",    CRL_Gamma,         0, MENU_NONE},
+    {ITT_EMPTY,  NULL,                  NULL,              0, MENU_NONE},
+    {ITT_EMPTY,  NULL,                  NULL,              0, MENU_NONE},
+    {ITT_LRFUNC, "TEXT CASTS SHADOWS",  CRL_TextShadows,   0, MENU_NONE},
+    {ITT_LRFUNC, "GRAPHICAL STARTUP",   CRL_GfxStartup,    0, MENU_NONE},
+    {ITT_LRFUNC, "SHOW ENDTEXT SCREEN", CRL_EndText,       0, MENU_NONE}
+};
+
+static Menu_t CRLVideo = {
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    DrawCRLVideo,
+    12, CRLVideoItems,
+    0,
+    true,
+    MENU_CRLMAIN
+};
+
+static void DrawCRLVideo (void)
+{
+    static char str[32];
+
+    MN_DrTextACentered("VIDEO OPTIONS", 20, cr[CR_YELLOW]);
+
+    // Uncapped framerate
+    sprintf(str, crl_uncapped_fps ? "ON" : "OFF");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 30,
+               crl_uncapped_fps ? cr[CR_GREEN] : cr[CR_RED]);
+
+    // Framerate limit
+    sprintf(str, !crl_uncapped_fps ? "35" :
+                 crl_fpslimit ? "%d" : "NONE", crl_fpslimit);
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 40,
+               crl_uncapped_fps ? cr[CR_GREEN] : cr[CR_RED]);
+
+    // Enable vsync
+    sprintf(str, crl_vsync ? "ON" : "OFF");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 50,
+               crl_vsync ? cr[CR_GREEN] : cr[CR_RED]);
+
+    // Show FPS counter
+    sprintf(str, crl_showfps ? "ON" : "OFF");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 60,
+               crl_showfps ? cr[CR_GREEN] : cr[CR_RED]);
+
+    // Visplanes drawing
+    sprintf(str, crl_visplanes_drawing == 0 ? "NORMAL" :
+                 crl_visplanes_drawing == 1 ? "FILL" :
+                 crl_visplanes_drawing == 2 ? "OVERFILL" :
+                 crl_visplanes_drawing == 3 ? "BORDER" : "OVERBORDER");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 70,
+               crl_visplanes_drawing ? cr[CR_GREEN] : cr[CR_RED]);
+    
+    // HOM effect
+    sprintf(str, crl_hom_effect == 0 ? "OFF" :
+                 crl_hom_effect == 1 ? "MULTICOLOR" : "BLACK");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 80,
+               crl_hom_effect ? cr[CR_GREEN] : cr[CR_RED]);
+
+    // Gamma-correction slider and num
+    DrawSlider(&CRLVideo, 7, 8, crl_gamma/2, false);
+    MN_DrTextA(crl_gamma ==  0 ? "0.50" :
+               crl_gamma ==  1 ? "0.55" :
+               crl_gamma ==  2 ? "0.60" :
+               crl_gamma ==  3 ? "0.65" :
+               crl_gamma ==  4 ? "0.70" :
+               crl_gamma ==  5 ? "0.75" :
+               crl_gamma ==  6 ? "0.80" :
+               crl_gamma ==  7 ? "0.85" :
+               crl_gamma ==  8 ? "0.90" :
+               crl_gamma ==  9 ? "0.95" :
+               crl_gamma == 10 ? "OFF"  :
+               crl_gamma == 11 ? "1"    :
+               crl_gamma == 12 ? "2"    :
+               crl_gamma == 13 ? "3"    :
+                                 "4", 164, 105, NULL);
+
+    // Text casts shadows
+    sprintf(str, crl_text_shadows ? "ON" : "OFF");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 120,
+               crl_text_shadows ? cr[CR_GREEN] : cr[CR_RED]);
+
+    // Graphical startup
+    sprintf(str, graphical_startup ? "ON" : "OFF");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 130,
+               graphical_startup ? cr[CR_GREEN] : cr[CR_RED]);
+
+    // Show ENDTEXT screen
+    sprintf(str, show_endoom ? "ON" : "OFF");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 140,
+               show_endoom ? cr[CR_GREEN] : cr[CR_RED]);
+}
+
+static boolean CRL_UncappedFPS (int option)
+{
+    crl_uncapped_fps ^= 1;
+    // [JN] Skip weapon bobbing interpolation for next frame.
+    pspr_interp = false;
+    return true;
+}
+
+static boolean CRL_LimitFPS (int option)
+{
+    if (!crl_uncapped_fps)
+    {
+        return false;  // Do not allow change value in capped framerate.
+    }
+    
+    switch (option)
+    {
+        case 0:
+            if (crl_fpslimit)
+                crl_fpslimit--;
+
+            if (crl_fpslimit < TICRATE)
+                crl_fpslimit = 0;
+
+            break;
+        case 1:
+            if (crl_fpslimit < 501)
+                crl_fpslimit++;
+
+            if (crl_fpslimit < TICRATE)
+                crl_fpslimit = TICRATE;
+
+        default:
+            break;
+    }
+    return true;
+}
+
+static boolean CRL_VSync (int option)
+{
+    crl_vsync ^= 1;
+    I_ToggleVsync();
+    return true;
+}
+
+static boolean CRL_ShowFPS (int option)
+{
+    crl_showfps ^= 1;
+    return true;
+}
+
+static boolean CRL_VisplanesDraw (int option)
+{
+    crl_visplanes_drawing = M_INT_Slider(crl_visplanes_drawing, 0, 4, option);
+    return true;
+}
+
+static boolean CRL_HOMDraw (int option)
+{
+    crl_hom_effect = M_INT_Slider(crl_hom_effect, 0, 2, option);
+    return true;
+}
+
+static boolean CRL_Gamma (int option)
+{
+    switch (option)
+    {
+        case 0:
+            if (crl_gamma)
+                crl_gamma--;
+            break;
+        case 1:
+            if (crl_gamma < 14)
+                crl_gamma++;
+        default:
+            break;
+    }
+    I_SetPalette(W_CacheLumpName("PLAYPAL", PU_CACHE), false); // [JN] TODO - colorblind
+    return true;
+}
+
+static boolean CRL_TextShadows (int option)
+{
+    crl_text_shadows ^= 1;
+    return true;
+}
+
+static boolean CRL_GfxStartup (int option)
+{
+    graphical_startup ^= 1;
+    return true;
+}
+
+static boolean CRL_EndText (int option)
+{
+    show_endoom ^= 1;
+    return true;
+}
+
+
 
 static Menu_t *Menus[] = {
     &MainMenu,
@@ -475,8 +721,11 @@ static Menu_t *Menus[] = {
     &LoadMenu,
     &SaveMenu,
     // [JN] CRL menu
-    &CRLMain
+    &CRLMain,
+    &CRLVideo,
 };
+
+
 
 //---------------------------------------------------------------------------
 //
@@ -966,7 +1215,7 @@ static void DrawOptionsMenu(void)
     {
         MN_DrTextB(DEH_String("OFF"), 196, 50);
     }
-    DrawSlider(&OptionsMenu, 3, 10, mouseSensitivity);
+    DrawSlider(&OptionsMenu, 3, 10, mouseSensitivity, true);
 }
 
 //---------------------------------------------------------------------------
@@ -977,9 +1226,9 @@ static void DrawOptionsMenu(void)
 
 static void DrawOptions2Menu(void)
 {
-    DrawSlider(&Options2Menu, 1, 9, screenblocks - 3);
-    DrawSlider(&Options2Menu, 3, 16, snd_MaxVolume);
-    DrawSlider(&Options2Menu, 5, 16, snd_MusicVolume);
+    DrawSlider(&Options2Menu, 1, 9, screenblocks - 3, true);
+    DrawSlider(&Options2Menu, 3, 16, snd_MaxVolume, true);
+    DrawSlider(&Options2Menu, 5, 16, snd_MusicVolume, true);
 }
 
 //---------------------------------------------------------------------------
@@ -1959,7 +2208,7 @@ static void SetMenu(MenuType_t menu)
 //
 //---------------------------------------------------------------------------
 
-static void DrawSlider(Menu_t * menu, int item, int width, int slot)
+static void DrawSlider(Menu_t * menu, int item, int width, int slot, boolean bigspacing)
 {
     int x;
     int y;
@@ -1967,7 +2216,7 @@ static void DrawSlider(Menu_t * menu, int item, int width, int slot)
     int count;
 
     x = menu->x + 24;
-    y = menu->y + 2 + (item * ITEM_HEIGHT);
+    y = menu->y + 2 + (item * (bigspacing ? ITEM_HEIGHT : ITEM_HEIGHT_SMALL));
     V_DrawPatch(x - 32, y, W_CacheLumpName(DEH_String("M_SLDLT"), PU_CACHE), "M_SLDLT");
     for (x2 = x, count = width; count--; x2 += 8)
     {

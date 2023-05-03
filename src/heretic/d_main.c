@@ -71,7 +71,7 @@ skill_t startskill;
 int startepisode;
 int startmap;
 int UpdateState;
-static int graphical_startup = 1;
+int graphical_startup = 0;
 static boolean using_graphical_startup;
 static boolean main_loop_started = false;
 boolean autostart;
@@ -80,7 +80,7 @@ boolean advancedemo;
 
 FILE *debugfile;
 
-static int show_endoom = 1;
+int show_endoom = 0;
 
 void D_ConnectNetGame(void);
 void D_CheckNetGame(void);
@@ -168,10 +168,24 @@ void D_Display(void)
             if (automapactive)
                 AM_Drawer();
             else
+            {
                 R_RenderPlayerView(&players[displayplayer]);
+                // [JN] RestlessRodent -- draw visplanes if overlayed
+                CRL_DrawVisPlanes(1);
+            }
+
             CT_Drawer();
             UpdateState |= I_FULLVIEW;
             SB_Drawer();
+
+            // [JN] Do not draw any CRL widgets if not in game level.
+            
+            // [JN] Draw FPS counter.
+            if (crl_showfps)
+            {
+                CRL_DrawFPS();
+            }
+            
             break;
         case GS_INTERMISSION:
             IN_Drawer();
