@@ -392,6 +392,7 @@ static void DrawCRLVideo (void);
 static boolean CRL_UncappedFPS (int option);
 static boolean CRL_LimitFPS (int option);
 static boolean CRL_VSync (int option);
+static boolean CRL_ShowFPS (int option);
 static boolean CRL_VisplanesDraw (int option);
 static boolean CRL_HOMDraw (int option);
 static boolean CRL_Gamma (int option);
@@ -511,18 +512,18 @@ static boolean CRL_NoMomentum (int choice)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLVideoItems[] = {
-    {ITT_LRFUNC, "UNCAPPED FRAMERATE",          CRL_UncappedFPS, 0, MENU_NONE},
-    {ITT_LRFUNC, "FRAMERATE LIMIT",             CRL_LimitFPS,     0, MENU_NONE},
-    {ITT_LRFUNC, "ENABLE VSYNC",          CRL_VSync,   0, MENU_NONE},
-    {ITT_LRFUNC, "SHOW FPS COUNTER",        CRLDummy, 0, MENU_NONE},
-    {ITT_LRFUNC, "VISPLANES DRAWING",           CRL_VisplanesDraw, 0, MENU_NONE},
-    {ITT_LRFUNC, "HOM EFFECT",           CRL_HOMDraw, 0, MENU_NONE},
-    {ITT_LRFUNC, "GAMMA-CORRECTION",           CRL_Gamma, 0, MENU_NONE},
-    {ITT_EMPTY, NULL, NULL, 0, MENU_NONE},
-    {ITT_EMPTY, NULL, NULL, 0, MENU_NONE},
-    {ITT_LRFUNC, "TEXT CASTS SHADOWS",        CRL_TextShadows, 0, MENU_NONE},
-    {ITT_LRFUNC, "GRAPHICAL STARTUP",       CRL_GfxStartup, 0, MENU_NONE},
-    {ITT_LRFUNC, "SHOW ENDTEXT SCREEN",     CRL_EndText, 0, MENU_NONE}
+    {ITT_LRFUNC, "UNCAPPED FRAMERATE",  CRL_UncappedFPS,   0, MENU_NONE},
+    {ITT_LRFUNC, "FRAMERATE LIMIT",     CRL_LimitFPS,      0, MENU_NONE},
+    {ITT_LRFUNC, "ENABLE VSYNC",        CRL_VSync,         0, MENU_NONE},
+    {ITT_LRFUNC, "SHOW FPS COUNTER",    CRL_ShowFPS,       0, MENU_NONE},
+    {ITT_LRFUNC, "VISPLANES DRAWING",   CRL_VisplanesDraw, 0, MENU_NONE},
+    {ITT_LRFUNC, "HOM EFFECT",          CRL_HOMDraw,       0, MENU_NONE},
+    {ITT_LRFUNC, "GAMMA-CORRECTION",    CRL_Gamma,         0, MENU_NONE},
+    {ITT_EMPTY,  NULL,                  NULL,              0, MENU_NONE},
+    {ITT_EMPTY,  NULL,                  NULL,              0, MENU_NONE},
+    {ITT_LRFUNC, "TEXT CASTS SHADOWS",  CRL_TextShadows,   0, MENU_NONE},
+    {ITT_LRFUNC, "GRAPHICAL STARTUP",   CRL_GfxStartup,    0, MENU_NONE},
+    {ITT_LRFUNC, "SHOW ENDTEXT SCREEN", CRL_EndText,       0, MENU_NONE}
 };
 
 static Menu_t CRLVideo = {
@@ -557,7 +558,9 @@ static void DrawCRLVideo (void)
                crl_vsync ? cr[CR_GREEN] : cr[CR_RED]);
 
     // Show FPS counter
-    // 60
+    sprintf(str, crl_showfps ? "ON" : "OFF");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 60,
+               crl_showfps ? cr[CR_GREEN] : cr[CR_RED]);
 
     // Visplanes drawing
     sprintf(str, crl_visplanes_drawing == 0 ? "NORMAL" :
@@ -649,6 +652,12 @@ static boolean CRL_VSync (int option)
 {
     crl_vsync ^= 1;
     I_ToggleVsync();
+    return true;
+}
+
+static boolean CRL_ShowFPS (int option)
+{
+    crl_showfps ^= 1;
     return true;
 }
 

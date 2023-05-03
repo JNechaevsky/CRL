@@ -177,6 +177,15 @@ void D_Display(void)
             CT_Drawer();
             UpdateState |= I_FULLVIEW;
             SB_Drawer();
+
+            // [JN] Do not draw any CRL widgets if not in game level.
+            
+            // [JN] Draw FPS counter.
+            if (crl_showfps)
+            {
+                CRL_DrawFPS();
+            }
+            
             break;
         case GS_INTERMISSION:
             IN_Drawer();
