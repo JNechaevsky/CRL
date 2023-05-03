@@ -754,31 +754,60 @@ void R_SetupFrame(player_t * player)
     // haleyjd: removed WATCOMC
     // haleyjd FIXME: viewangleoffset handling?
     
-    // [AM] Interpolate the player camera if the feature is enabled.
-    if (crl_uncapped_fps &&
-        // Don't interpolate on the first tic of a level,
-        // otherwise oldviewz might be garbage.
-        realleveltime > 1 &&
-        // Don't interpolate if the player did something
-        // that would necessitate turning it off for a tic.
-        player->mo->interp == true &&
-        // Don't interpolate during a paused state
-        realleveltime > oldleveltime)
+    if (crl_spectating)
     {
-        viewx = player->mo->oldx + FixedMul(player->mo->x - player->mo->oldx, fractionaltic);
-        viewy = player->mo->oldy + FixedMul(player->mo->y - player->mo->oldy, fractionaltic);
-        viewz = player->oldviewz + FixedMul(player->viewz - player->oldviewz, fractionaltic);
-        viewangle = R_InterpolateAngle(player->mo->oldangle, player->mo->angle, fractionaltic) + viewangleoffset;
-        pitch = player->oldlookdir + (player->lookdir - player->oldlookdir) *
-                FIXED2DOUBLE(fractionaltic);
+        fixed_t bx, by, bz;
+        angle_t ba;
+
+    	// RestlessRodent -- Get camera position
+    	CRL_GetCameraPos(&bx, &by, &bz, &ba);
+        
+        if (crl_uncapped_fps)
+        {
+            viewx = CRL_camera_oldx + FixedMul(bx - CRL_camera_oldx, fractionaltic);
+            viewy = CRL_camera_oldy + FixedMul(by - CRL_camera_oldy, fractionaltic);
+            viewz = CRL_camera_oldz + FixedMul(bz - CRL_camera_oldz, fractionaltic);
+            viewangle = R_InterpolateAngle(CRL_camera_oldang, ba, fractionaltic);
+            pitch = player->oldlookdir + (player->lookdir - player->oldlookdir) *
+                    FIXED2DOUBLE(fractionaltic);
+        }
+        else
+        {
+            viewx = bx;
+            viewy = by;
+            viewz = bz;
+            viewangle = ba;
+            pitch = player->lookdir; // [crispy]
+        }
     }
     else
     {
-        viewx = player->mo->x;
-        viewy = player->mo->y;
-        viewz = player->viewz;
-        viewangle = player->mo->angle + viewangleoffset;
-        pitch = player->lookdir; // [crispy]
+        // [AM] Interpolate the player camera if the feature is enabled.
+        if (crl_uncapped_fps &&
+            // Don't interpolate on the first tic of a level,
+            // otherwise oldviewz might be garbage.
+            realleveltime > 1 &&
+            // Don't interpolate if the player did something
+            // that would necessitate turning it off for a tic.
+            player->mo->interp == true &&
+            // Don't interpolate during a paused state
+            realleveltime > oldleveltime)
+        {
+            viewx = player->mo->oldx + FixedMul(player->mo->x - player->mo->oldx, fractionaltic);
+            viewy = player->mo->oldy + FixedMul(player->mo->y - player->mo->oldy, fractionaltic);
+            viewz = player->oldviewz + FixedMul(player->viewz - player->oldviewz, fractionaltic);
+            viewangle = R_InterpolateAngle(player->mo->oldangle, player->mo->angle, fractionaltic) + viewangleoffset;
+            pitch = player->oldlookdir + (player->lookdir - player->oldlookdir) *
+                    FIXED2DOUBLE(fractionaltic);
+        }
+        else
+        {
+            viewx = player->mo->x;
+            viewy = player->mo->y;
+            viewz = player->viewz;
+            viewangle = player->mo->angle + viewangleoffset;
+            pitch = player->lookdir; // [crispy]
+        }
     }
     
     tableAngle = viewangle >> ANGLETOFINESHIFT;
@@ -791,6 +820,9 @@ void R_SetupFrame(player_t * player)
     }
 
     extralight = player->extralight;
+
+    // [JN] RestlessRodent -- Just report it
+    CRL_ReportPosition(viewx, viewy, viewz, viewangle);
 
     tempCentery = viewheight / 2 + pitch * screenblocks / 10;
     if (centery != tempCentery)

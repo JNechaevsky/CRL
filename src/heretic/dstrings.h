@@ -246,6 +246,9 @@
 // [JN] CRL-specific strings.
 // -----------------------------------------------------------------------------
 
+#define CRL_SPECTATOR_ON    "SPECTATOR MODE ON"
+#define CRL_SPECTATOR_OFF   "SPECTATOR MODE OFF"
+
 #define GAMMALVL05  "GAMMA CORRECTION LEVEL 0.50"
 #define GAMMALVL055 "GAMMA CORRECTION LEVEL 0.55"
 #define GAMMALVL06  "GAMMA CORRECTION LEVEL 0.60"

@@ -28,6 +28,7 @@
 #include "s_sound.h"
 
 #include "crlcore.h"
+#include "crlvars.h"
 
 
 void P_SpawnMapThing(mapthing_t * mthing);
@@ -654,6 +655,9 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
 // preload graphics
     if (precache)
         R_PrecacheLevel();
+
+    // [JN] Force to disable spectator mode.
+    crl_spectating = 0;
 
 //printf ("free memory: 0x%x\n", Z_FreeMemory());
 

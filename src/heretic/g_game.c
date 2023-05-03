@@ -33,6 +33,10 @@
 #include "s_sound.h"
 #include "v_video.h"
 
+#include "crlcore.h"
+#include "crlvars.h"
+
+
 // Macros
 
 #define AM_STARTKEY     9
@@ -97,7 +101,7 @@ int starttime;                  // for comparative timing purposes
 
 boolean viewactive;
 
-boolean deathmatch;             // only if started as net death
+int deathmatch;                 // only if started as net death
 boolean netgame;                // only true if packets are broadcast
 boolean playeringame[MAXPLAYERS];
 player_t players[MAXPLAYERS];
@@ -196,6 +200,9 @@ int joystrafemove;
 boolean joyarray[MAX_JOY_BUTTONS + 1];
 boolean *joybuttons = &joyarray[1];     // allow [-1]
 
+// [JN] Determinates speed of camera Z-axis movement in spectator mode.
+static int crl_camzspeed;
+
 int savegameslot;
 char savedescription[32];
 
@@ -292,6 +299,7 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
     int forward, side;
     int look, arti;
     int flyheight;
+    ticcmd_t spect;
 
     extern boolean noartiskip;
 
@@ -301,6 +309,12 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
     //cmd->consistancy =
     //      consistancy[consoleplayer][(maketic*ticdup)%BACKUPTICS];
     cmd->consistancy = consistancy[consoleplayer][maketic % BACKUPTICS];
+
+ 	// [JN] RestlessRodent -- If spectating then the player loses all input
+ 	memmove(&spect, cmd, sizeof(spect));
+ 	// [JN] Allow saving and pausing while spectating.
+ 	if (crl_spectating && !sendsave && !sendpause)
+ 		cmd = &spect;
 
 //printf ("cons: %i\n",cmd->consistancy);
 
@@ -497,6 +511,19 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
 
     next_weapon = 0;
 
+    // [JN] CRL - move spectator camera up and down.
+    if (crl_spectating)
+    {
+        if (gamekeydown[key_crl_cameraup])
+        {
+            CRL_ImpulseCameraVert(true, crl_camzspeed ? 16 : 8);
+        }
+        if (gamekeydown[key_crl_cameradown])
+        {
+            CRL_ImpulseCameraVert(false, crl_camzspeed ? 16 : 8);
+        }
+    }
+
 //
 // mouse
 //
@@ -655,6 +682,10 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
             cmd->angleturn &= 0xff00;
         }
     }
+
+    // [JN] RestlessRodent -- If spectating, send the movement commands instead
+    if (crl_spectating && !MenuActive)
+    	CRL_ImpulseCamera(cmd->forwardmove, cmd->sidemove, cmd->angleturn); 
 }
 
 
@@ -743,10 +774,24 @@ static void SetMouseButtons(unsigned int buttons_mask)
         {
             if (i == mousebprevweapon)
             {
+                // [JN] CRL - move spectator camera down.
+                if (crl_spectating && !MenuActive)
+                {
+                    CRL_ImpulseCameraVert(false, crl_camzspeed ? 64 : 32);
+                    
+                }
+                else
                 next_weapon = -1;
             }
             else if (i == mousebnextweapon)
             {
+                // [JN] CRL - move spectator camera up.
+                if (crl_spectating && !MenuActive)
+                {
+                    CRL_ImpulseCameraVert(true, crl_camzspeed ? 64 : 32);
+                    
+                }
+                else
                 next_weapon = 1;
             }
         }
@@ -886,6 +931,14 @@ boolean G_Responder(event_t * ev)
             {
                 gamekeydown[ev->data1] = true;
             }
+            // [JN] CRL - Toggle spectator mode.
+            if (ev->data1 == key_crl_spectator)
+            {
+                crl_spectating ^= 1;
+                P_SetMessage(&players[consoleplayer], crl_spectating ?
+                             CRL_SPECTATOR_ON : CRL_SPECTATOR_OFF, false);
+                pspr_interp = false;
+            }        
             return (true);      // eat key down events
 
         case ev_keyup:
@@ -1173,6 +1226,8 @@ void G_PlayerFinishLevel(int player)
     {
         SB_state = -1;          // refresh the status bar
     }
+    // [JN] Return controls to the player.
+    crl_spectating = 0;
 }
 
 /*

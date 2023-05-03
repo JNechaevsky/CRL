@@ -846,6 +846,10 @@ void R_DrawPlayerSprites(void)
     int i, lightnum;
     pspdef_t *psp;
 
+    // [JN] RestlessRodent -- Do not draw player gun sprite if spectating
+    if (crl_spectating)
+    	return;
+
 //
 // get light level
 //
