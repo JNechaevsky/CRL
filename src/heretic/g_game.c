@@ -514,11 +514,11 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
     // [JN] CRL - move spectator camera up and down.
     if (crl_spectating)
     {
-        if (gamekeydown[key_crl_cameraup])
+        if (gamekeydown[key_crl_cameraup] || gamekeydown[key_flyup])
         {
             CRL_ImpulseCameraVert(true, crl_camzspeed ? 16 : 8);
         }
-        if (gamekeydown[key_crl_cameradown])
+        if (gamekeydown[key_crl_cameradown] || gamekeydown[key_flydown])
         {
             CRL_ImpulseCameraVert(false, crl_camzspeed ? 16 : 8);
         }
