@@ -1007,12 +1007,13 @@ void CRL_SetColors (uint8_t* colors, void* ref)
 		for (j = 0; j < HOMQUAD; j++)
 		{
 			// Use specific color ranges
+			// [JN] Limit range from 255.0 to 200.0 to avoid too bright colors.
 			qr = (k == 0 || k == 3 ?
-				((int)(255.0 * ((double)(j)) / ((double)(HOMQUAD)))) : 0);
+				((int)(200.0 * ((double)(j)) / ((double)(HOMQUAD)))) : 0);
 			qg = (k == 1 || k == 3 ?
-				((int)(255.0 * ((double)(j)) / ((double)(HOMQUAD)))) : 0);
+				((int)(200.0 * ((double)(j)) / ((double)(HOMQUAD)))) : 0);
 			qb = (k == 2 ?
-				((int)(255.0 * ((double)(j)) / ((double)(HOMQUAD)))) : 0);
+				((int)(200.0 * ((double)(j)) / ((double)(HOMQUAD)))) : 0);
 			
 			// Find it and put it in
 			_homtable[i++] = CRL_BestRGBMatch(qr, qg, qb);

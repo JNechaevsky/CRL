@@ -21,6 +21,9 @@
 #include "i_video.h"
 #include "v_video.h"
 
+#include "crlcore.h"
+
+
 /*
 
 All drawing to the view buffer is accomplished in this file.  The other refresh
@@ -54,6 +57,9 @@ byte *dc_source;                // first pixel in a column (possibly virtual)
 
 int dccount;                    // just for profiling
 
+// [JN] RestlessRodent -- CRL
+visplane_t* dc_visplaneused = NULL;
+
 void R_DrawColumn(void)
 {
     int count;
@@ -76,6 +82,12 @@ void R_DrawColumn(void)
 
     do
     {
+        // [JN] RestlessRodent -- Possibly mark visplane
+        if (dc_visplaneused != NULL)
+        {
+            CRL_MarkPixelP(CRLPlaneSurface, dc_visplaneused, dest);
+        }
+
         *dest = dc_colormap[dc_source[(frac >> FRACBITS) & 127]];
         dest += SCREENWIDTH;
         frac += fracstep;
@@ -297,6 +309,13 @@ void R_DrawSpan(void)
     do
     {
         spot = ((yfrac >> (16 - 6)) & (63 * 64)) + ((xfrac >> 16) & 63);
+
+        // [JN] RestlessRodent -- Possibly mark visplane
+        if (dc_visplaneused != NULL)
+        {
+            CRL_MarkPixelP(CRLPlaneSurface, dc_visplaneused, dest);
+        }
+
         *dest++ = ds_colormap[ds_source[spot]];
         xfrac += ds_xstep;
         yfrac += ds_ystep;

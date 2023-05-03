@@ -154,6 +154,9 @@ void D_Display(void)
         R_ExecuteSetViewSize();
     }
 
+    // [JN] RestlessRodent -- Set surface
+    CRLSurface = I_VideoBuffer;
+
 //
 // do buffered drawing
 //
