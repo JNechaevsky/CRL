@@ -894,8 +894,8 @@ static void M_DrawCRL_Video (void)
                           crl_gamma == 10 ? "OFF"  :
                           crl_gamma == 11 ? "1"    :
                           crl_gamma == 12 ? "2"    :
-                          crl_gamma == 13 ? "3"    :
-                                            "4", NULL);
+                          crl_gamma == 13 ? "3"    : "4",
+                          itemOn == 6 ? cr[CR_MENU_BRIGHT5] : NULL);
 
     M_WriteTextCentered(117, "MISCELLANEOUS", cr[CR_YELLOW]);
 
@@ -1072,13 +1072,15 @@ static void M_DrawCRL_Sound (void)
 
     M_DrawThermo(46, 45, 16, sfxVolume);
     sprintf(str,"%d", sfxVolume);
-    M_WriteText (192, 48, str, snd_sfxdevice != 3 ? cr[CR_DARKRED] :
-                                        sfxVolume ? NULL : cr[CR_DARK]);
+    M_WriteText (192, 48, str, itemOn == 0 ? cr[CR_MENU_BRIGHT5] :
+                               snd_sfxdevice != 3 ? cr[CR_DARK] :
+                              !sfxVolume ? cr[CR_DARK] : NULL);
 
     M_DrawThermo(46, 72, 16, musicVolume);
     sprintf(str,"%d", musicVolume);
-    M_WriteText (192, 75, str, !snd_musicdevice ? cr[CR_DARKRED] :
-                                    musicVolume ? NULL : cr[CR_DARK]);
+    M_WriteText (192, 75, str, itemOn == 3 ? cr[CR_MENU_BRIGHT5] :
+                               snd_musicdevice == 0 ? cr[CR_DARK] :
+                              !musicVolume ? cr[CR_DARK] : NULL);
 
     M_WriteTextCentered(90, "SOUND SYSTEM", cr[CR_YELLOW]);
 
@@ -1341,18 +1343,19 @@ static void M_DrawCRL_Controls (void)
 
     M_DrawThermo(46, 45, 10, mouseSensitivity);
     sprintf(str,"%d", mouseSensitivity);
-    M_WriteText (144, 48, str, mouseSensitivity < 1 ? cr[CR_DARKRED] :
+    M_WriteText (144, 48, str, itemOn == 0 && mouseSensitivity > 9 ? cr[CR_BRIGHTGREEN] :
+                               itemOn == 0 ? cr[CR_MENU_BRIGHT5] :
+                               mouseSensitivity < 1 ? cr[CR_DARKRED] :
                                mouseSensitivity > 9 ? cr[CR_GREEN] : NULL);
 
     M_DrawThermo(46, 72, 12, (mouse_acceleration * 3) - 3);
     sprintf(str,"%.1f", mouse_acceleration);
-    M_WriteText (160, 75, str, mouse_acceleration == 1.0f ? cr[CR_DARKRED] :
-                               mouse_acceleration >  4.9f ? cr[CR_GREEN] : NULL);
+    M_WriteText (160, 75, str, itemOn == 3 ? cr[CR_MENU_BRIGHT5] : NULL);
 
     M_DrawThermo(46, 99, 15, mouse_threshold / 2);
     sprintf(str,"%d", mouse_threshold);
-    M_WriteText (184, 102, str, mouse_threshold == 0 ? cr[CR_DARKRED] :
-                                mouse_threshold > 31 ? cr[CR_GREEN] : NULL);
+    M_WriteText (184, 102, str, itemOn == 6 ? cr[CR_MENU_BRIGHT5] :
+                                mouse_threshold == 0 ? cr[CR_DARKRED] : NULL);
 
     M_WriteTextCentered(117, "OTHER FUNCTIONS", cr[CR_YELLOW]);
 

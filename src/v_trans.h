@@ -54,6 +54,7 @@ enum
     CR_DARKRED,
     CR_GREEN,
     CR_DARKGREEN,
+    CR_BRIGHTGREEN,
     CR_OLIVE,
     CR_BLUE2,
     CR_YELLOW,
