@@ -168,7 +168,6 @@ typedef struct
 
 typedef byte lighttable_t;      // this could be wider for >8 bit display
 
-#define	MAXVISPLANES	128
 #define	MAXOPENINGS		SCREENWIDTH*64
 
 typedef struct
@@ -389,9 +388,7 @@ extern short ceilingclip[SCREENWIDTH];
 extern fixed_t yslope[SCREENHEIGHT];
 extern fixed_t distscale[SCREENWIDTH];
 
-void R_InitPlanes(void);
 void R_ClearPlanes(void);
-void R_MapPlane(int y, int x1, int x2, visplane_t* __plane);
 void R_MakeSpans(int x, int t1, int b1, int t2, int b2, visplane_t* __plane);
 void R_DrawPlanes(void);
 

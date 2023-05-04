@@ -19,11 +19,11 @@
 #include "doomdef.h"
 #include "deh_str.h"
 #include "i_system.h"
+#include "m_misc.h"
 #include "r_local.h"
 
 #include "crlcore.h"
 
-planefunction_t floorfunc, ceilingfunc;
 
 //
 // sky mapping
@@ -37,7 +37,11 @@ fixed_t skyiscale;
 // opening
 //
 
-visplane_t visplanes[MAXVISPLANES], *lastvisplane;
+// Here comes the obnoxious "visplane".
+#define MAXVISPLANES        128
+#define REALMAXVISPLANES    4096
+
+static visplane_t visplanes[REALMAXVISPLANES], *lastvisplane;
 visplane_t *floorplane, *ceilingplane;
 
 short openings[MAXOPENINGS], *lastopening;
@@ -123,20 +127,6 @@ void R_InitSkyMap(void)
 
 
 /*
-====================
-=
-= R_InitPlanes
-=
-= Only at game startup
-====================
-*/
-
-void R_InitPlanes(void)
-{
-}
-
-
-/*
 ================
 =
 = R_MapPlane
@@ -154,7 +144,7 @@ BASIC PRIMITIVE
 ================
 */
 
-void R_MapPlane(int y, int x1, int x2, visplane_t* __plane)
+static void R_MapPlane (int y, int x1, int x2, visplane_t* __plane)
 {
     angle_t angle;
     fixed_t distance, length;
@@ -279,6 +269,15 @@ visplane_t *R_FindPlane(fixed_t height, int picnum,
         return (check);
     }
 
+    if (lastvisplane - visplanes == CRL_MaxVisPlanes)
+    {
+        // [JN] Print in-game warning.
+        CRL_SetCriticalMessage("R[FINDPLANE:",
+                               M_StringJoin("NO MORE VISPLANES (", CRL_LimitsName,
+                               " CRASHES HERE)", NULL), 2);
+        longjmp(CRLJustIncaseBuf, CRL_JUMP_VPO);
+    }
+
     // [JN] RestlessRodent -- Count plane before write
     CRL_CountPlane(check, 1, (intptr_t)(lastvisplane - visplanes));
 
@@ -354,10 +353,11 @@ visplane_t *R_CheckPlane(visplane_t * pl, int start, int stop,
     lastvisplane->lightlevel = pl->lightlevel;
     lastvisplane->special = pl->special;
 
-    if (lastvisplane - visplanes == MAXVISPLANES)
+    if (lastvisplane - visplanes == CRL_MaxVisPlanes)
     {
-        CRL_SetCriticalMessage("R[CHECKPLANE:", "NO MORE VISPLANES", 2);
-        //I_Error ("R_CheckPlane: no more visplanes");
+        // [JN] Print in-game warning.
+        CRL_SetCriticalMessage("R[CHECKPLANE:", M_StringJoin("NO MORE VISPLANES (",
+                              CRL_LimitsName, " CRASHES HERE)", NULL), 2);
     }
 
     pl = lastvisplane++;
@@ -448,9 +448,15 @@ void R_DrawPlanes(void)
 #ifdef RANGECHECK
     if (ds_p - drawsegs > MAXDRAWSEGS)
         I_Error("R_DrawPlanes: drawsegs overflow (%i)", ds_p - drawsegs);
-    if (lastvisplane - visplanes > MAXVISPLANES)
-        I_Error("R_DrawPlanes: visplane overflow (%i)",
-                lastvisplane - visplanes);
+
+    // [JN] Print in-game warning about MAVVISPLANES overflow.
+    if (lastvisplane - visplanes > CRL_MaxVisPlanes)
+    {
+        CRL_SetCriticalMessage("R[DRAWPLANES:", M_StringJoin("VISPLANE OVERFLOW (",
+                                            CRL_LimitsName, " CRASHES HERE)", NULL), 2);
+    	longjmp(CRLJustIncaseBuf, CRL_JUMP_VPO);
+    }
+
     if (lastopening - openings > MAXOPENINGS)
         I_Error("R_DrawPlanes: opening overflow (%i)",
                 lastopening - openings);

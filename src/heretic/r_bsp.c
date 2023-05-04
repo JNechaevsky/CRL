@@ -487,8 +487,12 @@ void R_Subsector(int num)
     }
 
     // check for solidsegs overflow - extremely unsatisfactory!
-    if(newend > &solidsegs[32])
-        I_Error("R_Subsector: solidsegs overflow (vanilla may crash here)\n");
+    // [JN] CRL - Do not quit with I_Error, print in-game warning instead.
+    if (newend > &solidsegs[32])
+    {
+        CRL_SetCriticalMessage("R[SUBSECTOR:",
+        "SOLIDSEGS OVERFLOW (VANILLA MAY CRASH HERE)", 2);
+    }
 }
 
 

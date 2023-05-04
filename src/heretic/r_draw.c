@@ -18,6 +18,7 @@
 #include "doomdef.h"
 #include "deh_str.h"
 #include "r_local.h"
+#include "i_system.h"
 #include "i_video.h"
 #include "v_video.h"
 
