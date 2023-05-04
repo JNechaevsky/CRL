@@ -43,6 +43,7 @@
 #include "p_local.h"
 #include "s_sound.h"
 #include "w_main.h"
+#include "v_trans.h"
 #include "v_video.h"
 
 #include "crlcore.h"
@@ -132,6 +133,25 @@ void DrawMessage(void)
     MN_DrTextA(player->message, 160 - MN_TextAWidth(player->message) / 2, 1, NULL);
 }
 
+// -----------------------------------------------------------------------------
+// CRL_DrawCriticalMessage
+// [JN] Draws critical message on the second and third lines line of the screen.
+// -----------------------------------------------------------------------------
+
+static void CRL_DrawCriticalMessage (void)
+{
+    player_t *player = &players[displayplayer];
+
+    if (player->criticalmessageTics <= 0
+    || !player->criticalmessage1 || !player->criticalmessage2)
+    {
+        return;  // No message
+    }
+
+    MN_DrTextACritical(player->criticalmessage1, player->criticalmessage2,
+                       10, gametic & 8 ? cr[CR_GRAY] : cr[CR_WHITE]);
+}
+
 //---------------------------------------------------------------------------
 //
 // PROC D_Display
@@ -188,7 +208,10 @@ void D_Display(void)
             {
                 CRL_DrawFPS();
             }
-            
+
+            // [JN] Critical messages are drawn even higher than on top everything!
+            CRL_DrawCriticalMessage();
+
             break;
         case GS_INTERMISSION:
             IN_Drawer();

@@ -851,6 +851,53 @@ void MN_DrTextACentered (char *text, int y, byte *table)
     dp_translation = NULL;
 }
 
+// -----------------------------------------------------------------------------
+// M_WriteTextCritical
+// [JN] Write a two line strings.
+// -----------------------------------------------------------------------------
+
+void MN_DrTextACritical (char *text1, char *text2, int y, byte *table)
+{
+    char c;
+    int cx1, cx2;
+    patch_t *p;
+
+    cx1 = 160 - MN_TextAWidth(text1) / 2;
+    cx2 = 160 - MN_TextAWidth(text2) / 2;
+    
+    dp_translation = table;
+
+    while ((c = *text1++) != 0)
+    {
+        if (c < 33)
+        {
+            cx1 += 5;
+        }
+        else
+        {
+            p = W_CacheLumpNum(FontABaseLump + c - 33, PU_CACHE);
+            V_DrawShadowedPatchRavenSmall(cx1, y, p, "NULL"); // [JN] TODO - patch name
+            cx1 += SHORT(p->width) - 1;
+        }
+    }
+
+    while ((c = *text2++) != 0)
+    {
+        if (c < 33)
+        {
+            cx2 += 5;
+        }
+        else
+        {
+            p = W_CacheLumpNum(FontABaseLump + c - 33, PU_CACHE);
+            V_DrawShadowedPatchRavenSmall(cx2, y+10, p, "NULL"); // [JN] TODO - patch name
+            cx2 += SHORT(p->width) - 1;
+        }
+    }
+
+    dp_translation = NULL;
+}
+
 //---------------------------------------------------------------------------
 //
 // PROC MN_DrTextB

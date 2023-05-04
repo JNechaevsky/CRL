@@ -279,11 +279,6 @@ visplane_t *R_FindPlane(fixed_t height, int picnum,
         return (check);
     }
 
-    if (lastvisplane - visplanes == MAXVISPLANES)
-    {
-        I_Error("R_FindPlane: no more visplanes");
-    }
-
     // [JN] RestlessRodent -- Count plane before write
     CRL_CountPlane(check, 1, (intptr_t)(lastvisplane - visplanes));
 
@@ -358,6 +353,12 @@ visplane_t *R_CheckPlane(visplane_t * pl, int start, int stop,
     lastvisplane->picnum = pl->picnum;
     lastvisplane->lightlevel = pl->lightlevel;
     lastvisplane->special = pl->special;
+
+    if (lastvisplane - visplanes == MAXVISPLANES)
+    {
+        CRL_SetCriticalMessage("R[CHECKPLANE:", "NO MORE VISPLANES", 2);
+        //I_Error ("R_CheckPlane: no more visplanes");
+    }
 
     pl = lastvisplane++;
 

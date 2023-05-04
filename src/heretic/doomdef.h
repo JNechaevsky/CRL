@@ -468,7 +468,8 @@ typedef struct player_s
     int messageTics;            // counter for showing messages
 
     // [JN] CRL - hint critical messages.
-    char *criticalmessage;	
+    char *criticalmessage1;
+    char *criticalmessage2;
     int   criticalmessageTics;
 
     int damagecount, bonuscount;        // for screen flashing
@@ -846,6 +847,7 @@ void MN_Drawer(void);
 void MN_DrTextA(char *text, int x, int y, byte *table);
 int MN_TextAWidth(char *text);
 void MN_DrTextACentered (char *text, int y, byte *table);
+void MN_DrTextACritical (char *text1, char *text2, int y, byte *table);
 void MN_DrTextB(char *text, int x, int y);
 int MN_TextBWidth(char *text);
 

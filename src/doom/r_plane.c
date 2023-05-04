@@ -277,7 +277,7 @@ R_FindPlane
     if (lastvisplane - visplanes == CRL_MaxVisPlanes)
 	{
     	// [JN] Print in-game warning.
-        CRL_SetCriticalMessage(M_StringJoin("R_FindPlane: \rno more visplanes (",
+        CRL_SetCriticalMessage("R_FindPlane:", M_StringJoin("no more visplanes (",
                                             CRL_LimitsName, " crashes here)", NULL), 2);
     	longjmp(CRLJustIncaseBuf, CRL_JUMP_VPO);
 	}
@@ -362,7 +362,7 @@ R_CheckPlane
     if (lastvisplane - visplanes == CRL_MaxVisPlanes)
     {
         // [JN] Print in-game warning.
-        CRL_SetCriticalMessage(M_StringJoin("R_CheckPlane: \rno more visplanes (",
+        CRL_SetCriticalMessage("R_CheckPlane:", M_StringJoin("no more visplanes (",
                                             CRL_LimitsName, " crashes here)", NULL), 2);
     }
 
@@ -442,7 +442,7 @@ void R_DrawPlanes (void)
     // [JN] Print in-game warning about MAXDRAWSEGS overflow.
     if (dsegs > CRL_MaxDrawSegs)
     {
-        CRL_SetCriticalMessage(M_StringJoin("R_DrawPlanes: \rdrawsegs overflow (",
+        CRL_SetCriticalMessage("R_DrawPlanes:", M_StringJoin("drawsegs overflow (",
                                             CRL_LimitsName, " crashes here)", NULL), 2);
 
         // Supress render and don't go any farther.
@@ -452,7 +452,7 @@ void R_DrawPlanes (void)
     // [JN] Print in-game warning about MAVVISPLANES overflow.
     if (lastvisplane - visplanes > CRL_MaxVisPlanes)
     {
-        CRL_SetCriticalMessage(M_StringJoin("R_DrawPlanes: \rvisplane overflow (",
+        CRL_SetCriticalMessage("R_DrawPlanes:", M_StringJoin("visplane overflow (",
                                             CRL_LimitsName, " crashes here)", NULL), 2);
     	longjmp(CRLJustIncaseBuf, CRL_JUMP_VPO);
     }
@@ -460,7 +460,7 @@ void R_DrawPlanes (void)
     // [JN] Print in-game warning about MAXOPENINGS overflow.
     if (lastopening - openings > CRL_MaxOpenings)
     {
-        CRL_SetCriticalMessage(M_StringJoin("R_DrawPlanes: \ropening overflow (",
+        CRL_SetCriticalMessage("R_DrawPlanes:", M_StringJoin("opening overflow (",
                                             CRL_LimitsName, " crashes here)", NULL), 2);
 
         // Supress render and don't go any farther.

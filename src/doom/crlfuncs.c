@@ -19,6 +19,7 @@
 #include <stdio.h>
 
 #include "i_timer.h"
+#include "m_menu.h"
 #include "m_misc.h"
 #include "v_trans.h"
 #include "v_video.h"

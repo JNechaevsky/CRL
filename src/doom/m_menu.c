@@ -2391,7 +2391,8 @@ static void M_EndGameResponse(int key)
     players[consoleplayer].messageTics = 1;
     players[consoleplayer].criticalmessageTics = 1;
     players[consoleplayer].message = NULL;
-    players[consoleplayer].criticalmessage = NULL;
+    players[consoleplayer].criticalmessage1 = NULL;
+    players[consoleplayer].criticalmessage2 = NULL;
     st_palette = 0;
     D_StartTitle ();
 }
@@ -2808,6 +2809,88 @@ void M_WriteTextCentered (const int y, const char *string, byte *table)
         cx += w;
     }
     
+    dp_translation = NULL;
+}
+
+// -----------------------------------------------------------------------------
+// M_WriteTextCritical
+// [JN] Write a two line strings using the hu_font.
+// -----------------------------------------------------------------------------
+
+void M_WriteTextCritical (const int y, const char *string1, const char *string2, byte *table)
+{
+    const char*	ch1;
+    const char*	ch2;
+    int w, c, cx, cy;
+    char name[9];
+
+    ch1 = string1;
+    ch2 = string2;
+    cx = 0;
+    cy = y;
+
+    dp_translation = table;
+
+    while (ch1)
+    {
+        c = *ch1++;
+
+        if (!c)
+        {
+            break;
+        }
+
+        c = toupper(c) - HU_FONTSTART;
+
+        if (c < 0 || c >= HU_FONTSIZE)
+        {
+            cx += 4;
+            continue;
+        }
+
+        w = SHORT (hu_font[c]->width);
+
+        if (cx + w > SCREENWIDTH)
+        {
+            break;
+        }
+
+        // [JN] Construct proper patch name for possible error handling:
+        sprintf(name, "STCFN%03d", c + HU_FONTSTART);
+        V_DrawShadowedPatch(cx, cy, hu_font[c], name);
+        cx+=w;
+    }
+cx = 0;
+    while (ch2)
+    {
+        c = *ch2++;
+
+        if (!c)
+        {
+            break;
+        }
+
+        c = toupper(c) - HU_FONTSTART;
+
+        if (c < 0 || c >= HU_FONTSIZE)
+        {
+            cx += 4;
+            continue;
+        }
+
+        w = SHORT (hu_font[c]->width);
+
+        if (cx + w > SCREENWIDTH)
+        {
+            break;
+        }
+
+        // [JN] Construct proper patch name for possible error handling:
+        sprintf(name, "STCFN%03d", c + HU_FONTSTART);
+        V_DrawShadowedPatch(cx, cy+9, hu_font[c], name);
+        cx+=w;
+    }
+
     dp_translation = NULL;
 }
 

@@ -31,6 +31,7 @@
 #include "v_video.h"
 #include "w_wad.h"
 #include "s_sound.h"
+#include "m_menu.h"
 
 // Data.
 #include "d_main.h"
@@ -125,7 +126,8 @@ void F_StartFinale (void)
     players[consoleplayer].messageTics = 1;
     players[consoleplayer].criticalmessageTics = 1;
     players[consoleplayer].message = NULL;
-    players[consoleplayer].criticalmessage = NULL;
+    players[consoleplayer].criticalmessage1 = NULL;
+    players[consoleplayer].criticalmessage2 = NULL;
 
     if (logical_gamemission == doom)
     {

@@ -147,8 +147,8 @@ void V_DrawPatch(int x, int y, patch_t *patch, char *name)
     {
 		// RestlessRodent -- Do not die
 		// [JN] ... print a critical message instead.
-        CRL_SetCriticalMessage(M_StringJoin("V_DrawPatch error:",
-        "\rBad V_DrawPatch \"", name, "\"", NULL), 2);
+        CRL_SetCriticalMessage("V_DRAWPATCH:", 
+        M_StringJoin("BAD V_DRAWPATCH \"", name, "\""), 2);
 		return;
     }
 
@@ -209,8 +209,8 @@ void V_DrawPatchFlipped(int x, int y, patch_t *patch)
      || y + SHORT(patch->height) > SCREENHEIGHT)
     {
         // [JN] Do not crash, print a critical message instead.
-        CRL_SetCriticalMessage("V_DrawPatchFlipped:"
-        "\rBad V_DrawPatchFlipped (vanilla crashes here)", 2);
+        CRL_SetCriticalMessage("V_DRAWPATCHFLIPPED:", 
+        M_StringJoin("BAD V_DRAWPATCH \"", "UNKNOWN", "\""), 2);
         return;
     }
 #endif
@@ -266,8 +266,8 @@ void V_DrawShadowedPatch (int x, int y, const patch_t *patch, char *name)
     ||  y + SHORT(patch->height) > SCREENHEIGHT)
     {
         // [JN] Do not crash, print a critical message instead.
-        CRL_SetCriticalMessage(M_StringJoin("V_DrawPatch error:",
-        "\rBad V_DrawPatch \"", name, "\"", NULL), 2);
+        CRL_SetCriticalMessage("V_DRAWPATCH:",
+        M_StringJoin("BAD V_DRAWPATCH \"", name, "\""), 2);
         return;
     }
 #endif
@@ -390,8 +390,8 @@ void V_DrawShadowedPatchRavenSmall (int x, int y, const patch_t *patch, char *na
     ||  y + SHORT(patch->height) > SCREENHEIGHT)
     {
         // [JN] Do not crash, print a critical message instead.
-        CRL_SetCriticalMessage(M_StringJoin("V_DrawShadowedPatchRavenSmall error:",
-        "\rBad V_DrawPatch \"", name, "\"", NULL), 2);
+        CRL_SetCriticalMessage("V_DRAWPATCH:",
+        M_StringJoin("BAD V_DRAWPATCH \"", name, "\""), 2);
         return;
     }
 #endif

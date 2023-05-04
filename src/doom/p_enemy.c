@@ -1906,8 +1906,7 @@ void A_BrainSpit (mobj_t*	mo)
 
         CRL_printf(M_StringJoin("A_BrainSpit: ", message, NULL), true);
         // [JN] CRL - print in-game warning as well.
-        CRL_SetCriticalMessage(M_StringJoin("A_BrainSpit:"
-        "\r", message, NULL), MESSAGETICS);
+        CRL_SetCriticalMessage("A_BrainSpit:", message, MESSAGETICS);
     }
         
     // [crispy] still no spawn spots available

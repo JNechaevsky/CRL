@@ -140,7 +140,8 @@ typedef struct player_s
     byte*		messageColor;
 
     // [JN] CRL - hint critical messages.
-    char*		criticalmessage;	
+    char*		criticalmessage1;
+    char*		criticalmessage2;
     int			criticalmessageTics;
     
     // [JN] CRL - target's health.
