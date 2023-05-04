@@ -1088,8 +1088,7 @@ void P_PlayerInSpecialSector (player_t* player)
 	    sprintf(secnum, "%i", sector->special);
 
 	    // [JN] CRL - do not crash, print an in-game instead.
-	    CRL_SetCriticalMessage(M_StringJoin("P_PlayerInSpecialSector:"
-	    "\runknown special ", secnum, " (vanilla crashes here)", NULL), 2);
+	    CRL_SetCriticalMessage("P_PlayerInSpecialSector:", M_StringJoin("unknown special ", secnum, " (vanilla crashes here)", NULL), 2);
 /*
 
 	I_Error ("P_PlayerInSpecialSector: "
@@ -1534,7 +1533,7 @@ void P_SpawnSpecials (void)
 	    if (CRL_lineanims_counter > CRL_MaxAnims)
 	    {
 	        // [JN] Print in-game warning.
-	        CRL_SetCriticalMessage(M_StringJoin("P_SpawnSpecials: \rToo many scrollers! (",
+	        CRL_SetCriticalMessage("P_SpawnSpecials:", M_StringJoin("Too many scrollers! (",
 	                                            CRL_LimitsName, " crashes here)", NULL), MESSAGETICS);
 	    }
 

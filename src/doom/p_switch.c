@@ -180,7 +180,7 @@ P_StartButton
 	if (CRL_buttons_counter > 16)
 	{
 	    // [JN] Print in-game warning.
-	    CRL_SetCriticalMessage("P_StartButton: \rno button slots left! (vanilla crashes here)", MESSAGETICS);
+	    CRL_SetCriticalMessage("P_StartButton:", "no button slots left!", MESSAGETICS);
 	}
     }
     

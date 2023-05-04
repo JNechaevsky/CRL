@@ -146,9 +146,10 @@ void P_SetMessage(player_t * player, char *message, boolean ultmsg)
 // [JN] Sets critical message parameters.
 // -----------------------------------------------------------------------------
 
-void CRL_SetCriticalMessage (char *message, const int tics)
+void CRL_SetCriticalMessage (char *message1, char *message2, const int tics)
 {
-    players[consoleplayer].criticalmessage = message;
+    players[consoleplayer].criticalmessage1 = message1;
+    players[consoleplayer].criticalmessage2 = message2;
     players[consoleplayer].criticalmessageTics = tics;
 }
 

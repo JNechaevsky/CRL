@@ -37,7 +37,9 @@ fixed_t skyiscale;
 // opening
 //
 
-visplane_t visplanes[MAXVISPLANES], *lastvisplane;
+#define REALMAXVISPLANES 9999
+
+visplane_t visplanes[REALMAXVISPLANES], *lastvisplane;
 visplane_t *floorplane, *ceilingplane;
 
 short openings[MAXOPENINGS], *lastopening;
@@ -358,6 +360,12 @@ visplane_t *R_CheckPlane(visplane_t * pl, int start, int stop,
     lastvisplane->picnum = pl->picnum;
     lastvisplane->lightlevel = pl->lightlevel;
     lastvisplane->special = pl->special;
+
+    if (lastvisplane - visplanes == MAXVISPLANES)
+    {
+        CRL_SetCriticalMessage("R[CHECKPLANE:", "NO MORE VISPLANES", 2);
+        //I_Error ("R_CheckPlane: no more visplanes");
+    }
 
     pl = lastvisplane++;
 

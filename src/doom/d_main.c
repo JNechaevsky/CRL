@@ -182,13 +182,14 @@ static void CRL_DrawCriticalMessage (void)
 {
     player_t *player = &players[displayplayer];
 
-    if (player->criticalmessageTics <= 0 || !player->criticalmessage)
+    if (player->criticalmessageTics <= 0
+    || !player->criticalmessage1 || !player->criticalmessage2)
     {
         return;  // No message
     }
 
-    M_WriteText(0, 9, player->criticalmessage, gametic & 8 ?
-                cr[CR_DARKRED] : cr[CR_RED]);
+    M_WriteTextCritical(9, player->criticalmessage1, player->criticalmessage2,
+                        gametic & 8 ? cr[CR_DARKRED] : cr[CR_RED]);
 }
 
 // -----------------------------------------------------------------------------
