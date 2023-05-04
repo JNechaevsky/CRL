@@ -30,6 +30,7 @@
 #include "v_video.h"
 #include "doomstat.h"
 #include "dstrings.h"
+#include "m_menu.h"
 #include "am_map.h"
 #include "v_trans.h"
 
