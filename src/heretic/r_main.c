@@ -683,6 +683,9 @@ int screenblocks = 10;
 
 void R_Init(void)
 {
+    // [JN] CRL - define static engine limits.
+    CRL_SetStaticLimits();
+
     //tprintf("R_InitData ", 1);
     R_InitData();
     printf (".");

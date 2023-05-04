@@ -441,6 +441,9 @@ void R_DrawPlanes(void)
     extern byte *ylookup[MAXHEIGHT];
     extern int columnofs[MAXWIDTH];
 
+    // [JN] CRL - openings counter.
+    CRLData.numopenings = lastopening - openings;
+
 #ifdef RANGECHECK
     if (ds_p - drawsegs > MAXDRAWSEGS)
         I_Error("R_DrawPlanes: drawsegs overflow (%i)", ds_p - drawsegs);

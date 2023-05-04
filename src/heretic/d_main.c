@@ -174,6 +174,9 @@ void D_Display(void)
                 CRL_DrawVisPlanes(1);
             }
 
+            // [JN] CRL Stats
+            CRL_StatDrawer();
+
             CT_Drawer();
             UpdateState |= I_FULLVIEW;
             SB_Drawer();

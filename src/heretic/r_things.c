@@ -1084,10 +1084,12 @@ void R_DrawMasked(void)
     if (vissprite_p > vissprites)
     {
         // draw all vissprites back to front
-
-        for (spr = vsprsortedhead.next; spr != &vsprsortedhead;
-             spr = spr->next)
+        for (spr = vsprsortedhead.next; spr != &vsprsortedhead; spr = spr->next)
+        {
+            // [JN] CRL - sprites counter.
+            CRLData.numsprites++;
             R_DrawSprite(spr);
+        }
     }
 
 //

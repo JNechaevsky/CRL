@@ -350,6 +350,9 @@ void R_StoreWallRange(int start, int stop, seg_t* __line, subsector_t* __sub)
     fixed_t vtop;
     int lightnum;
 
+    // [JN] CRL - segs counter.
+    CRLData.numsegs++;
+
     if (ds_p == &drawsegs[MAXDRAWSEGS])
         return;                 // don't overflow and crash
 
