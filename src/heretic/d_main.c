@@ -135,7 +135,7 @@ void DrawMessage(void)
 
 // -----------------------------------------------------------------------------
 // CRL_DrawCriticalMessage
-// [JN] Draws critical message on the second line of the screen.
+// [JN] Draws critical message on the second and third lines line of the screen.
 // -----------------------------------------------------------------------------
 
 static void CRL_DrawCriticalMessage (void)

@@ -2813,8 +2813,8 @@ void M_WriteTextCentered (const int y, const char *string, byte *table)
 }
 
 // -----------------------------------------------------------------------------
-// M_WriteTextCentered
-// [JN] Write a centered string using the hu_font.
+// M_WriteTextCritical
+// [JN] Write a two line strings using the hu_font.
 // -----------------------------------------------------------------------------
 
 void M_WriteTextCritical (const int y, const char *string1, const char *string2, byte *table)

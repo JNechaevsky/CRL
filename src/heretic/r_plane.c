@@ -37,9 +37,7 @@ fixed_t skyiscale;
 // opening
 //
 
-#define REALMAXVISPLANES 9999
-
-visplane_t visplanes[REALMAXVISPLANES], *lastvisplane;
+visplane_t visplanes[MAXVISPLANES], *lastvisplane;
 visplane_t *floorplane, *ceilingplane;
 
 short openings[MAXOPENINGS], *lastopening;
@@ -279,11 +277,6 @@ visplane_t *R_FindPlane(fixed_t height, int picnum,
     if (check < lastvisplane)
     {
         return (check);
-    }
-
-    if (lastvisplane - visplanes == MAXVISPLANES)
-    {
-        I_Error("R_FindPlane: no more visplanes");
     }
 
     // [JN] RestlessRodent -- Count plane before write

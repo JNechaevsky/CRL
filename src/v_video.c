@@ -266,7 +266,7 @@ void V_DrawShadowedPatch (int x, int y, const patch_t *patch, char *name)
     ||  y + SHORT(patch->height) > SCREENHEIGHT)
     {
         // [JN] Do not crash, print a critical message instead.
-        CRL_SetCriticalMessage("V_DRAWSHADOWEDPATCH:",
+        CRL_SetCriticalMessage("V_DRAWPATCH:",
         M_StringJoin("BAD V_DRAWPATCH \"", name, "\""), 2);
         return;
     }
@@ -390,7 +390,7 @@ void V_DrawShadowedPatchRavenSmall (int x, int y, const patch_t *patch, char *na
     ||  y + SHORT(patch->height) > SCREENHEIGHT)
     {
         // [JN] Do not crash, print a critical message instead.
-        CRL_SetCriticalMessage("V_DRAWSHADOWEDPATCHRAVENSMALL:",
+        CRL_SetCriticalMessage("V_DRAWPATCH:",
         M_StringJoin("BAD V_DRAWPATCH \"", name, "\""), 2);
         return;
     }

@@ -1949,7 +1949,7 @@ void G_DoSaveGame (void)
         // [JN] CRL - print a warnings instead of quit with an error.
         // I_Error("Savegame buffer overrun");
         CRL_printf(message, true);
-        CRL_SetCriticalMessage("G_DOSAVEGAME:", message, MESSAGETICS);
+        CRL_SetCriticalMessage("G_DoSaveGame:", message, MESSAGETICS);
     }
 
     // Finish up, close the savegame file.

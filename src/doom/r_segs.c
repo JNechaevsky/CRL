@@ -160,7 +160,7 @@ static boolean medusa_indicator (const byte *data, int texture)
 #else
         memset(medusa_ptr, leveltime, sizeof(medusa_ptr));
         dc_source = medusa_ptr;
-        CRL_SetCriticalMessage("R_RENDERMASKEDSEGRANGE:", "MEDUSA ERROR DETECTED", 2);
+        CRL_SetCriticalMessage("R_RenderMaskedSegRange:", "MEDUSA ERROR DETECTED", 2);
 #endif
         colfunc();
 

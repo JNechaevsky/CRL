@@ -562,8 +562,7 @@ WI_drawOnLnode
 	char num[12];
 
 	sprintf(num, "%d", n+1);
-	CRL_SetCriticalMessage("WI_drawOnLnode:", M_StringJoin(
-	"\rCould not place \"WISPLAT\" patch on level ", num, NULL), 2);
+	CRL_SetCriticalMessage("WI_drawOnLnode:", M_StringJoin("\rCould not place \"WISPLAT\" patch on level ", num, NULL), 2);
     }
 }
 

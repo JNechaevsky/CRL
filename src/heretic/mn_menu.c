@@ -851,6 +851,11 @@ void MN_DrTextACentered (char *text, int y, byte *table)
     dp_translation = NULL;
 }
 
+// -----------------------------------------------------------------------------
+// M_WriteTextCritical
+// [JN] Write a two line strings.
+// -----------------------------------------------------------------------------
+
 void MN_DrTextACritical (char *text1, char *text2, int y, byte *table)
 {
     char c;
