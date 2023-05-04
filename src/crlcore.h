@@ -196,11 +196,6 @@ extern void CRL_printf (const char *message, const boolean critical);
 // The rest of externals
 //
 
-extern void M_WriteText (int x, int y, const char *string, byte *table);
-extern void M_WriteTextCentered (const int y, const char *string, byte *table);
-extern void M_WriteTextCritical (const int y, const char *string1, const char *string2, byte *table);
-extern const int M_StringWidth (const char *string);
-
 extern void CRL_SetCriticalMessage (char *message1, char *message2, const int tics);
 
 extern void CRL_WidgetsDrawer (void);
