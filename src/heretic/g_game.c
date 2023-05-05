@@ -111,7 +111,7 @@ int displayplayer;              // view being displayed
 int levelstarttic;              // gametic at level start
 int totalkills, totalitems, totalsecret;        // for intermission
 
-int mouseSensitivity;
+int mouseSensitivity = 5;
 
 char demoname[32];
 boolean demorecording;
