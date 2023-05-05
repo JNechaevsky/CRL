@@ -738,7 +738,7 @@ void R_Init (void)
     }
 
     // [JN] CRL - define static engine limits.
-    CRL_SetStaticLimits();
+    CRL_SetStaticLimits("DOOM+");
 
     R_InitData ();
     printf (".");

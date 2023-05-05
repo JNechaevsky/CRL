@@ -1830,7 +1830,7 @@ static void M_CRL_Limits (int choice)
     crl_vanilla_limits ^= 1;
 
     // [JN] CRL - re-define static engine limits.
-    CRL_SetStaticLimits();
+    CRL_SetStaticLimits("DOOM+");
 }
 
 static void M_CRL_ZMalloc (int choice)

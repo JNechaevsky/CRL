@@ -128,7 +128,7 @@ extern CRL_Widgets_t CRLWidgets;
 // Drawing functions
 //
 
-extern void CRL_SetStaticLimits (void);
+extern void CRL_SetStaticLimits (char *name);
 extern char *CRL_LimitsName;
 extern int  CRL_MaxVisPlanes;
 extern int  CRL_MaxDrawSegs;

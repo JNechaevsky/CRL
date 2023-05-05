@@ -135,7 +135,7 @@ int CRL_MaxOpenings;
 int CRL_MaxPlats;
 int CRL_MaxAnims;
 
-void CRL_SetStaticLimits (void)
+void CRL_SetStaticLimits (char *name)
 {
     if (crl_vanilla_limits)
     {
@@ -149,7 +149,7 @@ void CRL_SetStaticLimits (void)
     }
     else
     {
-        CRL_LimitsName    = "DOOM+";
+        CRL_LimitsName    = name;
         CRL_MaxVisPlanes  = 1024;
         CRL_MaxDrawSegs   = 2048;
         CRL_MaxVisSprites = 1024;

@@ -1018,7 +1018,7 @@ boolean G_Responder (event_t* ev)
         crl_vanilla_limits ^= 1;
     
         // [JN] CRL - re-define static engine limits.
-        CRL_SetStaticLimits();
+        CRL_SetStaticLimits("DOOM+");
 
          CRL_SetMessage(&players[consoleplayer], crl_vanilla_limits ?
                         CRL_VANILLA_LIMITS_ON : CRL_VANILLA_LIMITS_OFF, false, NULL);

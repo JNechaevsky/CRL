@@ -70,6 +70,11 @@ typedef enum
     MENU_SAVE,
     MENU_CRLMAIN,
     MENU_CRLVIDEO,
+    // MENU_CRLSOUND,
+    // MENU_CRLCONTROLS,
+    // MENU_CRLWIDGETS,
+    // MENU_CRLGAMEPLAY,
+    MENU_CRLLIMITS,
     MENU_NONE
 } MenuType_t;
 
@@ -400,6 +405,22 @@ static boolean CRL_TextShadows (int option);
 static boolean CRL_GfxStartup (int option);
 static boolean CRL_EndText (int option);
 
+static void DrawCRLLimits (void);
+static boolean CRL_ZMalloc (int option);
+static boolean CRL_Limits (int option);
+
+// [JN] Delay before shading.
+// static int shade_wait;
+// [JN] Shade background while in CRL menu.
+static void M_ShadeBackground (void)
+{
+    for (int y = 0; y < SCREENWIDTH * SCREENHEIGHT; y++)
+    {
+        I_VideoBuffer[y] = colormaps[12 * 256 + I_VideoBuffer[y]];
+    }
+    SB_state = -1;  // Refresh the statbar.
+}
+
 // -----------------------------------------------------------------------------
 // Main CRL Menu
 // -----------------------------------------------------------------------------
@@ -415,7 +436,7 @@ static MenuItem_t CRLMainItems[] = {
     {ITT_LRFUNC, "CONTROL SETTINGS",        CRLDummy, 0, MENU_NONE},
     {ITT_LRFUNC, "WIDGETS AND AUTOMAP",     CRLDummy, 0, MENU_NONE},
     {ITT_LRFUNC, "GAMEPLAY FEATURES",       CRLDummy, 0, MENU_NONE},
-    {ITT_LRFUNC, "STATIC ENGINE LIMITS",    CRLDummy, 0, MENU_NONE}
+    {ITT_EFUNC,  "STATIC ENGINE LIMITS",    CRLDummy, 0, MENU_CRLLIMITS}
 
 };
 
@@ -432,7 +453,7 @@ static void DrawCRLMain (void)
 {
     static char str[32];
 
-    // M_ShadeBackground();
+    M_ShadeBackground();
 
     MN_DrTextACentered("MAIN MENU", 20, cr[CR_YELLOW]);
 
@@ -538,6 +559,8 @@ static Menu_t CRLVideo = {
 static void DrawCRLVideo (void)
 {
     static char str[32];
+
+    M_ShadeBackground();
 
     MN_DrTextACentered("VIDEO OPTIONS", 20, cr[CR_YELLOW]);
 
@@ -709,6 +732,84 @@ static boolean CRL_EndText (int option)
     return true;
 }
 
+// -----------------------------------------------------------------------------
+// Static engine limits
+// -----------------------------------------------------------------------------
+
+static MenuItem_t CRLLimitsItems[] = {
+    {ITT_LRFUNC, "PREVENT Z[MALLOC ERRORS",  CRL_ZMalloc,   0, MENU_NONE},
+    {ITT_LRFUNC, "RENDER LIMITS LEVEL",     CRL_Limits,      0, MENU_NONE}
+};
+
+static Menu_t CRLLimits = {
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    DrawCRLLimits,
+    2, CRLLimitsItems,
+    0,
+    true,
+    MENU_CRLMAIN
+};
+
+static void DrawCRLLimits (void)
+{
+    static char str[32];
+
+    M_ShadeBackground();
+
+    MN_DrTextACentered("STATIC ENGINE LIMITS", 20, cr[CR_YELLOW]);
+
+    // Prevent Z_Malloc errors
+    sprintf(str, crl_prevent_zmalloc ? "ON" : "OFF");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 30,
+               crl_prevent_zmalloc ? cr[CR_GREEN] : cr[CR_RED]);
+
+    // Level of the limits
+    sprintf(str, crl_vanilla_limits ? "VANILLA" : "HERETIC-PLUS");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 40,
+               crl_vanilla_limits ? cr[CR_RED] : cr[CR_GREEN]);
+
+    MN_DrTextA("MAXVISPLANES", CRL_MENU_LEFTOFFSET_SML + 16, 60, cr[CR_MENU_DARK2]);
+    MN_DrTextA("MAXDRAWSEGS", CRL_MENU_LEFTOFFSET_SML + 16, 70, cr[CR_MENU_DARK2]);
+    MN_DrTextA("MAXVISSPRITES", CRL_MENU_LEFTOFFSET_SML + 16, 80, cr[CR_MENU_DARK2]);
+    MN_DrTextA("MAXOPENINGS", CRL_MENU_LEFTOFFSET_SML + 16, 90, cr[CR_MENU_DARK2]);
+    MN_DrTextA("MAXPLATS", CRL_MENU_LEFTOFFSET_SML + 16, 100, cr[CR_MENU_DARK2]);
+    MN_DrTextA("MAXLINEANIMS", CRL_MENU_LEFTOFFSET_SML + 16, 110, cr[CR_MENU_DARK2]);
+
+    if (crl_vanilla_limits)
+    {
+        MN_DrTextA("128", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("128"), 60, cr[CR_RED]);
+        MN_DrTextA("256", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("256"), 70, cr[CR_RED]);
+        MN_DrTextA("128", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("128"), 80, cr[CR_RED]);
+        MN_DrTextA("20480", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("20480"), 90, cr[CR_RED]);
+        MN_DrTextA("30", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("30"), 100, cr[CR_RED]);
+        MN_DrTextA("64", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("64"), 110, cr[CR_RED]);
+    }
+    else
+    {
+        MN_DrTextA("1024", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("1024"), 60, cr[CR_GREEN]);
+        MN_DrTextA("2048", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("2048"), 70, cr[CR_GREEN]);
+        MN_DrTextA("1024", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("1024"), 80, cr[CR_GREEN]);
+        MN_DrTextA("65536", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("65536"), 90, cr[CR_GREEN]);
+        MN_DrTextA("7680", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("7680"), 100, cr[CR_GREEN]);
+        MN_DrTextA("16384", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("16384"), 110, cr[CR_GREEN]);
+    }
+}
+
+static boolean CRL_ZMalloc (int option)
+{
+    crl_prevent_zmalloc ^= 1;
+    return true;
+}
+
+static boolean CRL_Limits (int option)
+{
+    crl_vanilla_limits ^= 1;
+
+    // [JN] CRL - re-define static engine limits.
+    CRL_SetStaticLimits("HERETIC+");
+    return true;
+}
+
 
 
 static Menu_t *Menus[] = {
@@ -723,6 +824,11 @@ static Menu_t *Menus[] = {
     // [JN] CRL menu
     &CRLMain,
     &CRLVideo,
+    // &CRLSound,
+    // &CRLControls,
+    // &CRLWidgets,
+    // &CRLGameplay,
+    &CRLLimits,
 };
 
 
