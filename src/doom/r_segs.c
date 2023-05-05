@@ -236,7 +236,7 @@ R_RenderMaskedSegRange
     for (dc_x = x1 ; dc_x <= x2 ; dc_x++)
     {
 	// calculate lighting
-	if (maskedtexturecol[dc_x] != SHRT_MAX)
+	if (maskedtexturecol[dc_x] != INT_MAX)  // [JN] 32-bit integer math
 	{
 	    if (!fixedcolormap)
 	    {
@@ -260,7 +260,7 @@ R_RenderMaskedSegRange
         {
             R_DrawMaskedColumn (col);
         }
-	    maskedtexturecol[dc_x] = SHRT_MAX;
+	    maskedtexturecol[dc_x] = INT_MAX;  // [JN] 32-bit integer math
 	}
 	spryscale += rw_scalestep;
     }

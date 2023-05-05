@@ -342,7 +342,7 @@ R_CheckPlane
     }
 
     for (x=intrl ; x<= intrh ; x++)
-	if (pl->top[x] != 0xff)
+	if (pl->top[x] != 0xffffffffu) // [JN] hires / 32-bit integer math
 	    break;
 	
     if (x > intrh)
@@ -390,11 +390,12 @@ R_CheckPlane
 //
 void
 R_MakeSpans
-( int		x,
-  int		t1,
-  int		b1,
-  int		t2,
-  int		b2, visplane_t* __plane)
+( unsigned int		x,   // [JN] 32-bit integer math
+  unsigned int		t1,  // [JN] 32-bit integer math
+  unsigned int		b1,  // [JN] 32-bit integer math
+  unsigned int		t2,  // [JN] 32-bit integer math
+  unsigned int		b2,  // [JN] 32-bit integer math
+  visplane_t* __plane)
 {
     while (t1 < t2 && t1<=b1)
     {
@@ -490,7 +491,7 @@ void R_DrawPlanes (void)
 		dc_yl = pl->top[x];
 		dc_yh = pl->bottom[x];
 
-		if (dc_yl <= dc_yh)
+		if ((unsigned) dc_yl <= dc_yh)  // [JN] 32-bit integer math
 		{
 		    angle = (viewangle + xtoviewangle[x])>>ANGLETOSKYSHIFT;
 		    dc_x = x;
@@ -519,8 +520,8 @@ void R_DrawPlanes (void)
 
 	planezlight = zlight[light];
 
-	pl->top[pl->maxx+1] = 0xff;
-	pl->top[pl->minx-1] = 0xff;
+	pl->top[pl->maxx+1] = 0xffffffffu; // [crispy] hires / 32-bit integer math
+	pl->top[pl->minx-1] = 0xffffffffu; // [crispy] hires / 32-bit integer math
 		
 	stop = pl->maxx + 1;
 

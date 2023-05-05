@@ -392,14 +392,14 @@ typedef struct
     subsector_t *emitsub;
 
     // leave pads for [minx-1]/[maxx+1]
-    byte    pad1;
+    unsigned int    pad1;                 // [JN] hires / 32-bit integer math
     // Here lies the rub for all dynamic resize/change of resolution.
-    byte    top[SCREENWIDTH];
-    byte    pad2;
-    byte    pad3;
+    unsigned int    top[SCREENWIDTH];     // [JN] hires / 32-bit integer math
+    unsigned int    pad2;                 // [JN] hires / 32-bit integer math
+    unsigned int    pad3;                 // [JN] hires / 32-bit integer math
     // See above.
-    byte    bottom[SCREENWIDTH];
-    byte    pad4;
+    unsigned int    bottom[SCREENWIDTH];  // [JN] hires / 32-bit integer math
+    unsigned int    pad4;                 // [JN] hires / 32-bit integer math
 } visplane_t;
 
 //
@@ -642,7 +642,8 @@ extern int detailshift;
 extern void R_ClearPlanes (void);
 extern void R_DrawPlanes (void);
 extern void R_InitPlanes (void);
-extern void R_MakeSpans (int x, int t1, int b1, int t2, int b2, visplane_t *__plane);
+extern void R_MakeSpans (unsigned int x, unsigned int t1, unsigned int b1, 
+                         unsigned int t2, unsigned int b2, visplane_t *__plane);
 extern void R_MapPlane (int y, int x1, int x2, visplane_t *__plane);
 
 extern int  floorclip[SCREENWIDTH];    // [JN] 32-bit integer math
