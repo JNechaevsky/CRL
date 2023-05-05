@@ -66,7 +66,7 @@ fixed_t bottomfrac, bottomstep;
 
 lighttable_t **walllights;
 
-short *maskedtexturecol;
+int *maskedtexturecol;  // [JN] 32-bit integer math
 
 void GAME_IdentifySeg(void* __what, CRLSegData_t* __info)
 {
@@ -146,7 +146,7 @@ void R_RenderMaskedSegRange(drawseg_t * ds, int x1, int x2)
     for (dc_x = x1; dc_x <= x2; dc_x++)
     {
         // calculate lighting
-        if (maskedtexturecol[dc_x] != SHRT_MAX)
+        if (maskedtexturecol[dc_x] != INT_MAX)  // [JN] 32-bit integer math
         {
             if (!fixedcolormap)
             {
@@ -167,7 +167,7 @@ void R_RenderMaskedSegRange(drawseg_t * ds, int x1, int x2)
                                             maskedtexturecol[dc_x]) - 3);
 
             R_DrawMaskedColumn(col, -1);
-            maskedtexturecol[dc_x] = SHRT_MAX;
+            maskedtexturecol[dc_x] = INT_MAX;  // [JN] 32-bit integer math
         }
         spryscale += rw_scalestep;
     }
@@ -652,14 +652,14 @@ void R_StoreWallRange(int start, int stop, seg_t* __line, subsector_t* __sub)
 //
     if (((ds_p->silhouette & SIL_TOP) || maskedtexture) && !ds_p->sprtopclip)
     {
-        memcpy(lastopening, ceilingclip + start, 2 * (rw_stopx - start));
+        memcpy(lastopening, ceilingclip + start, sizeof(*lastopening) * (rw_stopx-start));
         ds_p->sprtopclip = lastopening - start;
         lastopening += rw_stopx - start;
     }
     if (((ds_p->silhouette & SIL_BOTTOM) || maskedtexture)
         && !ds_p->sprbottomclip)
     {
-        memcpy(lastopening, floorclip + start, 2 * (rw_stopx - start));
+        memcpy(lastopening, floorclip + start, sizeof(*lastopening) * (rw_stopx-start));
         ds_p->sprbottomclip = lastopening - start;
         lastopening += rw_stopx - start;
     }

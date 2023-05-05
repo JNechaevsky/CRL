@@ -183,12 +183,13 @@ typedef struct
     seg_t       *emitline;      // The seg that emitted this.
     subsector_t *emitsub;       // The subsector this visplane is in.
 
-    byte pad1;                  // leave pads for [minx-1]/[maxx+1]
-    byte top[SCREENWIDTH];
-    byte pad2;
-    byte pad3;
-    byte bottom[SCREENWIDTH];
-    byte pad4;
+    // leave pads for [minx-1]/[maxx+1]
+    unsigned int pad1;                 // [JN] hires / 32-bit integer math
+    unsigned int top[SCREENWIDTH];     // [JN] hires / 32-bit integer math
+    unsigned int pad2;                 // [JN] hires / 32-bit integer math
+    unsigned int pad3;                 // [JN] hires / 32-bit integer math
+    unsigned int bottom[SCREENWIDTH];  // [JN] hires / 32-bit integer math
+    unsigned int pad4;                 // [JN] hires / 32-bit integer math
 } visplane_t;
 
 typedef struct drawseg_s
@@ -200,9 +201,10 @@ typedef struct drawseg_s
     fixed_t bsilheight;         // don't clip sprites above this
     fixed_t tsilheight;         // don't clip sprites below this
 // pointers to lists for sprite clipping
-    short *sprtopclip;          // adjusted so [x1] is first value
-    short *sprbottomclip;       // adjusted so [x1] is first value
-    short *maskedtexturecol;    // adjusted so [x1] is first value
+// adjusted so [x1] is first value
+    int *sprtopclip;            // [JN] 32-bit integer math
+    int *sprbottomclip;         // [JN] 32-bit integer math
+    int *maskedtexturecol;      // [JN] 32-bit integer math
 } drawseg_t;
 
 #define	SIL_NONE	0
@@ -380,16 +382,18 @@ extern planefunction_t floorfunc, ceilingfunc;
 
 extern int skyflatnum;
 
-extern short openings[MAXOPENINGS], *lastopening;
+extern int  openings[MAXOPENINGS];  // [JN] 32-bit integer math
+extern int *lastopening;            // [JN] 32-bit integer math
 
-extern short floorclip[SCREENWIDTH];
-extern short ceilingclip[SCREENWIDTH];
+extern int floorclip[SCREENWIDTH];
+extern int ceilingclip[SCREENWIDTH];
 
 extern fixed_t yslope[SCREENHEIGHT];
 extern fixed_t distscale[SCREENWIDTH];
 
 void R_ClearPlanes(void);
-void R_MakeSpans(int x, int t1, int b1, int t2, int b2, visplane_t* __plane);
+void R_MakeSpans(unsigned int x, unsigned int t1, unsigned int b1,
+                 unsigned int t2, unsigned int b2, visplane_t* __plane);
 void R_DrawPlanes(void);
 
 visplane_t *R_FindPlane(fixed_t height, int picnum, int lightlevel,
@@ -432,12 +436,12 @@ extern vissprite_t vissprites[MAXVISSPRITES], *vissprite_p;
 extern vissprite_t vsprsortedhead;
 
 // constant arrays used for psprite clipping and initializing clipping
-extern short negonearray[SCREENWIDTH];
-extern short screenheightarray[SCREENWIDTH];
+extern int negonearray[SCREENWIDTH];
+extern int screenheightarray[SCREENWIDTH];
 
 // vars for R_DrawMaskedColumn
-extern short *mfloorclip;
-extern short *mceilingclip;
+extern int *mfloorclip;    // [JN] 32-bit integer math
+extern int *mceilingclip;  // [JN] 32-bit integer math
 extern fixed_t spryscale;
 extern fixed_t sprtopscreen;
 extern fixed_t sprbotscreen;
