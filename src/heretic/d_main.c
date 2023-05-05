@@ -18,6 +18,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <SDL.h>
+
+#ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
+#endif
 
 #include "txt_main.h"
 #include "txt_io.h"
@@ -813,8 +821,27 @@ void D_DoomMain(void)
     int p;
     char file[256];
     char demolumpname[9];
+    const int starttime = SDL_GetTicks();
 
+#ifdef _WIN32
+    // [JN] Print colorized title.
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), BACKGROUND_GREEN
+                           | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE
+                           | FOREGROUND_INTENSITY);
+
+    for (p = 0 ; p < 34 ; p++) printf(" ");
+    printf(PACKAGE_STRING);
+    for (p = 0 ; p < 34 ; p++) printf(" ");
+    printf("\n");
+
+    // [JN] Fallback to standard console colos.
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 
+                            FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+#else
     I_PrintBanner(PACKAGE_STRING);
+#endif
+
+    I_AtExit(I_ShutdownGraphics, true);
 
     I_AtExit(D_Endoom, false);
 
@@ -920,8 +947,6 @@ void D_DoomMain(void)
 //
 // init subsystems
 //
-    DEH_printf("V_Init: allocate screens.\n");
-    //V_Init();
 
     // Check for -CDROM
 
@@ -952,16 +977,16 @@ void D_DoomMain(void)
         M_SetConfigDir(NULL);
     }
 
+    DEH_printf("Z_Init: Init zone memory allocation daemon.\n");
+    Z_Init();
+
     // Load defaults before initing other systems
     DEH_printf("M_LoadDefaults: Load system defaults.\n");
     D_BindVariables();
     M_SetConfigFilenames("heretic.cfg");
     M_LoadDefaults();
 
-    I_AtExit(M_SaveDefaults, false);
-
-    DEH_printf("Z_Init: Init zone memory allocation daemon.\n");
-    Z_Init();
+    I_AtExit(M_SaveDefaults, true); // [crispy] always save configuration at exit
 
     // Initializes CRL
     CRL_Init(c_PlaneBorderColors, NUMPLANEBORDERCOLORS, 128);
@@ -978,6 +1003,23 @@ void D_DoomMain(void)
 
     D_AddFile(iwadfile);
     W_CheckCorrectIWAD(heretic);
+
+    //!
+    // @category mod
+    //
+    // Disable auto-loading of .wad files.
+    //
+    if (!M_ParmExists("-noautoload"))
+    {
+        char *autoload_dir;
+        autoload_dir = M_GetAutoloadDir("heretic.wad");
+        if (autoload_dir != NULL)
+        {
+            DEH_AutoLoadPatches(autoload_dir);
+            W_AutoLoadWADs(autoload_dir);
+            free(autoload_dir);
+        }
+    }
 
     // Load dehacked patches specified on the command line.
     DEH_ParseCommandLine();
@@ -1040,6 +1082,9 @@ void D_DoomMain(void)
 
         printf("Playing demo %s.\n", file);
     }
+
+    // Generate the WAD hash table.  Speed things up a bit.
+    W_GenerateHashTable();
 
     //!
     // @category demo
@@ -1119,10 +1164,10 @@ void D_DoomMain(void)
 
     CT_Init();
 
-    tprintf(DEH_String("R_Init: Init Heretic refresh daemon."), 1);
+    tprintf(DEH_String("R_Init: Init Heretic refresh daemon - ["), 1);
     hprintf(DEH_String("Loading graphics"));
     R_Init();
-    tprintf("\n", 0);
+    tprintf("]\n", 0);
 
     tprintf(DEH_String("P_Init: Init Playloop state.\n"), 1);
     hprintf(DEH_String("Init game engine."));
@@ -1151,7 +1196,7 @@ void D_DoomMain(void)
     IncThermo();
 
 //
-// start the apropriate game based on parms
+// start the appropriate game based on params
 //
 
     D_CheckRecordFrom();
@@ -1228,6 +1273,9 @@ void D_DoomMain(void)
     }
 
     finishStartup();
+
+    // [JN] Show startup process time.
+    printf("Startup process took %d ms.\n", SDL_GetTicks() - starttime);
 
     D_DoomLoop();               // Never returns
 }
