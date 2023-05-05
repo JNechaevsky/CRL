@@ -1922,15 +1922,10 @@ void G_WriteDemoTiccmd(ticcmd_t * cmd)
     {
         if (vanilla_demo_limit)
         {
-            // no more space
-            G_CheckDemoStatus();
-            return;
-        }
-        else
-        {
-            // Vanilla demo limit disabled: unlimited
-            // demo lengths!
+            // [JN] CRL - print in-game warning instead of quit.        
+            CRL_SetCriticalMessage("G[WRITEDEMOTICCMD:", "DEMO OVERFLOW (VANILLA STOPS HERE)", MESSAGETICS);
 
+            // Vanilla demo limit disabled: unlimited demo lengths!
             IncreaseDemoBuffer();
         }
     }
