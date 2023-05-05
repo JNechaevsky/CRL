@@ -29,6 +29,7 @@
 #include "r_local.h"
 
 #include "crlcore.h"
+#include "crlvars.h"
 
 // OPTIMIZE: closed two sided lines as single sided
 
@@ -354,7 +355,7 @@ void R_StoreWallRange(int start, int stop, seg_t* __line, subsector_t* __sub)
     // [JN] CRL - segs counter.
     CRLData.numsegs++;
 
-    if (ds_p == &drawsegs[MAXDRAWSEGS])
+    if (ds_p == &drawsegs[crl_vanilla_limits ? MAXDRAWSEGS : REALMAXDRAWSEGS])
         return;                 // don't overflow and crash
 
 #ifdef RANGECHECK

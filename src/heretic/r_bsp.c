@@ -30,7 +30,8 @@ side_t *sidedef;
 line_t *linedef;
 sector_t *frontsector, *backsector;
 
-drawseg_t drawsegs[MAXDRAWSEGS], *ds_p;
+drawseg_t  drawsegs[REALMAXDRAWSEGS];
+drawseg_t *ds_p;
 
 void R_StoreWallRange(int start, int stop, seg_t* __line, subsector_t* __sub);
 

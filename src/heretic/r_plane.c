@@ -455,8 +455,15 @@ void R_DrawPlanes(void)
     CRLData.numopenings = lastopening - openings;
 
 #ifdef RANGECHECK
-    if (ds_p - drawsegs > MAXDRAWSEGS)
-        I_Error("R_DrawPlanes: drawsegs overflow (%i)", ds_p - drawsegs);
+    // [JN] Print in-game warning about MAXDRAWSEGS overflow.
+    if (ds_p - drawsegs > CRL_MaxDrawSegs)
+    {
+        CRL_SetCriticalMessage("R[DRAWPLANES:", M_StringJoin("DRAWSEGS OVERFLOW (",
+                                            CRL_LimitsName, " CRASHES HERE)", NULL), 2);
+
+        // Supress render and don't go any farther.
+        return;
+    }
 
     // [JN] Print in-game warning about MAVVISPLANES overflow.
     if (lastvisplane - visplanes > CRL_MaxVisPlanes)
