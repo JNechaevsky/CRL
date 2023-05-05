@@ -198,6 +198,21 @@ void MainMenu(void)
     txt_window_t *window;
     txt_window_action_t *quit_action;
     txt_window_action_t *warp_action;
+    static boolean colors_initialized = false;
+
+    // [JN] Use different coloring for non-Doom games.
+    if (!colors_initialized)
+    {
+        if (gamemission == heretic)
+        {   // Hue: -66
+            TXT_SetColor(TXT_COLOR_BLUE,   0, 134, 64);
+            TXT_SetColor(TXT_COLOR_CYAN,   0, 208, 50);
+            TXT_SetColor(TXT_COLOR_GREY, 140, 168, 154);
+            TXT_SetColor(TXT_COLOR_BRIGHT_CYAN,   0, 255, 62);
+            TXT_SetColor(TXT_COLOR_BRIGHT_GREEN, 101, 255, 84);
+        }
+        colors_initialized = true;
+    }
 
     window = TXT_NewWindow("Main Menu");
 
