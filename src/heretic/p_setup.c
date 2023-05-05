@@ -18,6 +18,7 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include <SDL.h>  // [JN] SDL_GetTicks()
 
 #include "doomdef.h"
 #include "i_swap.h"
@@ -561,6 +562,8 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
     char lumpname[9];
     int lumpnum;
     mobj_t *mobj;
+    // [JN] CRL - indicate level loading time in console.
+    const int starttime = SDL_GetTicks();
 
     totalkills = totalitems = totalsecret = 0;
     for (i = 0; i < MAXPLAYERS; i++)
@@ -658,6 +661,10 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
 
     // [JN] Force to disable spectator mode.
     crl_spectating = 0;
+
+    // [JN] Print amount of level loading time.
+    printf("P_SetupLevel: E%dM%d, loaded in %d ms.\n",
+           gameepisode, gamemap, SDL_GetTicks() - starttime);
 
 //printf ("free memory: 0x%x\n", Z_FreeMemory());
 
