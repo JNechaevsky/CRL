@@ -1713,6 +1713,9 @@ boolean MN_Responder(event_t * event)
     extern void D_StartTitle(void);
     extern void G_CheckDemoStatus(void);
     char *textBuffer;
+    static int mousewait = 0;
+    static int mousey = 0;
+    static int lasty = 0;
 
     // In testcontrols mode, none of the function keys should do anything
     // - the only key is escape to quit.
@@ -1750,6 +1753,11 @@ boolean MN_Responder(event_t * event)
         return true;
     }
 
+    // key is the key pressed, ch is the actual character typed
+  
+    charTyped = 0;
+    key = -1;
+
     // Allow the menu to be activated from a joystick button if a button
     // is bound for joybmenu.
     if (event->type == ev_joystick)
@@ -1760,14 +1768,65 @@ boolean MN_Responder(event_t * event)
             return true;
         }
     }
+    else
+    {
+        // [JN] Allow menu control by mouse.
+        if (event->type == ev_mouse && mousewait < I_GetTime())
+        {
+            mousey += event->data3;
 
-    if (event->type != ev_keydown)
+            if (mousey < lasty - 30)
+            {
+                key = key_menu_down;
+                mousewait = I_GetTime() + 5;
+                mousey = lasty -= 30;
+            }
+            else if (mousey > lasty + 30)
+            {
+                key = key_menu_up;
+                mousewait = I_GetTime() + 5;
+                mousey = lasty += 30;
+            }
+
+            if (event->data1 & 1)
+            {
+                key = key_menu_forward;
+                mousewait = I_GetTime() + 15;
+            }
+
+            if (event->data1 & 2)
+            {
+                key = key_menu_back;
+                mousewait = I_GetTime() + 15;
+            }
+
+            // [crispy] scroll menus with mouse wheel
+            if (mousebprevweapon >= 0 && event->data1 & (1 << mousebprevweapon))
+            {
+                key = key_menu_down;
+                mousewait = I_GetTime() + 1;
+            }
+            else
+            if (mousebnextweapon >= 0 && event->data1 & (1 << mousebnextweapon))
+            {
+                key = key_menu_up;
+                mousewait = I_GetTime() + 1;
+            }
+        }
+        else
+        {
+            if (event->type == ev_keydown)
+            {
+                key = event->data1;
+                charTyped = event->data2;
+            }
+        }
+    }
+
+    if (key == -1)
     {
         return false;
     }
-
-    key = event->data1;
-    charTyped = event->data2;
 
     if (InfoType)
     {
