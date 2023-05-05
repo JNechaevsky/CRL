@@ -44,8 +44,11 @@ fixed_t skyiscale;
 static visplane_t visplanes[REALMAXVISPLANES], *lastvisplane;
 visplane_t *floorplane, *ceilingplane;
 
-int  openings[MAXOPENINGS];  // [JN] 32-bit integer math
-int *lastopening;            // [JN] 32-bit integer math
+// [JN] CRL - remove MAXOPENINGS limit enterily. 
+// Render limits level will still do actual drawing limit.
+size_t  maxopenings;
+int    *openings;     // [JN] 32-bit integer math
+int    *lastopening;  // [JN] 32-bit integer math
 
 //
 // clip values are the solid pixel bounding the range
@@ -463,9 +466,15 @@ void R_DrawPlanes(void)
     	longjmp(CRLJustIncaseBuf, CRL_JUMP_VPO);
     }
 
-    if (lastopening - openings > MAXOPENINGS)
-        I_Error("R_DrawPlanes: opening overflow (%i)",
-                lastopening - openings);
+    // [JN] Print in-game warning about MAXOPENINGS overflow.
+    if (lastopening - openings > CRL_MaxOpenings)
+    {
+        CRL_SetCriticalMessage("R[DRAWPLANES:", M_StringJoin("OPENING OVERFLOW (",
+                                            CRL_LimitsName, " CRASHES HERE)", NULL), 2);
+
+        // Supress render and don't go any farther.
+        return;
+    }
 #endif
 
     for (pl = visplanes; pl < lastvisplane; pl++)

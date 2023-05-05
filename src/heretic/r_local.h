@@ -168,8 +168,6 @@ typedef struct
 
 typedef byte lighttable_t;      // this could be wider for >8 bit display
 
-#define	MAXOPENINGS		SCREENWIDTH*64
-
 typedef struct
 {
     fixed_t height;
@@ -382,8 +380,10 @@ extern planefunction_t floorfunc, ceilingfunc;
 
 extern int skyflatnum;
 
-extern int  openings[MAXOPENINGS];  // [JN] 32-bit integer math
-extern int *lastopening;            // [JN] 32-bit integer math
+// [JN] 32-bit integer maths
+extern size_t  maxopenings;            
+extern int    *lastopening;
+extern int    *openings;
 
 extern int floorclip[SCREENWIDTH];
 extern int ceilingclip[SCREENWIDTH];
