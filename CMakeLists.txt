@@ -74,10 +74,12 @@ if(NOT miniz_FOUND)
 endif()
 
 # Check for FluidSynth.
-find_package(FluidSynth 2.2.0)
-if(FluidSynth_FOUND)
-    set(HAVE_FLUIDSYNTH TRUE)
-endif()
+# [JN] Disabled to get rid of bunch of DLL files.
+# Uncomment following lines to compile with FluidSynth support.
+# find_package(FluidSynth 2.2.0)
+# if(FluidSynth_FOUND)
+#     set(HAVE_FLUIDSYNTH TRUE)
+# endif()
 
 find_package(m)
 
