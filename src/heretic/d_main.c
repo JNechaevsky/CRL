@@ -193,11 +193,17 @@ void D_Display(void)
         case GS_LEVEL:
             if (!gametic)
                 break;
+
+            // [JN] Update automap while playing and render
+            // full view so counters will show correct values.
+            R_RenderPlayerView(&players[displayplayer]);
+
             if (automapactive)
+            {
                 AM_Drawer();
+            }
             else
             {
-                R_RenderPlayerView(&players[displayplayer]);
                 // [JN] RestlessRodent -- draw visplanes if overlayed
                 CRL_DrawVisPlanes(1);
             }
@@ -209,8 +215,6 @@ void D_Display(void)
             UpdateState |= I_FULLVIEW;
             SB_Drawer();
 
-            // [JN] Do not draw any CRL widgets if not in game level.
-            
             // [JN] Draw FPS counter.
             if (crl_showfps)
             {
