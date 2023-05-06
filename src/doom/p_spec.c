@@ -127,7 +127,7 @@ anim_t*		lastanim;
 //
 //      Animating line specials
 //
-#define MAXLINEANIMS            16384
+#define MAXLINEANIMS            16385
 
 extern  short	numlinespecials;
 extern  line_t*	linespeciallist[MAXLINEANIMS];

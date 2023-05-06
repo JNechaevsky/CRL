@@ -92,38 +92,14 @@ void CRL_StatDrawer (void)
 
     if (crl_widget_playstate)
     {
-        /*
-        // Icon of Sin spitter targets (32 max)
-        if ((crl_widget_playstate == 1 
-        ||  (crl_widget_playstate == 2 && CRL_brain_counter > 32)) && CRL_brain_counter)
-        {
-            char brn[32];
-
-            M_WriteText(0, 63, "BRN:", CRL_StatColor_Str(CRL_brain_counter, 32));
-            M_snprintf(brn, 16, "%d/32", CRL_brain_counter);
-            M_WriteText(32, 63, brn, CRL_StatColor_Val(CRL_brain_counter, 32));
-        }
-
-        // Buttons (16 max)
-        if (crl_widget_playstate == 1
-        || (crl_widget_playstate == 2 && CRL_buttons_counter > 16))
-        {
-            char btn[32];
-
-            M_WriteText(0, 72, "BTN:", CRL_StatColor_Str(CRL_buttons_counter, 16));
-            M_snprintf(btn, 16, "%d/16", CRL_buttons_counter);
-            M_WriteText(32, 72, btn, CRL_StatColor_Val(CRL_buttons_counter, 16));
-        }
-
-        // Plats (30 max)
         if (crl_widget_playstate == 1
         || (crl_widget_playstate == 2 && CRL_plats_counter > CRL_MaxPlats))
         {
             char plt[32];
 
-            M_WriteText(0, 81, "PLT:", CRL_StatColor_Str(CRL_plats_counter, CRL_MaxPlats));
+            MN_DrTextA("PLT:", 0, 70, CRL_StatColor_Str(CRL_plats_counter, CRL_MaxPlats));
             M_snprintf(plt, 16, "%d/%d", CRL_plats_counter, CRL_MaxPlats);
-            M_WriteText(32, 81, plt, CRL_StatColor_Val(CRL_plats_counter, CRL_MaxPlats));
+            MN_DrTextA(plt, 32, 70, CRL_StatColor_Val(CRL_plats_counter, CRL_MaxPlats));
         }
 
         // Animated lines (64 max)
@@ -132,11 +108,10 @@ void CRL_StatDrawer (void)
         {
             char ani[32];
 
-            M_WriteText(0, 90, "ANI:", CRL_StatColor_Str(CRL_lineanims_counter, CRL_MaxAnims));
+            MN_DrTextA("ANI:", 0, 80, CRL_StatColor_Str(CRL_lineanims_counter, CRL_MaxAnims));
             M_snprintf(ani, 16, "%d/%d", CRL_lineanims_counter, CRL_MaxAnims);
-            M_WriteText(32, 90, ani, CRL_StatColor_Val(CRL_lineanims_counter, CRL_MaxAnims));
+            MN_DrTextA(ani, 32, 80, CRL_StatColor_Val(CRL_lineanims_counter, CRL_MaxAnims));
         }
-        */
     }
 
     // Render counters

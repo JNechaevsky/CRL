@@ -20,6 +20,7 @@
 #include "deh_str.h"
 #include "i_system.h"
 #include "i_timer.h"
+#include "m_misc.h"
 #include "m_random.h"
 #include "p_local.h"
 #include "s_sound.h"
@@ -1232,6 +1233,15 @@ void P_SpawnSpecials(void)
             case 99:           // Effect_Scroll_Right
                 linespeciallist[numlinespecials] = &lines[i];
                 numlinespecials++;
+                CRL_lineanims_counter++;
+
+                if (CRL_lineanims_counter > CRL_MaxAnims)
+                {
+                    // [JN] Print in-game warning.
+                    CRL_SetCriticalMessage("P[SPAWNSPECIALS:",
+                                           "TOO MANY SCROLLERS!", MESSAGETICS);
+                }
+
                 break;
         }
 

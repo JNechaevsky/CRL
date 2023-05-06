@@ -18,10 +18,13 @@
 
 #include "doomdef.h"
 #include "i_system.h"
+#include "m_misc.h"
 #include "m_random.h"
 #include "p_local.h"
 #include "s_sound.h"
 #include "v_video.h"
+
+#include "crlcore.h"
 
 plat_t *activeplats[MAXPLATS];
 
@@ -238,6 +241,15 @@ void P_AddActivePlat(plat_t * plat)
         if (activeplats[i] == NULL)
         {
             activeplats[i] = plat;
+            CRL_plats_counter++;
+
+            if (CRL_plats_counter > CRL_MaxPlats)
+            {
+                // [JN] Print in-game warning.
+                CRL_SetCriticalMessage("P[ADDACTIVEPLAT:", M_StringJoin("NO MORE PLATS! (",
+                                       CRL_LimitsName, " CRASHES HERE)", NULL), MESSAGETICS);
+            }
+
             return;
         }
     I_Error("P_AddActivePlat: no more plats!");
@@ -252,6 +264,7 @@ void P_RemoveActivePlat(plat_t * plat)
             (activeplats[i])->sector->specialdata = NULL;
             P_RemoveThinker(&(activeplats[i])->thinker);
             activeplats[i] = NULL;
+            CRL_plats_counter--;
             return;
         }
     I_Error("P_RemoveActivePlat: can't find plat!");

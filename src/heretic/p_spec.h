@@ -55,7 +55,9 @@ extern int *TerrainTypes;
 //
 //      Animating line specials
 //
-#define	MAXLINEANIMS		64
+// [JN] CRL - increase actual limit, render counter will blink
+// if scrolling value reaches 65 and above.
+#define MAXLINEANIMS		16385
 extern short numlinespecials;
 extern line_t *linespeciallist[MAXLINEANIMS];
 
@@ -233,7 +235,9 @@ typedef struct
 
 #define	PLATWAIT	3
 #define	PLATSPEED	FRACUNIT
-#define	MAXPLATS	30
+// [JN] CRL - increase actual limit, render counter will blink
+// if active plats value reaches 31 and above.
+#define	MAXPLATS	7681
 
 extern plat_t *activeplats[MAXPLATS];
 

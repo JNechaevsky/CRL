@@ -1037,6 +1037,10 @@ void P_SpawnPlayer(mapthing_t * mthing)
     p->viewheight = VIEWHEIGHT;
     pspr_interp = false;  // [crispy] interpolate weapon bobbing
 
+    // [JN] CRL - reset frame-independent limit counters.
+    CRL_plats_counter = 0;
+    CRL_lineanims_counter = 0;
+
     P_SetupPsprites(p);         // setup gun psprite        
     if (deathmatch)
     {                           // Give all keys in death match mode
