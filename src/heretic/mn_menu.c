@@ -72,7 +72,7 @@ typedef enum
     MENU_CRLVIDEO,
     // MENU_CRLSOUND,
     // MENU_CRLCONTROLS,
-    // MENU_CRLWIDGETS,
+    MENU_CRLWIDGETS,
     // MENU_CRLGAMEPLAY,
     MENU_CRLLIMITS,
     MENU_NONE
@@ -405,6 +405,15 @@ static boolean CRL_TextShadows (int option);
 static boolean CRL_GfxStartup (int option);
 static boolean CRL_EndText (int option);
 
+static void DrawCRLWidgets (void);
+static boolean CRL_Widget_Coords (int option);
+static boolean CRL_Widget_Playstate (int option);
+static boolean CRL_Widget_Render (int option);
+static boolean CRL_Widget_KIS (int option);
+static boolean CRL_Widget_Time (int option);
+static boolean CRL_Widget_Powerups (int option);
+static boolean CRL_Widget_Health (int option);
+
 static void DrawCRLLimits (void);
 static boolean CRL_ZMalloc (int option);
 static boolean CRL_Limits (int option);
@@ -434,7 +443,7 @@ static MenuItem_t CRLMainItems[] = {
     {ITT_EFUNC,  "VIDEO OPTIONS",           CRLDummy, 0, MENU_CRLVIDEO},
     {ITT_LRFUNC, "SOUND OPTIONS",           CRLDummy, 0, MENU_NONE},
     {ITT_LRFUNC, "CONTROL SETTINGS",        CRLDummy, 0, MENU_NONE},
-    {ITT_LRFUNC, "WIDGETS AND AUTOMAP",     CRLDummy, 0, MENU_NONE},
+    {ITT_EFUNC,  "WIDGETS AND AUTOMAP",     CRLDummy, 0, MENU_CRLWIDGETS},
     {ITT_LRFUNC, "GAMEPLAY FEATURES",       CRLDummy, 0, MENU_NONE},
     {ITT_EFUNC,  "STATIC ENGINE LIMITS",    CRLDummy, 0, MENU_CRLLIMITS}
 
@@ -733,6 +742,114 @@ static boolean CRL_EndText (int option)
 }
 
 // -----------------------------------------------------------------------------
+// Widgets and Automap
+// -----------------------------------------------------------------------------
+
+static MenuItem_t CRLWidgetsItems[] = {
+    {ITT_LRFUNC, "PLAYER COORDS",       CRL_Widget_Coords,    0, MENU_NONE},
+    {ITT_LRFUNC, "PLAYSTATE COUNTERS",  CRL_Widget_Playstate, 0, MENU_NONE},
+    {ITT_LRFUNC, "RENDER COUNTERS",     CRL_Widget_Render,    0, MENU_NONE},
+    {ITT_LRFUNC, "KIS STATS",           CRL_Widget_KIS,       0, MENU_NONE},
+    {ITT_LRFUNC, "LEVEL TIME",          CRL_Widget_Time,      0, MENU_NONE},
+    {ITT_LRFUNC, "POWERUP TIMERS",      CRL_Widget_Powerups,  0, MENU_NONE},
+    {ITT_LRFUNC, "TARGET'S HEALTH",     CRL_Widget_Health,    0, MENU_NONE},
+    {ITT_EMPTY,  NULL,                  NULL,                 0, MENU_NONE},
+    {ITT_EMPTY,  NULL,                  NULL,                 0, MENU_NONE},
+    {ITT_EMPTY,  NULL,                  NULL,                 0, MENU_NONE},
+    {ITT_EMPTY,  NULL,                  NULL,                 0, MENU_NONE},
+    {ITT_EMPTY,  NULL,                  NULL,                 0, MENU_NONE}
+};
+
+static Menu_t CRLWidgetsMap = {
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    DrawCRLWidgets,
+    12, CRLWidgetsItems,
+    0,
+    true,
+    MENU_CRLMAIN
+};
+
+static void DrawCRLWidgets (void)
+{
+    static char str[32];
+
+    M_ShadeBackground();
+
+    MN_DrTextACentered("WIDGETS", 20, cr[CR_YELLOW]);
+
+    // Player coords
+    sprintf(str, crl_widget_coords ? "ON" : "OFF");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 30,
+               crl_widget_coords ? cr[CR_GREEN] : cr[CR_RED]);
+
+    // Playstate counters
+    sprintf(str, crl_widget_playstate == 1 ? "ON" :
+                 crl_widget_playstate == 2 ? "OVERFLOWS" : "OFF");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 40,
+               crl_widget_playstate == 1 ? cr[CR_GREEN] :
+               crl_widget_playstate == 2 ? cr[CR_DARKGREEN] : cr[CR_RED]);
+
+    // Render counters
+    sprintf(str, crl_widget_render == 1 ? "ON" :
+                 crl_widget_render == 2 ? "OVERFLOWS" : "OFF");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 50,
+               crl_widget_render == 1 ? cr[CR_GREEN] :
+               crl_widget_render == 2 ? cr[CR_DARKGREEN] : cr[CR_RED]);
+
+    // K/I/S stats
+    sprintf(str, crl_widget_kis ? "ON" : "OFF");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 60,
+               crl_widget_kis ? cr[CR_GREEN] : cr[CR_RED]);
+
+    // Level time
+    sprintf(str, crl_widget_time ? "ON" : "OFF");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 70,
+               crl_widget_time ? cr[CR_GREEN] : cr[CR_RED]);
+}
+
+static boolean CRL_Widget_Coords (int option)
+{
+    crl_widget_coords ^= 1;
+    return true;
+}
+
+static boolean CRL_Widget_Playstate (int option)
+{
+    crl_widget_playstate = M_INT_Slider(crl_widget_playstate, 0, 2, option);
+    return true;
+}
+
+static boolean CRL_Widget_Render (int option)
+{
+    crl_widget_render = M_INT_Slider(crl_widget_render, 0, 2, option);
+    return true;
+}
+
+static boolean CRL_Widget_KIS (int option)
+{
+    crl_widget_kis ^= 1;
+    return true;
+}
+
+static boolean CRL_Widget_Time (int option)
+{
+    crl_widget_time ^= 1;
+    return true;
+}
+
+static boolean CRL_Widget_Powerups (int option)
+{
+    crl_widget_powerups ^= 1;
+    return true;
+}
+
+static boolean CRL_Widget_Health (int option)
+{
+    crl_widget_health = M_INT_Slider(crl_widget_health, 0, 4, option);
+    return true;
+}
+
+// -----------------------------------------------------------------------------
 // Static engine limits
 // -----------------------------------------------------------------------------
 
@@ -826,7 +943,7 @@ static Menu_t *Menus[] = {
     &CRLVideo,
     // &CRLSound,
     // &CRLControls,
-    // &CRLWidgets,
+    &CRLWidgetsMap,
     // &CRLGameplay,
     &CRLLimits,
 };
