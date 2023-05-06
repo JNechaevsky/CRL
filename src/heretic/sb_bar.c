@@ -291,7 +291,14 @@ void SB_Ticker(void)
 
     // [JN] Update CRL_Widgets_t data.
     CPlayer = &players[displayplayer];
-    
+
+    CRLWidgets.kills = CPlayer->killcount;
+    CRLWidgets.totalkills = totalkills;
+    CRLWidgets.items = CPlayer->itemcount;
+    CRLWidgets.totalitems = totalitems;
+    CRLWidgets.secrets = CPlayer->secretcount;
+    CRLWidgets.totalsecrets = totalsecret;
+
     CRLWidgets.x = CPlayer->mo->x >> FRACBITS;
     CRLWidgets.y = CPlayer->mo->y >> FRACBITS;
     CRLWidgets.ang = CPlayer->mo->angle / ANG1;
