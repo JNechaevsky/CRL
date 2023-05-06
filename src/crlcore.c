@@ -58,6 +58,10 @@ static int  _numcolors;
 #define DARKMASK  7
 static uint8_t _colormap[MAXSHADES][256];
 
+// [JN] Toggle for clearing MAX visplanes.
+
+boolean CRL_PlaneMax_Clear = false;
+
 // [JN] Frame-independend counters:
 
 // Icon of Sin spitter target counter (32 in vanilla).

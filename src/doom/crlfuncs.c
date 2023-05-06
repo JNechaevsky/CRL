@@ -73,6 +73,22 @@ static byte *CRL_PowerupColor (const int val1, const int val2)
 
 void CRL_StatDrawer (void)
 {
+    // Count MAX visplanes for jumping
+    static int CRL_PlaneMax;
+    int CRL_PlaneOldMax = CRLData.numcheckplanes + CRLData.numfindplanes;
+
+    // Should MAX be cleared?
+    if (CRL_PlaneMax_Clear)
+    {
+        CRL_PlaneMax = 0;
+        CRL_PlaneMax_Clear = false;
+    }
+    // Update MAX value
+    if (CRL_PlaneOldMax > CRL_PlaneMax)
+    {
+        CRL_PlaneMax = CRL_PlaneOldMax;
+    }
+
     // Player coords
     if (crl_widget_coords)
     {
@@ -162,6 +178,18 @@ void CRL_StatDrawer (void)
             M_WriteText(32, 117, seg, CRL_StatColor_Val(CRLData.numsegs, CRL_MaxDrawSegs));
         }
 
+        // Openings
+        if (crl_widget_render == 1
+        || (crl_widget_render == 2 && CRLData.numopenings >= CRL_MaxOpenings))
+        {
+            char opn[64];
+
+            M_WriteText(0, 126, "OPN:", CRL_StatColor_Str(CRLData.numopenings, CRL_MaxOpenings));
+            M_snprintf(opn, 16, "%d/%d", CRLData.numopenings, CRL_MaxOpenings);
+            M_WriteText(32, 126, opn, CRL_StatColor_Val(CRLData.numopenings, CRL_MaxOpenings));
+        }
+
+
         // Planes (vanilla: 128, doom+: 1024)
         if (crl_widget_render == 1
         || (crl_widget_render == 2 && CRLData.numcheckplanes + CRLData.numfindplanes >= CRL_MaxVisPlanes))
@@ -170,23 +198,14 @@ void CRL_StatDrawer (void)
             const int totalplanes = CRLData.numcheckplanes
                                   + CRLData.numfindplanes;
 
-            M_WriteText(0, 126, "PLN:", totalplanes >= CRL_MaxVisPlanes ? 
+            M_WriteText(0, 135, "PLN:", totalplanes >= CRL_MaxVisPlanes ? 
                        (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
-            M_snprintf(vis, 32, "%d/%d", totalplanes, CRL_MaxVisPlanes);
-            M_WriteText(32, 126, vis, totalplanes >= CRL_MaxVisPlanes ?
+            M_snprintf(vis, 32, "%d/%d (MAX: %d)", totalplanes, CRL_MaxVisPlanes, CRL_PlaneMax);
+            M_WriteText(32, 135, vis, totalplanes >= CRL_MaxVisPlanes ?
                        (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
         }
 
-        // Openings
-        if (crl_widget_render == 1
-        || (crl_widget_render == 2 && CRLData.numopenings >= CRL_MaxOpenings))
-        {
-            char opn[64];
 
-            M_WriteText(0, 135, "OPN:", CRL_StatColor_Str(CRLData.numopenings, CRL_MaxOpenings));
-            M_snprintf(opn, 16, "%d/%d", CRLData.numopenings, CRL_MaxOpenings);
-            M_WriteText(32, 135, opn, CRL_StatColor_Val(CRLData.numopenings, CRL_MaxOpenings));
-        }
     }
 
     // Level / DeathMatch timer
