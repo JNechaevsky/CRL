@@ -288,6 +288,13 @@ void SB_Ticker(void)
         }
         HealthMarker += delta;
     }
+
+    // [JN] Update CRL_Widgets_t data.
+    CPlayer = &players[displayplayer];
+    
+    CRLWidgets.x = CPlayer->mo->x >> FRACBITS;
+    CRLWidgets.y = CPlayer->mo->y >> FRACBITS;
+    CRLWidgets.ang = CPlayer->mo->angle / ANG1;
 }
 
 //---------------------------------------------------------------------------

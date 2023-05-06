@@ -76,20 +76,18 @@ void CRL_StatDrawer (void)
     // Player coords
     if (crl_widget_coords)
     {
-        /*
         char str[128];
 
-        M_WriteText(0, 27, "X:", cr[CR_GRAY]);
-        M_WriteText(0, 36, "Y:", cr[CR_GRAY]);
-        M_WriteText(0, 45, "ANG:", cr[CR_GRAY]);
+        MN_DrTextA("X:", 0, 30, cr[CR_GRAY]);
+        MN_DrTextA("Y:", 0, 40, cr[CR_GRAY]);
+        MN_DrTextA("ANG:", 0, 50, cr[CR_GRAY]);
 
-        sprintf(str, "%d", CRLWidgets.x);
-        M_WriteText(16, 27, str, cr[CR_GREEN]);
-        sprintf(str, "%d", CRLWidgets.y);
-        M_WriteText(16, 36, str, cr[CR_GREEN]);
-        sprintf(str, "%d", CRLWidgets.ang);
-        M_WriteText(32, 45, str, cr[CR_GREEN]);
-        */
+        M_snprintf(str, 16, "%d", CRLWidgets.x);
+        MN_DrTextA(str, 16, 30, cr[CR_GREEN]);
+        M_snprintf(str, 16, "%d", CRLWidgets.y);
+        MN_DrTextA(str, 16, 40, cr[CR_GREEN]);
+        M_snprintf(str, 16, "%d", CRLWidgets.ang);
+        MN_DrTextA(str, 32, 50, cr[CR_GREEN]);
     }
 
     if (crl_widget_playstate)
