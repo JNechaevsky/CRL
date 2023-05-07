@@ -851,16 +851,6 @@ void R_SetupFrame (player_t* player)
     // RestlessRodent -- Just report it
     CRL_ReportPosition(viewx, viewy, viewz, viewangle);
 
-    // [JN] Update MAX visplanes position for moving.
-    if (CRL_MAX_toSet)
-    {
-        CRL_MAX_x = player->mo->x;
-        CRL_MAX_y = player->mo->y;
-        CRL_MAX_z = player->mo->z;
-        CRL_MAX_ang = player->mo->angle;
-        CRL_MAX_toSet = false;
-    }
-    
     viewsin = finesine[viewangle>>ANGLETOFINESHIFT];
     viewcos = finecosine[viewangle>>ANGLETOFINESHIFT];
 	

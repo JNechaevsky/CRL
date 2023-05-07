@@ -760,8 +760,8 @@ void P_SpawnPlayer (mapthing_t* mthing)
     {
         p->mo->flags |= MF_NOCLIP;
     }
-    // [JN] CRL - detone to clear MAX visplanes.
-    CRL_MAX_toClear = true;
+    // [JN] CRL - clear MAX visplanes.
+    CRL_Clear_MAX();
     // [JN] CRL - reset frame-independent limit counters.
     CRL_lineanims_counter = 0;
     CRL_plats_counter = 0;

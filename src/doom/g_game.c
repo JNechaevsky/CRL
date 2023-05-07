@@ -544,7 +544,7 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
         // Clear MAX visplanes.
         if (gamekeydown[key_crl_clearmax])
         {
-            CRL_MAX_toClear = true;
+            CRL_Clear_MAX();
             CRL_SetMessage(&players[consoleplayer], "Cleared MAX", false, NULL);
         }
 

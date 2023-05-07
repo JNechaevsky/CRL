@@ -18,6 +18,7 @@
 
 #pragma once
 
+extern void CRL_Clear_MAX (void);
 
 // [crispy] demo progress bar and timer widget
 extern void CRL_DemoTimer (const int time);

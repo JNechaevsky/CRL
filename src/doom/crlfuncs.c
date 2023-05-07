@@ -19,10 +19,12 @@
 #include <stdio.h>
 
 #include "i_timer.h"
-#include "m_menu.h"
-#include "m_misc.h"
 #include "v_trans.h"
 #include "v_video.h"
+#include "doomstat.h"
+#include "m_menu.h"
+#include "m_misc.h"
+#include "r_local.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
@@ -34,8 +36,6 @@
 //                        Render Counters and Widgets
 //
 // =============================================================================
-
-extern int gametic;
 
 // -----------------------------------------------------------------------------
 // CRL_StatColor_Str, CRL_StatColor_Val
@@ -67,6 +67,24 @@ static byte *CRL_PowerupColor (const int val1, const int val2)
 }
 
 // -----------------------------------------------------------------------------
+// CRL_MAX_count
+//  [JN] Handling of MAX visplanes, based on implementation of RestlessRodent.
+// -----------------------------------------------------------------------------
+
+static int CRL_MAX_count;
+extern visplane_t *lastvisplane;
+extern visplane_t  visplanes[4096];
+
+void CRL_Clear_MAX (void)
+{
+    CRL_MAX_count = 0;
+    CRL_MAX_x = 0;
+    CRL_MAX_y = 0;
+    CRL_MAX_z = 0;
+    CRL_MAX_ang = 0;
+}
+
+// -----------------------------------------------------------------------------
 // Draws CRL stats.
 //  [JN] Draw all the widgets and counters.
 // -----------------------------------------------------------------------------
@@ -74,20 +92,18 @@ static byte *CRL_PowerupColor (const int val1, const int val2)
 void CRL_StatDrawer (void)
 {
     // Count MAX visplanes for moving
-    static int CRL_MAX_count;
-    const  int CRL_MAX_countOld = CRLData.numcheckplanes + CRLData.numfindplanes;
-
-    // Should MAX be cleared?
-    if (CRL_MAX_toClear)
+    if ((int)(lastvisplane - visplanes) > CRL_MAX_count)
     {
-        CRL_MAX_count = 0;  // Will be recalculated in condition below.
-        CRL_MAX_toClear = false;
-    }
-    // Update MAX value
-    if (CRL_MAX_countOld > CRL_MAX_count)
-    {
-        CRL_MAX_count = CRL_MAX_countOld;
-        CRL_MAX_toSet = true;
+        // Set count
+        CRL_MAX_count = (int)(lastvisplane - visplanes);
+        // Set position
+        CRL_MAX_x = players[displayplayer].mo->x;
+        CRL_MAX_y = players[displayplayer].mo->y;
+        CRL_MAX_z = players[displayplayer].mo->z;
+        // Set angle
+        CRL_MAX_ang = players[displayplayer].mo->angle;
+        // We are OK mo move to MAX
+        CRL_MAX_toMove = true;
     }
 
     // Player coords
@@ -212,7 +228,6 @@ void CRL_StatDrawer (void)
     // Level / DeathMatch timer
     if (crl_widget_time)
     {
-        extern int leveltime;
         extern int levelTimeCount;
         extern boolean levelTimer;
 

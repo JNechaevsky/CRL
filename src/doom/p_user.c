@@ -367,23 +367,25 @@ void P_PlayerThink (player_t* player)
     {
         if (!player->movetomax)
         {
-            // Unset player from subsector and/or block links.
-            P_UnsetThingPosition (player->mo);
+            // Define subsector we will move on.
+            subsector_t* ss = R_PointInSubsector(CRL_MAX_x, CRL_MAX_y);
+	
             // Supress interpolation for next frame.
-            player->mo->interp = false;
-            // Supress any horizontal and vertical momentums.
-            player->mo->momx = 0;
-            player->mo->momy = 0;
-            player->mo->momz = 0;
+            player->mo->interp = -1;    
+            // Unset player from subsector and/or block links.
+            P_UnsetThingPosition(players[displayplayer].mo);
             // Set new position.
-            player->mo->x = CRL_MAX_x;
-            player->mo->y = CRL_MAX_y;
-            player->mo->z = CRL_MAX_z;
-            player->mo->angle = CRL_MAX_ang;
+            players[displayplayer].mo->x = CRL_MAX_x;
+            players[displayplayer].mo->y = CRL_MAX_y;
+            players[displayplayer].mo->z = CRL_MAX_z;
+            // Supress any horizontal and vertical momentums.
+            players[displayplayer].mo->momx = players[displayplayer].mo->momy = players[displayplayer].mo->momz = 0;
+            // Set angle and heights.
+            players[displayplayer].mo->angle = CRL_MAX_ang;
+            players[displayplayer].mo->floorz = ss->sector->interpfloorheight;
+            players[displayplayer].mo->ceilingz = ss->sector->interpceilingheight;
             // Set new position in subsector and/or block links.
-            P_SetThingPosition (player->mo);
-            // Apply unnoticable thrust so player will not hang in air.
-            P_Thrust (player, player->mo->angle, 1);
+            P_SetThingPosition(players[displayplayer].mo);
             // All done!
             player->movetomax = true;
         }
