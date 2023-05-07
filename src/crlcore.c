@@ -58,9 +58,16 @@ static int  _numcolors;
 #define DARKMASK  7
 static uint8_t _colormap[MAXSHADES][256];
 
-// [JN] Toggle for clearing MAX visplanes.
+// [JN] For MAX visplanes handling:
+// toSet - indicates for setting new jump position
+// toClear - indicates for clearing MAX value
 
-boolean CRL_PlaneMax_Clear = false;
+boolean CRL_MAX_toSet = false;
+boolean CRL_MAX_toClear = false;
+fixed_t CRL_MAX_x;
+fixed_t CRL_MAX_y;
+fixed_t CRL_MAX_z;
+angle_t CRL_MAX_ang;
 
 // [JN] Frame-independend counters:
 

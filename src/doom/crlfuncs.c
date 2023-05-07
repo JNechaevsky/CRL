@@ -74,19 +74,20 @@ static byte *CRL_PowerupColor (const int val1, const int val2)
 void CRL_StatDrawer (void)
 {
     // Count MAX visplanes for jumping
-    static int CRL_PlaneMax;
-    int CRL_PlaneOldMax = CRLData.numcheckplanes + CRLData.numfindplanes;
+    static int CRL_MAX_count;
+    const  int CRL_MAX_countOld = CRLData.numcheckplanes + CRLData.numfindplanes;
 
     // Should MAX be cleared?
-    if (CRL_PlaneMax_Clear)
+    if (CRL_MAX_toClear)
     {
-        CRL_PlaneMax = 0;
-        CRL_PlaneMax_Clear = false;
+        CRL_MAX_count = 0;
+        CRL_MAX_toClear = false;
     }
     // Update MAX value
-    if (CRL_PlaneOldMax > CRL_PlaneMax)
+    if (CRL_MAX_countOld > CRL_MAX_count)
     {
-        CRL_PlaneMax = CRL_PlaneOldMax;
+        CRL_MAX_count = CRL_MAX_countOld;
+        CRL_MAX_toSet = true;
     }
 
     // Player coords
@@ -200,7 +201,7 @@ void CRL_StatDrawer (void)
 
             M_WriteText(0, 135, "PLN:", totalplanes >= CRL_MaxVisPlanes ? 
                        (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
-            M_snprintf(vis, 32, "%d/%d (MAX: %d)", totalplanes, CRL_MaxVisPlanes, CRL_PlaneMax);
+            M_snprintf(vis, 32, "%d/%d (MAX: %d)", totalplanes, CRL_MaxVisPlanes, CRL_MAX_count);
             M_WriteText(32, 135, vis, totalplanes >= CRL_MaxVisPlanes ?
                        (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
         }

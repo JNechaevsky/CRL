@@ -761,7 +761,7 @@ void P_SpawnPlayer (mapthing_t* mthing)
         p->mo->flags |= MF_NOCLIP;
     }
     // [JN] CRL - clear MAX planes.
-    CRL_PlaneMax_Clear = true;
+    CRL_MAX_toClear = true;
     // [JN] CRL - reset frame-independent limit counters.
     CRL_lineanims_counter = 0;
     CRL_plats_counter = 0;
