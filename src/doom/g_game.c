@@ -527,32 +527,36 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
         }
     }
 
-    // [JN] CRL - imitate jump by Arch-Vile's attack.
-    if (gamekeydown[key_crl_vilebomb] && singleplayer)
-    {
-        CRL_vilebomb = true;
-    }
-    else
-    {
-        CRL_vilebomb = false;
-    }
-
-    // [JN] CRL - clear and jump to MAX visplanes value.
+    // [JN] CRL - strict these functions to singleplayer-only
+    // for keeping demo compatibility.
     if (singleplayer)
     {
+        // Iimitate jump by Arch-Vile's attack.
+        if (gamekeydown[key_crl_vilebomb])
+        {
+            CRL_vilebomb = true;
+        }
+        else
+        {
+            CRL_vilebomb = false;
+        }
+
+        // Clear MAX visplanes.
         if (gamekeydown[key_crl_clearmax])
         {
-            CRL_MAX_toClear = true; // pitto 
+            CRL_MAX_toClear = true;
             CRL_SetMessage(&players[consoleplayer], "Cleared MAX", false, NULL);
         }
+
+        // Jump to MAX visplanes.
         if (gamekeydown[key_crl_jumptomax])
         {
-            CRL_MAX_toJump = true; // pitto 
+            CRL_MAX_toJump = true;
             CRL_SetMessage(&players[consoleplayer], "Jump to MAX", false, NULL);
         }
         else
         {
-            CRL_MAX_toJump = false; // pitto 
+            CRL_MAX_toJump = false;
         }
     }
 

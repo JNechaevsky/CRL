@@ -80,7 +80,7 @@ void CRL_StatDrawer (void)
     // Should MAX be cleared?
     if (CRL_MAX_toClear)
     {
-        CRL_MAX_count = 0;
+        CRL_MAX_count = 0;  // Will be recalculated in condition below.
         CRL_MAX_toClear = false;
     }
     // Update MAX value

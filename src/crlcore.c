@@ -59,12 +59,13 @@ static int  _numcolors;
 static uint8_t _colormap[MAXSHADES][256];
 
 // [JN] For MAX visplanes handling:
-// toSet - indicates for setting new jump position
+// toSet   - indicates for setting new jump position
 // toClear - indicates for clearing MAX value
+// toJump  - indicates if jumping to MAX is allowed
 
 boolean CRL_MAX_toSet = false;
 boolean CRL_MAX_toClear = false;
-boolean CRL_MAX_toJump;
+boolean CRL_MAX_toJump = false;
 fixed_t CRL_MAX_x;
 fixed_t CRL_MAX_y;
 fixed_t CRL_MAX_z;
