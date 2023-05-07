@@ -201,6 +201,12 @@ extern void CRL_SetCriticalMessage (char *message1, char *message2, const int ti
 extern void CRL_WidgetsDrawer (void);
 extern void CRL_ReloadPalette (void);
 
+extern boolean CRL_MAX_toMove;
+extern fixed_t CRL_MAX_x;
+extern fixed_t CRL_MAX_y;
+extern fixed_t CRL_MAX_z;
+extern angle_t CRL_MAX_ang;
+
 extern int  CRL_lineanims_counter;
 extern int  CRL_plats_counter;
 extern int  CRL_brain_counter;

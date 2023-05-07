@@ -362,6 +362,39 @@ void P_PlayerThink (player_t* player)
         player->vilebombdown = false;
     }
 
+    // [JN] CRL - move to MAX visplanes
+    if (CRL_MAX_toMove)
+    {
+        if (!player->movetomax)
+        {
+            // Define subsector we will move on.
+            subsector_t* ss = R_PointInSubsector(CRL_MAX_x, CRL_MAX_y);
+	
+            // Supress interpolation for next frame.
+            player->mo->interp = -1;    
+            // Unset player from subsector and/or block links.
+            P_UnsetThingPosition(players[displayplayer].mo);
+            // Set new position.
+            players[displayplayer].mo->x = CRL_MAX_x;
+            players[displayplayer].mo->y = CRL_MAX_y;
+            players[displayplayer].mo->z = CRL_MAX_z;
+            // Supress any horizontal and vertical momentums.
+            players[displayplayer].mo->momx = players[displayplayer].mo->momy = players[displayplayer].mo->momz = 0;
+            // Set angle and heights.
+            players[displayplayer].mo->angle = CRL_MAX_ang;
+            players[displayplayer].mo->floorz = ss->sector->interpfloorheight;
+            players[displayplayer].mo->ceilingz = ss->sector->interpceilingheight;
+            // Set new position in subsector and/or block links.
+            P_SetThingPosition(players[displayplayer].mo);
+            // All done!
+            player->movetomax = true;
+        }
+    }
+    else
+    {
+        player->movetomax = false;
+    }
+
     // cycle psprites
     P_MovePsprites (player);
     

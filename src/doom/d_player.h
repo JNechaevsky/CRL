@@ -122,6 +122,9 @@ typedef struct player_s
     // [JN] CRL - if true, jumping condition will be allowed.
     boolean		vilebombdown;
 
+    // [JN] CRL - if true, jumping to MAX visplanes will be allowed.
+    boolean		movetomax;
+
     // Bit flags, for cheats and debug.
     // See cheat_t, above.
     int			cheats;		
