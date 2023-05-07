@@ -123,7 +123,7 @@ typedef struct player_s
     boolean		vilebombdown;
 
     // [JN] CRL - if true, jumping to MAX visplanes will be allowed.
-    boolean		jumptomax;
+    boolean		movetomax;
 
     // Bit flags, for cheats and debug.
     // See cheat_t, above.

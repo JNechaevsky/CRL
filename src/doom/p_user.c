@@ -362,10 +362,10 @@ void P_PlayerThink (player_t* player)
         player->vilebombdown = false;
     }
 
-    // [JN] CRL - jump to MAX visplanes
-    if (CRL_MAX_toJump)
+    // [JN] CRL - move to MAX visplanes
+    if (CRL_MAX_toMove)
     {
-        if (!player->jumptomax)
+        if (!player->movetomax)
         {
             // Unset player from subsector and/or block links.
             P_UnsetThingPosition (player->mo);
@@ -385,12 +385,12 @@ void P_PlayerThink (player_t* player)
             // Apply unnoticable thrust so player will not hang in air.
             P_Thrust (player, player->mo->angle, 1);
             // All done!
-            player->jumptomax = true;
+            player->movetomax = true;
         }
     }
     else
     {
-        player->jumptomax = false;
+        player->movetomax = false;
     }
 
     // cycle psprites

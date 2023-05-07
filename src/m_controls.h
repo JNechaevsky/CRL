@@ -185,7 +185,7 @@ extern int key_crl_map_overlay;
 extern int key_crl_autorun;
 extern int key_crl_vilebomb;
 extern int key_crl_clearmax;
-extern int key_crl_jumptomax;
+extern int key_crl_movetomax;
 extern int key_crl_nextlevel; // [crispy]
 extern int key_crl_reloadlevel; // [crispy]
 extern int key_crl_demospeed; // [crispy]

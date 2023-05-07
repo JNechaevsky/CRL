@@ -851,7 +851,7 @@ void R_SetupFrame (player_t* player)
     // RestlessRodent -- Just report it
     CRL_ReportPosition(viewx, viewy, viewz, viewangle);
 
-    // [JN] Update MAX visplanes position for jumping.
+    // [JN] Update MAX visplanes position for moving.
     if (CRL_MAX_toSet)
     {
         CRL_MAX_x = player->mo->x;

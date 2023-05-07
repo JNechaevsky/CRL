@@ -80,7 +80,7 @@ static int *crl_keys[] = { &key_crl_menu,
                            &key_crl_freeze, &key_crl_notarget,
                            &key_crl_map_rotate, &key_crl_map_overlay,
                            &key_crl_autorun, &key_crl_vilebomb,
-                           &key_crl_clearmax, &key_crl_jumptomax,
+                           &key_crl_clearmax, &key_crl_movetomax,
                            &key_crl_nextlevel, &key_crl_reloadlevel,
                            &key_crl_demospeed, &key_crl_limits,
                            NULL };
@@ -426,8 +426,8 @@ void CRLKeysDialog(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(unused))
 
     AddSectionLabel(table, "Visplanes MAX value", true);
 
-    AddKeyControl(table, "Clear MAX value",     &key_crl_clearmax);    
-    AddKeyControl(table, "Jump to MAX value",   &key_crl_jumptomax);    
+    AddKeyControl(table, "Clear MAX value",     &key_crl_clearmax);
+    AddKeyControl(table, "Move to MAX value",   &key_crl_movetomax);
 
     AddSectionLabel(table, "Automap", true);
 

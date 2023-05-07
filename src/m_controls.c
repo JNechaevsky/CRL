@@ -227,7 +227,7 @@ int key_crl_autorun = KEY_CAPSLOCK; // [crispy]
 int key_crl_vilebomb = 0;
 
 int key_crl_clearmax = 0;
-int key_crl_jumptomax = 0;
+int key_crl_movetomax = 0;
 
 int key_crl_nextlevel = 0; // [crispy]
 int key_crl_reloadlevel = 0; // [crispy]
@@ -388,7 +388,7 @@ void M_BindMenuControls(void)
     M_BindIntVariable("key_crl_vilebomb",     &key_crl_vilebomb);
 
     M_BindIntVariable("key_crl_clearmax",     &key_crl_clearmax);
-    M_BindIntVariable("key_crl_jumptomax",    &key_crl_jumptomax);
+    M_BindIntVariable("key_crl_movetomax",    &key_crl_movetomax);
 
     M_BindIntVariable("key_crl_nextlevel",   &key_crl_nextlevel); // [crispy]
     M_BindIntVariable("key_crl_reloadlevel", &key_crl_reloadlevel); // [crispy]

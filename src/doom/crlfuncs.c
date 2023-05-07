@@ -73,7 +73,7 @@ static byte *CRL_PowerupColor (const int val1, const int val2)
 
 void CRL_StatDrawer (void)
 {
-    // Count MAX visplanes for jumping
+    // Count MAX visplanes for moving
     static int CRL_MAX_count;
     const  int CRL_MAX_countOld = CRLData.numcheckplanes + CRLData.numfindplanes;
 
