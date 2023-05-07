@@ -203,6 +203,7 @@ extern void CRL_ReloadPalette (void);
 
 extern boolean CRL_MAX_toSet;
 extern boolean CRL_MAX_toClear;
+extern boolean CRL_MAX_toJump;
 extern fixed_t CRL_MAX_x;
 extern fixed_t CRL_MAX_y;
 extern fixed_t CRL_MAX_z;

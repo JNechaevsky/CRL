@@ -537,6 +537,25 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
         CRL_vilebomb = false;
     }
 
+    // [JN] CRL - clear and jump to MAX visplanes value.
+    if (singleplayer)
+    {
+        if (gamekeydown[key_crl_clearmax])
+        {
+            CRL_MAX_toClear = true; // pitto 
+            CRL_SetMessage(&players[consoleplayer], "Cleared MAX", false, NULL);
+        }
+        if (gamekeydown[key_crl_jumptomax])
+        {
+            CRL_MAX_toJump = true; // pitto 
+            CRL_SetMessage(&players[consoleplayer], "Jump to MAX", false, NULL);
+        }
+        else
+        {
+            CRL_MAX_toJump = false; // pitto 
+        }
+    }
+
     if (gamekeydown[key_message_refresh])
     {
         players[consoleplayer].messageTics = MESSAGETICS;

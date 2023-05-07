@@ -362,6 +362,37 @@ void P_PlayerThink (player_t* player)
         player->vilebombdown = false;
     }
 
+    // [JN] CRL - jump to MAX visplanes
+    if (CRL_MAX_toJump)
+    {
+        if (!player->jumptomax)
+        {
+            // Unset player from subsector and/or block links.
+            P_UnsetThingPosition (player->mo);
+            // Supress interpolation for next frame.
+            player->mo->interp = false;
+            // Supress any horizontal and vertical momentums.
+            player->mo->momx = 0;
+            player->mo->momy = 0;
+            player->mo->momz = -FRACUNIT;
+            // Set new position.
+            player->mo->x = CRL_MAX_x;
+            player->mo->y = CRL_MAX_y;
+            player->mo->z = CRL_MAX_z;
+            player->mo->angle = CRL_MAX_ang;
+            // Set new position in subsector and/or block links.
+            P_SetThingPosition (player->mo);
+            // Apply unnoticable thrust to set proper z position.
+            P_Thrust (player, player->mo->angle, 1);
+            // All done!
+            player->jumptomax = true;
+        }
+    }
+    else
+    {
+        player->jumptomax = false;
+    }
+
     // cycle psprites
     P_MovePsprites (player);
     
