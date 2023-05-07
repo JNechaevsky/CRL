@@ -96,12 +96,21 @@ void CRL_StatDrawer (void)
     {
         // Set count
         CRL_MAX_count = (int)(lastvisplane - visplanes);
-        // Set position
-        CRL_MAX_x = players[displayplayer].mo->x;
-        CRL_MAX_y = players[displayplayer].mo->y;
-        CRL_MAX_z = players[displayplayer].mo->z;
-        // Set angle
-        CRL_MAX_ang = players[displayplayer].mo->angle;
+        // Set position and angle
+        if (crl_spectating)
+        {
+            CRL_MAX_x = CRL_camera_x;
+            CRL_MAX_y = CRL_camera_y;
+            CRL_MAX_z = CRL_camera_z;
+            CRL_MAX_ang = CRL_camera_ang;
+        }
+        else
+        {
+            CRL_MAX_x = players[displayplayer].mo->x;
+            CRL_MAX_y = players[displayplayer].mo->y;
+            CRL_MAX_z = players[displayplayer].mo->z;
+            CRL_MAX_ang = players[displayplayer].mo->angle;
+        }
         // We are OK mo move to MAX
         CRL_MAX_toMove = true;
     }
