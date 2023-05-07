@@ -30,6 +30,7 @@
 
 #include "crlcore.h"
 #include "crlvars.h"
+#include "crlfuncs.h"
 
 
 void G_PlayerReborn (int player);
