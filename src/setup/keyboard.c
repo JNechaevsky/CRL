@@ -81,6 +81,10 @@ static int *crl_keys[] = { &key_crl_menu,
                            &key_crl_map_rotate, &key_crl_map_overlay,
                            &key_crl_autorun, &key_crl_vilebomb,
                            &key_crl_clearmax, &key_crl_movetomax,
+
+                           &key_crl_iddqd, &key_crl_idkfa, &key_crl_idfa,
+                           &key_crl_idclip, &key_crl_iddt,
+
                            &key_crl_nextlevel, &key_crl_reloadlevel,
                            &key_crl_demospeed, &key_crl_limits,
                            NULL };
@@ -428,6 +432,17 @@ void CRLKeysDialog(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(unused))
 
     AddKeyControl(table, "Clear MAX value",     &key_crl_clearmax);
     AddKeyControl(table, "Move to MAX value",   &key_crl_movetomax);
+
+    AddSectionLabel(table, "Cheat shortcuts", true);
+
+    if (gamemission == doom)
+    {
+        AddKeyControl(table, "IDDQD",           &key_crl_iddqd);
+        AddKeyControl(table, "IDKFA",           &key_crl_idkfa);
+        AddKeyControl(table, "IDFA",            &key_crl_idfa);
+        AddKeyControl(table, "IDCLIP",          &key_crl_idclip);
+        AddKeyControl(table, "IDDT",            &key_crl_iddt);
+    }
 
     AddSectionLabel(table, "Automap", true);
 

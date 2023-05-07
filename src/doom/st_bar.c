@@ -27,6 +27,7 @@
 #include "i_system.h"
 #include "i_video.h"
 #include "z_zone.h"
+#include "m_controls.h"
 #include "m_misc.h"
 #include "m_random.h"
 #include "w_wad.h"
@@ -251,7 +252,7 @@ boolean ST_Responder (event_t *ev)
         if (!netgame /*&& gameskill != sk_nightmare*/)
         {
             // 'dqd' cheat for toggleable god mode
-            if (cht_CheckCheat(&cheat_god, ev->data2))
+            if (cht_CheckCheat(&cheat_god, ev->data2) || ev->data1 == key_crl_iddqd)
             {
                 plyr->cheats ^= CF_GODMODE;
                 if (plyr->cheats & CF_GODMODE)
@@ -269,7 +270,7 @@ boolean ST_Responder (event_t *ev)
                 }
             }
             // 'fa' cheat for killer fucking arsenal
-            else if (cht_CheckCheat(&cheat_ammonokey, ev->data2))
+            else if (cht_CheckCheat(&cheat_ammonokey, ev->data2) || ev->data1 == key_crl_idfa)
             {
                 plyr->armorpoints = deh_idfa_armor;
                 plyr->armortype = deh_idfa_armor_class;
@@ -289,7 +290,7 @@ boolean ST_Responder (event_t *ev)
                 CRL_SetMessage(plyr, DEH_String(STSTR_FAADDED), false, NULL);
             }
             // 'kfa' cheat for key full ammo
-            else if (cht_CheckCheat(&cheat_ammo, ev->data2))
+            else if (cht_CheckCheat(&cheat_ammo, ev->data2) || ev->data1 == key_crl_idkfa)
             {
                 plyr->armorpoints = deh_idkfa_armor;
                 plyr->armortype = deh_idkfa_armor_class;
@@ -373,7 +374,8 @@ boolean ST_Responder (event_t *ev)
             // [crispy] allow both idspispopd and idclip cheats in all gamemissions
             else 
             if (cht_CheckCheat(&cheat_noclip, ev->data2)
-            || (cht_CheckCheat(&cheat_commercial_noclip, ev->data2)))
+            || (cht_CheckCheat(&cheat_commercial_noclip, ev->data2))
+            || ev->data1 == key_crl_idclip)
             {	
                 plyr->cheats ^= CF_NOCLIP;
 

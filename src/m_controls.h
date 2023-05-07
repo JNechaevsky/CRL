@@ -186,6 +186,13 @@ extern int key_crl_autorun;
 extern int key_crl_vilebomb;
 extern int key_crl_clearmax;
 extern int key_crl_movetomax;
+
+extern int key_crl_iddqd;
+extern int key_crl_idkfa;
+extern int key_crl_idfa;
+extern int key_crl_idclip;
+extern int key_crl_iddt;
+
 extern int key_crl_nextlevel; // [crispy]
 extern int key_crl_reloadlevel; // [crispy]
 extern int key_crl_demospeed; // [crispy]

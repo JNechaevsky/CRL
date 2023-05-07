@@ -229,6 +229,12 @@ int key_crl_vilebomb = 0;
 int key_crl_clearmax = 0;
 int key_crl_movetomax = 0;
 
+int key_crl_iddqd = 0;
+int key_crl_idkfa = 0;
+int key_crl_idfa = 0;
+int key_crl_idclip = 0;
+int key_crl_iddt = 0;
+
 int key_crl_nextlevel = 0; // [crispy]
 int key_crl_reloadlevel = 0; // [crispy]
 int key_crl_demospeed = 0; // [crispy]
@@ -389,6 +395,12 @@ void M_BindMenuControls(void)
 
     M_BindIntVariable("key_crl_clearmax",     &key_crl_clearmax);
     M_BindIntVariable("key_crl_movetomax",    &key_crl_movetomax);
+
+    M_BindIntVariable("key_crl_iddqd",        &key_crl_iddqd);
+    M_BindIntVariable("key_crl_idkfa",        &key_crl_idkfa);
+    M_BindIntVariable("key_crl_idfa",         &key_crl_idfa);
+    M_BindIntVariable("key_crl_idclip",       &key_crl_idclip);
+    M_BindIntVariable("key_crl_iddt",         &key_crl_iddt);
 
     M_BindIntVariable("key_crl_nextlevel",   &key_crl_nextlevel); // [crispy]
     M_BindIntVariable("key_crl_reloadlevel", &key_crl_reloadlevel); // [crispy]
