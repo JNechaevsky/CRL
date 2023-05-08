@@ -72,8 +72,6 @@ static byte *CRL_PowerupColor (const int val1, const int val2)
 // -----------------------------------------------------------------------------
 
 static int CRL_MAX_count;
-extern visplane_t *lastvisplane;
-extern visplane_t  visplanes[4096];
 
 void CRL_Clear_MAX (void)
 {

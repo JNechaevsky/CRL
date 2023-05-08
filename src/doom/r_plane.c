@@ -39,8 +39,6 @@
 //
 
 // Here comes the obnoxious "visplane".
-#define MAXVISPLANES	128
-#define REALMAXVISPLANES	4096
 visplane_t		visplanes[REALMAXVISPLANES];
 visplane_t*		lastvisplane;
 visplane_t*		floorplane;
