@@ -91,25 +91,50 @@ void CRL_Clear_MAX (void)
 
 void CRL_StatDrawer (void)
 {
+    const int CRL_MAX_count_old = (int)(lastvisplane - visplanes);
+
     // Count MAX visplanes for moving
-    if ((int)(lastvisplane - visplanes) > CRL_MAX_count)
+    if (CRL_MAX_count_old > CRL_MAX_count)
     {
+        player_t *player = &players[displayplayer];
+
         // Set count
-        CRL_MAX_count = (int)(lastvisplane - visplanes);
-        // Set position and angle
+        CRL_MAX_count = CRL_MAX_count_old;
+        // Set position and angle.
+        // We have to account uncapped framerate for better precision.
         if (crl_spectating)
         {
-            CRL_MAX_x = CRL_camera_x;
-            CRL_MAX_y = CRL_camera_y;
-            CRL_MAX_z = CRL_camera_z;
-            CRL_MAX_ang = CRL_camera_ang;
+            if (crl_uncapped_fps)
+            {
+                CRL_MAX_x = CRL_camera_oldx + FixedMul(CRL_camera_x - CRL_camera_oldx, fractionaltic);
+                CRL_MAX_y = CRL_camera_oldy + FixedMul(CRL_camera_y - CRL_camera_oldy, fractionaltic);
+                CRL_MAX_z = CRL_camera_oldz + FixedMul(CRL_camera_z - CRL_camera_oldz, fractionaltic);
+                CRL_MAX_ang = R_InterpolateAngle(CRL_camera_oldang, CRL_camera_ang, fractionaltic);
+            }
+            else
+            {
+                CRL_MAX_x = CRL_camera_x;
+                CRL_MAX_y = CRL_camera_y;
+                CRL_MAX_z = CRL_camera_z;
+                CRL_MAX_ang = CRL_camera_ang;
+            }
         }
         else
         {
-            CRL_MAX_x = players[displayplayer].mo->x;
-            CRL_MAX_y = players[displayplayer].mo->y;
-            CRL_MAX_z = players[displayplayer].mo->z;
-            CRL_MAX_ang = players[displayplayer].mo->angle;
+            if (crl_uncapped_fps)
+            {
+                CRL_MAX_x = player->mo->oldx + FixedMul(player->mo->x - player->mo->oldx, fractionaltic);
+                CRL_MAX_y = player->mo->oldy + FixedMul(player->mo->y - player->mo->oldy, fractionaltic);
+                CRL_MAX_z = player->mo->oldz + FixedMul(player->mo->z - player->mo->oldz, fractionaltic);
+                CRL_MAX_ang = R_InterpolateAngle(player->mo->oldangle, player->mo->angle, fractionaltic);
+            }
+            else
+            {
+                CRL_MAX_x = player->mo->x;
+                CRL_MAX_y = player->mo->y;
+                CRL_MAX_z = player->mo->z;
+                CRL_MAX_ang = player->mo->angle;
+            }
         }
         // We are OK mo move to MAX
         CRL_MAX_toMove = true;
