@@ -91,6 +91,7 @@ void CRL_Clear_MAX (void)
 
 void CRL_StatDrawer (void)
 {
+    int yy = 0;
     const int CRL_MAX_count_old = (int)(lastvisplane - visplanes);
 
     // Count MAX visplanes for moving
@@ -204,6 +205,16 @@ void CRL_StatDrawer (void)
         }
     }
 
+    // Shift down render counters if no level time/KIS stats are active.
+    if (!crl_widget_time)
+    {
+        yy += 9;
+    }
+    if (!crl_widget_kis)
+    {
+        yy += 9;
+    }
+
     // Render counters
     if (crl_widget_render)
     {
@@ -213,20 +224,9 @@ void CRL_StatDrawer (void)
         {
             char spr[32];
 
-            M_WriteText(0, 99, "SPR:", CRL_StatColor_Str(CRLData.numsprites, CRL_MaxVisSprites));
+            M_WriteText(0, 99+yy, "SPR:", CRL_StatColor_Str(CRLData.numsprites, CRL_MaxVisSprites));
             M_snprintf(spr, 16, "%d/%d", CRLData.numsprites, CRL_MaxVisSprites);
-            M_WriteText(32, 99, spr, CRL_StatColor_Val(CRLData.numsprites, CRL_MaxVisSprites));
-        }
-
-        // Segments (256 max)
-        if (crl_widget_render == 1
-        || (crl_widget_render == 2 && CRLData.numsegs >= CRL_MaxDrawSegs))
-        {
-            char seg[32];
-
-            M_WriteText(0, 108, "SEG:", CRL_StatColor_Str(CRLData.numsegs, CRL_MaxDrawSegs));
-            M_snprintf(seg, 16, "%d/%d", CRLData.numsegs, CRL_MaxDrawSegs);
-            M_WriteText(32, 108, seg, CRL_StatColor_Val(CRLData.numsegs, CRL_MaxDrawSegs));
+            M_WriteText(32, 99+yy, spr, CRL_StatColor_Val(CRLData.numsprites, CRL_MaxVisSprites));
         }
 
         // Solid segments (32 max)
@@ -235,9 +235,20 @@ void CRL_StatDrawer (void)
         {
             char ssg[32];
 
-            M_WriteText(0, 117, "SSG:", CRL_StatColor_Str(CRLData.numsolidsegs, 32));
+            M_WriteText(0, 108+yy, "SSG:", CRL_StatColor_Str(CRLData.numsolidsegs, 32));
             M_snprintf(ssg, 32, "%d/32", CRLData.numsolidsegs);
-            M_WriteText(32, 117, ssg, CRL_StatColor_Val(CRLData.numsolidsegs, 32));
+            M_WriteText(32, 108+yy, ssg, CRL_StatColor_Val(CRLData.numsolidsegs, 32));
+        }
+
+        // Segments (256 max)
+        if (crl_widget_render == 1
+        || (crl_widget_render == 2 && CRLData.numsegs >= CRL_MaxDrawSegs))
+        {
+            char seg[32];
+
+            M_WriteText(0, 117+yy, "SEG:", CRL_StatColor_Str(CRLData.numsegs, CRL_MaxDrawSegs));
+            M_snprintf(seg, 16, "%d/%d", CRLData.numsegs, CRL_MaxDrawSegs);
+            M_WriteText(32, 117+yy, seg, CRL_StatColor_Val(CRLData.numsegs, CRL_MaxDrawSegs));
         }
 
         // Openings
@@ -246,9 +257,9 @@ void CRL_StatDrawer (void)
         {
             char opn[64];
 
-            M_WriteText(0, 126, "OPN:", CRL_StatColor_Str(CRLData.numopenings, CRL_MaxOpenings));
+            M_WriteText(0, 126+yy, "OPN:", CRL_StatColor_Str(CRLData.numopenings, CRL_MaxOpenings));
             M_snprintf(opn, 16, "%d/%d", CRLData.numopenings, CRL_MaxOpenings);
-            M_WriteText(32, 126, opn, CRL_StatColor_Val(CRLData.numopenings, CRL_MaxOpenings));
+            M_WriteText(32, 126+yy, opn, CRL_StatColor_Val(CRLData.numopenings, CRL_MaxOpenings));
         }
 
 
@@ -260,10 +271,10 @@ void CRL_StatDrawer (void)
             const int totalplanes = CRLData.numcheckplanes
                                   + CRLData.numfindplanes;
 
-            M_WriteText(0, 135, "PLN:", totalplanes >= CRL_MaxVisPlanes ? 
+            M_WriteText(0, 135+yy, "PLN:", totalplanes >= CRL_MaxVisPlanes ? 
                        (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
             M_snprintf(vis, 32, "%d/%d (MAX: %d)", totalplanes, CRL_MaxVisPlanes, CRL_MAX_count);
-            M_WriteText(32, 135, vis, totalplanes >= CRL_MaxVisPlanes ?
+            M_WriteText(32, 135+yy, vis, totalplanes >= CRL_MaxVisPlanes ?
                        (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
         }
     }
