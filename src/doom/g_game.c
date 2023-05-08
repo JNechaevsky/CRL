@@ -545,6 +545,7 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
         if (gamekeydown[key_crl_clearmax])
         {
             CRL_Clear_MAX();
+            CRL_Get_MAX();
             CRL_SetMessage(&players[consoleplayer], "Cleared MAX", false, NULL);
         }
 
