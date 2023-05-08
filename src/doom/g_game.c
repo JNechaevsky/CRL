@@ -69,7 +69,7 @@
 
 #include "crlcore.h"
 #include "crlvars.h"
-#include "crlfuncs.h"
+#include "crlfunc.h"
 
 
 
