@@ -44,9 +44,10 @@ enum
 // Drawing data structures.
 typedef struct CRL_Data_s
 {
-	int numsprites;     // [JN] Number of sprites.
-	int numsegs;        // [JN] Number of wall segments.
-	int numcheckplanes; // Number of check planes.
+    int numsprites;     // [JN] Number of sprites.
+    int numsegs;        // [JN] Number of wall segments.
+    int numsolidsegs;   // [JN] Number of solid segs.
+    int numcheckplanes; // Number of check planes.
     int numfindplanes;  // Number of find planes.
     int numopenings;    // [JN] Number of openings.
 } CRL_Data_t;
