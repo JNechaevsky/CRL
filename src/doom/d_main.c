@@ -70,6 +70,8 @@
 #include "r_local.h"
 #include "v_trans.h"
 
+#include "icon.c"
+
 #include "crlcore.h"
 #include "crlvars.h"
 #include "crlfunc.h"
@@ -597,6 +599,7 @@ void D_DoomLoop (void)
     I_SetWindowTitle(gamedescription);
     I_GraphicsCheckCommandLine();
     I_SetGrabMouseCallback(D_GrabMouseCallback);
+    I_RegisterWindowIcon(doom_data, doom_w, doom_h);
     I_InitGraphics();
     EnableLoadingDisk();
 

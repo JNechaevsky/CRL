@@ -29,8 +29,6 @@
 #include <windows.h>
 #endif
 
-#include "icon.c"
-
 #include "config.h"
 #include "d_loop.h"
 #include "deh_str.h"
@@ -204,6 +202,11 @@ static int usegamma = 0;
 
 // Joystick/gamepad hysteresis
 unsigned int joywait = 0;
+
+// Icon RGB data and dimensions
+static const unsigned int *icon_data;
+static int icon_w;
+static int icon_h;
 
 // [JN] Used for realtime resizing of ENDOOM screen.
 boolean endoom_screen_active = false;
@@ -1074,6 +1077,13 @@ void I_InitWindowTitle(void)
     buf = M_StringJoin(window_title/*, " - ", PACKAGE_STRING*/, NULL);
     SDL_SetWindowTitle(screen, buf);
     free(buf);
+}
+
+void I_RegisterWindowIcon(const unsigned int *icon, int width, int height)
+{
+    icon_data = icon;
+    icon_w = width;
+    icon_h = height;
 }
 
 // Set the application icon

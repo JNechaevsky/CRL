@@ -54,6 +54,8 @@
 #include "v_trans.h"
 #include "v_video.h"
 
+#include "icon.c"
+
 #include "crlcore.h"
 #include "crlvars.h"
 
@@ -307,6 +309,7 @@ void D_DoomLoop(void)
     }
     I_GraphicsCheckCommandLine();
     I_SetGrabMouseCallback(D_GrabMouseCallback);
+    I_RegisterWindowIcon(heretic_data, heretic_w, heretic_h);
     I_InitGraphics();
 
     main_loop_started = true;
