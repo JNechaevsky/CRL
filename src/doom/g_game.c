@@ -1354,6 +1354,8 @@ void G_PlayerFinishLevel (int player)
     st_palette = 0;
     // [JN] Return controls to the player.
     crl_spectating = 0;
+    // [JN] CRL - clear MAX visplanes.
+    CRL_Clear_MAX();
 } 
  
 
