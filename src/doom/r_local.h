@@ -650,7 +650,7 @@ extern int  floorclip[SCREENWIDTH];    // [JN] 32-bit integer math
 extern int  ceilingclip[SCREENWIDTH];  // [JN] 32-bit integer math
 
 #define MAXVISPLANES        128
-#define REALMAXVISPLANES    4096
+#define REALMAXVISPLANES    SHRT_MAX
 extern visplane_t  visplanes[REALMAXVISPLANES];
 extern visplane_t *lastvisplane;
 
