@@ -24,6 +24,7 @@
 #include "doomstat.h"
 #include "m_menu.h"
 #include "m_misc.h"
+#include "p_local.h"
 #include "r_local.h"
 
 #include "crlcore.h"
@@ -122,6 +123,31 @@ void CRL_Get_MAX (void)
     }
 }
 
+void CRL_MoveTo_MAX (void)
+{
+    player_t *player = &players[displayplayer];
+
+    // Define subsector we will move on.
+    subsector_t* ss = R_PointInSubsector(CRL_MAX_x, CRL_MAX_y);
+
+    // Supress interpolation for next frame.
+    player->mo->interp = -1;    
+    // Unset player from subsector and/or block links.
+    P_UnsetThingPosition(players[displayplayer].mo);
+    // Set new position.
+    players[displayplayer].mo->x = CRL_MAX_x;
+    players[displayplayer].mo->y = CRL_MAX_y;
+    players[displayplayer].mo->z = CRL_MAX_z;
+    // Supress any horizontal and vertical momentums.
+    players[displayplayer].mo->momx = players[displayplayer].mo->momy = players[displayplayer].mo->momz = 0;
+    // Set angle and heights.
+    players[displayplayer].mo->angle = CRL_MAX_ang;
+    players[displayplayer].mo->floorz = ss->sector->interpfloorheight;
+    players[displayplayer].mo->ceilingz = ss->sector->interpceilingheight;
+    // Set new position in subsector and/or block links.
+    P_SetThingPosition(players[displayplayer].mo);
+}
+
 // -----------------------------------------------------------------------------
 // Draws CRL stats.
 //  [JN] Draw all the widgets and counters.
@@ -142,8 +168,6 @@ void CRL_StatDrawer (void)
         // Set position and angle.
         // We have to account uncapped framerate for better precision.
         CRL_Get_MAX();
-        // We are OK mo move to MAX
-        CRL_MAX_toMove = true;
     }
 
     // Player coords
@@ -292,9 +316,6 @@ void CRL_StatDrawer (void)
     // Level / DeathMatch timer
     if (crl_widget_time)
     {
-        extern int levelTimeCount;
-        extern boolean levelTimer;
-
         const int time = (deathmatch && levelTimer ? levelTimeCount : leveltime) / TICRATE;
         char stra[8];
         char strb[16];

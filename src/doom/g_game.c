@@ -552,12 +552,8 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
         // Jump to MAX visplanes.
         if (gamekeydown[key_crl_movetomax])
         {
-            CRL_MAX_toMove = true;
+            CRL_MoveTo_MAX();
             CRL_SetMessage(&players[consoleplayer], "Move to MAX", false, NULL);
-        }
-        else
-        {
-            CRL_MAX_toMove = false;
         }
     }
 

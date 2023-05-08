@@ -20,6 +20,7 @@
 
 extern void CRL_Clear_MAX (void);
 extern void CRL_Get_MAX (void);
+extern void CRL_MoveTo_MAX (void);
 
 // [crispy] demo progress bar and timer widget
 extern void CRL_DemoTimer (const int time);

@@ -60,7 +60,6 @@ static uint8_t _colormap[MAXSHADES][256];
 
 // [JN] For MAX visplanes handling:
 
-boolean CRL_MAX_toMove = false;
 fixed_t CRL_MAX_x;
 fixed_t CRL_MAX_y;
 fixed_t CRL_MAX_z;
