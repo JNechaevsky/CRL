@@ -825,6 +825,7 @@ boolean AM_Responder (event_t *ev)
         {
             rc = false;
             cheating = (cheating + 1) % 3;
+            plr->cheatTics = 1;
         }
     }
     else if (ev->type == ev_keyup)
