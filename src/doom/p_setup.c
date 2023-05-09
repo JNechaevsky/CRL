@@ -1077,6 +1077,19 @@ P_SetupLevel
     // [JN] Set level name.
     P_LevelNameInit();
 
+    // [JN] Check if MAX visplanes should be cleared.
+    // If level is same, keep MAX value. Otherwise, reset it.
+    {
+        static int lastlevel = -1, lastepisode = -1;
+
+        if (lastlevel != gamemap || lastepisode != gameepisode)
+        {
+            CRL_Clear_MAX();
+            lastlevel = gamemap;
+            lastepisode = gameepisode;
+        }
+    }
+
     // [JN] Force to disable spectator mode.
     crl_spectating = 0;
 
