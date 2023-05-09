@@ -37,6 +37,7 @@
 
 #include "crlcore.h"
 #include "crlvars.h"
+#include "crlfunc.h"
 
 
 void	P_SpawnMapThing (mapthing_t*	mthing);
