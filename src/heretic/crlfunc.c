@@ -131,9 +131,9 @@ void CRL_StatDrawer (void)
         {
             char spr[32];
             
-            MN_DrTextA("SPR:", 0, 80, CRL_StatColor_Str(CRLData.numsprites, CRL_MaxVisSprites));
+            MN_DrTextA("SPR:", 0, 75, CRL_StatColor_Str(CRLData.numsprites, CRL_MaxVisSprites));
             M_snprintf(spr, 16, "%d/%d", CRLData.numsprites, CRL_MaxVisSprites);
-            MN_DrTextA(spr, 32, 80, CRL_StatColor_Val(CRLData.numsprites, CRL_MaxVisSprites));
+            MN_DrTextA(spr, 32, 75, CRL_StatColor_Val(CRLData.numsprites, CRL_MaxVisSprites));
         }
 
         // Segments (256 max)
@@ -142,9 +142,20 @@ void CRL_StatDrawer (void)
         {
             char seg[32];
 
-            MN_DrTextA("SEG:", 0, 90, CRL_StatColor_Str(CRLData.numsegs, CRL_MaxDrawSegs));
+            MN_DrTextA("SEG:", 0, 85, CRL_StatColor_Str(CRLData.numsegs, CRL_MaxDrawSegs));
             M_snprintf(seg, 16, "%d/%d", CRLData.numsegs, CRL_MaxDrawSegs);
-            MN_DrTextA(seg, 32, 90, CRL_StatColor_Val(CRLData.numsegs, CRL_MaxDrawSegs));
+            MN_DrTextA(seg, 32, 85, CRL_StatColor_Val(CRLData.numsegs, CRL_MaxDrawSegs));
+        }
+
+        // Solid segments (32 max)
+        if (crl_widget_render == 1
+        || (crl_widget_render == 2 && CRLData.numsolidsegs >= 32))
+        {
+            char ssg[32];
+
+            MN_DrTextA("SSG:", 0, 95, CRL_StatColor_Str(CRLData.numsolidsegs, 32));
+            M_snprintf(ssg, 16, "%d/32", CRLData.numsolidsegs);
+            MN_DrTextA(ssg, 32, 95, CRL_StatColor_Val(CRLData.numsolidsegs, 32));
         }
 
         // Planes (vanilla: 128, doom+: 1024)
@@ -154,10 +165,10 @@ void CRL_StatDrawer (void)
             char pln[32];
             const int totalplanes = CRLData.numcheckplanes + CRLData.numfindplanes;
 
-            MN_DrTextA("PLN:", 0, 100, totalplanes >= CRL_MaxVisPlanes ? 
+            MN_DrTextA("PLN:", 0, 105, totalplanes >= CRL_MaxVisPlanes ? 
                       (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
             M_snprintf(pln, 32, "%d/%d", totalplanes, CRL_MaxVisPlanes);
-            MN_DrTextA(pln, 32, 100, totalplanes >= CRL_MaxVisPlanes ?
+            MN_DrTextA(pln, 32, 105, totalplanes >= CRL_MaxVisPlanes ?
                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
         }
 
@@ -167,9 +178,9 @@ void CRL_StatDrawer (void)
         {
             char opn[64];
 
-            MN_DrTextA("OPN:", 0, 110, CRL_StatColor_Str(CRLData.numopenings, CRL_MaxOpenings));
+            MN_DrTextA("OPN:", 0, 115, CRL_StatColor_Str(CRLData.numopenings, CRL_MaxOpenings));
             M_snprintf(opn, 16, "%d/%d", CRLData.numopenings, CRL_MaxOpenings);
-            MN_DrTextA(opn, 32, 110, CRL_StatColor_Val(CRLData.numopenings, CRL_MaxOpenings));
+            MN_DrTextA(opn, 32, 115, CRL_StatColor_Val(CRLData.numopenings, CRL_MaxOpenings));
         }
     }
 
