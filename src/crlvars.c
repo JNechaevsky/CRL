@@ -43,7 +43,7 @@ int crl_freeze = 0;
 
 // Widgets
 int crl_widget_coords = 0;
-int crl_widget_playstate = 0;
+int crl_widget_playstate = 2;
 int crl_widget_render = 1;
 int crl_widget_kis = 0;
 int crl_widget_time = 0;
