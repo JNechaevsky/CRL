@@ -25,10 +25,15 @@ set(PACKAGE_VERSION "1.3")
 set(PACKAGE_NAME "${PROJECT_NAME}")
 set(PACKAGE_TARNAME "crl-doom")
 set(PACKAGE_STRING "${PROJECT_NAME} ${PACKAGE_VERSION}")
+
+set(PACKAGE_VERSION_HERETIC "1.0")
+set(PACKAGE_TARNAME_HERETIC "crl-heretic")
+set(PACKAGE_STRING_HERETIC "${PROJECT_NAME} ${PACKAGE_VERSION_HERETIC}")
+
 set(PACKAGE_BUGREPORT "julia.nechaevskaya@live.com")
 
 string(REGEX REPLACE " Doom$" "" PACKAGE_SHORTNAME "${PACKAGE_NAME}")
-set(PACKAGE_COPYRIGHT "Copyright (C) 2023 Julia Nechaevskaya")
+set(PACKAGE_COPYRIGHT "Copyright (C) 2018-2023 Julia Nechaevskaya")
 set(PACKAGE_LICENSE "GNU GPL (version 2)")
 
 # Any settings that should apply to all targets in this directory and all
