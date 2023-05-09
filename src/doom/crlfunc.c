@@ -69,7 +69,7 @@ static byte *CRL_PowerupColor (const int val1, const int val2)
 
 // -----------------------------------------------------------------------------
 // CRL_MAX_count
-//  [JN] Handling of MAX visplanes, based on implementation of RestlessRodent.
+//  [JN] Handling of MAX visplanes, based on implementation from RestlessRodent.
 // -----------------------------------------------------------------------------
 
 static int CRL_MAX_count;

@@ -30,6 +30,7 @@
 
 #include "crlcore.h"
 #include "crlvars.h"
+#include "crlfunc.h"
 
 
 void P_SpawnMapThing(mapthing_t * mthing);
@@ -658,6 +659,19 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
 // preload graphics
     if (precache)
         R_PrecacheLevel();
+
+    // [JN] Check if MAX visplanes should be cleared.
+    // If level is same, keep MAX value. Otherwise, reset it.
+    {
+        static int lastlevel = -1, lastepisode = -1;
+
+        if (lastlevel != gamemap || lastepisode != gameepisode)
+        {
+            CRL_Clear_MAX();
+            lastlevel = gamemap;
+            lastepisode = gameepisode;
+        }
+    }
 
     // [JN] Force to disable spectator mode.
     crl_spectating = 0;

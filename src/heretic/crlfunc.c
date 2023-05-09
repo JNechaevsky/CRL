@@ -23,6 +23,8 @@
 #include "v_trans.h"
 #include "v_video.h"
 #include "doomdef.h"
+#include "p_local.h"
+#include "r_local.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
@@ -67,12 +69,108 @@ static byte *CRL_PowerupColor (const int val1, const int val2)
 */
 
 // -----------------------------------------------------------------------------
+// CRL_MAX_count
+//  [JN] Handling of MAX visplanes, based on implementation from RestlessRodent.
+// -----------------------------------------------------------------------------
+
+static int CRL_MAX_count;
+
+void CRL_Clear_MAX (void)
+{
+    CRL_MAX_count = 0;
+    CRL_MAX_x = 0;
+    CRL_MAX_y = 0;
+    CRL_MAX_z = 0;
+    CRL_MAX_ang = 0;
+}
+
+void CRL_Get_MAX (void)
+{
+    player_t *player = &players[displayplayer];
+
+    if (crl_spectating)
+    {
+        if (crl_uncapped_fps)
+        {
+            CRL_MAX_x = CRL_camera_oldx + FixedMul(CRL_camera_x - CRL_camera_oldx, fractionaltic);
+            CRL_MAX_y = CRL_camera_oldy + FixedMul(CRL_camera_y - CRL_camera_oldy, fractionaltic);
+            CRL_MAX_z = CRL_camera_oldz + FixedMul(CRL_camera_z - CRL_camera_oldz, fractionaltic);
+            CRL_MAX_ang = R_InterpolateAngle(CRL_camera_oldang, CRL_camera_ang, fractionaltic);
+        }
+        else
+        {
+            CRL_MAX_x = CRL_camera_x;
+            CRL_MAX_y = CRL_camera_y;
+            CRL_MAX_z = CRL_camera_z;
+            CRL_MAX_ang = CRL_camera_ang;
+        }
+    }
+    else
+    {
+        if (crl_uncapped_fps)
+        {
+            CRL_MAX_x = player->mo->oldx + FixedMul(player->mo->x - player->mo->oldx, fractionaltic);
+            CRL_MAX_y = player->mo->oldy + FixedMul(player->mo->y - player->mo->oldy, fractionaltic);
+            CRL_MAX_z = player->mo->oldz + FixedMul(player->mo->z - player->mo->oldz, fractionaltic);
+            CRL_MAX_ang = R_InterpolateAngle(player->mo->oldangle, player->mo->angle, fractionaltic);
+        }
+        else
+        {
+            CRL_MAX_x = player->mo->x;
+            CRL_MAX_y = player->mo->y;
+            CRL_MAX_z = player->mo->z;
+            CRL_MAX_ang = player->mo->angle;
+        }
+    }
+}
+
+void CRL_MoveTo_MAX (void)
+{
+    player_t *player = &players[displayplayer];
+
+    // Define subsector we will move on.
+    subsector_t* ss = R_PointInSubsector(CRL_MAX_x, CRL_MAX_y);
+
+    // Supress interpolation for next frame.
+    player->mo->interp = -1;    
+    // Unset player from subsector and/or block links.
+    P_UnsetThingPosition(players[displayplayer].mo);
+    // Set new position.
+    players[displayplayer].mo->x = CRL_MAX_x;
+    players[displayplayer].mo->y = CRL_MAX_y;
+    players[displayplayer].mo->z = CRL_MAX_z;
+    // Supress any horizontal and vertical momentums.
+    players[displayplayer].mo->momx = players[displayplayer].mo->momy = players[displayplayer].mo->momz = 0;
+    // Set angle and heights.
+    players[displayplayer].mo->angle = CRL_MAX_ang;
+    players[displayplayer].mo->floorz = ss->sector->interpfloorheight;
+    players[displayplayer].mo->ceilingz = ss->sector->interpceilingheight;
+    // Set new position in subsector and/or block links.
+    P_SetThingPosition(players[displayplayer].mo);
+}
+
+// -----------------------------------------------------------------------------
 // Draws CRL stats.
 //  [JN] Draw all the widgets and counters.
 // -----------------------------------------------------------------------------
 
 void CRL_StatDrawer (void)
 {
+    int yy = 0;
+    int yy2 = 0;
+    const int CRL_MAX_count_old = (int)(lastvisplane - visplanes);
+    const int TotalVisPlanes = CRLData.numcheckplanes + CRLData.numfindplanes;
+
+    // Count MAX visplanes for moving
+    if (CRL_MAX_count_old > CRL_MAX_count)
+    {
+        // Set count
+        CRL_MAX_count = CRL_MAX_count_old;
+        // Set position and angle.
+        // We have to account uncapped framerate for better precision.
+        CRL_Get_MAX();
+    }
+
     // Player coords
     if (crl_widget_coords)
     {
@@ -122,6 +220,16 @@ void CRL_StatDrawer (void)
         }
     }
 
+    // Shift down render counters if no level time/KIS stats are active.
+    if (!crl_widget_time)
+    {
+        yy += 10;
+    }
+    if (!crl_widget_kis)
+    {
+        yy += 10;
+    }
+
     // Render counters
     if (crl_widget_render)
     {
@@ -131,9 +239,9 @@ void CRL_StatDrawer (void)
         {
             char spr[32];
             
-            MN_DrTextA("SPR:", 0, 75, CRL_StatColor_Str(CRLData.numsprites, CRL_MaxVisSprites));
+            MN_DrTextA("SPR:", 0, 75 + yy, CRL_StatColor_Str(CRLData.numsprites, CRL_MaxVisSprites));
             M_snprintf(spr, 16, "%d/%d", CRLData.numsprites, CRL_MaxVisSprites);
-            MN_DrTextA(spr, 32, 75, CRL_StatColor_Val(CRLData.numsprites, CRL_MaxVisSprites));
+            MN_DrTextA(spr, 32, 75 + yy, CRL_StatColor_Val(CRLData.numsprites, CRL_MaxVisSprites));
         }
 
         // Segments (256 max)
@@ -142,9 +250,9 @@ void CRL_StatDrawer (void)
         {
             char seg[32];
 
-            MN_DrTextA("SEG:", 0, 85, CRL_StatColor_Str(CRLData.numsegs, CRL_MaxDrawSegs));
+            MN_DrTextA("SEG:", 0, 85 + yy, CRL_StatColor_Str(CRLData.numsegs, CRL_MaxDrawSegs));
             M_snprintf(seg, 16, "%d/%d", CRLData.numsegs, CRL_MaxDrawSegs);
-            MN_DrTextA(seg, 32, 85, CRL_StatColor_Val(CRLData.numsegs, CRL_MaxDrawSegs));
+            MN_DrTextA(seg, 32, 85 + yy, CRL_StatColor_Val(CRLData.numsegs, CRL_MaxDrawSegs));
         }
 
         // Solid segments (32 max)
@@ -153,23 +261,9 @@ void CRL_StatDrawer (void)
         {
             char ssg[32];
 
-            MN_DrTextA("SSG:", 0, 95, CRL_StatColor_Str(CRLData.numsolidsegs, 32));
+            MN_DrTextA("SSG:", 0, 95 + yy, CRL_StatColor_Str(CRLData.numsolidsegs, 32));
             M_snprintf(ssg, 16, "%d/32", CRLData.numsolidsegs);
-            MN_DrTextA(ssg, 32, 95, CRL_StatColor_Val(CRLData.numsolidsegs, 32));
-        }
-
-        // Planes (vanilla: 128, doom+: 1024)
-        if (crl_widget_render == 1
-        || (crl_widget_render == 2 && CRLData.numcheckplanes + CRLData.numfindplanes >= CRL_MaxVisPlanes))
-        {
-            char pln[32];
-            const int totalplanes = CRLData.numcheckplanes + CRLData.numfindplanes;
-
-            MN_DrTextA("PLN:", 0, 105, totalplanes >= CRL_MaxVisPlanes ? 
-                      (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
-            M_snprintf(pln, 32, "%d/%d", totalplanes, CRL_MaxVisPlanes);
-            MN_DrTextA(pln, 32, 105, totalplanes >= CRL_MaxVisPlanes ?
-                      (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
+            MN_DrTextA(ssg, 32, 95 + yy, CRL_StatColor_Val(CRLData.numsolidsegs, 32));
         }
 
         // Openings
@@ -178,10 +272,28 @@ void CRL_StatDrawer (void)
         {
             char opn[64];
 
-            MN_DrTextA("OPN:", 0, 115, CRL_StatColor_Str(CRLData.numopenings, CRL_MaxOpenings));
+            MN_DrTextA("OPN:", 0, 105 + yy, CRL_StatColor_Str(CRLData.numopenings, CRL_MaxOpenings));
             M_snprintf(opn, 16, "%d/%d", CRLData.numopenings, CRL_MaxOpenings);
-            MN_DrTextA(opn, 32, 115, CRL_StatColor_Val(CRLData.numopenings, CRL_MaxOpenings));
+            MN_DrTextA(opn, 32, 105 + yy, CRL_StatColor_Val(CRLData.numopenings, CRL_MaxOpenings));
         }
+
+        // Planes (vanilla: 128, doom+: 1024)
+        if (crl_widget_render == 1
+        || (crl_widget_render == 2 && TotalVisPlanes >= CRL_MaxVisPlanes))
+        {
+            char pln[32];
+
+            MN_DrTextA("PLN:", 0, 115 + yy, TotalVisPlanes >= CRL_MaxVisPlanes ? 
+                      (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
+            M_snprintf(pln, 32, "%d/%d (MAX: %d)", TotalVisPlanes, CRL_MaxVisPlanes, CRL_MAX_count);
+            MN_DrTextA(pln, 32, 115 + yy, TotalVisPlanes >= CRL_MaxVisPlanes ?
+                      (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
+        }
+    }
+
+    if (!crl_widget_kis)
+    {
+        yy2 += 10;
     }
 
     // Level timer
@@ -192,9 +304,9 @@ void CRL_StatDrawer (void)
         const int time = leveltime / TICRATE;
         
         M_snprintf(stra, 8, "TIME ");
-        MN_DrTextA(stra, 0, 125, cr[CR_GRAY]);
+        MN_DrTextA(stra, 0, 125 + yy2, cr[CR_GRAY]);
         M_snprintf(strb, 16, "%02d:%02d:%02d", time/3600, (time%3600)/60, time%60);
-        MN_DrTextA(strb, MN_TextAWidth(stra), 125, cr[CR_LIGHTGRAY]);
+        MN_DrTextA(strb, MN_TextAWidth(stra), 125 + yy2, cr[CR_LIGHTGRAY]);
     }
 
     // K/I/S stats

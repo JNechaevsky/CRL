@@ -38,10 +38,7 @@ fixed_t skyiscale;
 //
 
 // Here comes the obnoxious "visplane".
-#define MAXVISPLANES        128
-#define REALMAXVISPLANES    4096
-
-static visplane_t visplanes[REALMAXVISPLANES], *lastvisplane;
+visplane_t visplanes[REALMAXVISPLANES], *lastvisplane;
 visplane_t *floorplane, *ceilingplane;
 
 // [JN] CRL - remove MAXOPENINGS limit enterily. 

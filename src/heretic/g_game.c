@@ -35,6 +35,7 @@
 
 #include "crlcore.h"
 #include "crlvars.h"
+#include "crlfunc.h"
 
 
 // Macros
@@ -555,6 +556,26 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
         if (gamekeydown[key_crl_cameradown] || gamekeydown[key_flydown])
         {
             CRL_ImpulseCameraVert(false, crl_camzspeed ? 16 : 8);
+        }
+    }
+
+    // [JN] CRL - strict these functions to singleplayer-only
+    // for keeping demo compatibility.
+    if (singleplayer)
+    {
+        // Clear MAX visplanes.
+        if (gamekeydown[key_crl_clearmax])
+        {
+            CRL_Clear_MAX();
+            CRL_Get_MAX();
+            P_SetMessage(&players[consoleplayer], "CLEARED MAX", false);
+        }
+
+        // Jump to MAX visplanes.
+        if (gamekeydown[key_crl_movetomax])
+        {
+            CRL_MoveTo_MAX();
+            P_SetMessage(&players[consoleplayer], "MOVE TO MAX", false);
         }
     }
 

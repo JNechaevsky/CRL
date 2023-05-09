@@ -390,6 +390,11 @@ extern int    *openings;
 extern int floorclip[SCREENWIDTH];
 extern int ceilingclip[SCREENWIDTH];
 
+#define MAXVISPLANES        128
+#define REALMAXVISPLANES    SHRT_MAX
+extern visplane_t  visplanes[REALMAXVISPLANES];
+extern visplane_t *lastvisplane;
+
 extern fixed_t yslope[SCREENHEIGHT];
 extern fixed_t distscale[SCREENWIDTH];
 
