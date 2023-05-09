@@ -123,6 +123,9 @@ cheatseq_t cheat_commercial_noclip = CHEAT("idclip", 0);
 cheatseq_t cheat_choppers = CHEAT("idchoppers", 0);
 cheatseq_t cheat_clev = CHEAT("idclev", 2);
 cheatseq_t cheat_mypos = CHEAT("idmypos", 0);
+// [JN] IDDT cheat, moved from am_map.c
+cheatseq_t cheat_amap = CHEAT("iddt", 0);
+extern int iddt_cheating;
 
 // [crispy] pseudo cheats to eat up the first digit typed 
 // after a cheat expecting two parameters
@@ -452,6 +455,14 @@ boolean ST_Responder (event_t *ev)
                            players[displayplayer].mo->y);
                 plyr->cheatTics = 0;
                 CRL_SetMessage(plyr, buf, false, NULL);
+            }
+            // [JN] IDDT cheating, moved from am_map.c
+            else if (((!deathmatch || gameversion <= exe_doom_1_8)
+            && cht_CheckCheat(&cheat_amap, ev->data2))
+            || ev->data1 == key_crl_iddt)
+            {
+                iddt_cheating = (iddt_cheating + 1) % 3;
+                plyr->cheatTics = 1;
             }
             // [crispy] implement Boom's "tntem" cheat
             // [JN] Allow to use "killem" as well.

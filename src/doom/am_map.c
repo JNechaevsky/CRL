@@ -198,8 +198,8 @@ static mline_t thintriangle_guy[] = {
 
 boolean     automapactive = false;
 
-static int  cheating = 0;
-static int  grid = 0;
+int iddt_cheating = 0;
+static int   grid = 0;
 
 static const int  finit_width = SCREENWIDTH;
 static const int  finit_height = SCREENHEIGHT - ST_HEIGHT;
@@ -254,8 +254,6 @@ static mpoint_t markpoints[AM_NUMMARKPOINTS]; // where the points are
 static int markpointnum = 0; // next point to be assigned
 
 static int followplayer = 1; // specifies whether to follow the player around
-
-cheatseq_t cheat_amap = CHEAT("iddt", 0);
 
 static boolean stopped = true;
 
@@ -818,15 +816,6 @@ boolean AM_Responder (event_t *ev)
         {
             rc = false;
         }
-
-        if (((!deathmatch || gameversion <= exe_doom_1_8)
-        && cht_CheckCheat(&cheat_amap, ev->data2))
-        || ev->data1 == key_crl_iddt)
-        {
-            rc = false;
-            cheating = (cheating + 1) % 3;
-            plr->cheatTics = 1;
-        }
     }
     else if (ev->type == ev_keyup)
     {
@@ -1375,9 +1364,9 @@ static void AM_drawWalls (void)
             AM_rotatePoint(&l.b);
         }
 
-        if (cheating || (lines[i].flags & ML_MAPPED))
+        if (iddt_cheating || (lines[i].flags & ML_MAPPED))
         {
-            if ((lines[i].flags & ML_DONTDRAW) && !cheating)
+            if ((lines[i].flags & ML_DONTDRAW) && !iddt_cheating)
             {
                 continue;
             }
@@ -1427,7 +1416,7 @@ static void AM_drawWalls (void)
                     AM_drawMline(&l, CDWALLCOLORS); // ceiling level change
                 }
                 else
-                if (cheating)
+                if (iddt_cheating)
                 {
                     AM_drawMline(&l, TSWALLCOLORS);
                 }
@@ -1579,7 +1568,7 @@ static void AM_drawPlayers (void)
             AM_rotatePoint(&pt);
         }
 
-        AM_drawLineCharacter(cheat_player_arrow, cheating ?
+        AM_drawLineCharacter(cheat_player_arrow, iddt_cheating ?
                              arrlen(cheat_player_arrow) : arrlen(player_arrow), 0,
                              smoothangle, crl_spectating ? arrow_color : WHITE, pt.x, pt.y);
 
@@ -1951,7 +1940,7 @@ void AM_Drawer (void)
 
     AM_drawPlayers();
 
-    if (cheating == 2)
+    if (iddt_cheating == 2)
     {
         AM_drawThings(THINGCOLORS, THINGRANGE);
     }
