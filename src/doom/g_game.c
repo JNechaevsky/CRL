@@ -927,6 +927,10 @@ boolean G_Responder (event_t* ev)
 	    return true;	// status window ate it 
 	if (AM_Responder (ev)) 
 	    return true;	// automap ate it 
+
+	// [JN] Prevent other than typing actions while cheat tics are ticking.
+	if (players[consoleplayer].cheatTics > 0)
+	    return true;
     } 
 	 
     if (gamestate == GS_FINALE) 
@@ -1340,6 +1344,7 @@ void G_PlayerFinishLevel (int player)
 	 
     memset (p->powers, 0, sizeof (p->powers)); 
     memset (p->cards, 0, sizeof (p->cards)); 
+    p->cheatTics = 0;
     p->messageTics = 0;
     p->criticalmessageTics = 0;
     p->targetsheathTics = 0;

@@ -123,6 +123,7 @@ void F_StartFinale (void)
     gamestate = GS_FINALE;
     automapactive = false;
     finale_wipe_done = false;
+    players[consoleplayer].cheatTics = 1;
     players[consoleplayer].messageTics = 1;
     players[consoleplayer].criticalmessageTics = 1;
     players[consoleplayer].message = NULL;

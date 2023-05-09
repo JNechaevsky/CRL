@@ -113,6 +113,7 @@ static int st_faceindex = 1;  // current face index, used by w_faces
 static int st_randomnumber; // a random number per tick
 static int faceindex; // [crispy] fix status bar face hysteresis
 
+cheatseq_t cheat_wait = CHEAT("id", 0);
 cheatseq_t cheat_mus = CHEAT("idmus", 2);
 cheatseq_t cheat_god = CHEAT("iddqd", 0);
 cheatseq_t cheat_ammo = CHEAT("idkfa", 0);
@@ -251,6 +252,13 @@ boolean ST_Responder (event_t *ev)
         // version of Chocorenderlimits, but still disallow in netgame.
         if (!netgame /*&& gameskill != sk_nightmare*/)
         {
+            // [JN] If user types "id", activate timer to prevent
+            // other than typing actions in G_Responder.
+            if (cht_CheckCheat(&cheat_wait, ev->data2))
+            {
+                plyr->cheatTics = TICRATE * 3;
+            }
+
             // 'dqd' cheat for toggleable god mode
             if (cht_CheckCheat(&cheat_god, ev->data2) || ev->data1 == key_crl_iddqd)
             {
@@ -268,6 +276,7 @@ boolean ST_Responder (event_t *ev)
                 {
                     CRL_SetMessage(plyr, DEH_String(STSTR_DQDOFF), false, NULL);
                 }
+                plyr->cheatTics = 1;
             }
             // 'fa' cheat for killer fucking arsenal
             else if (cht_CheckCheat(&cheat_ammonokey, ev->data2) || ev->data1 == key_crl_idfa)
@@ -287,6 +296,7 @@ boolean ST_Responder (event_t *ev)
                     plyr->ammo[i] = plyr->maxammo[i];
                 }
 
+                plyr->cheatTics = 1;
                 CRL_SetMessage(plyr, DEH_String(STSTR_FAADDED), false, NULL);
             }
             // 'kfa' cheat for key full ammo
@@ -311,6 +321,7 @@ boolean ST_Responder (event_t *ev)
                     plyr->cards[i] = true;
                 }
 
+                plyr->cheatTics = 1;
                 CRL_SetMessage(plyr, DEH_String(STSTR_KFAADDED), false, NULL);
             }
             // 'mus' cheat for changing music
@@ -361,6 +372,8 @@ boolean ST_Responder (event_t *ev)
                         return true;
                     }
                 }
+
+                plyr->cheatTics = 1;
             }
             // [crispy] eat up the first digit typed after a cheat expecting two parameters
             else if (cht_CheckCheat(&cheat_mus1, ev->data2))
@@ -389,6 +402,8 @@ boolean ST_Responder (event_t *ev)
                     plyr->mo->flags &= ~MF_NOCLIP;
                     CRL_SetMessage(plyr, DEH_String(STSTR_NCOFF), false, NULL);
                 }
+
+                plyr->cheatTics = 1;
             }
 
             // 'behold?' power-up cheats
@@ -409,7 +424,8 @@ boolean ST_Responder (event_t *ev)
                         plyr->powers[i] = 0;
                     }
 
-                CRL_SetMessage(plyr, DEH_String(STSTR_BEHOLDX), false, NULL);
+                    plyr->cheatTics = 1;
+                    CRL_SetMessage(plyr, DEH_String(STSTR_BEHOLDX), false, NULL);
                 }
             }
             // 'behold' power-up menu
@@ -422,6 +438,7 @@ boolean ST_Responder (event_t *ev)
             {
                 plyr->weaponowned[wp_chainsaw] = true;
                 plyr->powers[pw_invulnerability] = true;
+                plyr->cheatTics = 1;
                 CRL_SetMessage(plyr, DEH_String(STSTR_CHOPPERS), false, NULL);
             }
             // 'mypos' for player position
@@ -433,6 +450,7 @@ boolean ST_Responder (event_t *ev)
                            players[displayplayer].mo->angle,
                            players[displayplayer].mo->x,
                            players[displayplayer].mo->y);
+                plyr->cheatTics = 0;
                 CRL_SetMessage(plyr, buf, false, NULL);
             }
             // [crispy] implement Boom's "tntem" cheat
@@ -446,6 +464,7 @@ boolean ST_Responder (event_t *ev)
 
                 M_snprintf(buf, sizeof(buf), "Monsters killed: %d", killcount);
                 
+                plyr->cheatTics = 0;
                 CRL_SetMessage(plyr, buf, false, NULL);
             }
         }
@@ -521,6 +540,7 @@ boolean ST_Responder (event_t *ev)
             }
 
             // So be it.
+            plyr->cheatTics = 1;
             CRL_SetMessage(plyr, DEH_String(STSTR_CLEV), false, NULL);
             G_DeferedInitNew(gameskill, epsd, map);
             // [crispy] eat key press, i.e. don't change weapon upon level change

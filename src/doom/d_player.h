@@ -139,6 +139,10 @@ typedef struct player_s
     int			messageTics;
     byte*		messageColor;
 
+    // [JN] CRL - prevent other than typing actions in G_Responder
+    // while cheat tics are ticking.
+    int			cheatTics;
+
     // [JN] CRL - hint critical messages.
     char*		criticalmessage1;
     char*		criticalmessage2;
