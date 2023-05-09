@@ -87,6 +87,12 @@ static int *crl_keys[] = { &key_crl_menu,
 
                            &key_crl_nextlevel, &key_crl_reloadlevel,
                            &key_crl_demospeed, &key_crl_limits,
+
+                           // [JN] Allow to re-bind F-Keys:
+                           &key_menu_help, &key_menu_save, &key_menu_load,
+                           &key_menu_volume, &key_menu_detail, &key_menu_qsave,
+                           &key_menu_endgame, &key_menu_messages, &key_spy,
+                           &key_menu_qload, &key_menu_quit, &key_menu_gamma,
                            NULL };
 
 static void UpdateJoybSpeed(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(var))
