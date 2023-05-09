@@ -159,6 +159,7 @@ void CRL_StatDrawer (void)
     int yy2 = 0;
 
     const int CRL_MAX_count_old = (int)(lastvisplane - visplanes);
+    const int TotalVisPlanes = CRLData.numcheckplanes + CRLData.numfindplanes;
 
     // Count MAX visplanes for moving
     if (CRL_MAX_count_old > CRL_MAX_count)
@@ -294,16 +295,14 @@ void CRL_StatDrawer (void)
 
         // Planes (vanilla: 128, doom+: 1024)
         if (crl_widget_render == 1
-        || (crl_widget_render == 2 && CRLData.numcheckplanes + CRLData.numfindplanes >= CRL_MaxVisPlanes))
+        || (crl_widget_render == 2 && TotalVisPlanes >= CRL_MaxVisPlanes))
         {
             char vis[32];
-            const int totalplanes = CRLData.numcheckplanes
-                                  + CRLData.numfindplanes;
 
-            M_WriteText(0, 133+yy, "PLN:", totalplanes >= CRL_MaxVisPlanes ? 
+            M_WriteText(0, 133+yy, "PLN:", TotalVisPlanes >= CRL_MaxVisPlanes ? 
                        (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
-            M_snprintf(vis, 32, "%d/%d (MAX: %d)", totalplanes, CRL_MaxVisPlanes, CRL_MAX_count);
-            M_WriteText(32, 133+yy, vis, totalplanes >= CRL_MaxVisPlanes ?
+            M_snprintf(vis, 32, "%d/%d (MAX: %d)", TotalVisPlanes, CRL_MaxVisPlanes, CRL_MAX_count);
+            M_WriteText(32, 133+yy, vis, TotalVisPlanes >= CRL_MaxVisPlanes ?
                        (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
         }
     }
