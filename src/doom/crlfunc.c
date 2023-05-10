@@ -349,7 +349,7 @@ void CRL_StatDrawer (void)
         const int time = (deathmatch && levelTimer ? levelTimeCount : leveltime) / TICRATE;
         char stra[8];
         char strb[16];
-        const int yy3 = automapactive ? 0 : 8;
+        const int yy3 = automapactive ? 0 : 9;
 
         sprintf(stra, "TIME ");
         M_WriteText(0, 151 - yy2 + yy3, stra, cr[CR_GRAY]);
@@ -361,7 +361,7 @@ void CRL_StatDrawer (void)
     // K/I/S stats
     if (crl_widget_kis)
     {
-        const int yy = automapactive ? 8 : 0;
+        const int yy = automapactive ? 8 : -1;
 
         if (!deathmatch)
         {
