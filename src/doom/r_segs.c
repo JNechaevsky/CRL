@@ -482,8 +482,8 @@ R_StoreWallRange
     linedef->flags |= ML_MAPPED;
     
     // calculate rw_distance for scale calculation
+    rw_normalangle = curline->angle + ANG90;
     offsetangle = abs((int)rw_normalangle-(int)rw_angle1);
-    offsetangle = rw_normalangle-rw_angle1;
     
     distangle = ANG90 - offsetangle;
     hyp = R_PointToDist (curline->v1->x, curline->v1->y);
