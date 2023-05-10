@@ -272,15 +272,12 @@ R_FindPlane
     if (check < lastvisplane)
 	return check;
 		
-    // [JN] Disabled to draw actual amount of visplanes.
-#if 0		
-    if (lastvisplane - visplanes == CRL_MaxVisPlanes)
+    // [JN] Catch extreme overflows and prevent crash.
+    if (lastvisplane - visplanes == REALMAXVISPLANES)
 	{
-        CRL_SetCriticalMessage("R_FindPlane:", M_StringJoin("no more visplanes (",
-                                            CRL_LimitsName, " crashes here)", NULL), 2);
+        CRL_SetCriticalMessage("R_FindPlane:", "critical visplane overflow!", 2);
     	longjmp(CRLJustIncaseBuf, CRL_JUMP_VPO);
 	}
-#endif
 	
 	// RestlessRodent -- Count plane before write
 	CRL_CountPlane(check, 1, (intptr_t)(lastvisplane - visplanes));
@@ -359,15 +356,12 @@ R_CheckPlane
     lastvisplane->picnum = pl->picnum;
     lastvisplane->lightlevel = pl->lightlevel;
     
-    // [JN] Disabled to draw actual amount of visplanes.
-#if 0
-    if (lastvisplane - visplanes == CRL_MaxVisPlanes)
+    // [JN] Catch extreme overflows and prevent crash.
+    if (lastvisplane - visplanes == REALMAXVISPLANES)
     {
-        // [JN] Print in-game warning.
-        CRL_SetCriticalMessage("R_CheckPlane:", M_StringJoin("no more visplanes (",
-                                            CRL_LimitsName, " crashes here)", NULL), 2);
+        CRL_SetCriticalMessage("R_CheckPlane:", "critical visplane overflow!", 2);
+        longjmp(CRLJustIncaseBuf, CRL_JUMP_VPO);
     }
-#endif
 
     pl = lastvisplane++;
     
