@@ -58,6 +58,7 @@
 
 #include "crlcore.h"
 #include "crlvars.h"
+#include "crlfunc.h"
 
 
 #define CT_KEY_GREEN    'g'
@@ -790,32 +791,6 @@ static void D_Endoom(void)
     I_Endoom(endoom_data);
 }
 
-#define NUMPLANEBORDERCOLORS 16
-int c_PlaneBorderColors[NUMPLANEBORDERCOLORS] =
-{
-	// LIGHT
-	16,							// yucky pink
-	176,						// red
-	216,						// orange
-	231,						// yellow
-	
-	112,						// green
-	195,						// light blue (cyanish)
-	202,						// Deep blue
-	251,						// yuck, magenta
-	
-	// DARK
-	26,
-	183,
-	232,
-	164,
-	
-	122,
-	198,
-	240,
-	254,
-};
-
 //---------------------------------------------------------------------------
 //
 // PROC D_DoomMain
@@ -995,8 +970,8 @@ void D_DoomMain(void)
 
     I_AtExit(M_SaveDefaults, true); // [crispy] always save configuration at exit
 
-    // Initializes CRL
-    CRL_Init(c_PlaneBorderColors, NUMPLANEBORDERCOLORS, 128);
+    // RestlessRodent -- Initializes CRL
+    CRL_Init(CRL_PlaneBorderColors, NUMPLANEBORDERCOLORS, 128);
 
     DEH_printf("W_Init: Init WADfiles.\n");
 

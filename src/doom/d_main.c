@@ -1373,31 +1373,6 @@ static void G_CheckDemoStatusAtExit (void)
     G_CheckDemoStatus();
 }
 
-#define NUMPLANEBORDERCOLORS 16
-int c_PlaneBorderColors[NUMPLANEBORDERCOLORS] =
-{
-	// LIGHT
-	16,							// yucky pink
-	176,						// red
-	216,						// orange
-	231,						// yellow
-	
-	112,						// green
-	195,						// light blue (cyanish)
-	202,						// Deep blue
-	251,						// yuck, magenta
-	
-	// DARK
-	26,
-	183,
-	232,
-	164,
-	
-	122,
-	198,
-	240,
-	254,
-};
 
 //
 // D_DoomMain
@@ -1433,8 +1408,8 @@ void D_DoomMain (void)
     DEH_printf("Z_Init: Init zone memory allocation daemon. \n");
     Z_Init ();
     
-    // Initializes CRL
-    CRL_Init(c_PlaneBorderColors, NUMPLANEBORDERCOLORS, 128);
+    // RestlessRodent -- Initializes CRL
+    CRL_Init(CRL_PlaneBorderColors, NUMPLANEBORDERCOLORS, 128);
     
     // Call I_ShutdownGraphics on quit
 
