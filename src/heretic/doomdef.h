@@ -128,8 +128,10 @@ typedef enum
 ===============================================================================
 */
 
+struct thinker_s;
+
 // think_t is a function pointer to a routine to handle an actor
-typedef void (*think_t) ();
+typedef void (*think_t) (struct thinker_s *);
 
 typedef struct thinker_s
 {
@@ -301,7 +303,7 @@ typedef enum
     NUMPSPRITES
 } psprnum_t;
 
-typedef struct
+typedef struct pspdef_s
 {
     state_t *state;             // a NULL state means not active
     int tics;
