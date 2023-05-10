@@ -127,11 +127,6 @@ cheatseq_t cheat_mypos = CHEAT("idmypos", 0);
 cheatseq_t cheat_amap = CHEAT("iddt", 0);
 extern int iddt_cheating;
 
-// [crispy] pseudo cheats to eat up the first digit typed 
-// after a cheat expecting two parameters
-static cheatseq_t cheat_mus1 = CHEAT("idmus", 1);
-static cheatseq_t cheat_clev1 = CHEAT("idclev", 1);
-
 // [crispy] new cheats
 static cheatseq_t cheat_massacre1 = CHEAT("tntem", 0);
 static cheatseq_t cheat_massacre2 = CHEAT("killem", 0);
@@ -354,9 +349,6 @@ boolean ST_Responder (event_t *ev)
                     else
                     {
                         S_ChangeMusic(musnum, 1);
-                        // [crispy] eat key press, i.e. don't change weapon
-                        // upon music change
-                        return true;
                     }
                 }
                 else
@@ -370,20 +362,10 @@ boolean ST_Responder (event_t *ev)
                     else
                     {
                         S_ChangeMusic(musnum, 1);
-                        // [crispy] eat key press, i.e. don't change weapon
-                        // upon music change
-                        return true;
                     }
                 }
 
                 plyr->cheatTics = 1;
-            }
-            // [crispy] eat up the first digit typed after a cheat expecting two parameters
-            else if (cht_CheckCheat(&cheat_mus1, ev->data2))
-            {
-                char buf[2];
-                cht_GetParam(&cheat_mus1, buf);
-                return isdigit(buf[0]);
             }
             // Noclip cheat.
             // For Doom 1, use the idspipsopd cheat; for all others, use idclip            
@@ -453,7 +435,7 @@ boolean ST_Responder (event_t *ev)
                            players[displayplayer].mo->angle,
                            players[displayplayer].mo->x,
                            players[displayplayer].mo->y);
-                plyr->cheatTics = 0;
+                plyr->cheatTics = 1;
                 CRL_SetMessage(plyr, buf, false, NULL);
             }
             // [JN] IDDT cheating, moved from am_map.c
@@ -475,7 +457,7 @@ boolean ST_Responder (event_t *ev)
 
                 M_snprintf(buf, sizeof(buf), "Monsters killed: %d", killcount);
                 
-                plyr->cheatTics = 0;
+                plyr->cheatTics = 1;
                 CRL_SetMessage(plyr, buf, false, NULL);
             }
         }
@@ -554,15 +536,6 @@ boolean ST_Responder (event_t *ev)
             plyr->cheatTics = 1;
             CRL_SetMessage(plyr, DEH_String(STSTR_CLEV), false, NULL);
             G_DeferedInitNew(gameskill, epsd, map);
-            // [crispy] eat key press, i.e. don't change weapon upon level change
-            return true;
-        }
-        // [crispy] eat up the first digit typed after a cheat expecting two parameters
-        else if (!netgame && !menuactive && cht_CheckCheat(&cheat_clev1, ev->data2))
-        {
-            char buf[2];
-            cht_GetParam(&cheat_clev1, buf);
-            return isdigit(buf[0]);
         }
     }
 
