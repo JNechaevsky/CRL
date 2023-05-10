@@ -461,6 +461,8 @@ typedef struct player_s
     int ammo[NUMAMMO];
     int maxammo[NUMAMMO];
     int attackdown, usedown;    // true if button down last tic
+    // [JN] CRL - if true, jumping condition will be allowed.
+    boolean vilebombdown;
     int cheats;                 // bit flags
 
     int refire;                 // refired shots are less accurate

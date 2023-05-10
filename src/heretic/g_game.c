@@ -563,6 +563,16 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
     // for keeping demo compatibility.
     if (singleplayer)
     {
+        // Iimitate jump by Arch-Vile's attack.
+        if (gamekeydown[key_crl_vilebomb])
+        {
+            CRL_vilebomb = true;
+        }
+        else
+        {
+            CRL_vilebomb = false;
+        }
+
         // Clear MAX visplanes.
         if (gamekeydown[key_crl_clearmax])
         {
