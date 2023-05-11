@@ -871,6 +871,44 @@ void P_MobjThinker(thinker_t *thinker)
 /*
 ===============
 =
+= P_FindDoomedNum
+=
+===============
+*/
+
+static const int P_FindDoomedNum (unsigned type)
+{
+    static struct { int first, next; } *hash;
+    int i;
+
+    if (!hash)
+    {
+        hash = Z_Malloc(sizeof *hash * NUMMOBJTYPES, PU_CACHE, (void **) &hash);
+        for (i = 0 ; i < NUMMOBJTYPES ; i++)
+        {
+        hash[i].first = NUMMOBJTYPES;
+        }
+        for (i = 0 ; i < NUMMOBJTYPES ; i++)
+        {
+            if (mobjinfo[i].doomednum != -1)
+            {
+                unsigned h = (unsigned) mobjinfo[i].doomednum % NUMMOBJTYPES;
+                hash[i].next = hash[h].first;
+                hash[h].first = i;
+            }
+        }
+    }
+
+    i = hash[type % NUMMOBJTYPES].first;
+    while (i < NUMMOBJTYPES && mobjinfo[i].doomednum != type)
+    i = hash[i].next;
+
+    return i;
+}
+
+/*
+===============
+=
 = P_SpawnMobj
 =
 ===============
@@ -1130,9 +1168,8 @@ void P_SpawnMapThing(mapthing_t * mthing)
         return;
 
 // find which type to spawn
-    for (i = 0; i < NUMMOBJTYPES; i++)
-        if (mthing->type == mobjinfo[i].doomednum)
-            break;
+// [JN] killough 8/23/98: use table for faster lookup
+    i = P_FindDoomedNum(mthing->type);
 
     if (i == NUMMOBJTYPES)
         I_Error("P_SpawnMapThing: Unknown type %i at (%i, %i)", mthing->type,
