@@ -20,7 +20,6 @@ add_library(doom STATIC
             doomstat.c      doomstat.h
                             d_player.h
             dstrings.c      dstrings.h
-                            d_textur.h
                             d_think.h
             f_finale.c      f_finale.h
             f_wipe.c        f_wipe.h
