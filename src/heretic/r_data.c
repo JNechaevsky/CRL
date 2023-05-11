@@ -37,15 +37,20 @@ typedef struct
 
 // a maptexturedef_t describes a rectangular texture, which is composed of one
 // or more mappatch_t structures that arrange graphic patches
-typedef struct
+
+typedef struct texture_s texture_t;
+
+struct texture_s
 {
     char name[8];               // for switch changing, etc
     short width;
     short height;
+    int index;                  // Index in textures list
+    texture_t *next;            // Next in hash table chain
     short patchcount;
     texpatch_t patches[1];      // [patchcount] drawn back to front
     //  into the cached texture
-} texture_t;
+};
 
 
 
@@ -55,6 +60,7 @@ int firstspritelump, lastspritelump, numspritelumps;
 
 int numtextures;
 texture_t **textures;
+texture_t **textures_hashtable;
 int *texturewidthmask;
 fixed_t *textureheight;         // needed for texture pegging
 int *texturecompositesize;
@@ -284,6 +290,55 @@ byte *R_GetColumn(int tex, int col)
     return texturecomposite[tex] + ofs;
 }
 
+/*
+================
+=
+= GenerateTextureHashTable
+=
+================
+*/
+
+static void GenerateTextureHashTable(void)
+{
+    texture_t **rover;
+    int i;
+    int key;
+
+    textures_hashtable 
+            = Z_Malloc(sizeof(texture_t *) * numtextures, PU_STATIC, 0);
+
+    memset(textures_hashtable, 0, sizeof(texture_t *) * numtextures);
+
+    // Add all textures to hash table
+
+    for (i=0; i<numtextures; ++i)
+    {
+        // Store index
+
+        textures[i]->index = i;
+
+        // Vanilla Doom does a linear search of the texures array
+        // and stops at the first entry it finds.  If there are two
+        // entries with the same name, the first one in the array
+        // wins. The new entry must therefore be added at the end
+        // of the hash chain, so that earlier entries win.
+
+        key = W_LumpNameHash(textures[i]->name) % numtextures;
+
+        rover = &textures_hashtable[key];
+
+        while (*rover != NULL)
+        {
+            rover = &(*rover)->next;
+        }
+
+        // Hook into hash table
+
+        textures[i]->next = NULL;
+        *rover = textures[i];
+    }
+}
+
 
 /*
 ==================
@@ -444,6 +499,8 @@ void R_InitTextures(void)
     texturetranslation = Z_Malloc((numtextures + 1) * sizeof(int), PU_STATIC, 0);
     for (i = 0; i < numtextures; i++)
         texturetranslation[i] = i;
+
+    GenerateTextureHashTable();
 }
 
 
@@ -618,14 +675,24 @@ int R_FlatNumForName(char *name)
 
 int R_CheckTextureNumForName(char *name)
 {
-    int i;
+    texture_t *texture;
+    int key;
 
     if (name[0] == '-')         // no texture marker
         return 0;
 
-    for (i = 0; i < numtextures; i++)
-        if (!strncasecmp(textures[i]->name, name, 8))
-            return i;
+    key = W_LumpNameHash(name) % numtextures;
+
+    texture = textures_hashtable[key]; 
+
+    while (texture != NULL)
+    {
+        if (!strncasecmp (texture->name, name, 8))
+        {
+            return texture->index;
+        }
+        texture = texture->next;
+    }
 
     return -1;
 }
