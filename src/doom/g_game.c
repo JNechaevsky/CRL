@@ -78,7 +78,6 @@
 
 void	G_ReadDemoTiccmd (ticcmd_t* cmd); 
 void	G_WriteDemoTiccmd (ticcmd_t* cmd); 
-void	G_PlayerReborn (int player); 
  
 void	G_DoReborn (int playernum); 
  

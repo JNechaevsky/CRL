@@ -27,26 +27,21 @@
 #include "st_bar.h"
 #include "s_sound.h"
 #include "doomstat.h"
+#include "g_game.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
 #include "crlfunc.h"
 
 
-void G_PlayerReborn (int player);
-void P_SpawnMapThing (mapthing_t*	mthing);
-static const int P_FindDoomedNum (unsigned type);
-
-
 //
 // P_SetMobjState
 // Returns true if the mobj is still present.
 //
-int test;
-
 // Use a heuristic approach to detect infinite state cycles: Count the number
 // of times the loop in P_SetMobjState() executes and exit with an error once
 // an arbitrary very large limit is reached.
+//
 
 #define MOBJ_CYCLE_LIMIT 1000000
 
@@ -530,6 +525,41 @@ void P_MobjThinker (mobj_t* mobj)
 
 }
 
+// -----------------------------------------------------------------------------
+// P_FindDoomedNum
+// Finds a mobj type with a matching doomednum
+// [JN] killough 8/24/98: rewrote to use hashing
+// -----------------------------------------------------------------------------
+
+static const int P_FindDoomedNum (unsigned type)
+{
+    static struct { int first, next; } *hash;
+    int i;
+
+    if (!hash)
+    {
+        hash = Z_Malloc(sizeof *hash * NUMMOBJTYPES, PU_CACHE, (void **) &hash);
+        for (i = 0 ; i < NUMMOBJTYPES ; i++)
+        {
+        hash[i].first = NUMMOBJTYPES;
+        }
+        for (i = 0 ; i < NUMMOBJTYPES ; i++)
+        {
+            if (mobjinfo[i].doomednum != -1)
+            {
+                unsigned h = (unsigned) mobjinfo[i].doomednum % NUMMOBJTYPES;
+                hash[i].next = hash[h].first;
+                hash[h].first = i;
+            }
+        }
+    }
+
+    i = hash[type % NUMMOBJTYPES].first;
+    while (i < NUMMOBJTYPES && mobjinfo[i].doomednum != type)
+    i = hash[i].next;
+
+    return i;
+}
 
 //
 // P_SpawnMobj
@@ -1021,42 +1051,6 @@ mobj_t *P_SubstNullMobj(mobj_t *mobj)
     }
 
     return mobj;
-}
-
-// -----------------------------------------------------------------------------
-// P_FindDoomedNum
-// Finds a mobj type with a matching doomednum
-// [JN] killough 8/24/98: rewrote to use hashing
-// -----------------------------------------------------------------------------
-
-static const int P_FindDoomedNum (unsigned type)
-{
-    static struct { int first, next; } *hash;
-    int i;
-
-    if (!hash)
-    {
-        hash = Z_Malloc(sizeof *hash * NUMMOBJTYPES, PU_CACHE, (void **) &hash);
-        for (i = 0 ; i < NUMMOBJTYPES ; i++)
-        {
-        hash[i].first = NUMMOBJTYPES;
-        }
-        for (i = 0 ; i < NUMMOBJTYPES ; i++)
-        {
-            if (mobjinfo[i].doomednum != -1)
-            {
-                unsigned h = (unsigned) mobjinfo[i].doomednum % NUMMOBJTYPES;
-                hash[i].next = hash[h].first;
-                hash[h].first = i;
-            }
-        }
-    }
-
-    i = hash[type % NUMMOBJTYPES].first;
-    while (i < NUMMOBJTYPES && mobjinfo[i].doomednum != type)
-    i = hash[i].next;
-
-    return i;
 }
 
 //

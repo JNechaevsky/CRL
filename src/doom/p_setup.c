@@ -40,9 +40,6 @@
 #include "crlfunc.h"
 
 
-void	P_SpawnMapThing (mapthing_t*	mthing);
-
-
 //
 // MAP related Lookup tables.
 // Store VERTEXES, LINEDEFS, SIDEDEFS, etc.
