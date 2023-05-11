@@ -56,8 +56,6 @@ fixed_t dc_iscale;
 fixed_t dc_texturemid;
 byte *dc_source;                // first pixel in a column (possibly virtual)
 
-int dccount;                    // just for profiling
-
 // [JN] RestlessRodent -- CRL
 visplane_t* dc_visplaneused = NULL;
 
@@ -109,7 +107,6 @@ void R_DrawColumnLow(void)
 #ifdef RANGECHECK
     if ((unsigned) dc_x >= SCREENWIDTH || dc_yl < 0 || dc_yh >= SCREENHEIGHT)
         I_Error("R_DrawColumn: %i to %i at %i", dc_yl, dc_yh, dc_x);
-//      dccount++;
 #endif
 
     dest = ylookup[dc_yl] + columnofs[dc_x];
@@ -287,7 +284,6 @@ fixed_t ds_xstep;
 fixed_t ds_ystep;
 byte *ds_source;                // start of a 64*64 tile image
 
-int dscount;                    // just for profiling
 
 void R_DrawSpan(void)
 {
@@ -299,7 +295,6 @@ void R_DrawSpan(void)
     if (ds_x2 < ds_x1 || ds_x1 < 0 || ds_x2 >= SCREENWIDTH
         || (unsigned) ds_y > SCREENHEIGHT)
         I_Error("R_DrawSpan: %i to %i at %i", ds_x1, ds_x2, ds_y);
-//      dscount++;
 #endif
 
     xfrac = ds_xfrac;
@@ -334,7 +329,6 @@ void R_DrawSpanLow(void)
     if (ds_x2 < ds_x1 || ds_x1 < 0 || ds_x2 >= SCREENWIDTH
         || (unsigned) ds_y > SCREENHEIGHT)
         I_Error("R_DrawSpan: %i to %i at %i", ds_x1, ds_x2, ds_y);
-//      dscount++;
 #endif
 
     xfrac = ds_xfrac;
