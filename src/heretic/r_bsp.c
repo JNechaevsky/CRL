@@ -488,7 +488,7 @@ void R_Subsector(int num)
     }
 
     // [JN] Count solidsegs limit.
-    CRLData.numsolidsegs = (int)(newend - solidsegs);
+    CRLData.numsolidsegs = (intptr_t)(newend - solidsegs);
 
     // check for solidsegs overflow - extremely unsatisfactory!
     // [JN] CRL - Do not quit with I_Error, print in-game warning instead.
