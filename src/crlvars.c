@@ -22,6 +22,10 @@
 // [JN] CRL-specific config variables.
 // -----------------------------------------------------------------------------
 
+// Compatibility
+int vanilla_savegame_limit = 1;
+int vanilla_demo_limit = 1;
+
 // System and video
 int crl_startup_delay = 35;
 int crl_resize_delay = 35;
@@ -82,6 +86,10 @@ int crl_prevent_zmalloc = 0;
 
 void CRL_BindVariables (void)
 {
+    // Compatibility
+    M_BindIntVariable("vanilla_savegame_limit",         &vanilla_savegame_limit);
+    M_BindIntVariable("vanilla_demo_limit",             &vanilla_demo_limit);
+
     // System and video
     M_BindIntVariable("crl_startup_delay",              &crl_startup_delay);
     M_BindIntVariable("crl_resize_delay",               &crl_resize_delay);

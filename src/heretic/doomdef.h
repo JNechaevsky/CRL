@@ -599,9 +599,6 @@ extern int testcontrols_mousespeed;
 extern int graphical_startup;
 extern int show_endoom;
 
-extern int vanilla_savegame_limit;
-extern int vanilla_demo_limit;
-
 /*
 ===============================================================================
 

@@ -207,8 +207,6 @@ static int crl_camzspeed;
 int savegameslot;
 char savedescription[32];
 
-int vanilla_demo_limit = 1;
-
 int inventoryTics;
 
 // haleyjd: removed WATCOMC

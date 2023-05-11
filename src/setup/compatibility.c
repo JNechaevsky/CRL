@@ -22,10 +22,10 @@
 
 #include "compatibility.h"
 
+#include "crlvars.h"
+
 #define WINDOW_HELP_URL "https://www.chocolate-doom.org/setup-compat"
 
-int vanilla_savegame_limit = 1;
-int vanilla_demo_limit = 1;
 
 void CompatibilitySettings(void)
 {

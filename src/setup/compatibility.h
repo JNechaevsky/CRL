@@ -18,7 +18,4 @@
 void CompatibilitySettings(void);
 void BindCompatibilityVariables(void);
 
-extern int vanilla_savegame_limit;
-extern int vanilla_demo_limit;
-
 #endif /* #ifndef SETUP_COMPATIBILITY_H */

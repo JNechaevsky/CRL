@@ -26,10 +26,10 @@
 #include "v_video.h"
 
 #include "crlcore.h"
+#include "crlvars.h"
+
 
 static FILE *SaveGameFP;
-
-int vanilla_savegame_limit = 1;
 
 
 //==========================================================================

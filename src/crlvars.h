@@ -22,6 +22,10 @@
 // [JN] CRL-specific config variables.
 // -----------------------------------------------------------------------------
 
+// Compatibility
+extern int vanilla_savegame_limit;
+extern int vanilla_demo_limit;
+
 // System and video
 extern int crl_startup_delay;
 extern int crl_resize_delay;
