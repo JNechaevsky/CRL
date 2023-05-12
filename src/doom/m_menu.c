@@ -545,6 +545,22 @@ static void M_CRL_SFXMode (int choice);
 static void M_CRL_SFXChannels (int choice);
 static void M_CRL_PitchShift (int choice);
 
+static void M_ChooseCRL_Keybinds_1 (int choice);
+static void M_DrawCRL_Keybinds_1 (void);
+
+static void M_ChooseCRL_Keybinds_2 (int choice);
+static void M_DrawCRL_Keybinds_2 (void);
+
+static void M_ChooseCRL_Keybinds_3 (int choice);
+static void M_DrawCRL_Keybinds_3 (void);
+
+static void M_ChooseCRL_Keybinds_4 (int choice);
+static void M_DrawCRL_Keybinds_4 (void);
+
+static char *M_KeyDrawer (int num);
+static void M_ClearBind (int itemOn);
+static byte *M_ColorizeBind (int key);
+
 static void M_ChooseCRL_Controls (int choice);
 static void M_DrawCRL_Controls (void);
 static void M_CRL_Controls_Sensivity (int choice);
@@ -691,11 +707,11 @@ static menuitem_t CRLMenu_Main[]=
     {-1, "", 0, '\0'},
     { 1, "VIDEO OPTIONS",        M_ChooseCRL_Video,     'v'},
     { 1, "SOUND OPTIONS",        M_ChooseCRL_Sound,     's'},
+    { 1, "KEYBINDS",             M_ChooseCRL_Keybinds_1,'k'},
     { 1, "CONTROL SETTINGS",     M_ChooseCRL_Controls,  'c'},
     { 1, "WIDGETS AND AUTOMAP",  M_ChooseCRL_Widgets,   'w'},
     { 1, "GAMEPLAY FEATURES",    M_ChooseCRL_Gameplay,  'g'},
     { 1, "STATIC ENGINE LIMITS", M_ChooseCRL_Limits,    's'},
-    {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'}
 };
@@ -1292,6 +1308,260 @@ static void M_CRL_SFXChannels (int choice)
         default:
             break;
     }
+}
+
+// -----------------------------------------------------------------------------
+// Keybinds 1
+// -----------------------------------------------------------------------------
+
+static menuitem_t CRLMenu_Keybinds_1[]=
+{
+    { 1, "MOVE FORWARD",   0, 'm' },
+    { 1, "MOVE BACKWARD",  0, 'm' },
+    { 1, "TURN LEFT",      0, 't' },
+    { 1, "TURN RIGHT",     0, 't' },
+    { 1, "STRAFE LEFT",    0, 's' },
+    { 1, "STRAFE RIGHT",   0, 's' },
+    { 1, "SPEED ON",       0, 's' },
+    { 1, "STRAFE ON",      0, 's' },
+    {-1, "",               0, '\0'},  // ACTION
+    { 1, "FIRE/ATTACK",    0, 'f' },
+    { 1, "USE",            0, 'u' },
+    {-1, "",               0, '\0'},
+    {-1, "",               0, '\0'},
+    {-1, "",               0, '\0'},
+    {-1, "",               0, '\0'},
+    {-1, "",               0, '\0'}
+};
+
+static menu_t CRLDef_Keybinds_1 =
+{
+    m_crl_end,
+    &CRLDef_Main,
+    CRLMenu_Keybinds_1,
+    M_DrawCRL_Keybinds_1,
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    0,
+    true
+};
+
+static void M_ChooseCRL_Keybinds_1 (int choice)
+{
+    M_SetupNextMenu (&CRLDef_Keybinds_1);
+}
+
+static void M_DrawCRL_Keybinds_1 (void)
+{
+    M_ShadeBackground();
+
+    M_WriteTextCentered(27, "MOVEMENT", cr[CR_YELLOW]);
+
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_up)), 36, M_KeyDrawer(key_up), M_ColorizeBind(key_up));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_down)), 45, M_KeyDrawer(key_down), M_ColorizeBind(key_down));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_left)), 54, M_KeyDrawer(key_left), M_ColorizeBind(key_left));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_right)), 63, M_KeyDrawer(key_right), M_ColorizeBind(key_right));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_strafeleft)), 72, M_KeyDrawer(key_strafeleft), M_ColorizeBind(key_strafeleft));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_straferight)), 81, M_KeyDrawer(key_straferight), M_ColorizeBind(key_straferight));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_speed)), 90, M_KeyDrawer(key_speed), M_ColorizeBind(key_speed));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_strafe)), 99, M_KeyDrawer(key_strafe), M_ColorizeBind(key_strafe));
+
+    M_WriteTextCentered(108, "ACTION", cr[CR_YELLOW]);
+
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_fire)), 117, M_KeyDrawer(key_fire), M_ColorizeBind(key_fire));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_use)), 126, M_KeyDrawer(key_use), M_ColorizeBind(key_use));
+
+    M_WriteText(CRL_MENU_LEFTOFFSET, 152, "< PGUP", cr[CR_MENU_DARK2]);
+    M_WriteTextCentered(152, "PAGE 1/4", cr[CR_MENU_DARK1]);
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth("PGDN >"), 152, "PGDN >", cr[CR_MENU_DARK2]);
+}
+
+// -----------------------------------------------------------------------------
+// Keybinds 2
+// -----------------------------------------------------------------------------
+
+static menuitem_t CRLMenu_Keybinds_2[]=
+{
+    { 1, "MAIN CRL MENU",       0, 'm' },
+    { 1, "RESTART LEVEL/DEMO",  0, 'm' },
+    { 1, "GO TO NEXT LEVEL",    0, 't' },
+    { 1, "DEMO FAST-FORWARD",   0, 't' },
+    {-1, "",                    0, '\0'},  // GAME MODES
+    { 1, "SPECTATOR MODE",      0, 's' },
+    { 1, "MOVE CAMERA UP",      0, 's' },
+    { 1, "MOVE CAMERA DOWN",    0, 's' },
+    {-1, "FREEZE MODE",         0, '\0'},
+    { 1, "NOTARGET MODE",       0, 'f' },
+    {-1, "",                    0, '\0'},
+    {-1, "",                    0, '\0'},
+    {-1, "",                    0, '\0'},
+    {-1, "",                    0, '\0'},
+    {-1, "",                    0, '\0'},
+    {-1, "",                    0, '\0'}
+};
+
+static menu_t CRLDef_Keybinds_2 =
+{
+    m_crl_end,
+    &CRLDef_Main,
+    CRLMenu_Keybinds_2,
+    M_DrawCRL_Keybinds_2,
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    0,
+    true
+};
+
+static void M_ChooseCRL_Keybinds_2 (int choice)
+{
+    M_SetupNextMenu (&CRLDef_Keybinds_2);
+}
+
+static void M_DrawCRL_Keybinds_2 (void)
+{
+    M_ShadeBackground();
+
+    M_WriteTextCentered(27, "CRL CONTROLS", cr[CR_YELLOW]);
+    
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_crl_menu)), 36, M_KeyDrawer(key_crl_menu), M_ColorizeBind(key_crl_menu));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_crl_reloadlevel)), 45, M_KeyDrawer(key_crl_reloadlevel), M_ColorizeBind(key_crl_reloadlevel));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_crl_nextlevel)), 54, M_KeyDrawer(key_crl_nextlevel), M_ColorizeBind(key_crl_nextlevel));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_crl_demospeed)), 63, M_KeyDrawer(key_crl_demospeed), M_ColorizeBind(key_crl_demospeed));
+    
+    M_WriteTextCentered(72, "GAME MODES", cr[CR_YELLOW]);
+
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_crl_spectator)), 81, M_KeyDrawer(key_crl_spectator), M_ColorizeBind(key_crl_spectator));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_crl_cameraup)), 90, M_KeyDrawer(key_crl_cameraup), M_ColorizeBind(key_crl_cameraup));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_crl_cameradown)), 99, M_KeyDrawer(key_crl_cameradown), M_ColorizeBind(key_crl_cameradown));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_crl_freeze)), 108, M_KeyDrawer(key_crl_freeze), M_ColorizeBind(key_crl_freeze));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_crl_notarget)), 117, M_KeyDrawer(key_crl_notarget), M_ColorizeBind(key_crl_notarget));
+
+    M_WriteText(CRL_MENU_LEFTOFFSET, 152, "< PGUP", cr[CR_MENU_DARK2]);
+    M_WriteTextCentered(152, "PAGE 2/4", cr[CR_MENU_DARK1]);
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth("PGDN >"), 152, "PGDN >", cr[CR_MENU_DARK2]);
+}
+
+// -----------------------------------------------------------------------------
+// Keybinds 3
+// -----------------------------------------------------------------------------
+
+static menuitem_t CRLMenu_Keybinds_3[]=
+{
+    { 1, "ALWAYS RUN",      0, 'a' },
+    { 1, "ARCH-VILE JUMP",  0, 'a' },
+    {-1, "",                0, '\0'},  // VISPLANES MAX VALUE
+    { 1, "CLEAR MAX",       0, 'c' },
+    { 1, "MOVE TO MAX ",    0, 'm' },
+    {-1, "",                0, '\0'},  // CHEAT SHORTCUTS
+    { 1, "IDDQD",           0, 'i' },
+    { 1, "IDKFA",           0, 'i' },
+    {-1, "IDFA",            0, 'i' },
+    { 1, "IDCLIP",          0, 'i' },
+    { 1, "IDDT",            0, 'i' },
+    {-1, "",                0, '\0'},
+    {-1, "",                0, '\0'},
+    {-1, "",                0, '\0'},
+    {-1, "",                0, '\0'},
+    {-1, "",                0, '\0'}
+};
+
+static menu_t CRLDef_Keybinds_3 =
+{
+    m_crl_end,
+    &CRLDef_Main,
+    CRLMenu_Keybinds_3,
+    M_DrawCRL_Keybinds_3,
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    0,
+    true
+};
+
+static void M_ChooseCRL_Keybinds_3 (int choice)
+{
+    M_SetupNextMenu (&CRLDef_Keybinds_3);
+}
+
+static void M_DrawCRL_Keybinds_3 (void)
+{
+    M_ShadeBackground();
+
+    M_WriteTextCentered(27, "MOVEMENT", cr[CR_YELLOW]);
+
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_crl_autorun)), 36, M_KeyDrawer(key_crl_autorun), M_ColorizeBind(key_crl_autorun));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_crl_vilebomb)), 45, M_KeyDrawer(key_crl_vilebomb), M_ColorizeBind(key_crl_vilebomb));
+
+    M_WriteTextCentered(54, "VISPLANES MAX VALUE", cr[CR_YELLOW]);
+
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_crl_clearmax)), 63, M_KeyDrawer(key_crl_clearmax), M_ColorizeBind(key_crl_clearmax));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_crl_movetomax)), 72, M_KeyDrawer(key_crl_movetomax), M_ColorizeBind(key_crl_movetomax));
+
+    M_WriteTextCentered(81, "CHEAT SHORTCUTS", cr[CR_YELLOW]);
+
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_crl_iddqd)), 90, M_KeyDrawer(key_crl_iddqd), M_ColorizeBind(key_crl_iddqd));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_crl_idkfa)), 99, M_KeyDrawer(key_crl_idkfa), M_ColorizeBind(key_crl_idkfa));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_crl_idfa)), 108, M_KeyDrawer(key_crl_idfa), M_ColorizeBind(key_crl_idfa));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_crl_idclip)), 117, M_KeyDrawer(key_crl_idclip), M_ColorizeBind(key_crl_idclip));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_crl_iddt)), 126, M_KeyDrawer(key_crl_iddt), M_ColorizeBind(key_crl_iddt));
+
+    M_WriteText(CRL_MENU_LEFTOFFSET, 152, "< PGUP", cr[CR_MENU_DARK2]);
+    M_WriteTextCentered(152, "PAGE 3/4", cr[CR_MENU_DARK1]);
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth("PGDN >"), 152, "PGDN >", cr[CR_MENU_DARK2]);
+}
+
+// -----------------------------------------------------------------------------
+// Keybinds 4
+// -----------------------------------------------------------------------------
+
+static menuitem_t CRLMenu_Keybinds_4[]=
+{
+    { 1, "ROTATE MODE",    0, 'r' },
+    { 1, "OVERLAY MODE",   0, 'o' },
+    {-1, "",               0, '\0'},  // STATIC ENGINE LIMITS
+    { 1, "TOGGLE LIMITS",  0, 't' },
+    {-1, "",               0, '\0'},
+    {-1, "",               0, '\0'},
+    {-1, "",               0, '\0'},
+    {-1, "",               0, '\0'},
+    {-1, "",               0, '\0'},
+    {-1, "",               0, '\0'},
+    {-1, "",               0, '\0'},
+    {-1, "",               0, '\0'},
+    {-1, "",               0, '\0'},
+    {-1, "",               0, '\0'},
+    {-1, "",               0, '\0'},
+    {-1, "",               0, '\0'}
+};
+
+static menu_t CRLDef_Keybinds_4 =
+{
+    m_crl_end,
+    &CRLDef_Main,
+    CRLMenu_Keybinds_4,
+    M_DrawCRL_Keybinds_4,
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    0,
+    true
+};
+
+static void M_ChooseCRL_Keybinds_4 (int choice)
+{
+    M_SetupNextMenu (&CRLDef_Keybinds_4);
+}
+
+static void M_DrawCRL_Keybinds_4 (void)
+{
+    M_ShadeBackground();
+
+    M_WriteTextCentered(27, "AUTOMAP", cr[CR_YELLOW]);
+
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_crl_map_rotate)), 36, M_KeyDrawer(key_crl_map_rotate), M_ColorizeBind(key_crl_map_rotate));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_crl_map_overlay)), 45, M_KeyDrawer(key_crl_map_overlay), M_ColorizeBind(key_crl_map_overlay));
+
+    M_WriteTextCentered(54, "STATIC ENGINE LIMITS", cr[CR_YELLOW]);
+
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_crl_limits)), 63, M_KeyDrawer(key_crl_limits), M_ColorizeBind(key_crl_limits));
+
+    M_WriteText(CRL_MENU_LEFTOFFSET, 152, "< PGUP", cr[CR_MENU_DARK2]);
+    M_WriteTextCentered(152, "PAGE 4/4", cr[CR_MENU_DARK1]);
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth("PGDN >"), 152, "PGDN >", cr[CR_MENU_DARK2]);
 }
 
 // -----------------------------------------------------------------------------
@@ -3595,6 +3865,14 @@ boolean M_Responder (event_t* ev)
 		return true;
 	    }
 	}
+    // [JN] ...or clear key bind.
+	else
+	if (currentMenu == &CRLDef_Keybinds_1 || currentMenu == &CRLDef_Keybinds_2
+	||  currentMenu == &CRLDef_Keybinds_3 || currentMenu == &CRLDef_Keybinds_4)
+	{
+	    M_ClearBind(itemOn);
+	    return true;
+	}
     }
     // [crispy] next/prev Crispness menu
     else if (key == KEY_PGUP)
@@ -3603,12 +3881,54 @@ boolean M_Responder (event_t* ev)
 	{
 	    M_ScrollSaveLoad(false);
 	}
+    // [JN] ...or scroll key binds menu back.
+	else
+	if (currentMenu == &CRLDef_Keybinds_1)
+	{
+	    M_ChooseCRL_Keybinds_4(0);
+	}
+	else
+	if (currentMenu == &CRLDef_Keybinds_2)
+	{
+	    M_ChooseCRL_Keybinds_1(0);
+	}
+	else
+	if (currentMenu == &CRLDef_Keybinds_3)
+	{
+	    M_ChooseCRL_Keybinds_2(0);
+	}
+	else
+	if (currentMenu == &CRLDef_Keybinds_4)
+	{
+	    M_ChooseCRL_Keybinds_3(0);
+	}
     }
     else if (key == KEY_PGDN)
     {
 	if (currentMenu == &LoadDef || currentMenu == &SaveDef)
 	{
 	    M_ScrollSaveLoad(true);
+	}
+    // [JN] ...or scroll key binds menu forward.
+	else
+	if (currentMenu == &CRLDef_Keybinds_4)
+	{
+	    M_ChooseCRL_Keybinds_1(0);
+	}
+	else
+	if (currentMenu == &CRLDef_Keybinds_3)
+	{
+	    M_ChooseCRL_Keybinds_4(0);
+	}
+	else
+	if (currentMenu == &CRLDef_Keybinds_2)
+	{
+	    M_ChooseCRL_Keybinds_3(0);
+	}
+	else
+	if (currentMenu == &CRLDef_Keybinds_1)
+	{
+	    M_ChooseCRL_Keybinds_2(0);
 	}
     }
 
@@ -3950,4 +4270,362 @@ void M_ConfirmDeleteGame ()
 	M_StartMessage(savegwarning, M_ConfirmDeleteGameResponse, true);
 	messageToPrint = 2;
 	S_StartSound(NULL,sfx_swtchn);
+}
+
+
+
+
+
+
+
+
+
+static char *M_KeyDrawer (int num)
+{
+    switch (num)
+    {
+        case 0:     return "---";	break;  // Means empty
+
+        case 1:     return "1";	break;
+        case 2:     return "2";	break;
+        case 3:     return "3";	break;
+        case 4:     return "4";	break;
+        case 5:     return "5";	break;
+        case 6:     return "6";	break;
+        case 7:     return "7";	break;
+        case 8:     return "8";	break;
+        case 9:     return "TAB";	break;
+        /*
+        case 10:    return "10";	break;
+        case 11:    return "11";	break;
+        case 12:    return "12";	break;
+        */
+        case 13:    return "ENTER";	break;
+        /*
+        case 14:    return "14";	break;
+        case 15:    return "15";	break;
+        case 16:    return "16";	break;
+        case 17:    return "17";	break;
+        case 18:    return "18";	break;
+        case 19:    return "19";	break;
+        case 20:    return "20";	break;
+        case 21:    return "21";	break;
+        case 22:    return "22";	break;
+        case 23:    return "23";	break;
+        case 24:    return "24";	break;
+        case 25:    return "25";	break;
+        case 26:    return "26";	break;
+        case 27:    return "27";	break;
+        case 28:    return "28";	break;
+        case 29:    return "29";	break;
+        case 30:    return "30";	break;
+        case 31:    return "31";	break;
+        */
+        case 32:    return "SPACE";	break;
+        case 33:    return "!";	break;
+        case 34:    return "\"";	break;
+        case 35:    return "#";	break;
+        case 36:    return "$";	break;
+        case 37:    return "%";	break;
+        case 38:    return "&";	break;
+        case 39:    return "'";	break;
+        case 40:    return "(";	break;
+        case 41:    return ")";	break;
+        case 42:    return "*";	break;
+        case 43:    return "+";	break;
+        case 44:    return ",";	break;
+        case 45:    return "-";	break;
+        case 46:    return ".";	break;
+        case 47:    return "/";	break;
+        case 48:    return "0";	break;
+        case 49:    return "1";	break;
+        case 50:    return "2";	break;
+        case 51:    return "3";	break;
+        case 52:    return "4";	break;
+        case 53:    return "5";	break;
+        case 54:    return "6";	break;
+        case 55:    return "7";	break;
+        case 56:    return "8";	break;
+        case 57:    return "9";	break;
+        case 58:    return ":";	break;
+        case 59:    return ";";	break;
+        case 60:    return "<";	break;
+        case 61:    return "=";	break;
+        case 62:    return ">";	break;
+        case 63:    return "?";	break;
+        case 64:    return "@";	break;
+        /*
+        case 65:    return "65";	break;
+        case 66:    return "66";	break;
+        case 67:    return "67";	break;
+        case 68:    return "68";	break;
+        case 69:    return "69";	break;
+        case 70:    return "70";	break;
+        case 71:    return "71";	break;
+        case 72:    return "72";	break;
+        case 73:    return "73";	break;
+        case 74:    return "74";	break;
+        case 75:    return "75";	break;
+        case 76:    return "76";	break;
+        case 77:    return "77";	break;
+        case 78:    return "78";	break;
+        case 79:    return "79";	break;
+        case 80:    return "80";	break;
+        case 81:    return "81";	break;
+        case 82:    return "82";	break;
+        case 83:    return "83";	break;
+        case 84:    return "84";	break;
+        case 85:    return "85";	break;
+        case 86:    return "86";	break;
+        case 87:    return "87";	break;
+        case 88:    return "88";	break;
+        case 89:    return "89";	break;
+        case 90:    return "90";	break;
+        */
+        case 91:    return "[";	break;
+        case 92:    return "\\";	break;
+        case 93:    return "]";	break;
+        case 94:    return "^";	break;
+        case 95:    return "_";	break;
+        case 96:    return "TILDE";	break;
+
+        case 97:    return "A";	break;
+        case 98:    return "B";	break;
+        case 99:    return "C";	break;
+        case 100:   return "D";	break;
+        case 101:   return "E";	break;
+        case 102:   return "F";	break;
+        case 103:   return "G";	break;
+        case 104:   return "H";	break;
+        case 105:   return "I";	break;
+        case 106:   return "J";	break;
+        case 107:   return "K";	break;
+        case 108:   return "L";	break;
+        case 109:   return "M";	break;
+        case 110:   return "N";	break;
+        case 111:   return "O";	break;
+        case 112:   return "P";	break;
+        case 113:   return "Q";	break;
+        case 114:   return "R";	break;
+        case 115:   return "S";	break;
+        case 116:   return "T";	break;
+        case 117:   return "U";	break;
+        case 118:   return "V";	break;
+        case 119:   return "W";	break;
+        case 120:   return "X";	break;
+        case 121:   return "Y";	break;
+        case 122:   return "Z";	break;
+
+        case 123:   return "123";	break;
+        case 124:   return "124";	break;
+        case 125:   return "125";	break;
+        case 126:   return "126";	break;
+        case 127:   return "127";	break;
+        case 128:   return "128";	break;
+        case 129:   return "129";	break;
+        case 130:   return "130";	break;
+        case 131:   return "131";	break;
+        case 132:   return "132";	break;
+        case 133:   return "133";	break;
+        case 134:   return "134";	break;
+        case 135:   return "135";	break;
+        case 136:   return "136";	break;
+        case 137:   return "137";	break;
+        case 138:   return "138";	break;
+        case 139:   return "139";	break;
+        case 140:   return "140";	break;
+        case 141:   return "141";	break;
+        case 142:   return "142";	break;
+        case 143:   return "143";	break;
+        case 144:   return "144";	break;
+        case 145:   return "145";	break;
+        case 146:   return "146";	break;
+        case 147:   return "147";	break;
+        case 148:   return "148";	break;
+        case 149:   return "149";	break;
+        case 150:   return "150";	break;
+        case 151:   return "151";	break;
+        case 152:   return "152";	break;
+        case 153:   return "153";	break;
+        case 154:   return "154";	break;
+        case 155:   return "155";	break;
+        case 156:   return "156";	break;
+        case 157:   return "CTRL";	break;
+        case 158:   return "158";	break;
+        case 159:   return "159";	break;
+        case 160:   return "160";	break;
+        case 161:   return "161";	break;
+        case 162:   return "162";	break;
+        case 163:   return "163";	break;
+        case 164:   return "164";	break;
+        case 165:   return "165";	break;
+        case 166:   return "166";	break;
+        case 167:   return "167";	break;
+        case 168:   return "168";	break;
+        case 169:   return "169";	break;
+        case 170:   return "170";	break;
+        case 171:   return "171";	break;
+        case 172:   return "LEFT ARROW";	break;
+        case 173:   return "173";	break;
+        case 174:   return "RIGHT ARROW";	break;
+        case 175:   return "175";	break;
+        case 176:   return "176";	break;
+        case 177:   return "177";	break;
+        case 178:   return "178";	break;
+        case 179:   return "179";	break;
+        case 180:   return "180";	break;
+        case 181:   return "181";	break;
+        case 182:   return "SHIFT";	break;
+        case 183:   return "183";	break;
+        case 184:   return "ALT";	break;
+        case 185:   return "185";	break;
+        case 186:   return "CAPS LOCK";	break;
+        case 187:   return "F1";	break;
+        case 188:   return "F2";	break;
+        case 189:   return "F3";	break;
+        case 190:   return "F4";	break;
+        case 191:   return "F5";	break;
+        case 192:   return "F6";	break;
+        case 193:   return "F7";	break;
+        case 194:   return "F8";	break;
+        case 195:   return "F9";	break;
+        case 196:   return "F10";	break;
+        case 197:   return "197";	break;
+        case 198:   return "SCROLL LOCK";	break;
+        case 199:   return "HOME";	break;
+        case 200:   return "200";	break;
+        case 201:   return "PAGEUP";	break;
+        case 202:   return "202";	break;
+        case 203:   return "203";	break;
+        case 204:   return "204";	break;
+        case 205:   return "205";	break;
+        case 206:   return "206";	break;
+        case 207:   return "END";	break;
+        case 208:   return "208";	break;
+        case 209:   return "209";	break;
+        case 210:   return "INSERT";	break;
+        case 211:   return "DELETE";	break;
+        case 212:   return "212";	break;
+        case 213:   return "213";	break;
+        case 214:   return "214";	break;
+        case 215:   return "F11";	break;
+        case 216:   return "F12";	break;
+        case 217:   return "PRINT SCREEN";	break;
+        case 218:   return "218";	break;
+        case 219:   return "219";	break;
+        case 220:   return "220";	break;
+        case 221:   return "221";	break;
+        case 222:   return "222";	break;
+        case 223:   return "223";	break;
+        case 224:   return "224";	break;
+        case 225:   return "225";	break;
+        case 226:   return "226";	break;
+        case 227:   return "227";	break;
+        case 228:   return "228";	break;
+        case 229:   return "229";	break;
+        case 230:   return "230";	break;
+        case 231:   return "231";	break;
+        case 232:   return "232";	break;
+        case 233:   return "233";	break;
+        case 234:   return "234";	break;
+        case 235:   return "235";	break;
+        case 236:   return "236";	break;
+        case 237:   return "237";	break;
+        case 238:   return "238";	break;
+        case 239:   return "239";	break;
+        case 240:   return "240";	break;
+        case 241:   return "241";	break;
+        case 242:   return "242";	break;
+        case 243:   return "243";	break;
+        case 244:   return "244";	break;
+        case 245:   return "245";	break;
+        case 246:   return "246";	break;
+        case 247:   return "247";	break;
+        case 248:   return "248";	break;
+        case 249:   return "249";	break;
+        case 250:   return "250";	break;
+        case 251:   return "251";	break;
+        case 252:   return "252";	break;
+        case 253:   return "253";	break;
+        case 254:   return "254";	break;
+        case 255:   return "PAUSE";	break;
+
+        default:    return "?";             break;
+    }
+}
+
+static void M_ClearBind (int itemOn)
+{
+    if (currentMenu == &CRLDef_Keybinds_1)
+    {
+        switch (itemOn)
+        {
+            case 0:  key_up = 0;               break;
+            case 1:  key_down = 0;             break;
+            case 2:  key_left = 0;             break;
+            case 3:  key_right = 0;            break;
+            case 4:  key_strafeleft = 0;       break;
+            case 5:  key_straferight = 0;      break;
+            case 6:  key_speed = 0;            break;
+            case 7:  key_strafe = 0;           break;
+            // Action title
+            case 9:  key_fire = 0;             break;
+            case 10: key_use = 0;              break;
+        }
+    }
+    if (currentMenu == &CRLDef_Keybinds_2)
+    {
+        switch (itemOn)
+        {
+            case 0:  key_crl_menu = 0;         break;
+            case 1:  key_crl_reloadlevel = 0;  break;
+            case 2:  key_crl_nextlevel = 0;    break;
+            case 3:  key_crl_demospeed = 0;    break;
+            // Game modes title
+            case 5:  key_crl_spectator = 0;    break;
+            case 6:  key_crl_cameraup = 0;     break;
+            case 7:  key_crl_cameradown = 0;   break;
+            case 8:  key_crl_freeze = 0;       break;
+            case 9:  key_crl_notarget = 0;     break;
+        }
+    }
+    if (currentMenu == &CRLDef_Keybinds_3)
+    {
+        switch (itemOn)
+        {
+            case 0:  key_crl_autorun = 0;      break;
+            case 1:  key_crl_vilebomb = 0;     break;
+            // Visplanes MAX value title
+            case 3:  key_crl_clearmax = 0;     break;
+            case 4:  key_crl_movetomax = 0;    break;
+            // Cheat shortcuts title
+            case 6:  key_crl_iddqd = 0;        break;
+            case 7:  key_crl_idkfa = 0;        break;
+            case 8:  key_crl_idfa = 0;         break;
+            case 9:  key_crl_idclip = 0;       break;
+            case 10:  key_crl_iddt = 0;        break;
+        }
+    }
+    if (currentMenu == &CRLDef_Keybinds_4)
+    {
+        switch (itemOn)
+        {
+            case 0:  key_crl_map_rotate = 0;   break;
+            case 1:  key_crl_map_overlay = 0;  break;
+            // Static engine limits title
+            case 3:  key_crl_limits = 0;       break;
+        }
+    }
+}
+
+static byte *M_ColorizeBind (int key)
+{
+    if (key == 0)
+    {
+        return cr[CR_RED];
+    }
+    else
+    {
+        return cr[CR_GREEN];
+    }
 }
