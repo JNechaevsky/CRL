@@ -557,6 +557,11 @@ static void M_DrawCRL_Keybinds_3 (void);
 static void M_ChooseCRL_Keybinds_4 (int choice);
 static void M_DrawCRL_Keybinds_4 (void);
 
+static menu_t CRLDef_Keybinds_1;
+static menu_t CRLDef_Keybinds_2;
+static menu_t CRLDef_Keybinds_3;
+static menu_t CRLDef_Keybinds_4;
+
 static char *M_KeyDrawer (int num);
 static void M_ClearBind (int itemOn);
 static byte *M_ColorizeBind (int key);
@@ -1329,7 +1334,7 @@ static menuitem_t CRLMenu_Keybinds_1[]=
     { 1, "USE",            0, 'u' },
     {-1, "",               0, '\0'},
     {-1, "",               0, '\0'},
-    {-1, "",               0, '\0'},
+    { 2, "",               M_ChooseCRL_Keybinds_2, '\0'}, // pitto
     {-1, "",               0, '\0'},
     {-1, "",               0, '\0'}
 };
@@ -1347,7 +1352,8 @@ static menu_t CRLDef_Keybinds_1 =
 
 static void M_ChooseCRL_Keybinds_1 (int choice)
 {
-    M_SetupNextMenu (&CRLDef_Keybinds_1);
+    currentMenu->lastOn = itemOn;
+    M_SetupNextMenu (choice ? &CRLDef_Keybinds_1 : &CRLDef_Keybinds_3);
 }
 
 static void M_DrawCRL_Keybinds_1 (void)
@@ -1370,9 +1376,9 @@ static void M_DrawCRL_Keybinds_1 (void)
     M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_fire)), 117, M_KeyDrawer(key_fire), M_ColorizeBind(key_fire));
     M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_use)), 126, M_KeyDrawer(key_use), M_ColorizeBind(key_use));
 
-    M_WriteText(CRL_MENU_LEFTOFFSET, 152, "< PGUP", cr[CR_MENU_DARK2]);
-    M_WriteTextCentered(152, "PAGE 1/4", cr[CR_MENU_DARK1]);
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth("PGDN >"), 152, "PGDN >", cr[CR_MENU_DARK2]);
+    M_WriteText(CRL_MENU_LEFTOFFSET, 153, "< PGUP", cr[CR_MENU_DARK2]);
+    M_WriteTextCentered(153, "PAGE 1/4", cr[CR_MENU_DARK1]);
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth("PGDN >"), 153, "PGDN >", cr[CR_MENU_DARK2]);
 }
 
 // -----------------------------------------------------------------------------
@@ -1394,7 +1400,7 @@ static menuitem_t CRLMenu_Keybinds_2[]=
     {-1, "",                    0, '\0'},
     {-1, "",                    0, '\0'},
     {-1, "",                    0, '\0'},
-    {-1, "",                    0, '\0'},
+    { 2, "",                    M_ChooseCRL_Keybinds_3, '\0'},
     {-1, "",                    0, '\0'},
     {-1, "",                    0, '\0'}
 };
@@ -1412,7 +1418,8 @@ static menu_t CRLDef_Keybinds_2 =
 
 static void M_ChooseCRL_Keybinds_2 (int choice)
 {
-    M_SetupNextMenu (&CRLDef_Keybinds_2);
+    currentMenu->lastOn = itemOn;
+    M_SetupNextMenu (choice ? &CRLDef_Keybinds_2 : &CRLDef_Keybinds_4);
 }
 
 static void M_DrawCRL_Keybinds_2 (void)
@@ -1434,9 +1441,9 @@ static void M_DrawCRL_Keybinds_2 (void)
     M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_crl_freeze)), 108, M_KeyDrawer(key_crl_freeze), M_ColorizeBind(key_crl_freeze));
     M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_crl_notarget)), 117, M_KeyDrawer(key_crl_notarget), M_ColorizeBind(key_crl_notarget));
 
-    M_WriteText(CRL_MENU_LEFTOFFSET, 152, "< PGUP", cr[CR_MENU_DARK2]);
-    M_WriteTextCentered(152, "PAGE 2/4", cr[CR_MENU_DARK1]);
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth("PGDN >"), 152, "PGDN >", cr[CR_MENU_DARK2]);
+    M_WriteText(CRL_MENU_LEFTOFFSET, 153, "< PGUP", cr[CR_MENU_DARK2]);
+    M_WriteTextCentered(153, "PAGE 2/4", cr[CR_MENU_DARK1]);
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth("PGDN >"), 153, "PGDN >", cr[CR_MENU_DARK2]);
 }
 
 // -----------------------------------------------------------------------------
@@ -1458,7 +1465,7 @@ static menuitem_t CRLMenu_Keybinds_3[]=
     { 1, "IDDT",            0, 'i' },
     {-1, "",                0, '\0'},
     {-1, "",                0, '\0'},
-    {-1, "",                0, '\0'},
+    { 2, "",               M_ChooseCRL_Keybinds_4, '\0'},
     {-1, "",                0, '\0'},
     {-1, "",                0, '\0'}
 };
@@ -1476,7 +1483,8 @@ static menu_t CRLDef_Keybinds_3 =
 
 static void M_ChooseCRL_Keybinds_3 (int choice)
 {
-    M_SetupNextMenu (&CRLDef_Keybinds_3);
+    currentMenu->lastOn = itemOn;
+    M_SetupNextMenu (choice ? &CRLDef_Keybinds_3 : &CRLDef_Keybinds_1);
 }
 
 static void M_DrawCRL_Keybinds_3 (void)
@@ -1501,9 +1509,9 @@ static void M_DrawCRL_Keybinds_3 (void)
     M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_crl_idclip)), 117, M_KeyDrawer(key_crl_idclip), M_ColorizeBind(key_crl_idclip));
     M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_crl_iddt)), 126, M_KeyDrawer(key_crl_iddt), M_ColorizeBind(key_crl_iddt));
 
-    M_WriteText(CRL_MENU_LEFTOFFSET, 152, "< PGUP", cr[CR_MENU_DARK2]);
-    M_WriteTextCentered(152, "PAGE 3/4", cr[CR_MENU_DARK1]);
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth("PGDN >"), 152, "PGDN >", cr[CR_MENU_DARK2]);
+    M_WriteText(CRL_MENU_LEFTOFFSET, 153, "< PGUP", cr[CR_MENU_DARK2]);
+    M_WriteTextCentered(153, "PAGE 3/4", cr[CR_MENU_DARK1]);
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth("PGDN >"), 153, "PGDN >", cr[CR_MENU_DARK2]);
 }
 
 // -----------------------------------------------------------------------------
@@ -1525,7 +1533,7 @@ static menuitem_t CRLMenu_Keybinds_4[]=
     {-1, "",               0, '\0'},
     {-1, "",               0, '\0'},
     {-1, "",               0, '\0'},
-    {-1, "",               0, '\0'},
+    { 2, "",               M_ChooseCRL_Keybinds_1, '\0'},
     {-1, "",               0, '\0'},
     {-1, "",               0, '\0'}
 };
@@ -1543,7 +1551,8 @@ static menu_t CRLDef_Keybinds_4 =
 
 static void M_ChooseCRL_Keybinds_4 (int choice)
 {
-    M_SetupNextMenu (&CRLDef_Keybinds_4);
+    currentMenu->lastOn = itemOn;
+    M_SetupNextMenu (choice ? &CRLDef_Keybinds_4 : &CRLDef_Keybinds_2);
 }
 
 static void M_DrawCRL_Keybinds_4 (void)
@@ -1559,9 +1568,9 @@ static void M_DrawCRL_Keybinds_4 (void)
 
     M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(key_crl_limits)), 63, M_KeyDrawer(key_crl_limits), M_ColorizeBind(key_crl_limits));
 
-    M_WriteText(CRL_MENU_LEFTOFFSET, 152, "< PGUP", cr[CR_MENU_DARK2]);
-    M_WriteTextCentered(152, "PAGE 4/4", cr[CR_MENU_DARK1]);
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth("PGDN >"), 152, "PGDN >", cr[CR_MENU_DARK2]);
+    M_WriteText(CRL_MENU_LEFTOFFSET, 153, "< PGUP", cr[CR_MENU_DARK2]);
+    M_WriteTextCentered(153, "PAGE 4/4", cr[CR_MENU_DARK1]);
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth("PGDN >"), 153, "PGDN >", cr[CR_MENU_DARK2]);
 }
 
 // -----------------------------------------------------------------------------
@@ -3885,22 +3894,22 @@ boolean M_Responder (event_t* ev)
 	else
 	if (currentMenu == &CRLDef_Keybinds_1)
 	{
-	    M_ChooseCRL_Keybinds_4(0);
+	    M_ChooseCRL_Keybinds_4(1);
 	}
 	else
 	if (currentMenu == &CRLDef_Keybinds_2)
 	{
-	    M_ChooseCRL_Keybinds_1(0);
+	    M_ChooseCRL_Keybinds_1(1);
 	}
 	else
 	if (currentMenu == &CRLDef_Keybinds_3)
 	{
-	    M_ChooseCRL_Keybinds_2(0);
+	    M_ChooseCRL_Keybinds_2(1);
 	}
 	else
 	if (currentMenu == &CRLDef_Keybinds_4)
 	{
-	    M_ChooseCRL_Keybinds_3(0);
+	    M_ChooseCRL_Keybinds_3(1);
 	}
     }
     else if (key == KEY_PGDN)
@@ -3913,22 +3922,22 @@ boolean M_Responder (event_t* ev)
 	else
 	if (currentMenu == &CRLDef_Keybinds_4)
 	{
-	    M_ChooseCRL_Keybinds_1(0);
+	    M_ChooseCRL_Keybinds_1(1);
 	}
 	else
 	if (currentMenu == &CRLDef_Keybinds_3)
 	{
-	    M_ChooseCRL_Keybinds_4(0);
+	    M_ChooseCRL_Keybinds_4(1);
 	}
 	else
 	if (currentMenu == &CRLDef_Keybinds_2)
 	{
-	    M_ChooseCRL_Keybinds_3(0);
+	    M_ChooseCRL_Keybinds_3(1);
 	}
 	else
 	if (currentMenu == &CRLDef_Keybinds_1)
 	{
-	    M_ChooseCRL_Keybinds_2(0);
+	    M_ChooseCRL_Keybinds_2(1);
 	}
     }
 
