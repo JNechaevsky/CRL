@@ -4387,8 +4387,8 @@ boolean M_Responder (event_t* ev)
 	else
 	if (currentMenu == &CRLDef_Keybinds_1 || currentMenu == &CRLDef_Keybinds_2
 	||  currentMenu == &CRLDef_Keybinds_3 || currentMenu == &CRLDef_Keybinds_4
-    ||  currentMenu == &CRLDef_Keybinds_5 || currentMenu == &CRLDef_Keybinds_6
-    ||  currentMenu == &CRLDef_Keybinds_7)
+	||  currentMenu == &CRLDef_Keybinds_5 || currentMenu == &CRLDef_Keybinds_6
+	||  currentMenu == &CRLDef_Keybinds_7)
 	{
 	    M_ScrollKeyBindPages(false);
 	}
@@ -4413,8 +4413,8 @@ boolean M_Responder (event_t* ev)
 	else
 	if (currentMenu == &CRLDef_Keybinds_1 || currentMenu == &CRLDef_Keybinds_2
 	||  currentMenu == &CRLDef_Keybinds_3 || currentMenu == &CRLDef_Keybinds_4
-    ||  currentMenu == &CRLDef_Keybinds_5 || currentMenu == &CRLDef_Keybinds_6
-    ||  currentMenu == &CRLDef_Keybinds_7)
+	||  currentMenu == &CRLDef_Keybinds_5 || currentMenu == &CRLDef_Keybinds_6
+	||  currentMenu == &CRLDef_Keybinds_7)
 	{
 	    M_ScrollKeyBindPages(true);
 	}
@@ -4498,8 +4498,8 @@ boolean M_Responder (event_t* ev)
 	else
 	if (currentMenu == &CRLDef_Keybinds_1 || currentMenu == &CRLDef_Keybinds_2
 	||  currentMenu == &CRLDef_Keybinds_3 || currentMenu == &CRLDef_Keybinds_4
-    ||  currentMenu == &CRLDef_Keybinds_5 || currentMenu == &CRLDef_Keybinds_6
-    ||  currentMenu == &CRLDef_Keybinds_7)
+	||  currentMenu == &CRLDef_Keybinds_5 || currentMenu == &CRLDef_Keybinds_6
+	||  currentMenu == &CRLDef_Keybinds_7)
 	{
 	    M_ClearBind(itemOn);
 	    return true;
@@ -4516,8 +4516,8 @@ boolean M_Responder (event_t* ev)
 	else
 	if (currentMenu == &CRLDef_Keybinds_1 || currentMenu == &CRLDef_Keybinds_2
 	||  currentMenu == &CRLDef_Keybinds_3 || currentMenu == &CRLDef_Keybinds_4
-    ||  currentMenu == &CRLDef_Keybinds_5 || currentMenu == &CRLDef_Keybinds_6
-    ||  currentMenu == &CRLDef_Keybinds_7)
+	||  currentMenu == &CRLDef_Keybinds_5 || currentMenu == &CRLDef_Keybinds_6
+	||  currentMenu == &CRLDef_Keybinds_7)
 	{
 	    M_ScrollKeyBindPages(false);
 	}
@@ -4532,8 +4532,8 @@ boolean M_Responder (event_t* ev)
 	else
 	if (currentMenu == &CRLDef_Keybinds_1 || currentMenu == &CRLDef_Keybinds_2
 	||  currentMenu == &CRLDef_Keybinds_3 || currentMenu == &CRLDef_Keybinds_4
-    ||  currentMenu == &CRLDef_Keybinds_5 || currentMenu == &CRLDef_Keybinds_6
-    ||  currentMenu == &CRLDef_Keybinds_7)
+	||  currentMenu == &CRLDef_Keybinds_5 || currentMenu == &CRLDef_Keybinds_6
+	||  currentMenu == &CRLDef_Keybinds_7)
 	{
 	    M_ScrollKeyBindPages(true);
 	}
