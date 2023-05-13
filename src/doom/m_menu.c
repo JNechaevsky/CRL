@@ -545,6 +545,14 @@ static void M_CRL_SFXMode (int choice);
 static void M_CRL_SFXChannels (int choice);
 static void M_CRL_PitchShift (int choice);
 
+static void M_ChooseCRL_Controls (int choice);
+static void M_DrawCRL_Controls (void);
+static void M_CRL_Controls_Sensivity (int choice);
+static void M_CRL_Controls_Acceleration (int choice);
+static void M_CRL_Controls_Threshold (int choice);
+static void M_CRL_Controls_NoVert (int choice);
+static void M_CRL_Controls_DblClck (int choice);
+
 static void M_ChooseCRL_Keybinds_1 (int choice);
 static void M_DrawCRL_Keybinds_1 (void);
 static void M_Bind_MoveForward (int choice);
@@ -558,7 +566,6 @@ static void M_Bind_StrafeOn (int choice);
 static void M_Bind_FireAttack (int choice);
 static void M_Bind_Use (int choice);
 
-static void M_ChooseCRL_Keybinds_2 (int choice);
 static void M_DrawCRL_Keybinds_2 (void);
 static void M_Bind_CRLmenu (int choice);
 static void M_Bind_RestartLevel (int choice);
@@ -570,7 +577,6 @@ static void M_Bind_CameraDown (int choice);
 static void M_Bind_FreezeMode (int choice);
 static void M_Bind_NotargetMode (int choice);
 
-static void M_ChooseCRL_Keybinds_3 (int choice);
 static void M_DrawCRL_Keybinds_3 (void);
 static void M_Bind_AlwaysRun (int choice);
 static void M_Bind_VileBomb (int choice);
@@ -582,7 +588,6 @@ static void M_Bind_IDFA (int choice);
 static void M_Bind_IDCLIP (int choice);
 static void M_Bind_IDDT (int choice);
 
-static void M_ChooseCRL_Keybinds_4 (int choice);
 static void M_DrawCRL_Keybinds_4 (void);
 static void M_Bind_Weapon1 (int choice);
 static void M_Bind_Weapon2 (int choice);
@@ -595,7 +600,6 @@ static void M_Bind_Weapon8 (int choice);
 static void M_Bind_PrevWeapon (int choice);
 static void M_Bind_NextWeapon (int choice);
 
-static void M_ChooseCRL_Keybinds_5 (int choice);
 static void M_DrawCRL_Keybinds_5 (void);
 static void M_Bind_ToggleMap (int choice);
 static void M_Bind_ZoomIn (int choice);
@@ -608,7 +612,6 @@ static void M_Bind_ToggleGrid (int choice);
 static void M_Bind_AddMark (int choice);
 static void M_Bind_ClearMarks (int choice);
 
-static void M_ChooseCRL_Keybinds_6 (int choice);
 static void M_DrawCRL_Keybinds_6 (void);
 static void M_Bind_HelpScreen (int choice);
 static void M_Bind_SaveGame (int choice);
@@ -623,11 +626,8 @@ static void M_Bind_QuitGame (int choice);
 static void M_Bind_ToggleGamma (int choice);
 static void M_Bind_MultiplayerSpy (int choice);
 
-static void M_ChooseCRL_Keybinds_7 (int choice);
 static void M_DrawCRL_Keybinds_7 (void);
 static void M_Bind_Pause (int choice);
-static void M_Bind_IncreaseScreen (int choice);
-static void M_Bind_DecreaseScreen (int choice);
 static void M_Bind_SaveScreenshot (int choice);
 static void M_Bind_LastMessage (int choice);
 static void M_Bind_FinishDemo (int choice);
@@ -656,14 +656,6 @@ static void    M_DoBind (int keynum, int key);
 static void    M_ClearBind (int itemOn);
 static byte   *M_ColorizeBind (int itemSetOn, int key);
 static boolean M_ScrollKeyBindPages (boolean direction);
-
-static void M_ChooseCRL_Controls (int choice);
-static void M_DrawCRL_Controls (void);
-static void M_CRL_Controls_Sensivity (int choice);
-static void M_CRL_Controls_Acceleration (int choice);
-static void M_CRL_Controls_Threshold (int choice);
-static void M_CRL_Controls_NoVert (int choice);
-static void M_CRL_Controls_DblClck (int choice);
 
 static void M_ChooseCRL_Widgets (int choice);
 static void M_DrawCRL_Widgets (void);
@@ -803,11 +795,11 @@ static menuitem_t CRLMenu_Main[]=
     {-1, "", 0, '\0'},
     { 1, "VIDEO OPTIONS",        M_ChooseCRL_Video,     'v'},
     { 1, "SOUND OPTIONS",        M_ChooseCRL_Sound,     's'},
-    { 1, "KEYBOARD BINDINGS",    M_ChooseCRL_Keybinds_1,'k'},
-    { 1, "MOUSE SETTINGS",       M_ChooseCRL_Controls,  'c'},
+    { 1, "CONTROL SETTINGS",     M_ChooseCRL_Controls,  'c'},
     { 1, "WIDGETS AND AUTOMAP",  M_ChooseCRL_Widgets,   'w'},
     { 1, "GAMEPLAY FEATURES",    M_ChooseCRL_Gameplay,  'g'},
     { 1, "STATIC ENGINE LIMITS", M_ChooseCRL_Limits,    's'},
+    {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'}
 };
@@ -1407,6 +1399,145 @@ static void M_CRL_SFXChannels (int choice)
 }
 
 // -----------------------------------------------------------------------------
+// Control settings
+// -----------------------------------------------------------------------------
+
+static menuitem_t CRLMenu_Controls[]=
+{
+    { 1, "KEYBOARD BINDINGS",            M_ChooseCRL_Keybinds_1,      'k'},
+    {-1, "", 0, '\0'},
+    { 2, "SENSIVITY",                    M_CRL_Controls_Sensivity,    's'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    { 2, "ACCELERATION",                 M_CRL_Controls_Acceleration, 'a'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    { 2, "ACCELERATION THRESHOLD",       M_CRL_Controls_Threshold,    'a'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    { 2, "VERTICAL MOUSE MOVEMENT",      M_CRL_Controls_NoVert,       'v'},
+    { 2, "DOUBLE CLICK ACTS AS \"USE\"", M_CRL_Controls_DblClck,      'd'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'}
+};
+
+static menu_t CRLDef_Controls =
+{
+    m_crl_end,
+    &CRLDef_Main,
+    CRLMenu_Controls,
+    M_DrawCRL_Controls,
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    0,
+    true
+};
+
+static void M_ChooseCRL_Controls (int choice)
+{
+    M_SetupNextMenu (&CRLDef_Controls);
+}
+
+static void M_DrawCRL_Controls (void)
+{
+    static char str[32];
+
+    M_ShadeBackground();
+    
+    M_WriteTextCentered(27, "BINDINGS", cr[CR_YELLOW]);
+    
+    M_WriteTextCentered(45, "MOUSE CONFIGURATION", cr[CR_YELLOW]);
+
+    M_DrawThermo(46, 63, 10, mouseSensitivity);
+    sprintf(str,"%d", mouseSensitivity);
+    M_WriteText (144, 66, str, itemOn == 2 && mouseSensitivity > 9 ? cr[CR_BRIGHTGREEN] :
+                               itemOn == 2 ? cr[CR_MENU_BRIGHT5] :
+                               mouseSensitivity < 1 ? cr[CR_DARKRED] :
+                               mouseSensitivity > 9 ? cr[CR_GREEN] : NULL);
+
+    M_DrawThermo(46, 90, 12, (mouse_acceleration * 3) - 3);
+    sprintf(str,"%.1f", mouse_acceleration);
+    M_WriteText (160, 93, str, itemOn == 5 ? cr[CR_MENU_BRIGHT5] : NULL);
+
+    M_DrawThermo(46, 117, 15, mouse_threshold / 2);
+    sprintf(str,"%d", mouse_threshold);
+    M_WriteText (184, 120, str, itemOn == 8 ? cr[CR_MENU_BRIGHT5] :
+                                mouse_threshold == 0 ? cr[CR_DARKRED] : NULL);
+
+    // Vertical mouse movement
+    sprintf(str, !novert ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 135, str,
+                 !novert ? cr[CR_GREEN] : cr[CR_DARKRED]);
+
+    // Double click acts as "use"
+    sprintf(str, dclick_use ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 144, str,
+                 dclick_use ? cr[CR_GREEN] : cr[CR_DARKRED]);
+}
+
+static void M_CRL_Controls_Sensivity (int choice)
+{
+    switch (choice)
+    {
+        case 0:
+        if (mouseSensitivity)
+            mouseSensitivity--;
+        break;
+        case 1:
+        if (mouseSensitivity < 255) // [crispy] extended range
+            mouseSensitivity++;
+        break;
+    }
+}
+
+static void M_CRL_Controls_Acceleration (int choice)
+{
+    char buf[9];
+
+    switch (choice)
+    {   // 1.0 ... 5.0
+        case 0:
+        if (mouse_acceleration > 1.0f)
+            mouse_acceleration -= 0.1f;
+        break;
+
+        case 1:
+        if (mouse_acceleration < 5.0f)
+            mouse_acceleration += 0.1f;
+        break;
+    }
+
+    // [JN] Do a float correction to always get x.x00000 values:
+    sprintf (buf, "%f", mouse_acceleration);
+    mouse_acceleration = (float) atof(buf);
+}
+
+static void M_CRL_Controls_Threshold (int choice)
+{
+    switch (choice)
+    {   // 0 ... 32
+        case 0:
+        if (mouse_threshold)
+            mouse_threshold--;
+        break;
+        case 1:
+        if (mouse_threshold < 32)
+            mouse_threshold++;
+        break;
+    }
+}
+
+static void M_CRL_Controls_NoVert (int choice)
+{
+    novert ^= 1;
+}
+
+static void M_CRL_Controls_DblClck (int choice)
+{
+    dclick_use ^= 1;
+}
+
+// -----------------------------------------------------------------------------
 // Keybinds 1
 // -----------------------------------------------------------------------------
 
@@ -1433,7 +1564,7 @@ static menuitem_t CRLMenu_Keybinds_1[]=
 static menu_t CRLDef_Keybinds_1 =
 {
     m_crl_end,
-    &CRLDef_Main,
+    &CRLDef_Controls,
     CRLMenu_Keybinds_1,
     M_DrawCRL_Keybinds_1,
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
@@ -1443,8 +1574,7 @@ static menu_t CRLDef_Keybinds_1 =
 
 static void M_ChooseCRL_Keybinds_1 (int choice)
 {
-    currentMenu->lastOn = itemOn;
-    M_SetupNextMenu (choice ? &CRLDef_Keybinds_1 : &CRLDef_Keybinds_3);
+    M_SetupNextMenu (&CRLDef_Keybinds_1);
 }
 
 static void M_Bind_MoveForward (int choice)
@@ -1547,19 +1677,13 @@ static menuitem_t CRLMenu_Keybinds_2[]=
 static menu_t CRLDef_Keybinds_2 =
 {
     m_crl_end,
-    &CRLDef_Main,
+    &CRLDef_Controls,
     CRLMenu_Keybinds_2,
     M_DrawCRL_Keybinds_2,
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     0,
     true
 };
-
-static void M_ChooseCRL_Keybinds_2 (int choice)
-{
-    currentMenu->lastOn = itemOn;
-    M_SetupNextMenu (choice ? &CRLDef_Keybinds_2 : &CRLDef_Keybinds_4);
-}
 
 static void M_Bind_CRLmenu (int choice)
 {
@@ -1655,19 +1779,13 @@ static menuitem_t CRLMenu_Keybinds_3[]=
 static menu_t CRLDef_Keybinds_3 =
 {
     m_crl_end,
-    &CRLDef_Main,
+    &CRLDef_Controls,
     CRLMenu_Keybinds_3,
     M_DrawCRL_Keybinds_3,
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     0,
     true
 };
-
-static void M_ChooseCRL_Keybinds_3 (int choice)
-{
-    currentMenu->lastOn = itemOn;
-    M_SetupNextMenu (choice ? &CRLDef_Keybinds_3 : &CRLDef_Keybinds_1);
-}
 
 static void M_Bind_AlwaysRun (int choice)
 {
@@ -1766,19 +1884,13 @@ static menuitem_t CRLMenu_Keybinds_4[]=
 static menu_t CRLDef_Keybinds_4 =
 {
     m_crl_end,
-    &CRLDef_Main,
+    &CRLDef_Controls,
     CRLMenu_Keybinds_4,
     M_DrawCRL_Keybinds_4,
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     0,
     true
 };
-
-static void M_ChooseCRL_Keybinds_4 (int choice)
-{
-    currentMenu->lastOn = itemOn;
-    M_SetupNextMenu (choice ? &CRLDef_Keybinds_4 : &CRLDef_Keybinds_2);
-}
 
 static void M_Bind_Weapon1 (int choice)
 {
@@ -1877,19 +1989,13 @@ static menuitem_t CRLMenu_Keybinds_5[]=
 static menu_t CRLDef_Keybinds_5 =
 {
     m_crl_end,
-    &CRLDef_Main,
+    &CRLDef_Controls,
     CRLMenu_Keybinds_5,
     M_DrawCRL_Keybinds_5,
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     0,
     true
 };
-
-static void M_ChooseCRL_Keybinds_5 (int choice)
-{
-    currentMenu->lastOn = itemOn;
-    M_SetupNextMenu (choice ? &CRLDef_Keybinds_5 : &CRLDef_Keybinds_3);
-}
 
 static void M_Bind_ToggleMap (int choice)
 {
@@ -1988,19 +2094,13 @@ static menuitem_t CRLMenu_Keybinds_6[]=
 static menu_t CRLDef_Keybinds_6 =
 {
     m_crl_end,
-    &CRLDef_Main,
+    &CRLDef_Controls,
     CRLMenu_Keybinds_6,
     M_DrawCRL_Keybinds_6,
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     0,
     true
 };
-
-static void M_ChooseCRL_Keybinds_6 (int choice)
-{
-    currentMenu->lastOn = itemOn;
-    M_SetupNextMenu (choice ? &CRLDef_Keybinds_6 : &CRLDef_Keybinds_5);
-}
 
 static void M_Bind_HelpScreen (int choice)
 {
@@ -2091,8 +2191,6 @@ static void M_DrawCRL_Keybinds_6 (void)
 static menuitem_t CRLMenu_Keybinds_7[]=
 {
     { 1, "PAUSE GAME",             M_Bind_Pause,           'p'  },
-    { 1, "INCREASE SCREEN SIZE",   M_Bind_IncreaseScreen,  'i'  },
-    { 1, "DECREASE SCREEN SIZE",   M_Bind_DecreaseScreen,  'd'  },
     { 1, "SAVE A SCREENSHOT",      M_Bind_SaveScreenshot,  's'  },
     { 1, "DISPLAY LAST MESSAGE",   M_Bind_LastMessage,     'd'  },
     { 1, "FINISH DEMO RECORDING",  M_Bind_FinishDemo,      'f'  },
@@ -2105,13 +2203,15 @@ static menuitem_t CRLMenu_Keybinds_7[]=
     {-1, "",                       0,                      '\0' },
     {-1, "",                       0,                      '\0' },
     {-1, "",                       0,                      '\0' },
+    {-1, "",                       0,                      '\0' },
+    {-1, "",                       0,                      '\0' },
     {-1, "",                       0,                      '\0' }
 };
 
 static menu_t CRLDef_Keybinds_7 =
 {
     m_crl_end,
-    &CRLDef_Main,
+    &CRLDef_Controls,
     CRLMenu_Keybinds_7,
     M_DrawCRL_Keybinds_7,
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
@@ -2119,65 +2219,49 @@ static menu_t CRLDef_Keybinds_7 =
     true
 };
 
-static void M_ChooseCRL_Keybinds_7 (int choice)
-{
-    currentMenu->lastOn = itemOn;
-    M_SetupNextMenu (choice ? &CRLDef_Keybinds_7 : &CRLDef_Keybinds_6);
-}
-
 static void M_Bind_Pause (int choice)
 {
     M_StartBind(700);  // key_pause
 }
 
-static void M_Bind_IncreaseScreen (int choice)
-{
-    M_StartBind(701);  // key_menu_incscreen
-}
-
-static void M_Bind_DecreaseScreen (int choice)
-{
-    M_StartBind(702);  // key_menu_decscreen
-}
-
 static void M_Bind_SaveScreenshot (int choice)
 {
-    M_StartBind(703);  // key_menu_screenshot
+    M_StartBind(701);  // key_menu_screenshot
 }
 
 static void M_Bind_LastMessage (int choice)
 {
-    M_StartBind(704);  // key_message_refresh
+    M_StartBind(702);  // key_message_refresh
 }
 
 static void M_Bind_FinishDemo (int choice)
 {
-    M_StartBind(705);  // key_demo_quit
+    M_StartBind(703);  // key_demo_quit
 }
 
 static void M_Bind_SendMessage (int choice)
 {
-    M_StartBind(706);  // key_multi_msg
+    M_StartBind(704);  // key_multi_msg
 }
 
 static void M_Bind_ToPlayer1 (int choice)
 {
-    M_StartBind(707);  // key_multi_msgplayer1
+    M_StartBind(705);  // key_multi_msgplayer1
 }
 
 static void M_Bind_ToPlayer2 (int choice)
 {
-    M_StartBind(708);  // key_multi_msgplayer2
+    M_StartBind(706);  // key_multi_msgplayer2
 }
 
 static void M_Bind_ToPlayer3 (int choice)
 {
-    M_StartBind(709);  // key_multi_msgplayer3
+    M_StartBind(707);  // key_multi_msgplayer3
 }
 
 static void M_Bind_ToPlayer4 (int choice)
 {
-    M_StartBind(710);  // key_multi_msgplayer4
+    M_StartBind(708);  // key_multi_msgplayer4
 }
 
 static void M_DrawCRL_Keybinds_7 (void)
@@ -2187,160 +2271,21 @@ static void M_DrawCRL_Keybinds_7 (void)
     M_WriteTextCentered(27, "SHORTCUT KEYS", cr[CR_YELLOW]);
 
     M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(0, key_pause)), 36, M_KeyDrawer(0, key_pause), M_ColorizeBind(0, key_pause));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(1, key_menu_incscreen)), 45, M_KeyDrawer(1, key_menu_incscreen), M_ColorizeBind(1, key_menu_incscreen));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(2, key_menu_decscreen)), 54, M_KeyDrawer(2, key_menu_decscreen), M_ColorizeBind(2, key_menu_decscreen));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(3, key_menu_screenshot)), 63, M_KeyDrawer(3, key_menu_screenshot), M_ColorizeBind(3, key_menu_screenshot));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(4, key_message_refresh)), 72, M_KeyDrawer(4, key_message_refresh), M_ColorizeBind(4, key_message_refresh));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(5, key_demo_quit)), 81, M_KeyDrawer(5, key_demo_quit), M_ColorizeBind(5, key_demo_quit));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(1, key_menu_screenshot)), 45, M_KeyDrawer(1, key_menu_screenshot), M_ColorizeBind(1, key_menu_screenshot));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(2, key_message_refresh)), 54, M_KeyDrawer(2, key_message_refresh), M_ColorizeBind(2, key_message_refresh));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(3, key_demo_quit)), 63, M_KeyDrawer(3, key_demo_quit), M_ColorizeBind(3, key_demo_quit));
 
-    M_WriteTextCentered(90, "MULTIPLAYER", cr[CR_YELLOW]);
+    M_WriteTextCentered(72, "MULTIPLAYER", cr[CR_YELLOW]);
 
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(7, key_multi_msg)), 99, M_KeyDrawer(7, key_multi_msg), M_ColorizeBind(7, key_multi_msg));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(8, key_multi_msgplayer[0])), 108, M_KeyDrawer(8, key_multi_msgplayer[0]), M_ColorizeBind(8, key_multi_msgplayer[0]));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(9, key_multi_msgplayer[1])), 117, M_KeyDrawer(9, key_multi_msgplayer[1]), M_ColorizeBind(9, key_multi_msgplayer[1]));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(10, key_multi_msgplayer[2])), 126, M_KeyDrawer(10, key_multi_msgplayer[2]), M_ColorizeBind(10, key_multi_msgplayer[2]));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(11, key_multi_msgplayer[3])), 135, M_KeyDrawer(11, key_multi_msgplayer[3]), M_ColorizeBind(11, key_multi_msgplayer[3]));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(5, key_multi_msg)), 81, M_KeyDrawer(5, key_multi_msg), M_ColorizeBind(5, key_multi_msg));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(6, key_multi_msgplayer[0])), 90, M_KeyDrawer(6, key_multi_msgplayer[0]), M_ColorizeBind(6, key_multi_msgplayer[0]));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(7, key_multi_msgplayer[1])), 99, M_KeyDrawer(7, key_multi_msgplayer[1]), M_ColorizeBind(7, key_multi_msgplayer[1]));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(8, key_multi_msgplayer[2])), 108, M_KeyDrawer(8, key_multi_msgplayer[2]), M_ColorizeBind(8, key_multi_msgplayer[2]));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(9, key_multi_msgplayer[3])), 117, M_KeyDrawer(9, key_multi_msgplayer[3]), M_ColorizeBind(9, key_multi_msgplayer[3]));
 
     M_FooterDrawer("7");
 }
 
-// -----------------------------------------------------------------------------
-// Control settings
-// -----------------------------------------------------------------------------
-
-static menuitem_t CRLMenu_Controls[]=
-{
-    { 2, "SENSIVITY",                    M_CRL_Controls_Sensivity,    's'},
-    {-1, "", 0, '\0'},
-    {-1, "", 0, '\0'},
-    { 2, "ACCELERATION",                 M_CRL_Controls_Acceleration, 'a'},
-    {-1, "", 0, '\0'},
-    {-1, "", 0, '\0'},
-    { 2, "ACCELERATION THRESHOLD",       M_CRL_Controls_Threshold,    'a'},
-    {-1, "", 0, '\0'},
-    {-1, "", 0, '\0'},
-    {-1, "", 0, '\0'},
-    { 2, "VERTICAL MOUSE MOVEMENT",      M_CRL_Controls_NoVert,       'v'},
-    { 2, "DOUBLE CLICK ACTS AS \"USE\"", M_CRL_Controls_DblClck,      'd'},
-    {-1, "", 0, '\0'},
-    {-1, "", 0, '\0'},
-    {-1, "", 0, '\0'},
-    {-1, "", 0, '\0'}
-};
-
-static menu_t CRLDef_Controls =
-{
-    m_crl_end,
-    &CRLDef_Main,
-    CRLMenu_Controls,
-    M_DrawCRL_Controls,
-    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
-    0,
-    true
-};
-
-static void M_ChooseCRL_Controls (int choice)
-{
-    M_SetupNextMenu (&CRLDef_Controls);
-}
-
-static void M_DrawCRL_Controls (void)
-{
-    static char str[32];
-
-    M_ShadeBackground();
-    M_WriteTextCentered(27, "MOUSE CONFIGURATION", cr[CR_YELLOW]);
-
-    M_DrawThermo(46, 45, 10, mouseSensitivity);
-    sprintf(str,"%d", mouseSensitivity);
-    M_WriteText (144, 48, str, itemOn == 0 && mouseSensitivity > 9 ? cr[CR_BRIGHTGREEN] :
-                               itemOn == 0 ? cr[CR_MENU_BRIGHT5] :
-                               mouseSensitivity < 1 ? cr[CR_DARKRED] :
-                               mouseSensitivity > 9 ? cr[CR_GREEN] : NULL);
-
-    M_DrawThermo(46, 72, 12, (mouse_acceleration * 3) - 3);
-    sprintf(str,"%.1f", mouse_acceleration);
-    M_WriteText (160, 75, str, itemOn == 3 ? cr[CR_MENU_BRIGHT5] : NULL);
-
-    M_DrawThermo(46, 99, 15, mouse_threshold / 2);
-    sprintf(str,"%d", mouse_threshold);
-    M_WriteText (184, 102, str, itemOn == 6 ? cr[CR_MENU_BRIGHT5] :
-                                mouse_threshold == 0 ? cr[CR_DARKRED] : NULL);
-
-    M_WriteTextCentered(117, "OTHER FUNCTIONS", cr[CR_YELLOW]);
-
-    // Vertical mouse movement
-    sprintf(str, !novert ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 126, str,
-                 !novert ? cr[CR_GREEN] : cr[CR_DARKRED]);
-
-    // Double click acts as "use"
-    sprintf(str, dclick_use ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 135, str,
-                 dclick_use ? cr[CR_GREEN] : cr[CR_DARKRED]);
-}
-
-static void M_CRL_Controls_Sensivity (int choice)
-{
-    switch (choice)
-    {
-        case 0:
-        if (mouseSensitivity)
-            mouseSensitivity--;
-        break;
-        case 1:
-        if (mouseSensitivity < 255) // [crispy] extended range
-            mouseSensitivity++;
-        break;
-    }
-}
-
-static void M_CRL_Controls_Acceleration (int choice)
-{
-    char buf[9];
-
-    switch (choice)
-    {   // 1.0 ... 5.0
-        case 0:
-        if (mouse_acceleration > 1.0f)
-            mouse_acceleration -= 0.1f;
-        break;
-
-        case 1:
-        if (mouse_acceleration < 5.0f)
-            mouse_acceleration += 0.1f;
-        break;
-    }
-
-    // [JN] Do a float correction to always get x.x00000 values:
-    sprintf (buf, "%f", mouse_acceleration);
-    mouse_acceleration = (float) atof(buf);
-}
-
-static void M_CRL_Controls_Threshold (int choice)
-{
-    switch (choice)
-    {   // 0 ... 32
-        case 0:
-        if (mouse_threshold)
-            mouse_threshold--;
-        break;
-        case 1:
-        if (mouse_threshold < 32)
-            mouse_threshold++;
-        break;
-    }
-}
-
-static void M_CRL_Controls_NoVert (int choice)
-{
-    novert ^= 1;
-}
-
-static void M_CRL_Controls_DblClck (int choice)
-{
-    dclick_use ^= 1;
-}
 
 // -----------------------------------------------------------------------------
 // Widgets and Automap
@@ -5147,8 +5092,6 @@ static void M_CheckBind (int key)
     if (key_spy == key)              key_spy              = 0;
     // Page 7
     if (key_pause == key)            key_pause            = 0;
-    if (key_menu_incscreen == key)   key_menu_incscreen   = 0;
-    if (key_menu_decscreen == key)   key_menu_decscreen   = 0;
     if (key_menu_screenshot == key)  key_menu_screenshot  = 0;
     if (key_message_refresh == key)  key_message_refresh  = 0;
     if (key_demo_quit == key)        key_demo_quit        = 0;
@@ -5231,16 +5174,14 @@ static void M_DoBind (int keynum, int key)
         case 611:  key_spy = key;               break;
         // Page 7
         case 700:  key_pause = key;             break;
-        case 701:  key_menu_incscreen = key;    break;
-        case 702:  key_menu_decscreen = key;    break;
-        case 703:  key_menu_screenshot = key;   break;
-        case 704:  key_message_refresh = key;   break;
-        case 705:  key_demo_quit = key;         break;
-        case 706:  key_multi_msg = key;         break;
-        case 707:  key_multi_msgplayer[0] = key;  break;
-        case 708:  key_multi_msgplayer[1] = key;  break;
-        case 709:  key_multi_msgplayer[2] = key;  break;
-        case 710:  key_multi_msgplayer[3] = key;  break;
+        case 701:  key_menu_screenshot = key;   break;
+        case 702:  key_message_refresh = key;   break;
+        case 703:  key_demo_quit = key;         break;
+        case 704:  key_multi_msg = key;         break;
+        case 705:  key_multi_msgplayer[0] = key;  break;
+        case 706:  key_multi_msgplayer[1] = key;  break;
+        case 707:  key_multi_msgplayer[2] = key;  break;
+        case 708:  key_multi_msgplayer[3] = key;  break;
     }
 }
 
@@ -5351,17 +5292,15 @@ static void M_ClearBind (int itemOn)
         switch (itemOn)
         {
             case 0:   key_pause = 0;            break;
-            case 1:   key_menu_incscreen = 0;   break;
-            case 2:   key_menu_decscreen = 0;   break;
-            case 3:   key_menu_screenshot = 0;  break;
-            case 4:   key_message_refresh = 0;  break;
-            case 5:   key_demo_quit = 0;        break;
+            case 1:   key_menu_screenshot = 0;  break;
+            case 2:   key_message_refresh = 0;  break;
+            case 3:   key_demo_quit = 0;        break;
             // Multiplayer title
-            case 7:   key_multi_msg = 0;        break;
-            case 8:   key_multi_msgplayer[0] = 0;  break;
-            case 9:   key_multi_msgplayer[1] = 0;  break;
-            case 10:  key_multi_msgplayer[2] = 0;  break;
-            case 11:  key_multi_msgplayer[3] = 0;  break;
+            case 5:   key_multi_msg = 0;        break;
+            case 6:   key_multi_msgplayer[0] = 0;  break;
+            case 7:   key_multi_msgplayer[1] = 0;  break;
+            case 8:   key_multi_msgplayer[2] = 0;  break;
+            case 9:   key_multi_msgplayer[3] = 0;  break;
         }
     }
 }
@@ -5390,74 +5329,74 @@ static boolean M_ScrollKeyBindPages (boolean direction)
     {
         if (currentMenu == &CRLDef_Keybinds_7)
         {
-            M_ChooseCRL_Keybinds_1(1);
+            M_SetupNextMenu(&CRLDef_Keybinds_1);
         }
         else
         if (currentMenu == &CRLDef_Keybinds_6)
         {
-            M_ChooseCRL_Keybinds_7(1);
+            M_SetupNextMenu(&CRLDef_Keybinds_7);
         }
         else
         if (currentMenu == &CRLDef_Keybinds_5)
         {
-            M_ChooseCRL_Keybinds_6(1);
+            M_SetupNextMenu(&CRLDef_Keybinds_6);
         }
         else
         if (currentMenu == &CRLDef_Keybinds_4)
         {
-            M_ChooseCRL_Keybinds_5(1);
+            M_SetupNextMenu(&CRLDef_Keybinds_5);
         }
         else
         if (currentMenu == &CRLDef_Keybinds_3)
         {
-            M_ChooseCRL_Keybinds_4(1);
+            M_SetupNextMenu(&CRLDef_Keybinds_4);
         }
         else
         if (currentMenu == &CRLDef_Keybinds_2)
         {
-            M_ChooseCRL_Keybinds_3(1);
+            M_SetupNextMenu(&CRLDef_Keybinds_3);
         }
         else
         if (currentMenu == &CRLDef_Keybinds_1)
         {
-            M_ChooseCRL_Keybinds_2(1);
+            M_SetupNextMenu(&CRLDef_Keybinds_2);
         }
     }
     else
     {
         if (currentMenu == &CRLDef_Keybinds_1)
         {
-            M_ChooseCRL_Keybinds_7(1);
+            M_SetupNextMenu(&CRLDef_Keybinds_7);
         }
         else
         if (currentMenu == &CRLDef_Keybinds_2)
         {
-            M_ChooseCRL_Keybinds_1(1);
+            M_SetupNextMenu(&CRLDef_Keybinds_1);
         }
         else
         if (currentMenu == &CRLDef_Keybinds_3)
         {
-            M_ChooseCRL_Keybinds_2(1);
+            M_SetupNextMenu(&CRLDef_Keybinds_2);
         }
         else
         if (currentMenu == &CRLDef_Keybinds_4)
         {
-            M_ChooseCRL_Keybinds_3(1);
+            M_SetupNextMenu(&CRLDef_Keybinds_3);
         }
         else
         if (currentMenu == &CRLDef_Keybinds_5)
         {
-            M_ChooseCRL_Keybinds_4(1);
+            M_SetupNextMenu(&CRLDef_Keybinds_4);
         }
         else
         if (currentMenu == &CRLDef_Keybinds_6)
         {
-            M_ChooseCRL_Keybinds_5(1);
+            M_SetupNextMenu(&CRLDef_Keybinds_5);
         }
         else
         if (currentMenu == &CRLDef_Keybinds_7)
         {
-            M_ChooseCRL_Keybinds_6(1);
+            M_SetupNextMenu(&CRLDef_Keybinds_6);
         }
 
     }
