@@ -654,7 +654,7 @@ static void    M_StartBind (int keynum);
 static void    M_CheckBind (int key);
 static void    M_DoBind (int keynum, int key);
 static void    M_ClearBind (int itemOn);
-static byte   *M_ColorizeBind (boolean isbinding, int key);
+static byte   *M_ColorizeBind (int itemSetOn, int key);
 static boolean M_ScrollKeyBindPages (boolean direction);
 
 static void M_ChooseCRL_Controls (int choice);
@@ -1503,19 +1503,19 @@ static void M_DrawCRL_Keybinds_1 (void)
 
     M_WriteTextCentered(27, "MOVEMENT", cr[CR_YELLOW]);
 
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(0, key_up)), 36, M_KeyDrawer(0, key_up), M_ColorizeBind(itemOn == 0 ? true : false, key_up));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(1, key_down)), 45, M_KeyDrawer(1, key_down), M_ColorizeBind(itemOn == 1 ? true : false, key_down));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(2, key_left)), 54, M_KeyDrawer(2, key_left), M_ColorizeBind(itemOn == 2 ? true : false, key_left));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(3, key_right)), 63, M_KeyDrawer(3, key_right), M_ColorizeBind(itemOn == 3 ? true : false, key_right));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(4, key_strafeleft)), 72, M_KeyDrawer(4, key_strafeleft), M_ColorizeBind(itemOn == 4 ? true : false, key_strafeleft));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(5, key_straferight)), 81, M_KeyDrawer(5, key_straferight), M_ColorizeBind(itemOn == 5 ? true : false, key_straferight));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(6, key_speed)), 90, M_KeyDrawer(6, key_speed), M_ColorizeBind(itemOn == 6 ? true : false, key_speed));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(7, key_strafe)), 99, M_KeyDrawer(7, key_strafe), M_ColorizeBind(itemOn == 7 ? true : false, key_strafe));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(0, key_up)), 36, M_KeyDrawer(0, key_up), M_ColorizeBind(0, key_up));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(1, key_down)), 45, M_KeyDrawer(1, key_down), M_ColorizeBind(1, key_down));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(2, key_left)), 54, M_KeyDrawer(2, key_left), M_ColorizeBind(2, key_left));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(3, key_right)), 63, M_KeyDrawer(3, key_right), M_ColorizeBind(3, key_right));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(4, key_strafeleft)), 72, M_KeyDrawer(4, key_strafeleft), M_ColorizeBind(4, key_strafeleft));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(5, key_straferight)), 81, M_KeyDrawer(5, key_straferight), M_ColorizeBind(5, key_straferight));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(6, key_speed)), 90, M_KeyDrawer(6, key_speed), M_ColorizeBind(6, key_speed));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(7, key_strafe)), 99, M_KeyDrawer(7, key_strafe), M_ColorizeBind(7, key_strafe));
 
     M_WriteTextCentered(108, "ACTION", cr[CR_YELLOW]);
 
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(9, key_fire)), 117, M_KeyDrawer(9, key_fire), M_ColorizeBind(itemOn == 9 ? true : false, key_fire));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(10, key_use)), 126, M_KeyDrawer(10, key_use), M_ColorizeBind(itemOn == 10 ? true : false, key_use));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(9, key_fire)), 117, M_KeyDrawer(9, key_fire), M_ColorizeBind(9, key_fire));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(10, key_use)), 126, M_KeyDrawer(10, key_use), M_ColorizeBind(10, key_use));
 
     M_FooterDrawer("1");
 }
@@ -1612,18 +1612,18 @@ static void M_DrawCRL_Keybinds_2 (void)
 
     M_WriteTextCentered(27, "CRL CONTROLS", cr[CR_YELLOW]);
 
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(0, key_crl_menu)), 36, M_KeyDrawer(0, key_crl_menu), M_ColorizeBind(itemOn == 0 ? true : false, key_crl_menu));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(1, key_crl_reloadlevel)), 45, M_KeyDrawer(1, key_crl_reloadlevel), M_ColorizeBind(itemOn == 1 ? true : false, key_crl_reloadlevel));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(2, key_crl_nextlevel)), 54, M_KeyDrawer(2, key_crl_nextlevel), M_ColorizeBind(itemOn == 2 ? true : false, key_crl_nextlevel));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(3, key_crl_demospeed)), 63, M_KeyDrawer(3, key_crl_demospeed), M_ColorizeBind(itemOn == 3 ? true : false, key_crl_demospeed));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(0, key_crl_menu)), 36, M_KeyDrawer(0, key_crl_menu), M_ColorizeBind(0, key_crl_menu));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(1, key_crl_reloadlevel)), 45, M_KeyDrawer(1, key_crl_reloadlevel), M_ColorizeBind(1, key_crl_reloadlevel));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(2, key_crl_nextlevel)), 54, M_KeyDrawer(2, key_crl_nextlevel), M_ColorizeBind(2, key_crl_nextlevel));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(3, key_crl_demospeed)), 63, M_KeyDrawer(3, key_crl_demospeed), M_ColorizeBind(3, key_crl_demospeed));
 
     M_WriteTextCentered(72, "GAME MODES", cr[CR_YELLOW]);
 
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(5, key_crl_spectator)), 81, M_KeyDrawer(5, key_crl_spectator), M_ColorizeBind(itemOn == 5 ? true : false, key_crl_spectator));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(6, key_crl_cameraup)), 90, M_KeyDrawer(6, key_crl_cameraup), M_ColorizeBind(itemOn == 6 ? true : false, key_crl_cameraup));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(7, key_crl_cameradown)), 99, M_KeyDrawer(7, key_crl_cameradown), M_ColorizeBind(itemOn == 7 ? true : false, key_crl_cameradown));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(8, key_crl_freeze)), 108, M_KeyDrawer(8, key_crl_freeze), M_ColorizeBind(itemOn == 8 ? true : false, key_crl_freeze));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(9, key_crl_notarget)), 117, M_KeyDrawer(9, key_crl_notarget), M_ColorizeBind(itemOn == 9 ? true : false, key_crl_notarget));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(5, key_crl_spectator)), 81, M_KeyDrawer(5, key_crl_spectator), M_ColorizeBind(5, key_crl_spectator));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(6, key_crl_cameraup)), 90, M_KeyDrawer(6, key_crl_cameraup), M_ColorizeBind(6, key_crl_cameraup));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(7, key_crl_cameradown)), 99, M_KeyDrawer(7, key_crl_cameradown), M_ColorizeBind(7, key_crl_cameradown));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(8, key_crl_freeze)), 108, M_KeyDrawer(8, key_crl_freeze), M_ColorizeBind(8, key_crl_freeze));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(9, key_crl_notarget)), 117, M_KeyDrawer(9, key_crl_notarget), M_ColorizeBind(9, key_crl_notarget));
 
     M_FooterDrawer("2");
 }
@@ -1720,21 +1720,21 @@ static void M_DrawCRL_Keybinds_3 (void)
 
     M_WriteTextCentered(27, "MOVEMENT", cr[CR_YELLOW]);
 
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(0, key_crl_autorun)), 36, M_KeyDrawer(0, key_crl_autorun), M_ColorizeBind(itemOn == 0 ? true : false, key_crl_autorun));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(1, key_crl_vilebomb)), 45, M_KeyDrawer(1, key_crl_vilebomb), M_ColorizeBind(itemOn == 1 ? true : false, key_crl_vilebomb));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(0, key_crl_autorun)), 36, M_KeyDrawer(0, key_crl_autorun), M_ColorizeBind(0, key_crl_autorun));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(1, key_crl_vilebomb)), 45, M_KeyDrawer(1, key_crl_vilebomb), M_ColorizeBind(1, key_crl_vilebomb));
 
     M_WriteTextCentered(54, "VISPLANES MAX VALUE", cr[CR_YELLOW]);
 
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(3, key_crl_clearmax)), 63, M_KeyDrawer(3, key_crl_clearmax), M_ColorizeBind(itemOn == 3 ? true : false, key_crl_clearmax));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(4, key_crl_movetomax)), 72, M_KeyDrawer(4, key_crl_movetomax), M_ColorizeBind(itemOn == 4 ? true : false, key_crl_movetomax));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(3, key_crl_clearmax)), 63, M_KeyDrawer(3, key_crl_clearmax), M_ColorizeBind(3, key_crl_clearmax));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(4, key_crl_movetomax)), 72, M_KeyDrawer(4, key_crl_movetomax), M_ColorizeBind(4, key_crl_movetomax));
 
     M_WriteTextCentered(81, "CHEAT SHORTCUTS", cr[CR_YELLOW]);
 
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(6, key_crl_iddqd)), 90, M_KeyDrawer(6, key_crl_iddqd), M_ColorizeBind(itemOn == 6 ? true : false, key_crl_iddqd));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(7, key_crl_idkfa)), 99, M_KeyDrawer(7, key_crl_idkfa), M_ColorizeBind(itemOn == 7 ? true : false, key_crl_idkfa));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(8, key_crl_idfa)), 108, M_KeyDrawer(8, key_crl_idfa), M_ColorizeBind(itemOn == 8 ? true : false, key_crl_idfa));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(9, key_crl_idclip)), 117, M_KeyDrawer(9, key_crl_idclip), M_ColorizeBind(itemOn == 9 ? true : false, key_crl_idclip));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(10, key_crl_iddt)), 126, M_KeyDrawer(10, key_crl_iddt), M_ColorizeBind(itemOn == 10 ? true : false, key_crl_iddt));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(6, key_crl_iddqd)), 90, M_KeyDrawer(6, key_crl_iddqd), M_ColorizeBind(6, key_crl_iddqd));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(7, key_crl_idkfa)), 99, M_KeyDrawer(7, key_crl_idkfa), M_ColorizeBind(7, key_crl_idkfa));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(8, key_crl_idfa)), 108, M_KeyDrawer(8, key_crl_idfa), M_ColorizeBind(8, key_crl_idfa));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(9, key_crl_idclip)), 117, M_KeyDrawer(9, key_crl_idclip), M_ColorizeBind(9, key_crl_idclip));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(10, key_crl_iddt)), 126, M_KeyDrawer(10, key_crl_iddt), M_ColorizeBind(10, key_crl_iddt));
 
     M_FooterDrawer("3");
 }
@@ -1836,16 +1836,16 @@ static void M_DrawCRL_Keybinds_4 (void)
 
     M_WriteTextCentered(27, "WEAPONS", cr[CR_YELLOW]);
 
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(0, key_weapon1)), 36, M_KeyDrawer(0, key_weapon1), M_ColorizeBind(itemOn == 0 ? true : false, key_weapon1));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(1, key_weapon2)), 45, M_KeyDrawer(1, key_weapon2), M_ColorizeBind(itemOn == 1 ? true : false, key_weapon2));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(2, key_weapon3)), 54, M_KeyDrawer(2, key_weapon3), M_ColorizeBind(itemOn == 2 ? true : false, key_weapon3));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(3, key_weapon4)), 63, M_KeyDrawer(3, key_weapon4), M_ColorizeBind(itemOn == 3 ? true : false, key_weapon4));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(4, key_weapon5)), 72, M_KeyDrawer(4, key_weapon5), M_ColorizeBind(itemOn == 4 ? true : false, key_weapon5));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(5, key_weapon6)), 81, M_KeyDrawer(5, key_weapon6), M_ColorizeBind(itemOn == 5 ? true : false, key_weapon6));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(6, key_weapon7)), 90, M_KeyDrawer(6, key_weapon7), M_ColorizeBind(itemOn == 6 ? true : false, key_weapon7));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(7, key_weapon8)), 99, M_KeyDrawer(7, key_weapon8), M_ColorizeBind(itemOn == 7 ? true : false, key_weapon8));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(8, key_prevweapon)), 108, M_KeyDrawer(8, key_prevweapon), M_ColorizeBind(itemOn == 8 ? true : false, key_prevweapon));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(9, key_nextweapon)), 117, M_KeyDrawer(9, key_nextweapon), M_ColorizeBind(itemOn == 9 ? true : false, key_nextweapon));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(0, key_weapon1)), 36, M_KeyDrawer(0, key_weapon1), M_ColorizeBind(0, key_weapon1));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(1, key_weapon2)), 45, M_KeyDrawer(1, key_weapon2), M_ColorizeBind(1, key_weapon2));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(2, key_weapon3)), 54, M_KeyDrawer(2, key_weapon3), M_ColorizeBind(2, key_weapon3));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(3, key_weapon4)), 63, M_KeyDrawer(3, key_weapon4), M_ColorizeBind(3, key_weapon4));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(4, key_weapon5)), 72, M_KeyDrawer(4, key_weapon5), M_ColorizeBind(4, key_weapon5));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(5, key_weapon6)), 81, M_KeyDrawer(5, key_weapon6), M_ColorizeBind(5, key_weapon6));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(6, key_weapon7)), 90, M_KeyDrawer(6, key_weapon7), M_ColorizeBind(6, key_weapon7));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(7, key_weapon8)), 99, M_KeyDrawer(7, key_weapon8), M_ColorizeBind(7, key_weapon8));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(8, key_prevweapon)), 108, M_KeyDrawer(8, key_prevweapon), M_ColorizeBind(8, key_prevweapon));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(9, key_nextweapon)), 117, M_KeyDrawer(9, key_nextweapon), M_ColorizeBind(9, key_nextweapon));
 
     M_FooterDrawer("4");
 }
@@ -1947,16 +1947,16 @@ static void M_DrawCRL_Keybinds_5 (void)
 
     M_WriteTextCentered(27, "AUTOMAP", cr[CR_YELLOW]);
 
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(0, key_map_toggle)), 36, M_KeyDrawer(0, key_map_toggle), M_ColorizeBind(itemOn == 0 ? true : false, key_map_toggle));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(1, key_map_zoomin)), 45, M_KeyDrawer(1, key_map_zoomin), M_ColorizeBind(itemOn == 1 ? true : false, key_map_zoomin));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(2, key_map_zoomout)), 54, M_KeyDrawer(2, key_map_zoomout), M_ColorizeBind(itemOn == 2 ? true : false, key_map_zoomout));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(3, key_map_maxzoom)), 63, M_KeyDrawer(3, key_map_maxzoom), M_ColorizeBind(itemOn == 3 ? true : false, key_map_maxzoom));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(4, key_map_follow)), 72, M_KeyDrawer(4, key_map_follow), M_ColorizeBind(itemOn == 4 ? true : false, key_map_follow));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(5, key_crl_map_rotate)), 81, M_KeyDrawer(5, key_crl_map_rotate), M_ColorizeBind(itemOn == 5 ? true : false, key_crl_map_rotate));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(6, key_crl_map_overlay)), 90, M_KeyDrawer(6, key_crl_map_overlay), M_ColorizeBind(itemOn == 6 ? true : false, key_crl_map_overlay));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(7, key_map_grid)), 99, M_KeyDrawer(7, key_map_grid), M_ColorizeBind(itemOn == 7 ? true : false, key_map_grid));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(8, key_map_mark)), 108, M_KeyDrawer(8, key_map_mark), M_ColorizeBind(itemOn == 8 ? true : false, key_map_mark));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(9, key_map_clearmark)), 117, M_KeyDrawer(9, key_map_clearmark), M_ColorizeBind(itemOn == 9 ? true : false, key_map_clearmark));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(0, key_map_toggle)), 36, M_KeyDrawer(0, key_map_toggle), M_ColorizeBind(0, key_map_toggle));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(1, key_map_zoomin)), 45, M_KeyDrawer(1, key_map_zoomin), M_ColorizeBind(1, key_map_zoomin));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(2, key_map_zoomout)), 54, M_KeyDrawer(2, key_map_zoomout), M_ColorizeBind(2, key_map_zoomout));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(3, key_map_maxzoom)), 63, M_KeyDrawer(3, key_map_maxzoom), M_ColorizeBind(3, key_map_maxzoom));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(4, key_map_follow)), 72, M_KeyDrawer(4, key_map_follow), M_ColorizeBind(4, key_map_follow));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(5, key_crl_map_rotate)), 81, M_KeyDrawer(5, key_crl_map_rotate), M_ColorizeBind(5, key_crl_map_rotate));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(6, key_crl_map_overlay)), 90, M_KeyDrawer(6, key_crl_map_overlay), M_ColorizeBind(6, key_crl_map_overlay));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(7, key_map_grid)), 99, M_KeyDrawer(7, key_map_grid), M_ColorizeBind(7, key_map_grid));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(8, key_map_mark)), 108, M_KeyDrawer(8, key_map_mark), M_ColorizeBind(8, key_map_mark));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(9, key_map_clearmark)), 117, M_KeyDrawer(9, key_map_clearmark), M_ColorizeBind(9, key_map_clearmark));
 
     M_FooterDrawer("5");
 }
@@ -2068,18 +2068,18 @@ static void M_DrawCRL_Keybinds_6 (void)
 
     M_WriteTextCentered(27, "FUNCTION KEYS", cr[CR_YELLOW]);
 
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(0, key_menu_help)), 36, M_KeyDrawer(0, key_menu_help), M_ColorizeBind(itemOn == 0 ? true : false, key_menu_help));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(1, key_menu_save)), 45, M_KeyDrawer(1, key_menu_save), M_ColorizeBind(itemOn == 1 ? true : false, key_menu_save));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(2, key_menu_load)), 54, M_KeyDrawer(2, key_menu_load), M_ColorizeBind(itemOn == 2 ? true : false, key_menu_load));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(3, key_menu_volume)), 63, M_KeyDrawer(3, key_menu_volume), M_ColorizeBind(itemOn == 3 ? true : false, key_menu_volume));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(4, key_menu_detail)), 72, M_KeyDrawer(4, key_menu_detail), M_ColorizeBind(itemOn == 4 ? true : false, key_menu_detail));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(5, key_menu_qsave)), 81, M_KeyDrawer(5, key_menu_qsave), M_ColorizeBind(itemOn == 5 ? true : false, key_menu_qsave));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(6, key_menu_endgame)), 90, M_KeyDrawer(6, key_menu_endgame), M_ColorizeBind(itemOn == 6 ? true : false, key_menu_endgame));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(7, key_menu_messages)), 99, M_KeyDrawer(7, key_menu_messages), M_ColorizeBind(itemOn == 7 ? true : false, key_menu_messages));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(8, key_menu_qload)), 108, M_KeyDrawer(8, key_menu_qload), M_ColorizeBind(itemOn == 8 ? true : false, key_menu_qload));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(9, key_menu_quit)), 117, M_KeyDrawer(9, key_menu_quit), M_ColorizeBind(itemOn == 9 ? true : false, key_menu_quit));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(10, key_menu_gamma)), 126, M_KeyDrawer(10, key_menu_gamma), M_ColorizeBind(itemOn == 10 ? true : false, key_menu_gamma));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(11, key_spy)), 135, M_KeyDrawer(11, key_spy), M_ColorizeBind(itemOn == 11 ? true : false, key_spy));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(0, key_menu_help)), 36, M_KeyDrawer(0, key_menu_help), M_ColorizeBind(0, key_menu_help));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(1, key_menu_save)), 45, M_KeyDrawer(1, key_menu_save), M_ColorizeBind(1, key_menu_save));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(2, key_menu_load)), 54, M_KeyDrawer(2, key_menu_load), M_ColorizeBind(2, key_menu_load));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(3, key_menu_volume)), 63, M_KeyDrawer(3, key_menu_volume), M_ColorizeBind(3, key_menu_volume));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(4, key_menu_detail)), 72, M_KeyDrawer(4, key_menu_detail), M_ColorizeBind(4, key_menu_detail));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(5, key_menu_qsave)), 81, M_KeyDrawer(5, key_menu_qsave), M_ColorizeBind(5, key_menu_qsave));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(6, key_menu_endgame)), 90, M_KeyDrawer(6, key_menu_endgame), M_ColorizeBind(6, key_menu_endgame));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(7, key_menu_messages)), 99, M_KeyDrawer(7, key_menu_messages), M_ColorizeBind(7, key_menu_messages));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(8, key_menu_qload)), 108, M_KeyDrawer(8, key_menu_qload), M_ColorizeBind(8, key_menu_qload));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(9, key_menu_quit)), 117, M_KeyDrawer(9, key_menu_quit), M_ColorizeBind(9, key_menu_quit));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(10, key_menu_gamma)), 126, M_KeyDrawer(10, key_menu_gamma), M_ColorizeBind(10, key_menu_gamma));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(11, key_spy)), 135, M_KeyDrawer(11, key_spy), M_ColorizeBind(11, key_spy));
 
     M_FooterDrawer("6");
 }
@@ -2186,20 +2186,20 @@ static void M_DrawCRL_Keybinds_7 (void)
 
     M_WriteTextCentered(27, "SHORTCUT KEYS", cr[CR_YELLOW]);
 
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(0, key_pause)), 36, M_KeyDrawer(0, key_pause), M_ColorizeBind(itemOn == 0 ? true : false, key_pause));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(1, key_menu_incscreen)), 45, M_KeyDrawer(1, key_menu_incscreen), M_ColorizeBind(itemOn == 1 ? true : false, key_menu_incscreen));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(2, key_menu_decscreen)), 54, M_KeyDrawer(2, key_menu_decscreen), M_ColorizeBind(itemOn == 2 ? true : false, key_menu_decscreen));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(3, key_menu_screenshot)), 63, M_KeyDrawer(3, key_menu_screenshot), M_ColorizeBind(itemOn == 3 ? true : false, key_menu_screenshot));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(4, key_message_refresh)), 72, M_KeyDrawer(4, key_message_refresh), M_ColorizeBind(itemOn == 4 ? true : false, key_message_refresh));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(5, key_demo_quit)), 81, M_KeyDrawer(5, key_demo_quit), M_ColorizeBind(itemOn == 5 ? true : false, key_demo_quit));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(0, key_pause)), 36, M_KeyDrawer(0, key_pause), M_ColorizeBind(0, key_pause));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(1, key_menu_incscreen)), 45, M_KeyDrawer(1, key_menu_incscreen), M_ColorizeBind(1, key_menu_incscreen));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(2, key_menu_decscreen)), 54, M_KeyDrawer(2, key_menu_decscreen), M_ColorizeBind(2, key_menu_decscreen));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(3, key_menu_screenshot)), 63, M_KeyDrawer(3, key_menu_screenshot), M_ColorizeBind(3, key_menu_screenshot));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(4, key_message_refresh)), 72, M_KeyDrawer(4, key_message_refresh), M_ColorizeBind(4, key_message_refresh));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(5, key_demo_quit)), 81, M_KeyDrawer(5, key_demo_quit), M_ColorizeBind(5, key_demo_quit));
 
     M_WriteTextCentered(90, "MULTIPLAYER", cr[CR_YELLOW]);
 
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(7, key_multi_msg)), 99, M_KeyDrawer(7, key_multi_msg), M_ColorizeBind(itemOn == 7 ? true : false, key_multi_msg));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(8, key_multi_msgplayer[0])), 108, M_KeyDrawer(8, key_multi_msgplayer[0]), M_ColorizeBind(itemOn == 8 ? true : false, key_multi_msgplayer[0]));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(9, key_multi_msgplayer[1])), 117, M_KeyDrawer(9, key_multi_msgplayer[1]), M_ColorizeBind(itemOn == 9 ? true : false, key_multi_msgplayer[1]));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(10, key_multi_msgplayer[2])), 126, M_KeyDrawer(10, key_multi_msgplayer[2]), M_ColorizeBind(itemOn == 10 ? true : false, key_multi_msgplayer[2]));
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(11, key_multi_msgplayer[3])), 135, M_KeyDrawer(11, key_multi_msgplayer[3]), M_ColorizeBind(itemOn == 11 ? true : false, key_multi_msgplayer[3]));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(7, key_multi_msg)), 99, M_KeyDrawer(7, key_multi_msg), M_ColorizeBind(7, key_multi_msg));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(8, key_multi_msgplayer[0])), 108, M_KeyDrawer(8, key_multi_msgplayer[0]), M_ColorizeBind(8, key_multi_msgplayer[0]));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(9, key_multi_msgplayer[1])), 117, M_KeyDrawer(9, key_multi_msgplayer[1]), M_ColorizeBind(9, key_multi_msgplayer[1]));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(10, key_multi_msgplayer[2])), 126, M_KeyDrawer(10, key_multi_msgplayer[2]), M_ColorizeBind(10, key_multi_msgplayer[2]));
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(11, key_multi_msgplayer[3])), 135, M_KeyDrawer(11, key_multi_msgplayer[3]), M_ColorizeBind(11, key_multi_msgplayer[3]));
 
     M_FooterDrawer("7");
 }
@@ -5366,9 +5366,9 @@ static void M_ClearBind (int itemOn)
     }
 }
 
-static byte *M_ColorizeBind (boolean binding, int key)
+static byte *M_ColorizeBind (int itemSetOn, int key)
 {
-    if (binding && messageToBind)
+    if (itemOn == itemSetOn && messageToBind)
     {
         return cr[CR_YELLOW];
     }
