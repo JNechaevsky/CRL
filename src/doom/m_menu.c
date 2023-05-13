@@ -2286,7 +2286,6 @@ static void M_DrawCRL_Keybinds_7 (void)
     M_FooterDrawer("7");
 }
 
-
 // -----------------------------------------------------------------------------
 // Widgets and Automap
 // -----------------------------------------------------------------------------
@@ -4879,17 +4878,25 @@ void M_ConfirmDeleteGame ()
 	S_StartSound(NULL,sfx_swtchn);
 }
 
+
 // =============================================================================
 //
-// [JN] Keyboard binding routines
+//                        [JN] Keyboard binding routines.
+//                    Drawing, coloring, checking and binding.
 //
 // =============================================================================
+
+
+// -----------------------------------------------------------------------------
+// M_KeyDrawer
+//  [JN] Convert Doom key bumber into printable string.
+// -----------------------------------------------------------------------------
 
 static char *M_KeyDrawer (int itemSetOn, int key)
 {
     if (itemOn == itemSetOn && messageToBind)
     {
-        return "?";
+        return "?";  // Means binding now
     }
     else
     {
@@ -5008,6 +5015,11 @@ static char *M_KeyDrawer (int itemSetOn, int key)
     }
 }
 
+// -----------------------------------------------------------------------------
+// M_FooterDrawer
+//  [JN] Draw footer in key binding pages with numeration.
+// -----------------------------------------------------------------------------
+
 static void M_FooterDrawer (char *pagenum)
 {
     M_WriteTextCentered(144, "PRESS ENTER TO BIND, DEL TO CLEAR",  cr[CR_MENU_DARK1]);
@@ -5016,11 +5028,22 @@ static void M_FooterDrawer (char *pagenum)
     M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth("PGDN >"), 153, "PGDN >", cr[CR_MENU_DARK3]);
 }
 
+// -----------------------------------------------------------------------------
+// M_StartBind
+//  [JN] Indicate that key binding is started (messageToBind), and
+//  pass internal number (keyToBind) for binding a new key.
+// -----------------------------------------------------------------------------
+
 static void M_StartBind (int keynum)
 {
     messageToBind = true;
     keyToBind = keynum;
 }
+
+// -----------------------------------------------------------------------------
+// M_CheckBind
+//  [JN] Check if pressed key is already binded, clear previous bind if found.
+// -----------------------------------------------------------------------------
 
 static void M_CheckBind (int key)
 {
@@ -5101,6 +5124,12 @@ static void M_CheckBind (int key)
     if (key_multi_msgplayer[2] == key) key_multi_msgplayer[2] = 0;
     if (key_multi_msgplayer[3] == key) key_multi_msgplayer[3] = 0;
 }
+
+// -----------------------------------------------------------------------------
+// M_DoBind
+//  [JN] By catching internal bind number (keynum), do actual binding
+//  of pressed key (key) to real keybind.
+// -----------------------------------------------------------------------------
 
 static void M_DoBind (int keynum, int key)
 {
@@ -5184,6 +5213,11 @@ static void M_DoBind (int keynum, int key)
         case 708:  key_multi_msgplayer[3] = key;  break;
     }
 }
+
+// -----------------------------------------------------------------------------
+// M_ClearBind
+//  [JN] Clear key bind on the line where cursor is placed (itemOn).
+// -----------------------------------------------------------------------------
 
 static void M_ClearBind (int itemOn)
 {
@@ -5305,6 +5339,11 @@ static void M_ClearBind (int itemOn)
     }
 }
 
+// -----------------------------------------------------------------------------
+// M_ColorizeBind
+//  [JN] Do key bind coloring.
+// -----------------------------------------------------------------------------
+
 static byte *M_ColorizeBind (int itemSetOn, int key)
 {
     if (itemOn == itemSetOn && messageToBind)
@@ -5321,6 +5360,12 @@ static byte *M_ColorizeBind (int itemSetOn, int key)
         return cr[CR_GREEN];
     }
 }
+
+// -----------------------------------------------------------------------------
+// M_ScrollKeyBindPages
+//  [JN] Scroll keyboard binding pages forward (direction = true)
+//  and backward (direction = false).
+// -----------------------------------------------------------------------------
 
 static boolean M_ScrollKeyBindPages (boolean direction)
 {
