@@ -4892,6 +4892,11 @@ void M_ConfirmDeleteGame ()
 //  [JN] Convert Doom key bumber into printable string.
 // -----------------------------------------------------------------------------
 
+static struct {
+    int key;
+    char *name;
+} key_names[] = KEY_NAMES_ARRAY;
+
 static char *M_KeyDrawer (int itemSetOn, int key)
 {
     if (itemOn == itemSetOn && messageToBind)
@@ -4900,119 +4905,15 @@ static char *M_KeyDrawer (int itemSetOn, int key)
     }
     else
     {
-        switch (key)
+        for (int i = 0; i < arrlen(key_names); ++i)
         {
-            case 0:     return  "---";          break;  // Means empty
-            case 1:     return  "1";            break;
-            case 2:     return  "2";            break;
-            case 3:     return  "3";            break;
-            case 4:     return  "4";            break;
-            case 5:     return  "5";            break;
-            case 6:     return  "6";            break;
-            case 7:     return  "7";            break;
-            case 8:     return  "8";            break;
-            case 9:     return  "TAB";          break;
-            case 13:    return  "ENTER";        break;
-            case 32:    return  "SPACE BAR";    break;
-            case 33:    return  "!";            break;
-            case 34:    return  "\"";           break;
-            case 35:    return  "#";            break;
-            case 36:    return  "$";            break;
-            case 37:    return  "%";            break;
-            case 38:    return  "&";            break;
-            case 39:    return  "'";            break;
-            case 40:    return  "(";            break;
-            case 41:    return  ")";            break;
-            case 42:    return  "*";            break;
-            case 43:    return  "+";            break;
-            case 44:    return  ",";            break;
-            case 45:    return  "-";            break;
-            case 46:    return  ".";            break;
-            case 47:    return  "/";            break;
-            case 48:    return  "0";            break;
-            case 49:    return  "1";            break;
-            case 50:    return  "2";            break;
-            case 51:    return  "3";            break;
-            case 52:    return  "4";            break;
-            case 53:    return  "5";            break;
-            case 54:    return  "6";            break;
-            case 55:    return  "7";            break;
-            case 56:    return  "8";            break;
-            case 57:    return  "9";            break;
-            case 58:    return  ":";            break;
-            case 59:    return  ";";            break;
-            case 60:    return  "<";            break;
-            case 61:    return  "=";            break;
-            case 62:    return  ">";            break;
-            case 63:    return  "?";            break;
-            case 64:    return  "@";            break;
-            case 91:    return  "[";            break;
-            case 92:    return  "\\";           break;
-            case 93:    return  "]";            break;
-            case 94:    return  "^";            break;
-            case 95:    return  "_";            break;
-            case 96:    return  "TILDE";        break;
-            case 97:    return  "A";            break;
-            case 98:    return  "B";            break;
-            case 99:    return  "C";            break;
-            case 100:   return  "D";            break;
-            case 101:   return  "E";            break;
-            case 102:   return  "F";            break;
-            case 103:   return  "G";            break;
-            case 104:   return  "H";            break;
-            case 105:   return  "I";            break;
-            case 106:   return  "J";            break;
-            case 107:   return  "K";            break;
-            case 108:   return  "L";            break;
-            case 109:   return  "M";            break;
-            case 110:   return  "N";            break;
-            case 111:   return  "O";            break;
-            case 112:   return  "P";            break;
-            case 113:   return  "Q";            break;
-            case 114:   return  "R";            break;
-            case 115:   return  "S";            break;
-            case 116:   return  "T";            break;
-            case 117:   return  "U";            break;
-            case 118:   return  "V";            break;
-            case 119:   return  "W";            break;
-            case 120:   return  "X";            break;
-            case 121:   return  "Y";            break;
-            case 122:   return  "Z";            break;
-            case 127:   return  "BACKSPACE";    break;
-            case 157:   return  "CTRL";         break;
-            case 172:   return  "LEFT ARROW";   break;
-            case 173:   return  "UP ARROW";     break;
-            case 174:   return  "RIGHT ARROW";  break;
-            case 175:   return  "DOWN ARROW";   break;
-            case 182:   return  "SHIFT";        break;
-            case 184:   return  "ALT";          break;
-            case 186:   return  "CAPS LOCK";    break;
-            case 187:   return  "F1";           break;
-            case 188:   return  "F2";           break;
-            case 189:   return  "F3";           break;
-            case 190:   return  "F4";           break;
-            case 191:   return  "F5";           break;
-            case 192:   return  "F6";           break;
-            case 193:   return  "F7";           break;
-            case 194:   return  "F8";           break;
-            case 195:   return  "F9";           break;
-            case 196:   return  "F10";          break;
-            case 197:   return  "NUM LOCK";     break;
-            case 198:   return  "SCROLL LOCK";  break;
-            case 199:   return  "HOME";         break;
-            case 201:   return  "PAGEUP";       break;
-            case 207:   return  "END";          break;
-            case 209:   return  "PAGEDN";       break;
-            case 210:   return  "INSERT";       break;
-            case 211:   return  "DELETE";       break;
-            case 215:   return  "F11";          break;
-            case 216:   return  "F12";          break;
-            case 217:   return  "PRT SCRN";     break;
-            case 255:   return  "PAUSE";        break;
-
-            default:    return  "UNKNOWN";      break;
+            if (key_names[i].key == key)
+            {
+                return key_names[i].name;
+            }
         }
     }
+    return "---";  // Means empty
 }
 
 // -----------------------------------------------------------------------------
