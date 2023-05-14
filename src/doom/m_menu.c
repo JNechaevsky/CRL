@@ -689,27 +689,27 @@ static void M_CRL_Limits (int choice);
 static void M_CRL_ZMalloc (int choice);
 
 // Keyboard binding prototypes
-static boolean messageToBind;
+static boolean KbdIsBinding;
 static int     keyToBind;
 
 static char   *M_KeyDrawer (int itemSetOn, int key);
-static void    M_FooterDrawer (char *pagenum);
 static void    M_StartBind (int keynum);
 static void    M_CheckBind (int key);
 static void    M_DoBind (int keynum, int key);
 static void    M_ClearBind (int itemOn);
 static byte   *M_ColorizeBind (int itemSetOn, int key);
+static void    M_FooterDrawer (char *pagenum);
 static boolean M_ScrollKeyBindPages (boolean direction);
 
 // Mouse binding prototypes
 static boolean MouseIsBinding;
 static int     btnToBind;
 
+static char   *M_MouseBtnDrawer (int itemSetOn, int btn);
 static void    M_StartMouseBind (int btn);
 static void    M_CheckMouseBind (int btn);
 static void    M_DoMouseBind (int btnnum, int btn);
 static void    M_ClearMouseBind (int itemOn);
-static char   *M_MouseBtnDrawer (int itemSetOn, int btn);
 static byte   *M_ColorizeMouseBind (int itemSetOn, int btn);
 
 // -----------------------------------------------------------------------------
@@ -4310,7 +4310,7 @@ boolean M_Responder (event_t* ev)
     }
 
     // [JN] Handle keyboard bindings:
-    if (messageToBind)
+    if (KbdIsBinding)
     {
         if (ev->type == ev_mouse)
         {
@@ -4322,7 +4322,7 @@ boolean M_Responder (event_t* ev)
         {
             // Pressing ESC will cancel binding and leave key unchanged.
             keyToBind = 0;
-            messageToBind = false;
+            KbdIsBinding = false;
             return false;
         }
         else
@@ -4330,7 +4330,7 @@ boolean M_Responder (event_t* ev)
             M_CheckBind(key);
             M_DoBind(keyToBind, key);
             keyToBind = 0;
-            messageToBind = false;
+            KbdIsBinding = false;
             return true;
         }
     }
@@ -5051,7 +5051,7 @@ void M_ConfirmDeleteGame ()
 
 // -----------------------------------------------------------------------------
 // M_KeyDrawer
-//  [JN] Convert Doom key bumber into printable string.
+//  [JN] Convert Doom key number into printable string.
 // -----------------------------------------------------------------------------
 
 static struct {
@@ -5061,7 +5061,7 @@ static struct {
 
 static char *M_KeyDrawer (int itemSetOn, int key)
 {
-    if (itemOn == itemSetOn && messageToBind)
+    if (itemOn == itemSetOn && KbdIsBinding)
     {
         return "?";  // Means binding now
     }
@@ -5079,27 +5079,14 @@ static char *M_KeyDrawer (int itemSetOn, int key)
 }
 
 // -----------------------------------------------------------------------------
-// M_FooterDrawer
-//  [JN] Draw footer in key binding pages with numeration.
-// -----------------------------------------------------------------------------
-
-static void M_FooterDrawer (char *pagenum)
-{
-    M_WriteTextCentered(144, "PRESS ENTER TO BIND, DEL TO CLEAR",  cr[CR_MENU_DARK1]);
-    M_WriteText(CRL_MENU_LEFTOFFSET, 153, "< PGUP", cr[CR_MENU_DARK3]);
-    M_WriteTextCentered(153, M_StringJoin("PAGE ", pagenum, "/7", NULL), cr[CR_MENU_DARK2]);
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth("PGDN >"), 153, "PGDN >", cr[CR_MENU_DARK3]);
-}
-
-// -----------------------------------------------------------------------------
 // M_StartBind
-//  [JN] Indicate that key binding is started (messageToBind), and
+//  [JN] Indicate that key binding is started (KbdIsBinding), and
 //  pass internal number (keyToBind) for binding a new key.
 // -----------------------------------------------------------------------------
 
 static void M_StartBind (int keynum)
 {
-    messageToBind = true;
+    KbdIsBinding = true;
     keyToBind = keynum;
 }
 
@@ -5409,7 +5396,7 @@ static void M_ClearBind (int itemOn)
 
 static byte *M_ColorizeBind (int itemSetOn, int key)
 {
-    if (itemOn == itemSetOn && messageToBind)
+    if (itemOn == itemSetOn && KbdIsBinding)
     {
         return cr[CR_YELLOW];
     }
@@ -5422,6 +5409,19 @@ static byte *M_ColorizeBind (int itemSetOn, int key)
     {
         return cr[CR_GREEN];
     }
+}
+
+// -----------------------------------------------------------------------------
+// M_FooterDrawer
+//  [JN] Draw footer in key binding pages with numeration.
+// -----------------------------------------------------------------------------
+
+static void M_FooterDrawer (char *pagenum)
+{
+    M_WriteTextCentered(144, "PRESS ENTER TO BIND, DEL TO CLEAR",  cr[CR_MENU_DARK1]);
+    M_WriteText(CRL_MENU_LEFTOFFSET, 153, "< PGUP", cr[CR_MENU_DARK3]);
+    M_WriteTextCentered(153, M_StringJoin("PAGE ", pagenum, "/7", NULL), cr[CR_MENU_DARK2]);
+    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth("PGDN >"), 153, "PGDN >", cr[CR_MENU_DARK3]);
 }
 
 // -----------------------------------------------------------------------------
@@ -5520,6 +5520,13 @@ static boolean M_ScrollKeyBindPages (boolean direction)
 //
 // =============================================================================
 
+
+// -----------------------------------------------------------------------------
+// M_KeyDrawer
+//  [JN] Draw mouse button number as printable string.
+// -----------------------------------------------------------------------------
+
+
 static char *M_MouseBtnDrawer (int itemSetOn, int btn)
 {
     if (itemOn == itemSetOn && MouseIsBinding)
@@ -5546,32 +5553,21 @@ static char *M_MouseBtnDrawer (int itemSetOn, int btn)
 }
 
 // -----------------------------------------------------------------------------
-// M_ColorizeBind
-//  [JN] Do key bind coloring.
+// M_StartMouseBind
+//  [JN] Indicate that mouse button binding is started (MouseIsBinding), and
+//  pass internal number (btnToBind) for binding a new button.
 // -----------------------------------------------------------------------------
-
-static byte *M_ColorizeMouseBind (int itemSetOn, int btn)
-{
-    if (itemOn == itemSetOn && MouseIsBinding)
-    {
-        return cr[CR_YELLOW];
-    }
-    else
-    if (btn == -1)
-    {
-        return cr[CR_RED];
-    }
-    else
-    {
-        return cr[CR_GREEN];
-    }
-}
 
 static void M_StartMouseBind (int btn)
 {
     MouseIsBinding = true;
     btnToBind = btn;
 }
+
+// -----------------------------------------------------------------------------
+// M_CheckMouseBind
+//  [JN] Check if pressed button is already binded, clear previous bind if found.
+// -----------------------------------------------------------------------------
 
 static void M_CheckMouseBind (int btn)
 {
@@ -5585,6 +5581,12 @@ static void M_CheckMouseBind (int btn)
     if (mousebprevweapon == btn)  mousebprevweapon  = -1;
     if (mousebnextweapon == btn)  mousebnextweapon  = -1;
 }
+
+// -----------------------------------------------------------------------------
+// M_DoMouseBind
+//  [JN] By catching internal bind number (btnnum), do actual binding
+//  of pressed button (btn) to real mouse bind.
+// -----------------------------------------------------------------------------
 
 static void M_DoMouseBind (int btnnum, int btn)
 {
@@ -5603,6 +5605,12 @@ static void M_DoMouseBind (int btnnum, int btn)
     }
 }
 
+// -----------------------------------------------------------------------------
+// M_ClearMouseBind
+//  [JN] Clear mouse bind on the line where cursor is placed (itemOn).
+// -----------------------------------------------------------------------------
+
+
 static void M_ClearMouseBind (int itemOn)
 {
     switch (itemOn)
@@ -5616,5 +5624,27 @@ static void M_ClearMouseBind (int itemOn)
         case 6:  mousebstraferight = -1;  break;
         case 7:  mousebprevweapon = -1;   break;
         case 8:  mousebnextweapon = -1;   break;
+    }
+}
+
+// -----------------------------------------------------------------------------
+// M_ColorizeMouseBind
+//  [JN] Do mouse bind coloring.
+// -----------------------------------------------------------------------------
+
+static byte *M_ColorizeMouseBind (int itemSetOn, int btn)
+{
+    if (itemOn == itemSetOn && MouseIsBinding)
+    {
+        return cr[CR_YELLOW];
+    }
+    else
+    if (btn == -1)
+    {
+        return cr[CR_RED];
+    }
+    else
+    {
+        return cr[CR_GREEN];
     }
 }
