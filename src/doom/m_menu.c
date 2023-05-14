@@ -703,7 +703,7 @@ static void    M_CheckBind (int key);
 static void    M_DoBind (int keynum, int key);
 static void    M_ClearBind (int itemOn);
 static byte   *M_ColorizeBind (int itemSetOn, int key);
-static void    M_FooterDrawer (char *pagenum);
+static void    M_DrawBindFooter (char *pagenum, boolean drawPages);
 static void    M_ScrollKeyBindPages (boolean direction);
 
 // Mouse binding prototypes
@@ -1678,7 +1678,7 @@ static void M_DrawCRL_Keybinds_1 (void)
     M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(9, key_fire)), 117, M_KeyDrawer(9, key_fire), M_ColorizeBind(9, key_fire));
     M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(10, key_use)), 126, M_KeyDrawer(10, key_use), M_ColorizeBind(10, key_use));
 
-    M_FooterDrawer("1");
+    M_DrawBindFooter("1", true);
 }
 
 // -----------------------------------------------------------------------------
@@ -1780,7 +1780,7 @@ static void M_DrawCRL_Keybinds_2 (void)
     M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(8, key_crl_freeze)), 108, M_KeyDrawer(8, key_crl_freeze), M_ColorizeBind(8, key_crl_freeze));
     M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(9, key_crl_notarget)), 117, M_KeyDrawer(9, key_crl_notarget), M_ColorizeBind(9, key_crl_notarget));
 
-    M_FooterDrawer("2");
+    M_DrawBindFooter("2", true);
 }
 
 // -----------------------------------------------------------------------------
@@ -1885,7 +1885,7 @@ static void M_DrawCRL_Keybinds_3 (void)
     M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(9, key_crl_idclip)), 117, M_KeyDrawer(9, key_crl_idclip), M_ColorizeBind(9, key_crl_idclip));
     M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(10, key_crl_iddt)), 126, M_KeyDrawer(10, key_crl_iddt), M_ColorizeBind(10, key_crl_iddt));
 
-    M_FooterDrawer("3");
+    M_DrawBindFooter("3", true);
 }
 
 // -----------------------------------------------------------------------------
@@ -1990,7 +1990,7 @@ static void M_DrawCRL_Keybinds_4 (void)
     M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(8, key_prevweapon)), 108, M_KeyDrawer(8, key_prevweapon), M_ColorizeBind(8, key_prevweapon));
     M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(9, key_nextweapon)), 117, M_KeyDrawer(9, key_nextweapon), M_ColorizeBind(9, key_nextweapon));
 
-    M_FooterDrawer("4");
+    M_DrawBindFooter("4", true);
 }
 
 // -----------------------------------------------------------------------------
@@ -2095,7 +2095,7 @@ static void M_DrawCRL_Keybinds_5 (void)
     M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(8, key_map_mark)), 108, M_KeyDrawer(8, key_map_mark), M_ColorizeBind(8, key_map_mark));
     M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(9, key_map_clearmark)), 117, M_KeyDrawer(9, key_map_clearmark), M_ColorizeBind(9, key_map_clearmark));
 
-    M_FooterDrawer("5");
+    M_DrawBindFooter("5", true);
 }
 
 // -----------------------------------------------------------------------------
@@ -2212,7 +2212,7 @@ static void M_DrawCRL_Keybinds_6 (void)
     M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(10, key_menu_gamma)), 126, M_KeyDrawer(10, key_menu_gamma), M_ColorizeBind(10, key_menu_gamma));
     M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(11, key_spy)), 135, M_KeyDrawer(11, key_spy), M_ColorizeBind(11, key_spy));
 
-    M_FooterDrawer("6");
+    M_DrawBindFooter("6", true);
 }
 
 // -----------------------------------------------------------------------------
@@ -2314,7 +2314,7 @@ static void M_DrawCRL_Keybinds_7 (void)
     M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(8, key_multi_msgplayer[2])), 108, M_KeyDrawer(8, key_multi_msgplayer[2]), M_ColorizeBind(8, key_multi_msgplayer[2]));
     M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_KeyDrawer(9, key_multi_msgplayer[3])), 117, M_KeyDrawer(9, key_multi_msgplayer[3]), M_ColorizeBind(9, key_multi_msgplayer[3]));
 
-    M_FooterDrawer("7");
+    M_DrawBindFooter("7", true);
 }
 
 // -----------------------------------------------------------------------------
@@ -2418,7 +2418,7 @@ static void M_DrawCRL_MouseBinds (void)
     M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_MouseBtnDrawer(7, mousebprevweapon)), 99, M_MouseBtnDrawer(7, mousebprevweapon), M_ColorizeMouseBind(7, mousebprevweapon));
     M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth(M_MouseBtnDrawer(8, mousebnextweapon)), 108, M_MouseBtnDrawer(8, mousebnextweapon), M_ColorizeMouseBind(8, mousebnextweapon));
 
-    M_WriteTextCentered(144, "PRESS ENTER TO BIND, DEL TO CLEAR",  cr[CR_MENU_DARK1]);
+    M_DrawBindFooter(NULL, false);
 }
 
 // -----------------------------------------------------------------------------
@@ -5436,16 +5436,20 @@ static byte *M_ColorizeBind (int itemSetOn, int key)
 }
 
 // -----------------------------------------------------------------------------
-// M_FooterDrawer
+// M_DrawBindFooter
 //  [JN] Draw footer in key binding pages with numeration.
 // -----------------------------------------------------------------------------
 
-static void M_FooterDrawer (char *pagenum)
+static void M_DrawBindFooter (char *pagenum, boolean drawPages)
 {
     M_WriteTextCentered(144, "PRESS ENTER TO BIND, DEL TO CLEAR",  cr[CR_MENU_DARK1]);
-    M_WriteText(CRL_MENU_LEFTOFFSET, 153, "< PGUP", cr[CR_MENU_DARK3]);
-    M_WriteTextCentered(153, M_StringJoin("PAGE ", pagenum, "/7", NULL), cr[CR_MENU_DARK2]);
-    M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth("PGDN >"), 153, "PGDN >", cr[CR_MENU_DARK3]);
+
+    if (drawPages)
+    {
+        M_WriteText(CRL_MENU_LEFTOFFSET, 153, "< PGUP", cr[CR_MENU_DARK3]);
+        M_WriteTextCentered(153, M_StringJoin("PAGE ", pagenum, "/7", NULL), cr[CR_MENU_DARK2]);
+        M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth("PGDN >"), 153, "PGDN >", cr[CR_MENU_DARK3]);
+    }
 }
 
 // -----------------------------------------------------------------------------
@@ -5492,7 +5496,7 @@ static void M_ScrollKeyBindPages (boolean direction)
     {
         M_SetupNextMenu(direction ? &CRLDef_Keybinds_1 : &CRLDef_Keybinds_6);
     }
-    
+
     S_StartSound(NULL, sfx_pstop);
 }
 
