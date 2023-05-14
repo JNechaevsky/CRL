@@ -838,7 +838,7 @@ static menuitem_t CRLMenu_Main[]=
 static menu_t CRLDef_Main =
 {
     m_crl_end,
-    NULL,  // [JN] Do not jump back to main Doom menu (&MainDef).
+    &MainDef,
     CRLMenu_Main,
     M_DrawCRL_Main,
     CRL_MENU_LEFTOFFSET_SML, CRL_MENU_TOPOFFSET,
