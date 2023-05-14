@@ -34,6 +34,9 @@
 #include "crlvars.h"
 
 
+// [JN] Catch mouse button number to provide into mouse binding menu.
+int SDL_mouseButton;
+
 static const int scancode_translate_table[] = SCANCODE_TO_KEYS_ARRAY;
 
 // Lookup table for mapping ASCII characters to their equivalent when
@@ -345,6 +348,8 @@ static void UpdateMouseButtonState(unsigned int button, boolean on)
             break;
     }
 
+    SDL_mouseButton = button;
+
     // Turn bit representing this button on or off.
 
     if (on)
@@ -380,6 +385,8 @@ static void MapMouseWheelToButtons(SDL_MouseWheelEvent *wheel)
     {   // scroll up
         button = 3;
     }
+
+    SDL_mouseButton = button;
 
     // post a button down event
     mouse_button_state |= (1 << button);
