@@ -431,7 +431,7 @@ static menuitem_t SoundMenu[]=
 static menu_t SoundDef =
 {
     sound_end,
-    &OptionsDef,
+    &CRLDef_Main,
     SoundMenu,
     M_DrawSound,
     80,64,
