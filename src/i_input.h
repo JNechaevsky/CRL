@@ -28,6 +28,8 @@
 
 #define MAX_MOUSE_BUTTONS 8
 
+extern int SDL_mouseButton;
+
 extern float mouse_acceleration;
 extern int mouse_threshold;
 

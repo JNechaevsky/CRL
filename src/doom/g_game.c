@@ -804,26 +804,30 @@ static void SetMouseButtons(unsigned int buttons_mask)
 
         if (!mousebuttons[i] && button_on)
         {
-            if (i == mousebprevweapon)
+            // [JN] CRL - move spectator camera up/down.
+            if (crl_spectating && !menuactive)
             {
-                // [JN] CRL - move spectator camera down.
-                if (crl_spectating && !menuactive)
+                if (i == 4)  // Hardcoded mouse wheel down
                 {
                     CRL_ImpulseCameraVert(false, crl_camzspeed ? 64 : 32); 
                 }
                 else
-                next_weapon = -1;
-            }
-            else if (i == mousebnextweapon)
-            {
-                // [JN] CRL - move spectator camera up.
-                if (crl_spectating && !menuactive)
+                if (i == 3)  // Hardcoded Mouse wheel down
                 {
                     CRL_ImpulseCameraVert(true, crl_camzspeed ? 64 : 32);
-                    
+                }
+            }
+            else
+            {
+                if (i == mousebprevweapon)
+                {
+                    next_weapon = -1;
                 }
                 else
-                next_weapon = 1;
+                if (i == mousebnextweapon)
+                {
+                    next_weapon = 1;
+                }
             }
         }
 
