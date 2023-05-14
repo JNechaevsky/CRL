@@ -181,6 +181,7 @@ static void M_ReadThis2(int choice);
 static void M_QuitDOOM(int choice);
 
 static void M_ChooseCRL_Main (int choice);
+static menu_t CRLDef_Main;
 
 static void M_ChangeMessages(int choice);
 static void M_ChangeSensitivity(int choice);
@@ -350,7 +351,7 @@ static menuitem_t OptionsMenu[]=
 static menu_t OptionsDef =
 {
     opt_end,
-    &MainDef,
+    &CRLDef_Main,
     OptionsMenu,
     M_DrawOptions,
     60,37,
