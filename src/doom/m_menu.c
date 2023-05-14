@@ -180,6 +180,8 @@ static void M_ReadThis(int choice);
 static void M_ReadThis2(int choice);
 static void M_QuitDOOM(int choice);
 
+static void M_ChooseCRL_Main (int choice);
+
 static void M_ChangeMessages(int choice);
 static void M_ChangeSensitivity(int choice);
 static void M_SfxVol(int choice);
@@ -231,7 +233,7 @@ enum
 static menuitem_t MainMenu[]=
 {
     {1,"M_NGAME",M_NewGame,'n'},
-    {1,"M_OPTION",M_Options,'o'},
+    {1,"M_OPTION",M_ChooseCRL_Main,'o'},
     {1,"M_LOADG",M_LoadGame,'l'},
     {1,"M_SAVEG",M_SaveGame,'s'},
     // Another hickup with Special edition.
@@ -825,7 +827,7 @@ static menuitem_t CRLMenu_Main[]=
     { 1, "WIDGETS AND AUTOMAP",  M_ChooseCRL_Widgets,   'w'},
     { 1, "GAMEPLAY FEATURES",    M_ChooseCRL_Gameplay,  'g'},
     { 1, "STATIC ENGINE LIMITS", M_ChooseCRL_Limits,    's'},
-    {-1, "", 0, '\0'},
+    { 1, "VANILLA OPTIONS MENU", M_Options,             'v'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'}
 };
@@ -841,10 +843,10 @@ static menu_t CRLDef_Main =
     true
 };
 
-// static void M_ChooseCRL_Main (int choice)
-// {
-//     M_SetupNextMenu (&CRLDef_Main);
-// }
+static void M_ChooseCRL_Main (int choice)
+{
+    M_SetupNextMenu (&CRLDef_Main);
+}
 
 static void M_DrawCRL_Main (void)
 {
