@@ -704,7 +704,7 @@ static void    M_DoBind (int keynum, int key);
 static void    M_ClearBind (int itemOn);
 static byte   *M_ColorizeBind (int itemSetOn, int key);
 static void    M_FooterDrawer (char *pagenum);
-static boolean M_ScrollKeyBindPages (boolean direction);
+static void    M_ScrollKeyBindPages (boolean direction);
 
 // Mouse binding prototypes
 static boolean MouseIsBinding;
@@ -5454,86 +5454,46 @@ static void M_FooterDrawer (char *pagenum)
 //  and backward (direction = false).
 // -----------------------------------------------------------------------------
 
-static boolean M_ScrollKeyBindPages (boolean direction)
+static void M_ScrollKeyBindPages (boolean direction)
 {
     currentMenu->lastOn = itemOn;
-    if (direction)
+
+    if (currentMenu == &CRLDef_Keybinds_1)
     {
-        if (currentMenu == &CRLDef_Keybinds_7)
-        {
-            M_SetupNextMenu(&CRLDef_Keybinds_1);
-        }
-        else
-        if (currentMenu == &CRLDef_Keybinds_6)
-        {
-            M_SetupNextMenu(&CRLDef_Keybinds_7);
-        }
-        else
-        if (currentMenu == &CRLDef_Keybinds_5)
-        {
-            M_SetupNextMenu(&CRLDef_Keybinds_6);
-        }
-        else
-        if (currentMenu == &CRLDef_Keybinds_4)
-        {
-            M_SetupNextMenu(&CRLDef_Keybinds_5);
-        }
-        else
-        if (currentMenu == &CRLDef_Keybinds_3)
-        {
-            M_SetupNextMenu(&CRLDef_Keybinds_4);
-        }
-        else
-        if (currentMenu == &CRLDef_Keybinds_2)
-        {
-            M_SetupNextMenu(&CRLDef_Keybinds_3);
-        }
-        else
-        if (currentMenu == &CRLDef_Keybinds_1)
-        {
-            M_SetupNextMenu(&CRLDef_Keybinds_2);
-        }
+        M_SetupNextMenu(direction ? &CRLDef_Keybinds_2 : &CRLDef_Keybinds_7);
+    }
+    else 
+    if (currentMenu == &CRLDef_Keybinds_2)
+    {
+        M_SetupNextMenu(direction ? &CRLDef_Keybinds_3 : &CRLDef_Keybinds_1);
     }
     else
+    if (currentMenu == &CRLDef_Keybinds_3)
     {
-        if (currentMenu == &CRLDef_Keybinds_1)
-        {
-            M_SetupNextMenu(&CRLDef_Keybinds_7);
-        }
-        else
-        if (currentMenu == &CRLDef_Keybinds_2)
-        {
-            M_SetupNextMenu(&CRLDef_Keybinds_1);
-        }
-        else
-        if (currentMenu == &CRLDef_Keybinds_3)
-        {
-            M_SetupNextMenu(&CRLDef_Keybinds_2);
-        }
-        else
-        if (currentMenu == &CRLDef_Keybinds_4)
-        {
-            M_SetupNextMenu(&CRLDef_Keybinds_3);
-        }
-        else
-        if (currentMenu == &CRLDef_Keybinds_5)
-        {
-            M_SetupNextMenu(&CRLDef_Keybinds_4);
-        }
-        else
-        if (currentMenu == &CRLDef_Keybinds_6)
-        {
-            M_SetupNextMenu(&CRLDef_Keybinds_5);
-        }
-        else
-        if (currentMenu == &CRLDef_Keybinds_7)
-        {
-            M_SetupNextMenu(&CRLDef_Keybinds_6);
-        }
-
+        M_SetupNextMenu(direction ? &CRLDef_Keybinds_4 : &CRLDef_Keybinds_2);
     }
+    else
+    if (currentMenu == &CRLDef_Keybinds_4)
+    {
+        M_SetupNextMenu(direction ? &CRLDef_Keybinds_5 : &CRLDef_Keybinds_3);
+    }
+    else
+    if (currentMenu == &CRLDef_Keybinds_5)
+    {
+        M_SetupNextMenu(direction ? &CRLDef_Keybinds_6 : &CRLDef_Keybinds_4);
+    }
+    else
+    if (currentMenu == &CRLDef_Keybinds_6)
+    {
+        M_SetupNextMenu(direction ? &CRLDef_Keybinds_7 : &CRLDef_Keybinds_5);
+    }
+    else
+    if (currentMenu == &CRLDef_Keybinds_7)
+    {
+        M_SetupNextMenu(direction ? &CRLDef_Keybinds_1 : &CRLDef_Keybinds_6);
+    }
+    
     S_StartSound(NULL, sfx_pstop);
-    return true;
 }
 
 
