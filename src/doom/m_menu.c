@@ -5495,13 +5495,25 @@ static byte *M_ColorizeBind (int itemSetOn, int key)
         return cr[CR_YELLOW];
     }
     else
-    if (key == 0)
     {
-        return cr[CR_RED];
-    }
-    else
-    {
-        return cr[CR_GREEN];
+        if (key == 0)
+        {
+            return
+                THISITEMONTICS == 5 ? cr[CR_RED_BRIGHT5] :
+                THISITEMONTICS == 4 ? cr[CR_RED_BRIGHT4] :
+                THISITEMONTICS == 3 ? cr[CR_RED_BRIGHT3] :
+                THISITEMONTICS == 2 ? cr[CR_RED_BRIGHT2] :
+                THISITEMONTICS == 1 ? cr[CR_RED_BRIGHT1] : cr[CR_RED];
+        }
+        else
+        {
+            return
+                THISITEMONTICS == 5 ? cr[CR_GREEN_BRIGHT5] :
+                THISITEMONTICS == 4 ? cr[CR_GREEN_BRIGHT4] :
+                THISITEMONTICS == 3 ? cr[CR_GREEN_BRIGHT3] :
+                THISITEMONTICS == 2 ? cr[CR_GREEN_BRIGHT2] :
+                THISITEMONTICS == 1 ? cr[CR_GREEN_BRIGHT1] : cr[CR_GREEN];
+        }
     }
 }
 
