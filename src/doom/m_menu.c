@@ -766,12 +766,11 @@ static byte *M_Line_Glow (const int tics)
 #define GLOW_DARKGREEN  4
 
 #define THISITEMTICS    currentMenu->menuitems[itemOn].tics
-#define THISITEMONTICS  currentMenu->menuitems[itemOnSet].tics
+#define THISITEMONTICS  currentMenu->menuitems[itemSetOn].tics
 
-
-static byte *M_Item_Glow (const int itemOnSet, const int color, const int tics)
+static byte *M_Item_Glow (const int itemSetOn, const int color, const int tics)
 {
-    if (itemOn == itemOnSet)
+    if (itemOn == itemSetOn)
     {
         if (color == GLOW_UNCOLORED)
         {
@@ -5698,12 +5697,24 @@ static byte *M_ColorizeMouseBind (int itemSetOn, int btn)
         return cr[CR_YELLOW];
     }
     else
-    if (btn == -1)
     {
-        return cr[CR_RED];
-    }
-    else
-    {
-        return cr[CR_GREEN];
+        if (btn == -1)
+        {
+            return
+                THISITEMONTICS == 5 ? cr[CR_RED_BRIGHT5] :
+                THISITEMONTICS == 4 ? cr[CR_RED_BRIGHT4] :
+                THISITEMONTICS == 3 ? cr[CR_RED_BRIGHT3] :
+                THISITEMONTICS == 2 ? cr[CR_RED_BRIGHT2] :
+                THISITEMONTICS == 1 ? cr[CR_RED_BRIGHT1] : cr[CR_RED];
+        }
+        else
+        {
+            return
+                THISITEMONTICS == 5 ? cr[CR_GREEN_BRIGHT5] :
+                THISITEMONTICS == 4 ? cr[CR_GREEN_BRIGHT4] :
+                THISITEMONTICS == 3 ? cr[CR_GREEN_BRIGHT3] :
+                THISITEMONTICS == 2 ? cr[CR_GREEN_BRIGHT2] :
+                THISITEMONTICS == 1 ? cr[CR_GREEN_BRIGHT1] : cr[CR_GREEN];
+        }
     }
 }
