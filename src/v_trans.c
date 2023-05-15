@@ -40,8 +40,26 @@ static byte cr_menu_dark3[256];
 static byte cr_menu_dark4[256];
 
 static byte cr_red[256];
+static byte cr_red_bright5[256];
+static byte cr_red_bright4[256];
+static byte cr_red_bright3[256];
+static byte cr_red_bright2[256];
+static byte cr_red_bright1[256];
+static byte cr_red_dark1[256];
+static byte cr_red_dark2[256];
+static byte cr_red_dark3[256];
+static byte cr_red_dark4[256];
+static byte cr_red_dark5[256];
+
 static byte cr_darkred[256];
+
 static byte cr_green[256];
+static byte cr_green_bright5[256];
+static byte cr_green_bright4[256];
+static byte cr_green_bright3[256];
+static byte cr_green_bright2[256];
+static byte cr_green_bright1[256];
+
 static byte cr_darkgreen[256];
 static byte cr_brightgreen[256];
 static byte cr_olive[256];
@@ -68,8 +86,26 @@ byte *cr[] =
     (byte *) &cr_menu_dark4,
 
     (byte *) &cr_red,
+    (byte *) &cr_red_bright5,
+    (byte *) &cr_red_bright4,
+    (byte *) &cr_red_bright3,
+    (byte *) &cr_red_bright2,
+    (byte *) &cr_red_bright1,
+    (byte *) &cr_red_dark1,
+    (byte *) &cr_red_dark2,
+    (byte *) &cr_red_dark3,
+    (byte *) &cr_red_dark4,
+    (byte *) &cr_red_dark5,
+
     (byte *) &cr_darkred,
+
     (byte *) &cr_green,
+    (byte *) &cr_green_bright5,
+    (byte *) &cr_green_bright4,
+    (byte *) &cr_green_bright3,
+    (byte *) &cr_green_bright2,
+    (byte *) &cr_green_bright1,
+
     (byte *) &cr_darkgreen,
     (byte *) &cr_brightgreen,
     (byte *) &cr_olive,
@@ -342,15 +378,93 @@ byte V_Colorize (byte *playpal, int cr, byte source, boolean keepgray109)
         {
             hsv.x = 0.;
         }
+        else if (cr == CR_RED_BRIGHT5)
+        {
+            hsv.x = 0.;
+            hsv.z *= 1.5;
+        }
+        else if (cr == CR_RED_BRIGHT4)
+        {
+            hsv.x = 0.;
+            hsv.z *= 1.4;
+        }
+        else if (cr == CR_RED_BRIGHT3)
+        {
+            hsv.x = 0.;
+            hsv.z *= 1.3;
+        }
+        else if (cr == CR_RED_BRIGHT2)
+        {
+            hsv.x = 0.;
+            hsv.z *= 1.2;
+        }
+        else if (cr == CR_RED_BRIGHT1)
+        {
+            hsv.x = 0.;
+            hsv.z *= 1.1;
+        }
+        else if (cr == CR_RED_DARK1)
+        {
+            hsv.x = 0.;
+            hsv.z *= 0.900;
+        }
+        else if (cr == CR_RED_DARK2)
+        {
+            hsv.x = 0.;
+            hsv.z *= 0.850;
+        }
+        else if (cr == CR_RED_DARK3)
+        {
+            hsv.x = 0.;
+            hsv.z *= 0.800;
+        }
+        else if (cr == CR_RED_DARK4)
+        {
+            hsv.x = 0.;
+            hsv.z *= 0.750;
+        }
+        else if (cr == CR_RED_DARK5)
+        {
+            hsv.x = 0.;
+            hsv.z *= 0.700;
+        }
+
         else if (cr == CR_DARKRED)
         {
             hsv.x = 0.;
             hsv.z *= 0.666;
         }
+
         else if (cr == CR_GREEN)
         {
             hsv.x = (145. * hsv.z + 140. * (1. - hsv.z))/360.;
         }
+        else if (cr == CR_GREEN_BRIGHT5)
+        {
+            hsv.x = 0.3;
+            hsv.z *= 1.5;
+        }
+        else if (cr == CR_GREEN_BRIGHT4)
+        {
+            hsv.x = 0.3;
+            hsv.z *= 1.4;
+        }
+        else if (cr == CR_GREEN_BRIGHT3)
+        {
+            hsv.x = 0.3;
+            hsv.z *= 1.3;
+        }
+        else if (cr == CR_GREEN_BRIGHT2)
+        {
+            hsv.x = 0.3;
+            hsv.z *= 1.2;
+        }
+        else if (cr == CR_GREEN_BRIGHT1)
+        {
+            hsv.x = 0.3;
+            hsv.z *= 1.1;
+        }
+
         else if (cr == CR_DARKGREEN)
         {
             hsv.x = 0.3;
