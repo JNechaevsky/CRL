@@ -98,6 +98,25 @@ static char gammamsg[15][32] =
     GAMMALVL4
 };
 
+static char *gammalvl[15] =
+{
+    "0.50",
+    "0.55",
+    "0.60",
+    "0.65",
+    "0.70",
+    "0.75",
+    "0.80",
+    "0.85",
+    "0.90",
+    "0.95",
+    "OFF",
+    "1",
+    "2",
+    "3",
+    "4"
+};
+
 // we are going to be entering a savegame string
 static int saveStringEnter;              
 static int saveSlot;	   // which slot to save in
@@ -1094,20 +1113,7 @@ static void M_DrawCRL_Video (void)
 
     // Gamma-correction slider and num
     M_DrawThermo(46, 99, 15, crl_gamma);
-    M_WriteText (184, 102, crl_gamma ==  0 ? "0.50" :
-                           crl_gamma ==  1 ? "0.55" :
-                           crl_gamma ==  2 ? "0.60" :
-                           crl_gamma ==  3 ? "0.65" :
-                           crl_gamma ==  4 ? "0.70" :
-                           crl_gamma ==  5 ? "0.75" :
-                           crl_gamma ==  6 ? "0.80" :
-                           crl_gamma ==  7 ? "0.85" :
-                           crl_gamma ==  8 ? "0.90" :
-                           crl_gamma ==  9 ? "0.95" :
-                           crl_gamma == 10 ? "OFF"  :
-                           crl_gamma == 11 ? "1"    :
-                           crl_gamma == 12 ? "2"    :
-                           crl_gamma == 13 ? "3"    : "4",
+    M_WriteText (184, 102, gammalvl[crl_gamma],
                            M_Item_Glow(6, GLOW_UNCOLORED, ITEMONTICS));
 
     M_WriteTextCentered(117, "MISCELLANEOUS", cr[CR_YELLOW]);
@@ -2807,10 +2813,10 @@ static void M_CRL_InternalDemos (int choice)
 
 static menuitem_t CRLMenu_Limits[]=
 {
-    { 2, "PREVENT Z_MALLOC ERRORS",  M_CRL_ZMalloc,         'z'},
-    { 2, "SAVEGAME LIMIT WARNING",   M_CRL_SaveSizeWarning, 's'},
-    { 2, "DEMO LIMIT WARNING",       M_CRL_DemoSizeWarning, 'd'},
-    { 2, "RENDER LIMITS LEVEL",      M_CRL_Limits,          'r'},
+    { 2, "PREVENT Z_MALLOC ERRORS",    M_CRL_ZMalloc,         'z'},
+    { 2, "SAVE GAME LIMIT WARNING",    M_CRL_SaveSizeWarning, 's'},
+    { 2, "DEMO LENGHT LIMIT WARNING",  M_CRL_DemoSizeWarning, 'd'},
+    { 2, "RENDER LIMITS LEVEL",        M_CRL_Limits,          'r'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
