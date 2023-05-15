@@ -1093,8 +1093,8 @@ static void M_DrawCRL_Video (void)
                  M_Item_Glow(5, crl_hom_effect ? GLOW_GREEN : GLOW_DARKRED, ITEMONTICS));
 
     // Gamma-correction slider and num
-    M_DrawThermo(46, 98, 15, crl_gamma);
-    M_WriteText (184, 101, crl_gamma ==  0 ? "0.50" :
+    M_DrawThermo(46, 99, 15, crl_gamma);
+    M_WriteText (184, 102, crl_gamma ==  0 ? "0.50" :
                            crl_gamma ==  1 ? "0.55" :
                            crl_gamma ==  2 ? "0.60" :
                            crl_gamma ==  3 ? "0.65" :
