@@ -759,6 +759,47 @@ static byte *M_Line_Glow (const int tics)
         tics == 1 ? cr[CR_MENU_BRIGHT1] : NULL;
 }
 
+#define THISITEMTICS currentMenu->menuitems[itemOn].tics
+
+static byte *M_Item_Glow (const int itemOnSet, const int color, const int tics)
+{
+    if (itemOn == itemOnSet)
+    {
+        if (color == 0)
+        {
+            return cr[CR_RED_BRIGHT5];
+        }
+        else
+        if (color == 1)
+        {
+            return cr[CR_GREEN_BRIGHT5];
+        }
+    }
+    else
+    {
+        if (color == 0)
+        {
+            return
+            currentMenu->menuitems[itemOnSet].tics == 5 ? cr[CR_RED_DARK1] :
+            currentMenu->menuitems[itemOnSet].tics == 4 ? cr[CR_RED_DARK2] :
+            currentMenu->menuitems[itemOnSet].tics == 3 ? cr[CR_RED_DARK3] :
+            currentMenu->menuitems[itemOnSet].tics == 2 ? cr[CR_RED_DARK4] :
+            currentMenu->menuitems[itemOnSet].tics == 1 ? cr[CR_RED_DARK5] : cr[CR_DARKRED];
+        }
+        else
+        if (color == 1)
+        {
+            return
+            currentMenu->menuitems[itemOnSet].tics == 5 ? cr[CR_GREEN_BRIGHT5] :
+            currentMenu->menuitems[itemOnSet].tics == 4 ? cr[CR_GREEN_BRIGHT4] :
+            currentMenu->menuitems[itemOnSet].tics == 3 ? cr[CR_GREEN_BRIGHT3] :
+            currentMenu->menuitems[itemOnSet].tics == 2 ? cr[CR_GREEN_BRIGHT2] :
+            currentMenu->menuitems[itemOnSet].tics == 1 ? cr[CR_GREEN_BRIGHT1] : cr[CR_GREEN];
+        }
+    }
+    return NULL;
+}
+
 static byte *M_Cursor_Glow (const int tics)
 {
     return
@@ -861,7 +902,8 @@ static void M_DrawCRL_Main (void)
     // Spectating
     sprintf(str, crl_spectating ? "ON" : "OFF");
     M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth(str), 36, str,
-                 crl_spectating ? cr[CR_GREEN] : cr[CR_DARKRED]);
+                 M_Item_Glow(0, crl_spectating ? 1 : 0, currentMenu->menuitems[itemOn].tics = 5));
+                 //crl_spectating ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Freeze
     sprintf(str, !singleplayer ? "N/A" :
@@ -980,24 +1022,24 @@ static void M_DrawCRL_Video (void)
     // Uncapped framerate
     sprintf(str, crl_uncapped_fps ? "ON" : "OFF");
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 36, str, 
-                 crl_uncapped_fps ? cr[CR_GREEN] : cr[CR_DARKRED]);
+                 M_Item_Glow(0, crl_uncapped_fps ? 1 : 0, THISITEMTICS));
 
     // Framerate limit
     sprintf(str, !crl_uncapped_fps ? "35" :
                  crl_fpslimit ? "%d" : "NONE", crl_fpslimit);
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 45, str, 
                  !crl_uncapped_fps ? cr[CR_DARKRED] :
-                 crl_fpslimit ? cr[CR_GREEN] : cr[CR_DARKGREEN]);
+                 M_Item_Glow(1, crl_fpslimit ? 1 : 0, THISITEMTICS));
 
     // Enable vsync
     sprintf(str, crl_vsync ? "ON" : "OFF");
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 54, str, 
-                 crl_vsync ? cr[CR_GREEN] : cr[CR_DARKRED]);
+                 M_Item_Glow(2, crl_vsync ? 1 : 0, THISITEMTICS));
 
     // Show FPS counter
     sprintf(str, crl_showfps ? "ON" : "OFF");
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 63, str, 
-                 crl_showfps ? cr[CR_GREEN] : cr[CR_DARKRED]);
+                 M_Item_Glow(3, crl_showfps ? 1 : 0, THISITEMTICS));
 
     // Visplanes drawing mode
     sprintf(str, crl_visplanes_drawing == 0 ? "NORMAL" :
@@ -1005,14 +1047,13 @@ static void M_DrawCRL_Video (void)
                  crl_visplanes_drawing == 2 ? "OVERFILL" :
                  crl_visplanes_drawing == 3 ? "BORDER" : "OVERBORDER");
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 72, str,
-                 crl_visplanes_drawing > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
+                 M_Item_Glow(4, crl_visplanes_drawing ? 1 : 0, THISITEMTICS));
 
     // HOM effect
     sprintf(str, crl_hom_effect == 0 ? "OFF" :
                  crl_hom_effect == 1 ? "MULTICOLOR" : "BLACK");
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 81, str,
-                 crl_hom_effect > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
-
+                 M_Item_Glow(5, crl_hom_effect ? 1 : 0, THISITEMTICS));
 
     // Gamma-correction slider and num
     M_DrawThermo(46, 98, 15, crl_gamma);
@@ -1030,31 +1071,31 @@ static void M_DrawCRL_Video (void)
                           crl_gamma == 11 ? "1"    :
                           crl_gamma == 12 ? "2"    :
                           crl_gamma == 13 ? "3"    : "4",
-                          itemOn == 6 ? cr[CR_MENU_BRIGHT5] : NULL);
+                          M_Item_Glow(6, 0, THISITEMTICS));
 
     M_WriteTextCentered(117, "MISCELLANEOUS", cr[CR_YELLOW]);
 
     // Screen wipe effect
     sprintf(str, crl_screenwipe ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 126, str, 
-                 crl_screenwipe ? cr[CR_GREEN] : cr[CR_DARKRED]);
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 126, str,
+                 M_Item_Glow(10, crl_screenwipe ? 1 : 0, THISITEMTICS));
 
     // Text casts shadows
     sprintf(str, crl_text_shadows ? "ON" : "OFF");
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 135, str, 
-                 crl_text_shadows ? cr[CR_GREEN] : cr[CR_DARKRED]);
+                 M_Item_Glow(11, crl_text_shadows ? 1 : 0, THISITEMTICS));
 
     // Screen wipe effect
     sprintf(str, show_endoom ? "ON" : "OFF");
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 144, str, 
-                 show_endoom ? cr[CR_GREEN] : cr[CR_DARKRED]);
+                 M_Item_Glow(12, show_endoom ? 1 : 0, THISITEMTICS));
 
     // Colorblind
     sprintf(str, crl_colorblind == 1 ? "RED/GREEN" :
                  crl_colorblind == 2 ? "BLUE/YELLOW" :
                  crl_colorblind == 3 ? "MONOCHROME" : "NONE");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 153, str, 
-                 crl_colorblind > 0 ? cr[CR_GREEN] : cr[CR_DARKRED]);
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 153, str,
+                 M_Item_Glow(13, crl_colorblind ? 1 : 0, THISITEMTICS));
 }
 
 static void M_CRL_UncappedFPS (int choice)
