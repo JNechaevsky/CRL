@@ -760,9 +760,10 @@ static byte *M_Line_Glow (const int tics)
 }
 
 #define GLOW_UNCOLORED  0
-#define GLOW_DARKRED    1
-#define GLOW_GREEN      2
-#define GLOW_DARKGREEN  3
+#define GLOW_RED        1
+#define GLOW_DARKRED    2
+#define GLOW_GREEN      3
+#define GLOW_DARKGREEN  4
 
 #define THISITEMTICS    currentMenu->menuitems[itemOn].tics
 #define THISITEMONTICS  currentMenu->menuitems[itemOnSet].tics
@@ -777,7 +778,7 @@ static byte *M_Item_Glow (const int itemOnSet, const int color, const int tics)
             return cr[CR_MENU_BRIGHT5];
         }
         else
-        if (color == GLOW_DARKRED)
+        if (color == GLOW_RED || color == GLOW_DARKRED)
         {
             return cr[CR_RED_BRIGHT5];
         }
@@ -799,6 +800,15 @@ static byte *M_Item_Glow (const int itemOnSet, const int color, const int tics)
                 THISITEMONTICS == 1 ? cr[CR_MENU_BRIGHT1] : NULL;
         }
         else
+        if (color == GLOW_RED)
+        {
+            return
+                THISITEMONTICS == 5 ? cr[CR_RED_BRIGHT5] :
+                THISITEMONTICS == 4 ? cr[CR_RED_BRIGHT4] :
+                THISITEMONTICS == 3 ? cr[CR_RED_BRIGHT3] :
+                THISITEMONTICS == 2 ? cr[CR_RED_BRIGHT2] :
+                THISITEMONTICS == 1 ? cr[CR_RED_BRIGHT1] : cr[CR_RED];
+        }
         if (color == GLOW_DARKRED)
         {
             return
@@ -2856,7 +2866,7 @@ static void M_DrawCRL_Limits (void)
     // Level of the limits
     sprintf(str, crl_vanilla_limits ? "VANILLA" : "DOOM-PLUS");
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 63, str,
-                 M_Item_Glow(3, crl_vanilla_limits ? GLOW_DARKRED : GLOW_GREEN, THISITEMTICS));
+                 M_Item_Glow(3, crl_vanilla_limits ? GLOW_RED : GLOW_GREEN, THISITEMTICS));
 
     M_WriteText (CRL_MENU_LEFTOFFSET_SML+16,  81, "MAXVISPLANES",  cr[CR_GRAY]);
     M_WriteText (CRL_MENU_LEFTOFFSET_SML+16,  90, "MAXDRAWSEGS",   cr[CR_GRAY]);
