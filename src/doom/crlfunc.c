@@ -131,7 +131,7 @@ void CRL_Get_MAX (void)
         {
             CRL_MAX_x = CRL_camera_x;
             CRL_MAX_y = CRL_camera_y;
-            CRL_MAX_z = CRL_camera_z;
+            CRL_MAX_z = CRL_camera_z - VIEWHEIGHT;
             CRL_MAX_ang = CRL_camera_ang;
         }
     }
