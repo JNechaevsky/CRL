@@ -124,7 +124,7 @@ void CRL_Get_MAX (void)
         {
             CRL_MAX_x = CRL_camera_oldx + FixedMul(CRL_camera_x - CRL_camera_oldx, fractionaltic);
             CRL_MAX_y = CRL_camera_oldy + FixedMul(CRL_camera_y - CRL_camera_oldy, fractionaltic);
-            CRL_MAX_z = CRL_camera_oldz + FixedMul(CRL_camera_z - CRL_camera_oldz, fractionaltic);
+            CRL_MAX_z = CRL_camera_oldz + FixedMul(CRL_camera_z - CRL_camera_oldz, fractionaltic) - VIEWHEIGHT;
             CRL_MAX_ang = R_InterpolateAngle(CRL_camera_oldang, CRL_camera_ang, fractionaltic);
         }
         else
@@ -164,19 +164,19 @@ void CRL_MoveTo_MAX (void)
     // Supress interpolation for next frame.
     player->mo->interp = -1;    
     // Unset player from subsector and/or block links.
-    P_UnsetThingPosition(players[displayplayer].mo);
+    P_UnsetThingPosition(player->mo);
     // Set new position.
-    players[displayplayer].mo->x = CRL_MAX_x;
-    players[displayplayer].mo->y = CRL_MAX_y;
-    players[displayplayer].mo->z = CRL_MAX_z;
+    player->mo->x = CRL_MAX_x;
+    player->mo->y = CRL_MAX_y;
+    player->mo->z = CRL_MAX_z;
     // Supress any horizontal and vertical momentums.
-    players[displayplayer].mo->momx = players[displayplayer].mo->momy = players[displayplayer].mo->momz = 0;
+    player->mo->momx = player->mo->momy = player->mo->momz = 0;
     // Set angle and heights.
-    players[displayplayer].mo->angle = CRL_MAX_ang;
-    players[displayplayer].mo->floorz = ss->sector->interpfloorheight;
-    players[displayplayer].mo->ceilingz = ss->sector->interpceilingheight;
+    player->mo->angle = CRL_MAX_ang;
+    player->mo->floorz = ss->sector->interpfloorheight;
+    player->mo->ceilingz = ss->sector->interpceilingheight;
     // Set new position in subsector and/or block links.
-    P_SetThingPosition(players[displayplayer].mo);
+    P_SetThingPosition(player->mo);
 }
 
 // -----------------------------------------------------------------------------

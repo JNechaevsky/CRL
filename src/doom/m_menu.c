@@ -738,10 +738,12 @@ static byte   *M_ColorizeMouseBind (int itemSetOn, int btn);
 
 // -----------------------------------------------------------------------------
 
-static int  shade_wait; // [JN] Delay before shading.
+// [JN] Delay before shading.
+static int shade_wait;
+
+// [JN] Shade background while in CRL menu.
 static void M_ShadeBackground (void)
 {
-    // [JN] Shade background while in CRL menu.
     for (int y = 0; y < SCREENWIDTH * SCREENHEIGHT; y++)
     {
         I_VideoBuffer[y] = colormaps[12 * 256 + I_VideoBuffer[y]];
@@ -791,20 +793,10 @@ static byte *M_Item_Glow (const int itemSetOn, const int color, const int tics)
 {
     if (itemOn == itemSetOn)
     {
-        if (color == GLOW_UNCOLORED)
-        {
-            return cr[CR_MENU_BRIGHT5];
-        }
-        else
-        if (color == GLOW_RED || color == GLOW_DARKRED)
-        {
-            return cr[CR_RED_BRIGHT5];
-        }
-        else
-        if (color == GLOW_GREEN || color == GLOW_DARKGREEN)
-        {
-            return cr[CR_GREEN_BRIGHT5];
-        }
+        return
+            color == GLOW_RED   || color == GLOW_DARKRED   ? cr[CR_RED_BRIGHT5]   :
+            color == GLOW_GREEN || color == GLOW_DARKGREEN ? cr[CR_GREEN_BRIGHT5] :
+                                                             cr[CR_MENU_BRIGHT5]  ; // GLOW_UNCOLORED
     }
     else
     {
@@ -817,7 +809,6 @@ static byte *M_Item_Glow (const int itemSetOn, const int color, const int tics)
                 ITEMSETONTICS == 2 ? cr[CR_MENU_BRIGHT2] :
                 ITEMSETONTICS == 1 ? cr[CR_MENU_BRIGHT1] : NULL;
         }
-        else
         if (color == GLOW_RED)
         {
             return
@@ -836,7 +827,6 @@ static byte *M_Item_Glow (const int itemSetOn, const int color, const int tics)
                 ITEMSETONTICS == 2 ? cr[CR_RED_DARK4] :
                 ITEMSETONTICS == 1 ? cr[CR_RED_DARK5] : cr[CR_DARKRED];
         }
-        else
         if (color == GLOW_GREEN)
         {
             return
@@ -912,9 +902,9 @@ static char *const DefSkillName[5] =
 };
 
 
-//
-// Main Menu
-//
+// -----------------------------------------------------------------------------
+// Main CRL Menu
+// -----------------------------------------------------------------------------
 
 static menuitem_t CRLMenu_Main[]=
 {
