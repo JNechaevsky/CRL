@@ -14,9 +14,9 @@ CRL is maintained by [Julia Nechaevskaya](mailto:julia.nechaevskaya@live.com).
 
 ## Download
 
-Version 1.2 (released: April 30, 2023):
-* Windows (32-bit): [crl-1.2-win32.zip](https://github.com/JNechaevsky/CRL/releases/download/crl-1.2/crl-1.2-win32.zip)
-* Windows (64-bit): [crl-1.2-win64.zip](https://github.com/JNechaevsky/CRL/releases/download/crl-1.2/crl-1.2-win64.zip)
+Version 1.3 (released: May 16, 2023):
+* Windows (32-bit): [crl-1.3-win32.zip](https://github.com/JNechaevsky/CRL/releases/download/crl-1.3/crl-1.3-win32.zip)
+* Windows (64-bit): [crl-1.3-win64.zip](https://github.com/JNechaevsky/CRL/releases/download/crl-1.3/crl-1.3-win64.zip)
 
 Previous versions can be found on [Releases](https://github.com/JNechaevsky/CRL/releases) page.<br>
 Old versions of original Chocorenderlimits can be found on [Historical](https://github.com/JNechaevsky/CRL/releases/tag/Historical) page.
@@ -44,6 +44,7 @@ There are two type of counters: playstate and render. Short names stands for:
 #### Render counters
 
 * **SPR:** Number of rendered sprites. Due to the nature of how engine handles them, not all of them might be really visible, but still rendered.
+* **SSG:** Number of rendered solid segments. Overflowing vanilla limit of 32 _may_ resulting a crash.
 * **SEG:** Number of rendered wall segments. Overflowing vanilla limit of 256 will resulting a HoM effect sooner or later.
 * **PLN:** Number of rendered floor and ceiling visplanes. Overflowing vanilla limit of 128 may result both HoM effect, as well as crashing.
 * **OPN:** Number of rendered openings.
