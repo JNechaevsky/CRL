@@ -4584,6 +4584,7 @@ boolean M_Responder (event_t* ev)
         // [JN] Deactivate CRL menu by pressing ~ key again.
         if (key == key_crl_menu)
         {
+            currentMenu->lastOn = itemOn;
             M_ClearMenus();
             S_StartSound(NULL, sfx_swtchx);
             return true;
