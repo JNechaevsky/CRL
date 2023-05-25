@@ -509,9 +509,9 @@ extern lighttable_t **dscalelight;
 // -----------------------------------------------------------------------------
 
 extern byte *R_GetColumn (int tex, int col);
-extern int   R_CheckTextureNumForName (char *name);
-extern int   R_FlatNumForName (char *name);
-extern int   R_TextureNumForName (char *name);
+extern int   R_CheckTextureNumForName (const char *name);
+extern int   R_FlatNumForName (const char *name);
+extern int   R_TextureNumForName (const char *name);
 extern void  R_InitData (void);
 extern void  R_PrecacheLevel (void);
 

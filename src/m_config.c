@@ -240,6 +240,13 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_STRING(timidity_cfg_path),
     CONFIG_VARIABLE_STRING(gus_patch_path),
     CONFIG_VARIABLE_INT(gus_ram_kb),
+
+#ifdef _WIN32
+    CONFIG_VARIABLE_STRING(winmm_midi_device),
+    CONFIG_VARIABLE_INT(winmm_complevel),
+    CONFIG_VARIABLE_INT(winmm_reset_type),
+    CONFIG_VARIABLE_INT(winmm_reset_delay),
+#endif
     CONFIG_VARIABLE_INT(vanilla_savegame_limit),
     CONFIG_VARIABLE_INT(vanilla_demo_limit),
     CONFIG_VARIABLE_INT(vanilla_keyboard_mapping),
@@ -959,7 +966,7 @@ void M_SetConfigDir(char *dir)
 // Creates the directory as necessary.
 //
 
-char *M_GetSaveGameDir(char *iwadname)
+char *M_GetSaveGameDir(const char *iwadname)
 {
     char *savegamedir;
     char *topdir;

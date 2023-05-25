@@ -19,27 +19,35 @@
 //
 
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+
 #include "SDL.h"
 #include "SDL_mixer.h"
 
+#include "config.h"
 #include "doomtype.h"
 #include "memio.h"
 #include "mus2mid.h"
+
+#include "deh_str.h"
 #include "gusconf.h"
 #include "i_sound.h"
+#include "i_system.h"
 #include "i_swap.h"
+#include "m_argv.h"
+#include "m_config.h"
 #include "m_misc.h"
+#include "sha1.h"
+#include "w_wad.h"
 #include "z_zone.h"
 
 
-char *fluidsynth_sf_path = "";
 char *timidity_cfg_path = "";
 
 static char *temp_timidity_cfg = NULL;
-
 
 // If the temp_timidity_cfg config variable is set, generate a "wrapper"
 // config file for Timidity to point to the actual config file. This
@@ -48,7 +56,7 @@ static char *temp_timidity_cfg = NULL;
 
 static boolean WriteWrapperTimidityConfig(char *write_path)
 {
-    char *p, *path;
+    char *path;
     FILE *fstream;
 
     if (!strcmp(timidity_cfg_path, ""))
@@ -63,14 +71,9 @@ static boolean WriteWrapperTimidityConfig(char *write_path)
         return false;
     }
 
-    p = strrchr(timidity_cfg_path, DIR_SEPARATOR);
-    if (p != NULL)
-    {
-        path = M_StringDuplicate(timidity_cfg_path);
-        path[p - timidity_cfg_path] = '\0';
-        fprintf(fstream, "dir %s\n", path);
-        free(path);
-    }
+    path = M_DirName(timidity_cfg_path);
+    fprintf(fstream, "dir %s\n", path);
+    free(path);
 
     fprintf(fstream, "source %s\n", timidity_cfg_path);
     fclose(fstream);
@@ -78,9 +81,11 @@ static boolean WriteWrapperTimidityConfig(char *write_path)
     return true;
 }
 
+
 // putenv requires a non-const string whose lifetime is the whole program
 // so can't use a string directly, have to do this silliness
 static char sdl_mixer_disable_fluidsynth[] = "SDL_MIXER_DISABLE_FLUIDSYNTH=1";
+
 
 void I_InitTimidityConfig(void)
 {
@@ -100,7 +105,6 @@ void I_InitTimidityConfig(void)
 
     // Set the TIMIDITY_CFG environment variable to point to the temporary
     // config file.
-
     if (success)
     {
         env_string = M_StringJoin("TIMIDITY_CFG=", temp_timidity_cfg, NULL);
@@ -120,7 +124,9 @@ void I_InitTimidityConfig(void)
     }
 }
 
+
 #ifndef DISABLE_SDL2MIXER
+
 
 #define MAXMIDLENGTH (96 * 1024)
 
@@ -191,7 +197,7 @@ static boolean I_SDL_InitMusic(void)
         else if (Mix_OpenAudioDevice(snd_samplerate, AUDIO_S16SYS, 2, 1024, NULL, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE) < 0)
         {
             fprintf(stderr, "Error initializing SDL_mixer: %s\n",
-                    SDL_GetError());
+                    Mix_GetError());
             SDL_QuitSubSystem(SDL_INIT_AUDIO);
         }
         else
@@ -332,6 +338,11 @@ static void I_SDL_UnRegisterSong(void *handle)
 
 // Determine whether memory block is a .mid file 
 
+static boolean IsMid(byte *mem, int len)
+{
+    return len > 4 && !memcmp(mem, "MThd", 4);
+}
+
 static boolean ConvertMus(byte *musdata, int len, const char *filename)
 {
     MEMFILE *instream;
@@ -421,7 +432,7 @@ static boolean I_SDL_MusicIsPlaying(void)
     return Mix_PlayingMusic();
 }
 
-static snddevice_t music_sdl_devices[] =
+static const snddevice_t music_sdl_devices[] =
 {
     SNDDEVICE_PAS,
     SNDDEVICE_GUS,
@@ -431,7 +442,7 @@ static snddevice_t music_sdl_devices[] =
     SNDDEVICE_AWE32,
 };
 
-music_module_t music_sdl_module =
+const music_module_t music_sdl_module =
 {
     music_sdl_devices,
     arrlen(music_sdl_devices),

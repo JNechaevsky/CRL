@@ -126,7 +126,7 @@ void V_CopyRect(int srcx, int srcy, pixel_t *source,
 // Masks a column based masked pic to the screen. 
 //
 
-void V_DrawPatch(int x, int y, patch_t *patch, char *name)
+void V_DrawPatch(int x, int y, patch_t *patch, const char *name)
 { 
     int count;
     int col;
@@ -249,7 +249,7 @@ void V_DrawPatchFlipped(int x, int y, patch_t *patch)
 // Used by Doom with tintmap map.
 // -----------------------------------------------------------------------------
 
-void V_DrawShadowedPatch (int x, int y, const patch_t *patch, char *name)
+void V_DrawShadowedPatch (int x, int y, const patch_t *patch, const char *name)
 {
     int       count, col, w;
     byte     *source, *sourcetrans;

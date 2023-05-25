@@ -135,7 +135,7 @@ typedef struct player_s
     int			secretcount;
 
     // Hint messages.
-    char*		message;	
+    const char*	message;	
     int			messageTics;
     byte*		messageColor;
 
@@ -144,12 +144,12 @@ typedef struct player_s
     int			cheatTics;
 
     // [JN] CRL - hint critical messages.
-    char*		criticalmessage1;
-    char*		criticalmessage2;
+    const char*	criticalmessage1;
+    const char*	criticalmessage2;
     int			criticalmessageTics;
     
     // [JN] CRL - target's health.
-    char*		targetsname;
+    const char*	targetsname;
     int 		targetsheath;
     int 		targetsmaxheath;
     int			targetsheathTics;    

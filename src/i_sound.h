@@ -27,8 +27,6 @@
 // so that the individual game logic and sound driver code agree
 #define NORM_PITCH 127
 
-extern char *snd_dmxoption;
-
 //
 // SoundFX struct.
 //
@@ -37,7 +35,7 @@ typedef struct sfxinfo_struct	sfxinfo_t;
 struct sfxinfo_struct
 {
     // tag name, used for hexen.
-    char *tagname;
+    const char *tagname;
 
     // lump name.  If we are running with use_sfx_prefix=true, a
     // 'DS' (or 'DP' for PC speaker sounds) is prepended to this.
@@ -78,7 +76,7 @@ struct sfxinfo_struct
 typedef struct
 {
     // up to 6-character name
-    char *name;
+    const char *name;
 
     // lump number of music
     int lumpnum;
@@ -113,7 +111,7 @@ typedef struct
 {
     // List of sound devices that this sound module is used for.
 
-    snddevice_t *sound_devices;
+    const snddevice_t *sound_devices;
     int num_sound_devices;
 
     // Initialise sound module
@@ -164,8 +162,6 @@ void I_UpdateSoundParams(int channel, int vol, int sep);
 int I_StartSound(sfxinfo_t *sfxinfo, int channel, int vol, int sep, int pitch);
 void I_StopSound(int channel);
 boolean I_SoundIsPlaying(int channel);
-boolean IsMid(byte *mem, int len);
-boolean IsMus(byte *mem, int len);
 void I_PrecacheSounds(sfxinfo_t *sounds, int num_sounds);
 
 // Interface for music modules
@@ -174,7 +170,7 @@ typedef struct
 {
     // List of sound devices that this music module is used for.
 
-    snddevice_t *sound_devices;
+    const snddevice_t *sound_devices;
     int num_sound_devices;
 
     // Initialise the music subsystem
@@ -241,6 +237,9 @@ extern int snd_cachesize;
 extern int snd_maxslicetime_ms;
 extern char *snd_musiccmd;
 extern int snd_pitchshift;
+extern char *snd_dmxoption;
+extern int use_libsamplerate;
+extern float libsamplerate_scale;
 
 void I_BindSoundVariables(void);
 
@@ -252,6 +251,33 @@ typedef enum {
 } opl_driver_ver_t;
 
 void I_SetOPLDriverVer(opl_driver_ver_t ver);
+void I_OPL_DevMessages(char *, size_t);
+
+// Sound modules
+
+void I_InitTimidityConfig(void);
+extern const sound_module_t sound_sdl_module;
+extern const sound_module_t sound_pcsound_module;
+extern const music_module_t music_sdl_module;
+extern const music_module_t music_opl_module;
+extern const music_module_t music_pack_module;
+extern const music_module_t music_win_module;
+extern const music_module_t music_fl_module;
+
+// For OPL module:
+
+extern int opl_io_port;
+
+// For native music module:
+
+extern char *music_pack_path;
+extern char *timidity_cfg_path;
+#ifdef _WIN32
+extern char *winmm_midi_device;
+extern int winmm_complevel;
+extern int winmm_reset_type;
+extern int winmm_reset_delay;
+#endif
 
 // For FluidSynth module:
 

@@ -1314,7 +1314,7 @@ static void MetaEvent(opl_track_data_t *track, midi_event_t *event)
 
         default:
 #ifdef OPL_MIDI_DEBUG
-            fprintf(stderr, "Unknown MIDI meta event type: %i\n",
+            fprintf(stderr, "Unknown MIDI meta event type: %u\n",
                             event->data.meta.type);
 #endif
             break;
@@ -1521,6 +1521,12 @@ static void I_OPL_PlaySong(void *handle, boolean looping)
     {
         InitChannel(&channels[i]);
     }
+
+    // If the music was previously paused, it needs to be unpaused; playing
+    // a new song implies that we turn off pause. This matches vanilla
+    // behavior of the DMX library, and some of the higher-level code in
+    // s_sound.c relies on this.
+    OPL_SetPaused(0);
 }
 
 static void I_OPL_PauseSong(void)
@@ -1610,6 +1616,11 @@ static void I_OPL_UnRegisterSong(void *handle)
 }
 
 // Determine whether memory block is a .mid file
+
+static boolean IsMid(byte *mem, int len)
+{
+    return len > 4 && !memcmp(mem, "MThd", 4);
+}
 
 static boolean ConvertMus(byte *musdata, int len, char *filename)
 {
@@ -1722,7 +1733,7 @@ static void I_OPL_ShutdownMusic(void)
 
 static boolean I_OPL_InitMusic(void)
 {
-    char *dmxoption;
+    const char *dmxoption;
     opl_init_result_t chip_type;
 
     OPL_SetSampleRate(snd_samplerate);
@@ -1778,13 +1789,13 @@ static boolean I_OPL_InitMusic(void)
     return true;
 }
 
-static snddevice_t music_opl_devices[] =
+const static snddevice_t music_opl_devices[] =
 {
     SNDDEVICE_ADLIB,
     SNDDEVICE_SB,
 };
 
-music_module_t music_opl_module =
+const music_module_t music_opl_module =
 {
     music_opl_devices,
     arrlen(music_opl_devices),

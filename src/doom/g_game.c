@@ -2429,7 +2429,7 @@ void G_BeginRecording (void)
 
 char*	defdemoname; 
  
-void G_DeferedPlayDemo (char* name) 
+void G_DeferedPlayDemo (const char* name) 
 { 
     defdemoname = name; 
     gameaction = ga_playdemo; 

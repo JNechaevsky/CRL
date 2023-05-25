@@ -275,10 +275,10 @@ extern result_e T_MovePlane (sector_t *sector, fixed_t speed, fixed_t dest,
 
 #define MESSAGETICS (TICRATE*4)
 
-extern void CRL_SetMessage (player_t *player, char *message, boolean ultmsg, byte *table);
-extern int     showMessages;
-extern boolean ultimatemsg;
-extern char   *lastmessage;
+extern void CRL_SetMessage (player_t *player, const char *message, boolean ultmsg, byte *table);
+extern int         showMessages;
+extern boolean     ultimatemsg;
+extern const char *lastmessage;
 
 extern boolean P_GivePower(player_t*, int);
 extern void    P_TouchSpecialThing (mobj_t *special, mobj_t *toucher);

@@ -35,7 +35,7 @@ extern void G_BeginRecording (void);
 extern void G_BuildTiccmd (ticcmd_t *cmd, int maketic); 
 extern void G_DeathMatchSpawnPlayer (int playernum);
 extern void G_DeferedInitNew (skill_t skill, int episode, int map);
-extern void G_DeferedPlayDemo (char *demo);
+extern void G_DeferedPlayDemo (const char *demo);
 extern void G_DoCompleted (void); 
 extern void G_DoLoadGame (void);
 extern void G_DoLoadLevel (void); 

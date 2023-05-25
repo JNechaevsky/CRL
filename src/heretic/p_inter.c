@@ -124,7 +124,7 @@ static boolean GetAmmoChangePL2[NUMWEAPONS][NUMAMMO] =
 
 boolean ultimatemsg;
 
-void P_SetMessage(player_t * player, char *message, boolean ultmsg)
+void P_SetMessage(player_t * player, const char *message, boolean ultmsg)
 {
     extern boolean messageson;
 
@@ -171,7 +171,7 @@ boolean P_GiveAmmo(player_t * player, ammotype_t ammo, int count)
     {
         return (false);
     }
-    if ((unsigned int) ammo > NUMAMMO)
+    if ((unsigned int) ammo >= NUMAMMO)
     {
         I_Error("P_GiveAmmo: bad type %i", ammo);
     }

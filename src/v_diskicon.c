@@ -63,7 +63,7 @@ static void CopyRegion(byte *dest, int dest_pitch,
     }
 }
 
-static void SaveDiskData(char *disk_lump, int xoffs, int yoffs)
+static void SaveDiskData(const char *disk_lump, int xoffs, int yoffs)
 {
     byte *tmpscreen;
     patch_t *disk;
@@ -90,7 +90,7 @@ static void SaveDiskData(char *disk_lump, int xoffs, int yoffs)
     Z_Free(tmpscreen);
 }
 
-void V_EnableLoadingDisk(char *lump_name, int xoffs, int yoffs)
+void V_EnableLoadingDisk(const char *lump_name, int xoffs, int yoffs)
 {
     loading_disk_xoffs = xoffs;
     loading_disk_yoffs = yoffs;

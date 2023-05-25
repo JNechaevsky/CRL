@@ -31,9 +31,8 @@
 
 #include "deh_defs.h"
 #include "deh_io.h"
+#include "deh_main.h"
 
-extern deh_section_t *deh_section_types[];
-extern char *deh_signatures[];
 
 static boolean deh_initialized = false;
 
@@ -415,7 +414,8 @@ void DEH_AutoLoadPatches(const char *path)
     const char *filename;
     glob_t *glob;
 
-    glob = I_StartGlob(path, "*.deh", GLOB_FLAG_NOCASE|GLOB_FLAG_SORTED);
+    glob = I_StartMultiGlob(path, GLOB_FLAG_NOCASE|GLOB_FLAG_SORTED,
+                            "*.deh", "*.hhe", "*.seh", NULL);
     for (;;)
     {
         filename = I_NextGlob(glob);
@@ -469,7 +469,7 @@ int DEH_LoadLump(int lumpnum, boolean allow_long, boolean allow_error)
     return 1;
 }
 
-int DEH_LoadLumpByName(char *name, boolean allow_long, boolean allow_error)
+int DEH_LoadLumpByName(const char *name, boolean allow_long, boolean allow_error)
 {
     int lumpnum;
 
@@ -507,7 +507,9 @@ void DEH_ParseCommandLine(void)
         {
             filename = D_TryFindWADByName(myargv[p]);
             DEH_LoadFile(filename);
+            free(filename);
             ++p;
         }
     }
 }
+

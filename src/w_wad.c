@@ -208,13 +208,7 @@ wad_file_t *W_AddFile (const char *filename)
 
     startlump = numlumps;
     numlumps += numfilelumps;
-    lumpinfo = realloc(lumpinfo, numlumps * sizeof(lumpinfo_t *));
-    if (lumpinfo == NULL)
-    {
-        W_CloseFile(wad_file);
-        I_Error("Failed to increase lumpinfo[] array size.");
-    }
-
+    lumpinfo = I_Realloc(lumpinfo, numlumps * sizeof(lumpinfo_t *));
     filerover = fileinfo;
 
     for (i = startlump; i < numlumps; ++i)
@@ -266,7 +260,7 @@ int W_NumLumps (void)
 // Returns -1 if name not found.
 //
 
-lumpindex_t W_CheckNumForName(char* name)
+lumpindex_t W_CheckNumForName(const char *name)
 {
     lumpindex_t i;
 
@@ -333,7 +327,7 @@ int W_CheckMultipleLumps (char *name)
 // W_GetNumForName
 // Calls W_CheckNumForName, but bombs out if not found.
 //
-lumpindex_t W_GetNumForName(char* name)
+lumpindex_t W_GetNumForName(const char *name)
 {
     lumpindex_t i;
 
@@ -454,7 +448,7 @@ void *W_CacheLumpNum(lumpindex_t lumpnum, int tag)
 //
 // W_CacheLumpName
 //
-void *W_CacheLumpName(char *name, int tag)
+void *W_CacheLumpName(const char *name, int tag)
 {
     return W_CacheLumpNum(W_GetNumForName(name), tag);
 }
@@ -490,7 +484,7 @@ void W_ReleaseLumpNum(lumpindex_t lumpnum)
     }
 }
 
-void W_ReleaseLumpName(char *name)
+void W_ReleaseLumpName(const char *name)
 {
     W_ReleaseLumpNum(W_GetNumForName(name));
 }
@@ -534,7 +528,7 @@ void W_Profile (void)
     }
     profilecount++;
 	
-    f = M_fopen("waddump.txt","w");
+    f = M_fopen ("waddump.txt","w");
     name[8] = 0;
 
     for (i=0 ; i<numlumps ; i++)
@@ -644,3 +638,12 @@ void W_Reload(void)
     W_GenerateHashTable();
 }
 
+const char *W_WadNameForLump(const lumpinfo_t *lump)
+{
+	return M_BaseName(lump->wad_file->path);
+}
+
+boolean W_IsIWADLump(const lumpinfo_t *lump)
+{
+	return lump->wad_file == lumpinfo[0]->wad_file;
+}

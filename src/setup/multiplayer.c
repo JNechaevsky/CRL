@@ -61,7 +61,7 @@ static const iwad_t fallback_iwads[] = {
 // Array of IWADs found to be installed
 
 static const iwad_t **found_iwads;
-static char **iwad_labels;
+static const char **iwad_labels;
 
 // Index of the currently selected IWAD
 
@@ -69,53 +69,53 @@ static int found_iwad_selected = -1;
 
 // Filename to pass to '-iwad'.
 
-static char *iwadfile;
+static const char *iwadfile;
 
-static char *wad_extensions[] = { "wad", "lmp", "deh", NULL };
+static const char *wad_extensions[] = { "wad", "lmp", "deh", NULL };
 
-static char *doom_skills[] =
+static const char *doom_skills[] =
 {
     "I'm too young to die.", "Hey, not too rough.", "Hurt me plenty.",
     "Ultra-Violence.", "NIGHTMARE!",
 };
 
-static char *chex_skills[] =
+static const char *chex_skills[] =
 {
     "Easy does it", "Not so sticky", "Gobs of goo", "Extreme ooze",
     "SUPER SLIMEY!"
 };
 
-static char *heretic_skills[] =
+static const char *heretic_skills[] =
 {
     "Thou needeth a wet-nurse", "Yellowbellies-R-us", "Bringest them oneth",
     "Thou art a smite-meister", "Black plague possesses thee"
 };
 
-static char *hexen_fighter_skills[] =
+static const char *hexen_fighter_skills[] =
 {
     "Squire", "Knight", "Warrior", "Berserker", "Titan"
 };
 
-static char *hexen_cleric_skills[] =
+static const char *hexen_cleric_skills[] =
 {
     "Altar boy", "Acolyte", "Priest", "Cardinal", "Pope"
 };
 
-static char *hexen_mage_skills[] =
+static const char *hexen_mage_skills[] =
 {
     "Apprentice", "Enchanter", "Sorceror", "Warlock", "Archimage"
 };
 
-static char *strife_skills[] =
+static const char *strife_skills[] =
 {
     "Training", "Rookie", "Veteran", "Elite", "Bloodbath"
 };
 
-static char *character_classes[] = { "Fighter", "Cleric", "Mage" };
+static const char *character_classes[] = { "Fighter", "Cleric", "Mage" };
 
-static char *gamemodes[] = { "Co-operative", "Deathmatch", "Deathmatch 2.0", "Deathmatch 3.0" };
+static const char *gamemodes[] = { "Co-operative", "Deathmatch", "Deathmatch 2.0" };
 
-static char *strife_gamemodes[] =
+static const char *strife_gamemodes[] =
 {
     "Normal deathmatch",
     "Items respawn", // (altdeath)
@@ -175,7 +175,8 @@ static void AddWADs(execute_context_t *exec)
         {
             if (!have_wads)
             {
-                AddCmdLineParameter(exec, "-file");
+                AddCmdLineParameter(exec, "-merge");
+                have_wads = 1;
             }
 
             AddCmdLineParameter(exec, "\"%s\"", wads[i]);
@@ -191,7 +192,7 @@ static void AddExtraParameters(execute_context_t *exec)
     {
         if (extra_params[i] != NULL && strlen(extra_params[i]) > 0)
         {
-            AddCmdLineParameter(exec, extra_params[i]);
+            AddCmdLineParameter(exec, "%s", extra_params[i]);
         }
     }
 }
@@ -398,8 +399,8 @@ static void LevelSelectDialog(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(user_data))
     const iwad_t *iwad;
     char buf[10];
     int episodes;
-    intptr_t x, y;
-    intptr_t l;
+    int x, y;
+    int l;
     int i;
 
     window = TXT_NewWindow("Select level");
@@ -427,10 +428,11 @@ static void LevelSelectDialog(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(user_data))
                     continue;
                 }
 
-                M_snprintf(buf, sizeof(buf), " E%iM%i ", x, y);
+                M_snprintf(buf, sizeof(buf),
+                           " E%dM%d ", x, y);
                 button = TXT_NewButton(buf);
                 TXT_SignalConnect(button, "pressed",
-                                  SetExMyWarp, (void *) (x * 10 + y));
+                                  SetExMyWarp, (void *) (intptr_t) (x * 10 + y));
                 TXT_SignalConnect(button, "pressed",
                                   CloseLevelSelectDialog, window);
                 TXT_AddWidget(window, button);
@@ -459,10 +461,10 @@ static void LevelSelectDialog(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(user_data))
                 continue;
             }
 
-            M_snprintf(buf, sizeof(buf), " MAP%02i ", l);
+            M_snprintf(buf, sizeof(buf), " MAP%02d ", l);
             button = TXT_NewButton(buf);
             TXT_SignalConnect(button, "pressed", 
-                              SetMAPxyWarp, (void *) l);
+                              SetMAPxyWarp, (void *) (intptr_t) l);
             TXT_SignalConnect(button, "pressed",
                               CloseLevelSelectDialog, window);
             TXT_AddWidget(window, button);
@@ -689,7 +691,7 @@ static txt_dropdown_list_t *GameTypeDropdown(void)
     {
         case doom:
         default:
-            return TXT_NewDropdownList(&deathmatch, gamemodes, 4);
+            return TXT_NewDropdownList(&deathmatch, gamemodes, 3);
 
         // Heretic and Hexen don't support Deathmatch II:
 
@@ -710,7 +712,7 @@ static txt_dropdown_list_t *GameTypeDropdown(void)
 // and the single player warp menu.  The parameters specify
 // the window title and whether to display multiplayer options.
 
-static void StartGameMenu(char *window_title, int multiplayer)
+static void StartGameMenu(const char *window_title, int multiplayer)
 {
     txt_window_t *window;
     txt_widget_t *iwad_selector;
@@ -727,7 +729,7 @@ static void StartGameMenu(char *window_title, int multiplayer)
     {
         TXT_SetWindowHelpURL(window, LEVEL_WARP_HELP_URL);
     }
-    
+
     TXT_SetWindowAction(window, TXT_HORIZ_CENTER, WadWindowAction());
     TXT_SetWindowAction(window, TXT_HORIZ_RIGHT, StartGameAction(multiplayer));
 
@@ -803,12 +805,12 @@ static void StartGameMenu(char *window_title, int multiplayer)
     UpdateWarpButton();
 }
 
-void StartMultiGame(void)
+void StartMultiGame(TXT_UNCAST_ARG(widget), void *user_data)
 {
     StartGameMenu("Start multiplayer game", 1);
 }
 
-void WarpMenu(void)
+void WarpMenu(TXT_UNCAST_ARG(widget), void *user_data)
 {
     StartGameMenu("Level Warp", 0);
 }
@@ -927,9 +929,33 @@ static void QueryResponseCallback(net_addr_t *addr,
     char ping_time_str[16];
     char description[47];
 
+    // When we connect we'll have to negotiate a common protocol that we
+    // can agree upon between the client and server. If we can't then we
+    // won't be able to connect, so it's pointless to include it in the
+    // results list. If protocol==NET_PROTOCOL_UNKNOWN then this may be
+    // an old, pre-3.0 Chocolate Doom server that doesn't support the new
+    // protocol negotiation mechanism, or it may be an incompatible fork.
+    if (querydata->protocol == NET_PROTOCOL_UNKNOWN)
+    {
+        return;
+    }
+
     M_snprintf(ping_time_str, sizeof(ping_time_str), "%ims", ping_time);
-    M_StringCopy(description, querydata->description,
-                 sizeof(description));
+
+    // Build description from server name field. Because there is limited
+    // space, we only include the player count if there are already players
+    // connected to the server.
+    if (querydata->num_players > 0)
+    {
+        M_snprintf(description, sizeof(description), "(%d/%d) ",
+                   querydata->num_players, querydata->max_players);
+    }
+    else
+    {
+        M_StringCopy(description, "", sizeof(description));
+    }
+
+    M_StringConcat(description, querydata->description, sizeof(description));
 
     TXT_AddWidgets(results_table,
                    TXT_NewLabel(ping_time_str),
@@ -951,8 +977,11 @@ static void QueryPeriodicCallback(TXT_UNCAST_ARG(results_table))
 
         if (query_servers_found == 0)
         {
-            TXT_AddWidget(results_table, NULL);
-            TXT_AddWidget(results_table, TXT_NewLabel("No servers found."));
+            TXT_AddWidgets(results_table,
+                TXT_TABLE_EMPTY,
+                TXT_NewLabel("No compatible servers found."),
+                NULL
+            );
         }
     }
 }
@@ -962,7 +991,7 @@ static void QueryWindowClosed(TXT_UNCAST_ARG(window), void *unused)
     TXT_SetPeriodicCallback(NULL, NULL, 0);
 }
 
-static void ServerQueryWindow(char *title)
+static void ServerQueryWindow(const char *title)
 {
     txt_table_t *results_table;
 
@@ -984,7 +1013,7 @@ static void FindInternetServer(TXT_UNCAST_ARG(widget),
                                TXT_UNCAST_ARG(user_data))
 {
     NET_StartMasterQuery();
-    ServerQueryWindow("Find internet server");
+    ServerQueryWindow("Find Internet server");
 }
 
 static void FindLANServer(TXT_UNCAST_ARG(widget),
@@ -994,7 +1023,7 @@ static void FindLANServer(TXT_UNCAST_ARG(widget),
     ServerQueryWindow("Find LAN server");
 }
 
-void JoinMultiGame(void)
+void JoinMultiGame(TXT_UNCAST_ARG(widget), void *user_data)
 {
     txt_window_t *window;
     txt_inputbox_t *address_box;
@@ -1045,7 +1074,7 @@ void JoinMultiGame(void)
 void SetChatMacroDefaults(void)
 {
     int i;
-    char *defaults[] = 
+    const char *const defaults[] =
     {
         HUSTR_CHATMACRO0,
         HUSTR_CHATMACRO1,
@@ -1078,7 +1107,7 @@ void SetPlayerNameDefault(void)
     }
 }
 
-void MultiplayerConfig(void)
+void MultiplayerConfig(TXT_UNCAST_ARG(widget), void *user_data)
 {
     txt_window_t *window;
     txt_label_t *label;

@@ -21,6 +21,7 @@
 
 #include <stdio.h>
 #include <ctype.h>
+#include <stdlib.h>
 
 // Functions.
 #include "ct_chat.h"
@@ -71,8 +72,8 @@ typedef struct
 {
     GameMission_t mission;
     int episode, level;
-    char *background;
-    char *text;
+    const char *background;
+    const char *text;
 } textscreen_t;
 
 static textscreen_t textscreens[] =
@@ -104,8 +105,8 @@ static textscreen_t textscreens[] =
     { pack_plut, 1, 31, "RROCK19",   P6TEXT},
 };
 
-char*	finaletext;
-char*	finaleflat;
+const char *finaletext;
+const char *finaleflat;
 
 void	F_StartCast (void);
 void	F_CastTicker (void);
@@ -357,7 +358,7 @@ void F_TextWrite (void)
     
     int		x,y,w;
     signed int	count;
-    char*	ch;
+    const char *ch;
     int		c;
     int		cx;
     int		cy;
@@ -428,7 +429,7 @@ void F_TextWrite (void)
 //
 typedef struct
 {
-    char		*name;
+    const char	*name;
     mobjtype_t	type;
 } castinfo_t;
 
@@ -623,7 +624,7 @@ void F_CastDrawer (void)
     int			lump;
     boolean		flip;
     patch_t*		patch;
-    char *bossback = DEH_String("BOSSBACK");
+    const char *bossback = DEH_String("BOSSBACK");
     
     // erase the entire screen to a background
     V_DrawPatch (0, 0, W_CacheLumpName (bossback, PU_CACHE), bossback);
@@ -693,7 +694,7 @@ void F_BunnyScroll (void)
     char	name[10];
     int		stage;
     static int	laststage;
-    char	*end0 = DEH_String("END0");
+    const char	*end0 = DEH_String("END0");
 		
     p1 = W_CacheLumpName (DEH_String("PFUB2"), PU_LEVEL);
     p2 = W_CacheLumpName (DEH_String("PFUB1"), PU_LEVEL);
@@ -742,7 +743,7 @@ void F_BunnyScroll (void)
 
 static void F_ArtScreenDrawer(void)
 {
-    char *lumpname;
+    const char *lumpname;
     
     if (gameepisode == 3)
     {

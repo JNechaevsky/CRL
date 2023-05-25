@@ -54,41 +54,17 @@ char *snd_musiccmd = "";
 
 int snd_pitchshift = -1;
 
-// Low-level sound and music modules we are using
-
-static sound_module_t *sound_module;
-static music_module_t *music_module;
-
 int snd_musicdevice = SNDDEVICE_SB;
 int snd_sfxdevice = SNDDEVICE_SB;
 
-// Sound modules
+// Low-level sound and music modules we are using
+static const sound_module_t *sound_module;
+static const music_module_t *music_module;
 
-extern void I_InitTimidityConfig(void);
-extern sound_module_t sound_sdl_module;
-extern sound_module_t sound_pcsound_module;
-extern music_module_t music_win_module;
-extern music_module_t music_sdl_module;
-extern music_module_t music_opl_module;
-extern music_module_t music_fl_module;
+// This is either equal to music_module or &music_pack_module,
+// depending on whether the current track is substituted.
+static const music_module_t *active_music_module;
 
-// For OPL module:
-
-extern opl_driver_ver_t opl_drv_ver;
-extern int opl_io_port;
-
-// For native music module:
-
-extern char *timidity_cfg_path;
-
-// Compiled-in sound modules:
-
-static sound_module_t *sound_modules[] = 
-{
-    &sound_sdl_module,
-    &sound_pcsound_module,
-    NULL,
-};
 
 // DOS-specific options: These are unused but should be maintained
 // so that the config file can be shared between chocolate
@@ -100,9 +76,20 @@ static int snd_sbirq = 7;
 static int snd_sbdma = 1;
 static int snd_mport = 816;
 
+// Compiled-in sound modules:
+
+static const sound_module_t *sound_modules[] =
+{
+#ifndef DISABLE_SDL2MIXER
+    &sound_sdl_module,
+#endif // DISABLE_SDL2MIXER
+    &sound_pcsound_module,
+    NULL,
+};
+
 // Compiled-in music modules:
 
-static music_module_t *music_modules[] =
+static const music_module_t *music_modules[] =
 {
 #ifdef _WIN32
     &music_win_module,
@@ -119,7 +106,7 @@ static music_module_t *music_modules[] =
 
 // Check if a sound device is in the given list of devices
 
-static boolean SndDeviceInList(snddevice_t device, snddevice_t *list,
+static boolean SndDeviceInList(snddevice_t device, const snddevice_t *list,
                                int len)
 {
     int i;
@@ -209,7 +196,7 @@ static void InitMusicModule(void)
 //
 
 void I_InitSound(boolean use_sfx_prefix)
-{  
+{
     boolean nosound, nosfx, nomusic;
 
     //!
@@ -278,7 +265,7 @@ void I_ShutdownSound(void)
 
 int I_GetSfxLumpNum(sfxinfo_t *sfxinfo)
 {
-    if (sound_module != NULL) 
+    if (sound_module != NULL)
     {
         return sound_module->GetSfxLumpNum(sfxinfo);
     }
@@ -295,9 +282,9 @@ void I_UpdateSound(void)
         sound_module->Update();
     }
 
-    if (music_module != NULL && music_module->Poll != NULL)
+    if (active_music_module != NULL && active_music_module->Poll != NULL)
     {
-        music_module->Poll();
+        active_music_module->Poll();
     }
 }
 
@@ -391,39 +378,27 @@ void I_SetMusicVolume(int volume)
 
 void I_PauseSong(void)
 {
-    if (music_module != NULL)
+    if (active_music_module != NULL)
     {
-        music_module->PauseMusic();
+        active_music_module->PauseMusic();
     }
 }
 
 void I_ResumeSong(void)
 {
-    if (music_module != NULL)
+    if (active_music_module != NULL)
     {
-        music_module->ResumeMusic();
+        active_music_module->ResumeMusic();
     }
-}
-
-// Determine whether memory block is a .mid file
-
-boolean IsMid(byte *mem, int len)
-{
-    return len > 4 && !memcmp(mem, "MThd", 4);
-}
-
-// Determine whether memory block is a .mus file
-
-boolean IsMus(byte *mem, int len)
-{
-    return len > 4 && !memcmp(mem, "MUS\x1a", 4);
 }
 
 void *I_RegisterSong(void *data, int len)
 {
-    if (music_module != NULL)
+    // No substitution for this track, so use the main module.
+    active_music_module = music_module;
+    if (active_music_module != NULL)
     {
-        return music_module->RegisterSong(data, len);
+        return active_music_module->RegisterSong(data, len);
     }
     else
     {
@@ -433,33 +408,33 @@ void *I_RegisterSong(void *data, int len)
 
 void I_UnRegisterSong(void *handle)
 {
-    if (music_module != NULL)
+    if (active_music_module != NULL)
     {
-        music_module->UnRegisterSong(handle);
+        active_music_module->UnRegisterSong(handle);
     }
 }
 
 void I_PlaySong(void *handle, boolean looping)
 {
-    if (music_module != NULL)
+    if (active_music_module != NULL)
     {
-        music_module->PlaySong(handle, looping);
+        active_music_module->PlaySong(handle, looping);
     }
 }
 
 void I_StopSong(void)
 {
-    if (music_module != NULL)
+    if (active_music_module != NULL)
     {
-        music_module->StopSong();
+        active_music_module->StopSong();
     }
 }
 
 boolean I_MusicIsPlaying(void)
 {
-    if (music_module != NULL)
+    if (active_music_module != NULL)
     {
-        return music_module->MusicIsPlaying();
+        return active_music_module->MusicIsPlaying();
     }
     else
     {
@@ -469,9 +444,6 @@ boolean I_MusicIsPlaying(void)
 
 void I_BindSoundVariables(void)
 {
-    extern int use_libsamplerate;
-    extern float libsamplerate_scale;
-
     M_BindIntVariable("snd_musicdevice",         &snd_musicdevice);
     M_BindIntVariable("snd_sfxdevice",           &snd_sfxdevice);
     M_BindIntVariable("snd_sbport",              &snd_sbport);
@@ -489,6 +461,12 @@ void I_BindSoundVariables(void)
     M_BindStringVariable("timidity_cfg_path",    &timidity_cfg_path);
     M_BindStringVariable("gus_patch_path",       &gus_patch_path);
     M_BindIntVariable("gus_ram_kb",              &gus_ram_kb);
+#ifdef _WIN32
+    M_BindStringVariable("winmm_midi_device",    &winmm_midi_device);
+    M_BindIntVariable("winmm_complevel",         &winmm_complevel);
+    M_BindIntVariable("winmm_reset_type",        &winmm_reset_type);
+    M_BindIntVariable("winmm_reset_delay",       &winmm_reset_delay);
+#endif
 
 #ifdef HAVE_FLUIDSYNTH
     M_BindIntVariable("fsynth_chorus_active",       &fsynth_chorus_active);
