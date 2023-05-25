@@ -699,7 +699,7 @@ extern void R_ClipVisSprite (vissprite_t *vis, int xl, int xh);
 extern void R_DrawMasked (void);
 extern void R_DrawMaskedColumn (column_t *column);
 extern void R_DrawSprites (void);
-extern void R_InitSprites (char **namelist);
+extern void R_InitSprites (const char **namelist);
 extern void R_SortVisSprites (void);
 
 extern vissprite_t  vissprites[MAXREALVISSPRITES];

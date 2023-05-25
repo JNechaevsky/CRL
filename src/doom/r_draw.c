@@ -731,22 +731,22 @@ void R_FillBackScreen (void)
     patch_t*	patch;
 
     // DOOM border patch.
-    char       *name1 = DEH_String("FLOOR7_2");
+    const char *name1 = DEH_String("FLOOR7_2");
 
     // DOOM II border patch.
-    char *name2 = DEH_String("GRNROCK");
+    const char *name2 = DEH_String("GRNROCK");
 
-    char *name;
+    const char *name;
 
-    char *brdr_t = DEH_String("brdr_t");
-    char *brdr_b = DEH_String("brdr_b");
-    char *brdr_l = DEH_String("brdr_l");
-    char *brdr_r = DEH_String("brdr_r");
+    const char *brdr_t = DEH_String("brdr_t");
+    const char *brdr_b = DEH_String("brdr_b");
+    const char *brdr_l = DEH_String("brdr_l");
+    const char *brdr_r = DEH_String("brdr_r");
 
-    char *brdr_tl = DEH_String("brdr_tl");
-    char *brdr_tr = DEH_String("brdr_tr");
-    char *brdr_bl = DEH_String("brdr_bl");
-    char *brdr_br = DEH_String("brdr_br");
+    const char *brdr_tl = DEH_String("brdr_tl");
+    const char *brdr_tr = DEH_String("brdr_tr");
+    const char *brdr_bl = DEH_String("brdr_bl");
+    const char *brdr_br = DEH_String("brdr_br");
 
     // If we are running full screen, there is no need to do any of this,
     // and the background buffer can be freed if it was previously in use.

@@ -198,7 +198,7 @@ static char* mapnames_commercial[] =
 
 static void P_LevelNameInit (void)
 {
-    char *s;
+    const char *s;
 
     switch (logical_gamemission)
     {
