@@ -1,5 +1,5 @@
 //
-// Copyright(C) 2014-2017 RestlessRodent
+// Copyright(C) 2011-2017 RestlessRodent
 // Copyright(C) 2018-2023 Julia Nechaevskaya
 //
 // This program is free software; you can redistribute it and/or
