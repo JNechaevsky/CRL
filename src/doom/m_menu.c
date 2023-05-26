@@ -2701,7 +2701,7 @@ static void M_DrawCRL_Gameplay (void)
     M_WriteTextCentered(27, "GAMEPLAY FEATURES", cr[CR_YELLOW]);
 
     // Default skill level
-    DEH_snprintf(str, sizeof(str), DefSkillName[crl_default_skill]);
+    M_snprintf(str, sizeof(str), "%s", DefSkillName[crl_default_skill]);
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 36, str, 
                  DefSkillColor(crl_default_skill));
 
