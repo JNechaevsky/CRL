@@ -364,7 +364,7 @@ void R_InitTextures(void)
     int offset, maxoff, maxoff2;
     int numtextures1, numtextures2;
     int *directory;
-    char *texture1, *texture2, *pnames;
+    const char *texture1, *texture2, *pnames;
 
     texture1 = DEH_String("TEXTURE1");
     texture2 = DEH_String("TEXTURE2");
@@ -649,7 +649,7 @@ void R_InitData(void)
 ================
 */
 
-int R_FlatNumForName(char *name)
+int R_FlatNumForName(const char *name)
 {
     int i;
     char namet[9];
@@ -673,7 +673,7 @@ int R_FlatNumForName(char *name)
 ================
 */
 
-int R_CheckTextureNumForName(char *name)
+int R_CheckTextureNumForName(const char *name)
 {
     texture_t *texture;
     int key;
@@ -706,7 +706,7 @@ int R_CheckTextureNumForName(char *name)
 ================
 */
 
-int R_TextureNumForName(char *name)
+int R_TextureNumForName(const char *name)
 {
     int i;
     //char  namet[9];

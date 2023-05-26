@@ -64,7 +64,7 @@ void IN_DrawCoopStats(void);
 void IN_DrawDMStats(void);
 void IN_DrawNumber(int val, int x, int y, int digits);
 void IN_DrawTime(int x, int y, int h, int m, int s);
-void IN_DrTextB(char *text, int x, int y);
+void IN_DrTextB(const char *text, int x, int y);
 
 static boolean skipintermission;
 static int interstate = 0;
@@ -295,7 +295,7 @@ void IN_InitStats(void)
     }
 }
 
-static void IN_LoadUnloadPics(void (*callback)(char *lumpname,
+static void IN_LoadUnloadPics(void (*callback)(const char *lumpname,
                                                int lumpnum,
                                                patch_t **ptr))
 {
@@ -337,7 +337,7 @@ static void IN_LoadUnloadPics(void (*callback)(char *lumpname,
 //
 //========================================================================
 
-static void LoadLumpCallback(char *lumpname, int lumpnum, patch_t **ptr)
+static void LoadLumpCallback(const char *lumpname, int lumpnum, patch_t **ptr)
 {
     if (lumpname != NULL)
     {
@@ -364,7 +364,7 @@ void IN_LoadPics(void)
 //
 //========================================================================
 
-static void UnloadLumpCallback(char *lumpname, int lumpnum, patch_t **ptr)
+static void UnloadLumpCallback(const char *lumpname, int lumpnum, patch_t **ptr)
 {
     if (lumpname != NULL)
     {
@@ -1058,7 +1058,7 @@ void IN_DrawNumber(int val, int x, int y, int digits)
 //
 //========================================================================
 
-void IN_DrTextB(char *text, int x, int y)
+void IN_DrTextB(const char *text, int x, int y)
 {
     char c;
     patch_t *p;
