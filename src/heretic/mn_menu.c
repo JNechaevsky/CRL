@@ -1282,7 +1282,7 @@ void MN_DrTextA (const char *text, int x, int y, byte *table)
         else
         {
             p = W_CacheLumpNum(FontABaseLump + c - 33, PU_CACHE);
-            V_DrawShadowedPatchRavenSmall(x, y, p, "NULL"); // [JN] TODO - patch name
+            V_DrawShadowedPatchRavenOptional(x, y, p, "NULL"); // [JN] TODO - patch name
             x += SHORT(p->width) - 1;
         }
     }
@@ -1339,7 +1339,7 @@ void MN_DrTextACentered (const char *text, int y, byte *table)
         else
         {
             p = W_CacheLumpNum(FontABaseLump + c - 33, PU_CACHE);
-            V_DrawPatch(cx, y, p, "NULL"); // [JN] TODO - patch name
+            V_DrawShadowedPatchRavenOptional(cx, y, p, "NULL"); // [JN] TODO - patch name
             cx += SHORT(p->width) - 1;
         }
     }
@@ -1372,7 +1372,7 @@ void MN_DrTextACritical (const char *text1, const char *text2, int y, byte *tabl
         else
         {
             p = W_CacheLumpNum(FontABaseLump + c - 33, PU_CACHE);
-            V_DrawShadowedPatchRavenSmall(cx1, y, p, "NULL"); // [JN] TODO - patch name
+            V_DrawShadowedPatchRavenOptional(cx1, y, p, "NULL"); // [JN] TODO - patch name
             cx1 += SHORT(p->width) - 1;
         }
     }
@@ -1386,7 +1386,7 @@ void MN_DrTextACritical (const char *text1, const char *text2, int y, byte *tabl
         else
         {
             p = W_CacheLumpNum(FontABaseLump + c - 33, PU_CACHE);
-            V_DrawShadowedPatchRavenSmall(cx2, y+10, p, "NULL"); // [JN] TODO - patch name
+            V_DrawShadowedPatchRavenOptional(cx2, y+10, p, "NULL"); // [JN] TODO - patch name
             cx2 += SHORT(p->width) - 1;
         }
     }
@@ -1416,7 +1416,7 @@ void MN_DrTextB(const char *text, int x, int y)
         else
         {
             p = W_CacheLumpNum(FontBBaseLump + c - 33, PU_CACHE);
-            V_DrawPatch(x, y, p, "NULL"); // [JN] TODO - patch name
+            V_DrawShadowedPatchRavenOptional(x, y, p, "NULL"); // [JN] TODO - patch name
             x += SHORT(p->width) - 1;
         }
     }

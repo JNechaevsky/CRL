@@ -216,7 +216,7 @@ void F_TextWrite(void)
         w = W_CacheLumpNum(FontABaseLump + c - 33, PU_CACHE);
         if (cx + SHORT(w->width) > SCREENWIDTH)
             break;
-        V_DrawPatch(cx, cy, w, "NULL"); // [JN] TODO - proper name
+        V_DrawShadowedPatchRavenOptional(cx, cy, w, "NULL"); // [JN] TODO - proper name
         cx += SHORT(w->width);
     }
 

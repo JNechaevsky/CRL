@@ -368,12 +368,12 @@ void V_DrawShadowedPatchRaven(int x, int y, patch_t *patch)
 }
 
 // -----------------------------------------------------------------------------
-// V_DrawShadowedPatchRavenSmall
+// V_DrawShadowedPatchRavenOptional
 // [JN] Masks a column based masked pic to the screen.
-// Used by Heretic and Hexen with tinttable map.
+// Used by Heretic and Hexen with tinttable map and draws optional shadow.
 // -----------------------------------------------------------------------------
 
-void V_DrawShadowedPatchRavenSmall (int x, int y, const patch_t *patch, char *name)
+void V_DrawShadowedPatchRavenOptional (int x, int y, const patch_t *patch, char *name)
 {
     int       count, col, w;
     byte     *source, *sourcetrans;
