@@ -952,7 +952,7 @@ void D_DoomMain(void)
 
     if (cdrom)
     {
-        M_SetConfigDir(DEH_String("c:\\heretic.cd"));
+        M_SetConfigDir("c:\\heretic.cd");
     }
     else
     {
