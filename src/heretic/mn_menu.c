@@ -1482,9 +1482,9 @@ void MN_Ticker(void)
 
     // [JN] Menu item fading effect:
 
-    for (int i = 0; i < CurrentMenu->itemCount; i++)
+    if (CurrentMenu->smallFont)
     {
-        if (CurrentMenu->smallFont)
+        for (int i = 0 ; i < CurrentMenu->itemCount ; i++)
         {
             if (CurrentItPos == i)
             {
