@@ -1468,17 +1468,37 @@ void MN_Ticker(void)
 
     // [JN] Menu glowing animation:
     
-    // Brightening
     if (!cursor_direction && ++cursor_tics == 8)
     {
+        // Brightening
         cursor_direction = true;
     }
-    // Darkening
     else
     if (cursor_direction && --cursor_tics == -8)
     {
+        // Darkening
         cursor_direction = false;
     }
+
+    // [JN] Menu item fading effect:
+
+    for (int i = 0; i < CurrentMenu->itemCount; i++)
+    {
+        if (CurrentMenu->smallFont)
+        {
+            if (CurrentItPos == i)
+            {
+                // Keep menu item bright
+                CurrentMenu->items[i].tics = 5;
+            }
+            else
+            {
+                // Decrease tics for glowing effect
+                CurrentMenu->items[i].tics--;
+            }
+        }
+    }
+
 }
 
 //---------------------------------------------------------------------------
@@ -1553,15 +1573,14 @@ void MN_Drawer(void)
             {
                 if (item->type != ITT_EMPTY && item->text)
                 {
-                    // [JN] Highlight menu item on which the cursor is positioned.
                     if (CurrentItPos == i)
                     {
-                        CurrentMenu->items[i].tics = 5;  // Keep menu item bright.
+                        // [JN] Highlight menu item on which the cursor is positioned.
                         MN_DrTextA(DEH_String(item->text), x, y, cr[CR_MENU_BRIGHT2]);
                     }
                     else
                     {
-                        CurrentMenu->items[i].tics--;  // Decrease tics for glowing effect.
+                        // [JN] Apply fading effect in MN_Ticker.
                         MN_DrTextA(DEH_String(item->text), x, y, M_Line_Glow(CurrentMenu->items[i].tics));
                     }
                 }

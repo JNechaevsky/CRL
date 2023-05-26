@@ -4947,15 +4947,14 @@ void M_Drawer (void)
 
         if (currentMenu->smallFont)
         {
-            // [JN] Highlight menu item on which the cursor is positioned.
             if (itemOn == i)
             {
-                currentMenu->menuitems[i].tics = 5; // Keep menu item bright.
+                // [JN] Highlight menu item on which the cursor is positioned.
                 M_WriteText (x, y, name, cr[CR_MENU_BRIGHT5]);
             }
             else
             {
-                currentMenu->menuitems[i].tics--; // Decrease tics for glowing effect.
+                // [JN] Apply fading effect in M_Ticker.
                 M_WriteText (x, y, name, M_Line_Glow(currentMenu->menuitems[i].tics));
             }
             y += LINEHEIGHT_SMALL;
@@ -5019,16 +5018,35 @@ void M_Ticker (void)
 
     // [JN] Menu glowing animation:
     
-    // Brightening
     if (!cursor_direction && ++cursor_tics == 8)
     {
+        // Brightening
         cursor_direction = true;
     }
-    // Darkening
     else
     if (cursor_direction && --cursor_tics == -8)
     {
+        // Darkening
         cursor_direction = false;
+    }
+
+    // [JN] Menu item fading effect:
+
+    for (int i = 0 ; i < currentMenu->numitems ; i++)
+    {
+        if (currentMenu->smallFont)
+        {
+            if (itemOn == i)
+            {
+                // Keep menu item bright
+                currentMenu->menuitems[i].tics = 5;
+            }
+            else
+            {
+                // Decrease tics for glowing effect
+                currentMenu->menuitems[i].tics--;
+            }
+        }
     }
 }
 
