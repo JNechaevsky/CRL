@@ -513,17 +513,17 @@ static void M_ShadeBackground (void)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLMainItems[] = {
-    {ITT_LRFUNC, "SPECTATOR MODE",          CRL_Spectating, 0, MENU_NONE},
-    {ITT_LRFUNC, "FREEZE MODE",             CRL_Freeze,     0, MENU_NONE},
-    {ITT_LRFUNC, "NO TARGET MODE",          CRL_NoTarget,   0, MENU_NONE},
-    {ITT_LRFUNC, "NO MOMENTUM MODE",        CRL_NoMomentum, 0, MENU_NONE},
-    {ITT_EMPTY, NULL, NULL, 0, MENU_NONE},
-    {ITT_EFUNC,  "VIDEO OPTIONS",           NULL, 0, MENU_CRLVIDEO},
-    {ITT_EFUNC,  "SOUND OPTIONS",           NULL, 0, MENU_CRLSOUND},
-    {ITT_LRFUNC, "CONTROL SETTINGS",        NULL, 0, MENU_NONE},
-    {ITT_EFUNC,  "WIDGETS AND AUTOMAP",     NULL, 0, MENU_CRLWIDGETS},
-    {ITT_LRFUNC, "GAMEPLAY FEATURES",       NULL, 0, MENU_NONE},
-    {ITT_EFUNC,  "STATIC ENGINE LIMITS",    NULL, 0, MENU_CRLLIMITS}
+    {ITT_LRFUNC,  "SPECTATOR MODE",       CRL_Spectating, 0, MENU_NONE},
+    {ITT_LRFUNC,  "FREEZE MODE",          CRL_Freeze,     0, MENU_NONE},
+    {ITT_LRFUNC,  "NO TARGET MODE",       CRL_NoTarget,   0, MENU_NONE},
+    {ITT_LRFUNC,  "NO MOMENTUM MODE",     CRL_NoMomentum, 0, MENU_NONE},
+    {ITT_EMPTY,   NULL,                   NULL,           0, MENU_NONE},
+    {ITT_SETMENU, "VIDEO OPTIONS",        NULL,           0, MENU_CRLVIDEO},
+    {ITT_SETMENU, "SOUND OPTIONS",        NULL,           0, MENU_CRLSOUND},
+    {ITT_SETMENU, "CONTROL SETTINGS",     NULL,           0, MENU_NONE},
+    {ITT_SETMENU, "WIDGETS AND AUTOMAP",  NULL,           0, MENU_CRLWIDGETS},
+    {ITT_SETMENU, "GAMEPLAY FEATURES",    NULL,           0, MENU_NONE},
+    {ITT_SETMENU, "STATIC ENGINE LIMITS", NULL,           0, MENU_CRLLIMITS}
 
 };
 
