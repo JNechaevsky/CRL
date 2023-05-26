@@ -72,7 +72,7 @@ typedef enum
     MENU_SAVE,
     MENU_CRLMAIN,
     MENU_CRLVIDEO,
-    // MENU_CRLSOUND,
+    MENU_CRLSOUND,
     // MENU_CRLCONTROLS,
     MENU_CRLWIDGETS,
     // MENU_CRLGAMEPLAY,
@@ -458,7 +458,6 @@ static const int M_INT_Slider (int val, int min, int max, int direction)
 }
 
 static void DrawCRLMain (void);
-static boolean CRLDummy (int option);
 static boolean CRL_Spectating (int option);
 static boolean CRL_Freeze (int option);
 static boolean CRL_NoTarget (int option);
@@ -475,6 +474,12 @@ static boolean CRL_Gamma (int option);
 static boolean CRL_TextShadows (int option);
 static boolean CRL_GfxStartup (int option);
 static boolean CRL_EndText (int option);
+
+static void DrawCRLSound (void);
+static boolean CRL_MusicSystem (int option);
+static boolean CRL_SFXMode (int option);
+static boolean CRL_PitchShift (int option);
+static boolean CRL_SFXChannels (int option);
 
 static void DrawCRLWidgets (void);
 static boolean CRL_Widget_Coords (int option);
@@ -513,12 +518,12 @@ static MenuItem_t CRLMainItems[] = {
     {ITT_LRFUNC, "NO TARGET MODE",          CRL_NoTarget,   0, MENU_NONE},
     {ITT_LRFUNC, "NO MOMENTUM MODE",        CRL_NoMomentum, 0, MENU_NONE},
     {ITT_EMPTY, NULL, NULL, 0, MENU_NONE},
-    {ITT_EFUNC,  "VIDEO OPTIONS",           CRLDummy, 0, MENU_CRLVIDEO},
-    {ITT_LRFUNC, "SOUND OPTIONS",           CRLDummy, 0, MENU_NONE},
-    {ITT_LRFUNC, "CONTROL SETTINGS",        CRLDummy, 0, MENU_NONE},
-    {ITT_EFUNC,  "WIDGETS AND AUTOMAP",     CRLDummy, 0, MENU_CRLWIDGETS},
-    {ITT_LRFUNC, "GAMEPLAY FEATURES",       CRLDummy, 0, MENU_NONE},
-    {ITT_EFUNC,  "STATIC ENGINE LIMITS",    CRLDummy, 0, MENU_CRLLIMITS}
+    {ITT_EFUNC,  "VIDEO OPTIONS",           NULL, 0, MENU_CRLVIDEO},
+    {ITT_EFUNC,  "SOUND OPTIONS",           NULL, 0, MENU_CRLSOUND},
+    {ITT_LRFUNC, "CONTROL SETTINGS",        NULL, 0, MENU_NONE},
+    {ITT_EFUNC,  "WIDGETS AND AUTOMAP",     NULL, 0, MENU_CRLWIDGETS},
+    {ITT_LRFUNC, "GAMEPLAY FEATURES",       NULL, 0, MENU_NONE},
+    {ITT_EFUNC,  "STATIC ENGINE LIMITS",    NULL, 0, MENU_CRLLIMITS}
 
 };
 
@@ -565,11 +570,6 @@ static void DrawCRLMain (void)
                              player->cheats & CF_NOMOMENTUM ? GLOW_GREEN : GLOW_RED, ITEMONTICS));
 
     MN_DrTextACentered ("SETTINGS", 70, cr[CR_YELLOW]);
-}
-
-static boolean CRLDummy (int option)
-{
-    return true;
 }
 
 static boolean CRL_Spectating (int option)
@@ -815,6 +815,182 @@ static boolean CRL_EndText (int option)
 }
 
 // -----------------------------------------------------------------------------
+// Sound options
+// -----------------------------------------------------------------------------
+
+static MenuItem_t CRLSoundItems[] = {
+    {ITT_LRFUNC, "SFX VOLUME",           SCSfxVolume,        MENU_NONE},
+    {ITT_EMPTY,  NULL,                   NULL,            0, MENU_NONE},
+    {ITT_EMPTY,  NULL,                   NULL,            0, MENU_NONE},
+    {ITT_LRFUNC, "MUSIC VOLUME",         SCMusicVolume,      MENU_NONE},
+    {ITT_EMPTY,  NULL,                   NULL,            0, MENU_NONE},
+    {ITT_EMPTY,  NULL,                   NULL,            0, MENU_NONE},
+    {ITT_EMPTY,  NULL,                   NULL,            0, MENU_NONE},
+    {ITT_LRFUNC, "MUSIC PLAYBACK",       CRL_MusicSystem, 0, MENU_NONE},
+    {ITT_LRFUNC,  "SOUNDS EFFECTS MODE", CRL_SFXMode,     0, MENU_NONE},
+    {ITT_LRFUNC, "PITCH-SHIFTED SOUNDS", CRL_PitchShift,  0, MENU_NONE},
+    {ITT_LRFUNC, "NUMBER OF SFX TO MIX", CRL_SFXChannels, 0, MENU_NONE}
+};
+
+static Menu_t CRLSound = {
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    DrawCRLSound,
+    11, CRLSoundItems,
+    0,
+    true,
+    MENU_CRLMAIN
+};
+
+static void DrawCRLSound (void)
+{
+    static char str[32];
+
+    M_ShadeBackground();
+
+    MN_DrTextACentered("SOUND OPTIONS", 20, cr[CR_YELLOW]);
+
+    DrawSlider(&CRLSound, 1, 16, snd_MaxVolume, false);
+
+    DrawSlider(&CRLSound, 4, 16, snd_MusicVolume, false);
+
+    MN_DrTextACentered("SOUND SYSTEM", 90, cr[CR_YELLOW]);
+
+    // Music playback
+    sprintf(str, snd_musicdevice == 0 ? "DISABLED" :
+                (snd_musicdevice == 3 && !strcmp(snd_dmxoption, "")) ? "OPL2 SYNTH" : 
+                (snd_musicdevice == 3 && !strcmp(snd_dmxoption, "-opl3")) ? "OPL3 SYNTH" : 
+                 snd_musicdevice == 5 ?  "GUS (EMULATED)" :
+                 snd_musicdevice == 8 ?  "NATIVE MIDI" :
+                 snd_musicdevice == 11 ? "FLUIDSYNTH" :
+                                         "UNKNOWN");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 100,
+               M_Item_Glow(7, snd_musicdevice ? GLOW_GREEN : GLOW_RED, ITEMONTICS));
+
+    // Sound effects mode
+    sprintf(str, crl_monosfx ? "MONO" : "STEREO");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 110,
+               M_Item_Glow(8, crl_monosfx ? GLOW_RED : GLOW_GREEN, ITEMONTICS));
+
+    // Pitch-shifted sounds
+    sprintf(str, snd_pitchshift ? "ON" : "OFF");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 120,
+               M_Item_Glow(9, snd_pitchshift ? GLOW_GREEN : GLOW_RED, ITEMONTICS));
+
+    // Number of SFX to mix
+    sprintf(str, "%i", snd_Channels);
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 130,
+               M_Item_Glow(10, snd_Channels == 8 ? GLOW_GREEN :
+                               snd_Channels == 1 ? GLOW_RED : GLOW_DARKGREEN, ITEMONTICS));
+
+    // Inform that music system is not hot-swappable. :(
+    if (CurrentItPos == 7)
+    {
+        MN_DrTextACentered("CHANGE WILL REQUIRE RESTART OF THE PROGRAM", 142, cr[CR_GREEN]);
+    }
+}
+
+static boolean CRL_MusicSystem (int option)
+{
+    switch (option)
+    {
+        case 0:
+            if (snd_musicdevice == 0)
+            {
+                snd_musicdevice = 5;    // Set to GUS
+            }
+            else if (snd_musicdevice == 5)
+#ifdef HAVE_FLUIDSYNTH
+            {
+                snd_musicdevice = 11;    // Set to FluidSynth
+            }
+            else if (snd_musicdevice == 11)
+#endif // HAVE_FLUIDSYNTH
+            {
+                snd_musicdevice = 8;    // Set to Native MIDI
+            }
+            else if (snd_musicdevice == 8)
+            {
+                snd_musicdevice = 3;    // Set to OPL3
+                snd_dmxoption = "-opl3";
+            }
+            else if (snd_musicdevice == 3  && !strcmp(snd_dmxoption, "-opl3"))
+            {
+                snd_musicdevice = 3;    // Set to OPL2
+                snd_dmxoption = "";
+            }
+            else if (snd_musicdevice == 3 && !strcmp(snd_dmxoption, ""))
+            {
+                snd_musicdevice = 0;    // Disable
+            }
+            break;
+        case 1:
+            if (snd_musicdevice == 0)
+            {
+                snd_musicdevice  = 3;   // Set to OPL2
+                snd_dmxoption = "";
+            }
+            else if (snd_musicdevice == 3 && !strcmp(snd_dmxoption, ""))
+            {
+                snd_musicdevice  = 3;   // Set to OPL3
+                snd_dmxoption = "-opl3";
+            }
+            else if (snd_musicdevice == 3 && !strcmp(snd_dmxoption, "-opl3"))
+            {
+                snd_musicdevice  = 8;   // Set to Native MIDI
+            }
+            else if (snd_musicdevice == 8)
+#ifdef HAVE_FLUIDSYNTH
+            {
+                snd_musicdevice  = 11;   // Set to FluidSynth
+            }
+            else if (snd_musicdevice == 11)
+#endif // HAVE_FLUIDSYNTH
+            {
+                snd_musicdevice  = 5;   // Set to GUS
+            }
+            else if (snd_musicdevice == 5)
+            {
+                snd_musicdevice  = 0;   // Disable
+            }
+            break;
+        default:
+            {
+                break;
+            }
+    }
+    return true;
+}
+
+static boolean CRL_SFXMode (int option)
+{
+    crl_monosfx ^= 1;
+    return true;
+}
+
+static boolean CRL_PitchShift (int option)
+{
+    snd_pitchshift ^= 1;
+    return true;
+}
+
+static boolean CRL_SFXChannels (int option)
+{
+    switch (option)
+    {
+        case 0:
+            if (snd_Channels > 1)
+                snd_Channels--;
+            break;
+        case 1:
+            if (snd_Channels < 16)
+                snd_Channels++;
+        default:
+            break;
+    }
+    return true;
+}
+
+// -----------------------------------------------------------------------------
 // Widgets and Automap
 // -----------------------------------------------------------------------------
 
@@ -1038,7 +1214,7 @@ static Menu_t *Menus[] = {
     // [JN] CRL menu
     &CRLMain,
     &CRLVideo,
-    // &CRLSound,
+    &CRLSound,
     // &CRLControls,
     &CRLWidgetsMap,
     // &CRLGameplay,

@@ -32,6 +32,8 @@
 #include "w_wad.h"
 #include "z_zone.h"
 
+#include "crlvars.h"
+
 /*
 ===============================================================================
 
@@ -500,10 +502,19 @@ void S_UpdateSounds(mobj_t * listener)
                                     channel[i].mo->x, channel[i].mo->y);
             angle = (angle - viewangle) >> 24;
             sep = angle * 2 - 128;
+
+            // [JN] Support for mono sfx mode
+            if (crl_monosfx)
+            {
+                sep = 128;
+            }
+            else
+            {
             if (sep < 64)
                 sep = -sep;
             if (sep > 192)
                 sep = 512 - sep;
+            }
             // TODO: Pitch shifting.
             I_UpdateSoundParams(channel[i].handle, vol, sep);
             priority = S_sfx[channel[i].sound_id].priority;
