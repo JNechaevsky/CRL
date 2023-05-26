@@ -703,7 +703,7 @@ void G_DoLoadLevel (void)
     // [JN] Let's just fix it for common Doom II.
     if (gamemode == commercial || gameversion == exe_chex)
     {
-        char *skytexturename;
+        const char *skytexturename;
 
         if (gamemap < 12)
         {
@@ -2045,7 +2045,7 @@ G_InitNew
   int		episode,
   int		map )
 {
-    char *skytexturename;
+    const char *skytexturename;
     int             i;
 
     if (paused)
@@ -2427,9 +2427,9 @@ void G_BeginRecording (void)
 // G_PlayDemo 
 //
 
-char*	defdemoname; 
+const char*	defdemoname; 
  
-void G_DeferedPlayDemo (char* name) 
+void G_DeferedPlayDemo (const char* name) 
 { 
     defdemoname = name; 
     gameaction = ga_playdemo; 

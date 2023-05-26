@@ -258,8 +258,8 @@ void P_InitTerrainTypes(void)
 
 void P_InitPicAnims(void)
 {
-    char *startname;
-    char *endname;
+    const char *startname;
+    const char *endname;
     int i;
 
     lastanim = anims;

@@ -30,8 +30,8 @@ int finalecount;
 #define TEXTSPEED       3
 #define TEXTWAIT        250
 
-char *finaletext;
-char *finaleflat;
+const char *finaletext;
+const char *finaleflat;
 
 int FontABaseLump;
 
@@ -156,7 +156,7 @@ void F_TextWrite(void)
     byte *src, *dest;
     int x, y;
     int count;
-    char *ch;
+    const char *ch;
     int c;
     int cx, cy;
     patch_t *w;
@@ -298,7 +298,7 @@ void F_DrawUnderwater(void)
 {
     static boolean underwawa = false;
     extern boolean askforquit;
-    char *lumpname;
+    const char *lumpname;
     byte *palette;
 
     // The underwater screen has its own palette, which is rather annoying.

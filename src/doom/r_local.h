@@ -509,9 +509,9 @@ extern lighttable_t **dscalelight;
 // -----------------------------------------------------------------------------
 
 extern byte *R_GetColumn (int tex, int col);
-extern int   R_CheckTextureNumForName (char *name);
-extern int   R_FlatNumForName (char *name);
-extern int   R_TextureNumForName (char *name);
+extern int   R_CheckTextureNumForName (const char *name);
+extern int   R_FlatNumForName (const char *name);
+extern int   R_TextureNumForName (const char *name);
 extern void  R_InitData (void);
 extern void  R_PrecacheLevel (void);
 
@@ -699,7 +699,7 @@ extern void R_ClipVisSprite (vissprite_t *vis, int xl, int xh);
 extern void R_DrawMasked (void);
 extern void R_DrawMaskedColumn (column_t *column);
 extern void R_DrawSprites (void);
-extern void R_InitSprites (char **namelist);
+extern void R_InitSprites (const char **namelist);
 extern void R_SortVisSprites (void);
 
 extern vissprite_t  vissprites[MAXREALVISSPRITES];

@@ -48,10 +48,10 @@ int	clipammo[NUMAMMO] = {10, 4, 20, 1};
 // [JN] Sets message parameters.
 // -----------------------------------------------------------------------------
 
-boolean ultimatemsg;
-char   *lastmessage;
+boolean     ultimatemsg;
+const char *lastmessage;
 
-void CRL_SetMessage (player_t *player, char *message, boolean ultmsg, byte *table)
+void CRL_SetMessage (player_t *player, const char *message, boolean ultmsg, byte *table)
 {
     lastmessage = message;
 

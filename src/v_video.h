@@ -49,9 +49,9 @@ void V_CopyRect(int srcx, int srcy, pixel_t *source,
                 int width, int height,
                 int destx, int desty);
 
-void V_DrawPatch(int x, int y, patch_t *patch, char *name);
+void V_DrawPatch(int x, int y, patch_t *patch, const char *name);
 void V_DrawPatchFlipped(int x, int y, patch_t *patch);
-void V_DrawShadowedPatch(int x, int y, const patch_t *patch, char *name);
+void V_DrawShadowedPatch(int x, int y, const patch_t *patch, const char *name);
 void V_DrawShadowedPatchRaven(int x, int y, patch_t *patch);
 void V_DrawShadowedPatchRavenSmall(int x, int y, const patch_t *patch, char *name);
 void V_DrawTLPatch(int x, int y, patch_t *patch);

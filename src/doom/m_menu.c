@@ -69,7 +69,7 @@ static int quickSaveSlot;
  // 1 = message to be printed
 static int messageToPrint;
 // ...and here is the message string!
-static char *messageString;
+static const char *messageString;
 
 // message x & y
 static int messageLastMenuActive;
@@ -230,8 +230,8 @@ static void M_DrawSave(void);
 static void M_DrawSaveLoadBorder(int x,int y);
 static void M_SetupNextMenu(menu_t *menudef);
 static void M_DrawThermo(int x,int y,int thermWidth,int thermDot);
-static const int M_StringHeight(char *string);
-static void M_StartMessage(char *string,void *routine,boolean input);
+static const int M_StringHeight(const char *string);
+static void M_StartMessage(const char *string,void *routine,boolean input);
 static void M_ClearMenus (void);
 
 
@@ -3000,7 +3000,7 @@ static boolean M_ScrollSaveLoad (boolean direction)
 static void M_DrawLoad(void)
 {
     int             i;
-    char *m_loadg = DEH_String("M_LOADG");
+    const char *m_loadg = DEH_String("M_LOADG");
 	
     V_DrawShadowedPatch(72, 7, W_CacheLumpName(m_loadg, PU_CACHE), m_loadg);
 
@@ -3021,9 +3021,9 @@ static void M_DrawLoad(void)
 static void M_DrawSaveLoadBorder(int x,int y)
 {
     int             i;
-    char *m_lsleft = DEH_String("M_LSLEFT");
-    char *m_lscntr = DEH_String("M_LSCNTR");
-    char *m_lsrght = DEH_String("M_LSRGHT");
+    const char *m_lsleft = DEH_String("M_LSLEFT");
+    const char *m_lscntr = DEH_String("M_LSCNTR");
+    const char *m_lsrght = DEH_String("M_LSRGHT");
 	
     V_DrawShadowedPatch(x - 8, y, W_CacheLumpName(m_lsleft, PU_CACHE), m_lsleft);
 	
@@ -3074,7 +3074,7 @@ static void M_LoadGame (int choice)
 static void M_DrawSave(void)
 {
     int             i;
-    char *m_saveg = DEH_String("M_SAVEG");
+    const char *m_saveg = DEH_String("M_SAVEG");
 	
     V_DrawShadowedPatch(72, 7, W_CacheLumpName(m_saveg, PU_CACHE), m_saveg);
     for (i = 0;i < load_end; i++)
@@ -3227,7 +3227,7 @@ static void M_QuickLoad(void)
 //
 static void M_DrawReadThis1(void)
 {
-    char *help2 = DEH_String("HELP2");
+    const char *help2 = DEH_String("HELP2");
 
     V_DrawPatch(0, 0, W_CacheLumpName(help2, PU_CACHE), help2);
 }
@@ -3239,7 +3239,7 @@ static void M_DrawReadThis1(void)
 //
 static void M_DrawReadThis2(void)
 {
-    char *help1 = DEH_String("HELP1");
+    const char *help1 = DEH_String("HELP1");
 
     // We only ever draw the second page if this is 
     // gameversion == exe_doom_1_9 and gamemode == registered
@@ -3249,7 +3249,7 @@ static void M_DrawReadThis2(void)
 
 static void M_DrawReadThisCommercial(void)
 {
-    char *help = DEH_String("HELP");
+    const char *help = DEH_String("HELP");
 
     V_DrawPatch(0, 0, W_CacheLumpName(help, PU_CACHE), help);
 }
@@ -3260,7 +3260,7 @@ static void M_DrawReadThisCommercial(void)
 //
 static void M_DrawSound(void)
 {
-    char *m_svol = DEH_String("M_SVOL");
+    const char *m_svol = DEH_String("M_SVOL");
 
     V_DrawShadowedPatch(60, 38, W_CacheLumpName(m_svol, PU_CACHE), m_svol);
 
@@ -3318,7 +3318,7 @@ static void M_MusicVol(int choice)
 //
 static void M_DrawMainMenu(void)
 {
-    char *m_doom = DEH_String("M_DOOM");
+    const char *m_doom = DEH_String("M_DOOM");
 
     V_DrawPatch(94, 2, W_CacheLumpName(m_doom, PU_CACHE), m_doom);
 }
@@ -3331,8 +3331,8 @@ static void M_DrawMainMenu(void)
 //
 static void M_DrawNewGame(void)
 {
-    char *m_newg = DEH_String("M_NEWG");
-    char *m_skill = DEH_String("M_SKILL");
+    const char *m_newg = DEH_String("M_NEWG");
+    const char *m_skill = DEH_String("M_SKILL");
 
     V_DrawShadowedPatch(96, 14, W_CacheLumpName(m_newg, PU_CACHE), m_newg);
     V_DrawShadowedPatch(54, 38, W_CacheLumpName(m_skill, PU_CACHE), m_skill);
@@ -3362,7 +3362,7 @@ static int epi;
 
 static void M_DrawEpisode(void)
 {
-    char *m_episod = DEH_String("M_EPISOD");
+    const char *m_episod = DEH_String("M_EPISOD");
 
     V_DrawShadowedPatch(54, 38, W_CacheLumpName(m_episod, PU_CACHE), m_episod);
 }
@@ -3412,7 +3412,7 @@ static char *msgNames[2] = {"M_MSGOFF","M_MSGON"};
 
 static void M_DrawOptions(void)
 {
-    char *m_optttl = DEH_String("M_OPTTTL");
+    const char *m_optttl = DEH_String("M_OPTTTL");
 
     V_DrawShadowedPatch(108, 15, W_CacheLumpName(m_optttl, PU_CACHE), m_optttl);
 	
@@ -3664,10 +3664,10 @@ M_DrawThermo
 {
     int		xx;
     int		i;
-    char	*m_therml = DEH_String("M_THERML");
-    char	*m_thermm = DEH_String("M_THERMM");
-    char	*m_thermr = DEH_String("M_THERMR");
-    char	*m_thermo = DEH_String("M_THERMO");
+    const char	*m_therml = DEH_String("M_THERML");
+    const char	*m_thermm = DEH_String("M_THERMM");
+    const char	*m_thermr = DEH_String("M_THERMR");
+    const char	*m_thermo = DEH_String("M_THERMO");
 
     xx = x;
     V_DrawShadowedPatch(xx, y, W_CacheLumpName(m_therml, PU_CACHE), m_therml);
@@ -3690,7 +3690,7 @@ M_DrawThermo
 
 static void
 M_StartMessage
-( char*		string,
+( const char*	string,
   void*		routine,
   boolean	input )
 {
@@ -3729,7 +3729,7 @@ const int M_StringWidth(const char* string)
 //
 //      Find string height from hu_font chars
 //
-static const int M_StringHeight(char* string)
+static const int M_StringHeight(const char* string)
 {
     size_t             i;
     int             h;
@@ -4841,7 +4841,6 @@ void M_StartControlPanel (void)
 
 static void M_DrawOPLDev(void)
 {
-    extern void I_OPL_DevMessages(char *, size_t);
     char debug[1024];
     char *curr, *p;
     int line;
@@ -4883,7 +4882,7 @@ void M_Drawer (void)
     unsigned int	i;
     unsigned int	max;
     char		string[80];
-    char               *name;
+    const char *name;
     int			start;
 
     // Horiz. & Vertically center string and print it.

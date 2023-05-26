@@ -14,7 +14,14 @@
 
 // Sound control menu
 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <mmsystem.h>
+#endif
+
 #include <stdlib.h>
+#include <string.h>
 
 #include "SDL_mixer.h"
 
@@ -22,6 +29,7 @@
 #include "m_config.h"
 #include "m_misc.h"
 
+#include "execute.h"
 #include "mode.h"
 #include "sound.h"
 
@@ -34,16 +42,16 @@ typedef enum
     NUM_OPLMODES,
 } oplmode_t;
 
-static char *opltype_strings[] =
+static const char *opltype_strings[] =
 {
     "OPL2",
     "OPL3"
 };
 
-static char *cfg_extension[] = { "cfg", NULL };
+static const char *cfg_extension[] = { "cfg", NULL };
 
 #ifdef HAVE_FLUIDSYNTH
-static char *sf_extension[] = { "sf2", "sf3", NULL };
+static const char *sf_extension[] = { "sf2", "sf3", NULL };
 #endif
 
 // Config file variables:
@@ -61,15 +69,25 @@ char *snd_dmxoption = "";
 static int numChannels = 8;
 static int sfxVolume = 8;
 static int musicVolume = 8;
-static int use_libsamplerate = 1;
-static float libsamplerate_scale = 0.65;
+int use_libsamplerate = 1;
+float libsamplerate_scale = 0.65;
 
-static char *timidity_cfg_path = NULL;
+char *timidity_cfg_path = NULL;
 static char *gus_patch_path = NULL;
 static int gus_ram_kb = 1024;
+#ifdef _WIN32
+#define MAX_MIDI_DEVICES 20
+static char **midi_names;
+static int midi_num_devices;
+static int midi_index;
+char *winmm_midi_device = NULL;
+int winmm_complevel = 0;
+int winmm_reset_type = 1;
+int winmm_reset_delay = 0;
+#endif
 
 #ifdef HAVE_FLUIDSYNTH
-char *fsynth_sf_path = "";
+char *fsynth_sf_path = NULL;
 int fsynth_chorus_active = 1;
 float fsynth_chorus_depth = 5.0f;
 float fsynth_chorus_level = 0.35f;
@@ -131,7 +149,92 @@ static txt_dropdown_list_t *OPLTypeSelector(void)
     return result;
 }
 
-void ConfigSound(void)
+#ifdef _WIN32
+static void UpdateMidiDevice(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(data))
+{
+    free(winmm_midi_device);
+    winmm_midi_device = M_StringDuplicate(midi_names[midi_index]);
+}
+
+static txt_dropdown_list_t *MidiDeviceSelector(void)
+{
+    txt_dropdown_list_t *result;
+    int all_devices;
+    int device_ids[MAX_MIDI_DEVICES];
+    MMRESULT mmr;
+    MIDIOUTCAPS mcaps;
+    int i;
+
+    if (midi_num_devices > 0)
+    {
+        for (i = 0; i < midi_num_devices; ++i)
+        {
+            free(midi_names[i]);
+            midi_names[i] = NULL;
+        }
+        free(midi_names);
+        midi_names = NULL;
+    }
+    midi_num_devices = 0;
+
+    // get the number of midi devices on this system
+    all_devices = midiOutGetNumDevs() + 1; // include MIDI_MAPPER
+    if (all_devices > MAX_MIDI_DEVICES)
+    {
+        all_devices = MAX_MIDI_DEVICES;
+    }
+
+    // get the valid device ids only, starting from -1 (MIDI_MAPPER)
+    for (i = 0; i < all_devices; ++i)
+    {
+        mmr = midiOutGetDevCaps(i - 1, &mcaps, sizeof(mcaps));
+        if (mmr == MMSYSERR_NOERROR)
+        {
+            device_ids[midi_num_devices] = i - 1;
+            midi_num_devices++;
+        }
+    }
+
+    // get the device names
+    midi_names = malloc(midi_num_devices * sizeof(char *));
+    for (i = 0; i < midi_num_devices; ++i)
+    {
+        mmr = midiOutGetDevCaps(device_ids[i], &mcaps, sizeof(mcaps));
+        if (mmr == MMSYSERR_NOERROR)
+        {
+            midi_names[i] = M_StringDuplicate(mcaps.szPname);
+        }
+    }
+
+    // set the dropdown list index to the previously selected device
+    for (i = 0; i < midi_num_devices; ++i)
+    {
+        if (winmm_midi_device != NULL &&
+            strstr(winmm_midi_device, midi_names[i]))
+        {
+            midi_index = i;
+            break;
+        }
+        else if (winmm_midi_device == NULL || i == midi_num_devices - 1)
+        {
+            // give up and use MIDI_MAPPER
+            midi_index = 0;
+            free(winmm_midi_device);
+            winmm_midi_device = M_StringDuplicate(midi_names[0]);
+            break;
+        }
+    }
+
+    result = TXT_NewDropdownList(&midi_index, (const char **)midi_names,
+                                 midi_num_devices);
+    TXT_SignalConnect(result, "changed", UpdateMidiDevice, NULL);
+
+    return result;
+}
+#endif
+
+void ConfigSound(TXT_UNCAST_ARG(widget), void *user_data)
+
 {
     txt_window_t *window;
 
@@ -183,6 +286,14 @@ void ConfigSound(void)
                 NULL)),
 
         TXT_NewRadioButton("Native MIDI", &snd_musicdevice, SNDDEVICE_GENMIDI),
+#ifdef _WIN32
+        TXT_NewConditional(&snd_musicdevice, SNDDEVICE_GENMIDI,
+            TXT_NewHorizBox(
+                TXT_NewStrut(4, 0),
+                TXT_NewLabel("Device: "),
+                MidiDeviceSelector(),
+                NULL)),
+#endif
         TXT_NewConditional(&snd_musicdevice, SNDDEVICE_GENMIDI,
             TXT_MakeTable(2,
                 TXT_NewStrut(4, 0),
@@ -222,6 +333,12 @@ void BindSoundVariables(void)
     M_BindIntVariable("gus_ram_kb",               &gus_ram_kb);
     M_BindStringVariable("gus_patch_path",        &gus_patch_path);
     M_BindStringVariable("timidity_cfg_path",     &timidity_cfg_path);
+#ifdef _WIN32
+    M_BindStringVariable("winmm_midi_device",     &winmm_midi_device);
+    M_BindIntVariable("winmm_complevel",          &winmm_complevel);
+    M_BindIntVariable("winmm_reset_type",         &winmm_reset_type);
+    M_BindIntVariable("winmm_reset_delay",        &winmm_reset_delay);
+#endif
 
 #ifdef HAVE_FLUIDSYNTH
     M_BindIntVariable("fsynth_chorus_active",     &fsynth_chorus_active);
@@ -254,6 +371,10 @@ void BindSoundVariables(void)
 
     timidity_cfg_path = M_StringDuplicate("");
     gus_patch_path = M_StringDuplicate("");
+
+#ifdef HAVE_FLUIDSYNTH
+    fsynth_sf_path = M_StringDuplicate("");
+#endif
 
     snd_pitchshift = 0;
 

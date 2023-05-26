@@ -100,7 +100,7 @@ static boolean storedemo;  // Store demo, do not accept any inputs
 
 static int   demosequence;
 static int   pagetic;
-static char *pagename;
+static const char *pagename;
 
 // If true, the main game loop has started.
 boolean main_loop_started = false;
@@ -369,7 +369,7 @@ static void D_Display (void)
     // draw pause pic
     if (paused)
     {
-        char *m_pause = DEH_String("M_PAUSE");
+        const char *m_pause = DEH_String("M_PAUSE");
 
         if (automapactive)
         {
@@ -474,7 +474,7 @@ static void D_Display (void)
 
 static void EnableLoadingDisk (void)
 {
-    char *disk_lump_name;
+    const char *disk_lump_name;
 
     if (show_diskicon)
     {
@@ -764,16 +764,17 @@ void D_DoAdvanceDemo (void)
     // The Doom 3: BFG Edition version of doom2.wad does not have a
     // TITLETPIC lump. Use INTERPIC instead as a workaround.
     if (gamevariant == bfgedition && !strcasecmp(pagename, "TITLEPIC")
-    &&  W_CheckNumForName("titlepic") < 0)
+        && W_CheckNumForName("titlepic") < 0)
     {
         pagename = DEH_String("INTERPIC");
     }
 }
 
-// -----------------------------------------------------------------------------
-// D_StartTitle
-// -----------------------------------------------------------------------------
 
+
+//
+// D_StartTitle
+//
 void D_StartTitle (void)
 {
     gameaction = ga_nothing;
@@ -787,7 +788,7 @@ void D_StartTitle (void)
 // These are from the original source: some of them are perhaps
 // not used in any dehacked patches
 
-static char *banners[] =
+static const char *banners[] =
 {
     // doom2.wad
     "                         "
@@ -832,55 +833,60 @@ static char *banners[] =
 // Otherwise, use the name given
 // 
 
-static char *GetGameName(char *gamename)
+static char *GetGameName(const char *gamename)
 {
     size_t i;
-    char *deh_sub;
-    
+
     for (i=0; i<arrlen(banners); ++i)
     {
+        const char *deh_sub;
         // Has the banner been replaced?
 
         deh_sub = DEH_String(banners[i]);
-        
+
         if (deh_sub != banners[i])
         {
             size_t gamename_size;
             int version;
+            char *deh_gamename;
 
             // Has been replaced.
             // We need to expand via printf to include the Doom version number
             // We also need to cut off spaces to get the basic name
 
             gamename_size = strlen(deh_sub) + 10;
-            gamename = Z_Malloc(gamename_size, PU_STATIC, 0);
+            deh_gamename = malloc(gamename_size);
+            if (deh_gamename == NULL)
+            {
+                I_Error("GetGameName: Failed to allocate new string");
+            }
             version = G_VanillaVersionCode();
-            M_snprintf(gamename, gamename_size, deh_sub,
-                       version / 100, version % 100);
+            DEH_snprintf(deh_gamename, gamename_size, banners[i],
+                         version / 100, version % 100);
 
-            while (gamename[0] != '\0' && isspace(gamename[0]))
+            while (deh_gamename[0] != '\0' && isspace(deh_gamename[0]))
             {
-                memmove(gamename, gamename + 1, gamename_size - 1);
+                memmove(deh_gamename, deh_gamename + 1, gamename_size - 1);
             }
 
-            while (gamename[0] != '\0' && isspace(gamename[strlen(gamename)-1]))
+            while (deh_gamename[0] != '\0' && isspace(deh_gamename[strlen(deh_gamename)-1]))
             {
-                gamename[strlen(gamename) - 1] = '\0';
+                deh_gamename[strlen(deh_gamename) - 1] = '\0';
             }
 
-            return gamename;
+            return deh_gamename;
         }
     }
 
-    return gamename;
+    return M_StringDuplicate(gamename);
 }
 
-static void SetMissionForPackName(char *pack_name)
+static void SetMissionForPackName(const char *pack_name)
 {
     int i;
     static const struct
     {
-        char *name;
+        const char *name;
         int mission;
     } packs[] = {
         { "doom2",    doom2 },
@@ -995,10 +1001,8 @@ void D_IdentifyVersion(void)
 
 // Set the gamedescription string
 
-void D_SetGameDescription(void)
+static void D_SetGameDescription(void)
 {
-    gamedescription = "Unknown";
-
     if (logical_gamemission == doom)
     {
         // Doom 1.  But which version?
@@ -1047,7 +1051,15 @@ void D_SetGameDescription(void)
             gamedescription = GetGameName("DOOM 2: TNT - Evilution");
         }
     }
+
+    if (gamedescription == NULL)
+    {
+        gamedescription = M_StringDuplicate("Unknown");
+    }
 }
+
+//      print title for every printed line
+char            title[128];
 
 static boolean D_AddFile(char *filename)
 {
@@ -1063,7 +1075,7 @@ static boolean D_AddFile(char *filename)
 // Some dehacked mods replace these.  These are only displayed if they are 
 // replaced by dehacked.
 
-static char *copyright_banners[] =
+static const char *copyright_banners[] =
 {
     "===========================================================================\n"
     "ATTENTION:  This version of DOOM has been modified.  If you would like to\n"
@@ -1090,7 +1102,7 @@ void PrintDehackedBanners(void)
 
     for (i=0; i<arrlen(copyright_banners); ++i)
     {
-        char *deh_s;
+        const char *deh_s;
 
         deh_s = DEH_String(copyright_banners[i]);
 
@@ -1111,8 +1123,8 @@ void PrintDehackedBanners(void)
 
 static struct 
 {
-    char *description;
-    char *cmdline;
+    const char *description;
+    const char *cmdline;
     GameVersion_t version;
 } gameversions[] = {
     {"Doom 1.666",           "1.666",      exe_doom_1_666},
@@ -1474,6 +1486,7 @@ void D_DoomMain (void)
     }
 
     //!
+    // @category game
     // @vanilla
     //
     // Disable monsters.
@@ -1482,6 +1495,7 @@ void D_DoomMain (void)
     nomonsters = M_CheckParm ("-nomonsters");
 
     //!
+    // @category game
     // @vanilla
     //
     // Monsters respawn after being killed.
@@ -1490,6 +1504,7 @@ void D_DoomMain (void)
     respawnparm = M_CheckParm ("-respawn");
 
     //!
+    // @category game
     // @vanilla
     //
     // Monsters move faster.
@@ -1497,10 +1512,10 @@ void D_DoomMain (void)
 
     fastparm = M_CheckParm ("-fast");
 
-    //! 
+    //!
     // @vanilla
     //
-    // Developer mode.  F1 saves a screenshot in the current working
+    // Developer mode. F1 saves a screenshot in the current working
     // directory.
     //
 
@@ -1556,6 +1571,7 @@ void D_DoomMain (void)
 #ifdef _WIN32
 
     //!
+    // @category obscure
     // @platform windows
     // @vanilla
     //
@@ -1578,6 +1594,7 @@ void D_DoomMain (void)
     }
 
     //!
+    // @category game
     // @arg <x>
     // @vanilla
     //
@@ -1935,6 +1952,7 @@ void D_DoomMain (void)
     }
 
     //!
+    // @category game
     // @arg <n>
     // @vanilla
     //
@@ -1982,6 +2000,7 @@ void D_DoomMain (void)
     }
 
     //!
+    // @category game
     // @arg [<x> <y> | <xy>]
     // @vanilla
     //
@@ -2031,6 +2050,7 @@ void D_DoomMain (void)
     // can override it or send the load slot to other players.
 
     //!
+    // @category game
     // @arg <s>
     // @vanilla
     //

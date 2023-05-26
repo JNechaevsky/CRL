@@ -17,7 +17,8 @@
 
 #include "i_sound.h"
 
-void ConfigSound(void);
+void ConfigSound(void *widget, void *user_data);
 void BindSoundVariables(void);
+
 
 #endif /* #ifndef SETUP_SOUND_H */

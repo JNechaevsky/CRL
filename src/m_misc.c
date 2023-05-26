@@ -116,7 +116,10 @@ static char *ConvertWideToMultiByte(const wchar_t *wstr, UINT code_page)
     return str;
 }
 
-static char *ConvertWideToUtf8(const wchar_t *wstr)
+// Convert wide string to a UTF8 string. The result is newly allocated and must
+// be freed by the caller after use.
+
+char *M_ConvertWideToUtf8(const wchar_t *wstr)
 {
     return ConvertWideToMultiByte(wstr, CP_UTF8);
 }
@@ -156,7 +159,7 @@ char *M_ConvertSysNativeMBToUtf8(const char *str)
         return NULL;
     }
 
-    ret = ConvertWideToUtf8(wstr);
+    ret = M_ConvertWideToUtf8(wstr);
 
     free(wstr);
 
@@ -281,6 +284,35 @@ int M_rename(const char *oldname, const char *newname)
 #endif
 }
 
+int M_stat(const char *path, struct stat *buf)
+{
+#ifdef _WIN32
+    wchar_t *wpath = NULL;
+    struct _stat wbuf;
+    int ret;
+
+    wpath = M_ConvertUtf8ToWide(path);
+
+    if (!wpath)
+    {
+        return -1;
+    }
+
+    ret = _wstat(wpath, &wbuf);
+
+    // The _wstat() function expects a struct _stat* parameter that is
+    // incompatible with struct stat*. We copy only the required compatible
+    // field.
+    buf->st_mode = wbuf.st_mode;
+
+    free(wpath);
+
+    return ret;
+#else
+    return stat(path, buf);
+#endif
+}
+
 #ifdef _WIN32
 typedef struct {
     char *var;
@@ -319,7 +351,7 @@ char *M_getenv(const char *name)
 
     if (wenv)
     {
-        env = ConvertWideToUtf8(wenv);
+        env = M_ConvertWideToUtf8(wenv);
     }
     else
     {
@@ -478,12 +510,12 @@ long M_FileLength(FILE *handle)
 // M_WriteFile
 //
 
-boolean M_WriteFile(const char *name, void *source, int length)
+boolean M_WriteFile(const char *name, const void *source, int length)
 {
     FILE *handle;
     int	count;
 	
-    handle = fopen(name, "wb");
+    handle = M_fopen(name, "wb");
 
     if (handle == NULL)
 	return false;
@@ -502,13 +534,13 @@ boolean M_WriteFile(const char *name, void *source, int length)
 // M_ReadFile
 //
 
-int M_ReadFile(char *name, byte **buffer)
+int M_ReadFile(const char *name, byte **buffer)
 {
     FILE *handle;
     int	count, length;
     byte *buf;
 	
-    handle = fopen(name, "rb");
+    handle = M_fopen(name, "rb");
     if (handle == NULL)
 	I_Error ("Couldn't read file %s", name);
 
@@ -517,13 +549,14 @@ int M_ReadFile(char *name, byte **buffer)
 
     length = M_FileLength(handle);
     
-    buf = Z_Malloc (length, PU_STATIC, NULL);
+    buf = Z_Malloc (length + 1, PU_STATIC, NULL);
     count = fread(buf, 1, length, handle);
     fclose (handle);
 	
     if (count < length)
 	I_Error ("Couldn't read file %s", name);
 		
+    buf[length] = '\0';
     *buffer = buf;
     return length;
 }
@@ -533,15 +566,15 @@ int M_ReadFile(char *name, byte **buffer)
 //
 // The returned value must be freed with Z_Free after use.
 
-char *M_TempFile(char *s)
+char *M_TempFile(const char *s)
 {
-    char *tempdir;
+    const char *tempdir;
 
 #ifdef _WIN32
 
     // Check the TEMP environment variable to find the location.
 
-    tempdir = getenv("TEMP");
+    tempdir = M_getenv("TEMP");
 
     if (tempdir == NULL)
     {
@@ -558,10 +591,38 @@ char *M_TempFile(char *s)
 
 boolean M_StrToInt(const char *str, int *result)
 {
-    return sscanf(str, " 0x%x", result) == 1
-        || sscanf(str, " 0X%x", result) == 1
-        || sscanf(str, " 0%o", result) == 1
+    return sscanf(str, " 0x%x", (unsigned int *) result) == 1
+        || sscanf(str, " 0X%x", (unsigned int *) result) == 1
+        || sscanf(str, " 0%o", (unsigned int *) result) == 1
         || sscanf(str, " %d", result) == 1;
+}
+
+// Returns the directory portion of the given path, without the trailing
+// slash separator character. If no directory is described in the path,
+// the string "." is returned. In either case, the result is newly allocated
+// and must be freed by the caller after use.
+char *M_DirName(const char *path)
+{
+    char *result;
+    const char *pf, *pb;
+
+    pf = strrchr(path, '/');
+#ifdef _WIN32
+    pb = strrchr(path, '\\');
+#else
+    pb = NULL;
+#endif
+    if (pf == NULL && pb == NULL)
+    {
+        return M_StringDuplicate(".");
+    }
+    else
+    {
+        const char *p = (pb > pf) ? pb : pf;
+        result = M_StringDuplicate(path);
+        result[p - path] = '\0';
+        return result;
+    }
 }
 
 // Returns the base filename described by the given path (without the
@@ -667,7 +728,7 @@ void M_ForceLowercase(char *text)
 // Case-insensitive version of strstr()
 //
 
-char *M_StrCaseStr(char *haystack, char *needle)
+const char *M_StrCaseStr(const char *haystack, const char *needle)
 {
     unsigned int haystack_len;
     unsigned int needle_len;
@@ -708,7 +769,7 @@ char *M_StringDuplicate(const char *orig)
 
     if (result == NULL)
     {
-        I_Error("Failed to duplicate string (length %i)\n",
+        I_Error("Failed to duplicate string (length %llu)\n",
                 strlen(orig));
     }
 
@@ -819,7 +880,7 @@ boolean M_StringConcat(char *dest, const char *src, size_t dest_size)
 
 boolean M_StringStartsWith(const char *s, const char *prefix)
 {
-    return strlen(s) > strlen(prefix)
+    return strlen(s) >= strlen(prefix)
         && strncmp(s, prefix, strlen(prefix)) == 0;
 }
 
@@ -926,3 +987,46 @@ int M_snprintf(char *buf, size_t buf_len, const char *s, ...)
     return result;
 }
 
+//
+// M_NormalizeSlashes
+//
+// Remove trailing slashes, translate backslashes to slashes
+// The string to normalize is passed and returned in str
+//
+// killough 11/98: rewritten
+//
+// [STRIFE] - haleyjd 20110210: Borrowed from Eternity and adapted to respect
+// the DIR_SEPARATOR define used by Choco Doom. This routine originated in
+// BOOM.
+//
+void M_NormalizeSlashes(char *str)
+{
+    char *p;
+
+    // Convert all slashes/backslashes to DIR_SEPARATOR
+    for (p = str; *p; p++)
+    {
+        if ((*p == '/' || *p == '\\') && *p != DIR_SEPARATOR)
+        {
+            *p = DIR_SEPARATOR;
+        }
+    }
+
+    // Remove trailing slashes
+    while (p > str && *--p == DIR_SEPARATOR)
+    {
+        *p = 0;
+    }
+
+    // Collapse multiple slashes
+    for (p = str; (*str++ = *p); )
+    {
+        if (*p++ == DIR_SEPARATOR)
+        {
+            while (*p == DIR_SEPARATOR)
+            {
+                p++;
+            }
+        }
+    }
+}
