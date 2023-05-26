@@ -170,6 +170,13 @@ static void I_FL_StopSong(void)
     }
 }
 
+// Determine whether memory block is a .mid file
+
+static boolean IsMid(const byte *mem, int len)
+{
+    return len > 4 && !memcmp(mem, "MThd", 4);
+}
+
 static void *I_FL_RegisterSong(void *data, int len)
 {
     int result = FLUID_FAILED;
@@ -261,7 +268,7 @@ static boolean I_FL_MusicIsPlaying(void)
     return (fluid_player_get_status(player) == FLUID_PLAYER_PLAYING);
 }
 
-static snddevice_t music_fl_devices[] =
+static const snddevice_t music_fl_devices[] =
 {
     SNDDEVICE_FSYNTH,
 };
