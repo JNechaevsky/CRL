@@ -74,7 +74,7 @@ typedef enum
     MENU_CRLVIDEO,
     MENU_CRLSOUND,
     MENU_CRLCONTROLS,
-    MENU_CRLKBDBINDS1, // pitto
+    MENU_CRLKBDBINDS1,
     MENU_CRLKBDBINDS2,
     MENU_CRLKBDBINDS3,
     MENU_CRLKBDBINDS4,
@@ -1291,7 +1291,7 @@ static Menu_t CRLKbdBinds1 = {
 
 static void DrawCRLKbd1 (void)
 {
-    M_ShadeBackground(); // pitto
+    M_ShadeBackground();
 
     MN_DrTextACentered("MOVEMENT", 20, cr[CR_YELLOW]);
 
@@ -2528,7 +2528,7 @@ static Menu_t *Menus[] = {
     &CRLVideo,
     &CRLSound,
     &CRLControls,
-    &CRLKbdBinds1, // pitto
+    &CRLKbdBinds1,
     &CRLKbdBinds2,
     &CRLKbdBinds3,
     &CRLKbdBinds4,
