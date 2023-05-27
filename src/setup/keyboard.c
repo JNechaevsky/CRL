@@ -86,7 +86,7 @@ static int *crl_keys[] = { &key_crl_menu,
                            &key_crl_idclip, &key_crl_iddt,
 
                            &key_crl_nextlevel, &key_crl_reloadlevel,
-                           &key_crl_demospeed, &key_crl_limits,
+                           &key_crl_demospeed, &key_crl_limits, &key_crl_mlook,
 
                            // [JN] Allow to re-bind F-Keys:
                            &key_menu_help, &key_menu_save, &key_menu_load,
@@ -433,6 +433,10 @@ void CRLKeysDialog(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(unused))
 
     AddKeyControl(table, "Always run",          &key_crl_autorun);
     AddKeyControl(table, "Arch-Vile jump",      &key_crl_vilebomb);    
+    if (gamemission != doom)
+    {
+        AddKeyControl(table, "Mouse look",      &key_crl_mlook);
+    }
 
     AddSectionLabel(table, "Visplanes MAX value", true);
 

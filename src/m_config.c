@@ -384,6 +384,8 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_KEY(key_crl_demospeed),
     CONFIG_VARIABLE_KEY(key_crl_limits),
 
+    CONFIG_VARIABLE_KEY(key_crl_mlook),
+
     // System and video
     CONFIG_VARIABLE_INT(crl_startup_delay),
     CONFIG_VARIABLE_INT(crl_resize_delay),
@@ -433,6 +435,9 @@ static default_t	doom_defaults_list[] =
     // Static limits
     CONFIG_VARIABLE_INT(crl_vanilla_limits),
     CONFIG_VARIABLE_INT(crl_prevent_zmalloc),
+
+    // Mouse look
+    CONFIG_VARIABLE_INT(crl_mouselook),
 };
 
 static default_collection_t doom_defaults =

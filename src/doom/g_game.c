@@ -612,7 +612,10 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
         } 
     }
 
-    forward += mousey; 
+    if (!novert)
+    {
+        forward += mousey; 
+    }
 
     if (strafe) 
 	side += mousex*2; 

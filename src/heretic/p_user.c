@@ -250,6 +250,12 @@ void P_MovePlayer(player_t * player)
             }
         }
     }
+    // [crispy] Handle mouselook
+    if (!demoplayback)
+    {
+        player->lookdir = BETWEEN(-110, 90,
+                                     player->lookdir + cmd->lookdir);
+    }
     if (player->centering)
     {
         if (player->lookdir > 0)

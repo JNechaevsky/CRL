@@ -80,4 +80,7 @@ extern int crl_internal_demos;
 extern int crl_vanilla_limits;
 extern int crl_prevent_zmalloc;
 
+// Mouse look
+extern int crl_mouselook;
+
 extern void CRL_BindVariables (void);

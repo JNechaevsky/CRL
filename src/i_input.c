@@ -488,9 +488,9 @@ void I_ReadMouse(void)
         ev.data1 = mouse_button_state;
         ev.data2 = AccelerateMouse(x);
 
-        if (!novert)
+        if (true || !novert) // [crispy] moved to src/*/g_game.c
         {
-            ev.data3 = -AccelerateMouse(y);
+            ev.data3 = -AccelerateMouse(y); // [crispy]
         }
         else
         {

@@ -80,6 +80,9 @@ int crl_internal_demos = 1;
 int crl_vanilla_limits = 1;
 int crl_prevent_zmalloc = 0;
 
+// Mouse look
+int crl_mouselook = 0;
+
 // -----------------------------------------------------------------------------
 // [JN] CRL-specific config variables binding function.
 // -----------------------------------------------------------------------------
@@ -139,4 +142,7 @@ void CRL_BindVariables (void)
     // Static limits
     M_BindIntVariable("crl_vanilla_limits",             &crl_vanilla_limits);
     M_BindIntVariable("crl_prevent_zmalloc",            &crl_prevent_zmalloc);
+
+    // Mouse look
+    M_BindIntVariable("crl_mouselook",                  &crl_mouselook);
 }
