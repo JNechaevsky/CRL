@@ -74,6 +74,8 @@ typedef enum
     MENU_CRLVIDEO,
     MENU_CRLSOUND,
     MENU_CRLCONTROLS,
+    MENU_CRLKBDBINDS1, // pitto
+    MENU_CRLMOUSEBINDS,
     MENU_CRLWIDGETS,
     // MENU_CRLGAMEPLAY,
     MENU_CRLLIMITS,
@@ -487,6 +489,18 @@ static boolean CRL_Controls_Threshold (int option);
 static boolean CRL_Controls_MLook (int option);
 static boolean CRL_Controls_NoVert (int option);
 
+static void DrawCRLMouse (void);
+static boolean M_Bind_M_FireAttack (int option);
+static boolean M_Bind_M_MoveForward (int option);
+static boolean M_Bind_M_StrafeOn (int option);
+static boolean M_Bind_M_MoveBackward (int option);
+static boolean M_Bind_M_Use (int option);
+static boolean M_Bind_M_StrafeLeft (int option);
+static boolean M_Bind_M_StrafeRight (int option);
+static boolean M_Bind_M_PrevWeapon (int option);
+static boolean M_Bind_M_NextWeapon (int option);
+
+
 static void DrawCRLWidgets (void);
 static boolean CRL_Widget_Coords (int option);
 static boolean CRL_Widget_Playstate (int option);
@@ -501,6 +515,25 @@ static boolean CRL_ZMalloc (int option);
 static boolean CRL_SaveSizeWarning (int option);
 static boolean CRL_DemoSizeWarning (int option);
 static boolean CRL_Limits (int option);
+
+// Keyboard binding prototypes
+static boolean KbdIsBinding;
+static int     keyToBind;
+
+static void DrawCRLKbd1 (void);
+
+// Mouse binding prototypes
+static boolean MouseIsBinding;
+static int     btnToBind;
+
+static char   *M_MouseBtnDrawer (int CurrentItPosOn, int btn);
+static void    M_StartMouseBind (int btn);
+static void    M_CheckMouseBind (int btn);
+static void    M_DoMouseBind (int btnnum, int btn);
+static void    M_ClearMouseBind (int itemOn);
+static byte   *M_ColorizeMouseBind (int CurrentItPosOn, int btn);
+
+// -----------------------------------------------------------------------------
 
 // [JN] Delay before shading.
 // static int shade_wait;
@@ -1001,20 +1034,20 @@ static boolean CRL_SFXChannels (int option)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLControlsItems[] = {
-    {ITT_LRFUNC, "KEYBOARD BINDINGS",       NULL, 0, MENU_NONE},
-    {ITT_LRFUNC, "MOUSE BINDINGS",          NULL, 0, MENU_NONE},
-    {ITT_EMPTY,  NULL,                      NULL, 0, MENU_NONE},
-    {ITT_LRFUNC, "SENSIVITY",               SCMouseSensi, 0, MENU_NONE},
-    {ITT_EMPTY,  NULL,                      NULL, 0, MENU_NONE},
-    {ITT_EMPTY,  NULL,                      NULL, 0, MENU_NONE},
-    {ITT_LRFUNC, "ACCELERATION",            CRL_Controls_Acceleration, 0, MENU_NONE},
-    {ITT_EMPTY,  NULL,                      NULL, 0, MENU_NONE},
-    {ITT_EMPTY,  NULL,                      NULL, 0, MENU_NONE},
-    {ITT_LRFUNC, "ACCELERATION THRESHOLD",  CRL_Controls_Threshold, 0, MENU_NONE},
-    {ITT_EMPTY,  NULL,                      NULL, 0, MENU_NONE},
-    {ITT_EMPTY,  NULL,                      NULL, 0, MENU_NONE},
-    {ITT_LRFUNC, "MOUSE LOOK",              CRL_Controls_MLook, 0, MENU_NONE},
-    {ITT_LRFUNC, "VERTICAL MOUSE MOVEMENT", CRL_Controls_NoVert, 0, MENU_NONE}
+    {ITT_SETMENU, "KEYBOARD BINDINGS",       NULL,         0, MENU_CRLKBDBINDS1},
+    {ITT_SETMENU, "MOUSE BINDINGS",          NULL,         0, MENU_CRLMOUSEBINDS},
+    {ITT_EMPTY,   NULL,                      NULL,         0, MENU_NONE},
+    {ITT_LRFUNC,  "SENSIVITY",               SCMouseSensi, 0, MENU_NONE},
+    {ITT_EMPTY,   NULL,                      NULL,         0, MENU_NONE},
+    {ITT_EMPTY,   NULL,                      NULL,         0, MENU_NONE},
+    {ITT_LRFUNC,  "ACCELERATION",            CRL_Controls_Acceleration, 0, MENU_NONE},
+    {ITT_EMPTY,   NULL,                      NULL,         0, MENU_NONE},
+    {ITT_EMPTY,   NULL,                      NULL,         0, MENU_NONE},
+    {ITT_LRFUNC,  "ACCELERATION THRESHOLD",  CRL_Controls_Threshold, 0, MENU_NONE},
+    {ITT_EMPTY,   NULL,                      NULL,         0, MENU_NONE},
+    {ITT_EMPTY,   NULL,                      NULL,         0, MENU_NONE},
+    {ITT_LRFUNC,  "MOUSE LOOK",              CRL_Controls_MLook, 0, MENU_NONE},
+    {ITT_LRFUNC,  "VERTICAL MOUSE MOVEMENT", CRL_Controls_NoVert, 0, MENU_NONE}
 };
 
 static Menu_t CRLControls = {
@@ -1103,6 +1136,144 @@ static boolean CRL_Controls_MLook (int option)
 static boolean CRL_Controls_NoVert (int option)
 {
     novert ^= 1;
+    return true;
+}
+
+// -----------------------------------------------------------------------------
+// Keyboard bindings 1
+// -----------------------------------------------------------------------------
+
+static MenuItem_t CRLKbsBinds1Items[] = {
+    {ITT_EFUNC, "MOVE FORWARD",  NULL, 0, MENU_NONE},
+    {ITT_EFUNC, "MOVE BACKWARD", NULL, 0, MENU_NONE},
+    {ITT_EFUNC, "TURN LEFT",     NULL, 0, MENU_NONE},
+    {ITT_EFUNC, "TURN RIGHT",    NULL, 0, MENU_NONE},
+    {ITT_EFUNC, "STRAFE LEFT",   NULL, 0, MENU_NONE},
+    {ITT_EFUNC, "STRAFE RIGHT",  NULL, 0, MENU_NONE},
+    {ITT_EFUNC, "SPEED ON",      NULL, 0, MENU_NONE},
+    {ITT_EFUNC, "STRAFE ON",     NULL, 0, MENU_NONE},
+    {ITT_EMPTY, NULL,            NULL, 0, MENU_NONE},
+    {ITT_EFUNC, "FIRE/ATTACK",   NULL, 0, MENU_NONE},
+    {ITT_EFUNC, "USE",           NULL, 0, MENU_NONE}
+};
+
+static Menu_t CRLKbsBinds1 = {
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    DrawCRLKbd1,
+    11, CRLKbsBinds1Items,
+    0,
+    true,
+    MENU_CRLCONTROLS
+};
+
+static void DrawCRLKbd1 (void)
+{
+    // static char str[32];
+
+    M_ShadeBackground();
+
+    MN_DrTextACentered("MOVEMENT", 20, cr[CR_YELLOW]);
+    
+    MN_DrTextACentered("ACTION", 110, cr[CR_YELLOW]);
+    
+    MN_DrTextACentered("PRESS ENTER TO BIND, DEL TO CLEAR", 140, cr[CR_GRAY]);
+}
+
+// -----------------------------------------------------------------------------
+// Mouse bindings
+// -----------------------------------------------------------------------------
+
+static MenuItem_t CRLMouseItems[] = {
+    {ITT_EFUNC, "FIRE/ATTACK",   M_Bind_M_FireAttack,   0, MENU_NONE},
+    {ITT_EFUNC, "MOVE FORWARD",  M_Bind_M_MoveForward,  0, MENU_NONE},
+    {ITT_EFUNC, "STRAFE ON",     M_Bind_M_StrafeOn,     0, MENU_NONE},
+    {ITT_EFUNC, "MOVE BACKWARD", M_Bind_M_MoveBackward, 0, MENU_NONE},
+    {ITT_EFUNC, "USE",           M_Bind_M_Use,          0, MENU_NONE},
+    {ITT_EFUNC, "STRAFE LEFT",   M_Bind_M_StrafeLeft,   0, MENU_NONE},
+    {ITT_EFUNC, "STRAFE RIGHT",  M_Bind_M_StrafeRight,  0, MENU_NONE},
+    {ITT_EFUNC, "PREV WEAPON",   M_Bind_M_PrevWeapon,   0, MENU_NONE},
+    {ITT_EFUNC, "NEXT WEAPON",   M_Bind_M_NextWeapon,   0, MENU_NONE}
+};
+
+static Menu_t CRLMouseBinds = {
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    DrawCRLMouse,
+    9, CRLMouseItems,
+    0,
+    true,
+    MENU_CRLCONTROLS
+};
+
+static void DrawCRLMouse (void)
+{
+    M_ShadeBackground();
+
+    MN_DrTextACentered("MOUSE BINDINGS", 20, cr[CR_YELLOW]);
+
+    MN_DrTextA(M_MouseBtnDrawer(0, mousebfire), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_MouseBtnDrawer(0, mousebfire)), 30, M_ColorizeMouseBind(0, mousebfire));
+    MN_DrTextA(M_MouseBtnDrawer(1, mousebforward), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_MouseBtnDrawer(1, mousebforward)), 40, M_ColorizeMouseBind(1, mousebforward));
+    MN_DrTextA(M_MouseBtnDrawer(2, mousebstrafe), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_MouseBtnDrawer(2, mousebstrafe)), 50, M_ColorizeMouseBind(2, mousebstrafe));
+    MN_DrTextA(M_MouseBtnDrawer(3, mousebbackward), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_MouseBtnDrawer(3, mousebbackward)), 60, M_ColorizeMouseBind(3, mousebbackward));
+    MN_DrTextA(M_MouseBtnDrawer(4, mousebuse), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_MouseBtnDrawer(4, mousebuse)), 70, M_ColorizeMouseBind(4, mousebuse));
+    MN_DrTextA(M_MouseBtnDrawer(5, mousebstrafeleft), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_MouseBtnDrawer(5, mousebstrafeleft)), 80, M_ColorizeMouseBind(5, mousebstrafeleft));
+    MN_DrTextA(M_MouseBtnDrawer(6, mousebstraferight), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_MouseBtnDrawer(6, mousebstraferight)), 90, M_ColorizeMouseBind(6, mousebstraferight));
+    MN_DrTextA(M_MouseBtnDrawer(7, mousebprevweapon), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_MouseBtnDrawer(7, mousebprevweapon)), 100, M_ColorizeMouseBind(7, mousebprevweapon));
+    MN_DrTextA(M_MouseBtnDrawer(8, mousebnextweapon), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_MouseBtnDrawer(8, mousebnextweapon)), 110, M_ColorizeMouseBind(8, mousebnextweapon));
+
+    MN_DrTextACentered("PRESS ENTER TO BIND, DEL TO CLEAR", 130, cr[CR_GRAY]);
+}
+
+static boolean M_Bind_M_FireAttack (int option)
+{
+    M_StartMouseBind(1000);  // mousebfire
+    return true;
+}
+
+static boolean M_Bind_M_MoveForward (int option)
+{
+    M_StartMouseBind(1001);  // mousebforward
+    return true;
+}
+
+static boolean M_Bind_M_StrafeOn (int option)
+{
+    M_StartMouseBind(1002);  // mousebstrafe
+    return true;
+}
+
+static boolean M_Bind_M_MoveBackward (int option)
+{
+    M_StartMouseBind(1003);  // mousebbackward
+    return true;
+}
+
+static boolean M_Bind_M_Use (int option)
+{
+    M_StartMouseBind(1004);  // mousebuse
+    return true;
+}
+
+static boolean M_Bind_M_StrafeLeft (int option)
+{
+    M_StartMouseBind(1005);  // mousebstrafeleft
+    return true;
+}
+
+static boolean M_Bind_M_StrafeRight (int option)
+{
+    M_StartMouseBind(1006);  // mousebstraferight
+    return true;
+}
+
+static boolean M_Bind_M_PrevWeapon (int option)
+{
+    M_StartMouseBind(1007);  // mousebprevweapon
+    return true;
+}
+
+static boolean M_Bind_M_NextWeapon (int option)
+{
+    M_StartMouseBind(1008);  // mousebnextweapon
     return true;
 }
 
@@ -1332,6 +1503,8 @@ static Menu_t *Menus[] = {
     &CRLVideo,
     &CRLSound,
     &CRLControls,
+    &CRLKbsBinds1, // pitto
+    &CRLMouseBinds,
     &CRLWidgetsMap,
     // &CRLGameplay,
     &CRLLimits,
@@ -2317,6 +2490,18 @@ boolean MN_Responder(event_t * event)
                 mousey = lasty += 30;
             }
 
+            // [JN] Handle mouse bindings before going any farther.
+            // Catch only button pressing events, i.e. event->data1.
+            if (MouseIsBinding && event->data1)
+            {
+                M_CheckMouseBind(SDL_mouseButton);
+                M_DoMouseBind(btnToBind, SDL_mouseButton);
+                btnToBind = 0;
+                MouseIsBinding = false;
+                mousewait = I_GetTime() + 15;
+                return true;
+            }
+
             if (event->data1 & 1)
             {
                 key = key_menu_forward;
@@ -2768,6 +2953,16 @@ boolean MN_Responder(event_t * event)
             }
             return (true);
         }
+        // [crispy] delete a savegame
+        else if (key == key_menu_del)
+        {
+            // [JN] ...or clear mouse bind.
+            if (CurrentMenu == &CRLMouseBinds)
+            {
+                M_ClearMouseBind(CurrentItPos);
+            }
+            return (true);
+        }
         else if (charTyped != 0)
         {
             // Jump to menu item based on first letter:
@@ -2967,4 +3162,151 @@ static void DrawSlider(Menu_t * menu, int item, int width, int slot, boolean big
     V_DrawPatch(x2, y, W_CacheLumpName(DEH_String("M_SLDRT"), PU_CACHE), "M_SLDRT");
     V_DrawPatch(x + 4 + slot * 8, y + 7,
                 W_CacheLumpName(DEH_String("M_SLDKB"), PU_CACHE), "M_SLDKB");
+}
+
+
+// =============================================================================
+//
+//                          [JN] Mouse binding routines.
+//                    Drawing, coloring, checking and binding.
+//
+// =============================================================================
+
+
+// -----------------------------------------------------------------------------
+// M_KeyDrawer
+//  [JN] Draw mouse button number as printable string.
+// -----------------------------------------------------------------------------
+
+static char *M_MouseBtnDrawer (int CurrentItPosOn, int btn)
+{
+    if (CurrentItPos == CurrentItPosOn && MouseIsBinding)
+    {
+        return "?";  // Means binding now
+    }
+    else
+    {
+        switch (btn)
+        {
+            case -1:  return  "---";            break;  // Means empty
+            case  0:  return  "LEFT BUTTON";    break;
+            case  1:  return  "RIGHT BUTTON";   break;
+            case  2:  return  "MIDDLE BUTTON";  break;
+            case  3:  return  "BUTTON #4";      break;
+            case  4:  return  "BUTTON #5";      break;
+            case  5:  return  "BUTTON #6";      break;
+            case  6:  return  "BUTTON #7";      break;
+            case  7:  return  "BUTTON #8";      break;
+            case  8:  return  "BUTTON #9";      break;
+            default:  return  "UNKNOWN";        break;
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------
+// M_StartMouseBind
+//  [JN] Indicate that mouse button binding is started (MouseIsBinding), and
+//  pass internal number (btnToBind) for binding a new button.
+// -----------------------------------------------------------------------------
+
+static void M_StartMouseBind (int btn)
+{
+    MouseIsBinding = true;
+    btnToBind = btn;
+}
+
+// -----------------------------------------------------------------------------
+// M_CheckMouseBind
+//  [JN] Check if pressed button is already binded, clear previous bind if found.
+// -----------------------------------------------------------------------------
+
+static void M_CheckMouseBind (int btn)
+{
+    if (mousebfire == btn)        mousebfire        = -1;
+    if (mousebforward == btn)     mousebforward     = -1;
+    if (mousebstrafe == btn)      mousebstrafe      = -1;
+    if (mousebbackward == btn)    mousebbackward    = -1;
+    if (mousebuse == btn)         mousebuse         = -1;
+    if (mousebstrafeleft == btn)  mousebstrafeleft  = -1;
+    if (mousebstraferight == btn) mousebstraferight = -1;
+    if (mousebprevweapon == btn)  mousebprevweapon  = -1;
+    if (mousebnextweapon == btn)  mousebnextweapon  = -1;
+}
+
+// -----------------------------------------------------------------------------
+// M_DoMouseBind
+//  [JN] By catching internal bind number (btnnum), do actual binding
+//  of pressed button (btn) to real mouse bind.
+// -----------------------------------------------------------------------------
+
+static void M_DoMouseBind (int btnnum, int btn)
+{
+    switch (btnnum)
+    {
+        case 1000:  mousebfire = btn;         break;
+        case 1001:  mousebforward = btn;      break;
+        case 1002:  mousebstrafe = btn;       break;
+        case 1003:  mousebbackward = btn;     break;
+        case 1004:  mousebuse = btn;          break;
+        case 1005:  mousebstrafeleft = btn;   break;
+        case 1006:  mousebstraferight = btn;  break;
+        case 1007:  mousebprevweapon = btn;   break;
+        case 1008:  mousebnextweapon = btn;   break;
+        default:                              break;
+    }
+}
+
+// -----------------------------------------------------------------------------
+// M_ClearMouseBind
+//  [JN] Clear mouse bind on the line where cursor is placed (itemOn).
+// -----------------------------------------------------------------------------
+
+static void M_ClearMouseBind (int itemOn)
+{
+    switch (itemOn)
+    {
+        case 0:  mousebfire = -1;         break;
+        case 1:  mousebforward = -1;      break;
+        case 2:  mousebstrafe = -1;       break;
+        case 3:  mousebbackward = -1;     break;
+        case 4:  mousebuse = -1;          break;
+        case 5:  mousebstrafeleft = -1;   break;
+        case 6:  mousebstraferight = -1;  break;
+        case 7:  mousebprevweapon = -1;   break;
+        case 8:  mousebnextweapon = -1;   break;
+    }
+}
+
+// -----------------------------------------------------------------------------
+// M_ColorizeMouseBind
+//  [JN] Do mouse bind coloring.
+// -----------------------------------------------------------------------------
+
+static byte *M_ColorizeMouseBind (int CurrentItPosOn, int btn)
+{
+    if (CurrentItPos == CurrentItPosOn && MouseIsBinding)
+    {
+        return cr[CR_YELLOW];
+    }
+    else
+    {
+        if (btn == -1)
+        {
+            return
+                ITEMSETONTICS == 5 ? cr[CR_RED_BRIGHT5] :
+                ITEMSETONTICS == 4 ? cr[CR_RED_BRIGHT4] :
+                ITEMSETONTICS == 3 ? cr[CR_RED_BRIGHT3] :
+                ITEMSETONTICS == 2 ? cr[CR_RED_BRIGHT2] :
+                ITEMSETONTICS == 1 ? cr[CR_RED_BRIGHT1] : cr[CR_RED];
+        }
+        else
+        {
+            return
+                ITEMSETONTICS == 5 ? cr[CR_GREEN_BRIGHT5] :
+                ITEMSETONTICS == 4 ? cr[CR_GREEN_BRIGHT4] :
+                ITEMSETONTICS == 3 ? cr[CR_GREEN_BRIGHT3] :
+                ITEMSETONTICS == 2 ? cr[CR_GREEN_BRIGHT2] :
+                ITEMSETONTICS == 1 ? cr[CR_GREEN_BRIGHT1] : cr[CR_GREEN];
+        }
+    }
 }
