@@ -73,7 +73,7 @@ typedef enum
     MENU_CRLMAIN,
     MENU_CRLVIDEO,
     MENU_CRLSOUND,
-    // MENU_CRLCONTROLS,
+    MENU_CRLCONTROLS,
     MENU_CRLWIDGETS,
     // MENU_CRLGAMEPLAY,
     MENU_CRLLIMITS,
@@ -481,6 +481,12 @@ static boolean CRL_SFXMode (int option);
 static boolean CRL_PitchShift (int option);
 static boolean CRL_SFXChannels (int option);
 
+static void DrawCRLControls (void);
+static boolean CRL_Controls_Acceleration (int option);
+static boolean CRL_Controls_Threshold (int option);
+static boolean CRL_Controls_MLook (int option);
+static boolean CRL_Controls_NoVert (int option);
+
 static void DrawCRLWidgets (void);
 static boolean CRL_Widget_Coords (int option);
 static boolean CRL_Widget_Playstate (int option);
@@ -520,7 +526,7 @@ static MenuItem_t CRLMainItems[] = {
     {ITT_EMPTY,   NULL,                   NULL,           0, MENU_NONE},
     {ITT_SETMENU, "VIDEO OPTIONS",        NULL,           0, MENU_CRLVIDEO},
     {ITT_SETMENU, "SOUND OPTIONS",        NULL,           0, MENU_CRLSOUND},
-    {ITT_SETMENU, "CONTROL SETTINGS",     NULL,           0, MENU_NONE},
+    {ITT_SETMENU, "CONTROL SETTINGS",     NULL,           0, MENU_CRLCONTROLS},
     {ITT_SETMENU, "WIDGETS AND AUTOMAP",  NULL,           0, MENU_CRLWIDGETS},
     {ITT_SETMENU, "GAMEPLAY FEATURES",    NULL,           0, MENU_NONE},
     {ITT_SETMENU, "STATIC ENGINE LIMITS", NULL,           0, MENU_CRLLIMITS}
@@ -991,6 +997,116 @@ static boolean CRL_SFXChannels (int option)
 }
 
 // -----------------------------------------------------------------------------
+// Control settings
+// -----------------------------------------------------------------------------
+
+static MenuItem_t CRLControlsItems[] = {
+    {ITT_LRFUNC, "KEYBOARD BINDINGS",       NULL, 0, MENU_NONE},
+    {ITT_LRFUNC, "MOUSE BINDINGS",          NULL, 0, MENU_NONE},
+    {ITT_EMPTY,  NULL,                      NULL, 0, MENU_NONE},
+    {ITT_LRFUNC, "SENSIVITY",               SCMouseSensi, 0, MENU_NONE},
+    {ITT_EMPTY,  NULL,                      NULL, 0, MENU_NONE},
+    {ITT_EMPTY,  NULL,                      NULL, 0, MENU_NONE},
+    {ITT_LRFUNC, "ACCELERATION",            CRL_Controls_Acceleration, 0, MENU_NONE},
+    {ITT_EMPTY,  NULL,                      NULL, 0, MENU_NONE},
+    {ITT_EMPTY,  NULL,                      NULL, 0, MENU_NONE},
+    {ITT_LRFUNC, "ACCELERATION THRESHOLD",  CRL_Controls_Threshold, 0, MENU_NONE},
+    {ITT_EMPTY,  NULL,                      NULL, 0, MENU_NONE},
+    {ITT_EMPTY,  NULL,                      NULL, 0, MENU_NONE},
+    {ITT_LRFUNC, "MOUSE LOOK",              CRL_Controls_MLook, 0, MENU_NONE},
+    {ITT_LRFUNC, "VERTICAL MOUSE MOVEMENT", CRL_Controls_NoVert, 0, MENU_NONE}
+};
+
+static Menu_t CRLControls = {
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    DrawCRLControls,
+    14, CRLControlsItems,
+    0,
+    true,
+    MENU_CRLMAIN
+};
+
+static void DrawCRLControls (void)
+{
+    static char str[32];
+
+    M_ShadeBackground();
+
+    MN_DrTextACentered("BINDINGS", 20, cr[CR_YELLOW]);
+
+    MN_DrTextACentered("MOUSE CONFIGURATION", 50, cr[CR_YELLOW]);
+
+    DrawSlider(&CRLControls, 4, 10, mouseSensitivity, false);
+    DrawSlider(&CRLControls, 7, 12, mouse_acceleration * 2, false);
+    DrawSlider(&CRLControls, 10, 14, mouse_threshold / 2, false);
+
+    // Mouse look
+    sprintf(str, crl_mouselook ? "ON" : "OFF");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 150,
+               M_Item_Glow(12, crl_mouselook ? GLOW_GREEN : GLOW_RED, ITEMONTICS));
+
+    // Vertical mouse movement
+    sprintf(str, novert ? "OFF" : "ON");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 160,
+               M_Item_Glow(13, novert ? GLOW_RED : GLOW_GREEN, ITEMONTICS));
+}
+
+static boolean CRL_Controls_Acceleration (int option)
+{
+    char buf[9];
+
+    switch (option)
+    {   // 1.0 ... 5.0
+        case 0:
+        if (mouse_acceleration > 1.0f)
+            mouse_acceleration -= 0.1f;
+        break;
+
+        case 1:
+        if (mouse_acceleration < 5.0f)
+            mouse_acceleration += 0.1f;
+        break;
+    }
+
+    // [JN] Do a float correction to always get x.x00000 values:
+    sprintf (buf, "%f", mouse_acceleration);
+    mouse_acceleration = (float) atof(buf);
+    return true;
+}
+
+static boolean CRL_Controls_Threshold (int option)
+{
+    switch (option)
+    {   // 0 ... 32
+        case 0:
+        if (mouse_threshold)
+            mouse_threshold--;
+        break;
+        case 1:
+        if (mouse_threshold < 32)
+            mouse_threshold++;
+        break;
+    }
+    return true;
+}
+
+static boolean CRL_Controls_MLook (int option)
+{
+    crl_mouselook ^= 1;
+    if (!crl_mouselook)
+    {
+        players[consoleplayer].centering = true;
+    }
+    return true;
+}
+
+static boolean CRL_Controls_NoVert (int option)
+{
+    novert ^= 1;
+    return true;
+}
+
+// -----------------------------------------------------------------------------
 // Widgets and Automap
 // -----------------------------------------------------------------------------
 
@@ -1215,7 +1331,7 @@ static Menu_t *Menus[] = {
     &CRLMain,
     &CRLVideo,
     &CRLSound,
-    // &CRLControls,
+    &CRLControls,
     &CRLWidgetsMap,
     // &CRLGameplay,
     &CRLLimits,
