@@ -44,6 +44,9 @@
 
 #define AM_STARTKEY     9
 
+#define MLOOKUNIT 8 // [crispy] for mouselook
+#define MLOOKUNITLOWRES 16 // [crispy] for mouselook when recording
+
 // Functions
 
 boolean G_CheckDemoStatus(void);
@@ -376,6 +379,20 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
         gamekeydown[key_crl_autorun] = false;
     }
 
+    // [JN] Toggle mouse look.
+    if (gamekeydown[key_crl_mlook])
+    {
+        crl_mouselook ^= 1;
+        if (!crl_mouselook)
+        {
+            look = TOCENTER;
+        }
+        P_SetMessage(&players[consoleplayer], crl_mouselook ?
+                     CRL_MLOOK_ON : CRL_MLOOK_OFF, false);
+        S_StartSound(NULL, sfx_chat);
+        gamekeydown[key_crl_mlook] = false;
+    }
+
     if (gamekeydown[key_lookdown] || gamekeydown[key_lookup])
     {
         lookheld += ticdup;
@@ -677,7 +694,38 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
         testcontrols_mousespeed = 0;
     }
 
-    forward += mousey;
+    if (crl_mouselook)
+    {
+        if (demorecording || lowres_turn)
+        {
+            // [Dasperal] Skip mouse look if it is TOCENTER cmd
+            if (look != TOCENTER)
+            {
+                // [crispy] Map mouse movement to look variable when recording
+                look += mousey / MLOOKUNITLOWRES;
+
+                // [crispy] Limit to max speed of keyboard look up/down
+                if (look > 2)
+                    look = 2;
+                else if (look < -2)
+                    look = -2;
+            }
+        }
+        else
+        {
+            cmd->lookdir = mousey;
+            // [Dasperal] Allow precise vertical look with near 0 mouse movement
+            if (cmd->lookdir > 0)
+                cmd->lookdir = (cmd->lookdir + MLOOKUNIT - 1) / MLOOKUNIT;
+            else
+                cmd->lookdir = (cmd->lookdir - MLOOKUNIT + 1) / MLOOKUNIT;
+        }
+    }
+    else if (!novert)
+    {
+        forward += mousey;
+    }
+
     mousex = mousey = 0;
 
     if (forward > MAXPLMOVE)

@@ -199,6 +199,8 @@ extern int key_crl_demospeed; // [crispy]
 
 extern int key_crl_limits;
 
+extern int key_crl_mlook; // [crispy]
+
 void M_BindBaseControls(void);
 void M_BindHereticControls(void);
 void M_BindWeaponControls(void);

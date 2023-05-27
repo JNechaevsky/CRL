@@ -241,6 +241,8 @@ int key_crl_demospeed = 0; // [crispy]
 
 int key_crl_limits = 0;
 
+int key_crl_mlook = 0; // [crispy]
+
 // 
 // Bind all of the common controls used by Doom and all other games.
 //
@@ -407,6 +409,8 @@ void M_BindMenuControls(void)
     M_BindIntVariable("key_crl_demospeed",   &key_crl_demospeed); // [crispy]
 
     M_BindIntVariable("key_crl_limits",      &key_crl_limits);
+
+    M_BindIntVariable("key_crl_mlook",       &key_crl_mlook); // [crispy]
 }
 
 void M_BindChatControls(unsigned int num_players)
