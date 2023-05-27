@@ -2298,7 +2298,11 @@ boolean MN_Responder(event_t * event)
         // [JN] Allow menu control by mouse.
         if (event->type == ev_mouse && mousewait < I_GetTime())
         {
-            mousey += event->data3;
+            // [crispy] novert disables controlling the menus with the mouse
+            if (!novert)
+            {
+                mousey += event->data3;
+            }
 
             if (mousey < lasty - 30)
             {
