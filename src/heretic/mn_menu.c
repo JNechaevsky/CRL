@@ -592,7 +592,6 @@ static boolean M_Bind_MultiplayerSpy (int option);
 static void DrawCRLKbd9 (void);
 static boolean M_Bind_Pause (int option);
 static boolean M_Bind_SaveScreenshot (int option);
-static boolean M_Bind_LastMessage (int option);
 static boolean M_Bind_FinishDemo (int option);
 static boolean M_Bind_SendMessage (int option);
 static boolean M_Bind_ToPlayer1 (int option);
@@ -2109,7 +2108,6 @@ static boolean M_Bind_MultiplayerSpy (int option)
 static MenuItem_t CRLKbsBinds9Items[] = {
     {ITT_EFUNC, "PAUSE GAME",            M_Bind_Pause,          0, MENU_NONE},
     {ITT_EFUNC, "SAVE A SCREENSHOT",     M_Bind_SaveScreenshot, 0, MENU_NONE},
-    {ITT_EFUNC, "DISPLAY LAST MESSAGE",  M_Bind_LastMessage,    0, MENU_NONE},
     {ITT_EFUNC, "FINISH DEMO RECORDING", M_Bind_FinishDemo,     0, MENU_NONE},
     {ITT_EMPTY, NULL,                    NULL,                  0, MENU_NONE},
     {ITT_EFUNC, "SEND MESSAGE",          M_Bind_SendMessage,    0, MENU_NONE},
@@ -2122,7 +2120,7 @@ static MenuItem_t CRLKbsBinds9Items[] = {
 static Menu_t CRLKbdBinds9 = {
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     DrawCRLKbd9,
-    10, CRLKbsBinds9Items,
+    9, CRLKbsBinds9Items,
     0,
     true,
     MENU_CRLCONTROLS
@@ -2136,16 +2134,15 @@ static void DrawCRLKbd9 (void)
 
     MN_DrTextA(M_KeyDrawer(0, key_pause), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(0, key_pause)), 30, M_ColorizeBind(0, key_pause));
     MN_DrTextA(M_KeyDrawer(1, key_menu_screenshot), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(1, key_menu_screenshot)), 40, M_ColorizeBind(1, key_menu_screenshot));
-    MN_DrTextA(M_KeyDrawer(2, key_message_refresh), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(2, key_message_refresh)), 50, M_ColorizeBind(2, key_message_refresh));
-    MN_DrTextA(M_KeyDrawer(3, key_demo_quit), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(3, key_demo_quit)), 60, M_ColorizeBind(3, key_demo_quit));
+    MN_DrTextA(M_KeyDrawer(2, key_demo_quit), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(3, key_demo_quit)), 50, M_ColorizeBind(2, key_demo_quit));
 
-    MN_DrTextACentered("MULTIPLAYER", 70, cr[CR_YELLOW]);
+    MN_DrTextACentered("MULTIPLAYER", 60, cr[CR_YELLOW]);
 
-    MN_DrTextA(M_KeyDrawer(5, key_multi_msg), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(5, key_multi_msg)), 80, M_ColorizeBind(5, key_multi_msg));
-    MN_DrTextA(M_KeyDrawer(6, key_multi_msgplayer[0]), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(6, key_multi_msgplayer[0])), 90, M_ColorizeBind(6, key_multi_msgplayer[0]));
-    MN_DrTextA(M_KeyDrawer(7, key_multi_msgplayer[1]), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(7, key_multi_msgplayer[1])), 100, M_ColorizeBind(7, key_multi_msgplayer[1]));
-    MN_DrTextA(M_KeyDrawer(8, key_multi_msgplayer[2]), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(8, key_multi_msgplayer[2])), 110, M_ColorizeBind(8, key_multi_msgplayer[2]));
-    MN_DrTextA(M_KeyDrawer(9, key_multi_msgplayer[3]), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(9, key_multi_msgplayer[3])), 120, M_ColorizeBind(9, key_multi_msgplayer[3]));
+    MN_DrTextA(M_KeyDrawer(4, key_multi_msg), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(4, key_multi_msg)), 70, M_ColorizeBind(4, key_multi_msg));
+    MN_DrTextA(M_KeyDrawer(5, key_multi_msgplayer[0]), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(5, key_multi_msgplayer[0])), 80, M_ColorizeBind(5, key_multi_msgplayer[0]));
+    MN_DrTextA(M_KeyDrawer(6, key_multi_msgplayer[1]), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(6, key_multi_msgplayer[1])), 90, M_ColorizeBind(6, key_multi_msgplayer[1]));
+    MN_DrTextA(M_KeyDrawer(7, key_multi_msgplayer[2]), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(7, key_multi_msgplayer[2])), 100, M_ColorizeBind(7, key_multi_msgplayer[2]));
+    MN_DrTextA(M_KeyDrawer(8, key_multi_msgplayer[3]), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(8, key_multi_msgplayer[3])), 110, M_ColorizeBind(8, key_multi_msgplayer[3]));
 
     M_DrawBindFooter("9", true);
 }
@@ -2162,45 +2159,39 @@ static boolean M_Bind_SaveScreenshot (int option)
     return true;
 }
 
-static boolean M_Bind_LastMessage (int option)
-{
-    M_StartBind(902);  // key_message_refresh
-    return true;
-}
-
 static boolean M_Bind_FinishDemo (int option)
 {
-    M_StartBind(903);  // key_demo_quit
+    M_StartBind(902);  // key_demo_quit
     return true;
 }
 
 static boolean M_Bind_SendMessage (int option)
 {
-    M_StartBind(904);  // key_multi_msg
+    M_StartBind(903);  // key_multi_msg
     return true;
 }
 
 static boolean M_Bind_ToPlayer1 (int option)
 {
-    M_StartBind(905);  // key_multi_msgplayer[0]
+    M_StartBind(904);  // key_multi_msgplayer[0]
     return true;
 }
 
 static boolean M_Bind_ToPlayer2 (int option)
 {
-    M_StartBind(906);  // key_multi_msgplayer[1]
+    M_StartBind(905);  // key_multi_msgplayer[1]
     return true;
 }
 
 static boolean M_Bind_ToPlayer3 (int option)
 {
-    M_StartBind(907);  // key_multi_msgplayer[2]
+    M_StartBind(906);  // key_multi_msgplayer[2]
     return true;
 }
 
 static boolean M_Bind_ToPlayer4 (int option)
 {
-    M_StartBind(908);  // key_multi_msgplayer[3]
+    M_StartBind(907);  // key_multi_msgplayer[3]
     return true;
 }
 
@@ -4423,7 +4414,6 @@ static void M_CheckBind (int key)
     // Page 9
     if (key_pause == key)              key_pause           = 0;
     if (key_menu_screenshot == key)    key_menu_screenshot = 0;
-    if (key_message_refresh == key)    key_message_refresh = 0;
     if (key_demo_quit == key)          key_demo_quit       = 0;
     if (key_multi_msg == key)          key_multi_msg       = 0;
     if (key_multi_msgplayer[0] == key) key_multi_msgplayer[0] = 0;
@@ -4537,13 +4527,12 @@ static void M_DoBind (int keynum, int key)
         // Page 9
         case 900:  key_pause = key;              break;
         case 901:  key_menu_screenshot = key;    break;
-        case 902:  key_message_refresh = key;    break;
-        case 903:  key_demo_quit = key;          break;
-        case 904:  key_multi_msg = key;          break;
-        case 905:  key_multi_msgplayer[0] = key; break;
-        case 906:  key_multi_msgplayer[1] = key; break;
-        case 907:  key_multi_msgplayer[2] = key; break;
-        case 908:  key_multi_msgplayer[3] = key; break;
+        case 902:  key_demo_quit = key;          break;
+        case 903:  key_multi_msg = key;          break;
+        case 904:  key_multi_msgplayer[0] = key; break;
+        case 905:  key_multi_msgplayer[1] = key; break;
+        case 906:  key_multi_msgplayer[2] = key; break;
+        case 907:  key_multi_msgplayer[3] = key; break;
     }
 }
 
@@ -4690,14 +4679,13 @@ static void M_ClearBind (int CurrentItPos)
         {
             case 0:   key_pause = 0;              break;
             case 1:   key_menu_screenshot = 0;    break;
-            case 2:   key_message_refresh = 0;    break;
-            case 3:   key_demo_quit = 0;          break;
+            case 2:   key_demo_quit = 0;          break;
             // Multiplayer title
-            case 5:   key_multi_msg = 0;          break;
-            case 6:   key_multi_msgplayer[0] = 0; break;
-            case 7:   key_multi_msgplayer[1] = 0; break;
-            case 8:   key_multi_msgplayer[2] = 0; break;
-            case 9:   key_multi_msgplayer[3] = 0; break;
+            case 4:   key_multi_msg = 0;          break;
+            case 5:   key_multi_msgplayer[0] = 0; break;
+            case 6:   key_multi_msgplayer[1] = 0; break;
+            case 7:   key_multi_msgplayer[2] = 0; break;
+            case 8:   key_multi_msgplayer[3] = 0; break;
 
         }
     }
