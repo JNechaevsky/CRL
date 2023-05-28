@@ -79,7 +79,7 @@ static boolean messageNeedsInput;
 
 static void (*messageRoutine)(int response);
 
-static char gammamsg[15][32] =
+static const char gammamsg[15][32] =
 {
     GAMMALVL05,
     GAMMALVL055,
@@ -98,7 +98,7 @@ static char gammamsg[15][32] =
     GAMMALVL4
 };
 
-static char *gammalvl[15] =
+static const char *gammalvl[15] =
 {
     "0.50",
     "0.55",
@@ -1193,7 +1193,7 @@ static void M_CRL_HOMDraw (int choice)
 
 static void M_CRL_Gamma (int choice)
 {
-    shade_wait = I_GetTime() + 25;
+    shade_wait = I_GetTime() + TICRATE;
 
     switch (choice)
     {

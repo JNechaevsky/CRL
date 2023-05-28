@@ -180,7 +180,7 @@ static int currentSlot;
 static int quicksave;
 static int quickload;
 
-static char gammamsg[15][32] =
+static const char gammamsg[15][32] =
 {
     GAMMALVL05,
     GAMMALVL055,
@@ -197,6 +197,25 @@ static char gammamsg[15][32] =
     GAMMALVL2,
     GAMMALVL3,
     GAMMALVL4
+};
+
+static const char *gammalvl[15] =
+{
+    "0.50",
+    "0.55",
+    "0.60",
+    "0.65",
+    "0.70",
+    "0.75",
+    "0.80",
+    "0.85",
+    "0.90",
+    "0.95",
+    "OFF",
+    "1",
+    "2",
+    "3",
+    "4"
 };
 
 static MenuItem_t MainItems[] = {
@@ -315,7 +334,7 @@ static Menu_t OptionsMenu = {
     5, OptionsItems,
     0,
     false,
-    MENU_MAIN
+    MENU_CRLMAIN
 };
 
 static MenuItem_t Options2Items[] = {
@@ -660,7 +679,8 @@ static void    M_DrawBindButton (int itemNum, int yPos, int btnBind);
 // -----------------------------------------------------------------------------
 
 // [JN] Delay before shading.
-// static int shade_wait;
+static int shade_wait;
+
 // [JN] Shade background while in CRL menu.
 static void M_ShadeBackground (void)
 {
@@ -805,7 +825,11 @@ static void DrawCRLVideo (void)
 {
     static char str[32];
 
-    M_ShadeBackground();
+    // Temporary unshade background while changing gamma-correction.
+    if (shade_wait < I_GetTime())
+    {
+        M_ShadeBackground();
+    }
 
     MN_DrTextACentered("VIDEO OPTIONS", 20, cr[CR_YELLOW]);
 
@@ -846,21 +870,7 @@ static void DrawCRLVideo (void)
 
     // Gamma-correction slider and num
     DrawSlider(&CRLVideo, 7, 8, crl_gamma/2, false);
-    MN_DrTextA(crl_gamma ==  0 ? "0.50" :
-               crl_gamma ==  1 ? "0.55" :
-               crl_gamma ==  2 ? "0.60" :
-               crl_gamma ==  3 ? "0.65" :
-               crl_gamma ==  4 ? "0.70" :
-               crl_gamma ==  5 ? "0.75" :
-               crl_gamma ==  6 ? "0.80" :
-               crl_gamma ==  7 ? "0.85" :
-               crl_gamma ==  8 ? "0.90" :
-               crl_gamma ==  9 ? "0.95" :
-               crl_gamma == 10 ? "OFF"  :
-               crl_gamma == 11 ? "1"    :
-               crl_gamma == 12 ? "2"    :
-               crl_gamma == 13 ? "3"    : "4",
-               164, 105, M_Item_Glow(6, GLOW_UNCOLORED, ITEMONTICS));
+    MN_DrTextA(gammalvl[crl_gamma], 164, 105, M_Item_Glow(6, GLOW_UNCOLORED, ITEMONTICS));
 
     // Text casts shadows
     sprintf(str, crl_text_shadows ? "ON" : "OFF");
@@ -943,6 +953,8 @@ static boolean CRL_HOMDraw (int option)
 
 static boolean CRL_Gamma (int option)
 {
+    shade_wait = I_GetTime() + TICRATE;
+
     switch (option)
     {
         case 0:
@@ -1013,8 +1025,12 @@ static void DrawCRLSound (void)
     MN_DrTextACentered("SOUND OPTIONS", 20, cr[CR_YELLOW]);
 
     DrawSlider(&CRLSound, 1, 16, snd_MaxVolume, false);
+    sprintf(str,"%d", snd_MaxVolume);
+    MN_DrTextA(str, 228, 45, M_Item_Glow(0, GLOW_UNCOLORED, ITEMONTICS));
 
     DrawSlider(&CRLSound, 4, 16, snd_MusicVolume, false);
+    sprintf(str,"%d", snd_MusicVolume);
+    MN_DrTextA(str, 228, 75, M_Item_Glow(3, GLOW_UNCOLORED, ITEMONTICS));
 
     MN_DrTextACentered("SOUND SYSTEM", 90, cr[CR_YELLOW]);
 
@@ -1048,7 +1064,7 @@ static void DrawCRLSound (void)
     // Inform that music system is not hot-swappable. :(
     if (CurrentItPos == 7)
     {
-        MN_DrTextACentered("CHANGE WILL REQUIRE RESTART OF THE PROGRAM", 142, cr[CR_GREEN]);
+        MN_DrTextACentered("CHANGE WILL REQUIRE RESTART OF THE PROGRAM", 142, cr[CR_GRAY]);
     }
 }
 
@@ -1194,8 +1210,17 @@ static void DrawCRLControls (void)
     MN_DrTextACentered("MOUSE CONFIGURATION", 50, cr[CR_YELLOW]);
 
     DrawSlider(&CRLControls, 4, 10, mouseSensitivity, false);
+    sprintf(str,"%d", mouseSensitivity);
+    MN_DrTextA(str, 180, 75, M_Item_Glow(3, mouseSensitivity > 9 ?
+                                         GLOW_GREEN : GLOW_UNCOLORED, ITEMONTICS));
+
     DrawSlider(&CRLControls, 7, 12, mouse_acceleration * 2, false);
+    sprintf(str,"%.1f", mouse_acceleration);
+    MN_DrTextA(str, 196, 105, M_Item_Glow(6, GLOW_UNCOLORED, ITEMONTICS));
+
     DrawSlider(&CRLControls, 10, 14, mouse_threshold / 2, false);
+    sprintf(str,"%d", mouse_threshold);
+    MN_DrTextA(str, 212, 135, M_Item_Glow(9, GLOW_UNCOLORED, ITEMONTICS));
 
     // Mouse look
     sprintf(str, crl_mouselook ? "ON" : "OFF");
@@ -3323,7 +3348,7 @@ static boolean SCMouseSensi(int option)
 {
     if (option == RIGHT_DIR)
     {
-        if (mouseSensitivity < 9)
+        if (mouseSensitivity < 255) // [crispy] extended range
         {
             mouseSensitivity++;
         }
@@ -4260,6 +4285,13 @@ static void DrawSlider(Menu_t * menu, int item, int width, int slot, boolean big
                                            : "M_SLDMD2"), PU_CACHE), "NULL"); // [JN] TODO - patch names
     }
     V_DrawPatch(x2, y, W_CacheLumpName(DEH_String("M_SLDRT"), PU_CACHE), "M_SLDRT");
+
+    // [JN] Prevent gem go out of slider bounds.
+    if (slot > width - 1)
+    {
+        slot = width - 1;
+    }
+
     V_DrawPatch(x + 4 + slot * 8, y + 7,
                 W_CacheLumpName(DEH_String("M_SLDKB"), PU_CACHE), "M_SLDKB");
 }
