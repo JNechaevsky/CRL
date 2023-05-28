@@ -103,6 +103,7 @@ boolean sendsave;               // send a save event next tic
 boolean usergame;               // ok to save / end game
 
 boolean timingdemo;             // if true, exit with report on completion
+boolean nodrawers;              // for comparative timing purposes 
 int starttime;                  // for comparative timing purposes
 
 boolean viewactive;
@@ -2172,6 +2173,8 @@ void G_TimeDemo(char *name)
 {
     skill_t skill;
     int episode, map, i;
+
+    nodrawers = M_CheckParm ("-nodraw");
 
     demobuffer = demo_p = W_CacheLumpName(name, PU_STATIC);
     skill = *demo_p++;

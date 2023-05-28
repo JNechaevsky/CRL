@@ -80,6 +80,12 @@ void S_StartSong(int song, boolean loop)
 {
     int mus_len;
 
+    // [JN] CRL - do not play music while demo-warp.
+    if (nodrawers /*|| demowarp*/)
+    {
+        return;
+    }
+
     if (song == mus_song)
     {                           // don't replay an old song
         return;
@@ -138,6 +144,12 @@ void S_StartSound(void *_origin, int sound_id)
 
     static int sndcount = 0;
     int chan;
+
+    // [JN] Do not play sound while demo-warp.
+    if (nodrawers /*|| demowarp*/)
+    {
+        return;
+    }
 
     listener = GetSoundListener();
 
@@ -296,6 +308,12 @@ void S_StartSoundAtVolume(void *_origin, int sound_id, int volume)
     mobj_t *origin = _origin;
     mobj_t *listener;
     int i;
+
+    // [JN] CRL - do not play music while demo-warp.
+    if (nodrawers /*|| demowarp*/)
+    {
+        return;
+    }
 
     listener = GetSoundListener();
 

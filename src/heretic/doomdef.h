@@ -595,6 +595,8 @@ extern int startepisode;
 extern int startmap;
 extern boolean autostart;
 
+extern boolean nodrawers;
+
 extern boolean testcontrols;
 extern int testcontrols_mousespeed;
 
