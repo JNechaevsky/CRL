@@ -115,6 +115,9 @@ void P_CalcHeight(player_t * player)
         player->bob = FRACUNIT / 2;
     }
 
+    // [JN] CRL - keep update viewz while no momentum mode
+    // to prevent camera dive into the floor after stepping down any heights.
+    /*
     if ((player->cheats & CF_NOMOMENTUM))
     {
         player->viewz = player->mo->z + VIEWHEIGHT;
@@ -123,6 +126,7 @@ void P_CalcHeight(player_t * player)
         player->viewz = player->mo->z + player->viewheight;
         return;
     }
+    */
 
     angle = (FINEANGLES / 20 * realleveltime) & FINEMASK;
     bob = FixedMul(player->bob / 2, finesine[angle]);
