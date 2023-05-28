@@ -629,12 +629,13 @@ static boolean CRL_Limits (int option);
 static boolean KbdIsBinding;
 static int     keyToBind;
 
-static char   *M_KeyDrawer (int itemSetOn, int key);
+static char   *M_NameBind (int itemSetOn, int key);
 static void    M_StartBind (int keynum);
 static void    M_CheckBind (int key);
 static void    M_DoBind (int keynum, int key);
 static void    M_ClearBind (int itemOn);
 static byte   *M_ColorizeBind (int itemSetOn, int key);
+static void    M_DrawBindKey (int itemNum, int yPos, int keyBind);
 static void    M_DrawBindFooter (char *pagenum, boolean drawPages);
 static void    M_ScrollKeyBindPages (boolean direction);
 
@@ -648,12 +649,13 @@ static void    M_ScrollKeyBindPages (boolean direction);
 static boolean MouseIsBinding;
 static int     btnToBind;
 
-static char   *M_MouseBtnDrawer (int CurrentItPosOn, int btn);
+static char   *M_NameMouseBind (int CurrentItPosOn, int btn);
 static void    M_StartMouseBind (int btn);
 static void    M_CheckMouseBind (int btn);
 static void    M_DoMouseBind (int btnnum, int btn);
 static void    M_ClearMouseBind (int itemOn);
 static byte   *M_ColorizeMouseBind (int CurrentItPosOn, int btn);
+static void    M_DrawBindButton (int itemNum, int yPos, int btnBind);
 
 // -----------------------------------------------------------------------------
 
@@ -1294,20 +1296,20 @@ static void DrawCRLKbd1 (void)
 
     MN_DrTextACentered("MOVEMENT", 20, cr[CR_YELLOW]);
 
-    MN_DrTextA(M_KeyDrawer(0, key_up), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(0, key_up)), 30, M_ColorizeBind(0, key_up));
-    MN_DrTextA(M_KeyDrawer(1, key_down), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(1, key_down)), 40, M_ColorizeBind(1, key_down));
-    MN_DrTextA(M_KeyDrawer(2, key_left), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(2, key_left)), 50, M_ColorizeBind(2, key_left));
-    MN_DrTextA(M_KeyDrawer(3, key_right), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(3, key_right)), 60, M_ColorizeBind(3, key_right));
-    MN_DrTextA(M_KeyDrawer(4, key_strafeleft), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(4, key_strafeleft)), 70, M_ColorizeBind(4, key_strafeleft));
-    MN_DrTextA(M_KeyDrawer(5, key_straferight), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(5, key_straferight)), 80, M_ColorizeBind(5, key_straferight));
-    MN_DrTextA(M_KeyDrawer(6, key_speed), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(6, key_speed)), 90, M_ColorizeBind(6, key_speed));
-    MN_DrTextA(M_KeyDrawer(7, key_strafe), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(7, key_strafe)), 100, M_ColorizeBind(7, key_strafe));
+    M_DrawBindKey(0, 30, key_up);
+    M_DrawBindKey(1, 40, key_down);
+    M_DrawBindKey(2, 50, key_left);
+    M_DrawBindKey(3, 60, key_right);
+    M_DrawBindKey(4, 70, key_strafeleft);
+    M_DrawBindKey(5, 80, key_straferight);
+    M_DrawBindKey(6, 90, key_speed);
+    M_DrawBindKey(7, 100, key_strafe);
 
     MN_DrTextACentered("ACTION", 110, cr[CR_YELLOW]);
 
-    MN_DrTextA(M_KeyDrawer(9, key_fire), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(9, key_fire)), 120, M_ColorizeBind(9, key_fire));
-    MN_DrTextA(M_KeyDrawer(10, key_use), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(10, key_use)), 130, M_ColorizeBind(10, key_use));
-    
+    M_DrawBindKey(9, 120, key_fire);
+    M_DrawBindKey(10, 130, key_use);
+
     M_DrawBindFooter("1", true);
 }
 
@@ -1404,21 +1406,21 @@ static void DrawCRLKbd2 (void)
 
     MN_DrTextACentered("VIEW", 20, cr[CR_YELLOW]);
 
-    MN_DrTextA(M_KeyDrawer(0, key_lookup), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(0, key_lookup)), 30, M_ColorizeBind(0, key_lookup));
-    MN_DrTextA(M_KeyDrawer(1, key_lookdown), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(1, key_lookdown)), 40, M_ColorizeBind(1, key_lookdown));
-    MN_DrTextA(M_KeyDrawer(2, key_lookcenter), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(2, key_lookcenter)), 50, M_ColorizeBind(2, key_lookcenter));
+    M_DrawBindKey(0, 30, key_lookup);
+    M_DrawBindKey(1, 40, key_lookdown);
+    M_DrawBindKey(2, 50, key_lookcenter);
 
     MN_DrTextACentered("FLYING", 60, cr[CR_YELLOW]);
 
-    MN_DrTextA(M_KeyDrawer(4, key_flyup), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(4, key_flyup)), 70, M_ColorizeBind(4, key_flyup));
-    MN_DrTextA(M_KeyDrawer(5, key_flydown), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(5, key_flydown)), 80, M_ColorizeBind(5, key_flydown));
-    MN_DrTextA(M_KeyDrawer(6, key_flycenter), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(6, key_flycenter)), 90, M_ColorizeBind(6, key_flycenter));
+    M_DrawBindKey(4, 70, key_flyup);
+    M_DrawBindKey(5, 80, key_flydown);
+    M_DrawBindKey(6, 90, key_flycenter);
 
     MN_DrTextACentered("INVENTORY", 100, cr[CR_YELLOW]);
 
-    MN_DrTextA(M_KeyDrawer(8, key_invleft), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(8, key_invleft)), 110, M_ColorizeBind(8, key_invleft));
-    MN_DrTextA(M_KeyDrawer(9, key_invright), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(9, key_invright)), 120, M_ColorizeBind(9, key_invright));
-    MN_DrTextA(M_KeyDrawer(10, key_useartifact), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(10, key_useartifact)), 130, M_ColorizeBind(10, key_useartifact));
+    M_DrawBindKey(8, 110, key_invleft);
+    M_DrawBindKey(9, 120, key_invright);
+    M_DrawBindKey(10, 130, key_useartifact);
 
     M_DrawBindFooter("2", true);
 }
@@ -1509,18 +1511,18 @@ static void DrawCRLKbd3 (void)
 
     MN_DrTextACentered("CRL CONTROLS", 20, cr[CR_YELLOW]);
 
-    MN_DrTextA(M_KeyDrawer(0, key_crl_menu), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(0, key_crl_menu)), 30, M_ColorizeBind(0, key_crl_menu));
-    MN_DrTextA(M_KeyDrawer(1, key_crl_reloadlevel), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(1, key_crl_reloadlevel)), 40, M_ColorizeBind(1, key_crl_reloadlevel));
-    MN_DrTextA(M_KeyDrawer(2, key_crl_nextlevel), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(2, key_crl_nextlevel)), 50, M_ColorizeBind(2, key_crl_nextlevel));
-    MN_DrTextA(M_KeyDrawer(3, key_crl_demospeed), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(3, key_crl_demospeed)), 60, M_ColorizeBind(3, key_crl_demospeed));
+    M_DrawBindKey(0, 30, key_crl_menu);
+    M_DrawBindKey(1, 40, key_crl_reloadlevel);
+    M_DrawBindKey(2, 50, key_crl_nextlevel);
+    M_DrawBindKey(3, 60, key_crl_demospeed);
 
     MN_DrTextACentered("GAME MODES", 70, cr[CR_YELLOW]);
 
-    MN_DrTextA(M_KeyDrawer(5, key_crl_spectator), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(5, key_crl_spectator)), 80, M_ColorizeBind(5, key_crl_spectator));
-    MN_DrTextA(M_KeyDrawer(6, key_crl_cameraup), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(6, key_crl_cameraup)), 90, M_ColorizeBind(6, key_crl_cameraup));
-    MN_DrTextA(M_KeyDrawer(7, key_crl_cameradown), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(7, key_crl_cameradown)), 100, M_ColorizeBind(7, key_crl_cameradown));
-    MN_DrTextA(M_KeyDrawer(8, key_crl_freeze), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(8, key_crl_freeze)), 110, M_ColorizeBind(8, key_crl_freeze));
-    MN_DrTextA(M_KeyDrawer(9, key_crl_notarget), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(9, key_crl_notarget)), 120, M_ColorizeBind(9, key_crl_notarget));
+    M_DrawBindKey(5, 80, key_crl_spectator);
+    M_DrawBindKey(6, 90, key_crl_cameraup);
+    M_DrawBindKey(7, 100, key_crl_cameradown);
+    M_DrawBindKey(8, 110, key_crl_freeze);
+    M_DrawBindKey(9, 120, key_crl_notarget);
 
     M_DrawBindFooter("3", true);
 }
@@ -1612,21 +1614,21 @@ static void DrawCRLKbd4 (void)
 
     MN_DrTextACentered("ADVANCED MOVEMENT", 20, cr[CR_YELLOW]);
 
-    MN_DrTextA(M_KeyDrawer(0, key_crl_autorun), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(0, key_crl_autorun)), 30, M_ColorizeBind(0, key_crl_autorun));
-    MN_DrTextA(M_KeyDrawer(1, key_crl_mlook), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(1, key_crl_mlook)), 40, M_ColorizeBind(1, key_crl_mlook));
-    MN_DrTextA(M_KeyDrawer(2, key_crl_vilebomb), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(2, key_crl_vilebomb)), 50, M_ColorizeBind(2, key_crl_vilebomb));
+    M_DrawBindKey(0, 30, key_crl_autorun);
+    M_DrawBindKey(1, 40, key_crl_mlook);
+    M_DrawBindKey(2, 50, key_crl_vilebomb);
 
     MN_DrTextACentered("VISPLANES MAX VALUE", 60, cr[CR_YELLOW]);
 
-    MN_DrTextA(M_KeyDrawer(4, key_crl_clearmax), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(4, key_crl_clearmax)), 70, M_ColorizeBind(4, key_crl_clearmax));
-    MN_DrTextA(M_KeyDrawer(5, key_crl_movetomax), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(5, key_crl_movetomax)), 80, M_ColorizeBind(5, key_crl_movetomax));
+    M_DrawBindKey(4, 70, key_crl_clearmax);
+    M_DrawBindKey(5, 80, key_crl_movetomax);
 
     MN_DrTextACentered("CHEAT SHORTCUTS", 90, cr[CR_YELLOW]);
 
-    MN_DrTextA(M_KeyDrawer(7, key_crl_iddqd), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(7, key_crl_iddqd)), 100, M_ColorizeBind(7, key_crl_iddqd));
-    MN_DrTextA(M_KeyDrawer(8, key_crl_idfa), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(8, key_crl_idfa)), 110, M_ColorizeBind(8, key_crl_idfa));
-    MN_DrTextA(M_KeyDrawer(9, key_crl_idclip), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(9, key_crl_idclip)), 120, M_ColorizeBind(9, key_crl_idclip));
-    MN_DrTextA(M_KeyDrawer(10, key_crl_idkfa), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(10, key_crl_idkfa)), 130, M_ColorizeBind(10, key_crl_idkfa));
+    M_DrawBindKey(7, 100, key_crl_iddqd);
+    M_DrawBindKey(8, 110, key_crl_idfa);
+    M_DrawBindKey(9, 120, key_crl_idclip);
+    M_DrawBindKey(10, 130, key_crl_idkfa);
 
     M_DrawBindFooter("4", true);
 }
@@ -1717,16 +1719,16 @@ static void DrawCRLKbd5 (void)
 
     MN_DrTextACentered("WEAPONS", 20, cr[CR_YELLOW]);
 
-    MN_DrTextA(M_KeyDrawer(0, key_weapon1), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(0, key_weapon1)), 30, M_ColorizeBind(0, key_weapon1));
-    MN_DrTextA(M_KeyDrawer(1, key_weapon2), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(1, key_weapon2)), 40, M_ColorizeBind(1, key_weapon2));
-    MN_DrTextA(M_KeyDrawer(2, key_weapon3), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(2, key_weapon3)), 50, M_ColorizeBind(2, key_weapon3));
-    MN_DrTextA(M_KeyDrawer(3, key_weapon4), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(3, key_weapon4)), 60, M_ColorizeBind(3, key_weapon4));
-    MN_DrTextA(M_KeyDrawer(4, key_weapon5), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(4, key_weapon5)), 70, M_ColorizeBind(4, key_weapon5));
-    MN_DrTextA(M_KeyDrawer(5, key_weapon6), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(5, key_weapon6)), 80, M_ColorizeBind(5, key_weapon6));
-    MN_DrTextA(M_KeyDrawer(6, key_weapon7), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(6, key_weapon7)), 90, M_ColorizeBind(6, key_weapon7));
-    MN_DrTextA(M_KeyDrawer(7, key_weapon8), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(7, key_weapon8)), 100, M_ColorizeBind(7, key_weapon8));
-    MN_DrTextA(M_KeyDrawer(8, key_prevweapon), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(8, key_prevweapon)), 110, M_ColorizeBind(8, key_prevweapon));
-    MN_DrTextA(M_KeyDrawer(9, key_nextweapon), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(9, key_nextweapon)), 120, M_ColorizeBind(9, key_nextweapon));
+    M_DrawBindKey(0, 30, key_weapon1);
+    M_DrawBindKey(1, 40, key_weapon2);
+    M_DrawBindKey(2, 50, key_weapon3);
+    M_DrawBindKey(3, 60, key_weapon4);
+    M_DrawBindKey(4, 70, key_weapon5);
+    M_DrawBindKey(5, 80, key_weapon6);
+    M_DrawBindKey(6, 90, key_weapon7);
+    M_DrawBindKey(7, 100, key_weapon8);
+    M_DrawBindKey(8, 110, key_prevweapon);
+    M_DrawBindKey(9, 120, key_nextweapon);
 
     M_DrawBindFooter("5", true);
 }
@@ -1823,16 +1825,16 @@ static void DrawCRLKbd6 (void)
 
     MN_DrTextACentered("ARTIFACTS", 20, cr[CR_YELLOW]);
 
-    MN_DrTextA(M_KeyDrawer(0, key_arti_quartz), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(0, key_arti_quartz)), 30, M_ColorizeBind(0, key_arti_quartz));
-    MN_DrTextA(M_KeyDrawer(1, key_arti_urn), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(1, key_arti_urn)), 40, M_ColorizeBind(1, key_arti_urn));
-    MN_DrTextA(M_KeyDrawer(2, key_arti_bomb), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(2, key_arti_bomb)), 50, M_ColorizeBind(2, key_arti_bomb));
-    MN_DrTextA(M_KeyDrawer(3, key_arti_tome), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(3, key_arti_tome)), 60, M_ColorizeBind(3, key_arti_tome));
-    MN_DrTextA(M_KeyDrawer(4, key_arti_ring), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(4, key_arti_ring)), 70, M_ColorizeBind(4, key_arti_ring));
-    MN_DrTextA(M_KeyDrawer(5, key_arti_chaosdevice), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(5, key_arti_chaosdevice)), 80, M_ColorizeBind(5, key_arti_chaosdevice));
-    MN_DrTextA(M_KeyDrawer(6, key_arti_shadowsphere), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(6, key_arti_shadowsphere)), 90, M_ColorizeBind(6, key_arti_shadowsphere));
-    MN_DrTextA(M_KeyDrawer(7, key_arti_wings), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(7, key_arti_wings)), 100, M_ColorizeBind(7, key_arti_wings));
-    MN_DrTextA(M_KeyDrawer(8, key_arti_torch), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(8, key_arti_torch)), 110, M_ColorizeBind(8, key_arti_torch));
-    MN_DrTextA(M_KeyDrawer(9, key_arti_morph), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(9, key_arti_morph)), 120, M_ColorizeBind(9, key_arti_morph));
+    M_DrawBindKey(0, 30, key_arti_quartz);
+    M_DrawBindKey(1, 40, key_arti_urn);
+    M_DrawBindKey(2, 50, key_arti_bomb);
+    M_DrawBindKey(3, 60, key_arti_tome);
+    M_DrawBindKey(4, 70, key_arti_ring);
+    M_DrawBindKey(5, 80, key_arti_chaosdevice);
+    M_DrawBindKey(6, 90, key_arti_shadowsphere);
+    M_DrawBindKey(7, 100, key_arti_wings);
+    M_DrawBindKey(8, 110, key_arti_torch);
+    M_DrawBindKey(9, 120, key_arti_morph);
 
     M_DrawBindFooter("6", true);
 }
@@ -1927,14 +1929,14 @@ static void DrawCRLKbd7 (void)
 
     MN_DrTextACentered("AUTOMAP", 20, cr[CR_YELLOW]);
 
-    MN_DrTextA(M_KeyDrawer(0, key_map_toggle), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(0, key_map_toggle)), 30, M_ColorizeBind(0, key_map_toggle));
-    MN_DrTextA(M_KeyDrawer(1, key_map_zoomin), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(1, key_map_zoomin)), 40, M_ColorizeBind(1, key_map_zoomin));
-    MN_DrTextA(M_KeyDrawer(2, key_map_zoomout), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(2, key_map_zoomout)), 50, M_ColorizeBind(2, key_map_zoomout));
-    MN_DrTextA(M_KeyDrawer(3, key_map_maxzoom), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(3, key_map_maxzoom)), 60, M_ColorizeBind(3, key_map_maxzoom));
-    MN_DrTextA(M_KeyDrawer(4, key_map_follow), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(4, key_map_follow)), 70, M_ColorizeBind(4, key_map_follow));
-    MN_DrTextA(M_KeyDrawer(5, key_crl_map_rotate), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(5, key_crl_map_rotate)), 80, M_ColorizeBind(5, key_crl_map_rotate));
-    MN_DrTextA(M_KeyDrawer(6, key_crl_map_overlay), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(6, key_crl_map_overlay)), 90, M_ColorizeBind(6, key_crl_map_overlay));
-    MN_DrTextA(M_KeyDrawer(7, key_map_grid), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(7, key_map_grid)), 100, M_ColorizeBind(7, key_map_grid));
+    M_DrawBindKey(0, 30, key_map_toggle);
+    M_DrawBindKey(1, 40, key_map_zoomin);
+    M_DrawBindKey(2, 50, key_map_zoomout);
+    M_DrawBindKey(3, 60, key_map_maxzoom);
+    M_DrawBindKey(4, 70, key_map_follow);
+    M_DrawBindKey(5, 80, key_crl_map_rotate);
+    M_DrawBindKey(6, 90, key_crl_map_overlay);
+    M_DrawBindKey(7, 100, key_map_grid);
 
     M_DrawBindFooter("7", true);
 }
@@ -2020,17 +2022,17 @@ static void DrawCRLKbd8 (void)
 
     MN_DrTextACentered("FUNCTION KEYS", 20, cr[CR_YELLOW]);
 
-    MN_DrTextA(M_KeyDrawer(0, key_menu_help), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(0, key_menu_help)), 30, M_ColorizeBind(0, key_menu_help));
-    MN_DrTextA(M_KeyDrawer(1, key_menu_save), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(1, key_menu_save)), 40, M_ColorizeBind(1, key_menu_save));
-    MN_DrTextA(M_KeyDrawer(2, key_menu_load), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(2, key_menu_load)), 50, M_ColorizeBind(2, key_menu_load));
-    MN_DrTextA(M_KeyDrawer(3, key_menu_volume), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(3, key_menu_volume)), 60, M_ColorizeBind(3, key_menu_volume));
-    MN_DrTextA(M_KeyDrawer(4, key_menu_qsave), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(4, key_menu_qsave)), 70, M_ColorizeBind(4, key_menu_qsave));
-    MN_DrTextA(M_KeyDrawer(5, key_menu_endgame), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(5, key_menu_endgame)), 80, M_ColorizeBind(5, key_menu_endgame));
-    MN_DrTextA(M_KeyDrawer(6, key_menu_messages), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(6, key_menu_messages)), 90, M_ColorizeBind(6, key_menu_messages));
-    MN_DrTextA(M_KeyDrawer(7, key_menu_qload), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(7, key_menu_qload)), 100, M_ColorizeBind(7, key_menu_qload));
-    MN_DrTextA(M_KeyDrawer(8, key_menu_quit), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(8, key_menu_quit)), 110, M_ColorizeBind(8, key_menu_quit));
-    MN_DrTextA(M_KeyDrawer(9, key_menu_gamma), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(9, key_menu_gamma)), 120, M_ColorizeBind(9, key_menu_gamma));
-    MN_DrTextA(M_KeyDrawer(10, key_spy), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(10, key_spy)), 130, M_ColorizeBind(10, key_spy));
+    M_DrawBindKey(0, 30, key_menu_help);
+    M_DrawBindKey(1, 40, key_menu_save);
+    M_DrawBindKey(2, 50, key_menu_load);
+    M_DrawBindKey(3, 60, key_menu_volume);
+    M_DrawBindKey(4, 70, key_menu_qsave);
+    M_DrawBindKey(5, 80, key_menu_endgame);
+    M_DrawBindKey(6, 90, key_menu_messages);
+    M_DrawBindKey(7, 100, key_menu_qload);
+    M_DrawBindKey(8, 110, key_menu_quit);
+    M_DrawBindKey(9, 120, key_menu_gamma);
+    M_DrawBindKey(10, 130, key_spy);
 
     M_DrawBindFooter("8", true);
 }
@@ -2132,17 +2134,17 @@ static void DrawCRLKbd9 (void)
 
     MN_DrTextACentered("SHORTCUT KEYS", 20, cr[CR_YELLOW]);
 
-    MN_DrTextA(M_KeyDrawer(0, key_pause), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(0, key_pause)), 30, M_ColorizeBind(0, key_pause));
-    MN_DrTextA(M_KeyDrawer(1, key_menu_screenshot), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(1, key_menu_screenshot)), 40, M_ColorizeBind(1, key_menu_screenshot));
-    MN_DrTextA(M_KeyDrawer(2, key_demo_quit), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(3, key_demo_quit)), 50, M_ColorizeBind(2, key_demo_quit));
+    M_DrawBindKey(0, 30, key_pause);
+    M_DrawBindKey(1, 40, key_menu_screenshot);
+    M_DrawBindKey(2, 50, key_demo_quit);
 
     MN_DrTextACentered("MULTIPLAYER", 60, cr[CR_YELLOW]);
 
-    MN_DrTextA(M_KeyDrawer(4, key_multi_msg), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(4, key_multi_msg)), 70, M_ColorizeBind(4, key_multi_msg));
-    MN_DrTextA(M_KeyDrawer(5, key_multi_msgplayer[0]), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(5, key_multi_msgplayer[0])), 80, M_ColorizeBind(5, key_multi_msgplayer[0]));
-    MN_DrTextA(M_KeyDrawer(6, key_multi_msgplayer[1]), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(6, key_multi_msgplayer[1])), 90, M_ColorizeBind(6, key_multi_msgplayer[1]));
-    MN_DrTextA(M_KeyDrawer(7, key_multi_msgplayer[2]), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(7, key_multi_msgplayer[2])), 100, M_ColorizeBind(7, key_multi_msgplayer[2]));
-    MN_DrTextA(M_KeyDrawer(8, key_multi_msgplayer[3]), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_KeyDrawer(8, key_multi_msgplayer[3])), 110, M_ColorizeBind(8, key_multi_msgplayer[3]));
+    M_DrawBindKey(4, 70, key_multi_msg);
+    M_DrawBindKey(5, 80, key_multi_msgplayer[0]);
+    M_DrawBindKey(6, 90, key_multi_msgplayer[1]);
+    M_DrawBindKey(7, 100, key_multi_msgplayer[2]);
+    M_DrawBindKey(8, 110, key_multi_msgplayer[3]);
 
     M_DrawBindFooter("9", true);
 }
@@ -2226,15 +2228,15 @@ static void DrawCRLMouse (void)
 
     MN_DrTextACentered("MOUSE BINDINGS", 20, cr[CR_YELLOW]);
 
-    MN_DrTextA(M_MouseBtnDrawer(0, mousebfire), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_MouseBtnDrawer(0, mousebfire)), 30, M_ColorizeMouseBind(0, mousebfire));
-    MN_DrTextA(M_MouseBtnDrawer(1, mousebforward), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_MouseBtnDrawer(1, mousebforward)), 40, M_ColorizeMouseBind(1, mousebforward));
-    MN_DrTextA(M_MouseBtnDrawer(2, mousebstrafe), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_MouseBtnDrawer(2, mousebstrafe)), 50, M_ColorizeMouseBind(2, mousebstrafe));
-    MN_DrTextA(M_MouseBtnDrawer(3, mousebbackward), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_MouseBtnDrawer(3, mousebbackward)), 60, M_ColorizeMouseBind(3, mousebbackward));
-    MN_DrTextA(M_MouseBtnDrawer(4, mousebuse), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_MouseBtnDrawer(4, mousebuse)), 70, M_ColorizeMouseBind(4, mousebuse));
-    MN_DrTextA(M_MouseBtnDrawer(5, mousebstrafeleft), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_MouseBtnDrawer(5, mousebstrafeleft)), 80, M_ColorizeMouseBind(5, mousebstrafeleft));
-    MN_DrTextA(M_MouseBtnDrawer(6, mousebstraferight), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_MouseBtnDrawer(6, mousebstraferight)), 90, M_ColorizeMouseBind(6, mousebstraferight));
-    MN_DrTextA(M_MouseBtnDrawer(7, mousebprevweapon), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_MouseBtnDrawer(7, mousebprevweapon)), 100, M_ColorizeMouseBind(7, mousebprevweapon));
-    MN_DrTextA(M_MouseBtnDrawer(8, mousebnextweapon), CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_MouseBtnDrawer(8, mousebnextweapon)), 110, M_ColorizeMouseBind(8, mousebnextweapon));
+    M_DrawBindButton(0, 30, mousebfire);
+    M_DrawBindButton(1, 40, mousebforward);
+    M_DrawBindButton(2, 50, mousebstrafe);
+    M_DrawBindButton(3, 60, mousebbackward);
+    M_DrawBindButton(4, 70, mousebuse);
+    M_DrawBindButton(5, 80, mousebstrafeleft);
+    M_DrawBindButton(6, 90, mousebstraferight);
+    M_DrawBindButton(7, 100, mousebprevweapon);
+    M_DrawBindButton(8, 110, mousebnextweapon);
 
     M_DrawBindFooter(NULL, false);
 }
@@ -4272,7 +4274,7 @@ static void DrawSlider(Menu_t * menu, int item, int width, int slot, boolean big
 
 
 // -----------------------------------------------------------------------------
-// M_KeyDrawer
+// M_NameBind
 //  [JN] Convert Doom key number into printable string.
 // -----------------------------------------------------------------------------
 
@@ -4281,7 +4283,7 @@ static struct {
     char *name;
 } key_names[] = KEY_NAMES_ARRAY_RAVEN;
 
-static char *M_KeyDrawer (int CurrentItPosOn, int key)
+static char *M_NameBind (int CurrentItPosOn, int key)
 {
     if (CurrentItPos == CurrentItPosOn && KbdIsBinding)
     {
@@ -4726,6 +4728,19 @@ static byte *M_ColorizeBind (int CurrentItPosOn, int key)
 }
 
 // -----------------------------------------------------------------------------
+// M_DrawBindKey
+//  [JN] Do keyboard bind drawing.
+// -----------------------------------------------------------------------------
+
+static void M_DrawBindKey (int itemNum, int yPos, int keyBind)
+{
+    MN_DrTextA(M_NameBind(itemNum, keyBind),
+               CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_NameBind(itemNum, keyBind)),
+               yPos,
+               M_ColorizeBind(itemNum, keyBind));
+}
+
+// -----------------------------------------------------------------------------
 // M_DrawBindFooter
 //  [JN] Draw footer in key binding pages with numeration.
 // -----------------------------------------------------------------------------
@@ -4809,11 +4824,11 @@ static void M_ScrollKeyBindPages (boolean direction)
 
 
 // -----------------------------------------------------------------------------
-// M_KeyDrawer
+// M_NameBind
 //  [JN] Draw mouse button number as printable string.
 // -----------------------------------------------------------------------------
 
-static char *M_MouseBtnDrawer (int CurrentItPosOn, int btn)
+static char *M_NameMouseBind (int CurrentItPosOn, int btn)
 {
     if (CurrentItPos == CurrentItPosOn && MouseIsBinding)
     {
@@ -4944,4 +4959,17 @@ static byte *M_ColorizeMouseBind (int CurrentItPosOn, int btn)
                 ITEMSETONTICS == 1 ? cr[CR_GREEN_BRIGHT1] : cr[CR_GREEN];
         }
     }
+}
+
+// -----------------------------------------------------------------------------
+// M_DrawBindButton
+//  [JN] Do mouse button bind drawing.
+// -----------------------------------------------------------------------------
+
+static void M_DrawBindButton (int itemNum, int yPos, int btnBind)
+{
+    MN_DrTextA(M_NameMouseBind(itemNum, btnBind),
+               CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_NameMouseBind(itemNum, btnBind)),
+               yPos,
+               M_ColorizeMouseBind(itemNum, btnBind));
 }
