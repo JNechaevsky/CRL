@@ -181,6 +181,12 @@ void D_Display(void)
 {
     extern boolean askforquit;
 
+    // For comparative timing / profiling
+    if (nodrawers)
+    {
+        return;
+    }
+
     // Change the view size if needed
     if (setsizeneeded)
     {
@@ -215,6 +221,13 @@ void D_Display(void)
 
             // [JN] CRL Stats
             CRL_StatDrawer();
+
+            // [JN] Target's health widget.
+            // Actual health values are gathered in G_Ticker.
+            if (crl_widget_health)
+            {
+                CRL_DrawTargetsHealth();
+            }
 
             CT_Drawer();
             UpdateState |= I_FULLVIEW;

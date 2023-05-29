@@ -807,15 +807,15 @@ void P_BulletSlope(mobj_t * mo)
 // see which target is to be aimed at
 //
     an = mo->angle;
-    bulletslope = P_AimLineAttack(mo, an, 16 * 64 * FRACUNIT);
+    bulletslope = P_AimLineAttack(mo, an, 16 * 64 * FRACUNIT, false);
     if (!linetarget)
     {
         an += 1 << 26;
-        bulletslope = P_AimLineAttack(mo, an, 16 * 64 * FRACUNIT);
+        bulletslope = P_AimLineAttack(mo, an, 16 * 64 * FRACUNIT, false);
         if (!linetarget)
         {
             an -= 2 << 26;
-            bulletslope = P_AimLineAttack(mo, an, 16 * 64 * FRACUNIT);
+            bulletslope = P_AimLineAttack(mo, an, 16 * 64 * FRACUNIT, false);
         }
         if (!linetarget)
         {
@@ -845,7 +845,7 @@ void A_BeakAttackPL1(mobj_t * actor, player_t * player, pspdef_t * psp)
 
     damage = 1 + (P_Random() & 3);
     angle = player->mo->angle;
-    slope = P_AimLineAttack(player->mo, angle, MELEERANGE);
+    slope = P_AimLineAttack(player->mo, angle, MELEERANGE, false);
     PuffType = MT_BEAKPUFF;
     P_LineAttack(player->mo, angle, MELEERANGE, slope, damage);
     if (linetarget)
@@ -873,7 +873,7 @@ void A_BeakAttackPL2(mobj_t * actor, player_t * player, pspdef_t * psp)
 
     damage = HITDICE(4);
     angle = player->mo->angle;
-    slope = P_AimLineAttack(player->mo, angle, MELEERANGE);
+    slope = P_AimLineAttack(player->mo, angle, MELEERANGE, false);
     PuffType = MT_BEAKPUFF;
     P_LineAttack(player->mo, angle, MELEERANGE, slope, damage);
     if (linetarget)
@@ -902,7 +902,7 @@ void A_StaffAttackPL1(mobj_t * actor, player_t * player, pspdef_t * psp)
     damage = 5 + (P_Random() & 15);
     angle = player->mo->angle;
     angle += P_SubRandom() << 18;
-    slope = P_AimLineAttack(player->mo, angle, MELEERANGE);
+    slope = P_AimLineAttack(player->mo, angle, MELEERANGE, false);
     PuffType = MT_STAFFPUFF;
     P_LineAttack(player->mo, angle, MELEERANGE, slope, damage);
     if (linetarget)
@@ -931,7 +931,7 @@ void A_StaffAttackPL2(mobj_t * actor, player_t * player, pspdef_t * psp)
     damage = 18 + (P_Random() & 63);
     angle = player->mo->angle;
     angle += P_SubRandom() << 18;
-    slope = P_AimLineAttack(player->mo, angle, MELEERANGE);
+    slope = P_AimLineAttack(player->mo, angle, MELEERANGE, false);
     PuffType = MT_STAFFPUFF2;
     P_LineAttack(player->mo, angle, MELEERANGE, slope, damage);
     if (linetarget)
@@ -1297,7 +1297,7 @@ void A_DeathBallImpact(mobj_t * ball, player_t * player, pspdef_t * psp)
             angle = 0;
             for (i = 0; i < 16; i++)
             {
-                P_AimLineAttack(ball, angle, 10 * 64 * FRACUNIT);
+                P_AimLineAttack(ball, angle, 10 * 64 * FRACUNIT, false);
                 if (linetarget && ball->target != linetarget)
                 {
                     ball->special1.m = linetarget;
@@ -1788,7 +1788,7 @@ void A_GauntletAttack(mobj_t * actor, player_t * player, pspdef_t * psp)
         angle += P_SubRandom() << 18;
         PuffType = MT_GAUNTLETPUFF1;
     }
-    slope = P_AimLineAttack(player->mo, angle, dist);
+    slope = P_AimLineAttack(player->mo, angle, dist, false);
     P_LineAttack(player->mo, angle, dist, slope, damage);
     if (!linetarget)
     {

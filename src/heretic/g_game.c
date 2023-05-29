@@ -1322,6 +1322,13 @@ void G_Ticker(void)
             CT_Ticker();
             // [JN] CRL - framerate-independent multicolor HOM drawing.
             CRL_GetHOMMultiColor();
+            // [JN] Target's health widget.
+            if (crl_widget_health)
+            {
+                player_t *player = &players[displayplayer];
+                // Do an overflow-safe trace to gather target's health.
+                P_AimLineAttack(player->mo, player->mo->angle, MISSILERANGE, true);
+            }
             break;
         case GS_INTERMISSION:
             IN_Ticker();
@@ -1406,6 +1413,8 @@ void G_PlayerFinishLevel(int player)
         p->chickenTics = 0;
     }
     p->messageTics = 0;
+    p->criticalmessageTics = 0;
+    p->targetsheathTics = 0;
     p->lookdir = p->oldlookdir = 0;
     p->mo->flags &= ~MF_SHADOW; // Remove invisibility
     p->extralight = 0;          // Remove weapon flashes
@@ -1465,6 +1474,8 @@ void G_PlayerReborn(int player)
     p->weaponowned[wp_staff] = true;
     p->weaponowned[wp_goldwand] = true;
     p->messageTics = 0;
+    p->criticalmessageTics = 0;
+    p->targetsheathTics = 0;
     p->lookdir = 0;
     p->ammo[am_goldwand] = 50;
     for (i = 0; i < NUMAMMO; i++)

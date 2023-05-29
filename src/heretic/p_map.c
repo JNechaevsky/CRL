@@ -21,6 +21,7 @@
 
 #include "doomdef.h"
 #include "i_system.h"
+#include "i_timer.h"
 #include "m_bbox.h"
 #include "m_random.h"
 #include "p_local.h"
@@ -1167,6 +1168,9 @@ void P_SlideMove(mobj_t * mo)
 mobj_t *linetarget;             // who got hit (or NULL)
 mobj_t *shootthing;
 fixed_t shootz;                 // height if not aiming up or down
+// [JN] CRL - if true, this intercept will not cause overflow.
+// Needed for P_AimLineAttack calls to gather target's health.
+boolean safe_intercept = false;
                                                                         // ???: use slope for monsters?
 int la_damage;
 fixed_t attackrange;
@@ -1174,6 +1178,29 @@ fixed_t attackrange;
 fixed_t aimslope;
 
 extern fixed_t topslope, bottomslope;   // slopes to top and bottom of target
+
+static char *CRL_GetMobjName (mobjtype_t type)
+{
+    switch (type)
+    {
+        case MT_IMP:               return "GARGOYLE";             break;
+        case MT_IMPLEADER:         return "FIRE GARGOYLE";        break;
+        case MT_MUMMY:             return "GOLEM";                break;
+        case MT_MUMMYGHOST:        return "GOLEM GHOST";          break;
+        case MT_MUMMYLEADER:       return "NITROGOLEM";           break;
+        case MT_MUMMYLEADERGHOST:  return "NITROGOLEM GHOST";     break;
+        case MT_KNIGHT:            return "UNDEAD WARRIOR";       break;
+        case MT_KNIGHTGHOST:       return "UNDEAD WARRIOR GHOST"; break;
+        case MT_CLINK:             return "SABRECLAW";            break;
+        case MT_BEAST:             return "WEREDRAGON";           break;
+        case MT_SNAKE:             return "OPHIDIAN";             break;
+        case MT_WIZARD:            return "DISCIPLE OF D'SPARIL"; break;
+        case MT_HEAD:              return "IRON LICH";            break;
+        case MT_MINOTAUR:          return "MAULOTAUR";            break;
+        case MT_SORCERER1: case MT_SORCERER2: return "D'SPARIL";  break;
+        default:            return "";
+    }
+}
 
 /*
 ===============================================================================
@@ -1190,6 +1217,7 @@ boolean PTR_AimTraverse(intercept_t * in)
     mobj_t *th;
     fixed_t slope, thingtopslope, thingbottomslope;
     fixed_t dist;
+    player_t 	*player = &players[displayplayer];
 
     if (in->isaline)
     {
@@ -1233,7 +1261,17 @@ boolean PTR_AimTraverse(intercept_t * in)
     if (th == shootthing)
         return true;            // can't shoot self
     if (!(th->flags & MF_SHOOTABLE))
+    {
+        // [JN] Stop showing target's health, if target is dead.
+        if (safe_intercept && th->health <= 0
+        && (th->state == &states[th->info->deathstate]
+        ||  th->state == &states[th->info->xdeathstate]))
+        {
+            player->targetsheathTics = 0;
+            return false;
+        }
         return true;            // corpse or something
+    }
     if (th->type == MT_POD)
     {                           // Can't auto-aim at pods
         return (true);
@@ -1259,6 +1297,22 @@ boolean PTR_AimTraverse(intercept_t * in)
 
     aimslope = (thingtopslope + thingbottomslope) / 2;
     linetarget = th;
+
+    // [JN] CRL - gather thing health for target's health widget.
+    // Run following code only for overflow-safe trace,
+    // and don't gather health of explosive barrels and players.
+    if (safe_intercept && th->tics > 0
+    && th->flags & MF_SHOOTABLE && th->type != MT_POD && th->type != MT_PLAYER)
+    {
+        // Get target's current health.
+        player->targetsheath = th->health;
+        // Get target's maximum health.
+        player->targetsmaxheath = th->info->spawnhealth;
+        // Set widget's timer to 1 second.
+        player->targetsheathTics = TICRATE;
+        // Get target's Dehackedable name.
+        player->targetsname = CRL_GetMobjName(th->type);
+    }
 
     return false;               // don't go any farther
 }
@@ -1397,9 +1451,12 @@ boolean PTR_ShootTraverse(intercept_t * in)
 =================
 */
 
-fixed_t P_AimLineAttack(mobj_t * t1, angle_t angle, fixed_t distance)
+fixed_t P_AimLineAttack(mobj_t * t1, angle_t angle, fixed_t distance, boolean safe)
 {
     fixed_t x2, y2;
+
+    // [JN] CRL - will this trace be safe for line/thing intercepts overflow?
+    safe_intercept = safe ? true : false;
 
     angle >>= ANGLETOFINESHIFT;
     shootthing = t1;
