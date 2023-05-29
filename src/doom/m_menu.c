@@ -726,10 +726,10 @@ static void    M_DrawBindKey (int itemNum, int yPos, int key);
 static void    M_DrawBindFooter (char *pagenum, boolean drawPages);
 static void    M_ScrollKeyBindPages (boolean direction);
 
-#define KBD_BIND_MENUS (CurrentMenu == &CRLKbdBinds1 || CurrentMenu == &CRLKbdBinds2 || \
-                        CurrentMenu == &CRLKbdBinds3 || CurrentMenu == &CRLKbdBinds4 || \
-                        CurrentMenu == &CRLKbdBinds5 || CurrentMenu == &CRLKbdBinds6 || \
-                        CurrentMenu == &CRLKbdBinds7)
+#define KBD_BIND_MENUS (currentMenu == &CRLDef_Keybinds_1 || currentMenu == &CRLDef_Keybinds_2 || \
+                        currentMenu == &CRLDef_Keybinds_3 || currentMenu == &CRLDef_Keybinds_4 || \
+                        currentMenu == &CRLDef_Keybinds_5 || currentMenu == &CRLDef_Keybinds_6 || \
+                        currentMenu == &CRLDef_Keybinds_7)
 
 // Mouse binding prototypes
 static boolean MouseIsBinding;
