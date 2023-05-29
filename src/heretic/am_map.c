@@ -24,6 +24,7 @@
 #include "deh_str.h"
 #include "i_timer.h"
 #include "i_video.h"
+#include "v_trans.h"
 #include "m_controls.h"
 #include "p_local.h"
 #include "am_map.h"
@@ -33,6 +34,7 @@
 #include "v_video.h"
 
 #include "crlcore.h"
+#include "crlvars.h"
 
 vertex_t KeyPoints[NUMKEYS];
 
@@ -157,6 +159,9 @@ static byte antialias[NUMALIAS][8] = {
     {110, 109, 108, 107, 106, 105, 104, 103},
     {75, 76, 77, 78, 79, 80, 81, 103}
 };
+
+// [JN] Make wall colors of secret sectors palette-independent.
+static int secretwallcolors;
 
 /*
 static byte *aliasmax[NUMALIAS] = {
@@ -336,6 +341,7 @@ void AM_initVariables(void)
     int pnum;
     thinker_t *think;
     mobj_t *mo;
+    static boolean colors_set = false;
 
     //static event_t st_notify = { ev_keyup, AM_MSGENTERED };
 
@@ -400,6 +406,14 @@ void AM_initVariables(void)
                 KeyPoints[2].y = mo->y;
             }
         }
+    }
+
+    // [JN] Defince secret color only once.
+    if (!colors_set)
+    {
+        secretwallcolors = V_GetPaletteIndex(W_CacheLumpName("PLAYPAL", PU_CACHE),
+                                                                     184, 0, 184);
+        colors_set = true;
     }
 
     // inform the status bar of the change
@@ -1292,7 +1306,16 @@ void AM_drawWalls(void)
                 continue;
             if (!lines[i].backsector)
             {
-                AM_drawMline(&l, WALLCOLORS + lightlev);
+                // [JN] CRL - mark secret sectors.
+                if (crl_automap_secrets && lines[i].frontsector->special == 9)
+                {
+                    AM_drawMline(&l, secretwallcolors);
+                }
+                else
+                {
+                    AM_drawMline(&l, WALLCOLORS);
+                }
+                // AM_drawMline(&l, WALLCOLORS + lightlev);
             }
             else
             {
@@ -1306,6 +1329,13 @@ void AM_drawWalls(void)
                         AM_drawMline(&l, 0);
                     else
                         AM_drawMline(&l, WALLCOLORS + lightlev);
+                }
+                // [JN] CRL - mark secret sectors.
+                else if (crl_automap_secrets 
+                && (lines[i].frontsector->special == 9
+                ||  lines[i].backsector->special == 9))
+                {
+                    AM_drawMline(&l, secretwallcolors);
                 }
                 else if (lines[i].special > 25 && lines[i].special < 35)
                 {
