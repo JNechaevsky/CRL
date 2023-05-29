@@ -21,6 +21,9 @@
 #define NUMPLANEBORDERCOLORS 16
 extern int  CRL_PlaneBorderColors[NUMPLANEBORDERCOLORS];
 
+extern void CRL_DrawMessage (void);
+extern void CRL_DrawCriticalMessage (void);
+
 extern void CRL_Clear_MAX (void);
 extern void CRL_Get_MAX (void);
 extern void CRL_MoveTo_MAX (void);
@@ -29,3 +32,5 @@ extern void CRL_MoveTo_MAX (void);
 extern void CRL_DemoTimer (const int time);
 extern void CRL_DemoBar (void);
 extern int  defdemotics, deftotaldemotics;
+
+extern void CRL_DrawTargetsHealth (void);

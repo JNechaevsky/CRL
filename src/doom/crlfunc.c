@@ -65,6 +65,56 @@ int CRL_PlaneBorderColors[NUMPLANEBORDERCOLORS] =
 
 // =============================================================================
 //
+//                       Messages handling and drawing
+//
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// CRL_DrawMessage
+// [JN] Draws message on the screen.
+// -----------------------------------------------------------------------------
+
+void CRL_DrawMessage (void)
+{
+    player_t *player = &players[displayplayer];
+
+    // [JN] Activate message counter in non-level or paused states.
+    // Make messages go away in menu, finale and help screens.
+    // Tics can't go negative.
+    if ((gamestate != GS_LEVEL || paused || menuactive) && player->messageTics > 0)
+    {
+        player->messageTics--;
+    }
+
+    if (player->messageTics <= 0 || !player->message)
+    {
+        return;  // No message
+    }
+
+    M_WriteText(0, 0, player->message, player->messageColor);
+}
+
+// -----------------------------------------------------------------------------
+// CRL_DrawCriticalMessage
+// [JN] Draws critical message on the second and third lines of the screen.
+// -----------------------------------------------------------------------------
+
+void CRL_DrawCriticalMessage (void)
+{
+    player_t *player = &players[displayplayer];
+
+    if (player->criticalmessageTics <= 0
+    || !player->criticalmessage1 || !player->criticalmessage2)
+    {
+        return;  // No message
+    }
+
+    M_WriteTextCritical(9, player->criticalmessage1, player->criticalmessage2,
+                        gametic & 8 ? cr[CR_DARKRED] : cr[CR_RED]);
+}
+
+// =============================================================================
+//
 //                        Render Counters and Widgets
 //
 // =============================================================================
@@ -590,4 +640,58 @@ void CRL_DemoBar (void)
 
     V_DrawHorizLine(0, SCREENHEIGHT - 2, i, 0); // [crispy] black
     V_DrawHorizLine(0, SCREENHEIGHT - 1, i, 4); // [crispy] white
+}
+
+// -----------------------------------------------------------------------------
+// CRL_HealthColor, CRL_TargetHealth
+//  [JN] Indicates and colorizes current target's health.
+// -----------------------------------------------------------------------------
+
+static byte *CRL_HealthColor (const int val1, const int val2)
+{
+    return
+        val1 <= val2/4 ? cr[CR_RED]    :
+        val1 <= val2/2 ? cr[CR_YELLOW] :
+                         cr[CR_GREEN]  ;
+}
+
+void CRL_DrawTargetsHealth (void)
+{
+    char str[16];
+    player_t *player = &players[displayplayer];
+
+    if (player->targetsheathTics <= 0 || !player->targetsheath)
+    {
+        return;  // No tics or target is dead, nothing to display.
+    }
+
+    sprintf(str, "%d/%d", player->targetsheath, player->targetsmaxheath);
+
+    if (crl_widget_health == 1)  // Top
+    {
+        M_WriteTextCentered(18, str, CRL_HealthColor(player->targetsheath,
+                                                     player->targetsmaxheath));
+    }
+    else
+    if (crl_widget_health == 2)  // Top + name
+    {
+        M_WriteTextCentered(9, player->targetsname, CRL_HealthColor(player->targetsheath,
+                                                                    player->targetsmaxheath));
+        M_WriteTextCentered(18, str, CRL_HealthColor(player->targetsheath,
+                                                     player->targetsmaxheath));
+    }
+    else
+    if (crl_widget_health == 3)  // Bottom
+    {
+        M_WriteTextCentered(152, str, CRL_HealthColor(player->targetsheath,
+                                                      player->targetsmaxheath));
+    }
+    else
+    if (crl_widget_health == 4)  // Bottom + name
+    {
+        M_WriteTextCentered(144, player->targetsname, CRL_HealthColor(player->targetsheath,
+                                                                      player->targetsmaxheath));
+        M_WriteTextCentered(152, str, CRL_HealthColor(player->targetsheath,
+                                                      player->targetsmaxheath));
+    }
 }
