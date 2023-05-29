@@ -448,3 +448,57 @@ void CRL_DrawFPS (void)
 
     MN_DrTextA(fps_str, SCREENWIDTH - 7 - MN_TextAWidth(fps_str), 30, cr[CR_GRAY]);
 }
+
+// -----------------------------------------------------------------------------
+// CRL_DrawTargetsHealth.
+//  [JN] Draw and colorize target's health widget.
+// -----------------------------------------------------------------------------
+
+static byte *CRL_HealthColor (const int val1, const int val2)
+{
+    return
+        val1 <= val2/4 ? cr[CR_RED]    :
+        val1 <= val2/2 ? cr[CR_YELLOW] :
+                         cr[CR_GREEN]  ;
+}
+
+void CRL_DrawTargetsHealth (void)
+{
+    char str[16];
+    player_t *player = &players[displayplayer];
+
+    if (player->targetsheathTics <= 0 || !player->targetsheath)
+    {
+        return;  // No tics or target is dead, nothing to display.
+    }
+
+    sprintf(str, "%d/%d", player->targetsheath, player->targetsmaxheath);
+
+    if (crl_widget_health == 1)  // Top
+    {
+        MN_DrTextACentered(str, 20, CRL_HealthColor(player->targetsheath,
+                                                    player->targetsmaxheath));
+    }
+    else
+    if (crl_widget_health == 2)  // Top + name
+    {
+        MN_DrTextACentered(player->targetsname, 10, CRL_HealthColor(player->targetsheath,
+                                                                    player->targetsmaxheath));
+        MN_DrTextACentered(str, 20, CRL_HealthColor(player->targetsheath,
+                                                    player->targetsmaxheath));
+    }
+    else
+    if (crl_widget_health == 3)  // Bottom
+    {
+        MN_DrTextACentered(str, 145, CRL_HealthColor(player->targetsheath,
+                                                     player->targetsmaxheath));
+    }
+    else
+    if (crl_widget_health == 4)  // Bottom + name
+    {
+        MN_DrTextACentered(player->targetsname, 145, CRL_HealthColor(player->targetsheath,
+                                                     player->targetsmaxheath));
+        MN_DrTextACentered(str, 135, CRL_HealthColor(player->targetsheath,
+                                                     player->targetsmaxheath));
+    }
+}

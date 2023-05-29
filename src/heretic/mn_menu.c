@@ -2384,6 +2384,14 @@ static void DrawCRLWidgets (void)
     sprintf(str, crl_widget_time ? "ON" : "OFF");
     MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 70,
                M_Item_Glow(4, crl_widget_time ? GLOW_GREEN : GLOW_RED, ITEMONTICS));
+
+    // Target's health
+    sprintf(str, crl_widget_health == 1 ? "TOP" :
+                 crl_widget_health == 2 ? "TOP+NAME" :
+                 crl_widget_health == 3 ? "BOTTOM" :
+                 crl_widget_health == 4 ? "BOTTOM+NAME" : "OFF");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 90,
+               M_Item_Glow(6, crl_widget_health ? GLOW_GREEN : GLOW_RED, ITEMONTICS));
 }
 
 static boolean CRL_Widget_Coords (int option)
