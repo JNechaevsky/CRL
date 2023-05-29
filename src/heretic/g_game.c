@@ -1322,6 +1322,13 @@ void G_Ticker(void)
             CT_Ticker();
             // [JN] CRL - framerate-independent multicolor HOM drawing.
             CRL_GetHOMMultiColor();
+            // [JN] Target's health widget.
+            if (crl_widget_health)
+            {
+                player_t *player = &players[displayplayer];
+                // Do an overflow-safe trace to gather target's health.
+                P_AimLineAttack(player->mo, player->mo->angle, MISSILERANGE, true);
+            }
             break;
         case GS_INTERMISSION:
             IN_Ticker();

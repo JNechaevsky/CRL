@@ -161,6 +161,11 @@ void P_Ticker(void)
 {
     int i;
 
+    if (players[displayplayer].targetsheathTics > 0)
+    {
+        players[displayplayer].targetsheathTics--;
+    }
+
     if (paused)
     {
         return;

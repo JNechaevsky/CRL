@@ -234,7 +234,8 @@ void P_UseLines(player_t * player);
 boolean P_ChangeSector(sector_t * sector, boolean crunch);
 
 extern mobj_t *linetarget;      // who got hit (or NULL)
-fixed_t P_AimLineAttack(mobj_t * t1, angle_t angle, fixed_t distance);
+extern boolean  safe_intercept;
+fixed_t P_AimLineAttack(mobj_t * t1, angle_t angle, fixed_t distance, boolean safe);
 
 void P_LineAttack(mobj_t * t1, angle_t angle, fixed_t distance, fixed_t slope,
                   int damage);

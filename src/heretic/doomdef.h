@@ -478,6 +478,12 @@ typedef struct player_s
     const char *criticalmessage2;
     int   criticalmessageTics;
 
+    // [JN] CRL - target's health.
+    const char*	targetsname;
+    int         targetsheath;
+    int         targetsmaxheath;
+    int         targetsheathTics;
+
     int damagecount, bonuscount;        // for screen flashing
     int flamecount;             // for flame thrower duration
     mobj_t *attacker;           // who did damage (NULL for floors)
