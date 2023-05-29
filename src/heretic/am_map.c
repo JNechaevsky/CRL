@@ -627,14 +627,16 @@ boolean AM_Responder(event_t * ev)
             f_oldloc.x = INT_MAX;
             P_SetMessage(plr,
                          followplayer ? AMSTR_FOLLOWON : AMSTR_FOLLOWOFF,
-                         true);
+                         false);
         }
-        /*
         else if (key == key_map_grid)
         {
             grid = !grid;
-            plr->message = grid ? AMSTR_GRIDON : AMSTR_GRIDOFF;
+            P_SetMessage(plr,
+                         grid ? AMSTR_GRIDON : AMSTR_GRIDOFF,
+                         false);
         }
+        /*
         else if (key == key_map_mark)
         {
             M_snprintf(buffer, sizeof(buffer), "%s %d",
