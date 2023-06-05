@@ -1796,6 +1796,9 @@ void G_DoLoadGame(void)
     {                           // Missing savegame termination marker
         I_Error("Bad savegame");
     }
+
+    // [JN] Restore monster targets.
+    P_RestoreTargets ();
 }
 
 

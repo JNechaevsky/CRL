@@ -662,6 +662,8 @@ static boolean CRL_Automap_Secrets (int option);
 static void DrawCRLGameplay (void);
 static boolean CRL_DefaulSkill (int option);
 static boolean CRL_PistolStart (int option);
+static boolean CRL_ColoredSBar (int option);
+static boolean CRL_RestoreTargets (int option);
 
 static void DrawCRLLimits (void);
 static boolean CRL_ZMalloc (int option);
@@ -2481,10 +2483,10 @@ static boolean CRL_Automap_Secrets (int option)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLGameplayItems[] = {
-    {ITT_LRFUNC, "DEFAULT SKILL LEVEL",     CRL_DefaulSkill, 0, MENU_NONE},
-    {ITT_LRFUNC, "WAND START GAME MODE",    CRL_PistolStart, 0, MENU_NONE},
-    {ITT_LRFUNC, "COLORED STATUS BAR",      0, 0, MENU_NONE},
-    {ITT_LRFUNC, "RESTORE MONSTER TARGETS", 0, 0, MENU_NONE}
+    {ITT_LRFUNC, "DEFAULT SKILL LEVEL",     CRL_DefaulSkill,    0, MENU_NONE},
+    {ITT_LRFUNC, "WAND START GAME MODE",    CRL_PistolStart,    0, MENU_NONE},
+    {ITT_LRFUNC, "COLORED STATUS BAR",      CRL_ColoredSBar,    0, MENU_NONE},
+    {ITT_LRFUNC, "RESTORE MONSTER TARGETS", CRL_RestoreTargets, 0, MENU_NONE}
 };
 
 static Menu_t CRLGameplay = {
@@ -2513,6 +2515,16 @@ static void DrawCRLGameplay (void)
     sprintf(str, crl_pistol_start ? "ON" : "OFF");
     MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 40,
                M_Item_Glow(1, crl_pistol_start ? GLOW_GREEN : GLOW_RED, ITEMONTICS));
+
+    // Colored status bar
+    sprintf(str, crl_colored_stbar ? "ON" : "OFF");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 50,
+               M_Item_Glow(2, crl_colored_stbar? GLOW_GREEN : GLOW_RED, ITEMONTICS));
+
+    // Restore monster targets
+    sprintf(str, crl_restore_targets ? "ON" : "OFF");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 60,
+               M_Item_Glow(3, crl_restore_targets? GLOW_GREEN : GLOW_RED, ITEMONTICS));
 }
 
 static boolean CRL_DefaulSkill (int option)
@@ -2525,6 +2537,18 @@ static boolean CRL_DefaulSkill (int option)
 static boolean CRL_PistolStart (int option)
 {
     crl_pistol_start ^= 1;
+    return true;
+}
+
+static boolean CRL_ColoredSBar (int option)
+{
+    crl_colored_stbar ^= 1;
+    return true;
+}
+
+static boolean CRL_RestoreTargets (int option)
+{
+    crl_restore_targets ^= 1;
     return true;
 }
 
