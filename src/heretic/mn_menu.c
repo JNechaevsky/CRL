@@ -661,6 +661,7 @@ static boolean CRL_Automap_Secrets (int option);
 
 static void DrawCRLGameplay (void);
 static boolean CRL_DefaulSkill (int option);
+static boolean CRL_PistolStart (int option);
 
 static void DrawCRLLimits (void);
 static boolean CRL_ZMalloc (int option);
@@ -740,7 +741,7 @@ static Menu_t CRLMain = {
     12, CRLMainItems,
     0,
     true,
-    MENU_NONE
+    MENU_MAIN
 };
 
 static void DrawCRLMain (void)
@@ -2481,7 +2482,7 @@ static boolean CRL_Automap_Secrets (int option)
 
 static MenuItem_t CRLGameplayItems[] = {
     {ITT_LRFUNC, "DEFAULT SKILL LEVEL",     CRL_DefaulSkill, 0, MENU_NONE},
-    {ITT_LRFUNC, "WAND START GAME MODE",    0, 0, MENU_NONE},
+    {ITT_LRFUNC, "WAND START GAME MODE",    CRL_PistolStart, 0, MENU_NONE},
     {ITT_LRFUNC, "COLORED STATUS BAR",      0, 0, MENU_NONE},
     {ITT_LRFUNC, "RESTORE MONSTER TARGETS", 0, 0, MENU_NONE}
 };
@@ -2507,12 +2508,23 @@ static void DrawCRLGameplay (void)
     M_snprintf(str, sizeof(str), "%s", DefSkillName[crl_default_skill]);
     MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 30,
                DefSkillColor(crl_default_skill));
+
+    // Wand start game mode
+    sprintf(str, crl_pistol_start ? "ON" : "OFF");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 40,
+               M_Item_Glow(1, crl_pistol_start ? GLOW_GREEN : GLOW_RED, ITEMONTICS));
 }
 
 static boolean CRL_DefaulSkill (int option)
 {
     crl_default_skill = M_INT_Slider(crl_default_skill, 0, 4, option);
     SkillMenu.oldItPos = crl_default_skill;
+    return true;
+}
+
+static boolean CRL_PistolStart (int option)
+{
+    crl_pistol_start ^= 1;
     return true;
 }
 
