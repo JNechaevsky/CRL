@@ -85,7 +85,7 @@ typedef enum
     MENU_CRLKBDBINDS9,
     MENU_CRLMOUSEBINDS,
     MENU_CRLWIDGETS,
-    // MENU_CRLGAMEPLAY,
+    MENU_CRLGAMEPLAY,
     MENU_CRLLIMITS,
     MENU_NONE
 } MenuType_t;
@@ -639,6 +639,8 @@ static boolean CRL_Widget_Time (int option);
 static boolean CRL_Widget_Health (int option);
 static boolean CRL_Automap_Secrets (int option);
 
+static void DrawCRLGameplay (void);
+
 static void DrawCRLLimits (void);
 static boolean CRL_ZMalloc (int option);
 static boolean CRL_SaveSizeWarning (int option);
@@ -706,7 +708,7 @@ static MenuItem_t CRLMainItems[] = {
     {ITT_SETMENU, "SOUND OPTIONS",        NULL,           0, MENU_CRLSOUND},
     {ITT_SETMENU, "CONTROL SETTINGS",     NULL,           0, MENU_CRLCONTROLS},
     {ITT_SETMENU, "WIDGETS AND AUTOMAP",  NULL,           0, MENU_CRLWIDGETS},
-    {ITT_SETMENU, "GAMEPLAY FEATURES",    NULL,           0, MENU_NONE},
+    {ITT_SETMENU, "GAMEPLAY FEATURES",    NULL,           0, MENU_CRLGAMEPLAY},
     {ITT_SETMENU, "STATIC ENGINE LIMITS", NULL,           0, MENU_CRLLIMITS},
     {ITT_SETMENU, "VANILLA OPTIONS MENU", NULL,           0, MENU_OPTIONS}
 };
@@ -2456,6 +2458,40 @@ static boolean CRL_Automap_Secrets (int option)
 // Static engine limits
 // -----------------------------------------------------------------------------
 
+static MenuItem_t CRLGameplayItems[] = {
+    {ITT_LRFUNC, "DEFAULT SKILL LEVEL",     0, 0, MENU_NONE},
+    {ITT_LRFUNC, "WAND START GAME MODE",    0, 0, MENU_NONE},
+    {ITT_LRFUNC, "COLORED STATUS BAR",      0, 0, MENU_NONE},
+    {ITT_LRFUNC, "RESTORE MONSTER TARGETS", 0, 0, MENU_NONE}
+};
+
+static Menu_t CRLGameplay = {
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    DrawCRLGameplay,
+    4, CRLGameplayItems,
+    0,
+    true,
+    MENU_CRLMAIN
+};
+
+static void DrawCRLGameplay (void)
+{
+    // static char str[32];
+
+    M_ShadeBackground();
+
+    MN_DrTextACentered("GAMEPLAY FEATURES", 20, cr[CR_YELLOW]);
+
+    // Prevent Z_Malloc errors
+    // sprintf(str, crl_prevent_zmalloc ? "ON" : "OFF");
+    // MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 30,
+    //            M_Item_Glow(0, crl_prevent_zmalloc ? GLOW_GREEN : GLOW_RED, ITEMONTICS));
+}
+
+// -----------------------------------------------------------------------------
+// Static engine limits
+// -----------------------------------------------------------------------------
+
 static MenuItem_t CRLLimitsItems[] = {
     {ITT_LRFUNC, "PREVENT Z[MALLOC ERRORS",    CRL_ZMalloc,         0, MENU_NONE},
     {ITT_LRFUNC, "SAVE GAME LIMIT WARNING",    CRL_SaveSizeWarning, 0, MENU_NONE},
@@ -2581,7 +2617,7 @@ static Menu_t *Menus[] = {
     &CRLKbdBinds9,
     &CRLMouseBinds,
     &CRLWidgetsMap,
-    // &CRLGameplay,
+    &CRLGameplay,
     &CRLLimits,
 };
 
