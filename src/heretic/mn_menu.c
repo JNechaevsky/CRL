@@ -486,6 +486,26 @@ static const int M_INT_Slider (int val, int min, int max, int direction)
     return val;
 }
 
+static byte *DefSkillColor (const int skill)
+{
+    return
+        skill == 0 ? cr[CR_OLIVE]     :
+        skill == 1 ? cr[CR_DARKGREEN] :
+        skill == 2 ? cr[CR_GREEN]     :
+        skill == 3 ? cr[CR_YELLOW]    :
+        skill == 4 ? cr[CR_RED]       :
+                     NULL;
+}
+
+static char *const DefSkillName[5] = 
+{
+    "WET-NURSE"     ,
+    "YELLOWBELLIES" ,
+    "BRINGEST"      ,
+    "SMITE-MEISTER" ,
+    "BLACK PLAGUE"
+};
+
 static void DrawCRLMain (void);
 static boolean CRL_Spectating (int option);
 static boolean CRL_Freeze (int option);
@@ -640,6 +660,7 @@ static boolean CRL_Widget_Health (int option);
 static boolean CRL_Automap_Secrets (int option);
 
 static void DrawCRLGameplay (void);
+static boolean CRL_DefaulSkill (int option);
 
 static void DrawCRLLimits (void);
 static boolean CRL_ZMalloc (int option);
@@ -2459,7 +2480,7 @@ static boolean CRL_Automap_Secrets (int option)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLGameplayItems[] = {
-    {ITT_LRFUNC, "DEFAULT SKILL LEVEL",     0, 0, MENU_NONE},
+    {ITT_LRFUNC, "DEFAULT SKILL LEVEL",     CRL_DefaulSkill, 0, MENU_NONE},
     {ITT_LRFUNC, "WAND START GAME MODE",    0, 0, MENU_NONE},
     {ITT_LRFUNC, "COLORED STATUS BAR",      0, 0, MENU_NONE},
     {ITT_LRFUNC, "RESTORE MONSTER TARGETS", 0, 0, MENU_NONE}
@@ -2476,16 +2497,23 @@ static Menu_t CRLGameplay = {
 
 static void DrawCRLGameplay (void)
 {
-    // static char str[32];
+    static char str[32];
 
     M_ShadeBackground();
 
     MN_DrTextACentered("GAMEPLAY FEATURES", 20, cr[CR_YELLOW]);
 
-    // Prevent Z_Malloc errors
-    // sprintf(str, crl_prevent_zmalloc ? "ON" : "OFF");
-    // MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 30,
-    //            M_Item_Glow(0, crl_prevent_zmalloc ? GLOW_GREEN : GLOW_RED, ITEMONTICS));
+    // Default skill level
+    M_snprintf(str, sizeof(str), "%s", DefSkillName[crl_default_skill]);
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 30,
+               DefSkillColor(crl_default_skill));
+}
+
+static boolean CRL_DefaulSkill (int option)
+{
+    crl_default_skill = M_INT_Slider(crl_default_skill, 0, 4, option);
+    SkillMenu.oldItPos = crl_default_skill;
+    return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -2644,6 +2672,9 @@ void MN_Init(void)
         EpisodeMenu.itemCount = 5;
         EpisodeMenu.y -= ITEM_HEIGHT;
     }
+
+    // [crispy] apply default difficulty
+    SkillMenu.oldItPos = crl_default_skill;
 }
 
 //---------------------------------------------------------------------------
