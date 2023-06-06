@@ -255,9 +255,6 @@ void D_Display(void)
                 CRL_DrawFPS();
             }
 
-            // [JN] Critical messages are drawn even higher than on top everything!
-            CRL_DrawCriticalMessage();
-
             break;
         case GS_INTERMISSION:
             IN_Drawer();
@@ -292,6 +289,9 @@ void D_Display(void)
 
     // Menu drawing
     MN_Drawer();
+
+    // [JN] Critical messages are drawn even higher than on top everything!
+    CRL_DrawCriticalMessage();
 
     // Send out any new accumulation
     NetUpdate();
