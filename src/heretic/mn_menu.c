@@ -2545,12 +2545,12 @@ static void DrawCRLGameplay (void)
                  crl_demo_timer == 2 ? "RECORDING" : 
                  crl_demo_timer == 3 ? "ALWAYS" : "OFF");
     MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 80,
-               M_Item_Glow(5, crl_demo_bar ? GLOW_GREEN : GLOW_RED, ITEMONTICS));
+               M_Item_Glow(5, crl_demo_timer ? GLOW_GREEN : GLOW_RED, ITEMONTICS));
 
     // Timer direction
     sprintf(str, crl_demo_timerdir ? "BACKWARD" : "FORWARD");
     MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 90,
-               M_Item_Glow(6, crl_demo_bar ? GLOW_GREEN : GLOW_RED, ITEMONTICS));
+               M_Item_Glow(6, crl_demo_timer ? GLOW_GREEN : GLOW_RED, ITEMONTICS));
 
     // Show progress bar
     sprintf(str, crl_demo_bar ? "ON" : "OFF");
