@@ -272,12 +272,10 @@ visplane_t *R_FindPlane(fixed_t height, int picnum,
         return (check);
     }
 
-    if (lastvisplane - visplanes == CRL_MaxVisPlanes)
+    if (lastvisplane - visplanes == REALMAXVISPLANES)
     {
         // [JN] Print in-game warning.
-        CRL_SetCriticalMessage("R[FINDPLANE:",
-                               M_StringJoin("NO MORE VISPLANES (", CRL_LimitsName,
-                               " CRASHES HERE)", NULL), 2);
+        CRL_SetCriticalMessage("R[FINDPLANE:", "CRITICAL VISPLANE OVERFLOW!", 2);
         longjmp(CRLJustIncaseBuf, CRL_JUMP_VPO);
     }
 
@@ -356,11 +354,10 @@ visplane_t *R_CheckPlane(visplane_t * pl, int start, int stop,
     lastvisplane->lightlevel = pl->lightlevel;
     lastvisplane->special = pl->special;
 
-    if (lastvisplane - visplanes == CRL_MaxVisPlanes)
+    if (lastvisplane - visplanes == REALMAXVISPLANES)
     {
         // [JN] Print in-game warning.
-        CRL_SetCriticalMessage("R[CHECKPLANE:", M_StringJoin("NO MORE VISPLANES (",
-                              CRL_LimitsName, " CRASHES HERE)", NULL), 2);
+        CRL_SetCriticalMessage("R[CHECKPLANE:", "CRITICAL VISPLANE OVERFLOW!", 2);
     }
 
     pl = lastvisplane++;
@@ -469,7 +466,11 @@ void R_DrawPlanes(void)
     {
         CRL_SetCriticalMessage("R[DRAWPLANES:", M_StringJoin("VISPLANE OVERFLOW (",
                                             CRL_LimitsName, " CRASHES HERE)", NULL), 2);
+        // Supress render and don't go any farther.
+        return;
+#if 0
     	longjmp(CRLJustIncaseBuf, CRL_JUMP_VPO);
+#endif
     }
 
     // [JN] Print in-game warning about MAXOPENINGS overflow.
