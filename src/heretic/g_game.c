@@ -824,6 +824,12 @@ void G_DoLoadLevel(void)
         memset(players[i].frags, 0, sizeof(players[i].frags));
     }
 
+    // [JN] CRL - wand start game mode.
+    if (singleplayer && crl_pistol_start)
+    {
+        G_PlayerReborn(0);
+    }
+
     P_SetupLevel(gameepisode, gamemap, 0, gameskill);
     displayplayer = consoleplayer;      // view the guy you are playing
     gameaction = ga_nothing;
@@ -1790,6 +1796,9 @@ void G_DoLoadGame(void)
     {                           // Missing savegame termination marker
         I_Error("Bad savegame");
     }
+
+    // [JN] Restore monster targets.
+    P_RestoreTargets ();
 }
 
 

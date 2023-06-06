@@ -874,7 +874,8 @@ void D_DoomMain(void)
     noartiskip = M_ParmExists("-noartiskip");
 
     debugmode = M_ParmExists("-debug");
-    startskill = sk_medium;
+    // [JN] CRL - use choosen default skill level.
+    startskill = crl_default_skill;
     startepisode = 1;
     startmap = 1;
     autostart = false;
@@ -1208,7 +1209,7 @@ void D_DoomMain(void)
     p = M_CheckParmWithArgs("-record", 1);
     if (p)
     {
-        G_RecordDemo(startskill, 1, startepisode, startmap, myargv[p + 1]);
+        G_RecordDemo(crl_default_skill, 1, startepisode, startmap, myargv[p + 1]);
         D_DoomLoop();           // Never returns
     }
 

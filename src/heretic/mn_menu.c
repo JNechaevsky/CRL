@@ -85,7 +85,7 @@ typedef enum
     MENU_CRLKBDBINDS9,
     MENU_CRLMOUSEBINDS,
     MENU_CRLWIDGETS,
-    // MENU_CRLGAMEPLAY,
+    MENU_CRLGAMEPLAY,
     MENU_CRLLIMITS,
     MENU_NONE
 } MenuType_t;
@@ -486,6 +486,26 @@ static const int M_INT_Slider (int val, int min, int max, int direction)
     return val;
 }
 
+static byte *DefSkillColor (const int skill)
+{
+    return
+        skill == 0 ? cr[CR_OLIVE]     :
+        skill == 1 ? cr[CR_DARKGREEN] :
+        skill == 2 ? cr[CR_GREEN]     :
+        skill == 3 ? cr[CR_YELLOW]    :
+        skill == 4 ? cr[CR_RED]       :
+                     NULL;
+}
+
+static char *const DefSkillName[5] = 
+{
+    "WET-NURSE"     ,
+    "YELLOWBELLIES" ,
+    "BRINGEST"      ,
+    "SMITE-MEISTER" ,
+    "BLACK PLAGUE"
+};
+
 static void DrawCRLMain (void);
 static boolean CRL_Spectating (int option);
 static boolean CRL_Freeze (int option);
@@ -639,6 +659,12 @@ static boolean CRL_Widget_Time (int option);
 static boolean CRL_Widget_Health (int option);
 static boolean CRL_Automap_Secrets (int option);
 
+static void DrawCRLGameplay (void);
+static boolean CRL_DefaulSkill (int option);
+static boolean CRL_PistolStart (int option);
+static boolean CRL_ColoredSBar (int option);
+static boolean CRL_RestoreTargets (int option);
+
 static void DrawCRLLimits (void);
 static boolean CRL_ZMalloc (int option);
 static boolean CRL_SaveSizeWarning (int option);
@@ -706,7 +732,7 @@ static MenuItem_t CRLMainItems[] = {
     {ITT_SETMENU, "SOUND OPTIONS",        NULL,           0, MENU_CRLSOUND},
     {ITT_SETMENU, "CONTROL SETTINGS",     NULL,           0, MENU_CRLCONTROLS},
     {ITT_SETMENU, "WIDGETS AND AUTOMAP",  NULL,           0, MENU_CRLWIDGETS},
-    {ITT_SETMENU, "GAMEPLAY FEATURES",    NULL,           0, MENU_NONE},
+    {ITT_SETMENU, "GAMEPLAY FEATURES",    NULL,           0, MENU_CRLGAMEPLAY},
     {ITT_SETMENU, "STATIC ENGINE LIMITS", NULL,           0, MENU_CRLLIMITS},
     {ITT_SETMENU, "VANILLA OPTIONS MENU", NULL,           0, MENU_OPTIONS}
 };
@@ -717,7 +743,7 @@ static Menu_t CRLMain = {
     12, CRLMainItems,
     0,
     true,
-    MENU_NONE
+    MENU_MAIN
 };
 
 static void DrawCRLMain (void)
@@ -2456,6 +2482,80 @@ static boolean CRL_Automap_Secrets (int option)
 // Static engine limits
 // -----------------------------------------------------------------------------
 
+static MenuItem_t CRLGameplayItems[] = {
+    {ITT_LRFUNC, "DEFAULT SKILL LEVEL",     CRL_DefaulSkill,    0, MENU_NONE},
+    {ITT_LRFUNC, "WAND START GAME MODE",    CRL_PistolStart,    0, MENU_NONE},
+    {ITT_LRFUNC, "COLORED STATUS BAR",      CRL_ColoredSBar,    0, MENU_NONE},
+    {ITT_LRFUNC, "RESTORE MONSTER TARGETS", CRL_RestoreTargets, 0, MENU_NONE}
+};
+
+static Menu_t CRLGameplay = {
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    DrawCRLGameplay,
+    4, CRLGameplayItems,
+    0,
+    true,
+    MENU_CRLMAIN
+};
+
+static void DrawCRLGameplay (void)
+{
+    static char str[32];
+
+    M_ShadeBackground();
+
+    MN_DrTextACentered("GAMEPLAY FEATURES", 20, cr[CR_YELLOW]);
+
+    // Default skill level
+    M_snprintf(str, sizeof(str), "%s", DefSkillName[crl_default_skill]);
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 30,
+               DefSkillColor(crl_default_skill));
+
+    // Wand start game mode
+    sprintf(str, crl_pistol_start ? "ON" : "OFF");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 40,
+               M_Item_Glow(1, crl_pistol_start ? GLOW_GREEN : GLOW_RED, ITEMONTICS));
+
+    // Colored status bar
+    sprintf(str, crl_colored_stbar ? "ON" : "OFF");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 50,
+               M_Item_Glow(2, crl_colored_stbar? GLOW_GREEN : GLOW_RED, ITEMONTICS));
+
+    // Restore monster targets
+    sprintf(str, crl_restore_targets ? "ON" : "OFF");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 60,
+               M_Item_Glow(3, crl_restore_targets? GLOW_GREEN : GLOW_RED, ITEMONTICS));
+}
+
+static boolean CRL_DefaulSkill (int option)
+{
+    crl_default_skill = M_INT_Slider(crl_default_skill, 0, 4, option);
+    SkillMenu.oldItPos = crl_default_skill;
+    return true;
+}
+
+static boolean CRL_PistolStart (int option)
+{
+    crl_pistol_start ^= 1;
+    return true;
+}
+
+static boolean CRL_ColoredSBar (int option)
+{
+    crl_colored_stbar ^= 1;
+    return true;
+}
+
+static boolean CRL_RestoreTargets (int option)
+{
+    crl_restore_targets ^= 1;
+    return true;
+}
+
+// -----------------------------------------------------------------------------
+// Static engine limits
+// -----------------------------------------------------------------------------
+
 static MenuItem_t CRLLimitsItems[] = {
     {ITT_LRFUNC, "PREVENT Z[MALLOC ERRORS",    CRL_ZMalloc,         0, MENU_NONE},
     {ITT_LRFUNC, "SAVE GAME LIMIT WARNING",    CRL_SaveSizeWarning, 0, MENU_NONE},
@@ -2581,7 +2681,7 @@ static Menu_t *Menus[] = {
     &CRLKbdBinds9,
     &CRLMouseBinds,
     &CRLWidgetsMap,
-    // &CRLGameplay,
+    &CRLGameplay,
     &CRLLimits,
 };
 
@@ -2608,6 +2708,9 @@ void MN_Init(void)
         EpisodeMenu.itemCount = 5;
         EpisodeMenu.y -= ITEM_HEIGHT;
     }
+
+    // [crispy] apply default difficulty
+    SkillMenu.oldItPos = crl_default_skill;
 }
 
 //---------------------------------------------------------------------------

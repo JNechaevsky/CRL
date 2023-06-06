@@ -27,9 +27,11 @@
 #include "m_random.h"
 #include "p_local.h"
 #include "s_sound.h"
+#include "v_trans.h"
 #include "v_video.h"
 
 #include "crlcore.h"
+#include "crlvars.h"
 
 
 // Types
@@ -696,6 +698,94 @@ void SB_Drawer(void)
 */
 }
 
+// -----------------------------------------------------------------------------
+// SB_MainBarColor
+// [crispy] return ammo/health/armor widget color
+// -----------------------------------------------------------------------------
+
+enum
+{
+    hudcolor_ammo,
+    hudcolor_health,
+    hudcolor_frags,
+    hudcolor_armor
+} hudcolor_t;
+
+static byte *SB_MainBarColor (const int i)
+{
+    if (!crl_colored_stbar)
+    {
+        return NULL;
+    }
+
+    switch (i)
+    {
+        case hudcolor_ammo:
+        {
+            if (wpnlev1info[CPlayer->readyweapon].ammo == am_noammo)
+            {
+                return NULL;
+            }
+            else
+            {
+                const int ammo = CPlayer->ammo[wpnlev1info[CPlayer->readyweapon].ammo];
+                const int fullammo = CPlayer->maxammo[wpnlev1info[CPlayer->readyweapon].ammo];
+
+                if (ammo < fullammo/4)
+                    return cr[CR_RED];
+                else if (ammo < fullammo/2)
+                    return cr[CR_YELLOW];
+                else
+                    return cr[CR_GREEN];
+            }
+            break;
+        }
+        case hudcolor_health:
+        {
+            const int health = CPlayer->health;
+
+            // [crispy] Invulnerability powerup and God Mode cheat turn Health values gray
+            if (CPlayer->cheats & CF_GODMODE || CPlayer->powers[pw_invulnerability])
+                return cr[CR_WHITE];
+            else if (health >= 67)
+                return cr[CR_GREEN];
+            else if (health >= 34)
+                return cr[CR_YELLOW];
+            else
+                return cr[CR_RED];
+            break;
+        }
+        case hudcolor_frags:
+        {
+            const int frags = CPlayer->frags[consoleplayer];
+
+            if (frags < 0)
+                return cr[CR_RED];
+            else if (frags == 0)
+                return cr[CR_YELLOW];
+            else
+                return cr[CR_GREEN];
+            break;
+        }
+        case hudcolor_armor:
+        {
+	    // [crispy] Invulnerability powerup and God Mode cheat turn Armor values gray
+	    if (CPlayer->cheats & CF_GODMODE || CPlayer->powers[pw_invulnerability])
+                return cr[CR_WHITE];
+	    // [crispy] color by armor type
+	    else if (CPlayer->armortype >= 2)
+                return cr[CR_YELLOW];
+	    else if (CPlayer->armortype == 1)
+                return cr[CR_LIGHTGRAY];
+	    else if (CPlayer->armortype == 0)
+                return cr[CR_RED];
+            break;
+        }
+    }
+
+    return NULL;
+}
+
 // sets the new palette based upon current values of player->damagecount
 // and player->bonuscount
 void SB_PaletteFlash(void)
@@ -825,7 +915,9 @@ void DrawMainBar(void)
         if (temp != oldfrags)
         {
             V_DrawPatch(57, 171, PatchARMCLEAR, "NULL"); // [JN] TODO - patch name
+            dp_translation = SB_MainBarColor(hudcolor_frags);
             DrINumber(temp, 61, 170);
+            dp_translation = NULL;
             oldfrags = temp;
             UpdateState |= I_STATBAR;
         }
@@ -845,7 +937,9 @@ void DrawMainBar(void)
         {
             oldlife = temp;
             V_DrawPatch(57, 171, PatchARMCLEAR, "NULL"); // [JN] TODO - patch name
+            dp_translation = SB_MainBarColor(hudcolor_health);
             DrINumber(temp, 61, 170);
+            dp_translation = NULL;
             UpdateState |= I_STATBAR;
         }
     }
@@ -875,7 +969,9 @@ void DrawMainBar(void)
         V_DrawPatch(108, 161, PatchBLACKSQ, "NULL"); // [JN] TODO - patch name
         if (temp && CPlayer->readyweapon > 0 && CPlayer->readyweapon < 7)
         {
+            dp_translation = SB_MainBarColor(hudcolor_ammo);
             DrINumber(temp, 109, 162);
+            dp_translation = NULL;
             V_DrawPatch(111, 172,
                         W_CacheLumpName(DEH_String(ammopic[CPlayer->readyweapon - 1]),
                                         PU_CACHE), "NULL"); // [JN] TODO - patch name
@@ -889,7 +985,9 @@ void DrawMainBar(void)
     if (oldarmor != CPlayer->armorpoints)
     {
         V_DrawPatch(224, 171, PatchARMCLEAR, "NULL"); // [JN] TODO - patch name
+        dp_translation = SB_MainBarColor(hudcolor_armor);
         DrINumber(CPlayer->armorpoints, 228, 170);
+        dp_translation = NULL;
         oldarmor = CPlayer->armorpoints;
         UpdateState |= I_STATBAR;
     }
@@ -943,6 +1041,7 @@ void DrawFullScreenStuff(void)
     int temp;
 
     UpdateState |= I_FULLSCRN;
+    dp_translation = SB_MainBarColor(hudcolor_health);
     if (CPlayer->mo->health > 0)
     {
         DrBNumber(CPlayer->mo->health, 5, 180);
@@ -951,6 +1050,7 @@ void DrawFullScreenStuff(void)
     {
         DrBNumber(0, 5, 180);
     }
+    dp_translation = NULL;
     if (deathmatch)
     {
         temp = 0;
@@ -961,7 +1061,9 @@ void DrawFullScreenStuff(void)
                 temp += CPlayer->frags[i];
             }
         }
+        dp_translation = SB_MainBarColor(hudcolor_frags);
         DrINumber(temp, 45, 185);
+        dp_translation = NULL;
     }
     if (!inventory)
     {

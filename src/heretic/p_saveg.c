@@ -32,6 +32,7 @@
 
 
 static FILE *SaveGameFP;
+const uint32_t P_ThinkerToIndex (const thinker_t *thinker);
 
 
 //==========================================================================
@@ -158,6 +159,12 @@ uint32_t SV_ReadLong(void)
     uint32_t result;
     SV_Read(&result, sizeof(int));
     return LONG(result);
+}
+
+// [JN] Separate function to read "mobj_s *target"
+static void *SV_ReadPtr(void)
+{
+    return (void *) (intptr_t) SV_ReadLong();
 }
 
 //
@@ -889,8 +896,16 @@ static void saveg_read_mobj_t(mobj_t *str)
     str->movecount = SV_ReadLong();
 
     // struct mobj_s *target;
-    SV_ReadLong();
-    str->target = NULL;
+    // [JN] Optionally restore monster targets.
+    if (!crl_restore_targets)
+    {
+        SV_ReadLong();
+        str->target = NULL;
+    }
+    else
+    {
+        str->target = SV_ReadPtr();
+    }
 
     // int reactiontime;
     str->reactiontime = SV_ReadLong();
@@ -1017,7 +1032,7 @@ static void saveg_write_mobj_t(mobj_t *str)
     SV_WriteLong(str->movecount);
 
     // struct mobj_s *target;
-    SV_WritePtr(str->target);
+    SV_WritePtr((void *)(uintptr_t) P_ThinkerToIndex((thinker_t *) str->target));
 
     // int reactiontime;
     SV_WriteLong(str->reactiontime);
@@ -1710,7 +1725,11 @@ void P_UnArchiveThinkers(void)
             case tc_mobj:
                 mobj = Z_Malloc(sizeof(*mobj), PU_LEVEL, NULL);
                 saveg_read_mobj_t(mobj);
-                mobj->target = NULL;
+                // [JN] Optionally restore monster targets.
+                if (!crl_restore_targets)
+                {
+                    mobj->target = NULL;
+                }
                 P_SetThingPosition(mobj);
                 mobj->info = &mobjinfo[mobj->type];
                 mobj->floorz = mobj->subsector->sector->floorheight;
@@ -1904,4 +1923,90 @@ void P_UnArchiveSpecials(void)
 
 }
 
+// -----------------------------------------------------------------------------
+// [crispy] enumerate all thinker pointers
+// -----------------------------------------------------------------------------
 
+static int restoretargets_fail = 0;
+
+const uint32_t P_ThinkerToIndex (const thinker_t *thinker)
+{
+    thinker_t *th;
+    uint32_t   i;
+
+    if (!thinker)
+    {
+        return 0;
+    }
+
+    for (th = thinkercap.next, i = 1 ; th != &thinkercap ; th = th->next, i++)
+    {
+        if (th->function == P_MobjThinker)
+        {
+            if (th == thinker)
+            {
+                return i;
+            }
+        }
+    }
+
+    return 0;
+}
+
+// -----------------------------------------------------------------------------
+// [crispy] replace indizes with corresponding pointers
+// -----------------------------------------------------------------------------
+
+static thinker_t *P_IndexToThinker (uint32_t index)
+{
+    thinker_t *th;
+    uint32_t   i;
+
+    if (!index)
+    {
+        return NULL;
+    }
+
+    for (th = thinkercap.next, i = 1 ; th != &thinkercap ; th = th->next, i++)
+    {
+        if (th->function == P_MobjThinker)
+        {
+            if (i == index)
+            {
+                return th;
+            }
+        }
+    }
+
+    restoretargets_fail++;
+
+    return NULL;
+}
+
+// -----------------------------------------------------------------------------
+// [crispy] after all the thinkers have been restored, replace all indices in
+// the mobj->target and mobj->tracers fields by the corresponding current pointers again
+// -----------------------------------------------------------------------------
+
+void P_RestoreTargets (void)
+{
+    mobj_t    *mo;
+    thinker_t *th;
+    uint32_t   i;
+
+    for (th = thinkercap.next, i = 1 ; th != &thinkercap ; th = th->next, i++)
+    {
+        if (th->function == P_MobjThinker)
+        {
+            mo = (mobj_t*) th;
+            mo->target = (mobj_t*) P_IndexToThinker((uintptr_t) mo->target);
+        }
+    }
+
+    if (restoretargets_fail)
+    {
+        printf ("P_RestoreTargets: Failed to restore %d target thinkers.\n",
+                restoretargets_fail);
+        restoretargets_fail = 0;
+    }
+}
