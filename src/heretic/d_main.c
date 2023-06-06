@@ -233,6 +233,12 @@ void D_Display(void)
             UpdateState |= I_FULLVIEW;
             SB_Drawer();
 
+            // [crispy] demo progress bar
+            if (demoplayback && crl_demo_bar)
+            {
+                CRL_DemoBar();
+            }
+
             // [JN] Draw FPS counter.
             if (crl_showfps)
             {

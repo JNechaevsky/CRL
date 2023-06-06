@@ -1257,6 +1257,12 @@ void G_Ticker(void)
             }
         }
 
+    // [crispy] increase demo tics counter
+    if (demoplayback || demorecording)
+    {
+        defdemotics++;
+    }
+
 //
 // check for special buttons
 //
@@ -1890,6 +1896,8 @@ void G_InitNew(skill_t skill, int episode, int map)
     viewactive = true;
     BorderNeedRefresh = true;
 
+    defdemotics = 0;
+
     // Set the sky map
     if (episode > 5)
     {
@@ -2122,6 +2130,40 @@ void G_RecordDemo(skill_t skill, int numplayers, int episode, int map,
     demorecording = true;
 }
 
+/*
+================================================================================
+=
+= G_DemoProgressBar
+=
+= [crispy] demo progress bar
+=
+================================================================================
+*/
+
+static void G_DemoProgressBar (const int lumplength)
+{
+    int   numplayersingame = 0;
+    byte *demo_ptr = demo_p;
+
+    for (int i = 0; i < MAXPLAYERS; i++)
+    {
+        if (playeringame[i])
+        {
+            numplayersingame++;
+        }
+    }
+
+    deftotaldemotics = defdemotics = 0;
+
+    while (*demo_ptr != DEMOMARKER && (demo_ptr - demobuffer) < lumplength)
+    {
+        // [JN] Note: Heretic using extra two pointers: lookfly and arti,
+        // so unlike Doom (5 : 4) we using (7 : 6) here.
+        // Thanks to Roman Fomin for pointing out.
+        demo_ptr += numplayersingame * (longtics ? 7 : 6);
+        deftotaldemotics++;
+    }
+}
 
 /*
 ===================
@@ -2143,10 +2185,21 @@ void G_DoPlayDemo(void)
 {
     skill_t skill;
     int i, lumpnum, episode, map;
+    int lumplength; // [crispy]
 
     gameaction = ga_nothing;
     lumpnum = W_GetNumForName(defdemoname);
     demobuffer = W_CacheLumpNum(lumpnum, PU_STATIC);
+
+    // [crispy] ignore empty demo lumps
+    lumplength = W_LumpLength(lumpnum);
+    if (lumplength < 0xd)
+    {
+        demoplayback = true;
+        G_CheckDemoStatus();
+        return;
+    }
+
     demo_p = demobuffer;
     skill = *demo_p++;
     episode = *demo_p++;
@@ -2178,6 +2231,9 @@ void G_DoPlayDemo(void)
     precache = true;
     usergame = false;
     demoplayback = true;
+
+    // [crispy] demo progress bar
+    G_DemoProgressBar(lumplength);
 }
 
 

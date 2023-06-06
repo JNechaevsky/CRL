@@ -664,6 +664,7 @@ static boolean CRL_DefaulSkill (int option);
 static boolean CRL_PistolStart (int option);
 static boolean CRL_ColoredSBar (int option);
 static boolean CRL_RestoreTargets (int option);
+static boolean CRL_ProgressBar (int option);
 static boolean CRL_InternalDemos (int option);
 
 static void DrawCRLLimits (void);
@@ -2489,13 +2490,14 @@ static MenuItem_t CRLGameplayItems[] = {
     {ITT_LRFUNC, "COLORED STATUS BAR",      CRL_ColoredSBar,    0, MENU_NONE},
     {ITT_LRFUNC, "RESTORE MONSTER TARGETS", CRL_RestoreTargets, 0, MENU_NONE},
     {ITT_EMPTY,  NULL,                      NULL,               0, MENU_NONE},
-    {ITT_LRFUNC, "PLAY INTERNAL DEMOS",     CRL_InternalDemos, 0, MENU_NONE},
+    {ITT_LRFUNC, "SHOW PROGRESS BAR",       CRL_ProgressBar,    0, MENU_NONE},
+    {ITT_LRFUNC, "PLAY INTERNAL DEMOS",     CRL_InternalDemos,  0, MENU_NONE},
 };
 
 static Menu_t CRLGameplay = {
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     DrawCRLGameplay,
-    6, CRLGameplayItems,
+    7, CRLGameplayItems,
     0,
     true,
     MENU_CRLMAIN
@@ -2531,10 +2533,15 @@ static void DrawCRLGameplay (void)
 
     MN_DrTextACentered("DEMOS", 70, cr[CR_YELLOW]);
 
+    // Show progress bar
+    sprintf(str, crl_demo_bar ? "ON" : "OFF");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 80,
+               M_Item_Glow(5, crl_demo_bar? GLOW_GREEN : GLOW_RED, ITEMONTICS));
+
     // Play internal demos
     sprintf(str, crl_internal_demos ? "ON" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 80,
-               M_Item_Glow(5, crl_internal_demos? GLOW_GREEN : GLOW_RED, ITEMONTICS));
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 90,
+               M_Item_Glow(6, crl_internal_demos? GLOW_GREEN : GLOW_RED, ITEMONTICS));
 }
 
 static boolean CRL_DefaulSkill (int option)
@@ -2559,6 +2566,12 @@ static boolean CRL_ColoredSBar (int option)
 static boolean CRL_RestoreTargets (int option)
 {
     crl_restore_targets ^= 1;
+    return true;
+}
+
+static boolean CRL_ProgressBar (int option)
+{
+    crl_demo_bar ^= 1;
     return true;
 }
 

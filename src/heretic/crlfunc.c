@@ -449,6 +449,29 @@ void CRL_DrawFPS (void)
     MN_DrTextA(fps_str, SCREENWIDTH - 7 - MN_TextAWidth(fps_str), 30, cr[CR_GRAY]);
 }
 
+
+// =============================================================================
+//
+//                             Demo enhancements
+//
+// =============================================================================
+
+// [crispy] demo progress bar and timer widget
+int defdemotics = 0, deftotaldemotics;
+
+// -----------------------------------------------------------------------------
+// CRL_DemoBar
+//  [crispy] print a bar indicating demo progress at the bottom of the screen
+// -----------------------------------------------------------------------------
+
+void CRL_DemoBar (void)
+{
+    const int i = SCREENWIDTH * defdemotics / deftotaldemotics;
+
+    V_DrawHorizLine(0, SCREENHEIGHT - 2, i, 0); // [crispy] black
+    V_DrawHorizLine(0, SCREENHEIGHT - 1, i, 255); // [crispy] white
+}
+
 // -----------------------------------------------------------------------------
 // CRL_DrawTargetsHealth.
 //  [JN] Draw and colorize target's health widget.
