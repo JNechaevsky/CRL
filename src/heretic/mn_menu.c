@@ -4720,6 +4720,8 @@ static void M_DoBind (int keynum, int key)
         case 609:  key_arti_morph = key;        break;
 
         // Page 7
+        if (CurrentMenu == &CRLKbdBinds7)
+        {
         case 700:  key_map_toggle = key;        break;
         case 701:  key_map_zoomin = key;        break;
         case 702:  key_map_zoomout = key;       break;
@@ -4728,6 +4730,7 @@ static void M_DoBind (int keynum, int key)
         case 705:  key_crl_map_rotate = key;    break;
         case 706:  key_crl_map_overlay = key;   break;
         case 707:  key_map_grid = key;          break;
+        }
 
         // Page 8
         case 800:  key_menu_help = key;         break;
@@ -4747,10 +4750,13 @@ static void M_DoBind (int keynum, int key)
         case 901:  key_menu_screenshot = key;    break;
         case 902:  key_demo_quit = key;          break;
         case 903:  key_multi_msg = key;          break;
+        if (CurrentMenu == &CRLKbdBinds9)
+        {
         case 904:  key_multi_msgplayer[0] = key; break;
         case 905:  key_multi_msgplayer[1] = key; break;
         case 906:  key_multi_msgplayer[2] = key; break;
         case 907:  key_multi_msgplayer[3] = key; break;
+        }
     }
 }
 
