@@ -1041,6 +1041,7 @@ void DrawFullScreenStuff(void)
     int temp;
 
     UpdateState |= I_FULLSCRN;
+    dp_translation = SB_MainBarColor(hudcolor_health);
     if (CPlayer->mo->health > 0)
     {
         DrBNumber(CPlayer->mo->health, 5, 180);
@@ -1049,6 +1050,7 @@ void DrawFullScreenStuff(void)
     {
         DrBNumber(0, 5, 180);
     }
+    dp_translation = NULL;
     if (deathmatch)
     {
         temp = 0;
@@ -1059,7 +1061,9 @@ void DrawFullScreenStuff(void)
                 temp += CPlayer->frags[i];
             }
         }
+        dp_translation = SB_MainBarColor(hudcolor_frags);
         DrINumber(temp, 45, 185);
+        dp_translation = NULL;
     }
     if (!inventory)
     {
