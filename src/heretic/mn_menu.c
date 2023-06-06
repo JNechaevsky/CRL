@@ -4076,7 +4076,8 @@ boolean MN_Responder(event_t * event)
         }
         else if (key == key_menu_quit)            // F10 (quit)
         {
-            if (gamestate == GS_LEVEL)
+            // [JN] Allow to invoke quit in any game state.
+            //if (gamestate == GS_LEVEL)
             {
                 SCQuitGame(0);
                 S_StartSound(NULL, sfx_chat);
