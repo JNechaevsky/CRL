@@ -278,6 +278,10 @@ extern int SB_state;
 extern int ArtifactFlash;
 void SB_PaletteFlash(void);
 
+// ***** P_SAVEG *****
+
+void P_RestoreTargets (void);
+
 #include "p_spec.h"
 
 #endif // __P_LOCAL__
