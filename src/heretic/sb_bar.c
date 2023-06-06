@@ -332,7 +332,7 @@ static void DrINumber(signed int val, int x, int y)
         {
             val = -val;
             V_DrawPatch(x + 18, y, PatchINumbers[val], "NULL"); // [JN] TODO - patch names
-            V_DrawPatch(x + 9, y, PatchNEGATIVE, "NULL"); // [JN] TODO - patch names
+            V_DrawPatch(x + 9, y, PatchNEGATIVE, "NEGNUM");
         }
         return;
     }
@@ -581,7 +581,7 @@ void SB_Drawer(void)
     {
         if (SB_state == -1)
         {
-            V_DrawPatch(0, 158, PatchBARBACK, "NULL");  // [JN] TODO - patch name
+            V_DrawPatch(0, 158, PatchBARBACK, "BARBACK");
             if (players[consoleplayer].cheats & CF_GODMODE)
             {
                 V_DrawPatch(16, 167,
@@ -597,7 +597,7 @@ void SB_Drawer(void)
             if (SB_state != 0)
             {
                 // Main interface
-                V_DrawPatch(34, 160, PatchSTATBAR, "NULL"); // [JN] TODO - patch name
+                V_DrawPatch(34, 160, PatchSTATBAR, "STATBAR");
                 oldarti = 0;
                 oldammo = -1;
                 oldarmor = -1;
@@ -613,7 +613,7 @@ void SB_Drawer(void)
         {
             if (SB_state != 1)
             {
-                V_DrawPatch(34, 160, PatchINVBAR, "NULL"); // [JN] TODO - patch name
+                V_DrawPatch(34, 160, PatchINVBAR, "INVBAR");
             }
             DrawInventoryBar();
             SB_state = 1;
@@ -837,8 +837,8 @@ void DrawCommonBar(void)
     int chainY;
     int healthPos;
 
-    V_DrawPatch(0, 148, PatchLTFCTOP, "NULL"); // [JN] TODO - patch name
-    V_DrawPatch(290, 148, PatchRTFCTOP, "NULL"); // [JN] TODO - patch name
+    V_DrawPatch(0, 148, PatchLTFCTOP, "LTFCTOP");
+    V_DrawPatch(290, 148, PatchRTFCTOP, "RTFCTOP");
 
     if (oldhealth != HealthMarker)
     {
@@ -855,11 +855,11 @@ void DrawCommonBar(void)
         healthPos = (healthPos * 256) / 100;
         chainY =
             (HealthMarker == CPlayer->mo->health) ? 191 : 191 + ChainWiggle;
-        V_DrawPatch(0, 190, PatchCHAINBACK, "NULL"); // [JN] TODO - patch name
-        V_DrawPatch(2 + (healthPos % 17), chainY, PatchCHAIN, "NULL"); // [JN] TODO - patch name
-        V_DrawPatch(17 + healthPos, chainY, PatchLIFEGEM, "NULL"); // [JN] TODO - patch name
-        V_DrawPatch(0, 190, PatchLTFACE, "NULL"); // [JN] TODO - patch name
-        V_DrawPatch(276, 190, PatchRTFACE, "NULL"); // [JN] TODO - patch name
+        V_DrawPatch(0, 190, PatchCHAINBACK, "CHAINBACK");
+        V_DrawPatch(2 + (healthPos % 17), chainY, PatchCHAIN, "CHAIN");
+        V_DrawPatch(17 + healthPos, chainY, PatchLIFEGEM, "LIFEGEM2");
+        V_DrawPatch(0, 190, PatchLTFACE, "LTFACE");
+        V_DrawPatch(276, 190, PatchRTFACE, "RTFACE");
         ShadeChain();
         UpdateState |= I_STATBAR;
     }
@@ -879,7 +879,7 @@ void DrawMainBar(void)
     // Ready artifact
     if (ArtifactFlash)
     {
-        V_DrawPatch(180, 161, PatchBLACKSQ, "NULL"); // [JN] TODO - patch name
+        V_DrawPatch(180, 161, PatchBLACKSQ, "BLACKSQ");
 
         temp = W_GetNumForName(DEH_String("useartia")) + ArtifactFlash - 1;
 
@@ -891,7 +891,7 @@ void DrawMainBar(void)
     else if (oldarti != CPlayer->readyArtifact
              || oldartiCount != CPlayer->inventory[inv_ptr].count)
     {
-        V_DrawPatch(180, 161, PatchBLACKSQ, "NULL"); // [JN] TODO - patch name
+        V_DrawPatch(180, 161, PatchBLACKSQ, "BLACKSQ");
         if (CPlayer->readyArtifact > 0)
         {
             V_DrawPatch(179, 160,
@@ -914,7 +914,7 @@ void DrawMainBar(void)
         }
         if (temp != oldfrags)
         {
-            V_DrawPatch(57, 171, PatchARMCLEAR, "NULL"); // [JN] TODO - patch name
+            V_DrawPatch(57, 171, PatchARMCLEAR, "ARMCLEAR");
             dp_translation = SB_MainBarColor(hudcolor_frags);
             DrINumber(temp, 61, 170);
             dp_translation = NULL;
@@ -936,7 +936,7 @@ void DrawMainBar(void)
         if (oldlife != temp)
         {
             oldlife = temp;
-            V_DrawPatch(57, 171, PatchARMCLEAR, "NULL"); // [JN] TODO - patch name
+            V_DrawPatch(57, 171, PatchARMCLEAR, "ARMCLEAR");
             dp_translation = SB_MainBarColor(hudcolor_health);
             DrINumber(temp, 61, 170);
             dp_translation = NULL;
@@ -966,7 +966,7 @@ void DrawMainBar(void)
     temp = CPlayer->ammo[wpnlev1info[CPlayer->readyweapon].ammo];
     if (oldammo != temp || oldweapon != CPlayer->readyweapon)
     {
-        V_DrawPatch(108, 161, PatchBLACKSQ, "NULL"); // [JN] TODO - patch name
+        V_DrawPatch(108, 161, PatchBLACKSQ, "BLACKSQ");
         if (temp && CPlayer->readyweapon > 0 && CPlayer->readyweapon < 7)
         {
             dp_translation = SB_MainBarColor(hudcolor_ammo);
@@ -984,7 +984,7 @@ void DrawMainBar(void)
     // Armor
     if (oldarmor != CPlayer->armorpoints)
     {
-        V_DrawPatch(224, 171, PatchARMCLEAR, "NULL"); // [JN] TODO - patch name
+        V_DrawPatch(224, 171, PatchARMCLEAR, "ARMCLEAR");
         dp_translation = SB_MainBarColor(hudcolor_armor);
         DrINumber(CPlayer->armorpoints, 228, 170);
         dp_translation = NULL;
@@ -1007,7 +1007,7 @@ void DrawInventoryBar(void)
 
     x = inv_ptr - curpos;
     UpdateState |= I_STATBAR;
-    V_DrawPatch(34, 160, PatchINVBAR, "NULL"); // [JN] TODO - patch name
+    V_DrawPatch(34, 160, PatchINVBAR, "INVBAR");
     for (i = 0; i < 7; i++)
     {
         //V_DrawPatch(50+i*31, 160, W_CacheLumpName("ARTIBOX", PU_CACHE));
@@ -1020,16 +1020,16 @@ void DrawInventoryBar(void)
             DrSmallNumber(CPlayer->inventory[x + i].count, 69 + i * 31, 182);
         }
     }
-    V_DrawPatch(50 + curpos * 31, 189, PatchSELECTBOX, "NULL"); // [JN] TODO - patch name
+    V_DrawPatch(50 + curpos * 31, 189, PatchSELECTBOX, "SELECTBOX");
     if (x != 0)
     {
-        V_DrawPatch(38, 159, !(leveltime & 4) ? PatchINVLFGEM1 :
-                    PatchINVLFGEM2, "NULL"); // [JN] TODO - patch name);
+        V_DrawPatch(38, 159, !(leveltime & 4) ? PatchINVLFGEM1 : PatchINVLFGEM2,
+                             !(leveltime & 4) ? "INVGEML1" : "INVGEML2");
     }
     if (CPlayer->inventorySlotNum - x > 7)
     {
-        V_DrawPatch(269, 159, !(leveltime & 4) ?
-                    PatchINVRTGEM1 : PatchINVRTGEM2, "NULL"); // [JN] TODO - patch name
+        V_DrawPatch(269, 159, !(leveltime & 4) ? PatchINVRTGEM1 : PatchINVRTGEM2,
+                              !(leveltime & 4) ? "INVGEMR1" : "INVGEMR2");
     }
 }
 
@@ -1092,16 +1092,16 @@ void DrawFullScreenStuff(void)
                               190);
             }
         }
-        V_DrawPatch(50 + curpos * 31, 197, PatchSELECTBOX, "NULL"); // [JN] TODO - patch name
+        V_DrawPatch(50 + curpos * 31, 197, PatchSELECTBOX, "SELECTBOX");
         if (x != 0)
         {
-            V_DrawPatch(38, 167, !(leveltime & 4) ? PatchINVLFGEM1 :
-                        PatchINVLFGEM2, "NULL"); // [JN] TODO - patch name
+            V_DrawPatch(38, 167, !(leveltime & 4) ? PatchINVLFGEM1 : PatchINVLFGEM2,
+                                 !(leveltime & 4) ? "INVGEML1" : "INVGEML2");
         }
         if (CPlayer->inventorySlotNum - x > 7)
         {
-            V_DrawPatch(269, 167, !(leveltime & 4) ?
-                        PatchINVRTGEM1 : PatchINVRTGEM2, "NULL"); // [JN] TODO - patch name
+            V_DrawPatch(269, 167, !(leveltime & 4) ? PatchINVRTGEM1 : PatchINVRTGEM2,
+                                  !(leveltime & 4) ? "INVGEMR1" : "INVGEMR2");
         }
     }
 }

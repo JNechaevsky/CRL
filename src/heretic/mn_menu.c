@@ -4534,8 +4534,8 @@ static void DrawSlider(Menu_t * menu, int item, int width, int slot, boolean big
     V_DrawPatch(x - 32, y, W_CacheLumpName(DEH_String("M_SLDLT"), PU_CACHE), "M_SLDLT");
     for (x2 = x, count = width; count--; x2 += 8)
     {
-        V_DrawPatch(x2, y, W_CacheLumpName(DEH_String(count & 1 ? "M_SLDMD1"
-                                           : "M_SLDMD2"), PU_CACHE), "NULL"); // [JN] TODO - patch names
+        V_DrawPatch(x2, y, W_CacheLumpName(DEH_String(count & 1 ? "M_SLDMD1" : "M_SLDMD2"), PU_CACHE),
+                                                      count & 1 ? "M_SLDMD1" : "M_SLDMD2");
     }
     V_DrawPatch(x2, y, W_CacheLumpName(DEH_String("M_SLDRT"), PU_CACHE), "M_SLDRT");
 

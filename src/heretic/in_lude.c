@@ -634,13 +634,13 @@ void IN_DrawOldLevel(void)
         {
             V_DrawPatch(YAHspot[gameepisode - 1][i].x,
                         YAHspot[gameepisode - 1][i].y, patchBEENTHERE,
-                        "NULL"); // [JN] TODO - patch name
+                        "IN_X");
         }
         if (!(intertime & 16))
         {
             V_DrawPatch(YAHspot[gameepisode - 1][8].x,
                         YAHspot[gameepisode - 1][8].y, patchBEENTHERE,
-                        "NULL"); // [JN] TODO - patch name
+                        "IN_X");
         }
     }
     else
@@ -649,19 +649,19 @@ void IN_DrawOldLevel(void)
         {
             V_DrawPatch(YAHspot[gameepisode - 1][i].x,
                         YAHspot[gameepisode - 1][i].y, patchBEENTHERE,
-                        "NULL"); // [JN] TODO - patch name
+                        "IN_X");
         }
         if (players[consoleplayer].didsecret)
         {
             V_DrawPatch(YAHspot[gameepisode - 1][8].x,
                         YAHspot[gameepisode - 1][8].y, patchBEENTHERE,
-                        "NULL"); // [JN] TODO - patch name
+                        "IN_X");
         }
         if (!(intertime & 16))
         {
             V_DrawPatch(YAHspot[gameepisode - 1][prevmap - 1].x,
                         YAHspot[gameepisode - 1][prevmap - 1].y,
-                        patchBEENTHERE, "NULL"); // [JN] TODO - patch name
+                        patchBEENTHERE, "IN_X");
         }
     }
 }
@@ -691,19 +691,19 @@ void IN_DrawYAH(void)
     {
         V_DrawPatch(YAHspot[gameepisode - 1][i].x,
                     YAHspot[gameepisode - 1][i].y, patchBEENTHERE,
-                    "NULL"); // [JN] TODO - patch name
+                    "IN_X");
     }
     if (players[consoleplayer].didsecret)
     {
         V_DrawPatch(YAHspot[gameepisode - 1][8].x,
                     YAHspot[gameepisode - 1][8].y, patchBEENTHERE,
-                    "NULL"); // [JN] TODO - patch name
+                    "IN_X");
     }
     if (!(intertime & 16) || interstate == 3)
     {                           // draw the destination 'X'
         V_DrawPatch(YAHspot[gameepisode - 1][gamemap - 1].x,
                     YAHspot[gameepisode - 1][gamemap - 1].y, patchGOINGTHERE,
-                    "NULL"); // [JN] TODO - patch name
+                    "IN_YAH");
     }
 }
 
