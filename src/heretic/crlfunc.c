@@ -89,7 +89,6 @@ static byte *CRL_StatColor_Val (const int val1, const int val2)
                        cr[CR_GREEN];
 }
 
-/*
 static byte *CRL_PowerupColor (const int val1, const int val2)
 {
     return
@@ -97,12 +96,18 @@ static byte *CRL_PowerupColor (const int val1, const int val2)
         val1 > val2/4 ? cr[CR_YELLOW] :
                         cr[CR_RED]    ;
 }
-*/
 
 // -----------------------------------------------------------------------------
 // CRL_MAX_count
 //  [JN] Handling of MAX visplanes, based on implementation from RestlessRodent.
 // -----------------------------------------------------------------------------
+
+// Power-up counters:
+int CRL_counter_tome;
+int CRL_counter_ring;
+int CRL_counter_shadow;
+int CRL_counter_wings;
+int CRL_counter_torch;
 
 static int CRL_MAX_count;
 
@@ -388,43 +393,46 @@ void CRL_StatDrawer (void)
     // Powerup timers.
     if (crl_widget_powerups)
     {
-        /*
-        if (CRL_invul_counter)
+        if (CRL_counter_tome)
         {
-            char invl[4];
+            char tom[4];
 
-            M_WriteText(292 - M_StringWidth("INVL:"), 108, "INVL:", cr[CR_GRAY]);
-            M_snprintf(invl, 4, "%d", CRL_invul_counter);
-            M_WriteText(296, 108, invl, CRL_PowerupColor(CRL_invul_counter, 30));
+            MN_DrTextA("TOM:", SCREENWIDTH - 7 - MN_TextAWidth("TOM:"), 50, cr[CR_GRAY]);
+            M_snprintf(tom, 4, "%d", CRL_counter_tome);
+            MN_DrTextA(tom, SCREENWIDTH - 7 - MN_TextAWidth(tom), 60, CRL_PowerupColor(CRL_counter_tome, 40));
         }
-
-        if (CRL_invis_counter)
+        if (CRL_counter_ring)
         {
-            char invs[4];
+            char rng[4];
 
-            M_WriteText(292 - M_StringWidth("INVS:"), 117, "INVS:", cr[CR_GRAY]);
-            M_snprintf(invs, 4, "%d", CRL_invis_counter);
-            M_WriteText(296, 117, invs, CRL_PowerupColor(CRL_invis_counter, 60));
+            MN_DrTextA("RNG:", SCREENWIDTH - 7 - MN_TextAWidth("RNG:"), 70, cr[CR_GRAY]);
+            M_snprintf(rng, 4, "%d", CRL_counter_ring);
+            MN_DrTextA(rng, SCREENWIDTH - 7 - MN_TextAWidth(rng), 80, CRL_PowerupColor(CRL_counter_ring, 30));
         }
-
-        if (CRL_rad_counter)
+        if (CRL_counter_shadow)
         {
-            char rad[4];
+            char shd[4];
 
-            M_WriteText(292 - M_StringWidth("RAD:"), 126, "RAD:", cr[CR_GRAY]);
-            M_snprintf(rad, 4, "%d", CRL_rad_counter);
-            M_WriteText(296, 126, rad, CRL_PowerupColor(CRL_rad_counter, 60));
+            MN_DrTextA("SHD:", SCREENWIDTH - 7 - MN_TextAWidth("SHD:"), 90, cr[CR_GRAY]);
+            M_snprintf(shd, 4, "%d", CRL_counter_shadow);
+            MN_DrTextA(shd, SCREENWIDTH - 7 - MN_TextAWidth(shd), 100, CRL_PowerupColor(CRL_counter_shadow, 60));
         }
-
-        if (CRL_amp_counter)
+        if (CRL_counter_wings)
         {
-            char amp[4];
+            char wng[4];
 
-            M_WriteText(292 - M_StringWidth("AMP:"), 135, "AMP:", cr[CR_GRAY]);
-            M_snprintf(amp, 4, "%d", CRL_amp_counter);
-            M_WriteText(296, 135, amp, CRL_PowerupColor(CRL_amp_counter, 120));
+            MN_DrTextA("WNG:", SCREENWIDTH - 7 - MN_TextAWidth("WNG:"), 110, cr[CR_GRAY]);
+            M_snprintf(wng, 4, "%d", CRL_counter_wings);
+            MN_DrTextA(wng, SCREENWIDTH - 7 - MN_TextAWidth(wng), 120, CRL_PowerupColor(CRL_counter_wings, 60));
         }
-        */
+        if (CRL_counter_torch)
+        {
+            char trc[4];
+
+            MN_DrTextA("TRC:", SCREENWIDTH - 7 - MN_TextAWidth("TRC:"), 130, cr[CR_GRAY]);
+            M_snprintf(trc, 4, "%d", CRL_counter_torch);
+            MN_DrTextA(trc, SCREENWIDTH - 7 - MN_TextAWidth(trc), 140, CRL_PowerupColor(CRL_counter_torch, 120));
+        }
     }
 }
 

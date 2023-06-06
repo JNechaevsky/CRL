@@ -655,7 +655,7 @@ static boolean CRL_Widget_Playstate (int option);
 static boolean CRL_Widget_Render (int option);
 static boolean CRL_Widget_KIS (int option);
 static boolean CRL_Widget_Time (int option);
-// static boolean CRL_Widget_Powerups (int option);
+static boolean CRL_Widget_Powerups (int option);
 static boolean CRL_Widget_Health (int option);
 static boolean CRL_Automap_Secrets (int option);
 
@@ -2361,7 +2361,7 @@ static MenuItem_t CRLWidgetsItems[] = {
     {ITT_LRFUNC, "RENDER COUNTERS",     CRL_Widget_Render,    0, MENU_NONE},
     {ITT_LRFUNC, "KIS STATS",           CRL_Widget_KIS,       0, MENU_NONE},
     {ITT_LRFUNC, "LEVEL TIME",          CRL_Widget_Time,      0, MENU_NONE},
-//  {ITT_LRFUNC, "POWERUP TIMERS",      CRL_Widget_Powerups,  0, MENU_NONE},
+    {ITT_LRFUNC, "POWERUP TIMERS",      CRL_Widget_Powerups,  0, MENU_NONE},
     {ITT_LRFUNC, "TARGET'S HEALTH",     CRL_Widget_Health,    0, MENU_NONE},
     {ITT_EMPTY,  NULL,                  NULL,                 0, MENU_NONE},
     {ITT_LRFUNC, "MARK SECRET SECTORS", CRL_Automap_Secrets,  0, MENU_NONE},
@@ -2416,20 +2416,25 @@ static void DrawCRLWidgets (void)
     MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 70,
                M_Item_Glow(4, crl_widget_time ? GLOW_GREEN : GLOW_RED, ITEMONTICS));
 
+    // Powerup timers
+    sprintf(str, crl_widget_powerups ? "ON" : "OFF");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 80,
+               M_Item_Glow(5, crl_widget_powerups ? GLOW_GREEN : GLOW_RED, ITEMONTICS));
+
     // Target's health
     sprintf(str, crl_widget_health == 1 ? "TOP" :
                  crl_widget_health == 2 ? "TOP+NAME" :
                  crl_widget_health == 3 ? "BOTTOM" :
                  crl_widget_health == 4 ? "BOTTOM+NAME" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 80,
-               M_Item_Glow(5, crl_widget_health ? GLOW_GREEN : GLOW_RED, ITEMONTICS));
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 90,
+               M_Item_Glow(6, crl_widget_health ? GLOW_GREEN : GLOW_RED, ITEMONTICS));
 
-    MN_DrTextACentered("AUTOMAP", 90, cr[CR_YELLOW]);
+    MN_DrTextACentered("AUTOMAP", 100, cr[CR_YELLOW]);
 
     // Level time
     sprintf(str, crl_automap_secrets ? "ON" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 100,
-               M_Item_Glow(7, crl_automap_secrets ? GLOW_GREEN : GLOW_RED, ITEMONTICS));
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 110,
+               M_Item_Glow(8, crl_automap_secrets ? GLOW_GREEN : GLOW_RED, ITEMONTICS));
 }
 
 static boolean CRL_Widget_Coords (int option)
@@ -2462,13 +2467,11 @@ static boolean CRL_Widget_Time (int option)
     return true;
 }
 
-/*
 static boolean CRL_Widget_Powerups (int option)
 {
     crl_widget_powerups ^= 1;
     return true;
 }
-*/
 
 static boolean CRL_Widget_Health (int option)
 {

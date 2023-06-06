@@ -22,12 +22,14 @@
 
 #include "doomdef.h"
 #include "deh_str.h"
+#include "i_timer.h"
 #include "m_random.h"
 #include "p_local.h"
 #include "s_sound.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
+#include "crlfunc.h"
 
 
 void P_PlayerNextArtifact(player_t * player);
@@ -717,6 +719,7 @@ void P_PlayerThink(player_t * player)
     if (player->powers[pw_invulnerability])
     {
         player->powers[pw_invulnerability]--;
+        CRL_counter_ring = player->powers[pw_invulnerability] / TICRATE;
     }
     if (player->powers[pw_invisibility])
     {
@@ -724,10 +727,12 @@ void P_PlayerThink(player_t * player)
         {
             player->mo->flags &= ~MF_SHADOW;
         }
+        CRL_counter_shadow = player->powers[pw_invulnerability] / TICRATE;
     }
     if (player->powers[pw_infrared])
     {
         player->powers[pw_infrared]--;
+        CRL_counter_torch = player->powers[pw_infrared] / TICRATE;
     }
     if (player->powers[pw_flight])
     {
@@ -743,6 +748,7 @@ void P_PlayerThink(player_t * player)
             player->mo->flags &= ~MF_NOGRAVITY;
             BorderTopRefresh = true;    //make sure the sprite's cleared out
         }
+        CRL_counter_wings = player->powers[pw_flight] / TICRATE;
     }
     if (player->powers[pw_weaponlevel2])
     {
@@ -765,6 +771,7 @@ void P_PlayerThink(player_t * player)
             }
             BorderTopRefresh = true;
         }
+        CRL_counter_tome = player->powers[pw_weaponlevel2] / TICRATE;
     }
     if (player->damagecount)
     {

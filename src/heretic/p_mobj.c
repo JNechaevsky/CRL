@@ -27,6 +27,7 @@
 
 #include "crlcore.h"
 #include "crlvars.h"
+#include "crlfunc.h"
 
 
 void G_PlayerReborn(int player);
@@ -1082,6 +1083,12 @@ void P_SpawnPlayer(mapthing_t * mthing)
     // [JN] CRL - reset frame-independent limit counters.
     CRL_plats_counter = 0;
     CRL_lineanims_counter = 0;
+    // [JN] CRL - reset powerup counters.
+    CRL_counter_tome = 0;
+    CRL_counter_ring = 0;
+    CRL_counter_shadow = 0;
+    CRL_counter_wings = 0;
+    CRL_counter_torch = 0;
 
     P_SetupPsprites(p);         // setup gun psprite        
     if (deathmatch)
