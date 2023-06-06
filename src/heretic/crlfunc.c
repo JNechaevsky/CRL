@@ -234,9 +234,9 @@ void CRL_StatDrawer (void)
         {
             char plt[32];
 
-            MN_DrTextA("PLT:", 0, 55, CRL_StatColor_Str(CRL_plats_counter, CRL_MaxPlats));
+            MN_DrTextA("PLT:", 0, 53, CRL_StatColor_Str(CRL_plats_counter, CRL_MaxPlats));
             M_snprintf(plt, 16, "%d/%d", CRL_plats_counter, CRL_MaxPlats);
-            MN_DrTextA(plt, 32, 55, CRL_StatColor_Val(CRL_plats_counter, CRL_MaxPlats));
+            MN_DrTextA(plt, 32, 53, CRL_StatColor_Val(CRL_plats_counter, CRL_MaxPlats));
         }
 
         // Animated lines (64 max)
@@ -245,9 +245,9 @@ void CRL_StatDrawer (void)
         {
             char ani[32];
 
-            MN_DrTextA("ANI:", 0, 65, CRL_StatColor_Str(CRL_lineanims_counter, CRL_MaxAnims));
+            MN_DrTextA("ANI:", 0, 63, CRL_StatColor_Str(CRL_lineanims_counter, CRL_MaxAnims));
             M_snprintf(ani, 16, "%d/%d", CRL_lineanims_counter, CRL_MaxAnims);
-            MN_DrTextA(ani, 32, 65, CRL_StatColor_Val(CRL_lineanims_counter, CRL_MaxAnims));
+            MN_DrTextA(ani, 32, 63, CRL_StatColor_Val(CRL_lineanims_counter, CRL_MaxAnims));
         }
     }
 
