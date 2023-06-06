@@ -664,6 +664,7 @@ static boolean CRL_DefaulSkill (int option);
 static boolean CRL_PistolStart (int option);
 static boolean CRL_ColoredSBar (int option);
 static boolean CRL_RestoreTargets (int option);
+static boolean CRL_InternalDemos (int option);
 
 static void DrawCRLLimits (void);
 static boolean CRL_ZMalloc (int option);
@@ -2486,13 +2487,15 @@ static MenuItem_t CRLGameplayItems[] = {
     {ITT_LRFUNC, "DEFAULT SKILL LEVEL",     CRL_DefaulSkill,    0, MENU_NONE},
     {ITT_LRFUNC, "WAND START GAME MODE",    CRL_PistolStart,    0, MENU_NONE},
     {ITT_LRFUNC, "COLORED STATUS BAR",      CRL_ColoredSBar,    0, MENU_NONE},
-    {ITT_LRFUNC, "RESTORE MONSTER TARGETS", CRL_RestoreTargets, 0, MENU_NONE}
+    {ITT_LRFUNC, "RESTORE MONSTER TARGETS", CRL_RestoreTargets, 0, MENU_NONE},
+    {ITT_EMPTY,  NULL,                      NULL,               0, MENU_NONE},
+    {ITT_LRFUNC, "PLAY INTERNAL DEMOS",     CRL_InternalDemos, 0, MENU_NONE},
 };
 
 static Menu_t CRLGameplay = {
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     DrawCRLGameplay,
-    4, CRLGameplayItems,
+    6, CRLGameplayItems,
     0,
     true,
     MENU_CRLMAIN
@@ -2525,6 +2528,13 @@ static void DrawCRLGameplay (void)
     sprintf(str, crl_restore_targets ? "ON" : "OFF");
     MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 60,
                M_Item_Glow(3, crl_restore_targets? GLOW_GREEN : GLOW_RED, ITEMONTICS));
+
+    MN_DrTextACentered("DEMOS", 70, cr[CR_YELLOW]);
+
+    // Play internal demos
+    sprintf(str, crl_internal_demos ? "ON" : "OFF");
+    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 80,
+               M_Item_Glow(5, crl_internal_demos? GLOW_GREEN : GLOW_RED, ITEMONTICS));
 }
 
 static boolean CRL_DefaulSkill (int option)
@@ -2549,6 +2559,12 @@ static boolean CRL_ColoredSBar (int option)
 static boolean CRL_RestoreTargets (int option)
 {
     crl_restore_targets ^= 1;
+    return true;
+}
+
+static boolean CRL_InternalDemos (int option)
+{
+    crl_internal_demos ^= 1;
     return true;
 }
 
