@@ -34,6 +34,8 @@
 #include "v_video.h"
 
 #include "crlcore.h"
+#include "crlvars.h"
+#include "crlfunc.h"
 
 
 typedef enum
@@ -561,6 +563,19 @@ void IN_Drawer(void)
         default:
             I_Error("IN_lude:  Intermission state out of range.\n");
             break;
+    }
+
+    // [crispy] demo timer widget
+    if (((demoplayback && (crl_demo_timer == 1 || crl_demo_timer == 3))
+    ||   (demorecording && (crl_demo_timer == 2 || crl_demo_timer == 3))))
+    {
+        CRL_DemoTimer(leveltime);
+    }
+
+    // [crispy] demo progress bar
+    if (demoplayback && crl_demo_bar)
+    {
+        CRL_DemoBar();
     }
 }
 

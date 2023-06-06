@@ -460,6 +460,32 @@ void CRL_DrawFPS (void)
 int defdemotics = 0, deftotaldemotics;
 
 // -----------------------------------------------------------------------------
+// CRL_DemoTimer
+//  [crispy] Demo Timer widget
+// -----------------------------------------------------------------------------
+
+void CRL_DemoTimer (const int time)
+{
+    const int hours = time / (3600 * TICRATE);
+    const int mins = time / (60 * TICRATE) % 60;
+    const float secs = (float)(time % (60 * TICRATE)) / TICRATE;
+    char n[16];
+    int x = 237;
+
+    if (hours)
+    {
+        M_snprintf(n, sizeof(n), "%02i:%02i:%05.02f", hours, mins, secs);
+    }
+    else
+    {
+        M_snprintf(n, sizeof(n), "%02i:%05.02f", mins, secs);
+        x += 20;
+    }
+
+    MN_DrTextA(n, x, 20, cr[CR_LIGHTGRAY]);
+}
+
+// -----------------------------------------------------------------------------
 // CRL_DemoBar
 //  [crispy] print a bar indicating demo progress at the bottom of the screen
 // -----------------------------------------------------------------------------

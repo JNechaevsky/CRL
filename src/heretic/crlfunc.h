@@ -27,5 +27,6 @@ extern void CRL_MoveTo_MAX (void);
 extern void CRL_DrawTargetsHealth (void);
 
 // [crispy] demo progress bar and timer widget
+extern void CRL_DemoTimer (const int time);
 extern void CRL_DemoBar (void);
 extern int  defdemotics, deftotaldemotics;

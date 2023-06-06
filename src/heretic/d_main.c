@@ -222,6 +222,16 @@ void D_Display(void)
             // [JN] CRL Stats
             CRL_StatDrawer();
 
+            // [crispy] demo timer widget
+            if (demoplayback && (crl_demo_timer == 1 || crl_demo_timer == 3))
+            {
+                CRL_DemoTimer(crl_demo_timerdir ? (deftotaldemotics - defdemotics) : defdemotics);
+            }
+            else if (demorecording && (crl_demo_timer == 2 || crl_demo_timer == 3))
+            {
+                CRL_DemoTimer(leveltime);
+            }
+
             // [JN] Target's health widget.
             // Actual health values are gathered in G_Ticker.
             if (crl_widget_health)
