@@ -935,6 +935,15 @@ boolean G_Responder(event_t * ev)
     player_t *plr;
 
     plr = &players[consoleplayer];
+
+    // [crispy] demo fast-forward
+    if (ev->type == ev_keydown && ev->data1 == key_crl_demospeed
+    && (demoplayback || gamestate == GS_DEMOSCREEN))
+    {
+        singletics = !singletics;
+        return (true);
+    }
+
     if (ev->type == ev_keyup && ev->data1 == key_useartifact)
     {                           // flag to denote that it's okay to use an artifact
         if (!inventory)
