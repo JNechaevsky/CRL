@@ -39,27 +39,30 @@
 
 int CRL_PlaneBorderColors[NUMPLANEBORDERCOLORS] =
 {
-    // LIGHT
-    16,     // yucky pink
-    176,    // red
-    216,    // orange
-    231,    // yellow
+    // [JN] Note: Heretic using different color indexes,
+    // but let's try to replicate Doom ones as close as possible.
 
-    112,    // green
-    195,    // light blue (cyanish)
-    202,    // Deep blue
-    251,    // yuck, magenta
+    // LIGHT
+    165,    // yucky pink
+    160,    // red
+    244,    // orange
+    144,    // yellow
+
+    223,
+    182,    // light blue (magentish)
+    202,    // deep blue
+    175,    // yikes, magenta
 
     // DARK
-    26,
-    183,
-    232,
-    164,
+    163,    // burgundy
+    153,    // dark red
+    138,    // bronze
+    124,    // dark gold
 
-    122,
-    198,
-    240,
-    254,
+    214,    // dark green
+    198,    // dull blue
+    189,    // dark blue
+    172,    // dark magenta
 };
 
 // =============================================================================
