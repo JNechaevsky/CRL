@@ -453,11 +453,21 @@ void CRLKeysDialog(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(unused))
         AddKeyControl(table, "IDCLIP",          &key_crl_idclip);
         AddKeyControl(table, "IDDT",            &key_crl_iddt);
     }
+    if (gamemission == heretic)
+    {
+        AddKeyControl(table, "QUICKEN",         &key_crl_iddqd);
+        AddKeyControl(table, "RAMBO",           &key_crl_idfa);
+        AddKeyControl(table, "KITTY",           &key_crl_idclip);
+        AddKeyControl(table, "RAVMAP",          &key_crl_iddt);        
+    }
 
-    AddSectionLabel(table, "Automap", true);
+    if (gamemission == doom)
+    {
+        AddSectionLabel(table, "Automap", true);
 
-    AddKeyControl(table, "Rotate mode",         &key_crl_map_rotate);
-    AddKeyControl(table, "Overlay mode",        &key_crl_map_overlay);
+        AddKeyControl(table, "Rotate mode",     &key_crl_map_rotate);
+        AddKeyControl(table, "Overlay mode",    &key_crl_map_overlay);
+    }
 
     AddSectionLabel(table, "Static engine limits", true);
 
