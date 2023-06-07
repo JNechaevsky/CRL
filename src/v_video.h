@@ -54,7 +54,7 @@ void V_DrawPatchFlipped(int x, int y, patch_t *patch);
 void V_DrawShadowedPatch(int x, int y, const patch_t *patch, const char *name);
 
 void V_DrawShadowedPatchRaven(int x, int y, patch_t *patch);
-void V_DrawShadowedPatchRavenOptional(int x, int y, const patch_t *patch, char *name);
+void V_DrawShadowedPatchRavenOptional(int x, int y, const patch_t *patch, const char *name);
 void V_DrawTLPatch(int x, int y, patch_t *patch);
 void V_DrawRawScreen(byte *raw);
 

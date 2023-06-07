@@ -3133,7 +3133,7 @@ void MN_Drawer(void)
         {
             y = CurrentMenu->y + (CurrentItPos * ITEM_HEIGHT) + SELECTOR_YOFFSET;
             selName = DEH_String(MenuTime & 16 ? "M_SLCTR1" : "M_SLCTR2");
-            V_DrawPatch(x + SELECTOR_XOFFSET, y,
+            V_DrawShadowedPatchRavenOptional(x + SELECTOR_XOFFSET, y,
                         W_CacheLumpName(selName, PU_CACHE), selName);
         }
     }
@@ -3279,7 +3279,7 @@ static void DrawFileSlots(Menu_t * menu)
     y = menu->y;
     for (i = 0; i < 6; i++)
     {
-        V_DrawPatch(x, y, W_CacheLumpName(DEH_String("M_FSLOT"), PU_CACHE), "M_FSLOT");
+        V_DrawShadowedPatchRavenOptional(x, y, W_CacheLumpName(DEH_String("M_FSLOT"), PU_CACHE), "M_FSLOT");
         if (SlotStatus[i])
         {
             MN_DrTextA(SlotText[i], x + 5, y + 5, NULL);
@@ -4534,13 +4534,13 @@ static void DrawSlider(Menu_t * menu, int item, int width, int slot, boolean big
 
     x = menu->x + 24;
     y = menu->y + 2 + (item * (bigspacing ? ITEM_HEIGHT : ITEM_HEIGHT_SMALL));
-    V_DrawPatch(x - 32, y, W_CacheLumpName(DEH_String("M_SLDLT"), PU_CACHE), "M_SLDLT");
+    V_DrawShadowedPatchRavenOptional(x - 32, y, W_CacheLumpName(DEH_String("M_SLDLT"), PU_CACHE), "M_SLDLT");
     for (x2 = x, count = width; count--; x2 += 8)
     {
-        V_DrawPatch(x2, y, W_CacheLumpName(DEH_String(count & 1 ? "M_SLDMD1" : "M_SLDMD2"), PU_CACHE),
+        V_DrawShadowedPatchRavenOptional(x2, y, W_CacheLumpName(DEH_String(count & 1 ? "M_SLDMD1" : "M_SLDMD2"), PU_CACHE),
                                                       count & 1 ? "M_SLDMD1" : "M_SLDMD2");
     }
-    V_DrawPatch(x2, y, W_CacheLumpName(DEH_String("M_SLDRT"), PU_CACHE), "M_SLDRT");
+    V_DrawShadowedPatchRavenOptional(x2, y, W_CacheLumpName(DEH_String("M_SLDRT"), PU_CACHE), "M_SLDRT");
 
     // [JN] Prevent gem go out of slider bounds.
     if (slot > width - 1)

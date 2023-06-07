@@ -379,7 +379,7 @@ void V_DrawShadowedPatchRaven(int x, int y, patch_t *patch)
 // Used by Heretic and Hexen with tinttable map and draws optional shadow.
 // -----------------------------------------------------------------------------
 
-void V_DrawShadowedPatchRavenOptional (int x, int y, const patch_t *patch, char *name)
+void V_DrawShadowedPatchRavenOptional (int x, int y, const patch_t *patch, const char *name)
 {
     int       count, col, w;
     byte     *source, *sourcetrans;
