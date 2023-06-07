@@ -581,6 +581,10 @@ void SB_Drawer(void)
     }
     else
     {
+        // [JN] CRL - always do full status bar update, as we drawing
+        // everything below automap for proper render counter values.
+        SB_state = -1;
+
         if (SB_state == -1)
         {
             V_DrawPatch(0, 158, PatchBARBACK, "BARBACK");
