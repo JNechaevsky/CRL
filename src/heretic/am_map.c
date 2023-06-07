@@ -1482,8 +1482,24 @@ void AM_drawThings(int colors, int colorrange)
         t = sectors[i].thinglist;
         while (t)
         {
+            // [crispy] do not draw an extra triangle for the player
+            if (t == plr->mo)
+            {
+                t = t->snext;
+                continue;
+            }
+
+            // [JN] RAVMAP extended thing colors.
             AM_drawLineCharacter(thintriangle_guy, NUMTHINTRIANGLEGUYLINES,
-                                 16 << FRACBITS, t->angle, colors + lightlev,
+                                 16 << FRACBITS, t->angle,
+                                 // Monsters
+                                 t->flags & MF_COUNTKILL ? (t->health > 0 ? 160 : 15) :
+                                 // Explosive pod (does not have a MF_COUNTKILL flag)
+                                 t->type == MT_POD ? 141 :
+                                 // Countable items
+                                 t->flags & MF_COUNTITEM ? 224 :
+                                 // Everything else
+                                 colors,
                                  t->x, t->y);
             t = t->snext;
         }
