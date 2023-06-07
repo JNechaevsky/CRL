@@ -579,7 +579,7 @@ static boolean M_Bind_MoveToMAX (int option);
 static boolean M_Bind_IDDQD (int option);
 static boolean M_Bind_IDFA (int option);
 static boolean M_Bind_IDCLIP (int option);
-static boolean M_Bind_IDKFA (int option);
+static boolean M_Bind_IDDT (int option);
 
 static void DrawCRLKbd5 (void);
 static boolean M_Bind_Weapon1 (int option);
@@ -1652,7 +1652,7 @@ static MenuItem_t CRLKbsBinds4Items[] = {
     {ITT_EFUNC, "QUICKEN",        M_Bind_IDDQD,     0, MENU_NONE},
     {ITT_EFUNC, "RAMBO",          M_Bind_IDFA,      0, MENU_NONE},
     {ITT_EFUNC, "KITTY",          M_Bind_IDCLIP,    0, MENU_NONE},
-    {ITT_EFUNC, "SKEL",           M_Bind_IDKFA,     0, MENU_NONE}
+    {ITT_EFUNC, "RAVMAP",         M_Bind_IDDT,      0, MENU_NONE}
 };
 
 static Menu_t CRLKbdBinds4 = {
@@ -1684,7 +1684,7 @@ static void DrawCRLKbd4 (void)
     M_DrawBindKey(7, 100, key_crl_iddqd);
     M_DrawBindKey(8, 110, key_crl_idfa);
     M_DrawBindKey(9, 120, key_crl_idclip);
-    M_DrawBindKey(10, 130, key_crl_idkfa);
+    M_DrawBindKey(10, 130, key_crl_iddt);
 
     M_DrawBindFooter("4", true);
 }
@@ -1737,9 +1737,9 @@ static boolean M_Bind_IDCLIP (int option)
     return true;
 }
 
-static boolean M_Bind_IDKFA (int option)
+static boolean M_Bind_IDDT (int option)
 {
-    M_StartBind(408);  // key_crl_idkfa
+    M_StartBind(408);  // key_crl_iddt
     return true;
 }
 
@@ -4652,7 +4652,7 @@ static void M_CheckBind (int key)
     if (key_crl_iddqd == key)        key_crl_iddqd        = 0;
     if (key_crl_idfa == key)         key_crl_idfa         = 0;
     if (key_crl_idclip == key)       key_crl_idclip       = 0;
-    if (key_crl_idkfa == key)        key_crl_idkfa        = 0;
+    if (key_crl_iddt == key)         key_crl_iddt         = 0;
 
     // Page 5
     if (key_weapon1 == key)          key_weapon1          = 0;
@@ -4765,7 +4765,7 @@ static void M_DoBind (int keynum, int key)
         case 405:  key_crl_iddqd = key;         break;
         case 406:  key_crl_idfa = key;          break;
         case 407:  key_crl_idclip = key;        break;
-        case 408:  key_crl_idkfa = key;         break;
+        case 408:  key_crl_iddt = key;          break;
 
         // Page 5  
         case 500:  key_weapon1 = key;           break;
@@ -4903,7 +4903,7 @@ static void M_ClearBind (int CurrentItPos)
             case 7:   key_crl_iddqd = 0;        break;
             case 8:   key_crl_idfa = 0;         break;
             case 9:   key_crl_idclip = 0;       break;
-            case 10:  key_crl_idkfa = 0;        break;
+            case 10:  key_crl_iddt = 0;         break;
         }
     }
     if (CurrentMenu == &CRLKbdBinds5)

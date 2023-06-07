@@ -22,6 +22,7 @@
 #include "deh_str.h"
 #include "i_video.h"
 #include "i_swap.h"
+#include "m_controls.h"
 #include "m_cheat.h"
 #include "m_misc.h"
 #include "m_random.h"
@@ -29,6 +30,7 @@
 #include "s_sound.h"
 #include "v_trans.h"
 #include "v_video.h"
+#include "am_map.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
@@ -1118,6 +1120,32 @@ boolean SB_Responder(event_t * event)
     {
         if (HandleCheats(event->data1))
         {                       // Need to eat the key
+            return (true);
+        }
+
+        // [JN] CRL - handle cheat keybind shortcuts:
+        if (event->data1 == key_crl_iddqd)
+        {
+            CheatGodFunc(&players[consoleplayer], &Cheats[0]);
+            return (true);
+        }
+        if (event->data1 == key_crl_idfa)
+        {
+            CheatWeaponsFunc(&players[consoleplayer], &Cheats[2]);
+            return (true);
+        }
+        if (event->data1 == key_crl_idclip)
+        {
+            CheatNoClipFunc(&players[consoleplayer], &Cheats[1]);
+            return (true);
+        }
+        if (event->data1 == key_crl_iddt)
+        {
+            ravmap_cheating++;
+            if (ravmap_cheating > 2)
+            {
+                ravmap_cheating = 0;
+            }
             return (true);
         }
     }

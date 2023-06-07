@@ -109,5 +109,6 @@ typedef struct
 } islope_t;
 
 // extern int f_x, f_y, f_w, f_h;
+extern int ravmap_cheating;
 
 #endif
