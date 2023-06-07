@@ -611,8 +611,8 @@ static boolean M_Bind_ZoomIn (int option);
 static boolean M_Bind_ZoomOut (int option);
 static boolean M_Bind_MaxZoom (int option);
 static boolean M_Bind_FollowMode (int option);
-static boolean M_Bind_RotateMode (int option);
-static boolean M_Bind_OverlayMode (int option);
+// static boolean M_Bind_RotateMode (int option);
+// static boolean M_Bind_OverlayMode (int option);
 static boolean M_Bind_ToggleGrid (int option);
 
 static void DrawCRLKbd8 (void);
@@ -1965,15 +1965,15 @@ static MenuItem_t CRLKbsBinds7Items[] = {
     {ITT_EFUNC, "ZOOM OUT",         M_Bind_ZoomOut,     0, MENU_NONE},
     {ITT_EFUNC, "MAXIMUM ZOOM OUT", M_Bind_MaxZoom,     0, MENU_NONE},
     {ITT_EFUNC, "FOLLOW MODE",      M_Bind_FollowMode,  0, MENU_NONE},
-    {ITT_EFUNC, "ROTATE MODE",      M_Bind_RotateMode,  0, MENU_NONE},
-    {ITT_EFUNC, "OVERLAY MODE",     M_Bind_OverlayMode, 0, MENU_NONE},
+//  {ITT_EFUNC, "ROTATE MODE",      M_Bind_RotateMode,  0, MENU_NONE},
+//  {ITT_EFUNC, "OVERLAY MODE",     M_Bind_OverlayMode, 0, MENU_NONE},
     {ITT_EFUNC, "TOGGLE GRID",      M_Bind_ToggleGrid,  0, MENU_NONE}
 };
 
 static Menu_t CRLKbdBinds7 = {
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     DrawCRLKbd7,
-    8, CRLKbsBinds7Items,
+    6, CRLKbsBinds7Items,
     0,
     true,
     MENU_CRLCONTROLS
@@ -1990,9 +1990,9 @@ static void DrawCRLKbd7 (void)
     M_DrawBindKey(2, 50, key_map_zoomout);
     M_DrawBindKey(3, 60, key_map_maxzoom);
     M_DrawBindKey(4, 70, key_map_follow);
-    M_DrawBindKey(5, 80, key_crl_map_rotate);
-    M_DrawBindKey(6, 90, key_crl_map_overlay);
-    M_DrawBindKey(7, 100, key_map_grid);
+//  M_DrawBindKey(5, 80, key_crl_map_rotate);
+//  M_DrawBindKey(6, 90, key_crl_map_overlay);
+    M_DrawBindKey(5, 80, key_map_grid);
 
     M_DrawBindFooter("7", true);
 }
@@ -2027,6 +2027,7 @@ static boolean M_Bind_FollowMode (int option)
     return true;
 }
 
+/*
 static boolean M_Bind_RotateMode (int option)
 {
     M_StartBind(705);  // key_crl_map_rotate
@@ -2038,10 +2039,11 @@ static boolean M_Bind_OverlayMode (int option)
     M_StartBind(706);  // key_crl_map_overlay
     return true;
 }
+*/
 
 static boolean M_Bind_ToggleGrid (int option)
 {
-    M_StartBind(707);  // key_map_grid
+    M_StartBind(705);  // key_map_grid
     return true;
 }
 
@@ -4684,8 +4686,8 @@ static void M_CheckBind (int key)
     if (key_map_zoomout == key)      key_map_zoomout      = 0;
     if (key_map_maxzoom == key)      key_map_maxzoom      = 0;
     if (key_map_follow == key)       key_map_follow       = 0;
-    if (key_crl_map_rotate == key)   key_crl_map_rotate   = 0;
-    if (key_crl_map_overlay == key)  key_crl_map_overlay  = 0;
+//  if (key_crl_map_rotate == key)   key_crl_map_rotate   = 0;
+//  if (key_crl_map_overlay == key)  key_crl_map_overlay  = 0;
     if (key_map_grid == key)         key_map_grid         = 0;
 
     // Page 8
@@ -4799,9 +4801,9 @@ static void M_DoBind (int keynum, int key)
         case 702:  key_map_zoomout = key;       break;
         case 703:  key_map_maxzoom = key;       break;
         case 704:  key_map_follow = key;        break;
-        case 705:  key_crl_map_rotate = key;    break;
-        case 706:  key_crl_map_overlay = key;   break;
-        case 707:  key_map_grid = key;          break;
+//      case 705:  key_crl_map_rotate = key;    break;
+//      case 706:  key_crl_map_overlay = key;   break;
+        case 705:  key_map_grid = key;          break;
         }
 
         // Page 8
@@ -4947,9 +4949,9 @@ static void M_ClearBind (int CurrentItPos)
             case 2:   key_map_zoomout = 0;      break;
             case 3:   key_map_maxzoom = 0;      break;
             case 4:   key_map_follow = 0;       break;
-            case 5:   key_crl_map_rotate = 0;   break;
-            case 6:   key_crl_map_overlay = 0;  break;
-            case 7:   key_map_grid = 0;         break;
+//          case 5:   key_crl_map_rotate = 0;   break;
+//          case 6:   key_crl_map_overlay = 0;  break;
+            case 5:   key_map_grid = 0;         break;
         }
     }
     if (CurrentMenu == &CRLKbdBinds8)
