@@ -97,7 +97,7 @@ char *LevelNames[] = {
     "E6M3:  ",
 };
 
-static int cheating = 0;
+int ravmap_cheating = 0;
 static int grid = 0;
 
 static int leveljuststarted = 1;        // kluge until AM_LevelInit() is called
@@ -663,7 +663,7 @@ boolean AM_Responder(event_t * ev)
         {
             cheatcount = 0;
             rc = false;
-            cheating = (cheating + 1) % 3;
+            ravmap_cheating = (ravmap_cheating + 1) % 3;
         }
     }
 
@@ -1302,9 +1302,9 @@ void AM_drawWalls(void)
         l.a.y = lines[i].v1->y;
         l.b.x = lines[i].v2->x;
         l.b.y = lines[i].v2->y;
-        if (cheating || (lines[i].flags & ML_MAPPED))
+        if (ravmap_cheating || (lines[i].flags & ML_MAPPED))
         {
-            if ((lines[i].flags & LINE_NEVERSEE) && !cheating)
+            if ((lines[i].flags & LINE_NEVERSEE) && !ravmap_cheating)
                 continue;
             if (!lines[i].backsector)
             {
@@ -1327,7 +1327,7 @@ void AM_drawWalls(void)
                 }
                 else if (lines[i].flags & ML_SECRET)    // secret door
                 {
-                    if (cheating)
+                    if (ravmap_cheating)
                         AM_drawMline(&l, 0);
                     else
                         AM_drawMline(&l, WALLCOLORS + lightlev);
@@ -1369,7 +1369,7 @@ void AM_drawWalls(void)
                 {
                     AM_drawMline(&l, CDWALLCOLORS + lightlev);  // ceiling level change
                 }
-                else if (cheating)
+                else if (ravmap_cheating)
                 {
                     AM_drawMline(&l, TSWALLCOLORS + lightlev);
                 }
@@ -1548,7 +1548,7 @@ void AM_Drawer(void)
         AM_drawGrid(GRIDCOLORS);
     AM_drawWalls();
     AM_drawPlayers();
-    if (cheating == 2)
+    if (ravmap_cheating == 2)
         AM_drawThings(THINGCOLORS, THINGRANGE);
 //  AM_drawCrosshair(XHAIRCOLORS);
 
