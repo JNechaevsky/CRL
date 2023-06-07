@@ -431,6 +431,9 @@ extern int *texturetranslation; // for global animation
 
 extern int firstspritelump, lastspritelump, numspritelumps;
 
+extern int   *texturecompositesize;
+extern byte **texturecomposite;
+
 byte *R_GetColumn(int tex, int col);
 void R_InitData(void);
 void R_PrecacheLevel(void);
