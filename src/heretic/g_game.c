@@ -2271,10 +2271,22 @@ void G_TimeDemo(char *name)
 {
     skill_t skill;
     int episode, map, i;
+    int lumpnum, lumplength; // [crispy]
 
     nodrawers = M_CheckParm ("-nodraw");
 
     demobuffer = demo_p = W_CacheLumpName(name, PU_STATIC);
+
+    // [crispy] ignore empty demo lumps
+    lumpnum = W_GetNumForName(name);
+    lumplength = W_LumpLength(lumpnum);
+    if (lumplength < 0xd)
+    {
+        demoplayback = true;
+        G_CheckDemoStatus();
+        return;
+    }
+
     skill = *demo_p++;
     episode = *demo_p++;
     map = *demo_p++;
@@ -2309,6 +2321,9 @@ void G_TimeDemo(char *name)
     {
         netdemo = true;
     }
+
+    // [crispy] demo progress bar
+    G_DemoProgressBar(lumplength);
 }
 
 
