@@ -126,6 +126,7 @@ boolean longtics;               // specify high resolution turning in demos
 boolean lowres_turn;
 boolean shortticfix;            // calculate lowres turning like doom
 boolean demoplayback;
+boolean netdemo;
 boolean demoextend;
 byte *demobuffer, *demo_p, *demoend;
 boolean singledemo;             // quit after playing a demo from cmdline
@@ -1251,7 +1252,7 @@ void G_Ticker(void)
             if (demorecording)
                 G_WriteDemoTiccmd(cmd);
 
-            if (netgame && !(gametic % ticdup))
+            if (netgame && !netdemo && !(gametic % ticdup))
             {
                 if (gametic > BACKUPTICS
                     && consistancy[i][buf] != cmd->consistancy)
@@ -1898,6 +1899,7 @@ void G_InitNew(skill_t skill, int episode, int map)
     paused = false;
     demorecording = false;
     demoplayback = false;
+    netdemo = false;
     viewactive = true;
     gameepisode = episode;
     gamemap = map;
@@ -2235,11 +2237,22 @@ void G_DoPlayDemo(void)
     for (i = 0; i < MAXPLAYERS; i++)
         playeringame[i] = (*demo_p++) != 0;
 
+    if (playeringame[1] || M_CheckParm("-solo-net") > 0
+                        || M_CheckParm("-netdemo") > 0)
+    {
+    	netgame = true;
+    }
+
     precache = false;           // don't spend a lot of time in loadlevel
     G_InitNew(skill, episode, map);
     precache = true;
     usergame = false;
     demoplayback = true;
+
+    if (netgame == true)
+    {
+        netdemo = true;
+    }
 
     // [crispy] demo progress bar
     G_DemoProgressBar(lumplength);
@@ -2278,6 +2291,12 @@ void G_TimeDemo(char *name)
         playeringame[i] = (*demo_p++) != 0;
     }
 
+    if (playeringame[1] || M_CheckParm("-solo-net") > 0
+                        || M_CheckParm("-netdemo") > 0)
+    {
+        netgame = true;
+    }
+
     G_InitNew(skill, episode, map);
     starttime = I_GetTime();
 
@@ -2285,6 +2304,11 @@ void G_TimeDemo(char *name)
     demoplayback = true;
     timingdemo = true;
     singletics = true;
+
+    if (netgame == true)
+    {
+        netdemo = true;
+    }
 }
 
 
@@ -2319,6 +2343,8 @@ boolean G_CheckDemoStatus(void)
 
         W_ReleaseLumpName(defdemoname);
         demoplayback = false;
+        netdemo = false;
+        netgame = false;
         D_AdvanceDemo();
         return true;
     }
