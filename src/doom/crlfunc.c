@@ -581,7 +581,7 @@ void CRL_StatDrawer (void)
 
 void CRL_DrawFPS (void)
 {
-    char fps[4];
+    char fps[8];
     char fps_str[4];
 
     sprintf(fps, "%d", CRL_fps);
