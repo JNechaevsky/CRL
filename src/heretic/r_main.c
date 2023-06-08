@@ -44,8 +44,6 @@ fixed_t projection;
 
 int framecount;                 // just for profiling purposes
 
-int sscount, linecount, loopcount;
-
 fixed_t viewx, viewy, viewz;
 angle_t viewangle;
 fixed_t viewcos, viewsin;
@@ -840,7 +838,6 @@ void R_SetupFrame(player_t * player)
     }
     viewsin = finesine[tableAngle];
     viewcos = finecosine[tableAngle];
-    sscount = 0;
     if (player->fixedcolormap)
     {
         fixedcolormap = colormaps + player->fixedcolormap

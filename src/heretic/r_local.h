@@ -311,7 +311,6 @@ extern fixed_t projection;
 
 extern int validcount;
 
-extern int sscount, linecount, loopcount;
 extern lighttable_t *scalelight[LIGHTLEVELS][MAXLIGHTSCALE];
 extern lighttable_t *scalelightfixed[MAXLIGHTSCALE];
 extern lighttable_t *zlight[LIGHTLEVELS][MAXLIGHTZ];

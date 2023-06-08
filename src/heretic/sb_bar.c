@@ -841,6 +841,7 @@ void SB_PaletteFlash(void)
 void DrawCommonBar(void)
 {
     int chainY;
+    int chainYY;
     int healthPos;
 
     V_DrawPatch(0, 148, PatchLTFCTOP, "LTFCTOP");
@@ -861,9 +862,12 @@ void DrawCommonBar(void)
         healthPos = (healthPos * 256) / 100;
         chainY =
             (HealthMarker == CPlayer->mo->health) ? 191 : 191 + ChainWiggle;
+        // [JN] TODO - something wrong with chain wiggling.
+        chainYY = 
+            (HealthMarker == CPlayer->mo->health) ? chainY : 191;
         V_DrawPatch(0, 190, PatchCHAINBACK, "CHAINBACK");
-        V_DrawPatch(2 + (healthPos % 17), chainY, PatchCHAIN, "CHAIN");
-        V_DrawPatch(17 + healthPos, chainY, PatchLIFEGEM, "LIFEGEM2");
+        V_DrawPatch(2 + (healthPos % 17), chainYY, PatchCHAIN, "CHAIN");
+        V_DrawPatch(17 + healthPos, chainYY, PatchLIFEGEM, "LIFEGEM2");
         V_DrawPatch(0, 190, PatchLTFACE, "LTFACE");
         V_DrawPatch(276, 190, PatchRTFACE, "RTFACE");
         ShadeChain();
