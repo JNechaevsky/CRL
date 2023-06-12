@@ -14,9 +14,13 @@ CRL is maintained by [Julia Nechaevskaya](mailto:julia.nechaevskaya@live.com).
 
 ## Download
 
-Version 1.4 (released: June 5, 2023):
+CRL Doom, version 1.4 (released: June 5, 2023):
 * Windows (32-bit): [crl-1.4-win32.zip](https://github.com/JNechaevsky/CRL/releases/download/crl-1.4/crl-1.4-win32.zip)
 * Windows (64-bit): [crl-1.4-win64.zip](https://github.com/JNechaevsky/CRL/releases/download/crl-1.4/crl-1.4-win64.zip)
+
+CRL Heretic, version 1.0 (released: June 12, 2023):
+* Windows (32-bit): [crl-heretic-1.0-win32.zip](https://github.com/JNechaevsky/CRL/releases/download/crl-hr-1.0/crl-heretic-1.0-win32.zip)
+* Windows (64-bit): [crl-heretic-1.0-win64.zip](https://github.com/JNechaevsky/CRL/releases/download/crl-hr-1.0/crl-heretic-1.0-win64.zip)
 
 Previous versions can be found on [Releases](https://github.com/JNechaevsky/CRL/releases) page.<br>
 Old versions of original Chocorenderlimits can be found on [Historical](https://github.com/JNechaevsky/CRL/releases/tag/Historical) page.
