@@ -200,9 +200,12 @@ void MainMenu(void)
     txt_window_t *window;
     txt_window_action_t *quit_action;
     txt_window_action_t *warp_action;
-    static boolean colors_initialized = false;
 
     // [JN] Use different coloring for non-Doom games.
+    // TODO - didn't work in separated build.
+    /*
+    static boolean colors_initialized = false;
+
     if (!colors_initialized)
     {
         if (gamemission == heretic)
@@ -215,6 +218,7 @@ void MainMenu(void)
         }
         colors_initialized = true;
     }
+    */
 
     window = TXT_NewWindow("Main Menu");
 
