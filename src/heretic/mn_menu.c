@@ -637,6 +637,7 @@ static boolean M_Bind_ToPlayer1 (int option);
 static boolean M_Bind_ToPlayer2 (int option);
 static boolean M_Bind_ToPlayer3 (int option);
 static boolean M_Bind_ToPlayer4 (int option);
+static boolean M_Bind_Reset (int option);
 
 static void DrawCRLMouse (void);
 static boolean M_Bind_M_FireAttack (int option);
@@ -685,6 +686,7 @@ static void    M_CheckBind (int key);
 static void    M_DoBind (int keynum, int key);
 static void    M_ClearBind (int itemOn);
 static byte   *M_ColorizeBind (int itemSetOn, int key);
+static void    M_ResetBinds (void);
 static void    M_DrawBindKey (int itemNum, int yPos, int keyBind);
 static void    M_DrawBindFooter (char *pagenum, boolean drawPages);
 static void    M_ScrollKeyBindPages (boolean direction);
@@ -2174,13 +2176,15 @@ static MenuItem_t CRLKbsBinds9Items[] = {
     {ITT_EFUNC, "- TO PLAYER 1",         M_Bind_ToPlayer1,      0, MENU_NONE},
     {ITT_EFUNC, "- TO PLAYER 2",         M_Bind_ToPlayer2,      0, MENU_NONE},
     {ITT_EFUNC, "- TO PLAYER 3",         M_Bind_ToPlayer3,      0, MENU_NONE},
-    {ITT_EFUNC, "- TO PLAYER 4",         M_Bind_ToPlayer4,      0, MENU_NONE}
+    {ITT_EFUNC, "- TO PLAYER 4",         M_Bind_ToPlayer4,      0, MENU_NONE},
+    {ITT_EMPTY, NULL,                    NULL,                  0, MENU_NONE},
+    {ITT_EFUNC, "RESET BINDINGS TO DEFAULTS", M_Bind_Reset,     0, MENU_NONE},
 };
 
 static Menu_t CRLKbdBinds9 = {
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     DrawCRLKbd9,
-    9, CRLKbsBinds9Items,
+    11, CRLKbsBinds9Items,
     0,
     true,
     MENU_CRLCONTROLS
@@ -2203,6 +2207,8 @@ static void DrawCRLKbd9 (void)
     M_DrawBindKey(6, 90, key_multi_msgplayer[1]);
     M_DrawBindKey(7, 100, key_multi_msgplayer[2]);
     M_DrawBindKey(8, 110, key_multi_msgplayer[3]);
+
+    MN_DrTextACentered("RESET", 120, cr[CR_YELLOW]);
 
     M_DrawBindFooter("9", true);
 }
@@ -2252,6 +2258,14 @@ static boolean M_Bind_ToPlayer3 (int option)
 static boolean M_Bind_ToPlayer4 (int option)
 {
     M_StartBind(907);  // key_multi_msgplayer[3]
+    return true;
+}
+
+static boolean M_Bind_Reset (int option)
+{
+    MenuActive = false;
+    askforquit = true;
+    typeofask = 5;      // [JN] keybinds reset
     return true;
 }
 
@@ -3040,7 +3054,8 @@ char *QuitEndMsg[] = {
     "ARE YOU SURE YOU WANT TO QUIT?",
     "ARE YOU SURE YOU WANT TO END THE GAME?",
     "DO YOU WANT TO QUICKSAVE THE GAME NAMED",
-    "DO YOU WANT TO QUICKLOAD THE GAME NAMED"
+    "DO YOU WANT TO QUICKLOAD THE GAME NAMED",
+    "RESET KEYBOARD BINDINGS TO DEFAULT VALUES?",  // [JN] typeofask 5 (reset keybinds)
 };
 
 void MN_Drawer(void)
@@ -3945,6 +3960,15 @@ boolean MN_Responder(event_t * event)
                     BorderNeedRefresh = true;
                     break;
 
+                case 5: // [JN] Reset keybinds.
+                    M_ResetBinds();
+                    if (!netgame && !demoplayback)
+                    {
+                        paused = true;
+                    }
+                    MenuActive = true;
+                    break;
+
                 default:
                     break;
             }
@@ -3956,13 +3980,27 @@ boolean MN_Responder(event_t * event)
         }
         else if (key == key_menu_abort || key == KEY_ESCAPE)
         {
-            players[consoleplayer].messageTics = 1;  //set the msg to be cleared
-            askforquit = false;
-            typeofask = 0;
-            paused = false;
-            UpdateState |= I_FULLSCRN;
-            BorderNeedRefresh = true;
-            return true;
+            // [JN] Do not close keybindings menu after reset canceling.
+            if (typeofask == 5)
+            {
+                if (!netgame && !demoplayback)
+                {
+                    paused = true;
+                }
+                MenuActive = true;
+                askforquit = false;
+                typeofask = 0;
+            }
+            else
+            {
+                players[consoleplayer].messageTics = 1;  //set the msg to be cleared
+                askforquit = false;
+                typeofask = 0;
+                paused = false;
+                UpdateState |= I_FULLSCRN;
+                BorderNeedRefresh = true;
+                return true;
+            }
         }
 
         return false;           // don't let the keys filter thru
@@ -4987,6 +5025,116 @@ static void M_ClearBind (int CurrentItPos)
 
         }
     }
+}
+
+// -----------------------------------------------------------------------------
+// M_ResetBinds
+//  [JN] Reset all keyboard binding to it's defaults.
+// -----------------------------------------------------------------------------
+
+static void M_ResetBinds (void)
+{
+    // Page 1
+    key_up = 'w';
+    key_down = 's'; 
+    key_left = KEY_LEFTARROW;
+    key_right = KEY_RIGHTARROW;
+    key_strafeleft = 'a';
+    key_straferight = 'd';
+    key_speed = KEY_RSHIFT; 
+    key_strafe = KEY_RALT;
+    key_fire = KEY_RCTRL;
+    key_use = ' ';
+
+    // Page 2
+    key_lookup = KEY_PGDN;
+    key_lookdown = KEY_DEL;
+    key_lookcenter = KEY_END;
+    key_flyup = KEY_PGUP;
+    key_flydown = KEY_INS;
+    key_flycenter = KEY_HOME;
+    key_invleft = '[';
+    key_invright = ']';
+    key_useartifact = KEY_ENTER;
+
+    // Page 3
+    key_crl_menu = '`';
+    key_crl_reloadlevel = 0;
+    key_crl_nextlevel = 0;
+    key_crl_demospeed = 0;
+    key_crl_spectator = 0;
+    key_crl_cameraup = 0;
+    key_crl_cameradown = 0;
+    key_crl_freeze = 0;
+    key_crl_notarget = 0;
+
+    // Page 4
+    key_crl_autorun = KEY_CAPSLOCK;
+    key_crl_mlook = 0;
+    key_crl_vilebomb = 0;
+    key_crl_clearmax = 0;
+    key_crl_movetomax = 0;
+    key_crl_iddqd = 0;
+    key_crl_idfa = 0;
+    key_crl_idclip = 0;
+    key_crl_iddt = 0;
+
+    // Page 5
+    key_weapon1 = '1';
+    key_weapon2 = '2';
+    key_weapon3 = '3';
+    key_weapon4 = '4';
+    key_weapon5 = '5';
+    key_weapon6 = '6';
+    key_weapon7 = '7';
+    key_weapon8 = '8';
+    key_prevweapon = 0;
+    key_nextweapon = 0;
+
+    // Page 6
+    key_arti_quartz = 0;
+    key_arti_urn = 0;
+    key_arti_bomb = 0;
+    key_arti_tome = 127;
+    key_arti_ring = 0;
+    key_arti_chaosdevice = 0;
+    key_arti_shadowsphere = 0;
+    key_arti_wings = 0;
+    key_arti_torch = 0;
+    key_arti_morph = 0;
+
+    // Page 7
+    key_map_toggle = KEY_TAB;
+    key_map_zoomin = '=';
+    key_map_zoomout = '-';
+    key_map_maxzoom = '0';
+    key_map_follow = 'f';
+    key_crl_map_rotate = 'r';
+    key_crl_map_overlay = 'o';
+    key_map_grid = 'g';
+
+    // Page 8
+    key_menu_help = KEY_F1;
+    key_menu_save = KEY_F2;
+    key_menu_load = KEY_F3;
+    key_menu_volume = KEY_F4;
+    key_menu_qsave = KEY_F6;
+    key_menu_endgame = KEY_F7;
+    key_menu_messages = KEY_F8;
+    key_menu_qload = KEY_F9;
+    key_menu_quit = KEY_F10;
+    key_menu_gamma = KEY_F11;
+    key_spy = KEY_F12;
+
+    // Page 9
+    key_pause = KEY_PAUSE;
+    key_menu_screenshot = KEY_PRTSCR;
+    key_demo_quit = 'q';
+    key_multi_msg = 't';
+    key_multi_msgplayer[0] = 'g';
+    key_multi_msgplayer[1] = 'i';
+    key_multi_msgplayer[2] = 'b';
+    key_multi_msgplayer[3] = 'r';
 }
 
 // -----------------------------------------------------------------------------
