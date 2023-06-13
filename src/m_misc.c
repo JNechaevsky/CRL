@@ -769,8 +769,7 @@ char *M_StringDuplicate(const char *orig)
 
     if (result == NULL)
     {
-        I_Error("Failed to duplicate string (length %llu)\n",
-                strlen(orig));
+        I_Error("Failed to duplicate string (length %llu)\n", (long long unsigned)strlen(orig));
     }
 
     return result;
