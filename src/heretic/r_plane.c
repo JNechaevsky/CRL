@@ -337,7 +337,7 @@ visplane_t *R_CheckPlane(visplane_t * pl, int start, int stop,
     }
 
     for (x = intrl; x <= intrh; x++)
-        if (pl->top[x] != 0xffffffffu)  // [JN] hires / 32-bit integer math
+        if (pl->top[x] != 0xffffu)
             break;
 
     if (x > intrh)
@@ -589,8 +589,8 @@ void R_DrawPlanes(void)
             light = 0;
         planezlight = zlight[light];
 
-        pl->top[pl->maxx + 1] = 0xffffffffu;  // [JN] hires / 32-bit integer math
-        pl->top[pl->minx - 1] = 0xffffffffu;  // [JN] hires / 32-bit integer math
+        pl->top[pl->maxx + 1] = 0xffffu;
+        pl->top[pl->minx - 1] = 0xffffu;
 
         stop = pl->maxx + 1;
         for (x = pl->minx; x <= stop; x++)

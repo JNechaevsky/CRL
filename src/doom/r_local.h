@@ -392,14 +392,12 @@ typedef struct
     subsector_t *emitsub;
 
     // leave pads for [minx-1]/[maxx+1]
-    unsigned int    pad1;                 // [JN] hires / 32-bit integer math
-    // Here lies the rub for all dynamic resize/change of resolution.
-    unsigned int    top[SCREENWIDTH];     // [JN] hires / 32-bit integer math
-    unsigned int    pad2;                 // [JN] hires / 32-bit integer math
-    unsigned int    pad3;                 // [JN] hires / 32-bit integer math
-    // See above.
-    unsigned int    bottom[SCREENWIDTH];  // [JN] hires / 32-bit integer math
-    unsigned int    pad4;                 // [JN] hires / 32-bit integer math
+    unsigned short pad1;
+    unsigned short top[SCREENWIDTH];
+    unsigned short pad2;
+    unsigned short pad3;
+    unsigned short bottom[SCREENWIDTH];
+    unsigned short pad4;
 } visplane_t;
 
 //
