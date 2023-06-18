@@ -95,6 +95,8 @@ void I_InitTimer(void)
 {
     // initialize timer
 
+    SDL_SetHint(SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING, "1");
+
     SDL_Init(SDL_INIT_TIMER);
 
     basefreq = SDL_GetPerformanceFrequency(); // [crispy]
