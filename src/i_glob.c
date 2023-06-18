@@ -59,7 +59,7 @@ static boolean IsDirectory(char *dir, struct dirent *de)
         int result;
 
         filename = M_StringJoin(dir, DIR_SEPARATOR_S, de->d_name, NULL);
-        result = stat(filename, &sb);
+        result = M_stat(filename, &sb);
         free(filename);
 
         if (result != 0)
