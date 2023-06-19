@@ -125,7 +125,9 @@ typedef struct
 
 static win_midi_song_t song;
 
-#define BUFFER_INITIAL_SIZE 1024
+#define BUFFER_INITIAL_SIZE 8192
+
+#define PLAYER_THREAD_WAIT_TIME 3000
 
 typedef struct
 {
@@ -186,6 +188,10 @@ static void AllocateBuffer(const unsigned int size)
 
     if (buffer.data)
     {
+        // Windows doesn't always immediately clear the MHDR_INQUEUE flag, even
+        // after midiStreamStop() is called. There doesn't seem to be any side
+        // effect to just forcing the flag off.
+        hdr->dwFlags &= ~MHDR_INQUEUE;
         mmr = midiOutUnprepareHeader((HMIDIOUT)hMidiStream, hdr, sizeof(MIDIHDR));
         if (mmr != MMSYSERR_NOERROR)
         {
@@ -1383,6 +1389,7 @@ static boolean I_WIN_InitMusic(void)
     if (mmr != MMSYSERR_NOERROR)
     {
         MidiError("midiStreamOpen", mmr);
+        hMidiStream = NULL;
         return false;
     }
 
@@ -1425,9 +1432,14 @@ static void I_WIN_StopSong(void)
     }
 
     SetEvent(hExitEvent);
-    WaitForSingleObject(hPlayerThread, INFINITE);
+    WaitForSingleObject(hPlayerThread, PLAYER_THREAD_WAIT_TIME);
     CloseHandle(hPlayerThread);
     hPlayerThread = NULL;
+
+    if (!hMidiStream)
+    {
+        return;
+    }
 
     mmr = midiStreamStop(hMidiStream);
     if (mmr != MMSYSERR_NOERROR)
@@ -1439,6 +1451,11 @@ static void I_WIN_StopSong(void)
 static void I_WIN_PlaySong(void *handle, boolean looping)
 {
     MMRESULT mmr;
+
+    if (!hMidiStream)
+    {
+        return;
+    }
 
     song.looping = looping;
 
@@ -1461,6 +1478,11 @@ static void I_WIN_PauseSong(void)
 {
     MMRESULT mmr;
 
+    if (!hMidiStream)
+    {
+        return;
+    }
+
     mmr = midiStreamPause(hMidiStream);
     if (mmr != MMSYSERR_NOERROR)
     {
@@ -1471,6 +1493,11 @@ static void I_WIN_PauseSong(void)
 static void I_WIN_ResumeSong(void)
 {
     MMRESULT mmr;
+
+    if (!hMidiStream)
+    {
+        return;
+    }
 
     mmr = midiStreamRestart(hMidiStream);
     if (mmr != MMSYSERR_NOERROR)
@@ -1521,6 +1548,11 @@ static void *I_WIN_RegisterSong(void *data, int len)
     MIDIPROPTIMEDIV prop_timediv;
     MIDIPROPTEMPO prop_tempo;
     MMRESULT mmr;
+
+    if (!hMidiStream)
+    {
+        return NULL;
+    }
 
     // MUS files begin with "MUS"
     // Reject anything which doesnt have this signature
@@ -1634,30 +1666,15 @@ static void I_WIN_ShutdownMusic(void)
     {
         MidiError("midiStreamRestart", mmr);
     }
-    WaitForSingleObject(hBufferReturnEvent, INFINITE);
+    WaitForSingleObject(hBufferReturnEvent, PLAYER_THREAD_WAIT_TIME);
     mmr = midiStreamStop(hMidiStream);
     if (mmr != MMSYSERR_NOERROR)
     {
         MidiError("midiStreamStop", mmr);
     }
 
-    if (buffer.data)
-    {
-        // Windows doesn't always immediately clear the MHDR_INQUEUE flag, even
-        // after midiStreamStop() is called. There doesn't seem to be any side
-        // effect to just forcing the flag off.
-        MidiStreamHdr.dwFlags &= ~MHDR_INQUEUE;
-        mmr = midiOutUnprepareHeader((HMIDIOUT)hMidiStream, &MidiStreamHdr,
-                                     sizeof(MIDIHDR));
-        if (mmr != MMSYSERR_NOERROR)
-        {
-            MidiError("midiOutUnprepareHeader", mmr);
-        }
-        free(buffer.data);
-        buffer.data = NULL;
-        buffer.size = 0;
-        buffer.position = 0;
-    }
+    // Don't free the buffer to avoid calling midiOutUnprepareHeader() which
+    // contains a memory error (detected by ASan).
 
     mmr = midiStreamClose(hMidiStream);
     if (mmr != MMSYSERR_NOERROR)
