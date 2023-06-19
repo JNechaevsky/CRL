@@ -21,7 +21,7 @@ include(CMakeDependentOption) # Note: replace first OFF to ON to enable.
 cmake_dependent_option(ENABLE_LTO "Use link-time optimisation" OFF "HAVE_LTO" OFF)
 
 # AC_INIT variables
-set(PACKAGE_VERSION "1.4")
+set(PACKAGE_VERSION "1.5")
 set(PACKAGE_NAME "${PROJECT_NAME}")
 set(PACKAGE_TARNAME "crl-doom")
 set(PACKAGE_STRING "${PROJECT_NAME} ${PACKAGE_VERSION}")
