@@ -253,7 +253,8 @@ void CRL_StatDrawer (void)
     }
 
     // Player coords
-    if (crl_widget_coords)
+    if (crl_widget_coords == 1
+    || (crl_widget_coords == 2 && automapactive))
     {
         char str[128];
 
@@ -394,7 +395,8 @@ void CRL_StatDrawer (void)
     }
 
     // Level / DeathMatch timer
-    if (crl_widget_time)
+    if (crl_widget_time == 1
+    || (crl_widget_time == 2 && automapactive))
     {
         const int time = (deathmatch && levelTimer ? levelTimeCount : leveltime) / TICRATE;
         char stra[8];
@@ -409,7 +411,8 @@ void CRL_StatDrawer (void)
     }
 
     // K/I/S stats
-    if (crl_widget_kis)
+    if (crl_widget_kis == 1
+    || (crl_widget_kis == 2 && automapactive))
     {
         const int yy = automapactive ? 8 : -1;
 
