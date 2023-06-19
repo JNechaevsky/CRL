@@ -2178,7 +2178,7 @@ static MenuItem_t CRLKbsBinds9Items[] = {
     {ITT_EFUNC, "- TO PLAYER 3",         M_Bind_ToPlayer3,      0, MENU_NONE},
     {ITT_EFUNC, "- TO PLAYER 4",         M_Bind_ToPlayer4,      0, MENU_NONE},
     {ITT_EMPTY, NULL,                    NULL,                  0, MENU_NONE},
-    {ITT_EFUNC, "RESET BINDINGS TO DEFAULTS", M_Bind_Reset,     0, MENU_NONE},
+    {ITT_EFUNC, "RESET BINDINGS TO DEFAULT", M_Bind_Reset,      0, MENU_NONE},
 };
 
 static Menu_t CRLKbdBinds9 = {
