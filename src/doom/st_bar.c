@@ -539,6 +539,12 @@ boolean ST_Responder (event_t *ev)
         }
     }
 
+    // [JN] Reset cheatTics if user have opened menu or moved/pressd mouse buttons.
+    if (plyr->cheatTics && (menuactive || ev->type == ev_mouse))
+    {
+        plyr->cheatTics = 0;
+    }
+
     return false;
 }
 
