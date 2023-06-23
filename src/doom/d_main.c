@@ -331,8 +331,8 @@ static void D_Display (void)
         CRL_DemoBar();
     }
 
-    // [JN] Draw FPS counter.
-    if (crl_showfps)
+    // [JN] Draw FPS counter, except on finale/text screens.
+    if (crl_showfps && gamestate != GS_FINALE)
     {
         CRL_DrawFPS();
     }
