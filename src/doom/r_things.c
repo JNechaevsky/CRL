@@ -509,7 +509,7 @@ void R_ProjectSprite (mobj_t* thing)
     // TODO - make it smarter and move to condition above?
     if (crl_freeze && thing->type == MT_PLAYER)
     {
-        if (crl_uncapped_fps)
+        if (crl_uncapped_fps && realleveltime > oldleveltime)
         {
             interpx = thing->oldx + FixedMul(thing->x - thing->oldx, fractionaltic);
             interpy = thing->oldy + FixedMul(thing->y - thing->oldy, fractionaltic);
