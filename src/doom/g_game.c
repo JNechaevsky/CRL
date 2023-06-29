@@ -921,9 +921,16 @@ boolean G_Responder (event_t* ev)
 	if (AM_Responder (ev)) 
 	    return true;	// automap ate it 
 
-	// [JN] Prevent other than typing actions while cheat tics are ticking.
-	if (players[consoleplayer].cheatTics > 0)
+    if (players[consoleplayer].cheatTics)
+    {
+        // [JN] Reset cheatTics if user have opened menu or moved/pressed mouse buttons.
+	    if (menuactive || ev->type == ev_mouse)
+	    players[consoleplayer].cheatTics = 0;
+
+	    // [JN] Prevent other keys while cheatTics is running after typing "ID".
+	    if (players[consoleplayer].cheatTics > 0)
 	    return true;
+    }
     } 
 	 
     if (gamestate == GS_FINALE) 
