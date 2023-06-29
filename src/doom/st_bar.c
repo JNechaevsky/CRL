@@ -254,7 +254,7 @@ boolean ST_Responder (event_t *ev)
             // other than typing actions in G_Responder.
             if (cht_CheckCheat(&cheat_wait, ev->data2))
             {
-                plyr->cheatTics = TICRATE * 3;
+                plyr->cheatTics = TICRATE * 2;
             }
 
             // 'dqd' cheat for toggleable god mode
