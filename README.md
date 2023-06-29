@@ -14,9 +14,9 @@ CRL is maintained by [Julia Nechaevskaya](mailto:julia.nechaevskaya@live.com).
 
 ## Download
 
-CRL Doom, version 1.4 (released: June 5, 2023):
-* Windows (32-bit): [crl-1.4-win32.zip](https://github.com/JNechaevsky/CRL/releases/download/crl-1.4/crl-1.4-win32.zip)
-* Windows (64-bit): [crl-1.4-win64.zip](https://github.com/JNechaevsky/CRL/releases/download/crl-1.4/crl-1.4-win64.zip)
+CRL Doom, version 1.5 (released: June 29, 2023):
+* Windows (32-bit): [crl-1.5-win32.zip](https://github.com/JNechaevsky/CRL/releases/download/crl-1.5/crl-1.5-win32.zip)
+* Windows (64-bit): [crl-1.5-win64.zip](https://github.com/JNechaevsky/CRL/releases/download/crl-1.5/crl-1.5-win64.zip)
 
 CRL Heretic, version 1.0 (released: June 12, 2023):
 * Windows (32-bit): [crl-heretic-1.0-win32.zip](https://github.com/JNechaevsky/CRL/releases/download/crl-hr-1.0/crl-heretic-1.0-win32.zip)
