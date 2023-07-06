@@ -380,11 +380,25 @@ void CRL_StatDrawer (void)
         || (crl_widget_render == 2 && TotalVisPlanes >= CRL_MaxVisPlanes))
         {
             char vis[32];
+            char max[32];
 
             M_WriteText(0, 133+yy, "PLN:", TotalVisPlanes >= CRL_MaxVisPlanes ? 
                        (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
-            M_snprintf(vis, 32, "%d/%d (MAX: %d)", TotalVisPlanes, CRL_MaxVisPlanes, CRL_MAX_count);
+
+            M_snprintf(vis, 32, "%d/%d (MAX: ", TotalVisPlanes, CRL_MaxVisPlanes);
+            M_snprintf(max, 32, "%d", CRL_MAX_count);
+
+            // PLN: x/x (MAX:
             M_WriteText(32, 133+yy, vis, TotalVisPlanes >= CRL_MaxVisPlanes ?
+                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
+
+            // x
+            M_WriteText(32 + M_StringWidth(vis), 133+yy, max, TotalVisPlanes >= CRL_MaxVisPlanes ?
+                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : 
+                       CRL_MAX_count >= CRL_MaxVisPlanes ? cr[CR_YELLOW] : cr[CR_GREEN]);
+
+            // )
+            M_WriteText(32 + M_StringWidth(vis) + M_StringWidth(max), 133+yy, ")", TotalVisPlanes >= CRL_MaxVisPlanes ?
                        (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
         }
     }
