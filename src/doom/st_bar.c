@@ -130,6 +130,8 @@ extern int iddt_cheating;
 // [crispy] new cheats
 static cheatseq_t cheat_massacre1 = CHEAT("tntem", 0);
 static cheatseq_t cheat_massacre2 = CHEAT("killem", 0);
+static cheatseq_t cheat_freeze = CHEAT("freeze", 0);
+static cheatseq_t cheat_notarget = CHEAT("notarget", 0);
 static cheatseq_t cheat_buddha = CHEAT("buddha", 0);
 
 cheatseq_t cheat_powerup[7] =
@@ -480,6 +482,20 @@ boolean ST_Responder (event_t *ev)
                 
                 plyr->cheatTics = 1;
                 CRL_SetMessage(plyr, buf, false, NULL);
+            }
+            // [JN] CRL - Freeze mode.
+            else if (cht_CheckCheat(&cheat_freeze, ev->data2))
+            {
+                crl_freeze ^= 1;
+                CRL_SetMessage(plyr, crl_freeze ?
+                               CRL_FREEZE_ON : CRL_FREEZE_OFF, false, NULL);
+            }
+            // [JN] Implement Woof's "notarget" cheat.
+            else if (cht_CheckCheat(&cheat_notarget, ev->data2))
+            {
+                plyr->cheats ^= CF_NOTARGET;
+                CRL_SetMessage(plyr, plyr->cheats & CF_NOTARGET ?
+                               CRL_NOTARGET_ON : CRL_NOTARGET_OFF, false, NULL);
             }
             // [JN] Implement Woof's "Buddha" cheat.
             else if (cht_CheckCheat(&cheat_buddha, ev->data2))
