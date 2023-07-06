@@ -77,7 +77,7 @@ static int *map_keys[] = { &key_map_north, &key_map_south, &key_map_east,
 
 static int *crl_keys[] = { &key_crl_menu,
                            &key_crl_spectator, &key_crl_cameraup, &key_crl_cameradown, 
-                           &key_crl_freeze, &key_crl_notarget,
+                           &key_crl_freeze, &key_crl_buddha, &key_crl_notarget,
                            &key_crl_map_rotate, &key_crl_map_overlay,
                            &key_crl_autorun, &key_crl_vilebomb,
                            &key_crl_clearmax, &key_crl_movetomax,
@@ -424,9 +424,10 @@ void CRLKeysDialog(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(unused))
     AddSectionLabel(table, "Game modes", true);
     
     AddKeyControl(table, "Spectator mode",      &key_crl_spectator);
-    AddKeyControl(table, " Move camera up",     &key_crl_cameraup);
-    AddKeyControl(table, " Move camera down",   &key_crl_cameradown);
+    AddKeyControl(table, "- move camera up",    &key_crl_cameraup);
+    AddKeyControl(table, "- move camera down",  &key_crl_cameradown);
     AddKeyControl(table, "Freeze mode",         &key_crl_freeze);
+    AddKeyControl(table, "Buddha mode",         &key_crl_buddha);
     AddKeyControl(table, "Notarget mode",       &key_crl_notarget);
 
     AddSectionLabel(table, "Movement", true);

@@ -130,6 +130,7 @@ extern int iddt_cheating;
 // [crispy] new cheats
 static cheatseq_t cheat_massacre1 = CHEAT("tntem", 0);
 static cheatseq_t cheat_massacre2 = CHEAT("killem", 0);
+static cheatseq_t cheat_buddha = CHEAT("buddha", 0);
 
 cheatseq_t cheat_powerup[7] =
 {
@@ -459,6 +460,13 @@ boolean ST_Responder (event_t *ev)
                 
                 plyr->cheatTics = 1;
                 CRL_SetMessage(plyr, buf, false, NULL);
+            }
+            // [JN] Implement Woof's "Buddha" cheat.
+            else if (cht_CheckCheat(&cheat_buddha, ev->data2))
+            {
+                plyr->cheats ^= CF_BUDDHA;
+                CRL_SetMessage(plyr, plyr->cheats & CF_BUDDHA ?
+                               CRL_BUDDHA_ON : CRL_BUDDHA_OFF, false, NULL);
             }
         }
 
