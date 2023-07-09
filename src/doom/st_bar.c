@@ -130,6 +130,9 @@ extern int iddt_cheating;
 // [crispy] new cheats
 static cheatseq_t cheat_massacre1 = CHEAT("tntem", 0);
 static cheatseq_t cheat_massacre2 = CHEAT("killem", 0);
+static cheatseq_t cheat_freeze = CHEAT("freeze", 0);
+static cheatseq_t cheat_notarget = CHEAT("notarget", 0);
+static cheatseq_t cheat_buddha = CHEAT("buddha", 0);
 
 cheatseq_t cheat_powerup[7] =
 {
@@ -260,6 +263,26 @@ boolean ST_Responder (event_t *ev)
             // 'dqd' cheat for toggleable god mode
             if (cht_CheckCheat(&cheat_god, ev->data2) || ev->data1 == key_crl_iddqd)
             {
+                // [crispy] dead players are first respawned at the current position
+                mapthing_t mt = {0};
+
+                if (plyr->playerstate == PST_DEAD)
+                {
+                    angle_t an;
+                    extern void P_SpawnPlayer (mapthing_t *mthing);
+
+                    mt.x = plyr->mo->x >> FRACBITS;
+                    mt.y = plyr->mo->y >> FRACBITS;
+                    mt.angle = (plyr->mo->angle + ANG45/2)*(uint64_t)45/ANG45;
+                    mt.type = consoleplayer + 1;
+                    P_SpawnPlayer(&mt);
+
+                    // [crispy] spawn a teleport fog
+                    an = plyr->mo->angle >> ANGLETOFINESHIFT;
+                    P_SpawnMobj(plyr->mo->x+20*finecosine[an], plyr->mo->y+20*finesine[an], plyr->mo->z, MT_TFOG);
+                    S_StartSound(plyr, sfx_slop);
+                }
+
                 plyr->cheats ^= CF_GODMODE;
                 if (plyr->cheats & CF_GODMODE)
                 {
@@ -459,6 +482,27 @@ boolean ST_Responder (event_t *ev)
                 
                 plyr->cheatTics = 1;
                 CRL_SetMessage(plyr, buf, false, NULL);
+            }
+            // [JN] CRL - Freeze mode.
+            else if (cht_CheckCheat(&cheat_freeze, ev->data2))
+            {
+                crl_freeze ^= 1;
+                CRL_SetMessage(plyr, crl_freeze ?
+                               CRL_FREEZE_ON : CRL_FREEZE_OFF, false, NULL);
+            }
+            // [JN] Implement Woof's "notarget" cheat.
+            else if (cht_CheckCheat(&cheat_notarget, ev->data2))
+            {
+                plyr->cheats ^= CF_NOTARGET;
+                CRL_SetMessage(plyr, plyr->cheats & CF_NOTARGET ?
+                               CRL_NOTARGET_ON : CRL_NOTARGET_OFF, false, NULL);
+            }
+            // [JN] Implement Woof's "Buddha" cheat.
+            else if (cht_CheckCheat(&cheat_buddha, ev->data2))
+            {
+                plyr->cheats ^= CF_BUDDHA;
+                CRL_SetMessage(plyr, plyr->cheats & CF_BUDDHA ?
+                               CRL_BUDDHA_ON : CRL_BUDDHA_OFF, false, NULL);
             }
         }
 

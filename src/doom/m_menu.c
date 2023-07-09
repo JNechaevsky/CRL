@@ -542,6 +542,7 @@ static player_t *player;
 static void M_DrawCRL_Main (void);
 static void M_CRL_Spectating (int choice);
 static void M_CRL_Freeze (int choice);
+static void M_CRL_Buddha (int choice);
 static void M_CRL_NoTarget (int choice);
 static void M_CRL_NoMomentum (int choice);
 
@@ -597,6 +598,7 @@ static void M_Bind_SpectatorMode (int choice);
 static void M_Bind_CameraUp (int choice);
 static void M_Bind_CameraDown (int choice);
 static void M_Bind_FreezeMode (int choice);
+static void M_Bind_BuddhaMode (int choice);
 static void M_Bind_NotargetMode (int choice);
 
 static void M_DrawCRL_Keybinds_3 (void);
@@ -922,6 +924,7 @@ static menuitem_t CRLMenu_Main[]=
 {
     { 2, "SPECTATOR MODE",       M_CRL_Spectating,      's'},
     { 2, "FREEZE MODE",          M_CRL_Freeze,          'f'},
+    { 2, "BUDDHA MODE",          M_CRL_Buddha,          'f'},
     { 2, "NO TARGET MODE",       M_CRL_NoTarget,        'n'},
     { 2, "NO MOMENTUM MODE",     M_CRL_NoMomentum,      'n'},
     {-1, "", 0, '\0'},
@@ -973,21 +976,28 @@ static void M_DrawCRL_Main (void)
                  M_Item_Glow(1, !singleplayer ? GLOW_DARKRED :
                              crl_freeze ? GLOW_GREEN : GLOW_DARKRED, ITEMONTICS));
 
+    // Buddha
+    sprintf(str, !singleplayer ? "N/A" :
+            player->cheats & CF_BUDDHA ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth(str), 54, str,
+                 M_Item_Glow(2, !singleplayer ? GLOW_DARKRED :
+                             player->cheats & CF_BUDDHA ? GLOW_GREEN : GLOW_DARKRED, ITEMONTICS));
+
     // No target
     sprintf(str, !singleplayer ? "N/A" :
             player->cheats & CF_NOTARGET ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth(str), 54, str,
-                 M_Item_Glow(2, !singleplayer ? GLOW_DARKRED :
+    M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth(str), 63, str,
+                 M_Item_Glow(3, !singleplayer ? GLOW_DARKRED :
                              player->cheats & CF_NOTARGET ? GLOW_GREEN : GLOW_DARKRED, ITEMONTICS));
 
     // No momentum
     sprintf(str, !singleplayer ? "N/A" :
             player->cheats & CF_NOMOMENTUM ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth(str), 63, str,
-                 M_Item_Glow(3, !singleplayer ? GLOW_DARKRED :
+    M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth(str), 72, str,
+                 M_Item_Glow(4, !singleplayer ? GLOW_DARKRED :
                              player->cheats & CF_NOMOMENTUM ? GLOW_GREEN : GLOW_DARKRED, ITEMONTICS));
 
-    M_WriteTextCentered(81, "SETTINGS", cr[CR_YELLOW]);
+    M_WriteTextCentered(90, "SETTINGS", cr[CR_YELLOW]);
 }
 
 static void M_CRL_Spectating (int choice)
@@ -1004,6 +1014,16 @@ static void M_CRL_Freeze (int choice)
     }
 
     crl_freeze ^= 1;
+}
+
+static void M_CRL_Buddha (int choice)
+{
+    if (!singleplayer)
+    {
+        return;
+    }
+
+    player->cheats ^= CF_BUDDHA;
 }
 
 static void M_CRL_NoTarget (int choice)
@@ -1772,9 +1792,10 @@ static menuitem_t CRLMenu_Keybinds_2[]=
     { 1, "DEMO FAST-FORWARD",   M_Bind_FastForward,    'd'  },
     {-1, "",                    0,                     '\0' },  // GAME MODES
     { 1, "SPECTATOR MODE",      M_Bind_SpectatorMode,  's'  },
-    { 1, "MOVE CAMERA UP",      M_Bind_CameraUp,       'm'  },
-    { 1, "MOVE CAMERA DOWN",    M_Bind_CameraDown,     'm'  },
+    { 1, "- MOVE CAMERA UP",    M_Bind_CameraUp,       'm'  },
+    { 1, "- MOVE CAMERA DOWN",  M_Bind_CameraDown,     'm'  },
     { 1, "FREEZE MODE",         M_Bind_FreezeMode,     'f'  },
+    { 1, "BUDDHA MODE",         M_Bind_BuddhaMode,     'b'  },
     { 1, "NOTARGET MODE",       M_Bind_NotargetMode,   'n'  },
     {-1, "",                    0,                     '\0' },
     {-1, "",                    0,                     '\0' },
@@ -1812,7 +1833,8 @@ static void M_DrawCRL_Keybinds_2 (void)
     M_DrawBindKey(6, 90, key_crl_cameraup);
     M_DrawBindKey(7, 99, key_crl_cameradown);
     M_DrawBindKey(8, 108, key_crl_freeze);
-    M_DrawBindKey(9, 117, key_crl_notarget);
+    M_DrawBindKey(9, 117, key_crl_buddha);
+    M_DrawBindKey(10, 126, key_crl_notarget);
 
     M_DrawBindFooter("2", true);
 }
@@ -1857,9 +1879,14 @@ static void M_Bind_FreezeMode (int choice)
     M_StartBind(207);  // key_crl_freeze
 }
 
+static void M_Bind_BuddhaMode (int choice)
+{
+    M_StartBind(208);  // key_crl_buddha
+}
+
 static void M_Bind_NotargetMode (int choice)
 {
-    M_StartBind(208);  // key_crl_notarget
+    M_StartBind(209);  // key_crl_notarget
 }
 
 // -----------------------------------------------------------------------------
@@ -5276,6 +5303,7 @@ static void M_CheckBind (int key)
     if (key_crl_cameraup == key)     key_crl_cameraup     = 0;
     if (key_crl_cameradown == key)   key_crl_cameradown   = 0;
     if (key_crl_freeze == key)       key_crl_freeze       = 0;
+    if (key_crl_buddha == key)       key_crl_buddha       = 0;
     if (key_crl_notarget == key)     key_crl_notarget     = 0;
     // Page 3
     if (key_crl_autorun == key)      key_crl_autorun      = 0;
@@ -5370,7 +5398,8 @@ static void M_DoBind (int keynum, int key)
         case 205:  key_crl_cameraup = key;      break;
         case 206:  key_crl_cameradown = key;    break;
         case 207:  key_crl_freeze = key;        break;
-        case 208:  key_crl_notarget = key;      break;
+        case 208:  key_crl_buddha = key;        break;
+        case 209:  key_crl_notarget = key;      break;
         // Page 3  
         case 300:  key_crl_autorun = key;       break;
         case 301:  key_crl_vilebomb = key;      break;
@@ -5466,7 +5495,8 @@ static void M_ClearBind (int itemOn)
             case 6:   key_crl_cameraup = 0;     break;
             case 7:   key_crl_cameradown = 0;   break;
             case 8:   key_crl_freeze = 0;       break;
-            case 9:   key_crl_notarget = 0;     break;
+            case 9:   key_crl_buddha = 0;       break;
+            case 10:  key_crl_notarget = 0;     break;
         }
     }
     if (currentMenu == &CRLDef_Keybinds_3)
@@ -5581,6 +5611,7 @@ static void M_ResetBinds (void)
     key_crl_cameraup = 0;
     key_crl_cameradown = 0;
     key_crl_freeze = 0;
+    key_crl_buddha = 0;
     key_crl_notarget = 0;
     // Page 3
     key_crl_autorun = KEY_CAPSLOCK;

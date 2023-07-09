@@ -67,7 +67,9 @@ typedef enum
     // Not really a cheat, just a debug aid.
     CF_NOMOMENTUM	= 4,
     // [JN] CRL - NOTARGET game mode.
-    CF_NOTARGET		= 8
+    CF_NOTARGET		= 8,
+    // [JN] CRL - BUDDHA cheat.
+    CF_BUDDHA		= 16
 
 } cheat_t;
 

@@ -219,6 +219,7 @@ int key_crl_cameraup = 0;
 int key_crl_cameradown = 0;
 
 int key_crl_freeze = 0;
+int key_crl_buddha = 0;
 int key_crl_notarget = 0;
 int key_crl_map_rotate = 'r';
 int key_crl_map_overlay = 'o';
@@ -389,6 +390,7 @@ void M_BindMenuControls(void)
     M_BindIntVariable("key_crl_cameradown",   &key_crl_cameradown);
 
     M_BindIntVariable("key_crl_freeze",       &key_crl_freeze);
+    M_BindIntVariable("key_crl_buddha",       &key_crl_buddha);
     M_BindIntVariable("key_crl_notarget",     &key_crl_notarget);
     M_BindIntVariable("key_crl_map_rotate",   &key_crl_map_rotate);
     M_BindIntVariable("key_crl_map_overlay",  &key_crl_map_overlay);
