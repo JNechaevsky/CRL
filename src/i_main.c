@@ -96,6 +96,7 @@ int main(int argc, char **argv)
 #endif
 
     M_FindResponseFile();
+    M_SetExeDir();
 
     // start doom
 

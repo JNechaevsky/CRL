@@ -969,7 +969,7 @@ static char *GetDefaultConfigDir(void)
     result = SDL_GetPrefPath("", PACKAGE_TARNAME);
     return result;
 #endif /* #ifndef _WIN32 */
-    return M_StringDuplicate("");
+    return M_StringDuplicate(exedir);
 }
 
 // 
@@ -992,7 +992,7 @@ void M_SetConfigDir(char *dir)
         configdir = GetDefaultConfigDir();
     }
 
-    if (strcmp(configdir, "") != 0)
+    if (strcmp(configdir, exedir) != 0)
     {
         printf("Using %s for configuration and saves\n", configdir);
     }
@@ -1045,7 +1045,7 @@ char *M_GetSaveGameDir(const char *iwadname)
 #endif
     // If not "doing" a configuration directory (Windows), don't "do"
     // a savegame directory, either.
-    else if (!strcmp(configdir, ""))
+    else if (!strcmp(configdir, exedir))
     {
 	savegamedir = M_StringDuplicate("");
     }
@@ -1083,7 +1083,7 @@ char *M_GetAutoloadDir(const char *iwadname)
 
 #ifdef _WIN32
         // [JN] On Windows, create "autoload" directory in program folder.
-        prefdir = SDL_GetBasePath();
+        prefdir = M_StringDuplicate(exedir);
 #else
         // [JN] On other OSes use system home folder.
         prefdir = SDL_GetPrefPath("", PACKAGE_TARNAME);
