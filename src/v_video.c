@@ -253,7 +253,7 @@ void V_DrawShadowedPatch (int x, int y, const patch_t *patch, const char *name)
 {
     int       count, col, w;
     byte     *source, *sourcetrans;
-    pixel_t  *desttop, *dest, *desttop2, *dest2;
+    pixel_t  *desttop, *dest, *dest2;
     column_t *column;
 
     y -= SHORT(patch->topoffset);
@@ -274,11 +274,10 @@ void V_DrawShadowedPatch (int x, int y, const patch_t *patch, const char *name)
 
     col = 0;
     desttop = dest_screen + y * SCREENWIDTH + x;
-    desttop2 = dest_screen + (y + 1) * SCREENWIDTH + x + 1;
 
     w = SHORT(patch->width);
 
-    for (; col < w; x++, col++, desttop++, desttop2++)
+    for (; col < w; x++, col++, desttop++)
     {
         column = (column_t *) ((byte *) patch + LONG(patch->columnofs[col]));
 
@@ -289,7 +288,7 @@ void V_DrawShadowedPatch (int x, int y, const patch_t *patch, const char *name)
 
             source = sourcetrans = (byte *) column + 3;
             dest = desttop + column_delta;
-            dest2 = desttop2 + column_delta;
+            dest2 = dest + SCREENWIDTH + 1;
             count = column->length;
 
             while (count--)
@@ -383,7 +382,7 @@ void V_DrawShadowedPatchRavenOptional (int x, int y, const patch_t *patch, const
 {
     int       count, col, w;
     byte     *source, *sourcetrans;
-    pixel_t  *desttop, *dest, *desttop2, *dest2;
+    pixel_t  *desttop, *dest, *dest2;
     column_t *column;
 
     y -= SHORT(patch->topoffset);
@@ -404,11 +403,10 @@ void V_DrawShadowedPatchRavenOptional (int x, int y, const patch_t *patch, const
 
     col = 0;
     desttop = dest_screen + y * SCREENWIDTH + x;
-    desttop2 = dest_screen + (y + 1) * SCREENWIDTH + x + 1;
 
     w = SHORT(patch->width);
 
-    for (; col < w; x++, col++, desttop++, desttop2++)
+    for (; col < w; x++, col++, desttop++)
     {
         column = (column_t *) ((byte *) patch + LONG(patch->columnofs[col]));
 
@@ -419,7 +417,7 @@ void V_DrawShadowedPatchRavenOptional (int x, int y, const patch_t *patch, const
 
             source = sourcetrans = (byte *) column + 3;
             dest = desttop + column_delta;
-            dest2 = desttop2 + column_delta;
+            dest2 = dest + SCREENWIDTH + 1;
             count = column->length;
 
             while (count--)
