@@ -229,6 +229,24 @@ void CRL_MoveTo_MAX (void)
     P_SetThingPosition(player->mo);
 }
 
+static byte *CRL_Colorize_MAX (int style)
+{
+    switch (style)
+    {
+        case 1:  // Slow blinking
+            return gametic & 8 ? cr[CR_YELLOW] : cr[CR_GREEN];
+            break;
+
+        case 2:  // Fast blinking
+            return gametic & 16 ? cr[CR_YELLOW] : cr[CR_GREEN];
+            break;
+
+        default:
+            return cr[CR_YELLOW];
+            break;
+    }
+}
+
 // -----------------------------------------------------------------------------
 // Draws CRL stats.
 //  [JN] Draw all the widgets and counters.
@@ -395,7 +413,7 @@ void CRL_StatDrawer (void)
             // x
             M_WriteText(32 + M_StringWidth(vis), 133+yy, max, TotalVisPlanes >= CRL_MaxVisPlanes ?
                        (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : 
-                       CRL_MAX_count >= CRL_MaxVisPlanes ? cr[CR_YELLOW] : cr[CR_GREEN]);
+                       CRL_MAX_count >= CRL_MaxVisPlanes ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
 
             // )
             M_WriteText(32 + M_StringWidth(vis) + M_StringWidth(max), 133+yy, ")", TotalVisPlanes >= CRL_MaxVisPlanes ?
