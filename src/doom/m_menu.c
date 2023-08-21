@@ -810,10 +810,10 @@ static byte *M_Item_Glow (const int itemSetOn, const int color)
     if (itemOn == itemSetOn)
     {
         return
-            color == GLOW_RED   || color == GLOW_DARKRED   ? cr[CR_RED_BRIGHT5]   :
-            color == GLOW_GREEN || color == GLOW_DARKGREEN ? cr[CR_GREEN_BRIGHT5] :
+            color == GLOW_RED   || color == GLOW_DARKRED   ? cr[CR_RED_BRIGHT5]    :
+            color == GLOW_GREEN || color == GLOW_DARKGREEN ? cr[CR_GREEN_BRIGHT5]  :
                                    color == GLOW_YELLOW    ? cr[CR_YELLOW_BRIGHT5] :
-                                                             cr[CR_MENU_BRIGHT5]  ; // GLOW_UNCOLORED
+                                                             cr[CR_MENU_BRIGHT5]   ; // GLOW_UNCOLORED
     }
     else
     {
