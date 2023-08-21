@@ -64,7 +64,14 @@ static byte cr_darkgreen[256];
 static byte cr_brightgreen[256];
 static byte cr_olive[256];
 static byte cr_blue2[256];
+
 static byte cr_yellow[256];
+static byte cr_yellow_bright5[256];
+static byte cr_yellow_bright4[256];
+static byte cr_yellow_bright3[256];
+static byte cr_yellow_bright2[256];
+static byte cr_yellow_bright1[256];
+
 static byte cr_orange[256];
 static byte cr_white[256];
 static byte cr_gray[256];
@@ -110,7 +117,14 @@ byte *cr[] =
     (byte *) &cr_brightgreen,
     (byte *) &cr_olive,
     (byte *) &cr_blue2,
+
     (byte *) &cr_yellow,
+    (byte *) &cr_yellow_bright5,
+    (byte *) &cr_yellow_bright4,
+    (byte *) &cr_yellow_bright3,
+    (byte *) &cr_yellow_bright2,
+    (byte *) &cr_yellow_bright1,
+
     (byte *) &cr_orange,
     (byte *) &cr_white,
     (byte *) &cr_gray,
@@ -491,6 +505,36 @@ byte V_Colorize (byte *playpal, int cr, byte source, boolean keepgray109)
             hsv.x = (7.0 + 53. * hsv.z)/360.;
             hsv.y = 1.0 - 0.4 * hsv.z;
             hsv.z = 0.2 + 0.8 * hsv.z;
+        }
+        else if (cr == CR_YELLOW_BRIGHT5)
+        {
+            hsv.x = (7.0 + 53. * hsv.z)/360.;
+            hsv.y = 1.0 - 0.4 * hsv.z;
+            hsv.z = 0.2 + 0.8 * hsv.z * 1.5;
+        }
+        else if (cr == CR_YELLOW_BRIGHT4)
+        {
+            hsv.x = (7.0 + 53. * hsv.z)/360.;
+            hsv.y = 1.0 - 0.4 * hsv.z;
+            hsv.z = 0.2 + 0.8 * hsv.z * 1.4;
+        }
+        else if (cr == CR_YELLOW_BRIGHT3)
+        {
+            hsv.x = (7.0 + 53. * hsv.z)/360.;
+            hsv.y = 1.0 - 0.4 * hsv.z;
+            hsv.z = 0.2 + 0.8 * hsv.z * 1.3;
+        }
+        else if (cr == CR_YELLOW_BRIGHT2)
+        {
+            hsv.x = (7.0 + 53. * hsv.z)/360.;
+            hsv.y = 1.0 - 0.4 * hsv.z;
+            hsv.z = 0.2 + 0.8 * hsv.z * 1.2;
+        }
+        else if (cr == CR_YELLOW_BRIGHT1)
+        {
+            hsv.x = (7.0 + 53. * hsv.z)/360.;
+            hsv.y = 1.0 - 0.4 * hsv.z;
+            hsv.z = 0.2 + 0.8 * hsv.z * 1.1;
         }
         else if (cr == CR_ORANGE)
         {

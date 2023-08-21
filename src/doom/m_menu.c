@@ -687,6 +687,7 @@ static void M_ChooseCRL_Widgets (int choice);
 static void M_DrawCRL_Widgets (void);
 
 static void M_CRL_Widget_Render (int choice);
+static void M_CRL_Widget_MAX (int choice);
 static void M_CRL_Widget_Playstate (int choice);
 static void M_CRL_Widget_KIS (int choice);
 static void M_CRL_Widget_Coords (int choice);
@@ -799,6 +800,7 @@ static byte *M_Line_Glow (const int tics)
 #define GLOW_DARKRED    2
 #define GLOW_GREEN      3
 #define GLOW_DARKGREEN  4
+#define GLOW_YELLOW     5
 
 #define ITEMONTICS      currentMenu->menuitems[itemOn].tics
 #define ITEMSETONTICS   currentMenu->menuitems[itemSetOn].tics
@@ -808,9 +810,10 @@ static byte *M_Item_Glow (const int itemSetOn, const int color)
     if (itemOn == itemSetOn)
     {
         return
-            color == GLOW_RED   || color == GLOW_DARKRED   ? cr[CR_RED_BRIGHT5]   :
-            color == GLOW_GREEN || color == GLOW_DARKGREEN ? cr[CR_GREEN_BRIGHT5] :
-                                                             cr[CR_MENU_BRIGHT5]  ; // GLOW_UNCOLORED
+            color == GLOW_RED   || color == GLOW_DARKRED   ? cr[CR_RED_BRIGHT5]    :
+            color == GLOW_GREEN || color == GLOW_DARKGREEN ? cr[CR_GREEN_BRIGHT5]  :
+                                   color == GLOW_YELLOW    ? cr[CR_YELLOW_BRIGHT5] :
+                                                             cr[CR_MENU_BRIGHT5]   ; // GLOW_UNCOLORED
     }
     else
     {
@@ -858,6 +861,15 @@ static byte *M_Item_Glow (const int itemSetOn, const int color)
                 ITEMSETONTICS == 3 ? cr[CR_GREEN_BRIGHT3] :
                 ITEMSETONTICS == 2 ? cr[CR_GREEN_BRIGHT2] :
                 ITEMSETONTICS == 1 ? cr[CR_GREEN_BRIGHT1] : cr[CR_DARKGREEN];
+        }
+        if (color == GLOW_YELLOW)
+        {
+            return
+                ITEMSETONTICS == 5 ? cr[CR_YELLOW_BRIGHT5] :
+                ITEMSETONTICS == 4 ? cr[CR_YELLOW_BRIGHT4] :
+                ITEMSETONTICS == 3 ? cr[CR_YELLOW_BRIGHT3] :
+                ITEMSETONTICS == 2 ? cr[CR_YELLOW_BRIGHT2] :
+                ITEMSETONTICS == 1 ? cr[CR_YELLOW_BRIGHT1] : cr[CR_YELLOW];
         }
     }
     return NULL;
@@ -2575,20 +2587,20 @@ static void M_Bind_M_Reset (int choice)
 
 static menuitem_t CRLMenu_Widgets[]=
 {
-    { 2, "RENDER COUNTERS",     M_CRL_Widget_Render,     'r'},
-    { 2, "PLAYSTATE COUNTERS",  M_CRL_Widget_Playstate,  'r'},
-    { 2, "KIS STATS/FRAGS",     M_CRL_Widget_KIS,        'k'},
-    { 2, "LEVEL/DM TIMER",      M_CRL_Widget_Time,       'l'},
-    { 2, "PLAYER COORDS",       M_CRL_Widget_Coords,     'p'},
-    { 2, "POWERUP TIMERS",      M_CRL_Widget_Powerups,   'p'},
-    { 2, "TARGET'S HEALTH",     M_CRL_Widget_Health,     't'},
+    { 2, "RENDER COUNTERS",      M_CRL_Widget_Render,     'r'},
+    { 2, "MAX OVERFLOW STYLE",   M_CRL_Widget_MAX,        'r'},
+    { 2, "PLAYSTATE COUNTERS",   M_CRL_Widget_Playstate,  'r'},
+    { 2, "KIS STATS/FRAGS",      M_CRL_Widget_KIS,        'k'},
+    { 2, "LEVEL/DM TIMER",       M_CRL_Widget_Time,       'l'},
+    { 2, "PLAYER COORDS",        M_CRL_Widget_Coords,     'p'},
+    { 2, "POWERUP TIMERS",       M_CRL_Widget_Powerups,   'p'},
+    { 2, "TARGET'S HEALTH",      M_CRL_Widget_Health,     't'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
-    { 2, "ROTATE MODE",         M_CRL_Automap_Rotate,    'r'},
-    { 2, "OVERLAY MODE",        M_CRL_Automap_Overlay,   'o'},
-    { 2, "DRAWING MODE",        M_CRL_Automap_Drawing,   'd'},
-    { 2, "MARK SECRET SECTORS", M_CRL_Automap_Secrets,   'm'},
-    {-1, "", 0, '\0'},
+    { 2, "ROTATE MODE",          M_CRL_Automap_Rotate,    'r'},
+    { 2, "OVERLAY MODE",         M_CRL_Automap_Overlay,   'o'},
+    { 2, "DRAWING MODE",         M_CRL_Automap_Drawing,   'd'},
+    { 2, "MARK SECRET SECTORS",  M_CRL_Automap_Secrets,   'm'},
     {-1, "", 0, '\0'}
 };
 
@@ -2622,71 +2634,83 @@ static void M_DrawCRL_Widgets (void)
                  M_Item_Glow(0, crl_widget_render == 1 ? GLOW_GREEN :
                                 crl_widget_render == 2 ? GLOW_DARKGREEN : GLOW_DARKRED));
 
+    // MAX overflow style
+    sprintf(str, crl_widget_maxvp == 1 ? "BLINKING 1" :
+                 crl_widget_maxvp == 2 ? "BLINKING 2" : "STATIC");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 45, str,
+                 M_Item_Glow(1, crl_widget_maxvp == 1 ? (gametic &  8 ? GLOW_YELLOW : GLOW_GREEN) :
+                                crl_widget_maxvp == 2 ? (gametic & 16 ? GLOW_YELLOW : GLOW_GREEN) : GLOW_YELLOW));
+
     // Playstate counters
     sprintf(str, crl_widget_playstate == 1 ? "ON" :
                  crl_widget_playstate == 2 ? "OVERFLOWS" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 45, str,
-                 M_Item_Glow(1, crl_widget_playstate == 1 ? GLOW_GREEN :
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 54, str,
+                 M_Item_Glow(2, crl_widget_playstate == 1 ? GLOW_GREEN :
                                 crl_widget_playstate == 2 ? GLOW_DARKGREEN : GLOW_DARKRED));
 
     // K/I/S stats
     sprintf(str, crl_widget_kis == 1 ? "ON" :
                  crl_widget_kis == 2 ? "AUTOMAP" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 54, str,
-                 M_Item_Glow(2, crl_widget_kis ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 63, str,
+                 M_Item_Glow(3, crl_widget_kis ? GLOW_GREEN : GLOW_DARKRED));
 
     // Level time
     sprintf(str, crl_widget_time == 1 ? "ON" : 
                  crl_widget_time == 2 ? "AUTOMAP" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 63, str,
-                 M_Item_Glow(3, crl_widget_time ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 72, str,
+                 M_Item_Glow(4, crl_widget_time ? GLOW_GREEN : GLOW_DARKRED));
 
     // Player coords
     sprintf(str, crl_widget_coords == 1 ? "ON" :
                  crl_widget_coords == 2 ? "AUTOMAP" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 72, str,
-                 M_Item_Glow(4, crl_widget_coords ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 81, str,
+                 M_Item_Glow(5, crl_widget_coords ? GLOW_GREEN : GLOW_DARKRED));
 
     // Powerup timers
     sprintf(str, crl_widget_powerups ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 81, str,
-                 M_Item_Glow(5, crl_widget_powerups ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 90, str,
+                 M_Item_Glow(6, crl_widget_powerups ? GLOW_GREEN : GLOW_DARKRED));
 
     // Target's health
     sprintf(str, crl_widget_health == 1 ? "TOP" :
                  crl_widget_health == 2 ? "TOP+NAME" :
                  crl_widget_health == 3 ? "BOTTOM" :
                  crl_widget_health == 4 ? "BOTTOM+NAME" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 90, str,
-                 M_Item_Glow(6, crl_widget_health ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 99, str,
+                 M_Item_Glow(7, crl_widget_health ? GLOW_GREEN : GLOW_DARKRED));
 
-    M_WriteTextCentered(108, "AUTOMAP", cr[CR_YELLOW]);
+    M_WriteTextCentered(117, "AUTOMAP", cr[CR_YELLOW]);
 
     // Rotate mode
     sprintf(str, crl_automap_rotate ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 117, str,
-                 M_Item_Glow(9, crl_automap_rotate ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 126, str,
+                 M_Item_Glow(10, crl_automap_rotate ? GLOW_GREEN : GLOW_DARKRED));
 
     // Overlay mode
     sprintf(str, crl_automap_overlay ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 126, str,
-                 M_Item_Glow(10, crl_automap_overlay ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 135, str,
+                 M_Item_Glow(11, crl_automap_overlay ? GLOW_GREEN : GLOW_DARKRED));
 
     // Drawing mode
     sprintf(str, crl_automap_mode == 1 ? "FLOOR VISPLANES" :
                  crl_automap_mode == 2 ? "CEILING VISPLANES" : "NORMAL");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 135, str,
-                 M_Item_Glow(11, crl_automap_mode ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 144, str,
+                 M_Item_Glow(12, crl_automap_mode ? GLOW_GREEN : GLOW_DARKRED));
 
     // Mark secret sectors
     sprintf(str, crl_automap_secrets ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 144, str,
-                 M_Item_Glow(12, crl_automap_secrets ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 153, str,
+                 M_Item_Glow(13, crl_automap_secrets ? GLOW_GREEN : GLOW_DARKRED));
 }
 
 static void M_CRL_Widget_Render (int choice)
 {
     crl_widget_render = M_INT_Slider(crl_widget_render, 0, 2, choice);
+}
+
+static void M_CRL_Widget_MAX (int choice)
+{
+    crl_widget_maxvp = M_INT_Slider(crl_widget_maxvp, 0, 2, choice);
 }
 
 static void M_CRL_Widget_Playstate (int choice)

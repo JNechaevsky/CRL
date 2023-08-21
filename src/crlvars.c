@@ -49,6 +49,7 @@ int crl_freeze = 0;
 int crl_widget_coords = 0;
 int crl_widget_playstate = 2;
 int crl_widget_render = 1;
+int crl_widget_maxvp = 0;
 int crl_widget_kis = 0;
 int crl_widget_time = 0;
 int crl_widget_powerups = 0;
@@ -112,6 +113,7 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_widget_coords",              &crl_widget_coords);
     M_BindIntVariable("crl_widget_playstate",           &crl_widget_playstate);
     M_BindIntVariable("crl_widget_render",              &crl_widget_render);
+    M_BindIntVariable("crl_widget_maxvp",               &crl_widget_maxvp);
     M_BindIntVariable("crl_widget_kis",                 &crl_widget_kis);
     M_BindIntVariable("crl_widget_time",                &crl_widget_time);
     M_BindIntVariable("crl_widget_powerups",            &crl_widget_powerups);
