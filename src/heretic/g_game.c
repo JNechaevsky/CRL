@@ -826,9 +826,28 @@ void G_DoLoadLevel(void)
     }
 
     // [JN] CRL - wand start game mode.
-    if (singleplayer && crl_pistol_start)
+    if (crl_pistol_start)
     {
-        G_PlayerReborn(0);
+        if (singleplayer)
+        {
+            G_PlayerReborn(0);
+        }
+        else if ((demoplayback || netdemo) /*&& !singledemo*/)
+        {
+            // no-op - silently ignore pistolstart when playing demo from the
+            // demo reel
+            // [JN] Do not rely on "singledemo" here to allow to play multiple
+            // levels demo with Wand start mode enabled.
+        }
+        else
+        {
+            const char message[] = "Wand start game mode is not supported"
+                                   " for demos and network play. Please disable"
+                                   " Wand start mode in Gameplay Features"
+                                   " menu.";
+            if (!demo_p) demorecording = false;
+            I_Error(message);
+        }
     }
 
     P_SetupLevel(gameepisode, gamemap, 0, gameskill);
