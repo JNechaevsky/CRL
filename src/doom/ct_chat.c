@@ -464,3 +464,27 @@ static void CT_ClearChatMessage (const int player)
     msgptr[player] = 0;
     msglen[player] = 0;
 }
+
+// -----------------------------------------------------------------------------
+// MSG_Ticker
+// [JN] Reduces message tics independently from framerate and game states.
+// Not to be confused with CT_Ticker.
+// -----------------------------------------------------------------------------
+
+void MSG_Ticker (void)
+{
+    player_t *player = &players[displayplayer];
+    
+    if (player->messageTics > 0)
+    {
+        player->messageTics--;
+    }
+    if (!player->messageTics)
+    {                           // Refresh the screen when a message goes away
+        ultimatemsg = false;    // clear out any chat messages.
+    }
+    if (players[displayplayer].criticalmessageTics > 0)
+    {
+        players[displayplayer].criticalmessageTics--;
+    }
+}

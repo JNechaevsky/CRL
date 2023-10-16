@@ -43,3 +43,4 @@ extern char *chat_macros[10];
 extern char *player_names[];
 
 extern void CT_Init (void);
+extern void MSG_Ticker (void);
