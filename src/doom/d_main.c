@@ -36,6 +36,7 @@
 #endif
 
 #include "deh_main.h"
+#include "doomkeys.h"
 #include "doomstat.h"
 #include "dstrings.h"
 #include "d_iwad.h"
@@ -1534,6 +1535,17 @@ void D_DoomMain (void)
     M_SetConfigFilenames("default.cfg");
     D_BindVariables();
     M_LoadDefaults();
+
+#ifdef _WIN32
+    // [JN] Pressing PrintScreen on Windows 11 is opening Snipping Tool.
+    // Re-register PrintScreen key pressing for port needs to avoid this.
+    // Taken from DOOM Retro.
+    if (key_menu_screenshot == KEY_PRTSCR)
+    {
+        RegisterHotKey(NULL, 1, MOD_ALT, VK_SNAPSHOT);
+        RegisterHotKey(NULL, 2, 0, VK_SNAPSHOT);
+    }
+#endif
 
     // Save configuration at exit.
     I_AtExit(M_SaveDefaults, true); // [crispy] always save configuration at exit
