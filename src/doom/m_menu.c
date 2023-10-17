@@ -611,6 +611,7 @@ static void M_Bind_IDKFA (int choice);
 static void M_Bind_IDFA (int choice);
 static void M_Bind_IDCLIP (int choice);
 static void M_Bind_IDDT (int choice);
+static void M_Bind_MDK (int choice);
 
 static void M_DrawCRL_Keybinds_4 (void);
 static void M_Bind_Weapon1 (int choice);
@@ -1918,7 +1919,7 @@ static menuitem_t CRLMenu_Keybinds_3[]=
     { 1, "IDFA",            M_Bind_IDFA,       'i'  },
     { 1, "IDCLIP",          M_Bind_IDCLIP,     'i'  },
     { 1, "IDDT",            M_Bind_IDDT,       'i'  },
-    {-1, "",                0,                 '\0' },
+    { 1, "MDK",             M_Bind_MDK,        'm'  },
     {-1, "",                0,                 '\0' },
     {-1, "",                0,                 '\0' },
     {-1, "",                0,                 '\0' },
@@ -1981,6 +1982,11 @@ static void M_Bind_IDDT (int choice)
     M_StartBind(308);  // key_crl_iddt
 }
 
+static void M_Bind_MDK (int choice)
+{
+    M_StartBind(309);  // key_crl_mdk
+}
+
 static void M_DrawCRL_Keybinds_3 (void)
 {
     M_ShadeBackground();
@@ -2002,6 +2008,7 @@ static void M_DrawCRL_Keybinds_3 (void)
     M_DrawBindKey(8, 108, key_crl_idfa);
     M_DrawBindKey(9, 117, key_crl_idclip);
     M_DrawBindKey(10, 126, key_crl_iddt);
+    M_DrawBindKey(11, 135, key_crl_mdk);
 
     M_DrawBindFooter("3", true);
 }
@@ -5339,6 +5346,7 @@ static void M_CheckBind (int key)
     if (key_crl_idfa == key)         key_crl_idfa         = 0;
     if (key_crl_idclip == key)       key_crl_idclip       = 0;
     if (key_crl_iddt == key)         key_crl_iddt         = 0;
+    if (key_crl_mdk == key)          key_crl_mdk          = 0;
     // Page 4
     if (key_weapon1 == key)          key_weapon1          = 0;
     if (key_weapon2 == key)          key_weapon2          = 0;
@@ -5434,6 +5442,7 @@ static void M_DoBind (int keynum, int key)
         case 306:  key_crl_idfa = key;          break;
         case 307:  key_crl_idclip = key;        break;
         case 308:  key_crl_iddt = key;          break;
+        case 309:  key_crl_mdk = key;           break;
         // Page 4  
         case 400:  key_weapon1 = key;           break;
         case 401:  key_weapon2 = key;           break;
@@ -5538,6 +5547,7 @@ static void M_ClearBind (int itemOn)
             case 8:   key_crl_idfa = 0;         break;
             case 9:   key_crl_idclip = 0;       break;
             case 10:  key_crl_iddt = 0;         break;
+            case 11:  key_crl_mdk = 0;          break;
         }
     }
     if (currentMenu == &CRLDef_Keybinds_4)
@@ -5647,6 +5657,7 @@ static void M_ResetBinds (void)
     key_crl_idfa = 0;
     key_crl_idclip = 0;
     key_crl_iddt = 0;
+    key_crl_mdk = 0;
     // Page 4
     key_weapon1 = '1';
     key_weapon2 = '2';

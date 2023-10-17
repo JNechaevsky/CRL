@@ -83,7 +83,7 @@ static int *crl_keys[] = { &key_crl_menu,
                            &key_crl_clearmax, &key_crl_movetomax,
 
                            &key_crl_iddqd, &key_crl_idkfa, &key_crl_idfa,
-                           &key_crl_idclip, &key_crl_iddt,
+                           &key_crl_idclip, &key_crl_iddt, &key_crl_mdk,
 
                            &key_crl_nextlevel, &key_crl_reloadlevel,
                            &key_crl_demospeed, &key_crl_limits, &key_crl_mlook,
@@ -453,6 +453,7 @@ void CRLKeysDialog(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(unused))
         AddKeyControl(table, "IDFA",            &key_crl_idfa);
         AddKeyControl(table, "IDCLIP",          &key_crl_idclip);
         AddKeyControl(table, "IDDT",            &key_crl_iddt);
+        AddKeyControl(table, "MDK",             &key_crl_mdk);
     }
     if (gamemission == heretic)
     {

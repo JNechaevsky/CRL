@@ -193,6 +193,7 @@ extern int key_crl_idkfa;
 extern int key_crl_idfa;
 extern int key_crl_idclip;
 extern int key_crl_iddt;
+extern int key_crl_mdk;
 
 extern int key_crl_nextlevel; // [crispy]
 extern int key_crl_reloadlevel; // [crispy]

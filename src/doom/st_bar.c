@@ -133,6 +133,7 @@ static cheatseq_t cheat_massacre2 = CHEAT("killem", 0);
 static cheatseq_t cheat_freeze = CHEAT("freeze", 0);
 static cheatseq_t cheat_notarget = CHEAT("notarget", 0);
 static cheatseq_t cheat_buddha = CHEAT("buddha", 0);
+static cheatseq_t cheat_mdk = CHEAT("mdk", 0);
 
 cheatseq_t cheat_powerup[7] =
 {
@@ -254,6 +255,29 @@ static int ST_cheat_massacre (void)
     // numbraintargets = -1;
 
     return killcount;
+}
+
+// -----------------------------------------------------------------------------
+// ST_cheat_MDK
+// [JN] MDK cheat, which kills monster in target (i.e. set it's health to zero).
+// -----------------------------------------------------------------------------
+
+static void ST_cheat_MDK (void)
+{
+    // Do an overflow-safe trace to get target.
+    P_AimLineAttack (plyr->mo, plyr->mo->angle, MISSILERANGE, true);
+
+    if (linetarget)
+    {
+        // Got one, deal damage equal to it's health.
+        P_DamageMobj (linetarget, NULL, NULL, plyr->targetsheath);
+        CRL_SetMessage(plyr, "TARGET KILLED", false, NULL);
+    }
+    else
+    {
+        // No target found, just inform.
+        CRL_SetMessage(plyr, "TARGET NOT FOUND", false, NULL);
+    }
 }
 
 // -----------------------------------------------------------------------------
@@ -522,6 +546,13 @@ boolean ST_Responder (event_t *ev)
                 plyr->cheats ^= CF_BUDDHA;
                 CRL_SetMessage(plyr, plyr->cheats & CF_BUDDHA ?
                                CRL_BUDDHA_ON : CRL_BUDDHA_OFF, false, NULL);
+            }
+            // [JN] Implement "MDK" cheat.
+            else
+            if (cht_CheckCheatSP(&cheat_mdk, ev->data2)
+            ||  ev->data1 == key_crl_mdk)
+            {
+                ST_cheat_MDK();
             }
         }
 

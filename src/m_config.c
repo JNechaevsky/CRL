@@ -379,6 +379,7 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_KEY(key_crl_idfa),
     CONFIG_VARIABLE_KEY(key_crl_idclip),
     CONFIG_VARIABLE_KEY(key_crl_iddt),
+    CONFIG_VARIABLE_KEY(key_crl_mdk),
     
     CONFIG_VARIABLE_KEY(key_crl_nextlevel),
     CONFIG_VARIABLE_KEY(key_crl_reloadlevel),
