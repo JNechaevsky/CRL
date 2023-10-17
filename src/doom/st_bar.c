@@ -173,6 +173,25 @@ static char *facenames[] =
 };
 
 // -----------------------------------------------------------------------------
+// cht_CheckCheatSP
+// [crispy] restrict cheat usage
+// -----------------------------------------------------------------------------
+static const inline int cht_CheckCheatSP (cheatseq_t *cht, char key)
+{
+    if (!cht_CheckCheat(cht, key))
+    {
+        return false;
+    }
+    else
+    if (!singleplayer)
+    {
+        // plyr->message = "Cheater!";
+        return false;
+    }
+    return true;
+}
+
+// -----------------------------------------------------------------------------
 // GiveBackpack
 // [crispy] give or take backpack
 // -----------------------------------------------------------------------------
@@ -261,7 +280,7 @@ boolean ST_Responder (event_t *ev)
             }
 
             // 'dqd' cheat for toggleable god mode
-            if (cht_CheckCheat(&cheat_god, ev->data2) || ev->data1 == key_crl_iddqd)
+            if (cht_CheckCheatSP(&cheat_god, ev->data2) || ev->data1 == key_crl_iddqd)
             {
                 // [crispy] dead players are first respawned at the current position
                 mapthing_t mt = {0};
@@ -300,7 +319,7 @@ boolean ST_Responder (event_t *ev)
                 plyr->cheatTics = 1;
             }
             // 'fa' cheat for killer fucking arsenal
-            else if (cht_CheckCheat(&cheat_ammonokey, ev->data2) || ev->data1 == key_crl_idfa)
+            else if (cht_CheckCheatSP(&cheat_ammonokey, ev->data2) || ev->data1 == key_crl_idfa)
             {
                 plyr->armorpoints = deh_idfa_armor;
                 plyr->armortype = deh_idfa_armor_class;
@@ -321,7 +340,7 @@ boolean ST_Responder (event_t *ev)
                 CRL_SetMessage(plyr, DEH_String(STSTR_FAADDED), false, NULL);
             }
             // 'kfa' cheat for key full ammo
-            else if (cht_CheckCheat(&cheat_ammo, ev->data2) || ev->data1 == key_crl_idkfa)
+            else if (cht_CheckCheatSP(&cheat_ammo, ev->data2) || ev->data1 == key_crl_idkfa)
             {
                 plyr->armorpoints = deh_idkfa_armor;
                 plyr->armortype = deh_idkfa_armor_class;
@@ -394,8 +413,8 @@ boolean ST_Responder (event_t *ev)
             // For Doom 1, use the idspipsopd cheat; for all others, use idclip            
             // [crispy] allow both idspispopd and idclip cheats in all gamemissions
             else 
-            if (cht_CheckCheat(&cheat_noclip, ev->data2)
-            || (cht_CheckCheat(&cheat_commercial_noclip, ev->data2))
+            if (cht_CheckCheatSP(&cheat_noclip, ev->data2)
+            || (cht_CheckCheatSP(&cheat_commercial_noclip, ev->data2))
             || ev->data1 == key_crl_idclip)
             {	
                 plyr->cheats ^= CF_NOCLIP;
@@ -417,7 +436,7 @@ boolean ST_Responder (event_t *ev)
             // 'behold?' power-up cheats
             for (i = 0 ; i < 6 ; i++)
             {
-                if (cht_CheckCheat(&cheat_powerup[i], ev->data2))
+                if (cht_CheckCheatSP(&cheat_powerup[i], ev->data2))
                 {
                     if (!plyr->powers[i])
                     {
@@ -437,12 +456,12 @@ boolean ST_Responder (event_t *ev)
                 }
             }
             // 'behold' power-up menu
-            if (cht_CheckCheat(&cheat_powerup[6], ev->data2))
+            if (cht_CheckCheatSP(&cheat_powerup[6], ev->data2))
             {
                 CRL_SetMessage(plyr, DEH_String(STSTR_BEHOLD), false, NULL);
             }
             // 'choppers' invulnerability & chainsaw
-            else if (cht_CheckCheat(&cheat_choppers, ev->data2))
+            else if (cht_CheckCheatSP(&cheat_choppers, ev->data2))
             {
                 plyr->weaponowned[wp_chainsaw] = true;
                 plyr->powers[pw_invulnerability] = true;
@@ -472,8 +491,8 @@ boolean ST_Responder (event_t *ev)
             // [crispy] implement Boom's "tntem" cheat
             // [JN] Allow to use "killem" as well.
             else
-            if (cht_CheckCheat(&cheat_massacre1, ev->data2)
-            ||  cht_CheckCheat(&cheat_massacre2, ev->data2))
+            if (cht_CheckCheatSP(&cheat_massacre1, ev->data2)
+            ||  cht_CheckCheatSP(&cheat_massacre2, ev->data2))
             {
                 static char buf[52];
                 const int   killcount = ST_cheat_massacre();
@@ -484,21 +503,21 @@ boolean ST_Responder (event_t *ev)
                 CRL_SetMessage(plyr, buf, false, NULL);
             }
             // [JN] CRL - Freeze mode.
-            else if (cht_CheckCheat(&cheat_freeze, ev->data2))
+            else if (cht_CheckCheatSP(&cheat_freeze, ev->data2))
             {
                 crl_freeze ^= 1;
                 CRL_SetMessage(plyr, crl_freeze ?
                                CRL_FREEZE_ON : CRL_FREEZE_OFF, false, NULL);
             }
             // [JN] Implement Woof's "notarget" cheat.
-            else if (cht_CheckCheat(&cheat_notarget, ev->data2))
+            else if (cht_CheckCheatSP(&cheat_notarget, ev->data2))
             {
                 plyr->cheats ^= CF_NOTARGET;
                 CRL_SetMessage(plyr, plyr->cheats & CF_NOTARGET ?
                                CRL_NOTARGET_ON : CRL_NOTARGET_OFF, false, NULL);
             }
             // [JN] Implement Woof's "Buddha" cheat.
-            else if (cht_CheckCheat(&cheat_buddha, ev->data2))
+            else if (cht_CheckCheatSP(&cheat_buddha, ev->data2))
             {
                 plyr->cheats ^= CF_BUDDHA;
                 CRL_SetMessage(plyr, plyr->cheats & CF_BUDDHA ?
