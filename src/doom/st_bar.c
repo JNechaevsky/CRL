@@ -262,7 +262,7 @@ static int ST_cheat_massacre (void)
 // [JN] MDK cheat, which kills monster in target (i.e. set it's health to zero).
 // -----------------------------------------------------------------------------
 
-static void ST_cheat_MDK (void)
+void ST_cheat_MDK (void)
 {
     // Do an overflow-safe trace to get target.
     P_AimLineAttack (plyr->mo, plyr->mo->angle, MISSILERANGE, true);
@@ -548,9 +548,7 @@ boolean ST_Responder (event_t *ev)
                                CRL_BUDDHA_ON : CRL_BUDDHA_OFF, false, NULL);
             }
             // [JN] Implement "MDK" cheat.
-            else
-            if (cht_CheckCheatSP(&cheat_mdk, ev->data2)
-            ||  ev->data1 == key_crl_mdk)
+            else if (cht_CheckCheatSP(&cheat_mdk, ev->data2))
             {
                 ST_cheat_MDK();
             }
