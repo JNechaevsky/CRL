@@ -12,32 +12,17 @@
 // GNU General Public License for more details.
 //
 
+
 #include <stdlib.h>
 #include <string.h>
-
-#include "doomtype.h"
-
-#include "config.h"
 #include "textscreen.h"
-
-#include "doomtype.h"
-#include "d_mode.h"
-#include "d_iwad.h"
 #include "i_system.h"
 #include "m_argv.h"
 #include "m_config.h"
-#include "m_controls.h"
 #include "m_misc.h"
-
-#include "compatibility.h"
-#include "display.h"
-#include "joystick.h"
-#include "keyboard.h"
-#include "mouse.h"
 #include "multiplayer.h"
-#include "sound.h"
-
 #include "mode.h"
+
 #include "crlvars.h"
 
 GameMission_t gamemission;
@@ -67,6 +52,7 @@ static mission_config_t mission_configs[] =
         "default.cfg",
         PROGRAM_PREFIX "doom"
     },
+/*
     {
         "Heretic",
         heretic,
@@ -75,60 +61,15 @@ static mission_config_t mission_configs[] =
         "heretic.cfg",
         PROGRAM_PREFIX "heretic"
     }
+*/
 };
 
 static GameSelectCallback game_selected_callback;
 
 // Miscellaneous variables that aren't used in setup.
 
-static int showMessages = 1;
-static int screenblocks = 10;
-static int detailLevel = 0;
 static char *executable = NULL;
 static char *game_title = "Doom";
-
-static void BindMiscVariables(void)
-{
-    M_BindIntVariable("detaillevel",   &detailLevel);
-    M_BindIntVariable("show_messages", &showMessages);
-    M_BindIntVariable("screenblocks",   &screenblocks);
-}
-
-//
-// Initialise all configuration file bindings.
-//
-
-void InitBindings(void)
-{
-    M_ApplyPlatformDefaults();
-
-    // Keyboard, mouse, joystick controls
-
-    M_BindBaseControls();
-    M_BindWeaponControls();
-    M_BindMapControls();
-    M_BindMenuControls();
-
-    if (gamemission == heretic)
-    {
-        M_BindHereticControls();
-    }
-
-    // All other variables
-
-    BindCompatibilityVariables();
-    BindDisplayVariables();
-    BindJoystickVariables();
-    BindKeyboardVariables();
-    BindMouseVariables();
-    BindSoundVariables();
-    BindMiscVariables();
-    BindMultiplayerVariables();
-
-    // [JN] CRL-specific config variables.
-
-    CRL_BindVariables();
-}
 
 // Set the name of the executable program to run the game:
 
@@ -313,4 +254,3 @@ const iwad_t **GetIwads(void)
 {
     return iwads;
 }
-

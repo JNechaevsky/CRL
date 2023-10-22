@@ -113,7 +113,7 @@ static const char *strife_skills[] =
 
 static const char *character_classes[] = { "Fighter", "Cleric", "Mage" };
 
-static const char *gamemodes[] = { "Co-operative", "Deathmatch", "Deathmatch 2.0" };
+static const char *gamemodes[] = { "Co-operative", "Deathmatch", "Deathmatch 2.0", "Deathmatch 3.0" };
 
 static const char *strife_gamemodes[] =
 {
@@ -691,7 +691,7 @@ static txt_dropdown_list_t *GameTypeDropdown(void)
     {
         case doom:
         default:
-            return TXT_NewDropdownList(&deathmatch, gamemodes, 3);
+            return TXT_NewDropdownList(&deathmatch, gamemodes, 4);
 
         // Heretic and Hexen don't support Deathmatch II:
 
