@@ -224,7 +224,7 @@ static void GiveBackpack (boolean give)
 // [crispy] adapted from boom202s/M_CHEAT.C:467-498
 // -----------------------------------------------------------------------------
 
-static int ST_cheat_massacre (void)
+static int ST_cheat_massacre (boolean explode)
 {
     int killcount = 0;
     thinker_t *th;
@@ -234,12 +234,13 @@ static int ST_cheat_massacre (void)
         if (th->function.acp1 == (actionf_p1)P_MobjThinker)
         {
             mobj_t *mo = (mobj_t *)th;
+            const int amount = explode ? 10000 : mo->health;
 
             if (mo->flags & MF_COUNTKILL || mo->type == MT_SKULL)
             {
                 if (mo->health > 0)
                 {
-                    P_DamageMobj(mo, NULL, NULL, 10000);
+                    P_DamageMobj(mo, NULL, NULL, amount);
                     killcount++;
                 }
                 if (mo->type == MT_PAIN)
@@ -513,13 +514,21 @@ boolean ST_Responder (event_t *ev)
                 plyr->cheatTics = 1;
             }
             // [crispy] implement Boom's "tntem" cheat
-            // [JN] Allow to use "killem" as well.
-            else
-            if (cht_CheckCheatSP(&cheat_massacre1, ev->data2)
-            ||  cht_CheckCheatSP(&cheat_massacre2, ev->data2))
+            else if (cht_CheckCheatSP(&cheat_massacre1, ev->data2))
             {
                 static char buf[52];
-                const int   killcount = ST_cheat_massacre();
+                const int   killcount = ST_cheat_massacre(true);
+
+                M_snprintf(buf, sizeof(buf), "Monsters killed: %d", killcount);
+                
+                plyr->cheatTics = 1;
+                CRL_SetMessage(plyr, buf, false, NULL);
+            }
+            // [JN] implement MBF's "killem" cheat, which kills, not explodes enemies.
+            else if (cht_CheckCheatSP(&cheat_massacre2, ev->data2))
+            {
+                static char buf[52];
+                const int   killcount = ST_cheat_massacre(false);
 
                 M_snprintf(buf, sizeof(buf), "Monsters killed: %d", killcount);
                 
