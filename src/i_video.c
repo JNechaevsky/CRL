@@ -51,8 +51,6 @@
 #include "crlcore.h"
 #include "crlvars.h"
 
-// Lookup table for mapping ASCII characters to their equivalent when
-// shift is pressed on an American layout keyboard:
 // These are (1) the window (or the full screen) that our game is rendered to
 // and (2) the renderer that scales the texture (see below) into this window.
 
@@ -61,7 +59,7 @@ static SDL_Renderer *renderer;
 
 // Window title
 
-static char *window_title = "";
+static const char *window_title = "";
 
 // These are (1) the 320x200x8 paletted buffer that we draw to (i.e. the one
 // that holds I_VideoBuffer), (2) the 320x200x32 RGBA intermediate buffer that
@@ -478,7 +476,7 @@ static boolean ToggleFullScreenKeyShortcut(SDL_Keysym *sym)
 #if defined(__MACOSX__)
     flags |= (KMOD_LGUI | KMOD_RGUI);
 #endif
-    return (sym->scancode == SDL_SCANCODE_RETURN ||
+    return (sym->scancode == SDL_SCANCODE_RETURN || 
             sym->scancode == SDL_SCANCODE_KP_ENTER) && (sym->mod & flags) != 0;
 }
 
@@ -988,6 +986,7 @@ void I_ReadScreen (pixel_t* scr)
     memcpy(scr, I_VideoBuffer, SCREENWIDTH*SCREENHEIGHT*sizeof(*scr));
 }
 
+
 //
 // I_SetPalette
 //
@@ -1051,21 +1050,21 @@ int I_GetPaletteIndex(int r, int g, int b)
             break;
         }
     }
-    
+
     return best;
 }
 
-//
+// 
 // Set the window title
 //
 
-void I_SetWindowTitle(char *title)
+void I_SetWindowTitle(const char *title)
 {
     window_title = title;
 }
 
 //
-// Call the SDL function to set the window title, based on
+// Call the SDL function to set the window title, based on 
 // the title set with I_SetWindowTitle.
 //
 
@@ -1219,6 +1218,24 @@ void I_GraphicsCheckCommandLine(void)
             window_width = w;
             window_height = h;
             fullscreen = false;
+        }
+    }
+
+    //!
+    // @category video
+    // @arg <x>
+    //
+    // Specify the display number on which to show the screen.
+    //
+
+    i = M_CheckParmWithArgs("-display", 1);
+
+    if (i > 0)
+    {
+        int display = atoi(myargv[i + 1]);
+        if (display >= 0)
+        {
+            video_display = display;
         }
     }
 
@@ -1443,9 +1460,12 @@ static void SetVideoMode(void)
     // time this also defines the aspect ratio that is preserved while scaling
     // and stretching the texture into the window.
 
-    SDL_RenderSetLogicalSize(renderer,
-                             SCREENWIDTH,
-                             actualheight);
+    if (aspect_ratio_correct || integer_scaling)
+    {
+        SDL_RenderSetLogicalSize(renderer,
+                                 SCREENWIDTH,
+                                 actualheight);
+    }
 
     // Force integer scales for resolution-independent rendering.
 
@@ -1515,7 +1535,14 @@ static void SetVideoMode(void)
 
     // [JN] Workaround for SDL 2.0.14+ alt-tab bug
 #if defined(_WIN32)
-    SDL_SetHintWithPriority(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "1", SDL_HINT_OVERRIDE);
+    {
+        SDL_version ver;
+        SDL_GetVersion(&ver);
+        if (ver.major == 2 && ver.minor == 0 && (ver.patch == 14 || ver.patch == 16))
+        {
+           SDL_SetHintWithPriority(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "1", SDL_HINT_OVERRIDE);
+        }
+    }
 #endif
 
     // Initially create the upscaled texture for rendering to screen
@@ -1541,7 +1568,7 @@ void I_InitGraphics(void)
         unsigned int winid;
 
         sscanf(env, "0x%x", &winid);
-        M_snprintf(winenv, sizeof(winenv), "SDL_WINDOWID=%i", winid);
+        M_snprintf(winenv, sizeof(winenv), "SDL_WINDOWID=%u", winid);
 
         putenv(winenv);
     }
@@ -1613,7 +1640,7 @@ void I_InitGraphics(void)
 
     // Clear the screen to black.
 
-    memset(I_VideoBuffer, 0, SCREENWIDTH * SCREENHEIGHT);
+    memset(I_VideoBuffer, 0, SCREENWIDTH * SCREENHEIGHT * sizeof(*I_VideoBuffer));
 
     // clear out any events waiting at the start and center the mouse
   
