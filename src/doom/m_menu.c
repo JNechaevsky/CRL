@@ -2863,7 +2863,7 @@ static void M_DrawCRL_Gameplay (void)
     // Play internal demos
     sprintf(str, crl_internal_demos ? "ON" : "OFF");
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 126, str,
-                 M_Item_Glow(10, crl_internal_demos ? GLOW_GREEN : GLOW_DARKRED));
+                 M_Item_Glow(10, crl_internal_demos ? GLOW_DARKRED : GLOW_GREEN));
 }
 
 static void M_CRL_DefaulSkill (int choice)
