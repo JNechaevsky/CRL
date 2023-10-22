@@ -386,8 +386,10 @@ void CRL_StatDrawer (void)
 
 
         // Planes (vanilla: 128, doom+: 1024)
+        // Show even if only MAX got overflow.
         if (crl_widget_render == 1
-        || (crl_widget_render == 2 && TotalVisPlanes >= CRL_MaxVisPlanes))
+        || (crl_widget_render == 2 && (TotalVisPlanes >= CRL_MaxVisPlanes
+                                   ||  CRL_MAX_count >= CRL_MaxVisPlanes)))
         {
             char vis[32];
             char max[32];
