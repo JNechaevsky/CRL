@@ -602,6 +602,7 @@ static void M_Bind_CameraDown (int choice);
 static void M_Bind_FreezeMode (int choice);
 static void M_Bind_BuddhaMode (int choice);
 static void M_Bind_NotargetMode (int choice);
+static void M_Bind_NomomentumMode (int choice);
 
 static void M_DrawCRL_Keybinds_3 (void);
 static void M_Bind_AlwaysRun (int choice);
@@ -1825,8 +1826,8 @@ static menuitem_t CRLMenu_Keybinds_2[]=
     { 1, "- MOVE CAMERA DOWN",  M_Bind_CameraDown,     'm'  },
     { 1, "FREEZE MODE",         M_Bind_FreezeMode,     'f'  },
     { 1, "BUDDHA MODE",         M_Bind_BuddhaMode,     'b'  },
-    { 1, "NOTARGET MODE",       M_Bind_NotargetMode,   'n'  },
-    {-1, "",                    0,                     '\0' },
+    { 1, "NO TARGET MODE",      M_Bind_NotargetMode,   'n'  },
+    { 1, "NO MOMENTUM MODE",    M_Bind_NomomentumMode, 'n'  },
     {-1, "",                    0,                     '\0' },
     {-1, "",                    0,                     '\0' },
     {-1, "",                    0,                     '\0' },
@@ -1864,6 +1865,7 @@ static void M_DrawCRL_Keybinds_2 (void)
     M_DrawBindKey(8, 108, key_crl_freeze);
     M_DrawBindKey(9, 117, key_crl_buddha);
     M_DrawBindKey(10, 126, key_crl_notarget);
+    M_DrawBindKey(11, 135, key_crl_nomomentum);
 
     M_DrawBindFooter("2", true);
 }
@@ -1916,6 +1918,11 @@ static void M_Bind_BuddhaMode (int choice)
 static void M_Bind_NotargetMode (int choice)
 {
     M_StartBind(209);  // key_crl_notarget
+}
+
+static void M_Bind_NomomentumMode (int choice)
+{
+    M_StartBind(210);  // key_crl_nomomentum
 }
 
 // -----------------------------------------------------------------------------
@@ -5360,6 +5367,7 @@ static void M_CheckBind (int key)
     if (key_crl_freeze == key)       key_crl_freeze       = 0;
     if (key_crl_buddha == key)       key_crl_buddha       = 0;
     if (key_crl_notarget == key)     key_crl_notarget     = 0;
+    if (key_crl_nomomentum == key)   key_crl_nomomentum   = 0;
     // Page 3
     if (key_crl_autorun == key)      key_crl_autorun      = 0;
     if (key_crl_vilebomb == key)     key_crl_vilebomb     = 0;
@@ -5456,6 +5464,7 @@ static void M_DoBind (int keynum, int key)
         case 207:  key_crl_freeze = key;        break;
         case 208:  key_crl_buddha = key;        break;
         case 209:  key_crl_notarget = key;      break;
+        case 210:  key_crl_nomomentum = key;    break;
         // Page 3  
         case 300:  key_crl_autorun = key;       break;
         case 301:  key_crl_vilebomb = key;      break;
@@ -5554,6 +5563,7 @@ static void M_ClearBind (int itemOn)
             case 8:   key_crl_freeze = 0;       break;
             case 9:   key_crl_buddha = 0;       break;
             case 10:  key_crl_notarget = 0;     break;
+            case 11:  key_crl_nomomentum = 0;   break;
         }
     }
     if (currentMenu == &CRLDef_Keybinds_3)
@@ -5671,6 +5681,7 @@ static void M_ResetBinds (void)
     key_crl_freeze = 0;
     key_crl_buddha = 0;
     key_crl_notarget = 0;
+    key_crl_nomomentum = 0;
     // Page 3
     key_crl_autorun = KEY_CAPSLOCK;
     key_crl_vilebomb = 0;

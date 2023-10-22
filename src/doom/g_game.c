@@ -1086,6 +1086,34 @@ boolean G_Responder (event_t* ev)
                        CRL_NOTARGET_ON : CRL_NOTARGET_OFF, false, NULL);
     }
 
+    // [JN] CRL - Toggle nomomentum mode.
+    if (ev->data1 == key_crl_nomomentum)
+    {
+        player_t *player = &players[consoleplayer];
+
+        // Allow no momentum only in single player game, otherwise desyncs may occur.
+        if (demorecording)
+        {
+            CRL_SetMessage(&players[consoleplayer], CRL_NOMOMENTUM_NA_R , false, NULL);
+            return true;
+        }
+        if (demoplayback)
+        {
+            CRL_SetMessage(&players[consoleplayer], CRL_NOMOMENTUM_NA_P , false, NULL);
+            return true;
+        }
+        if (netgame)
+        {
+            CRL_SetMessage(&players[consoleplayer], CRL_NOMOMENTUM_NA_N , false, NULL);
+            return true;
+        }   
+
+        player->cheats ^= CF_NOMOMENTUM;
+
+        CRL_SetMessage(player, player->cheats & CF_NOMOMENTUM ?
+                       CRL_NOMOMENTUM_ON : CRL_NOMOMENTUM_OFF, false, NULL);
+    }
+
     // [JN] CRL - MDK cheat.
     if (ev->data1 == key_crl_mdk)
     {

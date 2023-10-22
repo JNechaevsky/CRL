@@ -181,6 +181,7 @@ extern int key_crl_cameradown;
 extern int key_crl_freeze;
 extern int key_crl_buddha;
 extern int key_crl_notarget;
+extern int key_crl_nomomentum;
 extern int key_crl_map_rotate;
 extern int key_crl_map_overlay;
 extern int key_crl_autorun;

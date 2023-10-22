@@ -368,6 +368,7 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_KEY(key_crl_freeze),
     CONFIG_VARIABLE_KEY(key_crl_buddha),
     CONFIG_VARIABLE_KEY(key_crl_notarget),
+    CONFIG_VARIABLE_KEY(key_crl_nomomentum),
     CONFIG_VARIABLE_KEY(key_crl_map_rotate),
     CONFIG_VARIABLE_KEY(key_crl_map_overlay),
     CONFIG_VARIABLE_KEY(key_crl_autorun),
