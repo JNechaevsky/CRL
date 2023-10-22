@@ -66,8 +66,10 @@ boolean menuactive;
 // -1 = no quicksave slot picked!
 static int quickSaveSlot;
 
- // 1 = message to be printed
+// 1 = message to be printed
 static int messageToPrint;
+// [JN] true = fill message background with solid flat.
+static boolean messageFillsBackground;
 // ...and here is the message string!
 static const char *messageString;
 
@@ -763,6 +765,21 @@ static void M_ShadeBackground (void)
     for (int y = 0; y < SCREENWIDTH * SCREENHEIGHT; y++)
     {
         I_VideoBuffer[y] = colormaps[12 * 256 + I_VideoBuffer[y]];
+    }
+}
+
+// [JN] Fill background with FLOOR4_8 flat.
+static void M_FillBackground (void)
+{
+    const byte *src = W_CacheLumpName("FLOOR4_8", PU_CACHE);
+    pixel_t *dest = I_VideoBuffer;
+
+    for (int y = 0 ; y < SCREENHEIGHT; y++)
+    {
+        for (int x = 0; x < SCREENWIDTH; x++)
+        {
+            *dest++ = src[((y & 63) << 6) + (x & 63)];
+        }
     }
 }
 
@@ -1721,7 +1738,7 @@ static void M_ChooseCRL_Keybinds_1 (int choice)
 
 static void M_DrawCRL_Keybinds_1 (void)
 {
-    M_ShadeBackground();
+    M_FillBackground();
 
     M_WriteTextCentered(27, "MOVEMENT", cr[CR_YELLOW]);
 
@@ -1830,7 +1847,7 @@ static menu_t CRLDef_Keybinds_2 =
 
 static void M_DrawCRL_Keybinds_2 (void)
 {
-    M_ShadeBackground();
+    M_FillBackground();
 
     M_WriteTextCentered(27, "CRL CONTROLS", cr[CR_YELLOW]);
 
@@ -1988,7 +2005,7 @@ static void M_Bind_MDK (int choice)
 
 static void M_DrawCRL_Keybinds_3 (void)
 {
-    M_ShadeBackground();
+    M_FillBackground();
 
     M_WriteTextCentered(27, "MOVEMENT", cr[CR_YELLOW]);
 
@@ -2049,7 +2066,7 @@ static menu_t CRLDef_Keybinds_4 =
 
 static void M_DrawCRL_Keybinds_4 (void)
 {
-    M_ShadeBackground();
+    M_FillBackground();
 
     M_WriteTextCentered(27, "WEAPONS", cr[CR_YELLOW]);
 
@@ -2154,7 +2171,7 @@ static menu_t CRLDef_Keybinds_5 =
 
 static void M_DrawCRL_Keybinds_5 (void)
 {
-    M_ShadeBackground();
+    M_FillBackground();
 
     M_WriteTextCentered(27, "AUTOMAP", cr[CR_YELLOW]);
 
@@ -2259,7 +2276,7 @@ static menu_t CRLDef_Keybinds_6 =
 
 static void M_DrawCRL_Keybinds_6 (void)
 {
-    M_ShadeBackground();
+    M_FillBackground();
 
     M_WriteTextCentered(27, "FUNCTION KEYS", cr[CR_YELLOW]);
 
@@ -2376,7 +2393,7 @@ static menu_t CRLDef_Keybinds_7 =
 
 static void M_DrawCRL_Keybinds_7 (void)
 {
-    M_ShadeBackground();
+    M_FillBackground();
 
     M_WriteTextCentered(27, "SHORTCUT KEYS", cr[CR_YELLOW]);
 
@@ -2459,6 +2476,7 @@ static void M_Bind_Reset (int choice)
 	    M_StringJoin("RESET KEYBOARD BINDINGS TO DEFAULT VALUES?",
                      "\n\n", PRESSYN, NULL);
 
+    messageFillsBackground = true;
     M_StartMessage(resetwarning, M_Bind_ResetResponse, true);
 }
 
@@ -2499,7 +2517,7 @@ static menu_t CRLDef_MouseBinds =
 
 static void M_DrawCRL_MouseBinds (void)
 {
-    M_ShadeBackground();
+    M_FillBackground();
 
     M_WriteTextCentered(27, "MOUSE BINDINGS", cr[CR_YELLOW]);
 
@@ -2584,6 +2602,7 @@ static void M_Bind_M_Reset (int choice)
 	    M_StringJoin("RESET MOUSE BINDINGS TO DEFAULT VALUES?",
                      "\n\n", PRESSYN, NULL);
 
+    messageFillsBackground = true;
     M_StartMessage(resetwarning, M_Bind_M_ResetResponse, true);
 }
 
@@ -4508,6 +4527,7 @@ boolean M_Responder (event_t* ev)
 
 	menuactive = messageLastMenuActive;
 	messageToPrint = 0;
+	messageFillsBackground = false;
 	if (messageRoutine)
 	    messageRoutine(key);
 
@@ -4996,6 +5016,10 @@ void M_Drawer (void)
     // Horiz. & Vertically center string and print it.
     if (messageToPrint)
     {
+	if (messageFillsBackground)
+	{
+	    M_FillBackground();
+	}
 	start = 0;
 	y = SCREENHEIGHT/2 - M_StringHeight(messageString) / 2;
 	while (messageString[start] != '\0')
@@ -5170,6 +5194,7 @@ void M_Init (void)
     whichSkull = 0;
     skullAnimCounter = 10;
     messageToPrint = 0;
+    messageFillsBackground = false;
     messageString = NULL;
     messageLastMenuActive = menuactive;
     quickSaveSlot = -1;
@@ -5758,13 +5783,13 @@ static void M_DrawBindKey (int itemNum, int yPos, int key)
 
 static void M_DrawBindFooter (char *pagenum, boolean drawPages)
 {
-    M_WriteTextCentered(144, "PRESS ENTER TO BIND, DEL TO CLEAR",  cr[CR_MENU_DARK1]);
+    M_WriteTextCentered(162, "PRESS ENTER TO BIND, DEL TO CLEAR",  cr[CR_MENU_DARK1]);
 
     if (drawPages)
     {
-        M_WriteText(CRL_MENU_LEFTOFFSET, 153, "< PGUP", cr[CR_MENU_DARK3]);
-        M_WriteTextCentered(153, M_StringJoin("PAGE ", pagenum, "/7", NULL), cr[CR_MENU_DARK2]);
-        M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth("PGDN >"), 153, "PGDN >", cr[CR_MENU_DARK3]);
+        M_WriteText(CRL_MENU_LEFTOFFSET, 171, "< PGUP", cr[CR_MENU_DARK3]);
+        M_WriteTextCentered(171, M_StringJoin("PAGE ", pagenum, "/7", NULL), cr[CR_MENU_DARK2]);
+        M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth("PGDN >"), 171, "PGDN >", cr[CR_MENU_DARK3]);
     }
 }
 
