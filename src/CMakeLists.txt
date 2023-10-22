@@ -1,4 +1,7 @@
-foreach(SUBDIR doom heretic setup)
+foreach(SUBDIR 
+        doom 
+        # heretic 
+        setup)
     add_subdirectory("${SUBDIR}")
 endforeach()
 
@@ -57,8 +60,6 @@ set(GAME_SOURCE_FILES
     i_sound.c           i_sound.h
     i_timer.c           i_timer.h
     i_video.c           i_video.h
-    i_winmusic.c
-    midifallback.c      midifallback.h
     midifile.c          midifile.h
     mus2mid.c           mus2mid.h
     m_bbox.c            m_bbox.h
@@ -91,10 +92,18 @@ set(GAME_SOURCE_FILES
     w_wad.c             w_wad.h
     w_file.c            w_file.h
     w_file_stdc.c
-    w_file_posix.c
-    w_file_win32.c
     w_merge.c           w_merge.h
     z_zone.c            z_zone.h)
+
+# Platform-dependent source files:
+
+if(WIN32)
+    list(APPEND GAME_SOURCE_FILES i_winmusic.c)
+    list(APPEND GAME_SOURCE_FILES midifallback.c    midifallback.h)
+    list(APPEND GAME_SOURCE_FILES w_file_win32.c)
+elseif(POSIX)
+    list(APPEND GAME_SOURCE_FILES w_file_posix.c)
+endif()
 
 set(GAME_INCLUDE_DIRS "${CMAKE_CURRENT_BINARY_DIR}/../")
 
@@ -141,24 +150,24 @@ if(MSVC)
                           LINK_FLAGS "/MANIFEST:NO")
 endif()
 
-if(WIN32)
-    add_executable("${PROGRAM_PREFIX}heretic" WIN32 ${SOURCE_FILES_WITH_DEH} "${CMAKE_CURRENT_BINARY_DIR}/heretic-res.rc")
-else()
-    add_executable("${PROGRAM_PREFIX}heretic" ${SOURCE_FILES_WITH_DEH})
-endif()
-
-target_include_directories("${PROGRAM_PREFIX}heretic" PRIVATE ${GAME_INCLUDE_DIRS})
-target_link_libraries("${PROGRAM_PREFIX}heretic" heretic ${EXTRA_LIBS})
-
-if(MSVC)
-    set_target_properties("${PROGRAM_PREFIX}heretic" PROPERTIES
-                          LINK_FLAGS "/MANIFEST:NO")
-endif()
+# if(WIN32)
+#     add_executable("${PROGRAM_PREFIX}heretic" WIN32 ${SOURCE_FILES_WITH_DEH} "${CMAKE_CURRENT_BINARY_DIR}/heretic-res.rc")
+# else()
+#     add_executable("${PROGRAM_PREFIX}heretic" ${SOURCE_FILES_WITH_DEH})
+# endif()
+# 
+# target_include_directories("${PROGRAM_PREFIX}heretic" PRIVATE ${GAME_INCLUDE_DIRS})
+# target_link_libraries("${PROGRAM_PREFIX}heretic" heretic ${EXTRA_LIBS})
+# 
+# if(MSVC)
+#     set_target_properties("${PROGRAM_PREFIX}heretic" PROPERTIES
+#                           LINK_FLAGS "/MANIFEST:NO")
+# endif()
 
 set_target_properties("${PROGRAM_PREFIX}doom" PROPERTIES
                       INTERPROCEDURAL_OPTIMIZATION ${ENABLE_LTO})
-set_target_properties("${PROGRAM_PREFIX}heretic" PROPERTIES
-                      INTERPROCEDURAL_OPTIMIZATION ${ENABLE_LTO})
+# set_target_properties("${PROGRAM_PREFIX}heretic" PROPERTIES
+#                       INTERPROCEDURAL_OPTIMIZATION ${ENABLE_LTO})
 
 # Source files needed for chocolate-setup:
 
