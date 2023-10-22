@@ -53,6 +53,7 @@ void ST_Start (void);
 // Called by startup code.
 void ST_Init (void);
 
+extern void ST_cheat_MDK (void);
 
 extern cheatseq_t cheat_mus;
 extern cheatseq_t cheat_god;

@@ -1086,6 +1086,29 @@ boolean G_Responder (event_t* ev)
                        CRL_NOTARGET_ON : CRL_NOTARGET_OFF, false, NULL);
     }
 
+    // [JN] CRL - MDK cheat.
+    if (ev->data1 == key_crl_mdk)
+    {
+        // Allow MDK only in single player game, otherwise desyncs may occur.
+        if (demorecording)
+        {
+            CRL_SetMessage(&players[consoleplayer], CRL_MDK_NA_R , false, NULL);
+            return true;
+        }
+        if (demoplayback)
+        {
+            CRL_SetMessage(&players[consoleplayer], CRL_MDK_NA_P , false, NULL);
+            return true;
+        }
+        if (netgame)
+        {
+            CRL_SetMessage(&players[consoleplayer], CRL_MDK_NA_N , false, NULL);
+            return true;
+        }
+        
+        ST_cheat_MDK();
+    }
+
     // [JN] CRL - Toggle static engine limits.
     if (ev->data1 == key_crl_limits)
     {
