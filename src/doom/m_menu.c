@@ -941,7 +941,6 @@ static menuitem_t CRLMenu_Main[]=
     { 2, "NO TARGET MODE",       M_CRL_NoTarget,        'n'},
     { 2, "NO MOMENTUM MODE",     M_CRL_NoMomentum,      'n'},
     {-1, "", 0, '\0'},
-    {-1, "", 0, '\0'},
     { 1, "VIDEO OPTIONS",        M_ChooseCRL_Video,     'v'},
     { 1, "SOUND OPTIONS",        M_ChooseCRL_Sound,     's'},
     { 1, "CONTROL SETTINGS",     M_ChooseCRL_Controls,  'c'},
@@ -949,6 +948,7 @@ static menuitem_t CRLMenu_Main[]=
     { 1, "GAMEPLAY FEATURES",    M_ChooseCRL_Gameplay,  'g'},
     { 1, "STATIC ENGINE LIMITS", M_ChooseCRL_Limits,    's'},
     { 1, "VANILLA OPTIONS MENU", M_Options,             'v'},
+    {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'}
 };
@@ -980,7 +980,6 @@ static void M_DrawCRL_Main (void)
     sprintf(str, crl_spectating ? "ON" : "OFF");
     M_WriteText (CRL_MENU_RIGHTOFFSET_SML - M_StringWidth(str), 36, str,
                  M_Item_Glow(0, crl_spectating ? GLOW_GREEN : GLOW_DARKRED));
-                 //crl_spectating ? cr[CR_GREEN] : cr[CR_DARKRED]);
 
     // Freeze
     sprintf(str, !singleplayer ? "N/A" :
@@ -1010,7 +1009,7 @@ static void M_DrawCRL_Main (void)
                  M_Item_Glow(4, !singleplayer ? GLOW_DARKRED :
                              player->cheats & CF_NOMOMENTUM ? GLOW_GREEN : GLOW_DARKRED));
 
-    M_WriteTextCentered(90, "SETTINGS", cr[CR_YELLOW]);
+    M_WriteTextCentered(81, "SETTINGS", cr[CR_YELLOW]);
 }
 
 static void M_CRL_Spectating (int choice)
@@ -2603,11 +2602,11 @@ static menuitem_t CRLMenu_Widgets[]=
     { 2, "POWERUP TIMERS",       M_CRL_Widget_Powerups,   'p'},
     { 2, "TARGET'S HEALTH",      M_CRL_Widget_Health,     't'},
     {-1, "", 0, '\0'},
-    {-1, "", 0, '\0'},
     { 2, "ROTATE MODE",          M_CRL_Automap_Rotate,    'r'},
     { 2, "OVERLAY MODE",         M_CRL_Automap_Overlay,   'o'},
     { 2, "DRAWING MODE",         M_CRL_Automap_Drawing,   'd'},
     { 2, "MARK SECRET SECTORS",  M_CRL_Automap_Secrets,   'm'},
+    {-1, "", 0, '\0'},
     {-1, "", 0, '\0'}
 };
 
@@ -2686,28 +2685,28 @@ static void M_DrawCRL_Widgets (void)
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 99, str,
                  M_Item_Glow(7, crl_widget_health ? GLOW_GREEN : GLOW_DARKRED));
 
-    M_WriteTextCentered(117, "AUTOMAP", cr[CR_YELLOW]);
+    M_WriteTextCentered(108, "AUTOMAP", cr[CR_YELLOW]);
 
     // Rotate mode
     sprintf(str, crl_automap_rotate ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 126, str,
-                 M_Item_Glow(10, crl_automap_rotate ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 117, str,
+                 M_Item_Glow(9, crl_automap_rotate ? GLOW_GREEN : GLOW_DARKRED));
 
     // Overlay mode
     sprintf(str, crl_automap_overlay ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 135, str,
-                 M_Item_Glow(11, crl_automap_overlay ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 126, str,
+                 M_Item_Glow(10, crl_automap_overlay ? GLOW_GREEN : GLOW_DARKRED));
 
     // Drawing mode
     sprintf(str, crl_automap_mode == 1 ? "FLOOR VISPLANES" :
                  crl_automap_mode == 2 ? "CEILING VISPLANES" : "NORMAL");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 144, str,
-                 M_Item_Glow(12, crl_automap_mode ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 135, str,
+                 M_Item_Glow(11, crl_automap_mode ? GLOW_GREEN : GLOW_DARKRED));
 
     // Mark secret sectors
     sprintf(str, crl_automap_secrets ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 153, str,
-                 M_Item_Glow(13, crl_automap_secrets ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 144, str,
+                 M_Item_Glow(12, crl_automap_secrets ? GLOW_GREEN : GLOW_DARKRED));
 }
 
 static void M_CRL_Widget_Render (int choice)
@@ -2782,11 +2781,11 @@ static menuitem_t CRLMenu_Gameplay[]=
     { 2, "REPORT REVEALED SECRETS",  M_CRL_RevealedSecrets,  'r'},
     { 2, "RESTORE MONSTER TARGETS",  M_CRL_RestoreTargets,   'r'},
     {-1, "", 0, '\0'},
-    {-1, "", 0, '\0'},
     { 2, "SHOW DEMO TIMER",          M_CRL_DemoTimer,        's'},
     { 2, "TIMER DIRECTION",          M_CRL_TimerDirection,   't'},
     { 2, "SHOW PROGRESS BAR",        M_CRL_ProgressBar,      's'},
     { 2, "PLAY INTERNAL DEMOS",      M_CRL_InternalDemos,    'p'},
+    {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
@@ -2841,29 +2840,29 @@ static void M_DrawCRL_Gameplay (void)
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 72, str,
                  M_Item_Glow(4, crl_restore_targets ? GLOW_GREEN : GLOW_DARKRED));
 
-    M_WriteTextCentered(90, "DEMOS", cr[CR_YELLOW]);
+    M_WriteTextCentered(81, "DEMOS", cr[CR_YELLOW]);
 
     // Demo timer
     sprintf(str, crl_demo_timer == 1 ? "PLAYBACK" : 
                  crl_demo_timer == 2 ? "RECORDING" : 
                  crl_demo_timer == 3 ? "ALWAYS" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 99, str,
-                 M_Item_Glow(7, crl_demo_timer ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 90, str,
+                 M_Item_Glow(6, crl_demo_timer ? GLOW_GREEN : GLOW_DARKRED));
 
     // Timer direction
     sprintf(str, crl_demo_timerdir ? "BACKWARD" : "FORWARD");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 108, str,
-                 M_Item_Glow(8, crl_demo_timer ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 99, str,
+                 M_Item_Glow(7, crl_demo_timer ? GLOW_GREEN : GLOW_DARKRED));
 
     // Progress bar
     sprintf(str, crl_demo_bar ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 117, str,
-                 M_Item_Glow(9, crl_demo_bar ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 108, str,
+                 M_Item_Glow(8, crl_demo_bar ? GLOW_GREEN : GLOW_DARKRED));
 
     // Play internal demos
     sprintf(str, crl_internal_demos ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 126, str,
-                 M_Item_Glow(10, crl_internal_demos ? GLOW_DARKRED : GLOW_GREEN));
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 117, str,
+                 M_Item_Glow(9, crl_internal_demos ? GLOW_DARKRED : GLOW_GREEN));
 }
 
 static void M_CRL_DefaulSkill (int choice)
