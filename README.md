@@ -1,6 +1,6 @@
 # CRL
 
-[![CRL icon](https://github.com/JNechaevsky/ChocoRenderLimits/blob/master/data/doom.png)](https://github.com/JNechaevsky/ChocoRenderLimits)
+[![CRL icon](https://github.com/JNechaevsky/CRL/blob/main/data/doom.png)](https://github.com/JNechaevsky/CRL)
 
 CRL is a continuation of [Chocorenderlimits](https://doomwiki.org/wiki/Chocorenderlimits) source port created by [RestlessRodent](https://doomwiki.org/wiki/RestlessRodent).
 
