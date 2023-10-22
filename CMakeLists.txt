@@ -35,6 +35,7 @@ else()
                         "-Wpedantic"
                         # "-Wextra"
                         # "-Wno-ignored-qualifiers"
+                        # "-Wno-strict-prototypes"
                         )
 endif()
 
