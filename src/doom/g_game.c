@@ -1367,6 +1367,10 @@ void G_Ticker (void)
     oldgamestate = gamestate;
     oldleveltime = realleveltime;
     
+    // [JN] Reduce message tics independently from framerate and game states.
+    // Tics can't go negative.
+    MSG_Ticker();
+
     // [crispy] no pause at intermission screen during demo playback 
     // to avoid desyncs (from prboom-plus)
     if ((paused & 2 || (!demoplayback && menuactive && !netgame)) 
@@ -1412,10 +1416,6 @@ void G_Ticker (void)
 	D_PageTicker (); 
 	break;
     }        
-
-    // [JN] Reduce message tics independently from framerate and game states.
-    // Tics can't go negative.
-    MSG_Ticker();
 } 
  
  

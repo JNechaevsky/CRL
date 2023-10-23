@@ -36,6 +36,8 @@
 #include "sounds.h"
 
 #include "crlcore.h"
+#include "crlvars.h"
+#include "crlfunc.h"
 
 
 #define QUEUESIZE       128
