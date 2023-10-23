@@ -566,6 +566,7 @@ static void M_CRL_Gamma (int choice);
 static void M_CRL_MenuBgShading (int choice);
 static void M_CRL_LevelBrightness (int choice);
 static void M_CRL_TextShadows (int choice);
+static void M_CRL_MsgCritical (int choice);
 
 static void M_ChooseCRL_Sound (int choice);
 static void M_DrawCRL_Sound (void);
@@ -1277,17 +1278,17 @@ static void M_CRL_Colorblind (int choice)
 
 static menuitem_t CRLMenu_Display[]=
 {
-    { 2, "GAMMA-CORRECTION",         M_CRL_Gamma,  'g'},
+    { 2, "GAMMA-CORRECTION",         M_CRL_Gamma,            'g'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     { 2, "MENU BACKGROUND SHADING",  M_CRL_MenuBgShading,    'm'},
     { 2, "EXTRA LEVEL BRIGHTNESS",   M_CRL_LevelBrightness,  'e'},
     {-1, "", 0, '\0'},
     { 2, "MESSAGES ENABLED",         M_ChangeMessages,       'm'},
+    { 2, "CRITICAL MESSAGE",         M_CRL_MsgCritical,      'c'},
     { 2, "TEXT CAST SHADOWS",        M_CRL_TextShadows,      't'},
     {-1, "", 0, '\0'},
-    { 2, "MESSAGE COLOR",            NULL,         'm'},
-    { 2, "BLINKING STYLE",           NULL,         'b'},
+    {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
@@ -1344,12 +1345,21 @@ static void M_DrawCRL_Display (void)
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 90, str, 
                  M_Item_Glow(6, showMessages ? GLOW_GREEN : GLOW_DARKRED));
 
+    // Critical message style
+    sprintf(str, crl_msg_critical == 1 ? "BLINKING" :
+                 crl_msg_critical == 2 ? "GLOWING"  : "STATIC");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 99, str,
+                 M_Item_Glow(7, crl_msg_critical ? GLOW_GREEN : GLOW_DARKRED));
+    // Show nice preview-reminder :)
+    if (itemOn == 7)
+    {
+        CRL_SetCriticalMessage("CRL_REMINDER:", "CRITICAL MESSAGES ARE ALWAYS ENABLED!", 2);
+    }
+
     // Text casts shadows
     sprintf(str, crl_text_shadows ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 99, str, 
-                 M_Item_Glow(7, crl_text_shadows ? GLOW_GREEN : GLOW_DARKRED));
-    
-    M_WriteTextCentered(108, "CRITICAL MESSAGES", cr[CR_YELLOW]);
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 108, str, 
+                 M_Item_Glow(8, crl_text_shadows ? GLOW_GREEN : GLOW_DARKRED));
 }
 
 static void M_CRL_Gamma (int choice)
@@ -1402,6 +1412,11 @@ static void M_CRL_LevelBrightness (int choice)
         default:
             break;
     }
+}
+
+static void M_CRL_MsgCritical (int choice)
+{
+    crl_msg_critical = M_INT_Slider(crl_msg_critical, 0, 2, choice);
 }
 
 // -----------------------------------------------------------------------------

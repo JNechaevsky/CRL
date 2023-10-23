@@ -38,6 +38,7 @@ int crl_hom_effect = 1;
 int crl_gamma = 10;
 int crl_menu_shading = 12;
 int crl_level_brightness = 0;
+int crl_msg_critical = 1;
 int crl_screen_size = 10;
 int crl_screenwipe = 0;
 int crl_text_shadows = 0;
@@ -108,6 +109,7 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_gamma",                      &crl_gamma);
     M_BindIntVariable("crl_menu_shading",               &crl_menu_shading);
     M_BindIntVariable("crl_level_brightness",           &crl_level_brightness);
+    M_BindIntVariable("crl_msg_critical",               &crl_msg_critical);
     M_BindIntVariable("crl_screen_size",                &crl_screen_size);
     M_BindIntVariable("crl_screenwipe",                 &crl_screenwipe);
     M_BindIntVariable("crl_text_shadows",               &crl_text_shadows);

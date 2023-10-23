@@ -38,6 +38,7 @@ extern int crl_hom_effect;
 extern int crl_gamma;
 extern int crl_menu_shading;
 extern int crl_level_brightness;
+extern int crl_msg_critical;
 extern int crl_screen_size;
 extern int crl_screenwipe;
 extern int crl_text_shadows;
