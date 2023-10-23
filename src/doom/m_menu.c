@@ -3402,14 +3402,17 @@ static void M_DrawReadThisCommercial(void)
 static void M_DrawSound(void)
 {
     const char *m_svol = DEH_String("M_SVOL");
+    static char str[8];
 
     V_DrawShadowedPatch(60, 38, W_CacheLumpName(m_svol, PU_CACHE), m_svol);
 
-    M_DrawThermo(SoundDef.x,SoundDef.y+LINEHEIGHT*(sfx_vol+1),
-		 16,sfxVolume);
+    M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (sfx_vol + 1), 16, sfxVolume);
+    sprintf(str,"%d", sfxVolume);
+    M_WriteText (226, 83, str, sfxVolume ? NULL : cr[CR_DARKRED]);
 
-    M_DrawThermo(SoundDef.x,SoundDef.y+LINEHEIGHT*(music_vol+1),
-		 16,musicVolume);
+    M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (music_vol + 1), 16, musicVolume);
+    sprintf(str,"%d", musicVolume);
+    M_WriteText (226, 115, str, musicVolume ? NULL : cr[CR_DARKRED]);
 }
 
 static void M_Sound(int choice)
