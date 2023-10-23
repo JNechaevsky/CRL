@@ -565,8 +565,8 @@ static void M_DrawCRL_Display (void);
 static void M_CRL_Gamma (int choice);
 static void M_CRL_MenuBgShading (int choice);
 static void M_CRL_LevelBrightness (int choice);
-static void M_CRL_TextShadows (int choice);
 static void M_CRL_MsgCritical (int choice);
+static void M_CRL_TextShadows (int choice);
 
 static void M_ChooseCRL_Sound (int choice);
 static void M_DrawCRL_Sound (void);
@@ -1254,11 +1254,6 @@ static void M_CRL_ScreenWipe (int choice)
     crl_screenwipe ^= 1;
 }
 
-static void M_CRL_TextShadows (int choice)
-{
-    crl_text_shadows ^= 1;
-}
-
 static void M_CRL_ShowENDOOM (int choice)
 {
     show_endoom ^= 1;
@@ -1346,8 +1341,7 @@ static void M_DrawCRL_Display (void)
                  M_Item_Glow(6, showMessages ? GLOW_GREEN : GLOW_DARKRED));
 
     // Critical message style
-    sprintf(str, crl_msg_critical == 1 ? "BLINKING" :
-                 crl_msg_critical == 2 ? "GLOWING"  : "STATIC");
+    sprintf(str, crl_msg_critical ? "BLINKING" : "STATIC");
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 99, str,
                  M_Item_Glow(7, crl_msg_critical ? GLOW_GREEN : GLOW_DARKRED));
     // Show nice preview-reminder :)
@@ -1416,7 +1410,12 @@ static void M_CRL_LevelBrightness (int choice)
 
 static void M_CRL_MsgCritical (int choice)
 {
-    crl_msg_critical = M_INT_Slider(crl_msg_critical, 0, 2, choice);
+    crl_msg_critical ^= 1;
+}
+
+static void M_CRL_TextShadows (int choice)
+{
+    crl_text_shadows ^= 1;
 }
 
 // -----------------------------------------------------------------------------

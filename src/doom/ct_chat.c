@@ -489,22 +489,4 @@ void MSG_Ticker (void)
     {
         players[displayplayer].criticalmessageTics--;
     }
-
-    // Glowing effect for critical messages.
-    if (crl_msg_critical == 2)
-    {
-        static boolean glow_direction = false;
-
-        if (!glow_direction && ++crl_msg_critical_glow == 5)
-        {
-            // Brightening
-            glow_direction = true;
-        }
-        else
-        if (glow_direction && --crl_msg_critical_glow == -5)
-        {
-            // Darkening
-            glow_direction = false;
-        }
-    }
 }

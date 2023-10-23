@@ -23,7 +23,6 @@ extern int  CRL_PlaneBorderColors[NUMPLANEBORDERCOLORS];
 
 extern void CRL_DrawMessage (void);
 extern void CRL_DrawCriticalMessage (void);
-extern short crl_msg_critical_glow;
 
 extern void CRL_Clear_MAX (void);
 extern void CRL_Get_MAX (void);

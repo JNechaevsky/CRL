@@ -91,24 +91,6 @@ void CRL_DrawMessage (void)
 // [JN] Draws critical message on the second and third lines of the screen.
 // -----------------------------------------------------------------------------
 
-short crl_msg_critical_glow;
-
-static byte *CRL_GlowCriticalMessage (const int tics)
-{
-    return
-        tics ==  5 ? cr[CR_RED_BRIGHT5] :
-        tics ==  4 ? cr[CR_RED_BRIGHT4] :
-        tics ==  3 ? cr[CR_RED_BRIGHT3] :
-        tics ==  2 ? cr[CR_RED_BRIGHT2] :
-        tics ==  1 ? cr[CR_RED_BRIGHT1] :
-        tics == -1 ? cr[CR_RED_DARK1]   :
-        tics == -2 ? cr[CR_RED_DARK2]   :
-        tics == -3 ? cr[CR_RED_DARK3]   :
-        tics == -4 ? cr[CR_RED_DARK4]   :
-        tics == -5 ? cr[CR_RED_DARK5]   :
-      /*tics ==  0*/ cr[CR_RED]         ;
-}
-
 void CRL_DrawCriticalMessage (void)
 {
     player_t *player = &players[displayplayer];
@@ -119,23 +101,19 @@ void CRL_DrawCriticalMessage (void)
         return;  // No message
     }
 
-    if (crl_msg_critical == 0)  // Static
+    if (crl_msg_critical == 0)
     {
+        // Static
         M_WriteTextCritical(9, player->criticalmessage1, player->criticalmessage2,
                             cr[CR_RED]);
     }
     else
-    if (crl_msg_critical == 1)  // Blinking
     {
+        // Blinking
         M_WriteTextCritical(9, player->criticalmessage1, player->criticalmessage2,
                             gametic & 8 ? cr[CR_DARKRED] : cr[CR_RED]);
     }
-    else
-    if (crl_msg_critical == 2)  // Glowing
-    {
-        M_WriteTextCritical(9, player->criticalmessage1, player->criticalmessage2,
-                            CRL_GlowCriticalMessage(crl_msg_critical_glow));
-    }
+
 }
 
 // =============================================================================
