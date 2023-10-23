@@ -4266,6 +4266,9 @@ boolean M_Responder (event_t* ev)
         // First click on close button = bring up quit confirm message.
         // Second click on close button = confirm quit
 
+        // [JN] Ensure to hide solid background.
+        messageFillsBackground = false;
+
         if (menuactive && messageToPrint && messageRoutine == M_QuitResponse)
         {
             M_QuitResponse(key_menu_confirm);
