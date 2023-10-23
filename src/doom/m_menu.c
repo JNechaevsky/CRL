@@ -556,11 +556,14 @@ static void M_CRL_VSync (int choice);
 static void M_CRL_ShowFPS (int choice);
 static void M_CRL_VisplanesDraw (int choice);
 static void M_CRL_HOMDraw (int choice);
-static void M_CRL_Gamma (int choice);
 static void M_CRL_ScreenWipe (int choice);
-static void M_CRL_TextShadows (int choice);
 static void M_CRL_ShowENDOOM (int choice);
 static void M_CRL_Colorblind (int choice);
+
+static void M_ChooseCRL_Display (int choice);
+static void M_DrawCRL_Display (void);
+static void M_CRL_Gamma (int choice);
+static void M_CRL_TextShadows (int choice);
 
 static void M_ChooseCRL_Sound (int choice);
 static void M_DrawCRL_Sound (void);
@@ -960,13 +963,13 @@ static menuitem_t CRLMenu_Main[]=
     { 2, "NO MOMENTUM MODE",     M_CRL_NoMomentum,      'n'},
     {-1, "", 0, '\0'},
     { 1, "VIDEO OPTIONS",        M_ChooseCRL_Video,     'v'},
+    { 1, "DISPLAY OPTIONS",      M_ChooseCRL_Display,   'd'},
     { 1, "SOUND OPTIONS",        M_ChooseCRL_Sound,     's'},
     { 1, "CONTROL SETTINGS",     M_ChooseCRL_Controls,  'c'},
     { 1, "WIDGETS AND AUTOMAP",  M_ChooseCRL_Widgets,   'w'},
     { 1, "GAMEPLAY FEATURES",    M_ChooseCRL_Gameplay,  'g'},
     { 1, "STATIC ENGINE LIMITS", M_ChooseCRL_Limits,    's'},
     { 1, "VANILLA OPTIONS MENU", M_Options,             'v'},
-    {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'}
 };
@@ -1088,14 +1091,14 @@ static menuitem_t CRLMenu_Video[]=
     { 2, "SHOW FPS COUNTER",    M_CRL_ShowFPS,        's'},
     { 2, "VISPLANES DRAWING",   M_CRL_VisplanesDraw,  'v'},
     { 2, "HOM EFFECT",          M_CRL_HOMDraw,        'h'},
-    { 2, "GAMMA-CORRECTION",    M_CRL_Gamma,          'g'},
-    {-1, "", 0, '\0'},
-    {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     { 2, "SCREEN WIPE EFFECT",  M_CRL_ScreenWipe,     's'},
-    { 2, "TEXT CASTS SHADOWS",  M_CRL_TextShadows,    't'},
     { 2, "SHOW ENDOOM SCREEN",  M_CRL_ShowENDOOM,     's'},
     { 2, "COLORBLIND",          M_CRL_Colorblind,     'c'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
     {-1, "", 0, '\0'}
 };
 
@@ -1119,11 +1122,7 @@ static void M_DrawCRL_Video (void)
 {
     static char str[32];
 
-    // Temporary unshade background while changing gamma-correction.
-    if (shade_wait < I_GetTime())
-    {
-        M_ShadeBackground();
-    }
+    M_ShadeBackground();
 
     M_WriteTextCentered(27, "VIDEO OPTIONS", cr[CR_YELLOW]);
 
@@ -1163,34 +1162,24 @@ static void M_DrawCRL_Video (void)
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 81, str,
                  M_Item_Glow(5, crl_hom_effect ? GLOW_GREEN : GLOW_DARKRED));
 
-    // Gamma-correction slider and num
-    M_DrawThermo(46, 99, 15, crl_gamma);
-    M_WriteText (184, 102, gammalvl[crl_gamma],
-                           M_Item_Glow(6, GLOW_UNCOLORED));
-
-    M_WriteTextCentered(117, "MISCELLANEOUS", cr[CR_YELLOW]);
+    M_WriteTextCentered(90, "MISCELLANEOUS", cr[CR_YELLOW]);
 
     // Screen wipe effect
     sprintf(str, crl_screenwipe ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 126, str,
-                 M_Item_Glow(10, crl_screenwipe ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 99, str,
+                 M_Item_Glow(7, crl_screenwipe ? GLOW_GREEN : GLOW_DARKRED));
 
-    // Text casts shadows
-    sprintf(str, crl_text_shadows ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 135, str, 
-                 M_Item_Glow(11, crl_text_shadows ? GLOW_GREEN : GLOW_DARKRED));
-
-    // Screen wipe effect
+    // Screen ENDOOM screen
     sprintf(str, show_endoom ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 144, str, 
-                 M_Item_Glow(12, show_endoom ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 108, str, 
+                 M_Item_Glow(8, show_endoom ? GLOW_GREEN : GLOW_DARKRED));
 
     // Colorblind
     sprintf(str, crl_colorblind == 1 ? "RED/GREEN" :
                  crl_colorblind == 2 ? "BLUE/YELLOW" :
                  crl_colorblind == 3 ? "MONOCHROME" : "NONE");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 153, str,
-                 M_Item_Glow(13, crl_colorblind ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 117, str,
+                 M_Item_Glow(9, crl_colorblind ? GLOW_GREEN : GLOW_DARKRED));
 }
 
 static void M_CRL_UncappedFPS (int choice)
@@ -1251,26 +1240,6 @@ static void M_CRL_HOMDraw (int choice)
     crl_hom_effect = M_INT_Slider(crl_hom_effect, 0, 2, choice);
 }
 
-static void M_CRL_Gamma (int choice)
-{
-    shade_wait = I_GetTime() + TICRATE;
-
-    switch (choice)
-    {
-        case 0:
-            if (crl_gamma)
-                crl_gamma--;
-            break;
-        case 1:
-            if (crl_gamma < 14)
-                crl_gamma++;
-        default:
-            break;
-    }
-
-    CRL_ReloadPalette();
-}
-
 static void M_CRL_ScreenWipe (int choice)
 {
     crl_screenwipe ^= 1;
@@ -1292,6 +1261,97 @@ static void M_CRL_Colorblind (int choice)
 
     // [JN] 1 - always do a full palette reset when colorblind is changed.
     I_SetPalette ((byte *)W_CacheLumpName(DEH_String("PLAYPAL"), PU_CACHE) + st_palette * 768, 1);
+}
+
+// -----------------------------------------------------------------------------
+// Display options
+// -----------------------------------------------------------------------------
+
+static menuitem_t CRLMenu_Display[]=
+{
+    { 2, "GAMMA-CORRECTION",         M_CRL_Gamma,  'g'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    { 2, "MENU BACKGROUND SHADING",  NULL,         'm'},
+    { 2, "EXTRA LEVEL BRIGHTNESS",   NULL,         'e'},
+    {-1, "", 0, '\0'},
+    { 2, "MESSAGES ENABLED",         M_ChangeMessages,   'm'},
+    { 2, "TEXT CAST SHADOWS",        M_CRL_TextShadows,  't'},
+    {-1, "", 0, '\0'},
+    { 2, "MESSAGE COLOR",            NULL,         'm'},
+    { 2, "BLINKING STYLE",           NULL,         'b'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'},
+    {-1, "", 0, '\0'}
+};
+
+static menu_t CRLDef_Display =
+{
+    m_crl_end,
+    &CRLDef_Main,
+    CRLMenu_Display,
+    M_DrawCRL_Display,
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    0,
+    true
+};
+
+static void M_ChooseCRL_Display (int choice)
+{
+    M_SetupNextMenu (&CRLDef_Display);
+}
+
+static void M_DrawCRL_Display (void)
+{
+    char str[32];
+
+    // Temporary unshade background while changing gamma-correction.
+    if (shade_wait < I_GetTime())
+    {
+        M_ShadeBackground();
+    }
+
+    M_WriteTextCentered(27, "DISPLAY OPTIONS", cr[CR_YELLOW]);
+
+    // Gamma-correction slider and num
+    M_DrawThermo(46, 45, 15, crl_gamma);
+    M_WriteText (184, 48, gammalvl[crl_gamma],
+                           M_Item_Glow(0, GLOW_UNCOLORED));
+
+    M_WriteTextCentered(81, "MESSAGES SETTINGS", cr[CR_YELLOW]);
+
+    // Messages enabled
+    sprintf(str, showMessages ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 90, str, 
+                 M_Item_Glow(6, showMessages ? GLOW_GREEN : GLOW_DARKRED));
+
+    // Text casts shadows
+    sprintf(str, crl_text_shadows ? "ON" : "OFF");
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 99, str, 
+                 M_Item_Glow(7, crl_text_shadows ? GLOW_GREEN : GLOW_DARKRED));
+    
+    M_WriteTextCentered(108, "CRITICAL MESSAGES", cr[CR_YELLOW]);
+}
+
+static void M_CRL_Gamma (int choice)
+{
+    shade_wait = I_GetTime() + TICRATE;
+
+    switch (choice)
+    {
+        case 0:
+            if (crl_gamma)
+                crl_gamma--;
+            break;
+        case 1:
+            if (crl_gamma < 14)
+                crl_gamma++;
+        default:
+            break;
+    }
+
+    CRL_ReloadPalette();
 }
 
 // -----------------------------------------------------------------------------
