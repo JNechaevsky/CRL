@@ -563,6 +563,7 @@ static void M_CRL_Colorblind (int choice);
 static void M_ChooseCRL_Display (int choice);
 static void M_DrawCRL_Display (void);
 static void M_CRL_Gamma (int choice);
+static void M_CRL_MenuBgShading (int choice);
 static void M_CRL_TextShadows (int choice);
 
 static void M_ChooseCRL_Sound (int choice);
@@ -766,9 +767,15 @@ static int shade_wait;
 // [JN] Shade background while in CRL menu.
 static void M_ShadeBackground (void)
 {
+    // Return earlier if shading disabled.
+    if (!crl_menu_shading)
+    {
+        return;
+    }
+
     for (int y = 0; y < SCREENWIDTH * SCREENHEIGHT; y++)
     {
-        I_VideoBuffer[y] = colormaps[12 * 256 + I_VideoBuffer[y]];
+        I_VideoBuffer[y] = colormaps[crl_menu_shading * 256 + I_VideoBuffer[y]];
     }
 }
 
@@ -1272,7 +1279,7 @@ static menuitem_t CRLMenu_Display[]=
     { 2, "GAMMA-CORRECTION",         M_CRL_Gamma,  'g'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
-    { 2, "MENU BACKGROUND SHADING",  NULL,         'm'},
+    { 2, "MENU BACKGROUND SHADING",  M_CRL_MenuBgShading,         'm'},
     { 2, "EXTRA LEVEL BRIGHTNESS",   NULL,         'e'},
     {-1, "", 0, '\0'},
     { 2, "MESSAGES ENABLED",         M_ChangeMessages,   'm'},
@@ -1319,6 +1326,13 @@ static void M_DrawCRL_Display (void)
     M_WriteText (184, 48, gammalvl[crl_gamma],
                            M_Item_Glow(0, GLOW_UNCOLORED));
 
+    // Menu background shading
+    sprintf(str, "%d", crl_menu_shading);
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 63, str, 
+                 M_Item_Glow(3, crl_menu_shading == 24 ? GLOW_RED     :
+                                crl_menu_shading == 0  ? GLOW_DARKRED :
+                                                         GLOW_GREEN));
+
     M_WriteTextCentered(81, "MESSAGES SETTINGS", cr[CR_YELLOW]);
 
     // Messages enabled
@@ -1352,6 +1366,22 @@ static void M_CRL_Gamma (int choice)
     }
 
     CRL_ReloadPalette();
+}
+
+static void M_CRL_MenuBgShading (int choice)
+{
+    switch (choice)
+    {
+        case 0:
+            if (crl_menu_shading)
+                crl_menu_shading--;
+            break;
+        case 1:
+            if (crl_menu_shading < 24)
+                crl_menu_shading++;
+        default:
+            break;
+    }
 }
 
 // -----------------------------------------------------------------------------

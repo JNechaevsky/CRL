@@ -36,6 +36,7 @@ int crl_showfps = 0;
 int crl_visplanes_drawing = 0;
 int crl_hom_effect = 1;
 int crl_gamma = 10;
+int crl_menu_shading = 12;
 int crl_screen_size = 10;
 int crl_screenwipe = 0;
 int crl_text_shadows = 0;
@@ -104,6 +105,7 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_visplanes_drawing",          &crl_visplanes_drawing);
     M_BindIntVariable("crl_hom_effect",                 &crl_hom_effect);
     M_BindIntVariable("crl_gamma",                      &crl_gamma);
+    M_BindIntVariable("crl_menu_shading",               &crl_menu_shading);
     M_BindIntVariable("crl_screen_size",                &crl_screen_size);
     M_BindIntVariable("crl_screenwipe",                 &crl_screenwipe);
     M_BindIntVariable("crl_text_shadows",               &crl_text_shadows);

@@ -400,6 +400,7 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(crl_visplanes_drawing),
     CONFIG_VARIABLE_INT(crl_hom_effect),
     CONFIG_VARIABLE_INT(crl_gamma),
+    CONFIG_VARIABLE_INT(crl_menu_shading),
     CONFIG_VARIABLE_INT(crl_screen_size),
     CONFIG_VARIABLE_INT(crl_screenwipe),
     CONFIG_VARIABLE_INT(crl_text_shadows),
