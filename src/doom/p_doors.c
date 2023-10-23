@@ -24,7 +24,9 @@
 #include "i_system.h"
 #include "s_sound.h"
 #include "dstrings.h"
+#include "m_misc.h"
 
+#include "crlcore.h"
 
 //
 // VERTICAL DOORS
@@ -374,7 +376,12 @@ EV_VerticalDoor
 
     if (line->sidenum[side^1] == -1)
     {
-        I_Error("EV_VerticalDoor: DR special type on 1-sided linedef");
+        char *message = "DR special type on 1-sided linedef.";
+
+        // [JN] CRL - print console and in-game warnings.
+        CRL_printf(M_StringJoin("EV_VerticalDoor: ", message, NULL), true);
+        CRL_SetCriticalMessage("EV_VerticalDoor: ", message, MESSAGETICS);
+        return;
     }
 
     sec = sides[ line->sidenum[side^1]] .sector;
