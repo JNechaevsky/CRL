@@ -376,7 +376,7 @@ EV_VerticalDoor
 
     if (line->sidenum[side^1] == -1)
     {
-        char *message = "DR special type on 1-sided linedef.";
+        char *message = "DR special on 1-sided linedef (possible crash)";
 
         // [JN] CRL - print console and in-game warnings.
         CRL_printf(M_StringJoin("EV_VerticalDoor: ", message, NULL), true);
