@@ -846,7 +846,7 @@ void R_SetupFrame (player_t* player)
 	}
     
     extralight = player->extralight;
-
+    extralight += crl_level_brightness;  // [JN] Extra Level Brightness feature.
     
     // RestlessRodent -- Just report it
     CRL_ReportPosition(viewx, viewy, viewz, viewangle);

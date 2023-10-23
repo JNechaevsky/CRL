@@ -564,6 +564,7 @@ static void M_ChooseCRL_Display (int choice);
 static void M_DrawCRL_Display (void);
 static void M_CRL_Gamma (int choice);
 static void M_CRL_MenuBgShading (int choice);
+static void M_CRL_LevelBrightness (int choice);
 static void M_CRL_TextShadows (int choice);
 
 static void M_ChooseCRL_Sound (int choice);
@@ -1279,11 +1280,11 @@ static menuitem_t CRLMenu_Display[]=
     { 2, "GAMMA-CORRECTION",         M_CRL_Gamma,  'g'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
-    { 2, "MENU BACKGROUND SHADING",  M_CRL_MenuBgShading,         'm'},
-    { 2, "EXTRA LEVEL BRIGHTNESS",   NULL,         'e'},
+    { 2, "MENU BACKGROUND SHADING",  M_CRL_MenuBgShading,    'm'},
+    { 2, "EXTRA LEVEL BRIGHTNESS",   M_CRL_LevelBrightness,  'e'},
     {-1, "", 0, '\0'},
-    { 2, "MESSAGES ENABLED",         M_ChangeMessages,   'm'},
-    { 2, "TEXT CAST SHADOWS",        M_CRL_TextShadows,  't'},
+    { 2, "MESSAGES ENABLED",         M_ChangeMessages,       'm'},
+    { 2, "TEXT CAST SHADOWS",        M_CRL_TextShadows,      't'},
     {-1, "", 0, '\0'},
     { 2, "MESSAGE COLOR",            NULL,         'm'},
     { 2, "BLINKING STYLE",           NULL,         'b'},
@@ -1329,9 +1330,12 @@ static void M_DrawCRL_Display (void)
     // Menu background shading
     sprintf(str, "%d", crl_menu_shading);
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 63, str, 
-                 M_Item_Glow(3, crl_menu_shading == 24 ? GLOW_RED     :
-                                crl_menu_shading == 0  ? GLOW_DARKRED :
-                                                         GLOW_GREEN));
+                 M_Item_Glow(3, crl_menu_shading ? GLOW_GREEN : GLOW_DARKRED));
+
+    // Extra level brightness
+    sprintf(str, "%d", crl_level_brightness);
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 72, str, 
+                 M_Item_Glow(4, crl_level_brightness ? GLOW_GREEN : GLOW_DARKRED));
 
     M_WriteTextCentered(81, "MESSAGES SETTINGS", cr[CR_YELLOW]);
 
@@ -1379,6 +1383,22 @@ static void M_CRL_MenuBgShading (int choice)
         case 1:
             if (crl_menu_shading < 24)
                 crl_menu_shading++;
+        default:
+            break;
+    }
+}
+
+static void M_CRL_LevelBrightness (int choice)
+{
+    switch (choice)
+    {
+        case 0:
+            if (crl_level_brightness)
+                crl_level_brightness--;
+            break;
+        case 1:
+            if (crl_level_brightness < 8)
+                crl_level_brightness++;
         default:
             break;
     }
