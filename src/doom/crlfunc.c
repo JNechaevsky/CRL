@@ -587,36 +587,36 @@ void CRL_StatDrawer (void)
         {
             char invl[4];
 
-            M_WriteText(292 - M_StringWidth("INVL:"), 108, "INVL:", cr[CR_GRAY]);
+            M_WriteText(292 - M_StringWidth("INVL:"), 106, "INVL:", cr[CR_GRAY]);
             M_snprintf(invl, 4, "%d", CRL_invul_counter);
-            M_WriteText(296, 108, invl, CRL_PowerupColor(CRL_invul_counter, 30));
+            M_WriteText(296, 106, invl, CRL_PowerupColor(CRL_invul_counter, 30));
         }
 
         if (CRL_invis_counter)
         {
             char invs[4];
 
-            M_WriteText(292 - M_StringWidth("INVS:"), 117, "INVS:", cr[CR_GRAY]);
+            M_WriteText(292 - M_StringWidth("INVS:"), 115, "INVS:", cr[CR_GRAY]);
             M_snprintf(invs, 4, "%d", CRL_invis_counter);
-            M_WriteText(296, 117, invs, CRL_PowerupColor(CRL_invis_counter, 60));
+            M_WriteText(296, 115, invs, CRL_PowerupColor(CRL_invis_counter, 60));
         }
 
         if (CRL_rad_counter)
         {
             char rad[4];
 
-            M_WriteText(292 - M_StringWidth("RAD:"), 126, "RAD:", cr[CR_GRAY]);
+            M_WriteText(292 - M_StringWidth("RAD:"), 124, "RAD:", cr[CR_GRAY]);
             M_snprintf(rad, 4, "%d", CRL_rad_counter);
-            M_WriteText(296, 126, rad, CRL_PowerupColor(CRL_rad_counter, 60));
+            M_WriteText(296, 124, rad, CRL_PowerupColor(CRL_rad_counter, 60));
         }
 
         if (CRL_amp_counter)
         {
             char amp[4];
 
-            M_WriteText(292 - M_StringWidth("AMP:"), 135, "AMP:", cr[CR_GRAY]);
+            M_WriteText(292 - M_StringWidth("AMP:"), 133, "AMP:", cr[CR_GRAY]);
             M_snprintf(amp, 4, "%d", CRL_amp_counter);
-            M_WriteText(296, 135, amp, CRL_PowerupColor(CRL_amp_counter, 120));
+            M_WriteText(296, 133, amp, CRL_PowerupColor(CRL_amp_counter, 120));
         }
     }
 }
