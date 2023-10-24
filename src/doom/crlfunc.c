@@ -293,6 +293,8 @@ void CRL_StatDrawer (void)
 
     if (crl_widget_playstate)
     {
+        int yy = 0;
+
         // Icon of Sin spitter targets (32 max)
         if ((crl_widget_playstate == 1 
         ||  (crl_widget_playstate == 2 && CRL_brain_counter > 32)) && CRL_brain_counter)
@@ -304,15 +306,22 @@ void CRL_StatDrawer (void)
             M_WriteText(32, 57, brn, CRL_StatColor_Val(CRL_brain_counter, 32));
         }
 
+        // Slightly shift remaining widgets down if no BRN 
+        // counter is active to better line up with menu lines.
+        if (!CRL_brain_counter)
+        {
+            yy -= 5;
+        }
+
         // Buttons (16 max)
         if (crl_widget_playstate == 1
         || (crl_widget_playstate == 2 && CRL_buttons_counter > 16))
         {
             char btn[32];
 
-            M_WriteText(0, 66, "BTN:", CRL_StatColor_Str(CRL_buttons_counter, 16));
+            M_WriteText(0, 66+yy, "BTN:", CRL_StatColor_Str(CRL_buttons_counter, 16));
             M_snprintf(btn, 16, "%d/16", CRL_buttons_counter);
-            M_WriteText(32, 66, btn, CRL_StatColor_Val(CRL_buttons_counter, 16));
+            M_WriteText(32, 66+yy, btn, CRL_StatColor_Val(CRL_buttons_counter, 16));
         }
 
         // Plats (30 max)
@@ -321,9 +330,9 @@ void CRL_StatDrawer (void)
         {
             char plt[32];
 
-            M_WriteText(0, 75, "PLT:", CRL_StatColor_Str(CRL_plats_counter, CRL_MaxPlats));
+            M_WriteText(0, 75+yy, "PLT:", CRL_StatColor_Str(CRL_plats_counter, CRL_MaxPlats));
             M_snprintf(plt, 16, "%d/%d", CRL_plats_counter, CRL_MaxPlats);
-            M_WriteText(32, 75, plt, CRL_StatColor_Val(CRL_plats_counter, CRL_MaxPlats));
+            M_WriteText(32, 75+yy, plt, CRL_StatColor_Val(CRL_plats_counter, CRL_MaxPlats));
         }
 
         // Animated lines (64 max)
@@ -332,9 +341,9 @@ void CRL_StatDrawer (void)
         {
             char ani[32];
 
-            M_WriteText(0, 84, "ANI:", CRL_StatColor_Str(CRL_lineanims_counter, CRL_MaxAnims));
+            M_WriteText(0, 84+yy, "ANI:", CRL_StatColor_Str(CRL_lineanims_counter, CRL_MaxAnims));
             M_snprintf(ani, 16, "%d/%d", CRL_lineanims_counter, CRL_MaxAnims);
-            M_WriteText(32, 84, ani, CRL_StatColor_Val(CRL_lineanims_counter, CRL_MaxAnims));
+            M_WriteText(32, 84+yy, ani, CRL_StatColor_Val(CRL_lineanims_counter, CRL_MaxAnims));
         }
     }
 
