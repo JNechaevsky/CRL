@@ -628,9 +628,9 @@ void CRL_DrawFPS (void)
     sprintf(fps_str, "FPS");
 
     M_WriteText(SCREENWIDTH - 11 - M_StringWidth(fps) 
-                                 - M_StringWidth(fps_str), 27, fps, cr[CR_GRAY]);
+                                 - M_StringWidth(fps_str), 25, fps, cr[CR_GRAY]);
 
-    M_WriteText(SCREENWIDTH - 7 - M_StringWidth(fps_str), 27, "FPS", cr[CR_GRAY]);
+    M_WriteText(SCREENWIDTH - 7 - M_StringWidth(fps_str), 25, "FPS", cr[CR_GRAY]);
 }
 
 // =============================================================================
@@ -666,7 +666,7 @@ void CRL_DemoTimer (const int time)
         x += 20;
     }
 
-    M_WriteText(x, 18, n, cr[CR_LIGHTGRAY]);
+    M_WriteText(x, 17, n, cr[CR_LIGHTGRAY]);
 }
 
 // -----------------------------------------------------------------------------
