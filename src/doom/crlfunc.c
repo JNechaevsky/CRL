@@ -279,16 +279,16 @@ void CRL_StatDrawer (void)
     {
         char str[128];
 
-        M_WriteText(0, 27, "X:", cr[CR_GRAY]);
-        M_WriteText(0, 36, "Y:", cr[CR_GRAY]);
-        M_WriteText(0, 45, "ANG:", cr[CR_GRAY]);
+        M_WriteText(0, 25, "X:", cr[CR_GRAY]);
+        M_WriteText(0, 34, "Y:", cr[CR_GRAY]);
+        M_WriteText(0, 43, "ANG:", cr[CR_GRAY]);
 
         sprintf(str, "%d", CRLWidgets.x);
-        M_WriteText(16, 27, str, cr[CR_GREEN]);
+        M_WriteText(16, 25, str, cr[CR_GREEN]);
         sprintf(str, "%d", CRLWidgets.y);
-        M_WriteText(16, 36, str, cr[CR_GREEN]);
+        M_WriteText(16, 34, str, cr[CR_GREEN]);
         sprintf(str, "%d", CRLWidgets.ang);
-        M_WriteText(32, 45, str, cr[CR_GREEN]);
+        M_WriteText(32, 43, str, cr[CR_GREEN]);
     }
 
     if (crl_widget_playstate)
