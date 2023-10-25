@@ -904,6 +904,12 @@ void R_RenderPlayerView (player_t* player)
             V_DrawFilledBox(viewwindowx, viewwindowy,
                             scaledviewwidth, viewheight, 0);
         }
+        else
+        if (crl_hom_effect == 3)  // Blinking (Lee Killough's implementation from MBF)
+        {
+            V_DrawFilledBox(viewwindowx, viewwindowy,
+                            scaledviewwidth, viewheight, (gametic % 20) < 9 ? 0xb0 : 0);
+        }
 
 		// Clear buffers.
 		R_ClearClipSegs ();
