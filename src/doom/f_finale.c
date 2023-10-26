@@ -643,7 +643,7 @@ void F_CastDrawer (void)
 	V_DrawPatchFlipped(SCREENWIDTH/2, 170, patch);
     else
     // [JN] TODO - handle "bad v_drawpatch" name. But how?
-	V_DrawPatch(SCREENWIDTH/2, 170, patch, "NULL");
+	V_DrawPatch(SCREENWIDTH/2, 170, patch, "FINALE PATCH");
 }
 
 

@@ -26,6 +26,7 @@
 
 #include "SDL.h"
 
+
 #define MAX_MOUSE_BUTTONS 8
 
 extern int SDL_mouseButton;

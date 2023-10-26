@@ -485,6 +485,9 @@ R_StoreWallRange
     rw_normalangle = curline->angle + ANG90;
     offsetangle = abs((int)rw_normalangle-(int)rw_angle1);
     
+    if (offsetangle > ANG90)
+	offsetangle = ANG90;
+
     distangle = ANG90 - offsetangle;
     hyp = R_PointToDist (curline->v1->x, curline->v1->y);
     sineval = finesine[distangle>>ANGLETOFINESHIFT];

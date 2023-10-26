@@ -91,7 +91,7 @@ int		numsprites;
 
 spriteframe_t	sprtemp[29];
 int		maxframe;
-const char*		spritename;
+const char	*spritename;
 
 
 
@@ -172,9 +172,9 @@ R_InstallSpriteLump
 //  letter/number appended.
 // The rotation character can be 0 to signify no rotations.
 //
-void R_InitSpriteDefs (const char** namelist) 
+void R_InitSpriteDefs(const char **namelist)
 { 
-    const char**	check;
+    const char **check;
     int		i;
     int		l;
     int		frame;
@@ -292,7 +292,7 @@ int		newvissprite;
 // R_InitSprites
 // Called at program start.
 //
-void R_InitSprites (const char** namelist)
+void R_InitSprites(const char **namelist)
 {
     int		i;
 	
@@ -814,7 +814,7 @@ void R_DrawPlayerSprites (void)
     int		lightnum;
     pspdef_t*	psp;
     
-    // Do not draw player gun sprite if spectating
+    // RestlessRodent -- Do not draw player gun sprite if spectating
     if (crl_spectating)
     	return;
     
@@ -859,7 +859,7 @@ void R_SortVisSprites (void)
     int			count;
     vissprite_t*	ds;
     vissprite_t*	best;
-    static vissprite_t		unsorted;
+    static vissprite_t	unsorted;
     fixed_t		bestscale;
 
     count = vissprite_p - vissprites;

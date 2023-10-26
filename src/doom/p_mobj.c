@@ -38,10 +38,11 @@
 // P_SetMobjState
 // Returns true if the mobj is still present.
 //
+
+
 // Use a heuristic approach to detect infinite state cycles: Count the number
 // of times the loop in P_SetMobjState() executes and exit with an error once
 // an arbitrary very large limit is reached.
-//
 
 #define MOBJ_CYCLE_LIMIT 1000000
 
@@ -866,7 +867,7 @@ void P_SpawnMapThing (mapthing_t* mthing)
 	return;
     }
 
-    // check for apropriate skill level
+    // check for appropriate skill level
     if (!coop_spawns && !netgame && (mthing->options & 16) )
 	return;
 		

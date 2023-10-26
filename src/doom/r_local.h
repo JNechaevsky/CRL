@@ -516,6 +516,8 @@ extern void  R_PrecacheLevel (void);
 extern int   *texturecompositesize;
 extern byte **texturecomposite;
 
+extern int numflats;
+
 // -----------------------------------------------------------------------------
 // R_DRAW
 // -----------------------------------------------------------------------------

@@ -38,76 +38,98 @@
 #include "deh_main.h"
 #include "doomkeys.h"
 #include "doomstat.h"
+
 #include "dstrings.h"
+
 #include "d_iwad.h"
+
 #include "z_zone.h"
 #include "w_main.h"
 #include "w_wad.h"
 #include "s_sound.h"
 #include "v_diskicon.h"
 #include "v_video.h"
+
 #include "f_finale.h"
 #include "f_wipe.h"
+
 #include "m_argv.h"
 #include "m_config.h"
 #include "m_controls.h"
 #include "m_misc.h"
 #include "m_menu.h"
 #include "p_local.h"
+
 #include "i_endoom.h"
 #include "i_input.h"
 #include "i_joystick.h"
 #include "i_system.h"
+
 #include "g_game.h"
+
 #include "wi_stuff.h"
 #include "st_bar.h"
 #include "am_map.h"
 #include "net_client.h"
 #include "net_dedicated.h"
 #include "net_query.h"
-#include "statdump.h"
-#include "d_main.h"
+
 #include "ct_chat.h"
 #include "r_local.h"
+#include "statdump.h"
 #include "v_trans.h"
 
 #include "icon.c"
-
+#include "d_main.h"
 #include "crlcore.h"
 #include "crlvars.h"
 #include "crlfunc.h"
 
+//
+// D-DoomLoop()
+// Not a globally visible function,
+//  just included for source reference,
+//  called by D_DoomMain, never exits.
+// Manages timing and IO,
+//  calls all ?_Responder, ?_Ticker, and ?_Drawer,
+//  calls I_GetTime, I_StartFrame, and I_StartTic
+//
+// void D_DoomLoop (void);
+
+static char *gamedescription;
 
 // Location where savegames are stored
-char *savegamedir;
+
+char *          savegamedir;
 
 // location of IWAD and WAD files
-static char *iwadfile;
 
-boolean devparm;      // started game with -devparm
-boolean nomonsters;   // checkparm of -nomonsters
-boolean respawnparm;  // checkparm of -respawn
-boolean fastparm;     // checkparm of -fast
+char *          iwadfile;
 
-int     startepisode;
-int     startmap;
-int     startloadgame;
-skill_t startskill;
-boolean autostart;
 
-boolean advancedemo;
-static int     demowarp_count;
-static boolean storedemo;  // Store demo, do not accept any inputs
+boolean		devparm;	// started game with -devparm
+boolean         nomonsters;	// checkparm of -nomonsters
+boolean         respawnparm;	// checkparm of -respawn
+boolean         fastparm;	// checkparm of -fast
 
-static int   demosequence;
-static int   pagetic;
-static const char *pagename;
+
+
+skill_t		startskill;
+int             startepisode;
+int		startmap;
+boolean		autostart;
+int             startloadgame;
+
+boolean		advancedemo;
+static int     demowarp_count; // [crispy]
+
+// Store demo, do not accept any inputs
+boolean         storedemo;
 
 // If true, the main game loop has started.
-boolean main_loop_started = false;
+boolean         main_loop_started = false;
 
-// wipegamestate can be set to -1 to force a wipe on the next draw
-gamestate_t wipegamestate = GS_DEMOSCREEN;
+
 
 
 // -----------------------------------------------------------------------------
@@ -126,35 +148,36 @@ int mouseSensitivity = 5;
 static int screenblocks = 10;
 
 
-// -----------------------------------------------------------------------------
+//
 // D_ProcessEvents
 // Send all the events of the given timestamp down the responder chain
-// -----------------------------------------------------------------------------
-
+//
 void D_ProcessEvents (void)
 {
-    event_t *ev;
-
+    event_t*	ev;
+	
     // IF STORE DEMO, DO NOT ACCEPT INPUT
     if (storedemo)
-    {
         return;
-    }
-
+	
     while ((ev = D_PopEvent()) != NULL)
     {
-        if (M_Responder (ev))
-        {
-            continue;  // menu ate the event
-        }
-        G_Responder (ev);
+	if (M_Responder (ev))
+	    continue;               // menu ate the event
+	G_Responder (ev);
     }
 }
 
-// -----------------------------------------------------------------------------
+
+
+
+//
 // D_Display
 //  draw current display, possibly wiping it from the previous
-// -----------------------------------------------------------------------------
+//
+
+// wipegamestate can be set to -1 to force a wipe on the next draw
+gamestate_t     wipegamestate = GS_DEMOSCREEN;
 
 static void D_Display (void)
 {
@@ -192,67 +215,61 @@ static void D_Display (void)
     // change the view size if needed
     if (setsizeneeded)
     {
-        R_ExecuteSetViewSize();
-        oldgamestate = -1;  // force background redraw
+	R_ExecuteSetViewSize ();
+	oldgamestate = -1;                      // force background redraw
     }
 
     // save the current screen if about to wipe
     // [JN] Make screen wipe optional, use external config variable.
     if (gamestate != wipegamestate && crl_screenwipe)
     {
-        wipe = true;
-        wipe_StartScreen();
+	wipe = true;
+	wipe_StartScreen();
     }
     else
-    {
-        wipe = false;
-    }
+	wipe = false;
 
     // do buffered drawing
     switch (gamestate)
     {
-        case GS_LEVEL:
-        break;
+      case GS_LEVEL:
+	    break;
 
-        case GS_INTERMISSION:
-        WI_Drawer();
-        break;
+      case GS_INTERMISSION:
+	WI_Drawer ();
+	break;
 
-        case GS_FINALE:
-        F_Drawer();
-        break;
+      case GS_FINALE:
+	F_Drawer ();
+	break;
 
-        case GS_DEMOSCREEN:
-        D_PageDrawer();
-        break;
+      case GS_DEMOSCREEN:
+	D_PageDrawer ();
+	break;
     }
-
+    
     // RestlessRodent -- Set surface
     CRLSurface = I_VideoBuffer;
-
+    
     // draw the view directly
     if (gamestate == GS_LEVEL && gametic)
-    {
-        R_RenderPlayerView(&players[displayplayer]);
-    }
+	R_RenderPlayerView (&players[displayplayer]);
 
     // clean up border stuff
     if (gamestate != oldgamestate && gamestate != GS_LEVEL)
-    {
-        CRL_ReloadPalette();
-    }
+	CRL_ReloadPalette();
 
     // see if the border needs to be initially drawn
     if (gamestate == GS_LEVEL && oldgamestate != GS_LEVEL)
     {
-        R_FillBackScreen();  // draw the pattern into the back screen
+	R_FillBackScreen ();    // draw the pattern into the back screen
     }
 
     // see if the border needs to be updated to the screen
     if (gamestate == GS_LEVEL && scaledviewwidth != SCREENWIDTH)
     {
-        R_DrawViewBorder();  // erase old menu stuff
-    }
+	    R_DrawViewBorder ();    // erase old menu stuff
+	}
 
     // [JN] CRL - Draw automap on top of player view and view border,
     // and update while playing. This also needed for render counters update.
@@ -264,27 +281,23 @@ static void D_Display (void)
     if (testcontrols)
     {
         // Box showing current mouse speed
+
         V_DrawMouseSpeedBox(testcontrols_mousespeed);
     }
 
     oldgamestate = wipegamestate = gamestate;
-
+    
     // draw pause pic
     if (paused)
     {
         const char *m_pause = DEH_String("M_PAUSE");
 
-        if (automapactive)
-        {
-            y = 4;
-        }
-        else
-        {
-            y = viewwindowy + 4;
-        }
-
+	if (automapactive)
+	    y = 4;
+	else
+	    y = viewwindowy+4;
         V_DrawShadowedPatch(viewwindowx + (scaledviewwidth - 68) / 2, y,
-                            W_CacheLumpName (m_pause, PU_CACHE), m_pause);
+                          W_CacheLumpName (m_pause, PU_CACHE), m_pause);
     }
 
     // [JN] Do not draw any CRL widgets if not in game level.
@@ -342,8 +355,8 @@ static void D_Display (void)
     CRL_DrawMessage();
 
     // menus go directly to the screen
-    M_Drawer ();   // menu is drawn even on top of everything
-    NetUpdate ();  // send out any new accumulation
+    M_Drawer ();          // menu is drawn even on top of everything
+    NetUpdate ();         // send out any new accumulation
 
     // [JN] Critical messages are drawn even higher than on top everything!
     CRL_DrawCriticalMessage();
@@ -375,7 +388,7 @@ static void D_Display (void)
         } while (!done);
 }
 
-static void EnableLoadingDisk (void)
+static void EnableLoadingDisk(void)
 {
     const char *disk_lump_name;
 
@@ -477,7 +490,7 @@ boolean D_GrabMouseCallback(void)
 
     // only grab mouse when playing levels (but not demos)
 
-    return (gamestate == GS_LEVEL) && ((!demoplayback && !advancedemo));
+    return (gamestate == GS_LEVEL) && !demoplayback && !advancedemo;
 }
 
 //
@@ -540,48 +553,50 @@ void D_DoomLoop (void)
 }
 
 
-// =============================================================================
-// DEMO LOOP
-// =============================================================================
+
+//
+//  DEMO LOOP
+//
+int             demosequence;
+int             pagetic;
+const char                    *pagename;
 
 
-// -----------------------------------------------------------------------------
+//
 // D_PageTicker
 // Handles timing for warped projection
-// -----------------------------------------------------------------------------
-
+//
 void D_PageTicker (void)
 {
     if (--pagetic < 0)
-    {
-        D_AdvanceDemo();
-    }
+	D_AdvanceDemo ();
 }
 
-// -----------------------------------------------------------------------------
-// D_PageDrawer
-// -----------------------------------------------------------------------------
 
+
+//
+// D_PageDrawer
+//
 void D_PageDrawer (void)
 {
     V_DrawPatch (0, 0, W_CacheLumpName(pagename, PU_CACHE), pagename);
 }
 
-// -----------------------------------------------------------------------------
+
+//
 // D_AdvanceDemo
 // Called after each demo or intro demosequence finishes
-// -----------------------------------------------------------------------------
-
+//
 void D_AdvanceDemo (void)
 {
     advancedemo = true;
 }
 
-// -----------------------------------------------------------------------------
+
+//
 // This cycles through the demo sequences.
 // FIXME - version dependend demo numbers?
-// -----------------------------------------------------------------------------
-
+//
 void D_DoAdvanceDemo (void)
 {
     players[consoleplayer].playerstate = PST_LIVE;  // not reborn
@@ -600,74 +615,62 @@ void D_DoAdvanceDemo (void)
     // includes a fixed executable.
 
     // [JN] Play DEMO4 only in Ultimate Doom.
-    demosequence = (demosequence + 1) % (gameversion == exe_ultimate ? 7 : 6);
+    demosequence = (demosequence+1) % (gameversion == exe_ultimate ? 7 : 6);
     
     switch (demosequence)
     {
-        case 0:
-        if (gamemode == commercial)
-        {
-            pagetic = TICRATE * 11;
-            S_StartMusic(mus_dm2ttl);
-        }
-        else
-        {
-            pagetic = 170;
-            S_StartMusic (mus_intro);
-        }
-        gamestate = GS_DEMOSCREEN;
-        pagename = DEH_String("TITLEPIC");
-        break;
+      case 0:
+	if ( gamemode == commercial )
+	    pagetic = TICRATE * 11;
+	else
+	    pagetic = 170;
+	gamestate = GS_DEMOSCREEN;
+	pagename = DEH_String("TITLEPIC");
+	if ( gamemode == commercial )
+	  S_StartMusic(mus_dm2ttl);
+	else
+	  S_StartMusic (mus_intro);
+	break;
+      case 1:
+	if (crl_internal_demos)
+	G_DeferedPlayDemo(DEH_String("demo1"));
+	break;
+      case 2:
+	pagetic = 200;
+	gamestate = GS_DEMOSCREEN;
+	pagename = DEH_String("CREDIT");
+	break;
+      case 3:
+	if (crl_internal_demos)
+	G_DeferedPlayDemo(DEH_String("demo2"));
+	break;
+      case 4:
+	gamestate = GS_DEMOSCREEN;
+	if ( gamemode == commercial)
+	{
+	    pagetic = TICRATE * 11;
+	    pagename = DEH_String("TITLEPIC");
+	    S_StartMusic(mus_dm2ttl);
+	}
+	else
+	{
+	    pagetic = 200;
 
-        case 1:
-        if (crl_internal_demos)
-        {
-            G_DeferedPlayDemo(DEH_String("demo1"));
-        }
-        break;
-
-        case 2:
-        pagetic = 200;
-        gamestate = GS_DEMOSCREEN;
-        pagename = DEH_String("CREDIT");
-        break;
-      
-        case 3:
-        if (crl_internal_demos)
-        {
-            G_DeferedPlayDemo(DEH_String("demo2"));
-        }
-        break;
-
-        case 4:
-        gamestate = GS_DEMOSCREEN;
-        if (gamemode == commercial)
-        {
-            pagetic = TICRATE * 11;
-            pagename = DEH_String("TITLEPIC");
-            S_StartMusic(mus_dm2ttl);
-        }
-        else
-        {
-            pagetic = 200;
-            pagename = DEH_String(gameversion >= exe_ultimate ? "CREDIT" : "HELP2");
-        }
-        break;
-
-        case 5:
-        if (crl_internal_demos)
-        {
-            G_DeferedPlayDemo(DEH_String("demo3"));
-        }
-        break;
-        
+	    if (gameversion >= exe_ultimate)
+	      pagename = DEH_String("CREDIT");
+	    else
+	      pagename = DEH_String("HELP2");
+	}
+	break;
+      case 5:
+	if (crl_internal_demos)
+	G_DeferedPlayDemo(DEH_String("demo3"));
+	break;
         // THE DEFINITIVE DOOM Special Edition demo
-        case 6:
-        if (crl_internal_demos)
-        {
-            G_DeferedPlayDemo(DEH_String("demo4"));
-        }
-        break;
+      case 6:
+	if (crl_internal_demos)
+	G_DeferedPlayDemo(DEH_String("demo4"));
+	break;
     }
 
     // The Doom 3: BFG Edition version of doom2.wad does not have a
@@ -1219,6 +1222,14 @@ static void D_Endoom(void)
     I_Endoom(endoom);
 }
 
+boolean IsFrenchIWAD(void)
+{
+    return (gamemission == doom2 && W_CheckNumForName("M_RDTHIS") < 0
+          && W_CheckNumForName("M_EPISOD") < 0 && W_CheckNumForName("M_EPI1") < 0
+          && W_CheckNumForName("M_EPI2") < 0 && W_CheckNumForName("M_EPI3") < 0
+          && W_CheckNumForName("WIOSTF") < 0 && W_CheckNumForName("WIOBJ") >= 0);
+}
+
 // Load dehacked patches needed for certain IWADs.
 static void LoadIwadDeh(void)
 {
@@ -1246,23 +1257,12 @@ static void LoadIwadDeh(void)
     if (gameversion == exe_chex)
     {
         char *chex_deh = NULL;
-        char *sep;
+        char *dirname;
 
         // Look for chex.deh in the same directory as the IWAD file.
-        sep = strrchr(iwadfile, DIR_SEPARATOR);
-
-        if (sep != NULL)
-        {
-            size_t chex_deh_len = strlen(iwadfile) + 9;
-            chex_deh = malloc(chex_deh_len);
-            M_StringCopy(chex_deh, iwadfile, chex_deh_len);
-            chex_deh[sep - iwadfile + 1] = '\0';
-            M_StringConcat(chex_deh, "chex.deh", chex_deh_len);
-        }
-        else
-        {
-            chex_deh = M_StringDuplicate("chex.deh");
-        }
+        dirname = M_DirName(iwadfile);
+        chex_deh = M_StringJoin(dirname, DIR_SEPARATOR_S, "chex.deh", NULL);
+        free(dirname);
 
         // If the dehacked patch isn't found, try searching the WAD
         // search path instead.  We might find it...
@@ -1287,13 +1287,48 @@ static void LoadIwadDeh(void)
             I_Error("Failed to load chex.deh needed for emulating chex.exe.");
         }
     }
+
+    if (IsFrenchIWAD())
+    {
+        char *french_deh = NULL;
+        char *dirname;
+
+        // Look for french.deh in the same directory as the IWAD file.
+        dirname = M_DirName(iwadfile);
+        french_deh = M_StringJoin(dirname, DIR_SEPARATOR_S, "french.deh", NULL);
+        printf("French version\n");
+        free(dirname);
+
+        // If the dehacked patch isn't found, try searching the WAD
+        // search path instead.  We might find it...
+        if (!M_FileExists(french_deh))
+        {
+            free(french_deh);
+            french_deh = D_FindWADByName("french.deh");
+        }
+
+        // Still not found?
+        if (french_deh == NULL)
+        {
+            I_Error("Unable to find French Doom II dehacked file\n"
+                    "(french.deh).  The dehacked file is required in order to\n"
+                    "emulate French doom2.exe correctly.  It can be found in\n"
+                    "your nearest /idgames repository mirror at:\n\n"
+                    "   utils/exe_edit/patches/french.zip");
+        }
+
+        if (!DEH_LoadFile(french_deh))
+        {
+            I_Error("Failed to load french.deh needed for emulating French\n"
+                    "doom2.exe.");
+        }
+    }
 }
 
 static void G_CheckDemoStatusAtExit (void)
 {
     G_CheckDemoStatus();
 }
-
 
 //
 // D_DoomMain
@@ -1304,6 +1339,8 @@ void D_DoomMain (void)
     char file[256];
     char demolumpname[9];
     const int starttime = SDL_GetTicks();
+
+    I_AtExit(D_Endoom, false);
 
 #ifdef _WIN32
     // [JN] Print colorized title.
@@ -1330,12 +1367,6 @@ void D_DoomMain (void)
     
     // RestlessRodent -- Initializes CRL
     CRL_Init(CRL_PlaneBorderColors, NUMPLANEBORDERCOLORS, 128);
-    
-    // Call I_ShutdownGraphics on quit
-
-   	I_AtExit(I_ShutdownGraphics, true);
-
-   	I_AtExit(D_Endoom, false);
 
     //!
     // @category net
@@ -1513,8 +1544,6 @@ void D_DoomMain (void)
     if ( (p=M_CheckParm ("-turbo")) )
     {
 	int     scale = 200;
-	extern int forwardmove[2];
-	extern int sidemove[2];
 	
 	if (p<myargc-1)
 	    scale = atoi (myargv[p+1]);
@@ -1827,18 +1856,6 @@ void D_DoomMain (void)
     I_PrintStartupBanner(gamedescription);
     PrintDehackedBanners();
 
-    // Freedoom's IWADs are Boom-compatible, which means they usually
-    // don't work in Vanilla (though FreeDM is okay). Show a warning
-    // message and give a link to the website.
-    if (gamevariant == freedoom)
-    {
-        printf(" WARNING: You are playing using one of the Freedoom IWAD\n"
-               " files, which might not work in this port. See this page\n"
-               " for more information on how to play using Freedoom:\n"
-               "   https://www.chocolate-doom.org/wiki/index.php/Freedoom\n");
-        I_PrintDivider();
-    }
-
     DEH_printf("I_Init: Setting up machine state.\n");
     I_CheckIsScreensaver();
     I_InitTimer();
@@ -1860,6 +1877,7 @@ void D_DoomMain (void)
     autostart = false;
 
     //!
+    // @category game
     // @arg <skill>
     // @vanilla
     //
@@ -2075,12 +2093,10 @@ void D_DoomMain (void)
 	
     if (gameaction != ga_loadgame )
     {
-		if (autostart || netgame)
-			G_InitNew (startskill, startepisode, startmap);
-		else
-		{
-			D_StartTitle ();                // start up intro loop
-		}
+	if (autostart || netgame)
+	    G_InitNew (startskill, startepisode, startmap);
+	else
+	    D_StartTitle ();                // start up intro loop
     }
 
     // [JN] Print ingame message with recording demo name right after start.
@@ -2094,3 +2110,4 @@ void D_DoomMain (void)
 
     D_DoomLoop ();  // never returns
 }
+

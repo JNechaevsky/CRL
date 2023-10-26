@@ -49,7 +49,6 @@ int			validcount = 1;
 
 lighttable_t*		fixedcolormap;
 
-
 int			centerx;
 int			centery;
 
@@ -484,6 +483,7 @@ angle_t R_InterpolateAngle(angle_t oangle, angle_t nangle, fixed_t scale)
 }
 
 
+
 //
 // R_InitTextureMapping
 //
@@ -871,6 +871,8 @@ void R_SetupFrame (player_t* player)
     validcount++;
 }
 
+
+
 //
 // R_RenderView
 //
@@ -953,4 +955,3 @@ void R_RenderPlayerView (player_t* player)
 	// End of frame
 	CRL_ChangeFrame(js);
 }
-

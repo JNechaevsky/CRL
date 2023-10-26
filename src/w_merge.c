@@ -70,7 +70,7 @@ static int sprite_frames_alloced;
 //
 // Returns -1 if not found
 
-static int FindInList(searchlist_t *list, char *name)
+static int FindInList(searchlist_t *list, const char *name)
 {
     int i;
 
@@ -84,8 +84,8 @@ static int FindInList(searchlist_t *list, char *name)
 }
 
 static boolean SetupList(searchlist_t *list, searchlist_t *src_list,
-                         char *startname, char *endname,
-                         char *startname2, char *endname2)
+                         const char *startname, const char *endname,
+                         const char *startname2, const char *endname2)
 {
     int startlump, endlump;
 
@@ -626,7 +626,7 @@ static void W_NWTAddLumps(searchlist_t *list)
 // Merge sprites and flats in the way NWT does with its -af and -as
 // command-line options.
 
-void W_NWTMergeFile(char *filename, int flags)
+void W_NWTMergeFile(const char *filename, int flags)
 {
     int old_numlumps;
 
@@ -672,7 +672,7 @@ void W_NWTMergeFile(char *filename, int flags)
 // a PWAD, then search the IWAD sprites, removing any sprite lumps that also
 // exist in the PWAD.
 
-void W_NWTDashMerge(char *filename)
+void W_NWTDashMerge(const char *filename)
 {
     wad_file_t *wad_file;
     int old_numlumps;

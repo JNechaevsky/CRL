@@ -23,9 +23,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "i_system.h"
 #include "z_zone.h"
 #include "w_wad.h"
+
 #include "doomstat.h"
 #include "p_local.h"
 #include "m_misc.h"
@@ -314,7 +316,7 @@ R_CheckPlane
     int		intrh;
     int		unionl;
     int		unionh;
-    int		x = 0;
+    int		x;
 	
     if (start < pl->minx)
     {

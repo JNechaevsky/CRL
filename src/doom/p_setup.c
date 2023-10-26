@@ -532,9 +532,16 @@ void P_LoadThings (int lump)
     }
 
     if (!deathmatch)
+    {
         for (i = 0; i < MAXPLAYERS; i++)
+        {
             if (playeringame[i] && !playerstartsingame[i])
-                I_Error("P_LoadThings: Player %d start missing", i + 1);
+            {
+                I_Error("P_LoadThings: Player %d start missing (vanilla crashes here)", i + 1);
+            }
+            playerstartsingame[i] = false;
+        }
+    }
 
     W_ReleaseLumpNum(lump);
 }
@@ -613,13 +620,9 @@ void P_LoadLineDefs (int lump)
 	    ld->frontsector = 0;
 
 	if (ld->sidenum[1] != -1)
-	{
 	    ld->backsector = sides[ld->sidenum[1]].sector;
-	}
 	else
-	{
 	    ld->backsector = 0;
-	}
     }
 
     W_ReleaseLumpNum(lump);
@@ -867,7 +870,7 @@ static void PadRejectArray(byte *array, unsigned int len)
 
     if (len > sizeof(rejectpad))
     {
-        fprintf(stderr, "PadRejectArray: REJECT lump too short to pad! (%i > %i)\n",
+        fprintf(stderr, "PadRejectArray: REJECT lump too short to pad! (%u > %i)\n",
                         len, (int) sizeof(rejectpad));
 
         // Pad remaining space with 0 (or 0xff, if specified on command line).
@@ -878,7 +881,7 @@ static void PadRejectArray(byte *array, unsigned int len)
         }
         else
         {
-            padvalue = 0xf00;
+            padvalue = 0x00;
         }
 
         memset(array + sizeof(rejectpad), padvalue, len - sizeof(rejectpad));
@@ -1001,13 +1004,13 @@ P_SetupLevel
     W_Reload ();
 
     // find map name
-    if (gamemode == commercial)
+    if ( gamemode == commercial)
     {
-        DEH_snprintf(lumpname, 9, "MAP%02d", map);
+	    DEH_snprintf(lumpname, 9, "MAP%02d", map);
     }
     else
     {
-        DEH_snprintf(lumpname, 9, "E%dM%d", episode, map);
+	    DEH_snprintf(lumpname, 9, "E%dM%d", episode, map);
     }
 
     lumpnum = W_GetNumForName (lumpname);
