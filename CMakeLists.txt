@@ -95,7 +95,7 @@ endif()
 # Check for FluidSynth.
 # [JN] Disabled to get rid of bunch of DLL files.
 find_package(FluidSynth 2.2.0)
-if(FluidSynth_FOUND)
+if(FluidSynth_FOUND AND ENABLE_SDL2_MIXER)
     option(HAVE_FLUIDSYNTH "Enable FluidSynth" OFF)
 endif()
 

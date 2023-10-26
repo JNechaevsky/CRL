@@ -124,7 +124,7 @@ set(DEHACKED_SOURCE_FILES
 set(SOURCE_FILES ${COMMON_SOURCE_FILES} ${GAME_SOURCE_FILES})
 set(SOURCE_FILES_WITH_DEH ${SOURCE_FILES} ${DEHACKED_SOURCE_FILES})
 
-set(EXTRA_LIBS "$<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>" SDL2::SDL2 miniz::miniz textscreen pcsound opl)
+set(EXTRA_LIBS SDL2::SDL2main SDL2::SDL2 miniz::miniz textscreen pcsound opl)
 if(ENABLE_SDL2_MIXER)
     list(APPEND EXTRA_LIBS SDL2_mixer::SDL2_mixer)
 endif()
@@ -199,7 +199,7 @@ endif()
 
 target_include_directories("${PROGRAM_PREFIX}setup"
                            PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../")
-target_link_libraries("${PROGRAM_PREFIX}setup" "$<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>" SDL2::SDL2 setup textscreen)
+target_link_libraries("${PROGRAM_PREFIX}setup" SDL2::SDL2main SDL2::SDL2 setup textscreen)
 if(ENABLE_SDL2_MIXER)
     target_link_libraries("${PROGRAM_PREFIX}setup" SDL2_mixer::SDL2_mixer)
 endif()
