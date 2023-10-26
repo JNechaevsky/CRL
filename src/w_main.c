@@ -18,6 +18,8 @@
 //     Common code to parse command line, identifying WAD files to load.
 //
 
+#include <stdlib.h>
+
 #include "config.h"
 #include "d_iwad.h"
 #include "i_glob.h"
@@ -60,6 +62,7 @@ boolean W_ParseCommandLine(void)
 
             printf("  merging %s\n", filename);
             W_MergeFile(filename);
+            free(filename);
         }
     }
 
@@ -88,6 +91,7 @@ boolean W_ParseCommandLine(void)
 
             printf(" performing NWT-style merge of %s\n", filename);
             W_NWTDashMerge(filename);
+            free(filename);
         }
     }
     
@@ -115,6 +119,7 @@ boolean W_ParseCommandLine(void)
 
             printf(" merging flats from %s\n", filename);
             W_NWTMergeFile(filename, W_NWT_MERGE_FLATS);
+            free(filename);
         }
     }
 
@@ -139,6 +144,7 @@ boolean W_ParseCommandLine(void)
 
             printf(" merging sprites from %s\n", filename);
             W_NWTMergeFile(filename, W_NWT_MERGE_SPRITES);
+            free(filename);
         }
     }
 
@@ -163,6 +169,7 @@ boolean W_ParseCommandLine(void)
 
             printf(" merging sprites and flats from %s\n", filename);
             W_NWTMergeFile(filename, W_NWT_MERGE_SPRITES | W_NWT_MERGE_FLATS);
+            free(filename);
         }
     }
 
@@ -187,6 +194,7 @@ boolean W_ParseCommandLine(void)
 
             printf("  adding %s\n", filename);
 	    W_AddFile(filename);
+            free(filename);
         }
     }
 
@@ -223,7 +231,7 @@ void W_AutoLoadWADs(const char *path)
 static const struct
 {
     GameMission_t mission;
-    char *lumpname;
+    const char *lumpname;
 } unique_lumps[] = {
     { doom,    "POSSA1" },
     { heretic, "IMPXA1" },
