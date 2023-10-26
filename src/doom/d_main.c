@@ -1340,6 +1340,10 @@ void D_DoomMain (void)
     char demolumpname[9];
     const int starttime = SDL_GetTicks();
 
+    // Call I_ShutdownGraphics on quit
+
+    I_AtExit(I_ShutdownGraphics, true);
+
     I_AtExit(D_Endoom, false);
 
 #ifdef _WIN32
