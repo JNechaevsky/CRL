@@ -77,6 +77,7 @@
 #include "crlvars.h"
 #include "crlfunc.h"
 
+static char *gamedescription;
 
 // Location where savegames are stored
 char *savegamedir;
