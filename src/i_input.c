@@ -344,7 +344,9 @@ static void UpdateMouseButtonState(unsigned int button, boolean on)
 
         default:
             // SDL buttons are indexed from 1.
-            --button;
+            // And the wheel is mapped to button 3/4
+            // So we have to increment 2 and decrement 1 => inc 1.
+            button++;
             break;
     }
 

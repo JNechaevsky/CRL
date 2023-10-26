@@ -98,6 +98,10 @@ int main(int argc, char **argv)
     M_FindResponseFile();
     M_SetExeDir();
 
+    #ifdef SDL_HINT_NO_SIGNAL_HANDLERS
+    SDL_SetHint(SDL_HINT_NO_SIGNAL_HANDLERS, "1");
+    #endif
+
     // start doom
 
     D_DoomMain ();
