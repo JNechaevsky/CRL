@@ -170,6 +170,7 @@ void P_Ticker (void)
     {
 	return;
     }
+    
 		
     for (i=0 ; i<MAXPLAYERS ; i++)
 	if (playeringame[i])
@@ -182,6 +183,7 @@ void P_Ticker (void)
     {
     P_UpdateSpecials ();
     P_RespawnSpecials ();
+
     // for par times
     leveltime++;	
     }

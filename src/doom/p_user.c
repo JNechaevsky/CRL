@@ -270,8 +270,8 @@ void P_PlayerThink (player_t* player)
 	cmd->sidemove = 0;
 	player->mo->flags &= ~MF_JUSTATTACKED;
     }
-
-
+			
+	
     if (player->playerstate == PST_DEAD)
     {
 	P_DeathThink (player);
@@ -426,3 +426,5 @@ void P_PlayerThink (player_t* player)
     else
 	player->fixedcolormap = 0;
 }
+
+

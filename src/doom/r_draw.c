@@ -300,7 +300,6 @@ void R_DrawFuzzColumn (void)
 	    fuzzpos = 0;
 	
 	dest += SCREENWIDTH;
-
     } while (count--); 
 
     // [crispy] if the line at the bottom had to be cut off,
@@ -372,7 +371,6 @@ void R_DrawFuzzColumnLow (void)
 	
 	dest += SCREENWIDTH;
 	dest2 += SCREENWIDTH;
-
     } while (count--); 
 
     // [crispy] if the line at the bottom had to be cut off,
@@ -599,20 +597,20 @@ void R_DrawSpan (void)
 
     do
     {
-		// Calculate current texture index in u,v.
-		ytemp = (position >> 4) & 0x0fc0;
-		xtemp = (position >> 26);
-		spot = xtemp | ytemp;
+	// Calculate current texture index in u,v.
+        ytemp = (position >> 4) & 0x0fc0;
+        xtemp = (position >> 26);
+        spot = xtemp | ytemp;
 
 		// RestlessRodent -- Possibly mark visplane
 		if (dc_visplaneused != NULL)
 			CRL_MarkPixelP(CRLPlaneSurface, dc_visplaneused, dest);
 
-		// Lookup pixel from flat texture tile,
-		//  re-index using light/colormap.
-		*dest++ = ds_colormap[ds_source[spot]];
+	// Lookup pixel from flat texture tile,
+	//  re-index using light/colormap.
+	*dest++ = ds_colormap[ds_source[spot]];
 
-		position += step;
+        position += step;
 
     } while (count--);
 }
