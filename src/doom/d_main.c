@@ -38,73 +38,98 @@
 #include "deh_main.h"
 #include "doomkeys.h"
 #include "doomstat.h"
+
 #include "dstrings.h"
+
 #include "d_iwad.h"
+
 #include "z_zone.h"
 #include "w_main.h"
 #include "w_wad.h"
 #include "s_sound.h"
 #include "v_diskicon.h"
 #include "v_video.h"
+
 #include "f_finale.h"
 #include "f_wipe.h"
+
 #include "m_argv.h"
 #include "m_config.h"
 #include "m_controls.h"
 #include "m_misc.h"
 #include "m_menu.h"
 #include "p_local.h"
+
 #include "i_endoom.h"
 #include "i_input.h"
 #include "i_joystick.h"
 #include "i_system.h"
+
 #include "g_game.h"
+
 #include "wi_stuff.h"
 #include "st_bar.h"
 #include "am_map.h"
 #include "net_client.h"
 #include "net_dedicated.h"
 #include "net_query.h"
-#include "statdump.h"
-#include "d_main.h"
+
 #include "ct_chat.h"
 #include "r_local.h"
+#include "statdump.h"
 #include "v_trans.h"
 
 #include "icon.c"
-
+#include "d_main.h"
 #include "crlcore.h"
 #include "crlvars.h"
 #include "crlfunc.h"
 
+//
+// D-DoomLoop()
+// Not a globally visible function,
+//  just included for source reference,
+//  called by D_DoomMain, never exits.
+// Manages timing and IO,
+//  calls all ?_Responder, ?_Ticker, and ?_Drawer,
+//  calls I_GetTime, I_StartFrame, and I_StartTic
+//
+// void D_DoomLoop (void);
+
 static char *gamedescription;
 
 // Location where savegames are stored
-char *savegamedir;
+
+char *          savegamedir;
 
 // location of IWAD and WAD files
-static char *iwadfile;
 
-boolean devparm;      // started game with -devparm
-boolean nomonsters;   // checkparm of -nomonsters
-boolean respawnparm;  // checkparm of -respawn
-boolean fastparm;     // checkparm of -fast
+char *          iwadfile;
 
-int     startepisode;
-int     startmap;
-int     startloadgame;
-skill_t startskill;
-boolean autostart;
 
-boolean advancedemo;
-static int     demowarp_count;
-static boolean storedemo;  // Store demo, do not accept any inputs
+boolean		devparm;	// started game with -devparm
+boolean         nomonsters;	// checkparm of -nomonsters
+boolean         respawnparm;	// checkparm of -respawn
+boolean         fastparm;	// checkparm of -fast
+
+
+
+skill_t		startskill;
+int             startepisode;
+int		startmap;
+boolean		autostart;
+int             startloadgame;
+
+boolean		advancedemo;
+static int     demowarp_count; // [crispy]
+
+// Store demo, do not accept any inputs
+boolean         storedemo;
 
 // If true, the main game loop has started.
-boolean main_loop_started = false;
+boolean         main_loop_started = false;
 
-// wipegamestate can be set to -1 to force a wipe on the next draw
-gamestate_t wipegamestate = GS_DEMOSCREEN;
+
 
 
 // -----------------------------------------------------------------------------
@@ -143,10 +168,16 @@ void D_ProcessEvents (void)
     }
 }
 
-// -----------------------------------------------------------------------------
+
+
+
+//
 // D_Display
 //  draw current display, possibly wiping it from the previous
-// -----------------------------------------------------------------------------
+//
+
+// wipegamestate can be set to -1 to force a wipe on the next draw
+gamestate_t     wipegamestate = GS_DEMOSCREEN;
 
 static void D_Display (void)
 {
@@ -184,67 +215,61 @@ static void D_Display (void)
     // change the view size if needed
     if (setsizeneeded)
     {
-        R_ExecuteSetViewSize();
-        oldgamestate = -1;  // force background redraw
+	R_ExecuteSetViewSize ();
+	oldgamestate = -1;                      // force background redraw
     }
 
     // save the current screen if about to wipe
     // [JN] Make screen wipe optional, use external config variable.
     if (gamestate != wipegamestate && crl_screenwipe)
     {
-        wipe = true;
-        wipe_StartScreen();
+	wipe = true;
+	wipe_StartScreen();
     }
     else
-    {
-        wipe = false;
-    }
+	wipe = false;
 
     // do buffered drawing
     switch (gamestate)
     {
-        case GS_LEVEL:
-        break;
+      case GS_LEVEL:
+	    break;
 
-        case GS_INTERMISSION:
-        WI_Drawer();
-        break;
+      case GS_INTERMISSION:
+	WI_Drawer ();
+	break;
 
-        case GS_FINALE:
-        F_Drawer();
-        break;
+      case GS_FINALE:
+	F_Drawer ();
+	break;
 
-        case GS_DEMOSCREEN:
-        D_PageDrawer();
-        break;
+      case GS_DEMOSCREEN:
+	D_PageDrawer ();
+	break;
     }
-
+    
     // RestlessRodent -- Set surface
     CRLSurface = I_VideoBuffer;
-
+    
     // draw the view directly
     if (gamestate == GS_LEVEL && gametic)
-    {
-        R_RenderPlayerView(&players[displayplayer]);
-    }
+	R_RenderPlayerView (&players[displayplayer]);
 
     // clean up border stuff
     if (gamestate != oldgamestate && gamestate != GS_LEVEL)
-    {
-        CRL_ReloadPalette();
-    }
+	CRL_ReloadPalette();
 
     // see if the border needs to be initially drawn
     if (gamestate == GS_LEVEL && oldgamestate != GS_LEVEL)
     {
-        R_FillBackScreen();  // draw the pattern into the back screen
+	R_FillBackScreen ();    // draw the pattern into the back screen
     }
 
     // see if the border needs to be updated to the screen
     if (gamestate == GS_LEVEL && scaledviewwidth != SCREENWIDTH)
     {
-        R_DrawViewBorder();  // erase old menu stuff
-    }
+	    R_DrawViewBorder ();    // erase old menu stuff
+	}
 
     // [JN] CRL - Draw automap on top of player view and view border,
     // and update while playing. This also needed for render counters update.
@@ -267,17 +292,12 @@ static void D_Display (void)
     {
         const char *m_pause = DEH_String("M_PAUSE");
 
-        if (automapactive)
-        {
-            y = 4;
-        }
-        else
-        {
-            y = viewwindowy + 4;
-        }
-
+	if (automapactive)
+	    y = 4;
+	else
+	    y = viewwindowy+4;
         V_DrawShadowedPatch(viewwindowx + (scaledviewwidth - 68) / 2, y,
-                            W_CacheLumpName (m_pause, PU_CACHE), m_pause);
+                          W_CacheLumpName (m_pause, PU_CACHE), m_pause);
     }
 
     // [JN] Do not draw any CRL widgets if not in game level.
@@ -335,8 +355,8 @@ static void D_Display (void)
     CRL_DrawMessage();
 
     // menus go directly to the screen
-    M_Drawer ();   // menu is drawn even on top of everything
-    NetUpdate ();  // send out any new accumulation
+    M_Drawer ();          // menu is drawn even on top of everything
+    NetUpdate ();         // send out any new accumulation
 
     // [JN] Critical messages are drawn even higher than on top everything!
     CRL_DrawCriticalMessage();
@@ -537,9 +557,9 @@ void D_DoomLoop (void)
 //
 //  DEMO LOOP
 //
-static int             demosequence;
-static int             pagetic;
-static const char                    *pagename;
+int             demosequence;
+int             pagetic;
+const char                    *pagename;
 
 
 //
@@ -1320,6 +1340,8 @@ void D_DoomMain (void)
     char demolumpname[9];
     const int starttime = SDL_GetTicks();
 
+    I_AtExit(D_Endoom, false);
+
 #ifdef _WIN32
     // [JN] Print colorized title.
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), BACKGROUND_BLUE
@@ -1345,12 +1367,6 @@ void D_DoomMain (void)
     
     // RestlessRodent -- Initializes CRL
     CRL_Init(CRL_PlaneBorderColors, NUMPLANEBORDERCOLORS, 128);
-    
-    // Call I_ShutdownGraphics on quit
-
-   	I_AtExit(I_ShutdownGraphics, true);
-
-   	I_AtExit(D_Endoom, false);
 
     //!
     // @category net
