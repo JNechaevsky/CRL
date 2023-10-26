@@ -99,10 +99,6 @@ boolean advancedemo;
 static int     demowarp_count;
 static boolean storedemo;  // Store demo, do not accept any inputs
 
-static int   demosequence;
-static int   pagetic;
-static const char *pagename;
-
 // If true, the main game loop has started.
 boolean main_loop_started = false;
 
@@ -126,28 +122,23 @@ int mouseSensitivity = 5;
 static int screenblocks = 10;
 
 
-// -----------------------------------------------------------------------------
+//
 // D_ProcessEvents
 // Send all the events of the given timestamp down the responder chain
-// -----------------------------------------------------------------------------
-
+//
 void D_ProcessEvents (void)
 {
-    event_t *ev;
-
+    event_t*	ev;
+	
     // IF STORE DEMO, DO NOT ACCEPT INPUT
     if (storedemo)
-    {
         return;
-    }
-
+	
     while ((ev = D_PopEvent()) != NULL)
     {
-        if (M_Responder (ev))
-        {
-            continue;  // menu ate the event
-        }
-        G_Responder (ev);
+	if (M_Responder (ev))
+	    continue;               // menu ate the event
+	G_Responder (ev);
     }
 }
 
@@ -264,11 +255,12 @@ static void D_Display (void)
     if (testcontrols)
     {
         // Box showing current mouse speed
+
         V_DrawMouseSpeedBox(testcontrols_mousespeed);
     }
 
     oldgamestate = wipegamestate = gamestate;
-
+    
     // draw pause pic
     if (paused)
     {
@@ -375,7 +367,7 @@ static void D_Display (void)
         } while (!done);
 }
 
-static void EnableLoadingDisk (void)
+static void EnableLoadingDisk(void)
 {
     const char *disk_lump_name;
 
@@ -477,7 +469,7 @@ boolean D_GrabMouseCallback(void)
 
     // only grab mouse when playing levels (but not demos)
 
-    return (gamestate == GS_LEVEL) && ((!demoplayback && !advancedemo));
+    return (gamestate == GS_LEVEL) && !demoplayback && !advancedemo;
 }
 
 //
@@ -540,48 +532,50 @@ void D_DoomLoop (void)
 }
 
 
-// =============================================================================
-// DEMO LOOP
-// =============================================================================
+
+//
+//  DEMO LOOP
+//
+static int             demosequence;
+static int             pagetic;
+static const char                    *pagename;
 
 
-// -----------------------------------------------------------------------------
+//
 // D_PageTicker
 // Handles timing for warped projection
-// -----------------------------------------------------------------------------
-
+//
 void D_PageTicker (void)
 {
     if (--pagetic < 0)
-    {
-        D_AdvanceDemo();
-    }
+	D_AdvanceDemo ();
 }
 
-// -----------------------------------------------------------------------------
-// D_PageDrawer
-// -----------------------------------------------------------------------------
 
+
+//
+// D_PageDrawer
+//
 void D_PageDrawer (void)
 {
     V_DrawPatch (0, 0, W_CacheLumpName(pagename, PU_CACHE), pagename);
 }
 
-// -----------------------------------------------------------------------------
+
+//
 // D_AdvanceDemo
 // Called after each demo or intro demosequence finishes
-// -----------------------------------------------------------------------------
-
+//
 void D_AdvanceDemo (void)
 {
     advancedemo = true;
 }
 
-// -----------------------------------------------------------------------------
+
+//
 // This cycles through the demo sequences.
 // FIXME - version dependend demo numbers?
-// -----------------------------------------------------------------------------
-
+//
 void D_DoAdvanceDemo (void)
 {
     players[consoleplayer].playerstate = PST_LIVE;  // not reborn
@@ -600,74 +594,62 @@ void D_DoAdvanceDemo (void)
     // includes a fixed executable.
 
     // [JN] Play DEMO4 only in Ultimate Doom.
-    demosequence = (demosequence + 1) % (gameversion == exe_ultimate ? 7 : 6);
+    demosequence = (demosequence+1) % (gameversion == exe_ultimate ? 7 : 6);
     
     switch (demosequence)
     {
-        case 0:
-        if (gamemode == commercial)
-        {
-            pagetic = TICRATE * 11;
-            S_StartMusic(mus_dm2ttl);
-        }
-        else
-        {
-            pagetic = 170;
-            S_StartMusic (mus_intro);
-        }
-        gamestate = GS_DEMOSCREEN;
-        pagename = DEH_String("TITLEPIC");
-        break;
+      case 0:
+	if ( gamemode == commercial )
+	    pagetic = TICRATE * 11;
+	else
+	    pagetic = 170;
+	gamestate = GS_DEMOSCREEN;
+	pagename = DEH_String("TITLEPIC");
+	if ( gamemode == commercial )
+	  S_StartMusic(mus_dm2ttl);
+	else
+	  S_StartMusic (mus_intro);
+	break;
+      case 1:
+	if (crl_internal_demos)
+	G_DeferedPlayDemo(DEH_String("demo1"));
+	break;
+      case 2:
+	pagetic = 200;
+	gamestate = GS_DEMOSCREEN;
+	pagename = DEH_String("CREDIT");
+	break;
+      case 3:
+	if (crl_internal_demos)
+	G_DeferedPlayDemo(DEH_String("demo2"));
+	break;
+      case 4:
+	gamestate = GS_DEMOSCREEN;
+	if ( gamemode == commercial)
+	{
+	    pagetic = TICRATE * 11;
+	    pagename = DEH_String("TITLEPIC");
+	    S_StartMusic(mus_dm2ttl);
+	}
+	else
+	{
+	    pagetic = 200;
 
-        case 1:
-        if (crl_internal_demos)
-        {
-            G_DeferedPlayDemo(DEH_String("demo1"));
-        }
-        break;
-
-        case 2:
-        pagetic = 200;
-        gamestate = GS_DEMOSCREEN;
-        pagename = DEH_String("CREDIT");
-        break;
-      
-        case 3:
-        if (crl_internal_demos)
-        {
-            G_DeferedPlayDemo(DEH_String("demo2"));
-        }
-        break;
-
-        case 4:
-        gamestate = GS_DEMOSCREEN;
-        if (gamemode == commercial)
-        {
-            pagetic = TICRATE * 11;
-            pagename = DEH_String("TITLEPIC");
-            S_StartMusic(mus_dm2ttl);
-        }
-        else
-        {
-            pagetic = 200;
-            pagename = DEH_String(gameversion >= exe_ultimate ? "CREDIT" : "HELP2");
-        }
-        break;
-
-        case 5:
-        if (crl_internal_demos)
-        {
-            G_DeferedPlayDemo(DEH_String("demo3"));
-        }
-        break;
-        
+	    if (gameversion >= exe_ultimate)
+	      pagename = DEH_String("CREDIT");
+	    else
+	      pagename = DEH_String("HELP2");
+	}
+	break;
+      case 5:
+	if (crl_internal_demos)
+	G_DeferedPlayDemo(DEH_String("demo3"));
+	break;
         // THE DEFINITIVE DOOM Special Edition demo
-        case 6:
-        if (crl_internal_demos)
-        {
-            G_DeferedPlayDemo(DEH_String("demo4"));
-        }
-        break;
+      case 6:
+	if (crl_internal_demos)
+	G_DeferedPlayDemo(DEH_String("demo4"));
+	break;
     }
 
     // The Doom 3: BFG Edition version of doom2.wad does not have a
@@ -1219,6 +1201,14 @@ static void D_Endoom(void)
     I_Endoom(endoom);
 }
 
+boolean IsFrenchIWAD(void)
+{
+    return (gamemission == doom2 && W_CheckNumForName("M_RDTHIS") < 0
+          && W_CheckNumForName("M_EPISOD") < 0 && W_CheckNumForName("M_EPI1") < 0
+          && W_CheckNumForName("M_EPI2") < 0 && W_CheckNumForName("M_EPI3") < 0
+          && W_CheckNumForName("WIOSTF") < 0 && W_CheckNumForName("WIOBJ") >= 0);
+}
+
 // Load dehacked patches needed for certain IWADs.
 static void LoadIwadDeh(void)
 {
@@ -1246,23 +1236,12 @@ static void LoadIwadDeh(void)
     if (gameversion == exe_chex)
     {
         char *chex_deh = NULL;
-        char *sep;
+        char *dirname;
 
         // Look for chex.deh in the same directory as the IWAD file.
-        sep = strrchr(iwadfile, DIR_SEPARATOR);
-
-        if (sep != NULL)
-        {
-            size_t chex_deh_len = strlen(iwadfile) + 9;
-            chex_deh = malloc(chex_deh_len);
-            M_StringCopy(chex_deh, iwadfile, chex_deh_len);
-            chex_deh[sep - iwadfile + 1] = '\0';
-            M_StringConcat(chex_deh, "chex.deh", chex_deh_len);
-        }
-        else
-        {
-            chex_deh = M_StringDuplicate("chex.deh");
-        }
+        dirname = M_DirName(iwadfile);
+        chex_deh = M_StringJoin(dirname, DIR_SEPARATOR_S, "chex.deh", NULL);
+        free(dirname);
 
         // If the dehacked patch isn't found, try searching the WAD
         // search path instead.  We might find it...
@@ -1287,13 +1266,48 @@ static void LoadIwadDeh(void)
             I_Error("Failed to load chex.deh needed for emulating chex.exe.");
         }
     }
+
+    if (IsFrenchIWAD())
+    {
+        char *french_deh = NULL;
+        char *dirname;
+
+        // Look for french.deh in the same directory as the IWAD file.
+        dirname = M_DirName(iwadfile);
+        french_deh = M_StringJoin(dirname, DIR_SEPARATOR_S, "french.deh", NULL);
+        printf("French version\n");
+        free(dirname);
+
+        // If the dehacked patch isn't found, try searching the WAD
+        // search path instead.  We might find it...
+        if (!M_FileExists(french_deh))
+        {
+            free(french_deh);
+            french_deh = D_FindWADByName("french.deh");
+        }
+
+        // Still not found?
+        if (french_deh == NULL)
+        {
+            I_Error("Unable to find French Doom II dehacked file\n"
+                    "(french.deh).  The dehacked file is required in order to\n"
+                    "emulate French doom2.exe correctly.  It can be found in\n"
+                    "your nearest /idgames repository mirror at:\n\n"
+                    "   utils/exe_edit/patches/french.zip");
+        }
+
+        if (!DEH_LoadFile(french_deh))
+        {
+            I_Error("Failed to load french.deh needed for emulating French\n"
+                    "doom2.exe.");
+        }
+    }
 }
 
 static void G_CheckDemoStatusAtExit (void)
 {
     G_CheckDemoStatus();
 }
-
 
 //
 // D_DoomMain
@@ -1513,8 +1527,6 @@ void D_DoomMain (void)
     if ( (p=M_CheckParm ("-turbo")) )
     {
 	int     scale = 200;
-	extern int forwardmove[2];
-	extern int sidemove[2];
 	
 	if (p<myargc-1)
 	    scale = atoi (myargv[p+1]);
@@ -1827,18 +1839,6 @@ void D_DoomMain (void)
     I_PrintStartupBanner(gamedescription);
     PrintDehackedBanners();
 
-    // Freedoom's IWADs are Boom-compatible, which means they usually
-    // don't work in Vanilla (though FreeDM is okay). Show a warning
-    // message and give a link to the website.
-    if (gamevariant == freedoom)
-    {
-        printf(" WARNING: You are playing using one of the Freedoom IWAD\n"
-               " files, which might not work in this port. See this page\n"
-               " for more information on how to play using Freedoom:\n"
-               "   https://www.chocolate-doom.org/wiki/index.php/Freedoom\n");
-        I_PrintDivider();
-    }
-
     DEH_printf("I_Init: Setting up machine state.\n");
     I_CheckIsScreensaver();
     I_InitTimer();
@@ -1860,6 +1860,7 @@ void D_DoomMain (void)
     autostart = false;
 
     //!
+    // @category game
     // @arg <skill>
     // @vanilla
     //
@@ -2075,12 +2076,10 @@ void D_DoomMain (void)
 	
     if (gameaction != ga_loadgame )
     {
-		if (autostart || netgame)
-			G_InitNew (startskill, startepisode, startmap);
-		else
-		{
-			D_StartTitle ();                // start up intro loop
-		}
+	if (autostart || netgame)
+	    G_InitNew (startskill, startepisode, startmap);
+	else
+	    D_StartTitle ();                // start up intro loop
     }
 
     // [JN] Print ingame message with recording demo name right after start.
@@ -2094,3 +2093,4 @@ void D_DoomMain (void)
 
     D_DoomLoop ();  // never returns
 }
+

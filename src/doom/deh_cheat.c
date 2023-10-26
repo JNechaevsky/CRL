@@ -30,7 +30,7 @@
 
 typedef struct 
 {
-    char *name;
+    const char *name;
     cheatseq_t *seq;
 } deh_cheat_t;
 

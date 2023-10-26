@@ -28,6 +28,8 @@
 
 extern boolean G_CheckDemoStatus (void);
 extern boolean G_Responder (event_t *ev);
+extern fixed_t forwardmove[2];
+extern fixed_t sidemove[2];
 
 extern char *demoname;
 

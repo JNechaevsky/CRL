@@ -50,6 +50,7 @@ extern void D_StartTitle (void);
 
 extern  int show_endoom;
 extern  gameaction_t    gameaction;
+extern boolean advancedemo;
 
 
 #endif
