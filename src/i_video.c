@@ -957,10 +957,25 @@ void I_FinishUpdate (void)
     V_RestoreDiskBackground();
 }
 
+//
+// I_FinishDemoWarpUpdate
+// [JN] Do minimal screen update just to draw demo bar while demo warping.
+//
+
 void I_FinishDemoWarpUpdate (void)
 {
+    static boolean vsync_is_set = false;
+
     if (!initialized || noblit)
         return;
+
+    // Set VSync setting to get correct fps capping after finishing warp.
+    // This is need to be done only once.
+    if (!vsync_is_set)
+    {
+        SDL_RenderSetVSync(renderer, crl_vsync);
+        vsync_is_set = true;
+    }
 
     UpdateGrab();
 
@@ -971,7 +986,7 @@ void I_FinishDemoWarpUpdate (void)
     // Update the intermediate texture with the contents of the RGBA buffer.
     SDL_UpdateTexture(texture, NULL, argbbuffer->pixels, argbbuffer->pitch);
     
-    SDL_SetRenderTarget(renderer, NULL);
+    //SDL_SetRenderTarget(renderer, NULL);
     SDL_RenderCopy(renderer, texture, NULL, NULL);
 
     // Draw!
