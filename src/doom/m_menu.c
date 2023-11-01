@@ -1001,7 +1001,7 @@ static void M_ChooseCRL_Main (int choice)
 
 static void M_DrawCRL_Main (void)
 {
-    static char str[32];
+    char str[32];
 
     M_ShadeBackground();
     M_WriteTextCentered(25, "MAIN MENU", cr[CR_YELLOW]);
@@ -1129,7 +1129,7 @@ static void M_ChooseCRL_Video (int choice)
 
 static void M_DrawCRL_Video (void)
 {
-    static char str[32];
+    char str[32];
 
     M_ShadeBackground();
 
@@ -1461,7 +1461,7 @@ static void M_ChooseCRL_Sound (int choice)
 
 static void M_DrawCRL_Sound (void)
 {
-    static char str[16];
+    char str[16];
 
     M_ShadeBackground();
 
@@ -1729,7 +1729,7 @@ static void M_ChooseCRL_Controls (int choice)
 
 static void M_DrawCRL_Controls (void)
 {
-    static char str[32];
+    char str[32];
 
     M_ShadeBackground();
     
@@ -2780,7 +2780,7 @@ static void M_ChooseCRL_Widgets (int choice)
 
 static void M_DrawCRL_Widgets (void)
 {
-    static char str[32];
+    char str[32];
 
     M_ShadeBackground();
     M_WriteTextCentered(25, "WIDGETS", cr[CR_YELLOW]);
@@ -2962,7 +2962,7 @@ static void M_ChooseCRL_Gameplay (int choice)
 
 static void M_DrawCRL_Gameplay (void)
 {
-    static char str[32];
+    char str[32];
 
     M_ShadeBackground();
 
@@ -3106,7 +3106,7 @@ static void M_ChooseCRL_Limits (int choice)
 
 static void M_DrawCRL_Limits (void)
 {
-    static char str[32];
+    char str[32];
 
     M_ShadeBackground();
 
@@ -3530,7 +3530,7 @@ static void M_DrawReadThisCommercial(void)
 static void M_DrawSound(void)
 {
     const char *m_svol = DEH_String("M_SVOL");
-    static char str[8];
+    char str[8];
 
     V_DrawShadowedPatch(60, 38, W_CacheLumpName(m_svol, PU_CACHE), m_svol);
 
