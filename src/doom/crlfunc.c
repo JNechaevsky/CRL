@@ -685,10 +685,22 @@ void CRL_DemoTimer (const int time)
 
 void CRL_DemoBar (void)
 {
+    static boolean colors_set = false;
+    static int black = 0;
+    static int white = 0;
     const int i = SCREENWIDTH * defdemotics / deftotaldemotics;
 
-    V_DrawHorizLine(0, SCREENHEIGHT - 2, i, 0); // [crispy] black
-    V_DrawHorizLine(0, SCREENHEIGHT - 1, i, 4); // [crispy] white
+    // [JN] Don't rely on palette indexes,
+    // try to find nearest colors instead.
+    if (!colors_set)
+    {
+        black = I_GetPaletteIndex(0, 0, 0);
+        white = I_GetPaletteIndex(255, 255, 255);
+        colors_set = true;
+    }
+
+    V_DrawHorizLine(0, SCREENHEIGHT - 2, i, black); // [crispy] black
+    V_DrawHorizLine(0, SCREENHEIGHT - 1, i, white); // [crispy] white
 }
 
 // -----------------------------------------------------------------------------
