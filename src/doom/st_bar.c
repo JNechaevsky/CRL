@@ -634,9 +634,30 @@ boolean ST_Responder (event_t *ev)
             }
 
             // So be it.
-            plyr->cheatTics = 1;
-            CRL_SetMessage(plyr, DEH_String(STSTR_CLEV), false, NULL);
-            G_DeferedInitNew(gameskill, epsd, map);
+            // [crispy] allow IDCLEV during demo playback and warp to the requested map
+            if (demoplayback)
+            {
+                demowarp = map;
+
+                if (map > gamemap)
+                {
+                    nodrawers = true;
+                    singletics = true;
+                }
+                else
+                {
+                    demo_gotoidclev = true;
+                    G_DoPlayDemo();
+                }
+
+                return true;
+            }
+            else
+            {
+                plyr->cheatTics = 1;
+                CRL_SetMessage(plyr, DEH_String(STSTR_CLEV), false, NULL);
+                G_DeferedInitNew(gameskill, epsd, map);
+            }
         }
     }
 
