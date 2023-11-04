@@ -38,6 +38,7 @@
 #include "p_local.h"
 #include "w_wad.h"
 #include "z_zone.h"
+#include "g_game.h"  // [JN] demo_gotonextlvl
 
 #include "crlcore.h"
 #include "crlvars.h"
@@ -729,8 +730,9 @@ void S_ChangeMusic(int musicnum, int looping)
     char namebuf[9];
     void *handle;
 
-    // [JN] CRL - do not play music while demo-warp.
-    if (nodrawers || demowarp)
+    // [JN] Do not play music while demo-warp,
+    // but still change while fast forwarding to next level in demo playback.
+    if ((nodrawers || demowarp) && !demo_gotonextlvl)
     {
         return;
     }
