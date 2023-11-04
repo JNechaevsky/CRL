@@ -1060,7 +1060,7 @@ void P_PlayerInSpecialSector (player_t* player)
 	    sfx_id = I_GetSfxLumpNum(&S_sfx[sfx_secret]) != -1 ? sfx_secret :
 	             I_GetSfxLumpNum(&S_sfx[sfx_getpow]) != -1 ? sfx_getpow : -1;
 
-	    CRL_SetMessage(&players[displayplayer], DEH_String(CRL_SECRET_FOUND), true, cr[CR_YELLOW]);
+	    CRL_SetMessage(player, DEH_String(CRL_SECRET_FOUND), true, cr[CR_YELLOW]);
 	    if (sfx_id != -1)
         {
 	        S_StartSound(NULL, sfx_id);
