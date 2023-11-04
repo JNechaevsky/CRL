@@ -158,6 +158,7 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_KEY(key_fire),
     CONFIG_VARIABLE_KEY(key_use),
     CONFIG_VARIABLE_KEY(key_strafe),
+    CONFIG_VARIABLE_KEY(key_180turn),
     CONFIG_VARIABLE_KEY(key_speed),
     CONFIG_VARIABLE_INT(use_mouse),
     CONFIG_VARIABLE_INT(mouseb_fire),

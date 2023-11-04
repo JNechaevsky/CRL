@@ -38,6 +38,7 @@ int key_straferight = 'd';
 int key_fire = KEY_RCTRL;
 int key_use = ' ';
 int key_strafe = KEY_RALT;
+int key_180turn = 0; // [crispy]
 int key_speed = KEY_RSHIFT; 
 
 // 
@@ -261,6 +262,7 @@ void M_BindBaseControls(void)
     M_BindIntVariable("key_fire",           &key_fire);
     M_BindIntVariable("key_use",            &key_use);
     M_BindIntVariable("key_strafe",         &key_strafe);
+    M_BindIntVariable("key_180turn",        &key_180turn);
     M_BindIntVariable("key_speed",          &key_speed);
 
     M_BindIntVariable("mouseb_fire",        &mousebfire);
