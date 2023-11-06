@@ -527,7 +527,7 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
         }
     }
 
-    // [JN] CRL - strict Arch-Vile jump to singleplayer-only
+    // [JN] CRL - strict these functions to singleplayer-only
     // for keeping demo compatibility.
     if (singleplayer)
     {
@@ -540,13 +540,7 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
         {
             CRL_vilebomb = false;
         }
-    }
 
-    // [JN] CRL - handle MAX VP clearing / jumping.
-    // Disallow while multiplayer and demo recording,
-    // but allow while demo playing (jumping will stop playback).
-    if (!netgame && !demorecording)
-    {
         // Clear MAX visplanes.
         if (gamekeydown[key_crl_clearmax])
         {
