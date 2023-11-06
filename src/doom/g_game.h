@@ -32,6 +32,7 @@ extern fixed_t forwardmove[2];
 extern fixed_t sidemove[2];
 
 extern char *demoname;
+extern int   demostarttic; // [crispy] fix revenant internal demo
 
 extern int G_VanillaVersionCode(void);
 
@@ -64,6 +65,9 @@ extern void G_Ticker (void);
 extern void G_TimeDemo (char *name);
 extern void G_WorldDone (void);
 extern void G_WriteDemoTiccmd (ticcmd_t *cmd); 
+
+// [crispy] holding down the "Run" key may trigger special behavior
+extern boolean speedkeydown (void);
 
 // [JN] Fast forward to IDCLEVed map while demo playback.
 extern boolean demo_gotoidclev;

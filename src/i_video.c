@@ -96,10 +96,6 @@ static boolean initialized = false;
 static boolean nomouse = false;
 int usemouse = 1;
 
-// Save screenshots in PNG format.
-
-int png_screenshots = 1;
-
 // SDL video driver name
 
 char *video_driver = "";
@@ -1661,5 +1657,4 @@ void I_BindVideoVariables(void)
     M_BindIntVariable("window_position_x",           &window_position_x);
     M_BindIntVariable("window_position_y",           &window_position_y);
     M_BindIntVariable("usegamma",                  &usegamma);
-    M_BindIntVariable("png_screenshots",           &png_screenshots);
 }

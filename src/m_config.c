@@ -211,7 +211,6 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(graphical_startup),
     CONFIG_VARIABLE_INT(show_endoom),
     CONFIG_VARIABLE_INT(show_diskicon),
-    CONFIG_VARIABLE_INT(png_screenshots),
     CONFIG_VARIABLE_INT(snd_samplerate),
     CONFIG_VARIABLE_INT(snd_cachesize),
     CONFIG_VARIABLE_INT(snd_maxslicetime_ms),

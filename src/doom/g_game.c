@@ -1533,7 +1533,6 @@ void G_PlayerReborn (int player)
 // at the given mapthing_t spot  
 // because something is occupying it 
 //
-void P_SpawnPlayer (mapthing_t* mthing); 
  
 boolean
 G_CheckSpot
@@ -1724,7 +1723,7 @@ void G_ScreenShot (void)
 
 
 // DOOM Par Times
-int pars[4][10] = 
+static const int pars[4][10] = 
 { 
     {0}, 
     {0,30,75,120,90,165,180,180,30,165}, 
@@ -1733,7 +1732,7 @@ int pars[4][10] =
 }; 
 
 // DOOM II Par Times
-int cpars[32] =
+static const int cpars[32] =
 {
     30,90,120,120,90,150,120,120,270,90,	//  1-10
     210,150,150,150,210,150,420,150,210,150,	// 11-20
@@ -1746,7 +1745,6 @@ int cpars[32] =
 // G_DoCompleted 
 //
 boolean		secretexit; 
-extern char*	pagename; 
  
 void G_ExitLevel (void) 
 { 

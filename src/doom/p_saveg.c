@@ -29,6 +29,7 @@
 #include "doomstat.h"
 #include "g_game.h"
 #include "m_misc.h"
+#include "m_menu.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
@@ -55,9 +56,6 @@ char *P_TempSaveGameFile(void)
 }
 
 // Get the filename of the save game file to use for the specified slot.
-
-// [FG] support up to 8 pages of savegames
-extern int savepage;
 
 char *P_SaveGameFile(int slot)
 {

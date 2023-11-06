@@ -32,6 +32,7 @@
 #include "dstrings.h"
 #include "m_menu.h"
 #include "am_map.h"
+#include "g_game.h"
 #include "v_trans.h"
 
 #include "crlcore.h"
@@ -649,7 +650,6 @@ boolean AM_Responder (event_t *ev)
     static int  bigstate=0;
     static char buffer[20];
     int         key;
-    extern boolean speedkeydown (void);
 
     // [JN] If run button is hold, pan/zoom Automap faster.    
     if (speedkeydown())
@@ -1861,7 +1861,6 @@ static void AM_CRLMLine (int __col, int __x1, int __y1, int __x2, int __y2)
 static void AM_MapNameDrawer (void)
 {
     static char str[128];
-    extern const char *level_name;
 
     sprintf(str, "%s", level_name);
     M_WriteText(0, 160, str, NULL);

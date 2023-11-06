@@ -385,6 +385,8 @@ extern int     numspechit;
 extern mobj_t  *linetarget;  // who got hit (or NULL)
 extern boolean  safe_intercept;
 
+extern fixed_t attackrange;
+
 // -----------------------------------------------------------------------------
 // P_MAPUTL
 // -----------------------------------------------------------------------------
@@ -459,6 +461,7 @@ extern void    P_MobjThinker (mobj_t *mobj);
 extern void    P_RemoveMobj (mobj_t *th);
 extern void    P_SpawnBlood (fixed_t x, fixed_t y, fixed_t z, int damage);
 extern void    P_SpawnMapThing (mapthing_t *mthing);
+extern void    P_SpawnPlayer (mapthing_t *mthing);
 extern void    P_SpawnPlayerMissile (mobj_t *source, mobjtype_t type);
 extern void    P_SpawnPuff (fixed_t x, fixed_t y, fixed_t z);
 extern void    P_RespawnSpecials (void);
@@ -555,6 +558,8 @@ extern void A_BFGSpray (mobj_t *mo);
 extern void A_Explode (mobj_t *thingy);
 extern void A_PlayerScream (mobj_t* mo);
 
+extern fixed_t bulletslope;
+
 // -----------------------------------------------------------------------------
 // P_SAVEG
 // -----------------------------------------------------------------------------
@@ -603,6 +608,16 @@ extern int       bmapheight;    // in mapblocks
 extern fixed_t   bmaporgx;
 extern fixed_t   bmaporgy;      // origin of block map
 extern mobj_t  **blocklinks;    // for thing chains
+
+extern const char *level_name;
+
+// -----------------------------------------------------------------------------
+// P_SIGHT
+// -----------------------------------------------------------------------------
+
+// slopes to top and bottom of target
+extern fixed_t topslope;
+extern fixed_t bottomslope;
 
 // -----------------------------------------------------------------------------
 // P_SPEC

@@ -613,90 +613,6 @@ void V_RestoreBuffer(void)
 // SCREEN SHOTS
 //
 
-typedef PACKED_STRUCT (
-{
-    char		manufacturer;
-    char		version;
-    char		encoding;
-    char		bits_per_pixel;
-
-    unsigned short	xmin;
-    unsigned short	ymin;
-    unsigned short	xmax;
-    unsigned short	ymax;
-    
-    unsigned short	hres;
-    unsigned short	vres;
-
-    unsigned char	palette[48];
-    
-    char		reserved;
-    char		color_planes;
-    unsigned short	bytes_per_line;
-    unsigned short	palette_type;
-    
-    char		filler[58];
-    unsigned char	data;		// unbounded
-}) pcx_t;
-
-
-//
-// WritePCXfile
-//
-
-void WritePCXfile(char *filename, byte *data,
-                  int width, int height,
-                  byte *palette)
-{
-    int		i;
-    int		length;
-    pcx_t*	pcx;
-    byte*	pack;
-	
-    pcx = Z_Malloc (width*height*2+1000, PU_STATIC, NULL);
-
-    pcx->manufacturer = 0x0a;		// PCX id
-    pcx->version = 5;			// 256 color
-    pcx->encoding = 1;			// uncompressed
-    pcx->bits_per_pixel = 8;		// 256 color
-    pcx->xmin = 0;
-    pcx->ymin = 0;
-    pcx->xmax = SHORT(width-1);
-    pcx->ymax = SHORT(height-1);
-    pcx->hres = SHORT(1);
-    pcx->vres = SHORT(1);
-    memset (pcx->palette,0,sizeof(pcx->palette));
-    pcx->reserved = 0;                  // PCX spec: reserved byte must be zero
-    pcx->color_planes = 1;		// chunky image
-    pcx->bytes_per_line = SHORT(width);
-    pcx->palette_type = SHORT(2);	// not a grey scale
-    memset (pcx->filler,0,sizeof(pcx->filler));
-
-    // pack the image
-    pack = &pcx->data;
-	
-    for (i=0 ; i<width*height ; i++)
-    {
-	if ( (*data & 0xc0) != 0xc0)
-	    *pack++ = *data++;
-	else
-	{
-	    *pack++ = 0xc1;
-	    *pack++ = *data++;
-	}
-    }
-    
-    // write the palette
-    *pack++ = 0x0c;	// palette ID byte
-    for (i=0 ; i<768 ; i++)
-	*pack++ = *palette++;
-    
-    // write output file
-    length = pack - (byte *)pcx;
-    M_WriteFile (filename, pcx, length);
-
-    Z_Free (pcx);
-}
 
 //
 // WritePNGfile
@@ -736,23 +652,12 @@ void V_ScreenShot(char *format)
 {
     int i;
     char lbmname[16]; // haleyjd 20110213: BUG FIX - 12 is too small!
-    char *ext;
     
     // find a file name to save it to
 
-    extern int png_screenshots;
-    if (png_screenshots)
-    {
-        ext = "png";
-    }
-    else
-    {
-        ext = "pcx";
-    }
-
     for (i=0; i<=9999; i++)
     {
-        M_snprintf(lbmname, sizeof(lbmname), format, i, ext);
+        M_snprintf(lbmname, sizeof(lbmname), format, i, "png");
 
         if (!M_FileExists(lbmname))
         {
@@ -762,27 +667,10 @@ void V_ScreenShot(char *format)
 
     if (i == 10000)
     {
-        if (png_screenshots)
-        {
-            I_Error ("V_ScreenShot: Couldn't create a PNG");
-        }
-        else
-        {
-            I_Error ("V_ScreenShot: Couldn't create a PCX");
-        }
+        I_Error ("V_ScreenShot: Couldn't create a PNG");
     }
 
-    if (png_screenshots)
-    {
     WritePNGfile(lbmname);
-    }
-    else
-    {
-    // save the pcx file
-    WritePCXfile(lbmname, I_VideoBuffer,
-                 SCREENWIDTH, SCREENHEIGHT,
-                 W_CacheLumpName (DEH_String("PLAYPAL"), PU_CACHE));
-    }
 }
 
 #define MOUSE_SPEED_BOX_WIDTH  120
@@ -802,7 +690,6 @@ static int linelen_multiplier = 1;
 
 void V_DrawMouseSpeedBox(int speed)
 {
-    extern int usemouse;
     int bgcolor, bordercolor, red, black, white, yellow;
     int box_x, box_y;
     int original_speed;

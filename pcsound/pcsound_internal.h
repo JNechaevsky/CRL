@@ -35,5 +35,7 @@ struct pcsound_driver_s
 
 extern int pcsound_sample_rate;
 
+extern pcsound_driver_t pcsound_sdl_driver;
+
 #endif /* #ifndef PCSOUND_INTERNAL_H */
 

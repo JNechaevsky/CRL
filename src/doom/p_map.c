@@ -870,9 +870,6 @@ fixed_t		attackrange;
 
 fixed_t		aimslope;
 
-// slopes to top and bottom of target
-extern fixed_t	topslope;
-extern fixed_t	bottomslope;	
 
 
 //
