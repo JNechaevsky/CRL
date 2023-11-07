@@ -1326,12 +1326,12 @@ static void M_DrawCRL_Display (void)
                            M_Item_Glow(0, GLOW_UNCOLORED));
 
     // Menu background shading
-    sprintf(str, "%d", crl_menu_shading);
+    sprintf(str, crl_menu_shading ? "%d" : "OFF", crl_menu_shading);
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 61, str, 
                  M_Item_Glow(3, crl_menu_shading ? GLOW_GREEN : GLOW_DARKRED));
 
     // Extra level brightness
-    sprintf(str, "%d", crl_level_brightness);
+    sprintf(str, crl_level_brightness ? "%d" : "OFF", crl_level_brightness);
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 70, str, 
                  M_Item_Glow(4, crl_level_brightness ? GLOW_GREEN : GLOW_DARKRED));
 
