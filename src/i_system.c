@@ -125,7 +125,6 @@ byte *I_ZoneBase (int *size)
     byte *zonemem;
     int min_ram, default_ram;
     int p;
-    static int i = 1; // [crispy]
 
     //!
     // @category obscure
@@ -161,16 +160,7 @@ byte *I_ZoneBase (int *size)
         min_ram = MIN_RAM;
     }
 
-    // [crispy] do not allocate new zones ad infinitum
-    if (i > 16)
-    {
-        min_ram = default_ram + 1;
-    }
-
     zonemem = AutoAllocMemory(size, default_ram, min_ram);
-
-    // [crispy] if called again, allocate another zone twice as big
-    i *= 2;
 
     printf("  zone memory: %p, %x MiB allocated for zone.\n", 
            (void*)zonemem, *size >> 20); // [crispy] human-understandable zone heap size

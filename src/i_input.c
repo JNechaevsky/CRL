@@ -327,6 +327,8 @@ static void UpdateMouseButtonState(unsigned int button, boolean on)
     // Note: button "0" is left, button "1" is right,
     // button "2" is middle for Doom.  This is different
     // to how SDL sees things.
+    // In the end: Left=0, Right=1, Middle=2,
+    // WheelUp=3 WheelDown=4, XButton1=5, XButton2=6
 
     switch (button)
     {

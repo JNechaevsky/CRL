@@ -830,6 +830,13 @@ static boolean		snl_pointeron = false;
 
 void WI_initShowNextLoc(void)
 {
+    // [crispy] display tally screen after ExM8
+    if ((gamemode != commercial && gamemap == 8) || (gameversion == exe_chex && gamemap == 5))
+    {
+	G_WorldDone();
+	return;
+    }
+
     state = ShowNextLoc;
     acceleratestage = 0;
     cnt = SHOWNEXTLOCDELAY * TICRATE;
@@ -1546,7 +1553,7 @@ void WI_drawStats(void)
     V_DrawShadowedPatch(SP_TIMEX, SP_TIMEY, timepatch, DEH_String("WITIME"));
     WI_drawTime(SCREENWIDTH/2 - SP_TIMEX, SP_TIMEY, cnt_time, true);
 
-    if (wbs->epsd < 3)
+	if (wbs->epsd < 3 || (wbs->epsd < 4 && singleplayer))
     {
 	V_DrawShadowedPatch(SCREENWIDTH/2 + SP_TIMEX, SP_TIMEY, par, DEH_String("WIPAR"));
 	WI_drawTime(SCREENWIDTH - SP_TIMEX, SP_TIMEY, cnt_par, true);
@@ -1561,6 +1568,14 @@ void WI_drawStats(void)
         V_DrawShadowedPatch((SP_TIMEX), SP_TIMEY + 16, total, DEH_String("WIMSTT"));
         // [crispy] choose x-position depending on width of time string
         WI_drawTime((wide ? SCREENWIDTH : SCREENWIDTH/2) - SP_TIMEX, SP_TIMEY + 16, ttime, false);
+    }
+
+    // [crispy] exit early from the tally screen after ExM8
+    // [JN] ...In non-singleplayer mode only to keep demo/netgame compatibility.
+    if (sp_state == 10 && ((gamemode != commercial && gamemap == 8) || (gameversion == exe_chex && gamemap == 5))
+    && !singleplayer)
+    {
+	acceleratestage = 1;
     }
 
     // [crispy] demo timer widget

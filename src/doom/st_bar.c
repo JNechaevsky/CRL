@@ -97,6 +97,7 @@ int st_palette = 0;
 static boolean	oldweaponsowned[NUMWEAPONS]; 
 
 static patch_t *sbar;                // main bar background
+static patch_t *sbarr;               // main bar right, for doom 1.0
 static patch_t *tallnum[10];         // 0-9, tall numbers
 static patch_t *tallpercent;         // tall % sign
 static patch_t *tallminus;           // [JN] "minus" symbol
@@ -1292,6 +1293,12 @@ void ST_Drawer (void)
         V_UseBuffer(st_backing_screen);
         V_DrawPatch(0, 0, sbar, DEH_String("STBAR"));
 
+        // draw right side of bar if needed (Doom 1.0)
+        if (sbarr)
+        {
+            V_DrawPatch(104, 0, sbarr, DEH_String("STMBARL"));
+        }
+
         if (netgame)
         {
             // Player face background
@@ -1425,7 +1432,15 @@ static void ST_loadUnloadGraphics(load_callback_t callback)
     callback(DEH_String("STTPRCNT"), &tallpercent);
 
     // [JN] Load minus symbol.
-    callback(DEH_String("STTMINUS"), &tallminus);
+    // Versions prior 1.4 does not have STTMINUS patch.
+    if (W_CheckNumForName("STTMINUS") >= 0)
+    {
+        callback(DEH_String("STTMINUS"), &tallminus);
+    }
+    else
+    {
+        tallminus = NULL;
+    }
 
     // key cards
     for (i=0;i<NUMCARDS;i++)
@@ -1447,7 +1462,16 @@ static void ST_loadUnloadGraphics(load_callback_t callback)
     }
 
     // status bar background bits
-    callback(DEH_String("STBAR"), &sbar);
+    if (W_CheckNumForName("STBAR") >= 0)
+    {
+        callback(DEH_String("STBAR"), &sbar);
+        sbarr = NULL;
+    }
+    else
+    {
+        callback(DEH_String("STMBARL"), &sbar);
+        callback(DEH_String("STMBARR"), &sbarr);
+    }
 
     // face states
     facenum = 0;

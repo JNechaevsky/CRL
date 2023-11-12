@@ -871,7 +871,6 @@ fixed_t		attackrange;
 fixed_t		aimslope;
 
 
-
 //
 // PTR_AimTraverse
 // Sets linetaget and aimslope when a target is aimed at.
@@ -1385,7 +1384,8 @@ boolean PIT_ChangeSector (mobj_t*	thing)
     {
 	P_SetMobjState (thing, S_GIBS);
 
-	thing->flags &= ~MF_SOLID;
+    if (gameversion > exe_doom_1_2)
+	    thing->flags &= ~MF_SOLID;
 	thing->height = 0;
 	thing->radius = 0;
 

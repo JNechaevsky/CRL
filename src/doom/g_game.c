@@ -40,6 +40,7 @@
 #include "i_system.h"
 #include "i_timer.h"
 #include "i_input.h"
+#include "i_swap.h"
 #include "i_video.h"
 
 #include "d_main.h"
@@ -73,9 +74,10 @@
 
 
 
+#include "deh_main.h" // [crispy] for demo footer
+#include "memio.h"
 
 #define SAVEGAMESIZE	0x2c000
-
 
  
 // Gamestate the last time G_Ticker was called.
@@ -106,7 +108,7 @@ int             deathmatch;           	// only if started as net death
 boolean         netgame;                // only true if packets are broadcast 
 boolean         playeringame[MAXPLAYERS]; 
 player_t        players[MAXPLAYERS]; 
-boolean         coop_spawns; // Single player game with netgame things spawn
+boolean         coop_spawns;            // [JN] Single player game with netgame things spawn
 
 boolean         turbodetected[MAXPLAYERS];
  
@@ -118,6 +120,7 @@ int             totalleveltimes;        // [crispy] CPhipps - total time for all
 int             demostarttic;           // [crispy] fix revenant internal demo bug
  
 char           *demoname;
+const char     *orig_demoname; // [crispy] the name originally chosen for the demo, i.e. without "-00000"
 boolean         demorecording; 
 boolean         longtics;               // cph's doom 1.91 longtics hack
 boolean         lowres_turn;            // low resolution turning for longtics
@@ -209,9 +212,7 @@ static int      joystrafemove;
 static boolean  joyarray[MAX_JOY_BUTTONS + 1]; 
 static boolean *joybuttons = &joyarray[1];		// allow [-1] 
  
-// [JN] Determinates speed of camera Z-axis movement in spectator mode.
-static int      crl_camzspeed;
-
+static char     savename[256]; // [crispy] moved here, made static
 static int      savegameslot; 
 static char     savedescription[32]; 
  
@@ -220,6 +221,11 @@ static char     savedescription[32];
 mobj_t*		bodyque[BODYQUESIZE]; 
 int		bodyqueslot; 
  
+// [JN] Determinates speed of camera Z-axis movement in spectator mode.
+static int      crl_camzspeed;
+
+// [crispy] store last cmd to track joins
+static ticcmd_t* last_cmd = NULL;
  
 int G_CmdChecksum (ticcmd_t* cmd) 
 { 
@@ -353,7 +359,8 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
 
     // [crispy] when "always run" is active,
     // pressing the "run" key will result in walking
-    speed = (key_speed >= NUMKEYS || joybspeed >= MAX_JOY_BUTTONS);
+    speed = (key_speed >= NUMKEYS
+         || joybspeed >= MAX_JOY_BUTTONS);
     speed ^= speedkeydown();
     crl_camzspeed = speed;
  
@@ -628,11 +635,11 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
 
     if (!novert)
     {
-        forward += mousey; 
+    forward += mousey;
     }
 
     if (strafe) 
-	side += mousex*2; 
+	side += mousex*2;
     else 
 	cmd->angleturn -= mousex*0x8; 
 
@@ -643,7 +650,7 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
         testcontrols_mousespeed = 0;
     }
     
-    mousex = mousey = 0; 
+    mousex = mousey = 0;
 	 
     if (forward > MAXPLMOVE) 
 	forward = MAXPLMOVE; 
@@ -899,7 +906,7 @@ boolean G_Responder (event_t* ev)
         singletics = !singletics;
         return true;
     }
-
+ 
     // allow spy mode changes even during the demo
     if (gamestate == GS_LEVEL && ev->type == ev_keydown 
      && ev->data1 == key_spy && (singledemo || !deathmatch) )
@@ -911,16 +918,11 @@ boolean G_Responder (event_t* ev)
 	    if (displayplayer == MAXPLAYERS) 
 		displayplayer = 0; 
 	} while (!playeringame[displayplayer] && displayplayer != consoleplayer); 
-
     // [JN] Update sound values for appropriate player.
-    S_UpdateSounds(players[displayplayer].mo);
-
-    // [JN] Re-init automap variables for correct player arrow angle.
-    if (automapactive)
-    {
-        AM_initVariables();
-    }
-
+	S_UpdateSounds(players[displayplayer].mo);
+	// [JN] Re-init automap variables for correct player arrow angle.
+	if (automapactive)
+	AM_initVariables();
 	return true; 
     }
     
@@ -947,7 +949,7 @@ boolean G_Responder (event_t* ev)
 	    G_DeathMatchSpawnPlayer (0); 
 	    return true; 
 	} 
-#endif
+#endif 
 	if (CT_Responder (ev)) 
 	    return true;	// chat ate the event 
 	if (ST_Responder (ev)) 
@@ -1262,7 +1264,7 @@ void G_Ticker (void)
         demostarttic++;
     }
     else
-    {   
+    {     
     // get commands, check consistancy,
     // and build new consistancy check
     buf = (gametic/ticdup)%BACKUPTICS; 
@@ -1277,7 +1279,8 @@ void G_Ticker (void)
 
 	    if (demoplayback) 
 		G_ReadDemoTiccmd (cmd); 
-	    if (demorecording) 
+	    // [crispy] do not record tics while still playing back in demo continue mode
+	    if (demorecording && !demoplayback)
 		G_WriteDemoTiccmd (cmd);
 	    
 	    // check for turbo cheats
@@ -1323,7 +1326,7 @@ void G_Ticker (void)
     // [crispy] increase demo tics counter
     if (demoplayback || demorecording)
     {
-        defdemotics++;
+	    defdemotics++;
     }
 
     // check for special buttons
@@ -1340,6 +1343,8 @@ void G_Ticker (void)
 		    if (paused) 
 			S_PauseSound (); 
 		    else 
+		    // [crispy] Fixed bug when music was hearable with zero volume
+		    if (musicVolume)
 			S_ResumeSound (); 
 		    break; 
 					 
@@ -1388,7 +1393,7 @@ void G_Ticker (void)
     {
     return;
     }
-
+    
     // do main actions
     switch (gamestate) 
     { 
@@ -1715,12 +1720,14 @@ void G_ScreenShot (void)
 
 
 // DOOM Par Times
-static const int pars[4][10] = 
+static const int pars[5][10] = 
 { 
     {0}, 
     {0,30,75,120,90,165,180,180,30,165}, 
     {0,90,90,90,120,90,360,240,30,170}, 
     {0,90,45,90,150,90,90,165,30,135} 
+    // [crispy] Episode 4 par times from the BFG Edition
+   ,{0,165,255,135,150,180,390,135,360,180}
 }; 
 
 // DOOM II Par Times
@@ -1731,6 +1738,12 @@ static const int cpars[32] =
     240,150,180,150,150,300,330,420,300,180,	// 21-30
     120,30					// 31-32
 };
+
+// Chex Quest Par Times
+static const int chexpars[6] =
+{ 
+    0,120,360,480,200,360
+}; 
  
 
 //
@@ -1775,19 +1788,25 @@ void G_DoCompleted (void)
 
         if (gameversion == exe_chex)
         {
+            // [crispy] display tally screen after Chex Quest E1M5
+            /*
             if (gamemap == 5)
             {
                 gameaction = ga_victory;
                 return;
             }
+            */
         }
         else
         {
             switch(gamemap)
             {
+            // [crispy] display tally screen after ExM8
+            /*
               case 8:
                 gameaction = ga_victory;
                 return;
+            */
               case 9: 
                 for (i=0 ; i<MAXPLAYERS ; i++) 
                     players[i].didsecret = true; 
@@ -1796,6 +1815,8 @@ void G_DoCompleted (void)
         }
     }
 
+// [crispy] disable redundant code
+/*
 //#if 0  Hmmm - why?
     if ( (gamemap == 8)
 	 && (gamemode != commercial) ) 
@@ -1813,6 +1834,7 @@ void G_DoCompleted (void)
 	    players[i].didsecret = true; 
     } 
 //#endif
+*/
     
 	 
     wminfo.didsecret = players[consoleplayer].didsecret; 
@@ -1868,15 +1890,46 @@ void G_DoCompleted (void)
     wminfo.maxsecret = totalsecret; 
     wminfo.maxfrags = 0; 
 
-    // Set par time. Doom episode 4 doesn't have a par time, so this
-    // overflows into the cpars array. It's necessary to emulate this
-    // for statcheck regression testing.
+    // Set par time. Exceptions are added for purposes of
+    // statcheck regression testing.
     if (gamemode == commercial)
-	wminfo.partime = TICRATE*cpars[gamemap-1];
-    else if (gameepisode < 4)
-	wminfo.partime = TICRATE*pars[gameepisode][gamemap];
+    {
+        // map33 reads its par time from beyond the cpars[] array
+        if (gamemap == 33)
+        {
+            int cpars32;
+
+            memcpy(&cpars32, DEH_String(GAMMALVL0), sizeof(int));
+            cpars32 = LONG(cpars32);
+
+            wminfo.partime = TICRATE*cpars32;
+        }
+        else
+        {
+            wminfo.partime = TICRATE*cpars[gamemap-1];
+        }
+    }
+    // Doom episode 4 doesn't have a par time, so this
+    // overflows into the cpars array.
+    else if (gameepisode < 4 ||
+        // [crispy] single player par times for episode 4
+        (gameepisode == 4 && singleplayer) ||
+        // [crispy] par times for Sigil
+        gameepisode == 5)
+    {
+        if (gameversion == exe_chex && gameepisode == 1 && gamemap < 6)
+        {
+            wminfo.partime = TICRATE*chexpars[gamemap];
+        }
+        else
+        {
+            wminfo.partime = TICRATE*pars[gameepisode][gamemap];
+        }
+    }
     else
+    {
         wminfo.partime = TICRATE*cpars[gamemap];
+    }
 
     wminfo.pnum = consoleplayer; 
  
@@ -1897,7 +1950,7 @@ void G_DoCompleted (void)
     // the times in seconds shown for each level. Also means our total time
     // will agree with Compet-n.
     wminfo.totaltimes = (totalleveltimes += (leveltime - leveltime % TICRATE));
- 
+
     gamestate = GS_INTERMISSION; 
     automapactive = false; 
 
@@ -1933,6 +1986,12 @@ void G_WorldDone (void)
 	    break;
 	}
     }
+    // [crispy] display tally screen after ExM8
+    else
+    if ( gamemap == 8 || (gameversion == exe_chex && gamemap == 5) )
+    {
+	gameaction = ga_victory;
+    }
 } 
  
 void G_DoWorldDone (void) 
@@ -1950,7 +2009,6 @@ void G_DoWorldDone (void)
 // Can be called by the startup code or the menu task. 
 //
 
-char	savename[256];
 
 void G_LoadGame (char* name) 
 { 
@@ -1967,11 +2025,10 @@ void G_DoLoadGame (void)
     // cheat codes and other single player only specifics.
     if (startloadgame == -1)
     {
-        netdemo = false;
-        netgame = false;
-        deathmatch = false;
+	netdemo = false;
+	netgame = false;
+	deathmatch = false;
     }
-
     gameaction = ga_nothing; 
 	 
     save_stream = M_fopen(savename, "rb");
@@ -2141,6 +2198,16 @@ G_DeferedInitNew
     d_episode = episode; 
     d_map = map; 
     gameaction = ga_newgame; 
+
+    // [crispy] if a new game is started during demo recording, start a new demo
+    if (demorecording)
+    {
+	G_CheckDemoStatus();
+	Z_Free(demoname);
+
+	G_RecordDemo(orig_demoname);
+	G_BeginRecording();
+    }
 } 
 
 
@@ -2279,6 +2346,7 @@ G_InitNew
 
     // [crispy] CPhipps - total time for all completed levels
     totalleveltimes = 0;
+    defdemotics = 0;
     demostarttic = gametic; // [crispy] fix revenant internal demo bug
 
     // Set the sky to use.
@@ -2334,15 +2402,44 @@ G_InitNew
 
 // [crispy] demo progress bar and timer widget
 int defdemotics = 0, deftotaldemotics;
+// [crispy] moved here
+static const char *defdemoname;
 
 void G_ReadDemoTiccmd (ticcmd_t* cmd) 
 { 
     if (*demo_p == DEMOMARKER) 
     {
+	last_cmd = cmd; // [crispy] remember last cmd to track joins
+
 	// end of demo data stream 
 	G_CheckDemoStatus (); 
 	return; 
     } 
+
+    // [crispy] if demo playback is quit by pressing 'q',
+    // stay in the game, hand over controls to the player and
+    // continue recording the demo under a different name
+    if (gamekeydown[key_demo_quit] && singledemo && !netgame)
+    {
+	byte *actualbuffer = demobuffer;
+	char *actualname = M_StringDuplicate(defdemoname);
+
+	gamekeydown[key_demo_quit] = false;
+
+	// [crispy] find a new name for the continued demo
+	G_RecordDemo(actualname);
+	free(actualname);
+
+	// [crispy] discard the newly allocated demo buffer
+	Z_Free(demobuffer);
+	demobuffer = actualbuffer;
+
+	last_cmd = cmd; // [crispy] remember last cmd to track joins
+
+	// [crispy] continue recording
+	G_CheckDemoStatus();
+	return;
+    }
 
     cmd->forwardmove = ((signed char)*demo_p++); 
     cmd->sidemove = ((signed char)*demo_p++); 
@@ -2425,20 +2522,16 @@ void G_WriteDemoTiccmd (ticcmd_t* cmd)
 
     if (demo_p > demoend - 16)
     {
+        // [crispy] unconditionally disable savegame and demo limits
+        /*
         if (vanilla_demo_limit)
         {
-            /*
             // no more space 
             G_CheckDemoStatus (); 
             return; 
-            */
-            // [JN] CRL - print a warnings instead of quit.        
-            char *message = "Demo overflow (vanilla stops record here)";
-
-            CRL_printf(message, true);
-            CRL_SetCriticalMessage("G_WriteDemoTiccmd:", message, MESSAGETICS);
         }
-        // else
+        else
+        */
         {
             // Vanilla demo limit disabled: unlimited
             // demo lengths!
@@ -2455,16 +2548,34 @@ void G_WriteDemoTiccmd (ticcmd_t* cmd)
 //
 // G_RecordDemo
 //
-void G_RecordDemo (char *name)
+void G_RecordDemo (const char *name)
 {
     size_t demoname_size;
     int i;
     int maxsize;
 
+    // [crispy] demo file name suffix counter
+    static unsigned int j = 0;
+    FILE *fp = NULL;
+
+    // [crispy] the name originally chosen for the demo, i.e. without "-00000"
+    if (!orig_demoname)
+    {
+	orig_demoname = name;
+    }
+
     usergame = false;
-    demoname_size = strlen(name) + 5;
+    demoname_size = strlen(name) + 5 + 6; // [crispy] + 6 for "-00000"
     demoname = Z_Malloc(demoname_size, PU_STATIC, NULL);
     M_snprintf(demoname, demoname_size, "%s.lmp", name);
+
+    // [crispy] prevent overriding demos by adding a file name suffix
+    for ( ; j <= 99999 && (fp = fopen(demoname, "rb")) != NULL; j++)
+    {
+	M_snprintf(demoname, demoname_size, "%s-%05d.lmp", name, j);
+	fclose (fp);
+    }
+
     maxsize = 0x20000;
 
     //!
@@ -2489,8 +2600,6 @@ int G_VanillaVersionCode(void)
 {
     switch (gameversion)
     {
-        case exe_doom_1_2:
-            I_Error("Doom 1.2 does not have a version code!");
         case exe_doom_1_666:
             return 106;
         case exe_doom_1_7:
@@ -2525,7 +2634,7 @@ void G_BeginRecording (void)
     {
         *demo_p++ = DOOM_191_VERSION;
     }
-    else
+    else if (gameversion > exe_doom_1_2)
     {
         *demo_p++ = G_VanillaVersionCode();
     }
@@ -2533,11 +2642,14 @@ void G_BeginRecording (void)
     *demo_p++ = gameskill; 
     *demo_p++ = gameepisode; 
     *demo_p++ = gamemap; 
-    *demo_p++ = deathmatch; 
-    *demo_p++ = respawnparm;
-    *demo_p++ = fastparm;
-    *demo_p++ = nomonsters;
-    *demo_p++ = consoleplayer;
+    if (longtics || gameversion > exe_doom_1_2)
+    {
+        *demo_p++ = deathmatch; 
+        *demo_p++ = respawnparm;
+        *demo_p++ = fastparm;
+        *demo_p++ = nomonsters;
+        *demo_p++ = consoleplayer;
+    }
 	 
     for (i=0 ; i<MAXPLAYERS ; i++) 
 	*demo_p++ = playeringame[i]; 		 
@@ -2548,9 +2660,8 @@ void G_BeginRecording (void)
 // G_PlayDemo 
 //
 
-const char*	defdemoname; 
  
-void G_DeferedPlayDemo (const char* name) 
+void G_DeferedPlayDemo(const char *name)
 { 
     defdemoname = name; 
     gameaction = ga_playdemo; 
@@ -2559,14 +2670,14 @@ void G_DeferedPlayDemo (const char* name)
     // in demo warp mode or to the end of the demo in continue mode
     if (demowarp || demorecording)
     {
-        nodrawers = true;
-        singletics = true;
+	nodrawers = true;
+	singletics = true;
     }
 } 
 
 // Generate a string describing a demo version
 
-static char *DemoVersionDescription(int version)
+static const char *DemoVersionDescription(int version)
 {
     static char resultbuf[16];
 
@@ -2610,7 +2721,15 @@ void G_DoPlayDemo (void)
     skill_t skill;
     int i, lumpnum, episode, map;
     int demoversion;
+    boolean olddemo = false;
     int lumplength; // [crispy]
+
+    // [crispy] in demo continue mode free the obsolete demo buffer
+    // of size 'maxsize' previously allocated in G_RecordDemo()
+    if (demorecording)
+    {
+        Z_Free(demobuffer);
+    }
 
     lumpnum = W_GetNumForName(defdemoname);
     gameaction = ga_nothing;
@@ -2621,12 +2740,18 @@ void G_DoPlayDemo (void)
     lumplength = W_LumpLength(lumpnum);
     if (lumplength < 0xd)
     {
-        demoplayback = true;
-        G_CheckDemoStatus();
-        return;
+	demoplayback = true;
+	G_CheckDemoStatus();
+	return;
     }
 
     demoversion = *demo_p++;
+
+    if (demoversion >= 0 && demoversion <= 4)
+    {
+        olddemo = true;
+        demo_p--;
+    }
 
     longtics = false;
 
@@ -2637,30 +2762,54 @@ void G_DoPlayDemo (void)
     {
         longtics = true;
     }
-    else if (demoversion != G_VanillaVersionCode())
+    else if (demoversion != G_VanillaVersionCode() &&
+             !(gameversion <= exe_doom_1_2 && olddemo))
     {
-        char *message = "Demo is from a different game version!\n"
-                        "(read %i, should be %i)\n"
-                        "\n"
-                        "*** You may need to upgrade your version "
-                            "of Doom to v1.9. ***\n"
-                        "    See: https://www.doomworld.com/classicdoom"
-                                  "/info/patches.php\n"
-                        "    This appears to be %s.";
+        const char *message = "Demo is from a different game version!\n"
+                              "(read %i, should be %i)\n"
+                              "\n"
+                              "*** You may need to upgrade your version "
+                                  "of Doom to v1.9. ***\n"
+                              "    See: https://www.doomworld.com/classicdoom"
+                                        "/info/patches.php\n"
+                              "    This appears to be %s.";
 
+        if (singledemo)
         I_Error(message, demoversion, G_VanillaVersionCode(),
                          DemoVersionDescription(demoversion));
+        // [crispy] make non-fatal
+        else
+        {
+        fprintf(stderr, message, demoversion, G_VanillaVersionCode(),
+                         DemoVersionDescription(demoversion));
+	fprintf(stderr, "\n");
+	demoplayback = true;
+	G_CheckDemoStatus();
+	return;
+        }
     }
 
     skill = *demo_p++; 
     episode = *demo_p++; 
     map = *demo_p++; 
-    deathmatch = *demo_p++;
-    respawnparm = *demo_p++;
-    fastparm = *demo_p++;
-    nomonsters = *demo_p++;
-    consoleplayer = *demo_p++;
-	
+    if (!olddemo)
+    {
+        deathmatch = *demo_p++;
+        respawnparm = *demo_p++;
+        fastparm = *demo_p++;
+        nomonsters = *demo_p++;
+        consoleplayer = *demo_p++;
+    }
+    else
+    {
+        deathmatch = 0;
+        respawnparm = 0;
+        fastparm = 0;
+        nomonsters = 0;
+        consoleplayer = 0;
+    }
+    
+        
     for (i=0 ; i<MAXPLAYERS ; i++) 
 	playeringame[i] = *demo_p++; 
 
@@ -2669,11 +2818,22 @@ void G_DoPlayDemo (void)
     {
 	netgame = true;
 	netdemo = true;
+	// [crispy] impossible to continue a multiplayer demo
+	demorecording = false;
     }
 
     // don't spend a lot of time in loadlevel 
     precache = false;
+    // [crispy] support playing demos from savegames
+    if (startloadgame >= 0)
+    {
+	M_StringCopy(savename, P_SaveGameFile(startloadgame), sizeof(savename));
+	G_DoLoadGame();
+    }
+    else
+    {
     G_InitNew (skill, episode, map); 
+    }
     precache = true; 
     starttime = I_GetTime (); 
     demostarttic = gametic; // [crispy] fix revenant internal demo bug
@@ -2683,24 +2843,24 @@ void G_DoPlayDemo (void)
 
     // [crispy] demo progress bar
     {
-        int numplayersingame = 0;
-        byte *demo_ptr = demo_p;
+	int i, numplayersingame = 0;
+	byte *demo_ptr = demo_p;
 
-        for (int i = 0; i < MAXPLAYERS; i++)
-        {
-            if (playeringame[i])
-            {
-                numplayersingame++;
-            }
-        }
+	for (i = 0; i < MAXPLAYERS; i++)
+	{
+	    if (playeringame[i])
+	    {
+		numplayersingame++;
+	    }
+	}
 
-        deftotaldemotics = defdemotics = 0;
+	deftotaldemotics = defdemotics = 0;
 
-        while (*demo_ptr != DEMOMARKER && (demo_ptr - demobuffer) < lumplength)
-        {
-            demo_ptr += numplayersingame * (longtics ? 5 : 4);
-            deftotaldemotics++;
-        }
+	while (*demo_ptr != DEMOMARKER && (demo_ptr - demobuffer) < lumplength)
+	{
+	    demo_ptr += numplayersingame * (longtics ? 5 : 4);
+	    deftotaldemotics++;
+	}
     }
 } 
 
@@ -2725,6 +2885,139 @@ void G_TimeDemo (char* name)
     gameaction = ga_playdemo; 
 } 
  
+#define DEMO_FOOTER_SEPARATOR "\n"
+#define NUM_DEMO_FOOTER_LUMPS 4
+
+static size_t WriteCmdLineLump(MEMFILE *stream)
+{
+    int i;
+    long pos;
+    char *tmp, **filenames;
+
+    filenames = W_GetWADFileNames();
+
+    pos = mem_ftell(stream);
+
+    tmp = M_StringJoin("-iwad \"", M_BaseName(filenames[0]), "\"", NULL);
+    mem_fputs(tmp, stream);
+    free(tmp);
+
+    if (filenames[1])
+    {
+        mem_fputs(" -file", stream);
+
+        for (i = 1; filenames[i]; i++)
+        {
+            tmp = M_StringJoin(" \"", M_BaseName(filenames[i]), "\"", NULL);
+            mem_fputs(tmp, stream);
+            free(tmp);
+        }
+    }
+
+    filenames = DEH_GetFileNames();
+
+    if (filenames)
+    {
+        mem_fputs(" -deh", stream);
+
+        for (i = 0; filenames[i]; i++)
+        {
+            tmp = M_StringJoin(" \"", M_BaseName(filenames[i]), "\"", NULL);
+            mem_fputs(tmp, stream);
+            free(tmp);
+        }
+    }
+
+    switch (gameversion)
+    {
+        case exe_doom_1_2:
+            mem_fputs(" -complevel 0", stream);
+            break;
+        case exe_doom_1_666:
+            mem_fputs(" -complevel 1", stream);
+            break;
+        case exe_doom_1_9:
+            mem_fputs(" -complevel 2", stream);
+            break;
+        case exe_ultimate:
+            mem_fputs(" -complevel 3", stream);
+            break;
+        case exe_final:
+            mem_fputs(" -complevel 4", stream);
+            break;
+        default:
+            break;
+    }
+
+    if (M_CheckParm("-solo-net"))
+    {
+        mem_fputs(" -solo-net", stream);
+    }
+
+    return mem_ftell(stream) - pos;
+}
+
+static void WriteFileInfo(const char *name, size_t size, MEMFILE *stream)
+{
+    filelump_t fileinfo = { 0 };
+    static long filepos = sizeof(wadinfo_t);
+
+    fileinfo.filepos = LONG(filepos);
+    fileinfo.size = LONG(size);
+
+    if (name)
+    {
+        size_t len = strnlen(name, 8);
+        if (len < 8)
+        {
+            len++;
+        }
+        memcpy(fileinfo.name, name, len);
+    }
+
+    mem_fwrite(&fileinfo, 1, sizeof(fileinfo), stream);
+
+    filepos += size;
+}
+
+static void G_AddDemoFooter(void)
+{
+    byte *data;
+    size_t size;
+
+    MEMFILE *stream = mem_fopen_write();
+
+    wadinfo_t header = { "PWAD" };
+    header.numlumps = LONG(NUM_DEMO_FOOTER_LUMPS);
+    mem_fwrite(&header, 1, sizeof(header), stream);
+
+    mem_fputs(PACKAGE_STRING, stream);
+    mem_fputs(DEMO_FOOTER_SEPARATOR, stream);
+    size = WriteCmdLineLump(stream);
+    mem_fputs(DEMO_FOOTER_SEPARATOR, stream);
+
+    header.infotableofs = LONG(mem_ftell(stream));
+    mem_fseek(stream, 0, MEM_SEEK_SET);
+    mem_fwrite(&header, 1, sizeof(header), stream);
+    mem_fseek(stream, 0, MEM_SEEK_END);
+
+    WriteFileInfo("PORTNAME", strlen(PACKAGE_STRING), stream);
+    WriteFileInfo(NULL, strlen(DEMO_FOOTER_SEPARATOR), stream);
+    WriteFileInfo("CMDLINE", size, stream);
+    WriteFileInfo(NULL, strlen(DEMO_FOOTER_SEPARATOR), stream);
+
+    mem_get_buf(stream, (void **)&data, &size);
+
+    while (demo_p > demoend - size)
+    {
+        IncreaseDemoBuffer();
+    }
+
+    memcpy(demo_p, data, size);
+    demo_p += size;
+
+    mem_fclose(stream);
+}
  
 /* 
 =================== 
@@ -2738,24 +3031,23 @@ void G_TimeDemo (char* name)
  
 boolean G_CheckDemoStatus (void) 
 { 
-    int             endtime; 
-	 
-    if (timingdemo) 
-    { 
-        float fps;
-        int realtics;
+    // [crispy] catch the last cmd to track joins
+    ticcmd_t* cmd = last_cmd;
+    last_cmd = NULL;
 
-	endtime = I_GetTime (); 
-        realtics = endtime - starttime;
-        fps = ((float) gametic * TICRATE) / realtics;
+    if (timingdemo)
+    {
+        const int endtime = I_GetTime();
+        const int realtics = endtime - starttime;
+        const float fps = ((float)gametic * TICRATE) / realtics;
 
         // Prevent recursive calls
         timingdemo = false;
         demoplayback = false;
 
-	i_error_safe = true;
-	I_Error ("Timed %i gametics in %i realtics.\n"
-             "Average fps: %f", gametic, realtics, fps);
+        i_error_safe = true;
+        I_Error ("Timed %i gametics in %i realtics.\n"
+                 "Average fps: %f", gametic, realtics, fps);
     } 
 	 
     if (demoplayback) 
@@ -2766,11 +3058,40 @@ boolean G_CheckDemoStatus (void)
 	netgame = false;
 	deathmatch = false;
 	playeringame[1] = playeringame[2] = playeringame[3] = 0;
+	// [crispy] leave game parameters intact when continuing a demo
+	if (!demorecording)
+	{
 	respawnparm = false;
 	fastparm = false;
 	nomonsters = false;
+	}
 	consoleplayer = 0;
         
+        // [crispy] in demo continue mode increase the demo buffer and
+        // continue recording once we are done with playback
+        if (demorecording)
+        {
+            demoend = demo_p;
+            IncreaseDemoBuffer();
+
+            nodrawers = false;
+            singletics = false;
+
+            // [crispy] start music for the current level
+            if (gamestate == GS_LEVEL)
+            {
+                S_Start();
+            }
+
+            // [crispy] record demo join
+            if (cmd != NULL)
+            {
+                cmd->buttons |= BT_JOIN;
+            }
+
+            return true;
+        }
+
         if (singledemo) 
             I_Quit (); 
         else 
@@ -2781,17 +3102,29 @@ boolean G_CheckDemoStatus (void)
  
     if (demorecording) 
     { 
+	boolean success;
+	char *msg;
+
 	*demo_p++ = DEMOMARKER; 
-	M_WriteFile (demoname, demobuffer, demo_p - demobuffer); 
+	G_AddDemoFooter();
+	success = M_WriteFile (demoname, demobuffer, demo_p - demobuffer);
+	msg = success ? "Demo %s recorded%c" : "Failed to record Demo %s%c";
 	Z_Free (demobuffer); 
 	demorecording = false; 
-	i_error_safe = true;
-	I_Error ("Demo %s recorded",demoname); 
+	// [crispy] if a new game is started during demo recording, start a new demo
+	if (gameaction != ga_newgame)
+	{
+	    i_error_safe = true;
+	    I_Error (msg, demoname, '\0');
+	}
+	else
+	{
+	    fprintf(stderr, msg, demoname, '\n');
+	}
     } 
 	 
     return false; 
 } 
- 
  
 //
 // G_DemoGoToNextLevel
@@ -2810,5 +3143,6 @@ void G_DemoGoToNextLevel (boolean start)
     {
         singletics = start;
     }
-}
+} 
+ 
  

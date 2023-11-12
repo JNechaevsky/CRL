@@ -250,7 +250,6 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(winmm_reset_delay),
 #endif
     CONFIG_VARIABLE_INT(vanilla_savegame_limit),
-    CONFIG_VARIABLE_INT(vanilla_demo_limit),
     CONFIG_VARIABLE_INT(vanilla_keyboard_mapping),
     CONFIG_VARIABLE_STRING(player_name),
     CONFIG_VARIABLE_INT(grabmouse),

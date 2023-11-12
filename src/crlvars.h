@@ -24,7 +24,6 @@
 
 // Compatibility
 extern int vanilla_savegame_limit;
-extern int vanilla_demo_limit;
 
 // System and video
 extern int crl_startup_delay;
