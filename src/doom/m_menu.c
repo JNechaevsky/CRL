@@ -3817,7 +3817,7 @@ static void M_QuitResponse(int key)
 {
     if (key != key_menu_confirm)
 	return;
-    if (!netgame && show_endoom) // [JN] Play exit SFX only if ENDOOM is enabled
+    if (!netgame && false) // [JN] CRL - quit imideatelly, don't play any sounds.
     {
 	if (gamemode == commercial)
 	    S_StartSound(NULL,quitsounds2[(gametic>>2)&7]);
