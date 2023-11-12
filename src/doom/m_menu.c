@@ -726,7 +726,6 @@ static void M_ChooseCRL_Limits (int choice);
 static void M_DrawCRL_Limits (void);
 static void M_CRL_Limits (int choice);
 static void M_CRL_SaveSizeWarning (int choice);
-static void M_CRL_DemoSizeWarning (int choice);
 
 // Keyboard binding prototypes
 static boolean KbdIsBinding;
@@ -3078,8 +3077,8 @@ static void M_CRL_InternalDemos (int choice)
 static menuitem_t CRLMenu_Limits[]=
 {
     { 2, "SAVE GAME LIMIT WARNING",    M_CRL_SaveSizeWarning, 's'},
-    { 2, "DEMO LENGHT LIMIT WARNING",  M_CRL_DemoSizeWarning, 'd'},
     { 2, "RENDER LIMITS LEVEL",        M_CRL_Limits,          'r'},
+    {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
@@ -3123,51 +3122,41 @@ static void M_DrawCRL_Limits (void)
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 34, str,
                  M_Item_Glow(0, vanilla_savegame_limit ? GLOW_GREEN : GLOW_DARKRED));
 
-    // Demo limit warning
-    sprintf(str, vanilla_demo_limit ? "ON" : "OFF");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 43, str,
-                 M_Item_Glow(1, vanilla_demo_limit ? GLOW_GREEN : GLOW_DARKRED));
-
     // Level of the limits
     sprintf(str, crl_vanilla_limits ? "VANILLA" : "DOOM-PLUS");
-    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 52, str,
-                 M_Item_Glow(2, crl_vanilla_limits ? GLOW_RED : GLOW_GREEN));
+    M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 43, str,
+                 M_Item_Glow(1, crl_vanilla_limits ? GLOW_RED : GLOW_GREEN));
 
-    M_WriteText (CRL_MENU_LEFTOFFSET_SML+16,  70, "MAXVISPLANES",  cr[CR_GRAY]);
-    M_WriteText (CRL_MENU_LEFTOFFSET_SML+16,  79, "MAXDRAWSEGS",   cr[CR_GRAY]);
-    M_WriteText (CRL_MENU_LEFTOFFSET_SML+16,  88, "MAXVISSPRITES", cr[CR_GRAY]);
-    M_WriteText (CRL_MENU_LEFTOFFSET_SML+16,  97, "MAXOPENINGS",   cr[CR_GRAY]);
-    M_WriteText (CRL_MENU_LEFTOFFSET_SML+16, 106, "MAXPLATS",      cr[CR_GRAY]);
-    M_WriteText (CRL_MENU_LEFTOFFSET_SML+16, 115, "MAXLINEANIMS",  cr[CR_GRAY]);
+    M_WriteText (CRL_MENU_LEFTOFFSET_SML+16,  61, "MAXVISPLANES",  cr[CR_GRAY]);
+    M_WriteText (CRL_MENU_LEFTOFFSET_SML+16,  70, "MAXDRAWSEGS",   cr[CR_GRAY]);
+    M_WriteText (CRL_MENU_LEFTOFFSET_SML+16,  79, "MAXVISSPRITES", cr[CR_GRAY]);
+    M_WriteText (CRL_MENU_LEFTOFFSET_SML+16,  88, "MAXOPENINGS",   cr[CR_GRAY]);
+    M_WriteText (CRL_MENU_LEFTOFFSET_SML+16,  97, "MAXPLATS",      cr[CR_GRAY]);
+    M_WriteText (CRL_MENU_LEFTOFFSET_SML+16, 106, "MAXLINEANIMS",  cr[CR_GRAY]);
 
     if (crl_vanilla_limits)
     {
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("128"),    70,   "128", cr[CR_RED]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("256"),    79,   "256", cr[CR_RED]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("128"),    88,   "128", cr[CR_RED]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("20480"),  97, "20480", cr[CR_RED]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("30"),    106,    "30", cr[CR_RED]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("64"),    115,    "64", cr[CR_RED]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("128"),    61,   "128", cr[CR_RED]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("256"),    70,   "256", cr[CR_RED]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("128"),    79,   "128", cr[CR_RED]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("20480"),  88, "20480", cr[CR_RED]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("30"),     97,    "30", cr[CR_RED]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("64"),    106,    "64", cr[CR_RED]);
     }
     else
     {
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("1024"),   61,  "1024", cr[CR_GREEN]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("2048"),   70,  "2048", cr[CR_GREEN]);
         M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("1024"),   79,  "1024", cr[CR_GREEN]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("2048"),   88,  "2048", cr[CR_GREEN]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("1024"),   97,  "1024", cr[CR_GREEN]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("65536"), 106, "65536", cr[CR_GREEN]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("7680"),  115,  "7680", cr[CR_GREEN]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("16384"), 124, "16384", cr[CR_GREEN]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("65536"),  88, "65536", cr[CR_GREEN]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("7680"),   97,  "7680", cr[CR_GREEN]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("16384"), 106, "16384", cr[CR_GREEN]);
     }
 }
 
 static void M_CRL_SaveSizeWarning (int choice)
 {
     vanilla_savegame_limit ^= 1;
-}
-
-static void M_CRL_DemoSizeWarning (int choice)
-{
-    vanilla_demo_limit ^= 1;
 }
 
 static void M_CRL_Limits (int choice)

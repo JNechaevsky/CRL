@@ -2522,20 +2522,16 @@ void G_WriteDemoTiccmd (ticcmd_t* cmd)
 
     if (demo_p > demoend - 16)
     {
+        // [crispy] unconditionally disable savegame and demo limits
+        /*
         if (vanilla_demo_limit)
         {
-            /*
             // no more space 
             G_CheckDemoStatus (); 
             return; 
-            */
-            // [JN] CRL - print a warnings instead of quit.        
-            char *message = "Demo overflow (vanilla stops record here)";
-
-            CRL_printf(message, true);
-            CRL_SetCriticalMessage("G_WriteDemoTiccmd:", message, MESSAGETICS);
         }
-        // else
+        else
+        */
         {
             // Vanilla demo limit disabled: unlimited
             // demo lengths!
