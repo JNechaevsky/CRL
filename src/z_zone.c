@@ -285,20 +285,8 @@ Z_Malloc
     {
         if (rover == start)
         {
-            if (crl_prevent_zmalloc)
-            {
-                // [crispy] allocate another zone twice as big
-                Z_Init();
-
-                base = mainzone->rover;
-                rover = base;
-                start = base->prev;
-            }
-            else
-            {
-                // scanned all the way around the list
-                I_Error ("Z_Malloc: failed on allocation of %i bytes", size);
-            }
+            // scanned all the way around the list
+            I_Error ("Z_Malloc: failed on allocation of %i bytes", size);
         }
 	
         if (rover->tag != PU_FREE)

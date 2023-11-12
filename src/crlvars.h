@@ -82,7 +82,6 @@ extern int crl_internal_demos;
 
 // Static limits
 extern int crl_vanilla_limits;
-extern int crl_prevent_zmalloc;
 
 // Mouse look
 extern int crl_mouselook;
