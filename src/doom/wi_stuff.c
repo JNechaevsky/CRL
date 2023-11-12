@@ -1553,7 +1553,7 @@ void WI_drawStats(void)
     V_DrawShadowedPatch(SP_TIMEX, SP_TIMEY, timepatch, DEH_String("WITIME"));
     WI_drawTime(SCREENWIDTH/2 - SP_TIMEX, SP_TIMEY, cnt_time, true);
 
-    if (wbs->epsd < 4)
+	if (wbs->epsd < 3 || (wbs->epsd < 4 && singleplayer))
     {
 	V_DrawShadowedPatch(SCREENWIDTH/2 + SP_TIMEX, SP_TIMEY, par, DEH_String("WIPAR"));
 	WI_drawTime(SCREENWIDTH - SP_TIMEX, SP_TIMEY, cnt_par, true);
