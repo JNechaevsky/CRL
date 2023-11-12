@@ -501,24 +501,36 @@ P_CrossSpecialLine
 
     line = &lines[linenum];
     
-    //	Triggers that other things can activate
+    if (gameversion <= exe_doom_1_2)
+    {
+        if (line->special > 98 && line->special != 104)
+        {
+            return;
+        }
+    }
+    else
+    {
+        //	Triggers that other things can activate
+        if (!thing->player)
+        {
+            // Things that should NOT trigger specials...
+            switch(thing->type)
+            {
+                case MT_ROCKET:
+                case MT_PLASMA:
+                case MT_BFG:
+                case MT_TROOPSHOT:
+                case MT_HEADSHOT:
+                case MT_BRUISERSHOT:
+                    return;
+
+                default: break;
+            }
+        }
+    }
+
     if (!thing->player)
     {
-	// Things that should NOT trigger specials...
-	switch(thing->type)
-	{
-	  case MT_ROCKET:
-	  case MT_PLASMA:
-	  case MT_BFG:
-	  case MT_TROOPSHOT:
-	  case MT_HEADSHOT:
-	  case MT_BRUISERSHOT:
-	    return;
-	    break;
-	    
-	  default: break;
-	}
-		
 	ok = 0;
 	switch(line->special)
 	{
@@ -1497,9 +1509,13 @@ void P_SpawnSpecials (void)
 	    P_SpawnDoorRaiseIn5Mins (sector, i);
 	    break;
 	    
-	  case 17:
-	    P_SpawnFireFlicker(sector);
-	    break;
+        case 17:
+            // first introduced in official v1.4 beta
+            if (gameversion > exe_doom_1_2)
+            {
+                P_SpawnFireFlicker(sector);
+            }
+            break;
 	}
     }
 

@@ -5406,6 +5406,13 @@ void M_Init (void)
         EpiDef.numitems = 1;
     }
 
+    // [JN] Older verions of Doom Shareware does not have M_NMARE patch,
+    // so Nightmare is not available (at least in game menu).
+    if (W_CheckNumForName(DEH_String("M_NMARE")) < 0)
+    {
+        NewDef.numitems--;
+    }
+
     opldev = M_CheckParm("-opldev") > 0;
 }
 
