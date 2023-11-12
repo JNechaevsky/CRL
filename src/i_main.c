@@ -38,30 +38,6 @@
 #include "crlcore.h"
 
 
-#ifdef _WIN32
-// -----------------------------------------------------------------------------
-// CRL_CreateWindowsConsole
-// [JN] Creates console output Window. For Windows OS only.
-// -----------------------------------------------------------------------------
-
-static void CRL_CreateWindowsConsole (void)
-{
-    // Allocate console.
-    AllocConsole();
-    SetConsoleTitle("CRL Console");
-
-    // Head text outputs.
-    freopen("CONIN$", "r",stdin); 
-    freopen("CONOUT$","w",stdout); 
-    freopen("CONOUT$","w",stderr); 
-
-    // Set a proper codepage.
-    SetConsoleOutputCP(CP_UTF8);
-    SetConsoleCP(CP_UTF8);
-}
-#endif
-
-
 //
 // D_DoomMain()
 // Not a globally visible function, just included for source reference,
@@ -84,10 +60,22 @@ int main(int argc, char **argv)
     }
 
 #if defined(_WIN32)
-    // [JN] Activate console if "-console" is present.
+    // [JN] Creates a console output window if "-console" 
+    // command line parameter is present. For Windows OS only.
     if (M_CheckParm ("-console"))
     {
-        CRL_CreateWindowsConsole();
+        // Allocate console.
+        AllocConsole();
+        SetConsoleTitle("CRL Console");
+
+        // Head text outputs.
+        freopen("CONIN$", "r",stdin); 
+        freopen("CONOUT$","w",stdout); 
+        freopen("CONOUT$","w",stderr); 
+
+        // Set a proper codepage.
+        SetConsoleOutputCP(CP_UTF8);
+        SetConsoleCP(CP_UTF8);
     }
 
     // compose a proper command line from loose file paths passed as arguments
