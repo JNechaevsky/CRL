@@ -1556,7 +1556,7 @@ static void M_CRL_SFXSystem (int choice)
     I_ShutdownSound();
 
     // Start sound/music system
-    I_InitSound(true);
+    I_InitSound(doom);
 
     // Re-generate SFX cache
     I_PrecacheSounds(S_sfx, NUMSFX);
@@ -1648,7 +1648,7 @@ static void M_CRL_MusicSystem (int choice)
     S_Shutdown();
     
     // Start music system
-    I_InitSound(true);
+    I_InitSound(doom);
 
     // Reinitialize music volume
     S_SetMusicVolume(musicVolume * 8);

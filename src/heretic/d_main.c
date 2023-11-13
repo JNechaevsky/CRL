@@ -1168,7 +1168,7 @@ void D_DoomMain(void)
     }
 
     I_InitTimer();
-    I_InitSound(false);
+    I_InitSound(heretic);
     I_InitMusic();
 
     tprintf("NET_Init: Init network subsystem.\n", 1);
