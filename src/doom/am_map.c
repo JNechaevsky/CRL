@@ -202,9 +202,6 @@ boolean     automapactive = false;
 int iddt_cheating = 0;
 static int   grid = 0;
 
-static const int  finit_width = SCREENWIDTH;
-static const int  finit_height = SCREENHEIGHT - ST_HEIGHT;
-
 // location of window on screen
 static int  f_x;
 static int  f_y;
@@ -279,8 +276,14 @@ void AM_Init (void)
     }
     else
     {
-        secretwallcolors = V_GetPaletteIndex(W_CacheLumpName("PLAYPAL", PU_CACHE),
-                                                                     255, 0, 255);
+        // [JN] Find closest to magenta color.
+        // Lock PLAYPAL lump and release it imideatelly after the color is found.
+
+        unsigned char *playpal = W_CacheLumpName("PLAYPAL", PU_STATIC);
+
+        secretwallcolors = V_GetPaletteIndex(playpal, 255, 0, 255);
+
+        W_ReleaseLumpName("PLAYPAL");
     }
 }
 
@@ -551,8 +554,8 @@ static void AM_clearMarks (void)
 static void AM_LevelInit (void)
 {
     f_x = f_y = 0;
-    f_w = finit_width;
-    f_h = finit_height;
+    f_w = SCREENWIDTH;
+    f_h = SCREENHEIGHT - ST_HEIGHT;
 
     AM_clearMarks();
 
@@ -997,9 +1000,9 @@ void AM_Ticker (void)
 // Clear automap frame buffer.
 // -----------------------------------------------------------------------------
 
-static void AM_clearFB(int color)
+static void AM_clearFB (void)
 {
-    memset(I_VideoBuffer, color, f_w*f_h*sizeof(*I_VideoBuffer));
+    memset(I_VideoBuffer, BACKGROUND, f_w*f_h*sizeof(*I_VideoBuffer));
 }
 
 // -----------------------------------------------------------------------------
@@ -1275,7 +1278,7 @@ static void AM_drawMline (mline_t *ml, int color)
 // Draws flat (floor/ceiling tile) aligned grid lines.
 // -----------------------------------------------------------------------------
 
-static void AM_drawGrid (int color)
+static void AM_drawGrid (void)
 {
     int64_t x, y;
     int64_t start, end;
@@ -1316,7 +1319,7 @@ static void AM_drawGrid (int color)
             AM_rotatePoint(&ml.a);
             AM_rotatePoint(&ml.b);
         }
-        AM_drawMline(&ml, color);
+        AM_drawMline(&ml, GRIDCOLORS);
     }
 
     // Figure out start of horizontal gridlines
@@ -1353,7 +1356,7 @@ static void AM_drawGrid (int color)
             AM_rotatePoint(&ml.a);
             AM_rotatePoint(&ml.b);
         }
-        AM_drawMline(&ml, color);
+        AM_drawMline(&ml, GRIDCOLORS);
     }
 }
 
@@ -1557,7 +1560,6 @@ static void AM_drawLineCharacter (mline_t *lineguy, int lineguylines,
 // or all the player arrows in a netgame.
 // -----------------------------------------------------------------------------
 
-
 static void AM_drawPlayers (void)
 {
     int       i;
@@ -1653,14 +1655,14 @@ static void AM_drawPlayers (void)
 // Draws the things on the automap in double IDDT cheat mode.
 // -----------------------------------------------------------------------------
 
-static void AM_drawThings (int colors, int colorrange)
+static void AM_drawThings (void)
 {
     int       i;
     mpoint_t  pt;
     mobj_t   *t;
     angle_t   actualangle;
     // RestlessRodent -- Carbon copy from ReMooD
-    int       color = colors;
+    int       color = THINGCOLORS;
 
     for (i = 0 ; i < numsectors ; i++)
     {
@@ -1740,7 +1742,7 @@ static void AM_drawThings (int colors, int colorrange)
 }
 
 // -----------------------------------------------------------------------------
-// AM_drawThings
+// AM_drawSpectator
 // Draws the things on the automap in double IDDT cheat mode.
 // -----------------------------------------------------------------------------
 
@@ -1796,7 +1798,7 @@ static void AM_drawSpectator (void)
 }
 
 // -----------------------------------------------------------------------------
-// AM_drawThings
+// AM_drawMarks
 // Draw the marked locations on the automap.
 // -----------------------------------------------------------------------------
 
@@ -1937,9 +1939,9 @@ void AM_Drawer (void)
         }
     }
 
-    // Force bland if > 0 ? Because the normal colors could screw with the
+    // RestlessRodent -- Force bland if > 0 ? 
+    // Because the normal colors could screw with the
     // very bright and shiny CRL colors
-    // [JN] Use external config variable.
 	if (automapactive == 2 && crl_automap_mode)
     {
 		blandcolor = true;
@@ -1951,12 +1953,12 @@ void AM_Drawer (void)
 
 	if (automapactive == 1 && !crl_automap_overlay)
     {
-		AM_clearFB(BACKGROUND);
+		AM_clearFB();
     }
 
     if (grid)
     {
-        AM_drawGrid(GRIDCOLORS);
+        AM_drawGrid();
     }
 
     AM_drawWalls();
@@ -1968,7 +1970,7 @@ void AM_Drawer (void)
 
     if (iddt_cheating == 2)
     {
-        AM_drawThings(THINGCOLORS, THINGRANGE);
+        AM_drawThings();
     }
 
     // [JN] CRL - draw pulsing triangle for player in Spectator mode.
