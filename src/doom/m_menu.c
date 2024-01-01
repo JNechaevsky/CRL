@@ -1218,7 +1218,8 @@ static void M_DrawCRL_Video (void)
     M_WriteTextCentered(88, "MISCELLANEOUS", cr[CR_YELLOW]);
 
     // Screen wipe effect
-    sprintf(str, crl_screenwipe ? "ON" : "OFF");
+    sprintf(str, crl_screenwipe == 1 ? "ON" :
+                 crl_screenwipe == 2 ? "FAST" : "OFF");
     M_WriteText (M_ItemRightAlign(str), 97, str,
                  M_Item_Glow(7, crl_screenwipe ? GLOW_GREEN : GLOW_DARKRED));
 
@@ -1295,7 +1296,7 @@ static void M_CRL_HOMDraw (int choice)
 
 static void M_CRL_ScreenWipe (int choice)
 {
-    crl_screenwipe ^= 1;
+    crl_screenwipe = M_INT_Slider(crl_screenwipe, 0, 2, choice);
 }
 
 static void M_CRL_ShowENDOOM (int choice)

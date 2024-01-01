@@ -25,6 +25,8 @@
 #include "v_video.h"
 #include "m_random.h"
 
+#include "crlvars.h"
+
 
 // =============================================================================
 // SCREEN WIPE PACKAGE
@@ -120,7 +122,8 @@ static int wipe_doMelt (int ticks)
             else
             if (y[i] < SCREENHEIGHT)
             {
-                dy = (y[i] < 16) ? y[i]+1 : 8;
+                // [JN] Add support for "fast" wipe (crl_screenwipe == 2).
+                dy = (y[i] < 16) ? y[i]+1 : (8 * crl_screenwipe);
 
                 if (y[i]+dy >= SCREENHEIGHT)
                 {
