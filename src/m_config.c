@@ -193,6 +193,7 @@ static default_t	doom_defaults_list[] =
     // [JN] CRL-specific config variables:
 
     CONFIG_VARIABLE_STRING(video_driver),
+    CONFIG_VARIABLE_STRING(screen_scale_api),
     CONFIG_VARIABLE_STRING(window_position),
     CONFIG_VARIABLE_INT(fullscreen),
     CONFIG_VARIABLE_INT(window_position_x),

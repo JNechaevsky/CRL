@@ -100,6 +100,11 @@ int usemouse = 1;
 
 char *video_driver = "";
 
+// [JN] Allow to choose render driver to use.
+// https://wiki.libsdl.org/SDL2/SDL_HINT_RENDER_DRIVER
+
+char *screen_scale_api = "";
+
 // [JN] Window X and Y position to save and restore.
 
 int window_position_y = 0;
@@ -1316,6 +1321,9 @@ static void SetVideoMode(void)
     // retina displays, especially when using small window sizes.
     window_flags |= SDL_WINDOW_ALLOW_HIGHDPI;
 
+    // [JN] Choose render driver to use.
+    SDL_SetHint(SDL_HINT_RENDER_DRIVER, screen_scale_api);
+
     if (fullscreen)
     {
         if (fullscreen_width == 0 && fullscreen_height == 0)
@@ -1654,6 +1662,7 @@ void I_BindVideoVariables(void)
     M_BindIntVariable("window_height",             &window_height);
     M_BindIntVariable("grabmouse",                 &grabmouse);
     M_BindStringVariable("video_driver",           &video_driver);
+    M_BindStringVariable("screen_scale_api",       &screen_scale_api);
     M_BindIntVariable("window_position_x",           &window_position_x);
     M_BindIntVariable("window_position_y",           &window_position_y);
     M_BindIntVariable("usegamma",                  &usegamma);
