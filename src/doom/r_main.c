@@ -922,12 +922,6 @@ void R_RenderPlayerView (player_t* player)
 		R_ClearPlanes ();
 		R_ClearSprites ();
 
-        if (automapactive && !crl_automap_overlay)
-        {
-            R_RenderBSPNode (numnodes-1);
-            return;
-        }
-		
 		// check for new console commands.
 		NetUpdate ();
 

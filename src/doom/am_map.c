@@ -1895,6 +1895,13 @@ void AM_Drawer (void)
         return;
     }
     
+    // [JN] Draw status bar as well since we drawing game world
+    // entirely while active automap.
+    if (crl_screen_size > 10)
+    {
+        st_fullupdate = true;
+    }
+
     // [JN] Moved from AM_Ticker for drawing interpolation.
     if (followplayer)
     {

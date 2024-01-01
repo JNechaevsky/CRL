@@ -1304,15 +1304,16 @@ static void ST_UpdateElementsBackground (void)
 
 void ST_Drawer (boolean force)
 {
-    char  name[9];
-    char *facename;
-    const boolean st_background_on = 
+    const boolean st_background_on =
                     crl_screen_size <= 10 || (automapactive && !crl_automap_overlay);
-
-    plyr = &players[displayplayer];
 
     if (force)
     {
+    char  name[9];
+    char *facename;
+
+    plyr = &players[displayplayer];
+
     // Status bar background.
     if (st_background_on && st_fullupdate)
     {
@@ -1344,7 +1345,6 @@ void ST_Drawer (boolean force)
         V_RestoreBuffer();
 
         V_CopyRect(0, 0, st_backing_screen, ST_WIDTH, ST_HEIGHT, 0, ST_Y);
-        printf (".");
     }
 
     st_fullupdate = false;
