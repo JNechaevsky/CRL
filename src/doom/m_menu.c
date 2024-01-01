@@ -2863,6 +2863,12 @@ static void M_DrawCRL_Widgets (void)
     sprintf(str, crl_automap_secrets ? "ON" : "OFF");
     M_WriteText (CRL_MENU_RIGHTOFFSET - M_StringWidth(str), 142, str,
                  M_Item_Glow(12, crl_automap_secrets ? GLOW_GREEN : GLOW_DARKRED));
+
+    // Print informatime message if widgets are hidden.
+    if (itemOn < 8 && !crl_widget_show)
+    {
+        M_WriteTextCentered(154, "NOTE: WIDGETS ARE HIDDEN", cr[CR_GRAY]);
+    }
 }
 
 static void M_CRL_Widget_Render (int choice)
