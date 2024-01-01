@@ -770,14 +770,14 @@ static int shade_wait;
 static void M_ShadeBackground (void)
 {
     // Return earlier if shading disabled.
-    if (!crl_menu_shading)
+    if (crl_menu_shading)
     {
-        return;
-    }
+        for (int y = 0; y < SCREENWIDTH * SCREENHEIGHT; y++)
+        {
+            I_VideoBuffer[y] = colormaps[crl_menu_shading * 256 + I_VideoBuffer[y]];
+        }
 
-    for (int y = 0; y < SCREENWIDTH * SCREENHEIGHT; y++)
-    {
-        I_VideoBuffer[y] = colormaps[crl_menu_shading * 256 + I_VideoBuffer[y]];
+        st_fullupdate = true;
     }
 }
 
@@ -3482,6 +3482,8 @@ static void M_DrawReadThis1(void)
 {
     const char *help2 = DEH_String("HELP2");
 
+    st_fullupdate = true;
+
     V_DrawPatch(0, 0, W_CacheLumpName(help2, PU_CACHE), help2);
 }
 
@@ -3494,6 +3496,8 @@ static void M_DrawReadThis2(void)
 {
     const char *help1 = DEH_String("HELP1");
 
+    st_fullupdate = true;
+
     // We only ever draw the second page if this is 
     // gameversion == exe_doom_1_9 and gamemode == registered
 
@@ -3503,6 +3507,8 @@ static void M_DrawReadThis2(void)
 static void M_DrawReadThisCommercial(void)
 {
     const char *help = DEH_String("HELP");
+
+    st_fullupdate = true;
 
     V_DrawPatch(0, 0, W_CacheLumpName(help, PU_CACHE), help);
 }

@@ -313,7 +313,13 @@ static void D_Display (void)
         // [JN] Main status bar drawing function.
         if (crl_screen_size <= 12 || (automapactive && !crl_automap_overlay))
         {
-            ST_Drawer();
+            // [JN] Only forcefully update/redraw on...
+            const boolean st_forceredraw = 
+                             (oldgametic < gametic  // Every game tic
+                          ||  crl_screen_size > 10  // Crispy HUD (no solid status bar background)
+                          ||  setsizeneeded);       // Screen size changing
+
+            ST_Drawer(st_forceredraw);
         }
 
         // [JN] Chat drawer
@@ -481,8 +487,6 @@ boolean D_GrabMouseCallback(void)
 //
 void D_DoomLoop (void)
 {
-    static int oldgametic;
-
     if (gamevariant == bfgedition &&
         (demorecording || (gameaction == ga_playdemo) || netgame))
     {
@@ -523,15 +527,15 @@ void D_DoomLoop (void)
 
    	TryRunTics (); // will run at least one tic
 
+	// Update display, next frame, with current state.
+        if (screenvisible)
+            D_Display ();
+
 	if (oldgametic < gametic)
 	{
 		S_UpdateSounds (players[displayplayer].mo);// move positional sounds
 		oldgametic = gametic;
 	}
-
-	// Update display, next frame, with current state.
-        if (screenvisible)
-            D_Display ();
     }
 }
 

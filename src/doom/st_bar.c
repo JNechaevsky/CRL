@@ -115,6 +115,9 @@ static int st_faceindex = 1;  // current face index, used by w_faces
 static int st_randomnumber; // a random number per tick
 static int faceindex; // [crispy] fix status bar face hysteresis
 
+// [JN] Condition to redraw status bar background. 
+boolean st_fullupdate = true;
+
 cheatseq_t cheat_wait = CHEAT("id", 0);
 cheatseq_t cheat_mus = CHEAT("idmus", 2);
 cheatseq_t cheat_god = CHEAT("iddqd", 0);
@@ -1277,26 +1280,56 @@ static void ST_DrawWeaponNumberFunc (const int val, const int x, const int y, co
 }
 
 // -----------------------------------------------------------------------------
+// ST_UpdateElementsBackground
+// [JN] Use V_CopyRect to draw/update background under elements.
+//      This is notably faster than re-drawing entire background.
+// -----------------------------------------------------------------------------
+
+static void ST_UpdateElementsBackground (void)
+{
+    V_CopyRect(0, 2, st_backing_screen, 45, 20, 0, 170);      // Ammo
+    V_CopyRect(48, 2, st_backing_screen, 57, 20, 48, 170);    // Health
+    V_CopyRect(105, 2, st_backing_screen, 37, 20, 105, 170);  // ARMS or frags
+    V_CopyRect(142, 0, st_backing_screen, 37, 32, 142, 168);  // Player face
+    V_CopyRect(179, 2, st_backing_screen, 56, 20, 179, 170);  // Armor
+    V_CopyRect(236, 0, st_backing_screen, 13, 32, 236, 168);  // Keys
+    V_CopyRect(272, 5, st_backing_screen, 16, 24, 272, 173);  // Ammo (current)
+    V_CopyRect(298, 5, st_backing_screen, 16, 24, 298, 173);  // Ammo (max)
+}
+
+// -----------------------------------------------------------------------------
 // ST_Drawer
 // [JN] Main drawing function, totally rewritten.
 // -----------------------------------------------------------------------------
 
-void ST_Drawer (void)
+void ST_Drawer (boolean force)
 {
     char  name[9];
     char *facename;
+    const boolean st_background_on = 
+                    crl_screen_size <= 10 || (automapactive && !crl_automap_overlay);
+
     plyr = &players[displayplayer];
 
+    if (force)
+    {
     // Status bar background.
-    if (crl_screen_size <= 10 || (automapactive && !crl_automap_overlay))
+    if (st_background_on && st_fullupdate)
     {
         V_UseBuffer(st_backing_screen);
+
         V_DrawPatch(0, 0, sbar, DEH_String("STBAR"));
 
         // draw right side of bar if needed (Doom 1.0)
         if (sbarr)
         {
             V_DrawPatch(104, 0, sbarr, DEH_String("STMBARL"));
+        }
+
+        // ARMS background
+        if (!deathmatch)
+        {
+            V_DrawPatch(104, 0, armsbg, DEH_String("STARMS"));
         }
 
         if (netgame)
@@ -1309,13 +1342,16 @@ void ST_Drawer (void)
         }
 
         V_RestoreBuffer();
-        V_CopyRect(0, 0, st_backing_screen, ST_WIDTH, ST_HEIGHT, 0, ST_Y);
 
-        // ARMS background
-        if (!deathmatch)
-        {
-            V_DrawPatch(104, 168, armsbg, DEH_String("STARMS"));
-        }
+        V_CopyRect(0, 0, st_backing_screen, ST_WIDTH, ST_HEIGHT, 0, ST_Y);
+        printf (".");
+    }
+
+    st_fullupdate = false;
+
+    if (st_background_on)
+    {
+        ST_UpdateElementsBackground();
     }
 
     // Ammo amount for current weapon
@@ -1399,6 +1435,7 @@ void ST_Drawer (void)
     ST_DrawSmallNumberY(plyr->maxammo[1], 306, 179);
     ST_DrawSmallNumberY(plyr->maxammo[3], 306, 185);
     ST_DrawSmallNumberY(plyr->maxammo[2], 306, 191);
+    }
 }
 
 typedef void (*load_callback_t)(const char *lumpname, patch_t **variable); 

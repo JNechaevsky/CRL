@@ -1525,6 +1525,11 @@ void G_PlayerFinishLevel (int player)
     p->damagecount = 0;			// no palette changes 
     p->bonuscount = 0; 
     st_palette = 0;
+    // [JN] Redraw status bar background.
+    if (p == &players[consoleplayer])
+    {
+        st_fullupdate = true;
+    }
     // [JN] Return controls to the player.
     crl_spectating = 0;
     // [JN] CRL - clear MAX visplanes.
@@ -1573,6 +1578,11 @@ void G_PlayerReborn (int player)
     for (i=0 ; i<NUMAMMO ; i++) 
 	p->maxammo[i] = maxammo[i]; 
 		 
+    // [JN] Redraw status bar background.
+    if (p == &players[consoleplayer])
+    {
+        st_fullupdate = true;
+    }
 }
 
 //
