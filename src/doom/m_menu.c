@@ -572,7 +572,6 @@ static void M_CRL_Controls_Threshold (int choice);
 static void M_CRL_Controls_NoVert (int choice);
 static void M_CRL_Controls_DblClck (int choice);
 
-static void M_ChooseCRL_Keybinds_1 (int choice);
 static void M_DrawCRL_Keybinds_1 (void);
 static void M_Bind_MoveForward (int choice);
 static void M_Bind_MoveBackward (int choice);
@@ -662,14 +661,6 @@ static void M_Bind_ToPlayer3 (int choice);
 static void M_Bind_ToPlayer4 (int choice);
 static void M_Bind_Reset (int choice);
 
-static menu_t CRLDef_Keybinds_1;
-static menu_t CRLDef_Keybinds_2;
-static menu_t CRLDef_Keybinds_3;
-static menu_t CRLDef_Keybinds_4;
-static menu_t CRLDef_Keybinds_5;
-static menu_t CRLDef_Keybinds_6;
-static menu_t CRLDef_Keybinds_7;
-
 static void M_ChooseCRL_MouseBinds (int choice);
 static void M_DrawCRL_MouseBinds (void);
 static void M_Bind_M_FireAttack (int choice);
@@ -730,11 +721,6 @@ static void    M_ResetBinds (void);
 static void    M_DrawBindKey (int itemNum, int yPos, int key);
 static void    M_DrawBindFooter (char *pagenum, boolean drawPages);
 
-#define KBD_BIND_MENUS (currentMenu == &CRLDef_Keybinds_1 || currentMenu == &CRLDef_Keybinds_2 || \
-                        currentMenu == &CRLDef_Keybinds_3 || currentMenu == &CRLDef_Keybinds_4 || \
-                        currentMenu == &CRLDef_Keybinds_5 || currentMenu == &CRLDef_Keybinds_6 || \
-                        currentMenu == &CRLDef_Keybinds_7)
-
 // Mouse binding prototypes
 static boolean MouseIsBinding;
 static int     btnToBind;
@@ -747,6 +733,34 @@ static void    M_ClearMouseBind (int itemOn);
 static byte   *M_ColorizeMouseBind (int itemSetOn, int btn);
 static void    M_DrawBindButton (int itemNum, int yPos, int btn);
 static void    M_ResetMouseBinds (void);
+
+// Forward declarations for scrolling and remembering last pages.
+static menu_t CRLDef_Keybinds_1;
+static menu_t CRLDef_Keybinds_2;
+static menu_t CRLDef_Keybinds_3;
+static menu_t CRLDef_Keybinds_4;
+static menu_t CRLDef_Keybinds_5;
+static menu_t CRLDef_Keybinds_6;
+static menu_t CRLDef_Keybinds_7;
+
+// Remember last keybindings page.
+static int Keybinds_Cur;
+
+static menu_t *KeybindsMenus[] =
+{
+    &CRLDef_Keybinds_1,
+    &CRLDef_Keybinds_2,
+    &CRLDef_Keybinds_3,
+    &CRLDef_Keybinds_4,
+    &CRLDef_Keybinds_5,
+    &CRLDef_Keybinds_6,
+    &CRLDef_Keybinds_7,
+};
+
+static void M_Choose_CRL_Keybinds (int choice)
+{
+    M_SetupNextMenu(KeybindsMenus[Keybinds_Cur]);
+}
 
 // Utility function for scrolling pages by arrows / PG keys.
 static void M_ScrollPages (boolean direction)
@@ -1715,7 +1729,7 @@ static void M_CRL_SFXChannels (int choice)
 
 static menuitem_t CRLMenu_Controls[]=
 {
-    { 1, "KEYBOARD BINDINGS",            M_ChooseCRL_Keybinds_1,      'k'},
+    { 1, "KEYBOARD BINDINGS",            M_Choose_CRL_Keybinds,       'k'},
     { 1, "MOUSE BINDINGS",               M_ChooseCRL_MouseBinds,      'm'},
     {-1, "", 0, '\0'},
     { 2, "SENSIVITY",                    M_CRL_Controls_Sensivity,    's'},
@@ -1880,14 +1894,10 @@ static menu_t CRLDef_Keybinds_1 =
     true, true, true,
 };
 
-static void M_ChooseCRL_Keybinds_1 (int choice)
-{
-    M_SetupNextMenu (&CRLDef_Keybinds_1);
-}
-
 static void M_DrawCRL_Keybinds_1 (void)
 {
     st_fullupdate = true;
+    Keybinds_Cur = 0;
 
     M_FillBackground();
 
@@ -2005,6 +2015,7 @@ static menu_t CRLDef_Keybinds_2 =
 static void M_DrawCRL_Keybinds_2 (void)
 {
     st_fullupdate = true;
+    Keybinds_Cur = 1;
 
     M_FillBackground();
 
@@ -2177,6 +2188,7 @@ static void M_Bind_MDK (int choice)
 static void M_DrawCRL_Keybinds_3 (void)
 {
     st_fullupdate = true;
+    Keybinds_Cur = 2;
 
     M_FillBackground();
 
@@ -2240,6 +2252,7 @@ static menu_t CRLDef_Keybinds_4 =
 static void M_DrawCRL_Keybinds_4 (void)
 {
     st_fullupdate = true;
+    Keybinds_Cur = 3;
 
     M_FillBackground();
 
@@ -2347,6 +2360,7 @@ static menu_t CRLDef_Keybinds_5 =
 static void M_DrawCRL_Keybinds_5 (void)
 {
     st_fullupdate = true;
+    Keybinds_Cur = 4;
 
     M_FillBackground();
 
@@ -2454,6 +2468,7 @@ static menu_t CRLDef_Keybinds_6 =
 static void M_DrawCRL_Keybinds_6 (void)
 {
     st_fullupdate = true;
+    Keybinds_Cur = 5;
 
     M_FillBackground();
 
@@ -2573,6 +2588,7 @@ static menu_t CRLDef_Keybinds_7 =
 static void M_DrawCRL_Keybinds_7 (void)
 {
     st_fullupdate = true;
+    Keybinds_Cur = 6;
 
     M_FillBackground();
 
@@ -5036,7 +5052,10 @@ boolean M_Responder (event_t* ev)
 	}
     // [JN] ...or clear key bind.
 	else
-	if (KBD_BIND_MENUS)
+	if (currentMenu == &CRLDef_Keybinds_1 || currentMenu == &CRLDef_Keybinds_2
+	||  currentMenu == &CRLDef_Keybinds_3 || currentMenu == &CRLDef_Keybinds_4
+	||  currentMenu == &CRLDef_Keybinds_5 || currentMenu == &CRLDef_Keybinds_6
+	||  currentMenu == &CRLDef_Keybinds_7)
 	{
 	    M_ClearBind(itemOn);
 	    return true;
