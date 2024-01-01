@@ -68,8 +68,6 @@ static int quickSaveSlot;
 
 // 1 = message to be printed
 static int messageToPrint;
-// [JN] true = fill message background with solid flat.
-static boolean messageFillsBackground;
 // ...and here is the message string!
 static const char *messageString;
 
@@ -156,6 +154,8 @@ typedef struct menu_s
     short		y;		// x,y of menu
     short		lastOn;		// last item user was on in menu
     boolean		smallFont;  // [JN] If true, use small font
+    boolean		ScrollAR;	// [JN] Menu can be scrolled by arrow keys
+    boolean		ScrollPG;	// [JN] Menu can be scrolled by PGUP/PGDN keys
 } menu_t;
 
 static short itemOn;            // menu item skull is on
@@ -253,7 +253,7 @@ static menu_t MainDef =
     M_DrawMainMenu,
     97,64,
     0,
-    false
+    false, false, false,
 };
 
 //
@@ -285,7 +285,7 @@ static menu_t EpiDef =
     M_DrawEpisode,	// drawing routine ->
     48,63,              // x,y
     ep1,			// lastOn
-    false
+    false, false, false,
 };
 
 //
@@ -319,7 +319,7 @@ static menu_t NewDef =
     M_DrawNewGame,	// drawing routine ->
     48,63,              // x,y
     hurtme,		// lastOn
-    false
+    false, false, false,
 };
 
 //
@@ -385,7 +385,7 @@ static menu_t ReadDef1 =
     M_DrawReadThis1,
     280,185,
     0,
-    false
+    false, false, false,
 };
 
 enum
@@ -407,7 +407,7 @@ static menu_t ReadDef2 =
     M_DrawReadThis2,
     330,175,
     0,
-    false
+    false, false, false,
 };
 
 //
@@ -439,7 +439,7 @@ static menu_t SoundDef =
     M_DrawSound,
     80,64,
     0,
-    false
+    false, false, false,
 };
 
 //
@@ -479,7 +479,7 @@ static menu_t LoadDef =
     M_DrawLoad,
     67,27,
     0,
-    false
+    false, true, true,
 };
 
 //
@@ -506,7 +506,7 @@ static menu_t SaveDef =
     M_DrawSave,
     67,27,
     0,
-    false
+    false, true, true,
 };
 
 // =============================================================================
@@ -723,7 +723,6 @@ static byte   *M_ColorizeBind (int itemSetOn, int key);
 static void    M_ResetBinds (void);
 static void    M_DrawBindKey (int itemNum, int yPos, int key);
 static void    M_DrawBindFooter (char *pagenum, boolean drawPages);
-static void    M_ScrollKeyBindPages (boolean direction);
 
 #define KBD_BIND_MENUS (currentMenu == &CRLDef_Keybinds_1 || currentMenu == &CRLDef_Keybinds_2 || \
                         currentMenu == &CRLDef_Keybinds_3 || currentMenu == &CRLDef_Keybinds_4 || \
@@ -742,6 +741,49 @@ static void    M_ClearMouseBind (int itemOn);
 static byte   *M_ColorizeMouseBind (int itemSetOn, int btn);
 static void    M_DrawBindButton (int itemNum, int yPos, int btn);
 static void    M_ResetMouseBinds (void);
+
+// Utility function for scrolling pages by arrows / PG keys.
+static void M_ScrollPages (boolean direction)
+{
+    // Remember cursor position.
+    currentMenu->lastOn = itemOn;
+
+    // Save/Load menu:
+    if (currentMenu == &LoadDef || currentMenu == &SaveDef)
+    {
+        if (direction)
+        {
+            if (savepage < savepage_max)
+            {
+                savepage++;
+                S_StartSound(NULL, sfx_pstop);
+            }
+        }
+        else
+        {
+            if (savepage > 0)
+            {
+                savepage--;
+                S_StartSound(NULL, sfx_pstop);
+            }
+        }
+        quickSaveSlot = -1;
+        M_ReadSaveStrings();
+        return;
+    }
+
+    // Keyboard bindings:
+    else if (currentMenu == &CRLDef_Keybinds_1) M_SetupNextMenu(direction ? &CRLDef_Keybinds_2 : &CRLDef_Keybinds_7);
+    else if (currentMenu == &CRLDef_Keybinds_2) M_SetupNextMenu(direction ? &CRLDef_Keybinds_3 : &CRLDef_Keybinds_1);
+    else if (currentMenu == &CRLDef_Keybinds_3) M_SetupNextMenu(direction ? &CRLDef_Keybinds_4 : &CRLDef_Keybinds_2);
+    else if (currentMenu == &CRLDef_Keybinds_4) M_SetupNextMenu(direction ? &CRLDef_Keybinds_5 : &CRLDef_Keybinds_3);
+    else if (currentMenu == &CRLDef_Keybinds_5) M_SetupNextMenu(direction ? &CRLDef_Keybinds_6 : &CRLDef_Keybinds_4);
+    else if (currentMenu == &CRLDef_Keybinds_6) M_SetupNextMenu(direction ? &CRLDef_Keybinds_7 : &CRLDef_Keybinds_5);
+    else if (currentMenu == &CRLDef_Keybinds_7) M_SetupNextMenu(direction ? &CRLDef_Keybinds_1 : &CRLDef_Keybinds_6);
+
+    // Play sound.
+    S_StartSound(NULL, sfx_pstop);
+}
 
 // -----------------------------------------------------------------------------
 
@@ -973,7 +1015,7 @@ static menu_t CRLDef_Main =
     M_DrawCRL_Main,
     CRL_MENU_LEFTOFFSET_SML, CRL_MENU_TOPOFFSET,
     0,
-    true
+    true, false, false,
 };
 
 static void M_ChooseCRL_Main (int choice)
@@ -1101,7 +1143,7 @@ static menu_t CRLDef_Video =
     M_DrawCRL_Video,
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     0,
-    true
+    true, false, false,
 };
 
 static void M_ChooseCRL_Video (int choice)
@@ -1281,7 +1323,7 @@ static menu_t CRLDef_Display =
     M_DrawCRL_Display,
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     0,
-    true
+    true, false, false,
 };
 
 static void M_ChooseCRL_Display (int choice)
@@ -1433,7 +1475,7 @@ static menu_t CRLDef_Sound =
     M_DrawCRL_Sound,
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     0,
-    true
+    true, false, false,
 };
 
 static void M_ChooseCRL_Sound (int choice)
@@ -1693,7 +1735,7 @@ static menu_t CRLDef_Controls =
     M_DrawCRL_Controls,
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     0,
-    true
+    true, false, false,
 };
 
 static void M_ChooseCRL_Controls (int choice)
@@ -1829,7 +1871,7 @@ static menu_t CRLDef_Keybinds_1 =
     M_DrawCRL_Keybinds_1,
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     0,
-    true
+    true, true, true,
 };
 
 static void M_ChooseCRL_Keybinds_1 (int choice)
@@ -1949,7 +1991,7 @@ static menu_t CRLDef_Keybinds_2 =
     M_DrawCRL_Keybinds_2,
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     0,
-    true
+    true, true, true,
 };
 
 static void M_DrawCRL_Keybinds_2 (void)
@@ -2069,7 +2111,7 @@ static menu_t CRLDef_Keybinds_3 =
     M_DrawCRL_Keybinds_3,
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     0,
-    true
+    true, true, true,
 };
 
 static void M_Bind_AlwaysRun (int choice)
@@ -2180,7 +2222,7 @@ static menu_t CRLDef_Keybinds_4 =
     M_DrawCRL_Keybinds_4,
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     0,
-    true
+    true, true, true,
 };
 
 static void M_DrawCRL_Keybinds_4 (void)
@@ -2285,7 +2327,7 @@ static menu_t CRLDef_Keybinds_5 =
     M_DrawCRL_Keybinds_5,
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     0,
-    true
+    true, true, true,
 };
 
 static void M_DrawCRL_Keybinds_5 (void)
@@ -2390,7 +2432,7 @@ static menu_t CRLDef_Keybinds_6 =
     M_DrawCRL_Keybinds_6,
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     0,
-    true
+    true, true, true,
 };
 
 static void M_DrawCRL_Keybinds_6 (void)
@@ -2507,7 +2549,7 @@ static menu_t CRLDef_Keybinds_7 =
     M_DrawCRL_Keybinds_7,
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     0,
-    true
+    true, true, true,
 };
 
 static void M_DrawCRL_Keybinds_7 (void)
@@ -2595,7 +2637,6 @@ static void M_Bind_Reset (int choice)
 	    M_StringJoin("RESET KEYBOARD BINDINGS TO DEFAULT VALUES?",
                      "\n\n", PRESSYN, NULL);
 
-    messageFillsBackground = true;
     M_StartMessage(resetwarning, M_Bind_ResetResponse, true);
 }
 
@@ -2631,7 +2672,7 @@ static menu_t CRLDef_MouseBinds =
     M_DrawCRL_MouseBinds,
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     0,
-    true
+    true, false, false,
 };
 
 static void M_DrawCRL_MouseBinds (void)
@@ -2721,7 +2762,6 @@ static void M_Bind_M_Reset (int choice)
 	    M_StringJoin("RESET MOUSE BINDINGS TO DEFAULT VALUES?",
                      "\n\n", PRESSYN, NULL);
 
-    messageFillsBackground = true;
     M_StartMessage(resetwarning, M_Bind_M_ResetResponse, true);
 }
 
@@ -2756,7 +2796,7 @@ static menu_t CRLDef_Widgets =
     M_DrawCRL_Widgets,
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     0,
-    true
+    true, false, false,
 };
 
 static void M_ChooseCRL_Widgets (int choice)
@@ -2944,7 +2984,7 @@ static menu_t CRLDef_Gameplay =
     M_DrawCRL_Gameplay,
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     0,
-    true
+    true, false, false,
 };
 
 static void M_ChooseCRL_Gameplay (int choice)
@@ -3088,7 +3128,7 @@ static menu_t CRLDef_Limits =
     M_DrawCRL_Limits,
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     0,
-    true
+    true, false, false,
 };
 
 static void M_ChooseCRL_Limits (int choice)
@@ -3203,35 +3243,6 @@ static void M_DrawSaveLoadBottomLine (void)
     M_snprintf(pagestr, sizeof(pagestr), "PAGE %d/%d", savepage + 1, savepage_max + 1);
     
     M_WriteTextCentered(152, pagestr, cr[CR_MENU_DARK1]);
-}
-
-
-// [JN] Go to previous (false) or next (true) page in Save/Load menu.
-static boolean M_ScrollSaveLoad (boolean direction)
-{
-    currentMenu->lastOn = itemOn;
-
-    if (direction)
-    {
-        if (savepage < savepage_max)
-        {
-            savepage++;
-            S_StartSound(NULL, sfx_pstop);
-        }
-    }
-    else
-    {
-        if (savepage > 0)
-        {
-            savepage--;
-            S_StartSound(NULL, sfx_pstop);
-        }
-    }
-
-    quickSaveSlot = -1;
-    M_ReadSaveStrings();
-    
-    return true;
 }
 
 
@@ -4375,9 +4386,6 @@ boolean M_Responder (event_t* ev)
         // First click on close button = bring up quit confirm message.
         // Second click on close button = confirm quit
 
-        // [JN] Ensure to hide solid background.
-        messageFillsBackground = false;
-
         if (menuactive && messageToPrint && messageRoutine == M_QuitResponse)
         {
             M_QuitResponse(key_menu_confirm);
@@ -4646,7 +4654,6 @@ boolean M_Responder (event_t* ev)
 
 	menuactive = messageLastMenuActive;
 	messageToPrint = 0;
-	messageFillsBackground = false;
 	if (messageRoutine)
 	    messageRoutine(key);
 
@@ -4907,16 +4914,10 @@ boolean M_Responder (event_t* ev)
     }
     else if (key == key_menu_left)
     {
-        // [JN] Go to previous page in Save/Load menu.
-	if (currentMenu == &LoadDef || currentMenu == &SaveDef)
+	// [JN] Go to previous-left menu by pressing Left Arrow.
+	if (currentMenu->ScrollAR)
 	{
-	    M_ScrollSaveLoad(false);
-	}
-    // [JN] ...or scroll key binds menu backward.
-	else
-	if (KBD_BIND_MENUS)
-	{
-	    M_ScrollKeyBindPages(false);
+	    M_ScrollPages(false);
 	}
         // Slide slider left
 
@@ -4930,16 +4931,10 @@ boolean M_Responder (event_t* ev)
     }
     else if (key == key_menu_right)
     {
-        // [JN] Go to next page in Save/Load menu.
-	if (currentMenu == &LoadDef || currentMenu == &SaveDef)
+	// [JN] Go to next-right menu by pressing Right Arrow.
+	if (currentMenu->ScrollAR)
 	{
-	    M_ScrollSaveLoad(true);
-	}
-    // [JN] ...or scroll key binds menu forward.
-	else
-	if (KBD_BIND_MENUS)
-	{
-	    M_ScrollKeyBindPages(true);
+	    M_ScrollPages(true);
 	}
         // Slide slider right
 
@@ -5032,32 +5027,21 @@ boolean M_Responder (event_t* ev)
 	    return true;
 	}
     }
-    // [crispy] next/prev Crispness menu
-    else if (key == KEY_PGUP || key == key_menu_left)
+    // [JN] Go to previous-left menu by pressing Page Up key.
+    else if (key == KEY_PGUP)
     {
-	if (currentMenu == &LoadDef || currentMenu == &SaveDef)
-	{
-	    M_ScrollSaveLoad(false);
-	}
-    // [JN] ...or scroll key binds menu backward.
-	else
-	if (KBD_BIND_MENUS)
-	{
-	    M_ScrollKeyBindPages(false);
-	}
+        if (currentMenu->ScrollPG)
+        {
+            M_ScrollPages(false);
+        }
     }
-    else if (key == KEY_PGDN || key == key_menu_right)
+    // [JN] Go to next-right menu by pressing Page Down key.
+    else if (key == KEY_PGDN)
     {
-	if (currentMenu == &LoadDef || currentMenu == &SaveDef)
-	{
-	    M_ScrollSaveLoad(true);
-	}
-    // [JN] ...or scroll key binds menu forward.
-	else
-	if (KBD_BIND_MENUS)
-	{
-	    M_ScrollKeyBindPages(true);
-	}
+        if (currentMenu->ScrollPG)
+        {
+            M_ScrollPages(true);
+        }
     }
 
     // Keyboard shortcut?
@@ -5157,10 +5141,7 @@ void M_Drawer (void)
     // Horiz. & Vertically center string and print it.
     if (messageToPrint)
     {
-	if (messageFillsBackground)
-	{
-	    M_FillBackground();
-	}
+	M_ShadeBackground();
 	start = 0;
 	y = SCREENHEIGHT/2 - M_StringHeight(messageString) / 2;
 	while (messageString[start] != '\0')
@@ -5335,7 +5316,6 @@ void M_Init (void)
     whichSkull = 0;
     skullAnimCounter = 10;
     messageToPrint = 0;
-    messageFillsBackground = false;
     messageString = NULL;
     messageLastMenuActive = menuactive;
     quickSaveSlot = -1;
@@ -5951,54 +5931,6 @@ static void M_DrawBindFooter (char *pagenum, boolean drawPages)
         M_WriteTextCentered(171, M_StringJoin("PAGE ", pagenum, "/7", NULL), cr[CR_MENU_DARK2]);
         M_WriteText(CRL_MENU_RIGHTOFFSET - M_StringWidth("PGDN >"), 171, "PGDN >", cr[CR_MENU_DARK3]);
     }
-}
-
-// -----------------------------------------------------------------------------
-// M_ScrollKeyBindPages
-//  [JN] Scroll keyboard binding pages forward (direction = true)
-//  and backward (direction = false).
-// -----------------------------------------------------------------------------
-
-static void M_ScrollKeyBindPages (boolean direction)
-{
-    currentMenu->lastOn = itemOn;
-
-    if (currentMenu == &CRLDef_Keybinds_1)
-    {
-        M_SetupNextMenu(direction ? &CRLDef_Keybinds_2 : &CRLDef_Keybinds_7);
-    }
-    else 
-    if (currentMenu == &CRLDef_Keybinds_2)
-    {
-        M_SetupNextMenu(direction ? &CRLDef_Keybinds_3 : &CRLDef_Keybinds_1);
-    }
-    else
-    if (currentMenu == &CRLDef_Keybinds_3)
-    {
-        M_SetupNextMenu(direction ? &CRLDef_Keybinds_4 : &CRLDef_Keybinds_2);
-    }
-    else
-    if (currentMenu == &CRLDef_Keybinds_4)
-    {
-        M_SetupNextMenu(direction ? &CRLDef_Keybinds_5 : &CRLDef_Keybinds_3);
-    }
-    else
-    if (currentMenu == &CRLDef_Keybinds_5)
-    {
-        M_SetupNextMenu(direction ? &CRLDef_Keybinds_6 : &CRLDef_Keybinds_4);
-    }
-    else
-    if (currentMenu == &CRLDef_Keybinds_6)
-    {
-        M_SetupNextMenu(direction ? &CRLDef_Keybinds_7 : &CRLDef_Keybinds_5);
-    }
-    else
-    if (currentMenu == &CRLDef_Keybinds_7)
-    {
-        M_SetupNextMenu(direction ? &CRLDef_Keybinds_1 : &CRLDef_Keybinds_6);
-    }
-
-    S_StartSound(NULL, sfx_pstop);
 }
 
 
