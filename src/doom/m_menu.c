@@ -1887,6 +1887,8 @@ static void M_ChooseCRL_Keybinds_1 (int choice)
 
 static void M_DrawCRL_Keybinds_1 (void)
 {
+    st_fullupdate = true;
+
     M_FillBackground();
 
     M_WriteTextCentered(25, "MOVEMENT", cr[CR_YELLOW]);
@@ -2002,6 +2004,8 @@ static menu_t CRLDef_Keybinds_2 =
 
 static void M_DrawCRL_Keybinds_2 (void)
 {
+    st_fullupdate = true;
+
     M_FillBackground();
 
     M_WriteTextCentered(25, "CRL CONTROLS", cr[CR_YELLOW]);
@@ -2172,6 +2176,8 @@ static void M_Bind_MDK (int choice)
 
 static void M_DrawCRL_Keybinds_3 (void)
 {
+    st_fullupdate = true;
+
     M_FillBackground();
 
     M_WriteTextCentered(25, "MOVEMENT", cr[CR_YELLOW]);
@@ -2233,6 +2239,8 @@ static menu_t CRLDef_Keybinds_4 =
 
 static void M_DrawCRL_Keybinds_4 (void)
 {
+    st_fullupdate = true;
+
     M_FillBackground();
 
     M_WriteTextCentered(25, "WEAPONS", cr[CR_YELLOW]);
@@ -2338,6 +2346,8 @@ static menu_t CRLDef_Keybinds_5 =
 
 static void M_DrawCRL_Keybinds_5 (void)
 {
+    st_fullupdate = true;
+
     M_FillBackground();
 
     M_WriteTextCentered(25, "AUTOMAP", cr[CR_YELLOW]);
@@ -2443,6 +2453,8 @@ static menu_t CRLDef_Keybinds_6 =
 
 static void M_DrawCRL_Keybinds_6 (void)
 {
+    st_fullupdate = true;
+
     M_FillBackground();
 
     M_WriteTextCentered(25, "FUNCTION KEYS", cr[CR_YELLOW]);
@@ -2560,6 +2572,8 @@ static menu_t CRLDef_Keybinds_7 =
 
 static void M_DrawCRL_Keybinds_7 (void)
 {
+    st_fullupdate = true;
+
     M_FillBackground();
 
     M_WriteTextCentered(25, "SHORTCUT KEYS", cr[CR_YELLOW]);
@@ -2683,6 +2697,8 @@ static menu_t CRLDef_MouseBinds =
 
 static void M_DrawCRL_MouseBinds (void)
 {
+    st_fullupdate = true;
+
     M_FillBackground();
 
     M_WriteTextCentered(25, "MOUSE BINDINGS", cr[CR_YELLOW]);
@@ -5232,7 +5248,7 @@ void M_Drawer (void)
     if (currentMenu->smallFont)
     {
         // [JN] Draw glowing * symbol.
-        M_WriteText(x - CRL_MENU_CURSOR_OFFSET, currentMenu->y + itemOn * LINEHEIGHT_SMALL,
+        M_WriteText(x - CRL_MENU_CURSOR_OFFSET, currentMenu->y + itemOn * CRL_MENU_LINEHEIGHT_SMALL,
                     "*", M_Cursor_Glow(cursor_tics));
     }
     else
