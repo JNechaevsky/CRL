@@ -200,6 +200,7 @@ extern int key_crl_mdk;
 extern int key_crl_nextlevel; // [crispy]
 extern int key_crl_reloadlevel; // [crispy]
 extern int key_crl_demospeed; // [crispy]
+extern int key_crl_showwidgets;
 
 extern int key_crl_limits;
 
