@@ -48,6 +48,7 @@ extern int crl_spectating;
 extern int crl_freeze;
 
 // Widgets
+extern int crl_widget_show;
 extern int crl_widget_coords;
 extern int crl_widget_playstate;
 extern int crl_widget_render;

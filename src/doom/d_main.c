@@ -287,6 +287,8 @@ static void D_Display (void)
         // RestlessRodent -- draw visplanes if overlayed
         CRL_DrawVisPlanes(1);
 
+        if (crl_widget_show)
+        {
         // RestlessRodent -- CRL Stats
         CRL_StatDrawer();
 
@@ -306,6 +308,7 @@ static void D_Display (void)
         {
             CRL_DrawTargetsHealth();
         }
+        }
 
         // [JN] Main status bar drawing function.
         if (crl_screen_size <= 12 || (automapactive && !crl_automap_overlay))
@@ -321,13 +324,13 @@ static void D_Display (void)
     }
 
     // [crispy] demo progress bar
-    if (demoplayback && crl_demo_bar)
+    if (demoplayback && crl_demo_bar && crl_widget_show)
     {
         CRL_DemoBar();
     }
 
     // [JN] Draw FPS counter, except on finale/text screens.
-    if (crl_showfps && gamestate != GS_FINALE)
+    if (crl_showfps && gamestate != GS_FINALE && crl_widget_show)
     {
         CRL_DrawFPS();
     }

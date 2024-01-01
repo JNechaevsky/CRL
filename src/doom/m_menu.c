@@ -603,6 +603,7 @@ static void M_Bind_CRLmenu (int choice);
 static void M_Bind_RestartLevel (int choice);
 static void M_Bind_NextLevel (int choice);
 static void M_Bind_FastForward (int choice);
+static void M_Bind_ShowWidgets (int choice);
 static void M_Bind_SpectatorMode (int choice);
 static void M_Bind_CameraUp (int choice);
 static void M_Bind_CameraDown (int choice);
@@ -1943,6 +1944,7 @@ static menuitem_t CRLMenu_Keybinds_2[]=
     { 1, "RESTART LEVEL/DEMO",  M_Bind_RestartLevel,   'r'  },
     { 1, "GO TO NEXT LEVEL",    M_Bind_NextLevel,      'g'  },
     { 1, "DEMO FAST-FORWARD",   M_Bind_FastForward,    'd'  },
+    { 1, "SHOW/HIDE WIDGETS",   M_Bind_ShowWidgets,    's'  },
     {-1, "",                    0,                     '\0' },  // GAME MODES
     { 1, "SPECTATOR MODE",      M_Bind_SpectatorMode,  's'  },
     { 1, "- MOVE CAMERA UP",    M_Bind_CameraUp,       'm'  },
@@ -1951,7 +1953,6 @@ static menuitem_t CRLMenu_Keybinds_2[]=
     { 1, "BUDDHA MODE",         M_Bind_BuddhaMode,     'b'  },
     { 1, "NO TARGET MODE",      M_Bind_NotargetMode,   'n'  },
     { 1, "NO MOMENTUM MODE",    M_Bind_NomomentumMode, 'n'  },
-    {-1, "",                    0,                     '\0' },
     {-1, "",                    0,                     '\0' },
     {-1, "",                    0,                     '\0' },
     {-1, "",                    0,                     '\0' },
@@ -1979,16 +1980,17 @@ static void M_DrawCRL_Keybinds_2 (void)
     M_DrawBindKey(1, 43, key_crl_reloadlevel);
     M_DrawBindKey(2, 52, key_crl_nextlevel);
     M_DrawBindKey(3, 61, key_crl_demospeed);
+    M_DrawBindKey(4, 70, key_crl_showwidgets);
 
-    M_WriteTextCentered(70, "GAME MODES", cr[CR_YELLOW]);
+    M_WriteTextCentered(79, "GAME MODES", cr[CR_YELLOW]);
 
-    M_DrawBindKey(5, 79, key_crl_spectator);
-    M_DrawBindKey(6, 88, key_crl_cameraup);
-    M_DrawBindKey(7, 97, key_crl_cameradown);
-    M_DrawBindKey(8, 106, key_crl_freeze);
-    M_DrawBindKey(9, 115, key_crl_buddha);
-    M_DrawBindKey(10, 124, key_crl_notarget);
-    M_DrawBindKey(11, 133, key_crl_nomomentum);
+    M_DrawBindKey(6, 88, key_crl_spectator);
+    M_DrawBindKey(7, 97, key_crl_cameraup);
+    M_DrawBindKey(8, 106, key_crl_cameradown);
+    M_DrawBindKey(9, 115, key_crl_freeze);
+    M_DrawBindKey(10, 124, key_crl_buddha);
+    M_DrawBindKey(11, 133, key_crl_notarget);
+    M_DrawBindKey(12, 145, key_crl_nomomentum);
 
     M_DrawBindFooter("2", true);
 }
@@ -2013,39 +2015,44 @@ static void M_Bind_FastForward (int choice)
     M_StartBind(203);  // key_crl_demospeed
 }
 
+static void M_Bind_ShowWidgets (int choice)
+{
+    M_StartBind(204);  // key_crl_showwidgets
+}
+
 static void M_Bind_SpectatorMode (int choice)
 {
-    M_StartBind(204);  // key_crl_spectator
+    M_StartBind(205);  // key_crl_spectator
 }
 
 static void M_Bind_CameraUp (int choice)
 {
-    M_StartBind(205);  // key_crl_cameraup
+    M_StartBind(206);  // key_crl_cameraup
 }
 
 static void M_Bind_CameraDown (int choice)
 {
-    M_StartBind(206);  // key_crl_cameradown
+    M_StartBind(207);  // key_crl_cameradown
 }
 
 static void M_Bind_FreezeMode (int choice)
 {
-    M_StartBind(207);  // key_crl_freeze
+    M_StartBind(208);  // key_crl_freeze
 }
 
 static void M_Bind_BuddhaMode (int choice)
 {
-    M_StartBind(208);  // key_crl_buddha
+    M_StartBind(209);  // key_crl_buddha
 }
 
 static void M_Bind_NotargetMode (int choice)
 {
-    M_StartBind(209);  // key_crl_notarget
+    M_StartBind(210);  // key_crl_notarget
 }
 
 static void M_Bind_NomomentumMode (int choice)
 {
-    M_StartBind(210);  // key_crl_nomomentum
+    M_StartBind(211);  // key_crl_nomomentum
 }
 
 // -----------------------------------------------------------------------------
@@ -5502,6 +5509,7 @@ static void M_CheckBind (int key)
     if (key_crl_reloadlevel == key)  key_crl_reloadlevel  = 0;
     if (key_crl_nextlevel == key)    key_crl_nextlevel    = 0;
     if (key_crl_demospeed == key)    key_crl_demospeed    = 0;
+    if (key_crl_showwidgets == key)  key_crl_showwidgets  = 0;
     if (key_crl_spectator == key)    key_crl_spectator    = 0;
     if (key_crl_cameraup == key)     key_crl_cameraup     = 0;
     if (key_crl_cameradown == key)   key_crl_cameradown   = 0;
@@ -5600,13 +5608,14 @@ static void M_DoBind (int keynum, int key)
         case 201:  key_crl_reloadlevel = key;   break;
         case 202:  key_crl_nextlevel = key;     break;
         case 203:  key_crl_demospeed = key;     break;
-        case 204:  key_crl_spectator = key;     break;
-        case 205:  key_crl_cameraup = key;      break;
-        case 206:  key_crl_cameradown = key;    break;
-        case 207:  key_crl_freeze = key;        break;
-        case 208:  key_crl_buddha = key;        break;
-        case 209:  key_crl_notarget = key;      break;
-        case 210:  key_crl_nomomentum = key;    break;
+        case 204:  key_crl_showwidgets = key;   break;
+        case 205:  key_crl_spectator = key;     break;
+        case 206:  key_crl_cameraup = key;      break;
+        case 207:  key_crl_cameradown = key;    break;
+        case 208:  key_crl_freeze = key;        break;
+        case 209:  key_crl_buddha = key;        break;
+        case 210:  key_crl_notarget = key;      break;
+        case 211:  key_crl_nomomentum = key;    break;
         // Page 3  
         case 300:  key_crl_autorun = key;       break;
         case 301:  key_crl_vilebomb = key;      break;
@@ -5699,14 +5708,15 @@ static void M_ClearBind (int itemOn)
             case 1:   key_crl_reloadlevel = 0;  break;
             case 2:   key_crl_nextlevel = 0;    break;
             case 3:   key_crl_demospeed = 0;    break;
+            case 4:   key_crl_showwidgets = 0;  break;
             // Game modes title
-            case 5:   key_crl_spectator = 0;    break;
-            case 6:   key_crl_cameraup = 0;     break;
-            case 7:   key_crl_cameradown = 0;   break;
-            case 8:   key_crl_freeze = 0;       break;
-            case 9:   key_crl_buddha = 0;       break;
-            case 10:  key_crl_notarget = 0;     break;
-            case 11:  key_crl_nomomentum = 0;   break;
+            case 6:   key_crl_spectator = 0;    break;
+            case 7:   key_crl_cameraup = 0;     break;
+            case 8:   key_crl_cameradown = 0;   break;
+            case 9:   key_crl_freeze = 0;       break;
+            case 10:  key_crl_buddha = 0;       break;
+            case 11:  key_crl_notarget = 0;     break;
+            case 12:  key_crl_nomomentum = 0;   break;
         }
     }
     if (currentMenu == &CRLDef_Keybinds_3)
@@ -5819,6 +5829,7 @@ static void M_ResetBinds (void)
     key_crl_reloadlevel = 0;
     key_crl_nextlevel = 0;
     key_crl_demospeed = 0;
+    key_crl_showwidgets = 0;
     key_crl_spectator = 0;
     key_crl_cameraup = 0;
     key_crl_cameradown = 0;

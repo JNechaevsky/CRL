@@ -397,6 +397,7 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_KEY(key_crl_nextlevel),
     CONFIG_VARIABLE_KEY(key_crl_reloadlevel),
     CONFIG_VARIABLE_KEY(key_crl_demospeed),
+    CONFIG_VARIABLE_KEY(key_crl_showwidgets),
     CONFIG_VARIABLE_KEY(key_crl_limits),
 
     CONFIG_VARIABLE_KEY(key_crl_mlook),
@@ -420,6 +421,7 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(crl_colorblind),
 
     // Widgets
+    CONFIG_VARIABLE_INT(crl_widget_show),
     CONFIG_VARIABLE_INT(crl_widget_coords),
     CONFIG_VARIABLE_INT(crl_widget_playstate),
     CONFIG_VARIABLE_INT(crl_widget_render),

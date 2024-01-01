@@ -730,7 +730,7 @@ void CRL_DrawTargetsHealth (void)
 
     if (crl_widget_health == 1)  // Top
     {
-        M_WriteTextCentered(18, str, CRL_HealthColor(player->targetsheath,
+        M_WriteTextCentered(17, str, CRL_HealthColor(player->targetsheath,
                                                      player->targetsmaxheath));
     }
     else
@@ -738,21 +738,21 @@ void CRL_DrawTargetsHealth (void)
     {
         M_WriteTextCentered(9, player->targetsname, CRL_HealthColor(player->targetsheath,
                                                                     player->targetsmaxheath));
-        M_WriteTextCentered(18, str, CRL_HealthColor(player->targetsheath,
+        M_WriteTextCentered(17, str, CRL_HealthColor(player->targetsheath,
                                                      player->targetsmaxheath));
     }
     else
     if (crl_widget_health == 3)  // Bottom
     {
-        M_WriteTextCentered(152, str, CRL_HealthColor(player->targetsheath,
+        M_WriteTextCentered(151, str, CRL_HealthColor(player->targetsheath,
                                                       player->targetsmaxheath));
     }
     else
     if (crl_widget_health == 4)  // Bottom + name
     {
-        M_WriteTextCentered(144, player->targetsname, CRL_HealthColor(player->targetsheath,
+        M_WriteTextCentered(142, player->targetsname, CRL_HealthColor(player->targetsheath,
                                                                       player->targetsmaxheath));
-        M_WriteTextCentered(152, str, CRL_HealthColor(player->targetsheath,
+        M_WriteTextCentered(151, str, CRL_HealthColor(player->targetsheath,
                                                       player->targetsmaxheath));
     }
 }

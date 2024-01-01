@@ -1053,6 +1053,13 @@ boolean G_Responder (event_t* ev)
 	    gamekeydown[ev->data1] = true; 
         }
 
+    // [JN] CRL - Show/hide widgets.
+    if (ev->data1 == key_crl_showwidgets)
+    {
+        crl_widget_show ^= 1;
+        CRL_SetMessage(&players[consoleplayer], crl_widget_show ?
+                       CRL_WIDGETS_ON : CRL_WIDGETS_OFF, false, NULL);
+    }
     // [JN] CRL - Toggle spectator mode.
     if (ev->data1 == key_crl_spectator)
     {

@@ -708,6 +708,9 @@
 // [JN] CRL-specific strings.
 //
 
+#define CRL_WIDGETS_ON      "WIDGETS ON"
+#define CRL_WIDGETS_OFF     "WIDGETS OFF"
+
 #define CRL_SPECTATOR_ON    "SPECTATOR MODE ON"
 #define CRL_SPECTATOR_OFF   "SPECTATOR MODE OFF"
 
