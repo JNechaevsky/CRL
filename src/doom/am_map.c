@@ -675,6 +675,11 @@ boolean AM_Responder (event_t *ev)
         if (!automapactive)
         {
             AM_Start ();
+            if (!crl_automap_overlay)
+            {
+                // [JN] Redraw status bar background.
+                st_fullupdate = true;
+            }
         }
         else
         {
@@ -690,6 +695,11 @@ boolean AM_Responder (event_t *ev)
         if (ev->type == ev_keydown && ev->data1 == key_map_toggle)
         {
             AM_Start ();
+            if (!crl_automap_overlay)
+            {
+                // [JN] Redraw status bar background.
+                st_fullupdate = true;
+            }
             rc = true;
         }
     }
@@ -809,8 +819,16 @@ boolean AM_Responder (event_t *ev)
         {
             // [JN] CRL - Automap overlay mode
             crl_automap_overlay = !crl_automap_overlay;
-            CRL_SetMessage(plr, DEH_String(crl_automap_overlay ?
-                           CRL_AUTOMAPOVERLAY_ON : CRL_AUTOMAPOVERLAY_OFF), false, NULL);
+            if (crl_automap_overlay)
+            {
+                CRL_SetMessage(plr, DEH_String(CRL_AUTOMAPOVERLAY_ON), false, NULL);
+            }
+            else
+            {
+                CRL_SetMessage(plr, DEH_String(CRL_AUTOMAPOVERLAY_OFF), false, NULL);
+                // [JN] Redraw status bar background.
+                st_fullupdate = true;
+            }
         }
         else
         {
@@ -1877,6 +1895,13 @@ void AM_Drawer (void)
         return;
     }
     
+    // [JN] Draw status bar as well since we drawing game world
+    // entirely while active automap.
+    if (crl_screen_size > 10)
+    {
+        st_fullupdate = true;
+    }
+
     // [JN] Moved from AM_Ticker for drawing interpolation.
     if (followplayer)
     {

@@ -29,6 +29,7 @@
 #include "p_local.h"
 #include "v_video.h"
 #include "w_wad.h"
+#include "st_bar.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
@@ -719,6 +720,8 @@ void R_ExecuteSetViewSize (void)
     }
 
     pspr_interp = false; // [crispy] interpolate weapon bobbing
+
+    st_fullupdate = true; // [JN] Redraw status bar background.
 }
 
 
@@ -918,7 +921,7 @@ void R_RenderPlayerView (player_t* player)
 		R_ClearDrawSegs ();
 		R_ClearPlanes ();
 		R_ClearSprites ();
-		
+
 		// check for new console commands.
 		NetUpdate ();
 

@@ -45,7 +45,7 @@ boolean ST_Responder (event_t* ev);
 void ST_Ticker (void);
 
 // Called by main loop.
-void ST_Drawer (void);
+void ST_Drawer (boolean force);
 
 // Called when the console player is spawned on each level.
 void ST_Start (void);
@@ -67,5 +67,6 @@ extern cheatseq_t cheat_clev;
 extern cheatseq_t cheat_mypos;
 
 extern int st_palette;
+extern boolean st_fullupdate;
 
 #endif
