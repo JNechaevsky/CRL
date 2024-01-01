@@ -81,42 +81,24 @@ static boolean messageNeedsInput;
 
 static void (*messageRoutine)(int response);
 
-static const char gammamsg[15][32] =
+static char *gammalvls[16][2] =
 {
-    GAMMALVL05,
-    GAMMALVL055,
-    GAMMALVL06,
-    GAMMALVL065,
-    GAMMALVL07,
-    GAMMALVL075,
-    GAMMALVL08,
-    GAMMALVL085,
-    GAMMALVL09,
-    GAMMALVL095,
-    GAMMALVL0,
-    GAMMALVL1,
-    GAMMALVL2,
-    GAMMALVL3,
-    GAMMALVL4
-};
-
-static const char *gammalvl[15] =
-{
-    "0.50",
-    "0.55",
-    "0.60",
-    "0.65",
-    "0.70",
-    "0.75",
-    "0.80",
-    "0.85",
-    "0.90",
-    "0.95",
-    "OFF",
-    "1",
-    "2",
-    "3",
-    "4"
+    { GAMMALVL05,   "0.50" },
+    { GAMMALVL055,  "0.55" },
+    { GAMMALVL06,   "0.60" },
+    { GAMMALVL065,  "0.65" },
+    { GAMMALVL07,   "0.70" },
+    { GAMMALVL075,  "0.75" },
+    { GAMMALVL08,   "0.80" },
+    { GAMMALVL085,  "0.85" },
+    { GAMMALVL09,   "0.90" },
+    { GAMMALVL095,  "0.95" },
+    { GAMMALVL0,    "OFF"  },
+    { GAMMALVL1,    "1"    },
+    { GAMMALVL2,    "2"    },
+    { GAMMALVL3,    "3"    },
+    { GAMMALVL4,    "4"    },
+    { NULL,         NULL   },
 };
 
 // we are going to be entering a savegame string
@@ -1321,7 +1303,7 @@ static void M_DrawCRL_Display (void)
 
     // Gamma-correction slider and num
     M_DrawThermo(46, 44, 15, crl_gamma);
-    M_WriteText (184, 47, gammalvl[crl_gamma],
+    M_WriteText (184, 47, gammalvls[crl_gamma][1],
                            M_Item_Glow(0, GLOW_UNCOLORED));
 
     // Menu background shading
@@ -4858,7 +4840,7 @@ boolean M_Responder (event_t* ev)
         {
             crl_gamma = 0;
         }
-        CRL_SetMessage(&players[consoleplayer], DEH_String(gammamsg[crl_gamma]), false, NULL);
+        CRL_SetMessage(&players[consoleplayer], DEH_String(gammalvls[crl_gamma][0]), false, NULL);
         CRL_ReloadPalette();
         return true;
     }
