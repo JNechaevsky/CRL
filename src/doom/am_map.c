@@ -933,10 +933,8 @@ static void AM_changeWindowScale (void)
 
 static void AM_doFollowPlayer (void)
 {
-    // [JN] Use interpolated player coords for smooth
-    // scrolling and static player arrow position.
-    m_x = (viewx >> FRACTOMAPBITS) - m_w/2;
-    m_y = (viewy >> FRACTOMAPBITS) - m_h/2;
+    m_x = FTOM(MTOF(viewx >> FRACTOMAPBITS)) - m_w/2;
+    m_y = FTOM(MTOF(viewy >> FRACTOMAPBITS)) - m_h/2;
 
     m_x2 = m_x + m_w;
     m_y2 = m_y + m_h;
@@ -1580,6 +1578,10 @@ static void AM_drawPlayers (void)
         // [JN] Interpolate player arrow.
         pt.x = viewx >> FRACTOMAPBITS;
         pt.y = viewy >> FRACTOMAPBITS;
+
+        // [JN] Prevent arrow jitter.
+        pt.x = FTOM(MTOF(pt.x));
+        pt.y = FTOM(MTOF(pt.y));
 
         if (crl_automap_rotate)
         {
