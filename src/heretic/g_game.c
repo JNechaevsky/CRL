@@ -2131,7 +2131,7 @@ void G_WriteDemoTiccmd(ticcmd_t * cmd)
         if (vanilla_demo_limit)
         {
             // [JN] CRL - print in-game warning instead of quit.        
-            CRL_SetCriticalMessage("G[WRITEDEMOTICCMD:", "DEMO OVERFLOW (VANILLA STOPS HERE)", MESSAGETICS);
+            CRL_SetMessageCritical("G[WRITEDEMOTICCMD:", "DEMO OVERFLOW (VANILLA STOPS HERE)", MESSAGETICS);
 
             // Vanilla demo limit disabled: unlimited demo lengths!
             IncreaseDemoBuffer();

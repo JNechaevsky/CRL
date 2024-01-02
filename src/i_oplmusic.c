@@ -36,6 +36,8 @@
 #include "opl.h"
 #include "midifile.h"
 
+#include "crlcore.h"
+
 // #define OPL_MIDI_DEBUG
 
 #define MAXMIDLENGTH (96 * 1024)
@@ -1664,11 +1666,11 @@ static void *I_OPL_RegisterSong(void *data, int len)
     filename = M_TempFile("doom.mid");
 
     // [JN] CRL - print a warning about 96 kilobytes limit.
-    // Can't use CRL_SetCriticalMessage here. :(
     if (len >= MAXMIDLENGTH)
     {
         printf ("I_OPL_RegisterSong: Warning. Music file is > 96 kilobytes,"
-                                     " vanilla Doom can't play it.\n");
+                                     " Vanilla Doom can't play it.\n");
+        CRL_SetMessageCritical("I_OPL_RegisterSong:", "Vanilla can't play > 96 kilobytes music file.", 4 * 35);
     }
 
     if (IsMid(data, len) && len < MAXMIDLENGTH)

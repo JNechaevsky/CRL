@@ -649,7 +649,7 @@ boolean MIDI_CheckFile(void *data, int len)
         if (reported_len + 3 > actual_len)
         {
             CRL_printf("MIDI_CheckFile: Format 0 MIDI files not supported by Vanilla Doom!", true);
-            CRL_SetCriticalMessage("MIDI_CheckFile:", "Format 0 MIDI is not supported by Vanilla!", 4 * 35);
+            CRL_SetMessageCritical("MIDI_CheckFile:", "Format 0 MIDI is not supported by Vanilla!", 4 * 35);
         }
     }
 

@@ -641,7 +641,7 @@ PIT_AddLineIntercepts (line_t* ld)
     
         // [JN] CRL - print console and in-game warnings.
         CRL_printf(M_StringJoin("PIT_AddLineIntercepts: ", message, NULL), true);
-        CRL_SetCriticalMessage("PIT_AddLineIntercepts:", message, MESSAGETICS);
+        CRL_SetMessageCritical("PIT_AddLineIntercepts:", message, MESSAGETICS);
     }
 
     intercept_p++;
@@ -735,7 +735,7 @@ boolean PIT_AddThingIntercepts (mobj_t* thing)
     
         // [JN] CRL - print console and in-game warnings.
         CRL_printf(M_StringJoin("PIT_AddThingIntercepts: ", message, NULL), true);
-        CRL_SetCriticalMessage("PIT_AddThingIntercepts:", message, MESSAGETICS);
+        CRL_SetMessageCritical("PIT_AddThingIntercepts:", message, MESSAGETICS);
     }
 
     intercept_p++;

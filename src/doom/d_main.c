@@ -74,7 +74,6 @@
 #include "net_dedicated.h"
 #include "net_query.h"
 
-#include "ct_chat.h"
 #include "r_local.h"
 #include "statdump.h"
 #include "v_trans.h"
@@ -167,8 +166,57 @@ void D_ProcessEvents (void)
     }
 }
 
+// -----------------------------------------------------------------------------
+// CRL_DrawMessage
+// [JN] Draws message on the screen.
+// -----------------------------------------------------------------------------
 
+static void CRL_DrawMessage (void)
+{
+    player_t *player = &players[displayplayer];
 
+    if (player->messageTics <= 0 || !player->message)
+    {
+        return;  // No message
+    }
+
+    M_WriteText (0, 0, player->message, player->messageColor);
+}
+
+// -----------------------------------------------------------------------------
+// CRL_DrawMessageCentered
+// [JN] Draws centereed message on the screen.
+// -----------------------------------------------------------------------------
+
+static void CRL_DrawMessageCentered (void)
+{
+    player_t *player = &players[displayplayer];
+
+    if (player->messageCenteredTics <= 0 || !player->messageCentered)
+    {
+        return;  // No message
+    }
+
+    // Always centered, always gold
+    M_WriteTextCentered (61, player->messageCentered, cr[CR_YELLOW]);
+}
+
+// -----------------------------------------------------------------------------
+// CRL_DrawMessageCritical
+// [JN] Draws critical message on the second and third lines of the screen.
+// -----------------------------------------------------------------------------
+
+static void CRL_DrawMessageCritical (void)
+{
+    if (messageCriticalTics <= 0 || !messageCritical1 || !messageCritical2)
+    {
+        return;  // No message
+    }
+
+    M_WriteTextCritical (9, messageCritical1, messageCritical2, crl_msg_critical ?
+                         (gametic & 8 ? cr[CR_DARKRED] : cr[CR_RED]) : // Blinking
+                                                         cr[CR_RED]);  // Static
+}
 
 //
 // D_Display
@@ -344,12 +392,15 @@ static void D_Display (void)
     // Handle player messages
     CRL_DrawMessage();
 
+    // [JN] Handle centered player messages.
+    CRL_DrawMessageCentered();
+
     // menus go directly to the screen
     M_Drawer ();          // menu is drawn even on top of everything
     NetUpdate ();         // send out any new accumulation
 
     // [JN] Critical messages are drawn even higher than on top everything!
-    CRL_DrawCriticalMessage();
+    CRL_DrawMessageCritical();
 
     // normal update
     if (!wipe)

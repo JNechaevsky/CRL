@@ -22,6 +22,7 @@
 #ifndef __S_SOUND__
 #define __S_SOUND__
 
+#include "doomdef.h"
 #include "sounds.h"
 
 //

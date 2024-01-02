@@ -374,7 +374,7 @@ EV_VerticalDoor
 
         // [JN] CRL - print console and in-game warnings.
         CRL_printf(M_StringJoin("EV_VerticalDoor: ", message, NULL), true);
-        CRL_SetCriticalMessage("EV_VerticalDoor: ", message, MESSAGETICS);
+        CRL_SetMessageCritical("EV_VerticalDoor: ", message, MESSAGETICS);
         return;
     }
 

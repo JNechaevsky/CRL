@@ -1240,7 +1240,7 @@ void P_SpawnSpecials(void)
                 if (CRL_lineanims_counter > CRL_MaxAnims)
                 {
                     // [JN] Print in-game warning.
-                    CRL_SetCriticalMessage("P[SPAWNSPECIALS:",
+                    CRL_SetMessageCritical("P[SPAWNSPECIALS:",
                                            "TOO MANY SCROLLERS!", MESSAGETICS);
                 }
 

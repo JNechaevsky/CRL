@@ -18,10 +18,10 @@
 //	Play functions, animation, global header.
 //
 
-
 #pragma once
 
-
+#include "doomdef.h"
+#include "d_event.h"
 #include "r_local.h"
 
 
@@ -55,6 +55,35 @@
 #define MELEERANGE      (FRACUNIT*64)
 #define MISSILERANGE    (FRACUNIT*32*64)
 
+
+// -----------------------------------------------------------------------------
+// CT_CHAT
+// -----------------------------------------------------------------------------
+
+#define HU_FONTSTART    '!'	// the first font characters
+#define HU_FONTEND      '_'	// the last font characters
+#define HU_FONTSIZE (HU_FONTEND - HU_FONTSTART + 1)	 // Calculate # of glyphs in font.
+
+#define MESSAGETICS (TICRATE * 4)
+
+extern void CT_Init (void);
+extern void CT_Drawer (void);
+extern void CT_Ticker (void);
+extern void MSG_Ticker (void);
+extern void CRL_SetMessage (player_t *player, const char *message, boolean ultmsg, byte *table);
+extern void CRL_SetMessageCentered (player_t *player, const char *message);
+
+extern char CT_dequeueChatChar (void);
+extern boolean CT_Responder(event_t * ev);
+
+extern patch_t *hu_font[HU_FONTSIZE];
+extern boolean chatmodeon;
+extern char *chat_macros[10];
+extern char *player_names[];
+
+extern boolean     ultimatemsg;
+extern const char *lastmessage;
+extern int         showMessages;
 
 // -----------------------------------------------------------------------------
 // P_CEILNG
@@ -272,13 +301,6 @@ extern result_e T_MovePlane (sector_t *sector, fixed_t speed, fixed_t dest,
 // -----------------------------------------------------------------------------
 // P_INTER
 // -----------------------------------------------------------------------------
-
-#define MESSAGETICS (TICRATE*4)
-
-extern void CRL_SetMessage (player_t *player, const char *message, boolean ultmsg, byte *table);
-extern int         showMessages;
-extern boolean     ultimatemsg;
-extern const char *lastmessage;
 
 extern boolean P_GivePower(player_t*, int);
 extern void    P_TouchSpecialThing (mobj_t *special, mobj_t *toucher);

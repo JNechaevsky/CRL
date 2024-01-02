@@ -20,7 +20,6 @@
 #include "doomdef.h"
 #include "doomstat.h"
 #include "doomkeys.h"
-#include "ct_chat.h"
 #include "d_englsh.h"
 #include "d_event.h"
 #include "deh_str.h"
@@ -97,6 +96,8 @@ static byte ChatQueue[QUEUESIZE];
 
 static int ChatFontBaseLump;
 
+boolean     ultimatemsg;
+const char *lastmessage;
 
 // -----------------------------------------------------------------------------
 // CT_Init
@@ -468,6 +469,40 @@ static void CT_ClearChatMessage (const int player)
 }
 
 // -----------------------------------------------------------------------------
+// CRL_SetMessage
+// [JN] Sets message parameters.
+// -----------------------------------------------------------------------------
+
+void CRL_SetMessage (player_t *player, const char *message, boolean ultmsg, byte *table)
+{
+    lastmessage = message;
+
+    if ((ultimatemsg || !showMessages) && !ultmsg)
+    {
+        return;
+    }
+    player->message = message;
+    player->messageTics = MESSAGETICS;
+    player->messageColor = table;
+
+    if (ultmsg)
+    {
+        ultimatemsg = true;
+    }
+}
+
+// -----------------------------------------------------------------------------
+// CRL_SetCenteredMessage
+// [JN] Sets centered message parameters.
+// -----------------------------------------------------------------------------
+
+void CRL_SetMessageCentered (player_t *player, const char *message)
+{
+    player->messageCentered = message;
+    player->messageCenteredTics = 5*TICRATE/2; // [crispy] 2.5 seconds
+}
+
+// -----------------------------------------------------------------------------
 // MSG_Ticker
 // [JN] Reduces message tics independently from framerate and game states.
 // Not to be confused with CT_Ticker.
@@ -485,8 +520,12 @@ void MSG_Ticker (void)
     {                           // Refresh the screen when a message goes away
         ultimatemsg = false;    // clear out any chat messages.
     }
-    if (criticalmessageTics > 0)
+    if (player->messageCenteredTics > 0)
     {
-        criticalmessageTics--;
+        player->messageCenteredTics--;
+    }
+    if (messageCriticalTics > 0)
+    {
+        messageCriticalTics--;
     }
 }

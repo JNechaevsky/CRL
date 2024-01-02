@@ -1034,7 +1034,7 @@ void CRL_SetColors (uint8_t* colors, void* ref)
 // =============================================================================
 
 // -----------------------------------------------------------------------------
-// CRL_SetCriticalMessage
+// CRL_SetMessageCritical
 // [JN] Sets critical message parameters.
 //
 // CRL's critical message is always taking second and third HUD line.
@@ -1042,15 +1042,15 @@ void CRL_SetColors (uint8_t* colors, void* ref)
 // and may appear independently from any game states and conditions.
 // -----------------------------------------------------------------------------
 
-const char *criticalmessage1;
-const char *criticalmessage2;
-int         criticalmessageTics;
+const char *messageCritical1;
+const char *messageCritical2;
+int         messageCriticalTics;
 
-void CRL_SetCriticalMessage (char *message1, char *message2, const int tics)
+void CRL_SetMessageCritical (char *message1, char *message2, const int tics)
 {
-    criticalmessage1 = message1;
-    criticalmessage2 = message2;
-    criticalmessageTics = tics;
+    messageCritical1 = message1;
+    messageCritical2 = message2;
+    messageCriticalTics = tics;
 }
 
 // -----------------------------------------------------------------------------

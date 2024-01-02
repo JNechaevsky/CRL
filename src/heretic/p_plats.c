@@ -249,7 +249,7 @@ void P_AddActivePlat(plat_t * plat)
             if (CRL_plats_counter > CRL_MaxPlats)
             {
                 // [JN] Print in-game warning.
-                CRL_SetCriticalMessage("P[ADDACTIVEPLAT:", M_StringJoin("NO MORE PLATS! (",
+                CRL_SetMessageCritical("P[ADDACTIVEPLAT:", M_StringJoin("NO MORE PLATS! (",
                                        CRL_LimitsName, " CRASHES HERE)", NULL), MESSAGETICS);
             }
 

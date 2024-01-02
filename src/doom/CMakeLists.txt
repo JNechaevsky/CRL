@@ -1,7 +1,7 @@
 add_library(doom STATIC
             am_map.c        am_map.h
             crlfunc.c       crlfunc.h
-            ct_chat.c       ct_chat.h
+            ct_chat.c
             deh_ammo.c
             deh_bexstr.c
             deh_cheat.c

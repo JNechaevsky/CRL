@@ -88,7 +88,7 @@ void SV_Close(char *fileName)
     if (vanilla_savegame_limit && ftell(SaveGameFP) > SAVEGAMESIZE)
     {
         // [JN] CRL - print a warnings instead of quit with an error.
-        CRL_SetCriticalMessage("SV[CLOSE:", "SAVEGAME OVERFLOW (VANILLA CRASHES HERE)", MESSAGETICS);
+        CRL_SetMessageCritical("SV[CLOSE:", "SAVEGAME OVERFLOW (VANILLA CRASHES HERE)", MESSAGETICS);
     }
 
     fclose(SaveGameFP);

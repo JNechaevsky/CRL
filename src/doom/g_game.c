@@ -63,7 +63,6 @@
 // Data.
 #include "dstrings.h"
 #include "sounds.h"
-#include "ct_chat.h"
 
 // SKY handling - still the wrong place.
 
@@ -1520,8 +1519,9 @@ void G_PlayerFinishLevel (int player)
     memset (p->cards, 0, sizeof (p->cards)); 
     p->cheatTics = 0;
     p->messageTics = 0;
+    p->messageCenteredTics = 0;
     // [JN] Keep critical message visible.
-    // criticalmessageTics = 0;
+    // messageCriticalTics = 0;
     p->targetsheathTics = 0;
     p->mo->flags &= ~MF_SHADOW;		// cancel invisibility 
     p->extralight = 0;			// cancel gun flashes 
@@ -1576,8 +1576,9 @@ void G_PlayerReborn (int player)
     p->weaponowned[wp_pistol] = true; 
     p->ammo[am_clip] = deh_initial_bullets; 
     p->messageTics = 0;
+    p->messageCenteredTics = 0;
     // [JN] Keep critical message visible.
-    // criticalmessageTics = 0;
+    // messageCriticalTics = 0;
     p->targetsheathTics = 0;
 	 
     for (i=0 ; i<NUMAMMO ; i++) 
@@ -2212,7 +2213,7 @@ void G_DoSaveGame (void)
         // [JN] CRL - print a warnings instead of quit with an error.
         // I_Error("Savegame buffer overrun");
         CRL_printf(message, true);
-        CRL_SetCriticalMessage("G_DoSaveGame:", message, MESSAGETICS);
+        CRL_SetMessageCritical("G_DoSaveGame:", message, MESSAGETICS);
     }
 
     // Finish up, close the savegame file.

@@ -24,7 +24,6 @@
 #include <stdlib.h>
 
 // Functions.
-#include "ct_chat.h"
 #include "deh_main.h"
 #include "i_system.h"
 #include "i_swap.h"
@@ -40,6 +39,7 @@
 #include "sounds.h"
 #include "doomstat.h"
 #include "r_local.h"
+#include "p_local.h"
 
 #include "crlcore.h"
 
@@ -127,10 +127,12 @@ void F_StartFinale (void)
     players[consoleplayer].cheatTics = 1;
     players[consoleplayer].messageTics = 1;
     players[consoleplayer].message = NULL;
+    players[consoleplayer].messageCenteredTics = 1;
+    players[consoleplayer].messageCentered = NULL;
     // [JN] Keep critical message visible.
-    // criticalmessageTics = 1;
-    // criticalmessage1 = NULL;
-    // criticalmessage2 = NULL;
+    // messageCriticalTics = 1;
+    // messageCritical1 = NULL;
+    // messageCritical2 = NULL;
 
     if (logical_gamemission == doom)
     {

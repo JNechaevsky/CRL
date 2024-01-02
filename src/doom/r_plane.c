@@ -277,7 +277,7 @@ R_FindPlane
     // [JN] Catch extreme overflows and prevent crash.
     if (lastvisplane - visplanes == REALMAXVISPLANES)
 	{
-        CRL_SetCriticalMessage("R_FindPlane:", "critical visplane overflow!", 2);
+        CRL_SetMessageCritical("R_FindPlane:", "critical visplane overflow!", 2);
     	longjmp(CRLJustIncaseBuf, CRL_JUMP_VPO);
 	}
 	
@@ -361,7 +361,7 @@ R_CheckPlane
     // [JN] Catch extreme overflows and prevent crash.
     if (lastvisplane - visplanes == REALMAXVISPLANES)
     {
-        CRL_SetCriticalMessage("R_CheckPlane:", "critical visplane overflow!", 2);
+        CRL_SetMessageCritical("R_CheckPlane:", "critical visplane overflow!", 2);
         longjmp(CRLJustIncaseBuf, CRL_JUMP_VPO);
     }
 
@@ -442,7 +442,7 @@ void R_DrawPlanes (void)
     // [JN] Print in-game warning about MAXDRAWSEGS overflow.
     if (dsegs > CRL_MaxDrawSegs)
     {
-        CRL_SetCriticalMessage("R_DrawPlanes:", M_StringJoin("drawsegs overflow (",
+        CRL_SetMessageCritical("R_DrawPlanes:", M_StringJoin("drawsegs overflow (",
                                             CRL_LimitsName, " crashes here)", NULL), 2);
 
         // Supress render and don't go any farther.
@@ -452,7 +452,7 @@ void R_DrawPlanes (void)
     // [JN] Print in-game warning about MAVVISPLANES overflow.
     if (lastvisplane - visplanes > CRL_MaxVisPlanes)
     {
-        CRL_SetCriticalMessage("R_DrawPlanes:", M_StringJoin("visplane overflow (",
+        CRL_SetMessageCritical("R_DrawPlanes:", M_StringJoin("visplane overflow (",
                                             CRL_LimitsName, " crashes here)", NULL), 2);
         // Supress render and don't go any farther.
         return;
@@ -464,7 +464,7 @@ void R_DrawPlanes (void)
     // [JN] Print in-game warning about MAXOPENINGS overflow.
     if (lastopening - openings > CRL_MaxOpenings)
     {
-        CRL_SetCriticalMessage("R_DrawPlanes:", M_StringJoin("opening overflow (",
+        CRL_SetMessageCritical("R_DrawPlanes:", M_StringJoin("opening overflow (",
                                             CRL_LimitsName, " crashes here)", NULL), 2);
 
         // Supress render and don't go any farther.

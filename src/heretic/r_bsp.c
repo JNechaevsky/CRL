@@ -495,7 +495,7 @@ void R_Subsector(int num)
     // [JN] CRL - Do not quit with I_Error, print in-game warning instead.
     if (newend > &solidsegs[32])
     {
-        CRL_SetCriticalMessage("R[SUBSECTOR:",
+        CRL_SetMessageCritical("R[SUBSECTOR:",
         "SOLIDSEGS OVERFLOW (VANILLA MAY CRASH HERE)", 2);
     }
 }

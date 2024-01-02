@@ -191,10 +191,10 @@ extern void CRL_SetColors (uint8_t* colors, void* ref);
 // Critical message, console output coloring
 //
 
-extern const char *criticalmessage1;
-extern const char *criticalmessage2;
-extern int         criticalmessageTics;
-extern void CRL_SetCriticalMessage (char *message1, char *message2, const int tics);
+extern const char *messageCritical1;
+extern const char *messageCritical2;
+extern int         messageCriticalTics;
+extern void CRL_SetMessageCritical (char *message1, char *message2, const int tics);
 
 extern void CRL_printf (const char *message, const boolean critical);
 

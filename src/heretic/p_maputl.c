@@ -520,7 +520,7 @@ void check_intercept (const short func)
                                                 "P_SightBlockLinesIterator: " ,
                                                 "Hit INTERCEPTS limit!\n", NULL), true);
             
-            CRL_SetCriticalMessage(function, message, MESSAGETICS);
+            CRL_SetMessageCritical(function, message, MESSAGETICS);
         }
     }
 }

@@ -43,33 +43,6 @@ int	maxammo[NUMAMMO] = {200, 50, 300, 50};
 int	clipammo[NUMAMMO] = {10, 4, 20, 1};
 
 
-// -----------------------------------------------------------------------------
-// CRL_SetMessage
-// [JN] Sets message parameters.
-// -----------------------------------------------------------------------------
-
-boolean     ultimatemsg;
-const char *lastmessage;
-
-void CRL_SetMessage (player_t *player, const char *message, boolean ultmsg, byte *table)
-{
-    lastmessage = message;
-
-    if ((ultimatemsg || !showMessages) && !ultmsg)
-    {
-        return;
-    }
-    player->message = message;
-    player->messageTics = MESSAGETICS;
-    player->messageColor = table;
-
-    if (ultmsg)
-    {
-        ultimatemsg = true;
-    }
-}
-
-
 //
 // GET STUFF
 //

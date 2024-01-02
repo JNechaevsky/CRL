@@ -275,7 +275,7 @@ visplane_t *R_FindPlane(fixed_t height, int picnum,
     if (lastvisplane - visplanes == REALMAXVISPLANES)
     {
         // [JN] Print in-game warning.
-        CRL_SetCriticalMessage("R[FINDPLANE:", "CRITICAL VISPLANE OVERFLOW!", 2);
+        CRL_SetMessageCritical("R[FINDPLANE:", "CRITICAL VISPLANE OVERFLOW!", 2);
         longjmp(CRLJustIncaseBuf, CRL_JUMP_VPO);
     }
 
@@ -357,7 +357,7 @@ visplane_t *R_CheckPlane(visplane_t * pl, int start, int stop,
     if (lastvisplane - visplanes == REALMAXVISPLANES)
     {
         // [JN] Print in-game warning.
-        CRL_SetCriticalMessage("R[CHECKPLANE:", "CRITICAL VISPLANE OVERFLOW!", 2);
+        CRL_SetMessageCritical("R[CHECKPLANE:", "CRITICAL VISPLANE OVERFLOW!", 2);
     }
 
     pl = lastvisplane++;
@@ -454,7 +454,7 @@ void R_DrawPlanes(void)
     // [JN] Print in-game warning about MAXDRAWSEGS overflow.
     if (ds_p - drawsegs > CRL_MaxDrawSegs)
     {
-        CRL_SetCriticalMessage("R[DRAWPLANES:", M_StringJoin("DRAWSEGS OVERFLOW (",
+        CRL_SetMessageCritical("R[DRAWPLANES:", M_StringJoin("DRAWSEGS OVERFLOW (",
                                             CRL_LimitsName, " CRASHES HERE)", NULL), 2);
 
         // Supress render and don't go any farther.
@@ -464,7 +464,7 @@ void R_DrawPlanes(void)
     // [JN] Print in-game warning about MAVVISPLANES overflow.
     if (lastvisplane - visplanes > CRL_MaxVisPlanes)
     {
-        CRL_SetCriticalMessage("R[DRAWPLANES:", M_StringJoin("VISPLANE OVERFLOW (",
+        CRL_SetMessageCritical("R[DRAWPLANES:", M_StringJoin("VISPLANE OVERFLOW (",
                                             CRL_LimitsName, " CRASHES HERE)", NULL), 2);
         // Supress render and don't go any farther.
         return;
@@ -476,7 +476,7 @@ void R_DrawPlanes(void)
     // [JN] Print in-game warning about MAXOPENINGS overflow.
     if (lastopening - openings > CRL_MaxOpenings)
     {
-        CRL_SetCriticalMessage("R[DRAWPLANES:", M_StringJoin("OPENING OVERFLOW (",
+        CRL_SetMessageCritical("R[DRAWPLANES:", M_StringJoin("OPENING OVERFLOW (",
                                             CRL_LimitsName, " CRASHES HERE)", NULL), 2);
 
         // Supress render and don't go any farther.

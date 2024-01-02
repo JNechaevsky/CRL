@@ -48,7 +48,6 @@
 #include "sounds.h"
 #include "m_menu.h"
 #include "p_local.h"
-#include "ct_chat.h"
 #include "v_trans.h"
 #include "st_bar.h"
 
@@ -515,6 +514,7 @@ static menu_t SaveDef =
 #define CRL_MENU_TOPOFFSET         (34)
 #define CRL_MENU_LEFTOFFSET        (48)
 #define CRL_MENU_LEFTOFFSET_SML    (72)
+#define CRL_MENU_LEFTOFFSET_BIG    (32)
 #define CRL_MENU_RIGHTOFFSET_SML   (SCREENWIDTH - CRL_MENU_LEFTOFFSET_SML)
 
 #define CRL_MENU_LINEHEIGHT_SMALL  (9)
@@ -1392,7 +1392,7 @@ static void M_DrawCRL_Display (void)
     // Show nice preview-reminder :)
     if (itemOn == 7)
     {
-        CRL_SetCriticalMessage("CRL_REMINDER:", "CRITICAL MESSAGES ARE ALWAYS ENABLED!", 2);
+        CRL_SetMessageCritical("CRL_REMINDER:", "CRITICAL MESSAGES ARE ALWAYS ENABLED!", 2);
     }
 
     // Text casts shadows
@@ -3020,7 +3020,7 @@ static menu_t CRLDef_Gameplay =
     &CRLDef_Main,
     CRLMenu_Gameplay,
     M_DrawCRL_Gameplay,
-    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    CRL_MENU_LEFTOFFSET_BIG, CRL_MENU_TOPOFFSET,
     0,
     true, false, false,
 };
@@ -3054,7 +3054,8 @@ static void M_DrawCRL_Gameplay (void)
                  M_Item_Glow(2, crl_colored_stbar ? GLOW_GREEN : GLOW_DARKRED));
 
     // Report revealed secrets
-    sprintf(str, crl_revealed_secrets ? "ON" : "OFF");
+    sprintf(str, crl_revealed_secrets == 1 ? "TOP" :
+                 crl_revealed_secrets == 2 ? "CENTERED" : "OFF");
     M_WriteText (M_ItemRightAlign(str), 61, str,
                  M_Item_Glow(3, crl_revealed_secrets ? GLOW_GREEN : GLOW_DARKRED));
 
@@ -3107,7 +3108,7 @@ static void M_CRL_ColoredSTBar (int choice)
 
 static void M_CRL_RevealedSecrets (int choice)
 {
-    crl_revealed_secrets ^= 1;
+    crl_revealed_secrets = M_INT_Slider(crl_revealed_secrets, 0, 2, choice);
 }
 
 static void M_CRL_RestoreTargets (int choice)
@@ -3767,9 +3768,11 @@ static void M_EndGameResponse(int key)
     M_ClearMenus ();
     players[consoleplayer].messageTics = 1;
     players[consoleplayer].message = NULL;
-    criticalmessageTics = 1;
-    criticalmessage1 = NULL;
-    criticalmessage2 = NULL;
+    players[consoleplayer].messageCenteredTics = 1;
+    players[consoleplayer].messageCentered = NULL;
+    messageCriticalTics = 1;
+    messageCritical1 = NULL;
+    messageCritical2 = NULL;
     st_palette = 0;
     D_StartTitle ();
 }

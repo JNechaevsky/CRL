@@ -65,55 +65,6 @@ int CRL_PlaneBorderColors[NUMPLANEBORDERCOLORS] =
 
 // =============================================================================
 //
-//                       Messages handling and drawing
-//
-// =============================================================================
-
-// -----------------------------------------------------------------------------
-// CRL_DrawMessage
-// [JN] Draws message on the screen.
-// -----------------------------------------------------------------------------
-
-void CRL_DrawMessage (void)
-{
-    player_t *player = &players[displayplayer];
-
-    if (player->messageTics <= 0 || !player->message)
-    {
-        return;  // No message
-    }
-
-    M_WriteText(0, 0, player->message, player->messageColor);
-}
-
-// -----------------------------------------------------------------------------
-// CRL_DrawCriticalMessage
-// [JN] Draws critical message on the second and third lines of the screen.
-// -----------------------------------------------------------------------------
-
-void CRL_DrawCriticalMessage (void)
-{
-    if (criticalmessageTics <= 0 || !criticalmessage1 || !criticalmessage2)
-    {
-        return;  // No message
-    }
-
-    if (crl_msg_critical == 0)
-    {
-        // Static
-        M_WriteTextCritical(9, criticalmessage1, criticalmessage2, cr[CR_RED]);
-    }
-    else
-    {
-        // Blinking
-        M_WriteTextCritical(9, criticalmessage1, criticalmessage2,
-                            gametic & 8 ? cr[CR_DARKRED] : cr[CR_RED]);
-    }
-
-}
-
-// =============================================================================
-//
 //                        Render Counters and Widgets
 //
 // =============================================================================

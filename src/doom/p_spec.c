@@ -1072,7 +1072,16 @@ void P_PlayerInSpecialSector (player_t* player)
 	    sfx_id = I_GetSfxLumpNum(&S_sfx[sfx_secret]) != -1 ? sfx_secret :
 	             I_GetSfxLumpNum(&S_sfx[sfx_getpow]) != -1 ? sfx_getpow : -1;
 
-	    CRL_SetMessage(player, DEH_String(CRL_SECRET_FOUND), true, cr[CR_YELLOW]);
+	    if (crl_revealed_secrets == 1)  // [JN] Top
+	    {
+	        CRL_SetMessage(player, DEH_String(CRL_SECRET_FOUND), true, cr[CR_YELLOW]);
+	    }
+	    else
+	    if (crl_revealed_secrets == 2)  // [JN] Centered
+	    {
+	        CRL_SetMessageCentered(player, DEH_String(CRL_SECRET_FOUND));
+	    }
+
 	    if (sfx_id != -1)
         {
 	        S_StartSound(NULL, sfx_id);
@@ -1098,7 +1107,7 @@ void P_PlayerInSpecialSector (player_t* player)
 	    sprintf(secnum, "%i", sector->special);
 
 	    // [JN] CRL - do not crash, print an in-game instead.
-	    CRL_SetCriticalMessage("P_PlayerInSpecialSector:",
+	    CRL_SetMessageCritical("P_PlayerInSpecialSector:",
                                M_StringJoin("unknown special ", secnum,
                                " (vanilla crashes here)", NULL), 2);
       }
@@ -1540,7 +1549,7 @@ void P_SpawnSpecials (void)
 	    if (CRL_lineanims_counter > CRL_MaxAnims)
 	    {
 	        // [JN] Print in-game warning.
-	        CRL_SetCriticalMessage("P_SpawnSpecials:",
+	        CRL_SetMessageCritical("P_SpawnSpecials:",
                                    M_StringJoin("Too many scrollers! (", CRL_LimitsName,
                                    " crashes here)", NULL), MESSAGETICS);
 	    }
