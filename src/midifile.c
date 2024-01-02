@@ -570,8 +570,6 @@ static boolean ReadFileHeader(midi_file_t *file, FILE *stream)
 
 // Check if MIDI file is valid.
 
-boolean MIDI_unsupported_warning;
-
 boolean MIDI_CheckFile(void *data, int len)
 {
     unsigned int format_type = 0;
@@ -642,8 +640,8 @@ boolean MIDI_CheckFile(void *data, int len)
         // Source: https://www.doomworld.com/forum/post/2541624
         if (reported_len + 3 > actual_len)
         {
-            MIDI_unsupported_warning = true;
-            CRL_printf("MIDI_CheckFile: Format 0 MIDI files not supported by vanilla Doom!", true);
+            CRL_printf("MIDI_CheckFile: Format 0 MIDI files not supported by Vanilla Doom!", true);
+            CRL_SetCriticalMessage("MIDI_CheckFile:", "Format 0 MIDI is not supported by Vanilla!", 4 * 35);
         }
     }
 

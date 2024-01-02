@@ -144,11 +144,6 @@ typedef struct player_s
     // [JN] CRL - prevent other than typing actions in G_Responder
     // while cheat tics are ticking.
     int			cheatTics;
-
-    // [JN] CRL - hint critical messages.
-    const char*	criticalmessage1;
-    const char*	criticalmessage2;
-    int			criticalmessageTics;
     
     // [JN] CRL - target's health.
     const char*	targetsname;

@@ -3762,10 +3762,10 @@ static void M_EndGameResponse(int key)
     currentMenu->lastOn = itemOn;
     M_ClearMenus ();
     players[consoleplayer].messageTics = 1;
-    players[consoleplayer].criticalmessageTics = 1;
     players[consoleplayer].message = NULL;
-    players[consoleplayer].criticalmessage1 = NULL;
-    players[consoleplayer].criticalmessage2 = NULL;
+    criticalmessageTics = 1;
+    criticalmessage1 = NULL;
+    criticalmessage2 = NULL;
     st_palette = 0;
     D_StartTitle ();
 }
