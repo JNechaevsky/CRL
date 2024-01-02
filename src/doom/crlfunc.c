@@ -93,10 +93,7 @@ void CRL_DrawMessage (void)
 
 void CRL_DrawCriticalMessage (void)
 {
-    player_t *player = &players[displayplayer];
-
-    if (player->criticalmessageTics <= 0
-    || !player->criticalmessage1 || !player->criticalmessage2)
+    if (criticalmessageTics <= 0 || !criticalmessage1 || !criticalmessage2)
     {
         return;  // No message
     }
@@ -104,13 +101,12 @@ void CRL_DrawCriticalMessage (void)
     if (crl_msg_critical == 0)
     {
         // Static
-        M_WriteTextCritical(9, player->criticalmessage1, player->criticalmessage2,
-                            cr[CR_RED]);
+        M_WriteTextCritical(9, criticalmessage1, criticalmessage2, cr[CR_RED]);
     }
     else
     {
         // Blinking
-        M_WriteTextCritical(9, player->criticalmessage1, player->criticalmessage2,
+        M_WriteTextCritical(9, criticalmessage1, criticalmessage2,
                             gametic & 8 ? cr[CR_DARKRED] : cr[CR_RED]);
     }
 

@@ -1754,6 +1754,8 @@ static void *I_WIN_RegisterSong(void *data, int len)
     if (IsMid(data, len))
     {
         M_WriteFile(filename, data, len);
+        // [JN] CRL - Check if MIDI file is valid.
+        MIDI_CheckFile(data, len);
     }
     else
     {

@@ -485,8 +485,8 @@ void MSG_Ticker (void)
     {                           // Refresh the screen when a message goes away
         ultimatemsg = false;    // clear out any chat messages.
     }
-    if (players[displayplayer].criticalmessageTics > 0)
+    if (criticalmessageTics > 0)
     {
-        players[displayplayer].criticalmessageTics--;
+        criticalmessageTics--;
     }
 }

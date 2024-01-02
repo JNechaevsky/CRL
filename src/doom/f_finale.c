@@ -126,10 +126,11 @@ void F_StartFinale (void)
     finale_wipe_done = false;
     players[consoleplayer].cheatTics = 1;
     players[consoleplayer].messageTics = 1;
-    players[consoleplayer].criticalmessageTics = 1;
     players[consoleplayer].message = NULL;
-    players[consoleplayer].criticalmessage1 = NULL;
-    players[consoleplayer].criticalmessage2 = NULL;
+    // [JN] Keep critical message visible.
+    // criticalmessageTics = 1;
+    // criticalmessage1 = NULL;
+    // criticalmessage2 = NULL;
 
     if (logical_gamemission == doom)
     {

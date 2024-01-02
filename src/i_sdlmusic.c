@@ -30,6 +30,7 @@
 #include "config.h"
 #include "doomtype.h"
 #include "memio.h"
+#include "midifile.h"
 #include "mus2mid.h"
 
 #include "deh_str.h"
@@ -387,6 +388,8 @@ static void *I_SDL_RegisterSong(void *data, int len)
     if (IsMid(data, len) && len < MAXMIDLENGTH)
     {
         M_WriteFile(filename, data, len);
+        // [JN] CRL - Check if MIDI file is valid.
+        MIDI_CheckFile(data, len);
     }
     else
     {

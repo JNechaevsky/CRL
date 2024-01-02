@@ -69,17 +69,6 @@ void CRL_SetMessage (player_t *player, const char *message, boolean ultmsg, byte
     }
 }
 
-// -----------------------------------------------------------------------------
-// CRL_SetCriticalMessage
-// [JN] Sets critical message parameters.
-// -----------------------------------------------------------------------------
-
-void CRL_SetCriticalMessage (char *message1, char *message2, const int tics)
-{
-    players[consoleplayer].criticalmessage1 = message1;
-    players[consoleplayer].criticalmessage2 = message2;
-    players[consoleplayer].criticalmessageTics = tics;
-}
 
 //
 // GET STUFF
