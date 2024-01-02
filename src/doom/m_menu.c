@@ -3128,6 +3128,10 @@ static void M_CRL_TimerDirection (int choice)
 static void M_CRL_ProgressBar (int choice)
 {
     crl_demo_bar ^= 1;
+
+    // [JN] Redraw status bar to possibly 
+    // clean up remainings of progress bar.
+    st_fullupdate = true;
 }
 
 static void M_CRL_InternalDemos (int choice)
