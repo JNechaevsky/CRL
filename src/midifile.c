@@ -569,6 +569,14 @@ static boolean ReadFileHeader(midi_file_t *file, FILE *stream)
 }
 
 // Check if MIDI file is valid.
+//
+// [JN] CRL-specific function for checking if MIDI have 0 format.
+// This is critical for DOS version of Vanilla Doom, see:
+// - source: https://www.doomworld.com/forum/post/2541624
+// - issue: https://github.com/chocolate-doom/chocolate-doom/issues/1645
+// - code: https://github.com/chocolate-doom/chocolate-doom/pull/1647
+// 
+// Many thanks to ceski and Arsinikk for heads up, investigation and fix!
 
 boolean MIDI_CheckFile(void *data, int len)
 {

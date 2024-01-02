@@ -224,6 +224,7 @@ static void *I_FL_RegisterSong(void *data, int len)
     if (IsMid(data, len))
     {
         result = fluid_player_add_mem(player, data, len);
+        // [JN] CRL - Check if MIDI file is valid.
         MIDI_CheckFile(data, len);
 
         if (result == FLUID_FAILED)
