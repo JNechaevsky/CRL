@@ -883,32 +883,32 @@ void R_RenderPlayerView (player_t* player)
 {
 	int js;
 	
-	// Start of frame
+	// RestlessRodent -- Start of frame
 	CRL_ChangeFrame(0);
 	
 	// RestlessRodent -- Store current position and go back to it in case the
 	// renderer does something fancy
 	js = setjmp(CRLJustIncaseBuf);
 	
-	// Do not spawn it just in case.
+	// RestlessRodent -- Do not spawn it just in case.
 	if (js == 0)
 	{
 		// Start frame
 		R_SetupFrame (player);
 		
 		// Clear the view buffer
-        // [JN] CRL - allow to choose HOM effect.
-        if (crl_hom_effect == 1)  // Multicolor
-        {
-            V_DrawFilledBox(viewwindowx, viewwindowy,
-                            scaledviewwidth, viewheight, CRL_homcolor);
-        }
-        else
-        if (crl_hom_effect == 2)  // Black
-        {
+		// [JN] CRL - allow to choose HOM effect.
+		if (crl_hom_effect == 1)  // Multicolor
+		{
+			V_DrawFilledBox(viewwindowx, viewwindowy,
+							scaledviewwidth, viewheight, CRL_homcolor);
+		}
+		else
+		if (crl_hom_effect == 2)  // Black
+		{
             V_DrawFilledBox(viewwindowx, viewwindowy,
                             scaledviewwidth, viewheight, 0);
-        }
+		}
 
 		// Clear buffers.
 		R_ClearClipSegs ();
@@ -920,10 +920,10 @@ void R_RenderPlayerView (player_t* player)
 		NetUpdate ();
 
 		// [crispy] smooth texture scrolling
-        if (!crl_freeze)
-        {
-            R_InterpolateTextureOffsets();
-        }
+		if (!crl_freeze)
+		{
+			R_InterpolateTextureOffsets();
+		}
 
 		// The head node is the last node output.
 		R_RenderBSPNode (numnodes-1);
@@ -945,10 +945,10 @@ void R_RenderPlayerView (player_t* player)
 		// Check for new console commands.
 		NetUpdate ();
 		
-		// No errors, set jump to negative for OK
+		// RestlessRodent -- No errors, set jump to negative for OK
 		js = -1;
 	}
 
-	// End of frame
+	// RestlessRodent -- End of frame
 	CRL_ChangeFrame(js);
 }
