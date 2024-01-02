@@ -1754,6 +1754,7 @@ static void *I_WIN_RegisterSong(void *data, int len)
     if (IsMid(data, len))
     {
         M_WriteFile(filename, data, len);
+        MIDI_CheckFile(data, len);
     }
     else
     {
