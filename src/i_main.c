@@ -60,8 +60,7 @@ int main(int argc, char **argv)
     }
 
 #if defined(_WIN32)
-    // [JN] Creates a console output window if "-console" 
-    // command line parameter is present. For Windows OS only.
+    // [JN] Create console output window if "-console" parameter is present.
     if (M_CheckParm ("-console"))
     {
         // Allocate console.

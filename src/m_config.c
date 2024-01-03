@@ -48,7 +48,7 @@
 // Location where all configuration data is stored - 
 // default.cfg, savegames, etc.
 
-char *configdir;
+const char *configdir;
 
 static char *autoload_path = "";
 
@@ -985,9 +985,15 @@ static char *GetDefaultConfigDir(void)
     // Vanilla Doom and save in the current directory.
 
     char *result;
+    char *copy;
 
     result = SDL_GetPrefPath("", PACKAGE_TARNAME);
-    return result;
+    if (result != NULL)
+    {
+        copy = M_StringDuplicate(result);
+        SDL_free(result);
+        return copy;
+    }
 #endif /* #ifndef _WIN32 */
     return M_StringDuplicate(exedir);
 }
@@ -999,7 +1005,7 @@ static char *GetDefaultConfigDir(void)
 // files are stored - default.cfg, chocolate-doom.cfg, savegames, etc.
 //
 
-void M_SetConfigDir(char *dir)
+void M_SetConfigDir(const char *dir)
 {
     // Use the directory that was passed, or find the default.
 
@@ -1060,7 +1066,7 @@ char *M_GetSaveGameDir(const char *iwadname)
 
     else if (M_ParmExists("-cdrom"))
     {
-        savegamedir = configdir;
+        savegamedir = M_StringDuplicate(configdir);
     }
 #endif
     // If not "doing" a configuration directory (Windows), don't "do"
