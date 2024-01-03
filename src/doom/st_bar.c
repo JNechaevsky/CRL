@@ -132,6 +132,7 @@ cheatseq_t cheat_mypos = CHEAT("idmypos", 0);
 cheatseq_t cheat_amap = CHEAT("iddt", 0);
 
 // [crispy] new cheats
+static cheatseq_t cheat_keys = CHEAT("idka", 0);
 static cheatseq_t cheat_massacre1 = CHEAT("tntem", 0);
 static cheatseq_t cheat_massacre2 = CHEAT("killem", 0);
 static cheatseq_t cheat_freeze = CHEAT("freeze", 0);
@@ -391,6 +392,17 @@ boolean ST_Responder (event_t *ev)
 
                 plyr->cheatTics = 1;
                 CRL_SetMessage(plyr, DEH_String(STSTR_KFAADDED), false, NULL);
+            }
+            // [JN] 'ka' for keys only
+            else if (cht_CheckCheatSP(&cheat_keys, ev->data2))
+            {
+                for (i = 0; i < NUMCARDS ; i++)
+                {
+                    plyr->cards[i] = true;
+                }
+
+                plyr->cheatTics = 1;
+                CRL_SetMessage(plyr, DEH_String(STSTR_KAADDED), false, NULL);
             }
             // 'mus' cheat for changing music
             else if (cht_CheckCheat(&cheat_mus, ev->data2))

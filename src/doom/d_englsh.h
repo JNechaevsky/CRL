@@ -354,6 +354,7 @@
 
 #define STSTR_KFAADDED	"Very Happy Ammo Added"
 #define STSTR_FAADDED	"Ammo (no keys) Added"
+#define STSTR_KAADDED	"Keys Added"
 
 #define STSTR_NCON		"No Clipping Mode ON"
 #define STSTR_NCOFF		"No Clipping Mode OFF"
