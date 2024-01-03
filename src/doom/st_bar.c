@@ -554,6 +554,7 @@ boolean ST_Responder (event_t *ev)
             else if (cht_CheckCheatSP(&cheat_freeze, ev->data2))
             {
                 crl_freeze ^= 1;
+                plyr->cheatTics = 1;
                 CRL_SetMessage(plyr, crl_freeze ?
                                CRL_FREEZE_ON : CRL_FREEZE_OFF, false, NULL);
             }
@@ -561,6 +562,7 @@ boolean ST_Responder (event_t *ev)
             else if (cht_CheckCheatSP(&cheat_notarget, ev->data2))
             {
                 plyr->cheats ^= CF_NOTARGET;
+                plyr->cheatTics = 1;
                 CRL_SetMessage(plyr, plyr->cheats & CF_NOTARGET ?
                                CRL_NOTARGET_ON : CRL_NOTARGET_OFF, false, NULL);
             }
@@ -568,6 +570,7 @@ boolean ST_Responder (event_t *ev)
             else if (cht_CheckCheatSP(&cheat_buddha, ev->data2))
             {
                 plyr->cheats ^= CF_BUDDHA;
+                plyr->cheatTics = 1;
                 CRL_SetMessage(plyr, plyr->cheats & CF_BUDDHA ?
                                CRL_BUDDHA_ON : CRL_BUDDHA_OFF, false, NULL);
             }
@@ -575,6 +578,7 @@ boolean ST_Responder (event_t *ev)
             else if (cht_CheckCheatSP(&cheat_mdk, ev->data2))
             {
                 ST_cheat_MDK();
+                plyr->cheatTics = 1;
             }
         }
 
