@@ -48,7 +48,7 @@ int crl_spectating = 0;
 int crl_freeze = 0;
 
 // Widgets
-int crl_widget_show = 1;
+int crl_extended_hud = 1;
 int crl_widget_coords = 0;
 int crl_widget_playstate = 2;
 int crl_widget_render = 1;
@@ -114,7 +114,7 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_colorblind",                 &crl_colorblind);
 
     // Widgets
-    M_BindIntVariable("crl_widget_show",                &crl_widget_show);
+    M_BindIntVariable("crl_extended_hud",               &crl_extended_hud);
     M_BindIntVariable("crl_widget_coords",              &crl_widget_coords);
     M_BindIntVariable("crl_widget_playstate",           &crl_widget_playstate);
     M_BindIntVariable("crl_widget_render",              &crl_widget_render);

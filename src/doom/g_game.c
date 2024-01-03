@@ -1052,12 +1052,12 @@ boolean G_Responder (event_t* ev)
 	    gamekeydown[ev->data1] = true; 
         }
 
-    // [JN] CRL - Show/hide widgets.
-    if (ev->data1 == key_crl_showwidgets)
+    // [JN] CRL - Toggle extended HUD.
+    if (ev->data1 == key_crl_extendedhud)
     {
-        crl_widget_show ^= 1;
-        CRL_SetMessage(&players[consoleplayer], crl_widget_show ?
-                       CRL_WIDGETS_ON : CRL_WIDGETS_OFF, false, NULL);
+        crl_extended_hud ^= 1;
+        CRL_SetMessage(&players[consoleplayer], crl_extended_hud ?
+                       CRL_EXTHUD_ON : CRL_EXTHUD_OFF, false, NULL);
         // Redraw status bar to possibly clean up 
         // remainings of demo progress bar.
         st_fullupdate = true;

@@ -590,7 +590,7 @@ static void M_Bind_CRLmenu (int choice);
 static void M_Bind_RestartLevel (int choice);
 static void M_Bind_NextLevel (int choice);
 static void M_Bind_FastForward (int choice);
-static void M_Bind_ShowWidgets (int choice);
+static void M_Bind_ExtendedHUD (int choice);
 static void M_Bind_SpectatorMode (int choice);
 static void M_Bind_CameraUp (int choice);
 static void M_Bind_CameraDown (int choice);
@@ -1200,6 +1200,12 @@ static void M_DrawCRL_Video (void)
     sprintf(str, crl_showfps ? "ON" : "OFF");
     M_WriteText (M_ItemRightAlign(str), 61, str, 
                  M_Item_Glow(3, crl_showfps ? GLOW_GREEN : GLOW_DARKRED));
+
+    // Print informatime message if extended HUD is off.
+    if (itemOn == 3 && !crl_extended_hud)
+    {
+        M_WriteTextCentered(151, "HIDDEN WHILE EXTENDED HUD IS OFF", cr[CR_GRAY]);
+    }
 
     // Visplanes drawing mode
     sprintf(str, crl_visplanes_drawing == 0 ? "NORMAL" :
@@ -1986,7 +1992,7 @@ static menuitem_t CRLMenu_Keybinds_2[]=
     { 1, "RESTART LEVEL/DEMO",  M_Bind_RestartLevel,   'r'  },
     { 1, "GO TO NEXT LEVEL",    M_Bind_NextLevel,      'g'  },
     { 1, "DEMO FAST-FORWARD",   M_Bind_FastForward,    'd'  },
-    { 1, "SHOW/HIDE WIDGETS",   M_Bind_ShowWidgets,    's'  },
+    { 1, "TOGGLE EXTENDED HUD", M_Bind_ExtendedHUD,    's'  },
     {-1, "",                    0,                     '\0' },  // GAME MODES
     { 1, "SPECTATOR MODE",      M_Bind_SpectatorMode,  's'  },
     { 1, "- MOVE CAMERA UP",    M_Bind_CameraUp,       'm'  },
@@ -2025,7 +2031,7 @@ static void M_DrawCRL_Keybinds_2 (void)
     M_DrawBindKey(1, 43, key_crl_reloadlevel);
     M_DrawBindKey(2, 52, key_crl_nextlevel);
     M_DrawBindKey(3, 61, key_crl_demospeed);
-    M_DrawBindKey(4, 70, key_crl_showwidgets);
+    M_DrawBindKey(4, 70, key_crl_extendedhud);
 
     M_WriteTextCentered(79, "GAME MODES", cr[CR_YELLOW]);
 
@@ -2060,9 +2066,9 @@ static void M_Bind_FastForward (int choice)
     M_StartBind(203);  // key_crl_demospeed
 }
 
-static void M_Bind_ShowWidgets (int choice)
+static void M_Bind_ExtendedHUD (int choice)
 {
-    M_StartBind(204);  // key_crl_showwidgets
+    M_StartBind(204);  // key_crl_extendedhud
 }
 
 static void M_Bind_SpectatorMode (int choice)
@@ -2901,10 +2907,10 @@ static void M_DrawCRL_Widgets (void)
     M_WriteText (M_ItemRightAlign(str), 97, str,
                  M_Item_Glow(7, crl_widget_health ? GLOW_GREEN : GLOW_DARKRED));
 
-    // Print informatime message if widgets are hidden.
-    if (itemOn < 8 && !crl_widget_show)
+    // Print informatime message if extended HUD is off.
+    if (itemOn < 8 && !crl_extended_hud)
     {
-        M_WriteTextCentered(154, "NOTE: WIDGETS ARE HIDDEN", cr[CR_GRAY]);
+        M_WriteTextCentered(151, "HIDDEN WHILE EXTENDED HUD IS OFF", cr[CR_GRAY]);
     }
 
     M_WriteTextCentered(106, "AUTOMAP", cr[CR_YELLOW]);
@@ -3082,6 +3088,12 @@ static void M_DrawCRL_Gameplay (void)
     sprintf(str, crl_demo_bar ? "ON" : "OFF");
     M_WriteText (M_ItemRightAlign(str), 106, str,
                  M_Item_Glow(8, crl_demo_bar ? GLOW_GREEN : GLOW_DARKRED));
+
+    // Print informatime message if extended HUD is off.
+    if (itemOn > 5 && itemOn < 9 && !crl_extended_hud)
+    {
+        M_WriteTextCentered(151, "HIDDEN WHILE EXTENDED HUD IS OFF", cr[CR_GRAY]);
+    }
 
     // Play internal demos
     sprintf(str, crl_internal_demos ? "ON" : "OFF");
@@ -5532,7 +5544,7 @@ static void M_CheckBind (int key)
     if (key_crl_reloadlevel == key)  key_crl_reloadlevel  = 0;
     if (key_crl_nextlevel == key)    key_crl_nextlevel    = 0;
     if (key_crl_demospeed == key)    key_crl_demospeed    = 0;
-    if (key_crl_showwidgets == key)  key_crl_showwidgets  = 0;
+    if (key_crl_extendedhud == key)  key_crl_extendedhud  = 0;
     if (key_crl_spectator == key)    key_crl_spectator    = 0;
     if (key_crl_cameraup == key)     key_crl_cameraup     = 0;
     if (key_crl_cameradown == key)   key_crl_cameradown   = 0;
@@ -5633,7 +5645,7 @@ static void M_DoBind (int keynum, int key)
         case 201:  key_crl_reloadlevel = key;   break;
         case 202:  key_crl_nextlevel = key;     break;
         case 203:  key_crl_demospeed = key;     break;
-        case 204:  key_crl_showwidgets = key;   break;
+        case 204:  key_crl_extendedhud = key;   break;
         case 205:  key_crl_spectator = key;     break;
         case 206:  key_crl_cameraup = key;      break;
         case 207:  key_crl_cameradown = key;    break;
@@ -5733,7 +5745,7 @@ static void M_ClearBind (int itemOn)
             case 1:   key_crl_reloadlevel = 0;  break;
             case 2:   key_crl_nextlevel = 0;    break;
             case 3:   key_crl_demospeed = 0;    break;
-            case 4:   key_crl_showwidgets = 0;  break;
+            case 4:   key_crl_extendedhud = 0;  break;
             // Game modes title
             case 6:   key_crl_spectator = 0;    break;
             case 7:   key_crl_cameraup = 0;     break;
@@ -5854,7 +5866,7 @@ static void M_ResetBinds (void)
     key_crl_reloadlevel = 0;
     key_crl_nextlevel = 0;
     key_crl_demospeed = 0;
-    key_crl_showwidgets = 0;
+    key_crl_extendedhud = 0;
     key_crl_spectator = 0;
     key_crl_cameraup = 0;
     key_crl_cameradown = 0;
