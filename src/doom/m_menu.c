@@ -1565,8 +1565,8 @@ static void M_DrawCRL_Sound (void)
     // Inform if GUS patches patch isn't set.
     if (itemOn == 8 && snd_musicdevice == 5 && strcmp(gus_patch_path, "") == 0)
     {
-        M_WriteTextCentered(144, "\"GUS_PATCH_PATH\" VARIABLE IS NOT SET.\n", cr[CR_GRAY]);
-        M_WriteTextCentered(151, "PLEASE PROVIDE IT IN DEFAULT.CFG FILE.", cr[CR_GRAY]);
+        M_WriteTextCentered(142, "\"GUS_PATCH_PATH\" VARIABLE IS NOT SET,\n", cr[CR_GRAY]);
+        M_WriteTextCentered(151, "PLEASE EDIT IT IN DEFAULT.CFG FILE.", cr[CR_GRAY]);
     }
 }
 
