@@ -1120,6 +1120,7 @@ static void M_CRL_NoTarget (int choice)
     }
 
     player->cheats ^= CF_NOTARGET;
+    P_ForgetPlayer(player);
 }
 
 static void M_CRL_NoMomentum (int choice)

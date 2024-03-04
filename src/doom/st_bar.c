@@ -562,6 +562,7 @@ boolean ST_Responder (event_t *ev)
             else if (cht_CheckCheatSP(&cheat_notarget, ev->data2))
             {
                 plyr->cheats ^= CF_NOTARGET;
+                P_ForgetPlayer(plyr);
                 plyr->cheatTics = 1;
                 CRL_SetMessage(plyr, plyr->cheats & CF_NOTARGET ?
                                CRL_NOTARGET_ON : CRL_NOTARGET_OFF, false, NULL);

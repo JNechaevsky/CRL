@@ -1146,7 +1146,7 @@ boolean G_Responder (event_t* ev)
         }   
 
         player->cheats ^= CF_NOTARGET;
-
+        P_ForgetPlayer(player);
         CRL_SetMessage(player, player->cheats & CF_NOTARGET ?
                        CRL_NOTARGET_ON : CRL_NOTARGET_OFF, false, NULL);
     }
