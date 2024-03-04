@@ -60,10 +60,33 @@ static byte cr_green_bright3[256];
 static byte cr_green_bright2[256];
 static byte cr_green_bright1[256];
 
+static byte cr_green_hx[256];
+static byte cr_green_bright5_hx[256];
+static byte cr_green_bright4_hx[256];
+static byte cr_green_bright3_hx[256];
+static byte cr_green_bright2_hx[256];
+static byte cr_green_bright1_hx[256];
+
 static byte cr_darkgreen[256];
-static byte cr_brightgreen[256];
+static byte cr_darkgreen_bright5[256];
+static byte cr_darkgreen_bright4[256];
+static byte cr_darkgreen_bright3[256];
+static byte cr_darkgreen_bright2[256];
+static byte cr_darkgreen_bright1[256];
+
 static byte cr_olive[256];
+static byte cr_olive_bright5[256];
+static byte cr_olive_bright4[256];
+static byte cr_olive_bright3[256];
+static byte cr_olive_bright2[256];
+static byte cr_olive_bright1[256];
+
 static byte cr_blue2[256];
+static byte cr_blue2_bright5[256];
+static byte cr_blue2_bright4[256];
+static byte cr_blue2_bright3[256];
+static byte cr_blue2_bright2[256];
+static byte cr_blue2_bright1[256];
 
 static byte cr_yellow[256];
 static byte cr_yellow_bright5[256];
@@ -73,10 +96,33 @@ static byte cr_yellow_bright2[256];
 static byte cr_yellow_bright1[256];
 
 static byte cr_orange[256];
+static byte cr_orange_bright5[256];
+static byte cr_orange_bright4[256];
+static byte cr_orange_bright3[256];
+static byte cr_orange_bright2[256];
+static byte cr_orange_bright1[256];
+
+// [JN] Slightly different orange for Heretic.
+static byte cr_orange_hr[256];
+static byte cr_orange_hr_bright5[256];
+static byte cr_orange_hr_bright4[256];
+static byte cr_orange_hr_bright3[256];
+static byte cr_orange_hr_bright2[256];
+static byte cr_orange_hr_bright1[256];
+
 static byte cr_white[256];
 static byte cr_gray[256];
+
 static byte cr_lightgray[256];
+static byte cr_lightgray_bright5[256];
+static byte cr_lightgray_bright4[256];
+static byte cr_lightgray_bright3[256];
+static byte cr_lightgray_bright2[256];
+static byte cr_lightgray_bright1[256];
+static byte cr_lightgray_dark1[256];
+
 static byte cr_brown[256];
+static byte cr_flame[256];
 
 byte *cr[] =
 {
@@ -113,10 +159,33 @@ byte *cr[] =
     (byte *) &cr_green_bright2,
     (byte *) &cr_green_bright1,
 
+    (byte *) &cr_green_hx,
+    (byte *) &cr_green_bright5_hx,
+    (byte *) &cr_green_bright4_hx,
+    (byte *) &cr_green_bright3_hx,
+    (byte *) &cr_green_bright2_hx,
+    (byte *) &cr_green_bright1_hx,
+
     (byte *) &cr_darkgreen,
-    (byte *) &cr_brightgreen,
+    (byte *) &cr_darkgreen_bright5,
+    (byte *) &cr_darkgreen_bright4,
+    (byte *) &cr_darkgreen_bright3,
+    (byte *) &cr_darkgreen_bright2,
+    (byte *) &cr_darkgreen_bright1,
+
     (byte *) &cr_olive,
+    (byte *) &cr_olive_bright5,
+    (byte *) &cr_olive_bright4,
+    (byte *) &cr_olive_bright3,
+    (byte *) &cr_olive_bright2,
+    (byte *) &cr_olive_bright1,
+
     (byte *) &cr_blue2,
+    (byte *) &cr_blue2_bright5,
+    (byte *) &cr_blue2_bright4,
+    (byte *) &cr_blue2_bright3,
+    (byte *) &cr_blue2_bright2,
+    (byte *) &cr_blue2_bright1,
 
     (byte *) &cr_yellow,
     (byte *) &cr_yellow_bright5,
@@ -126,10 +195,32 @@ byte *cr[] =
     (byte *) &cr_yellow_bright1,
 
     (byte *) &cr_orange,
+    (byte *) &cr_orange_bright5,
+    (byte *) &cr_orange_bright4,
+    (byte *) &cr_orange_bright3,
+    (byte *) &cr_orange_bright2,
+    (byte *) &cr_orange_bright1,
+
+    (byte *) &cr_orange_hr,
+    (byte *) &cr_orange_hr_bright5,
+    (byte *) &cr_orange_hr_bright4,
+    (byte *) &cr_orange_hr_bright3,
+    (byte *) &cr_orange_hr_bright2,
+    (byte *) &cr_orange_hr_bright1,
+
     (byte *) &cr_white,
     (byte *) &cr_gray,
+
     (byte *) &cr_lightgray,
+    (byte *) &cr_lightgray_bright5,
+    (byte *) &cr_lightgray_bright4,
+    (byte *) &cr_lightgray_bright3,
+    (byte *) &cr_lightgray_bright2,
+    (byte *) &cr_lightgray_bright1,
+    (byte *) &cr_lightgray_dark1,
+
     (byte *) &cr_brown,
+    (byte *) &cr_flame,
 };
 
 char **crstr = 0;
@@ -478,28 +569,145 @@ byte V_Colorize (byte *playpal, int cr, byte source, boolean keepgray109)
             hsv.x = 0.3;
             hsv.z *= 1.1;
         }
+        // [JN] Slightly different for Hexen...
+        else if (cr == CR_GREEN_HX)
+        {
+            hsv.x = 0.425;
+            hsv.y = 0.75;
+            hsv.z *= 0.8;
+        }
+        else if (cr == CR_GREEN_BRIGHT5_HX)
+        {
+            hsv.x = 0.425;
+            hsv.y = 0.75;
+            hsv.z *= 1.15;
+        }
+        else if (cr == CR_GREEN_BRIGHT4_HX)
+        {
+            hsv.x = 0.425;
+            hsv.y = 0.75;
+            hsv.z *= 1.1;
+        }
+        else if (cr == CR_GREEN_BRIGHT3_HX)
+        {
+            hsv.x = 0.425;
+            hsv.y = 0.75;
+            hsv.z *= 1.0;
+        }
+        else if (cr == CR_GREEN_BRIGHT2_HX)
+        {
+            hsv.x = 0.425;
+            hsv.y = 0.75;
+            hsv.z *= 0.95;
+        }
+        else if (cr == CR_GREEN_BRIGHT1_HX)
+        {
+            hsv.x = 0.425;
+            hsv.y = 0.75;
+            hsv.z *= 0.9;
+        }
 
         else if (cr == CR_DARKGREEN)
         {
             hsv.x = 0.3;
             hsv.z *= 0.666;
         }
-        else if (cr == CR_BRIGHTGREEN)
+        else if (cr == CR_DARKGREEN_BRIGHT5)
         {
             hsv.x = 0.3;
-            hsv.z *= 1.333;
+            hsv.z *= 0.888;
         }
+        else if (cr == CR_DARKGREEN_BRIGHT4)
+        {
+            hsv.x = 0.3;
+            hsv.z *= 0.844;
+        }
+        else if (cr == CR_DARKGREEN_BRIGHT3)
+        {
+            hsv.x = 0.3;
+            hsv.z *= 0.8;
+        }
+        else if (cr == CR_DARKGREEN_BRIGHT2)
+        {
+            hsv.x = 0.3;
+            hsv.z *= 0.756;
+        }
+        else if (cr == CR_DARKGREEN_BRIGHT1)
+        {
+            hsv.x = 0.3;
+            hsv.z *= 0.712;
+        }
+
+
         else if (cr == CR_OLIVE)
         {
             hsv.x = 0.25;
             hsv.y = 0.5;
             hsv.z *= 0.5;
         }
+        else if (cr == CR_OLIVE_BRIGHT5)
+        {
+            hsv.x = 0.25;
+            hsv.y = 0.5;
+            hsv.z *= 0.65;
+        }
+        else if (cr == CR_OLIVE_BRIGHT4)
+        {
+            hsv.x = 0.25;
+            hsv.y = 0.5;
+            hsv.z *= 0.625;
+        }
+        else if (cr == CR_OLIVE_BRIGHT3)
+        {
+            hsv.x = 0.25;
+            hsv.y = 0.5;
+            hsv.z *= 0.6;
+        }
+        else if (cr == CR_OLIVE_BRIGHT2)
+        {
+            hsv.x = 0.25;
+            hsv.y = 0.5;
+            hsv.z *= 0.575;
+        }
+        else if (cr == CR_OLIVE_BRIGHT1)
+        {
+            hsv.x = 0.25;
+            hsv.y = 0.5;
+            hsv.z *= 0.55;
+        }
+
+
         else if (cr == CR_BLUE2)
         {
             hsv.x = 0.65;
             hsv.z *= 1.2;
         }
+        else if (cr == CR_BLUE2_BRIGHT5)
+        {
+            hsv.x = 0.65;
+            hsv.z *= 1.55;
+        }
+        else if (cr == CR_BLUE2_BRIGHT4)
+        {
+            hsv.x = 0.65;
+            hsv.z *= 1.48;
+        }
+        else if (cr == CR_BLUE2_BRIGHT3)
+        {
+            hsv.x = 0.65;
+            hsv.z *= 1.41;
+        }
+        else if (cr == CR_BLUE2_BRIGHT2)
+        {
+            hsv.x = 0.65;
+            hsv.z *= 1.34;
+        }
+        else if (cr == CR_BLUE2_BRIGHT1)
+        {
+            hsv.x = 0.65;
+            hsv.z *= 1.27;
+        }
+
         else if (cr == CR_YELLOW)
         {
             hsv.x = (7.0 + 53. * hsv.z)/360.;
@@ -510,37 +718,95 @@ byte V_Colorize (byte *playpal, int cr, byte source, boolean keepgray109)
         {
             hsv.x = (7.0 + 53. * hsv.z)/360.;
             hsv.y = 1.0 - 0.4 * hsv.z;
-            hsv.z = 0.2 + 0.8 * hsv.z * 1.5;
+            hsv.z = 0.2 + 1.05 * hsv.z;
         }
         else if (cr == CR_YELLOW_BRIGHT4)
         {
             hsv.x = (7.0 + 53. * hsv.z)/360.;
             hsv.y = 1.0 - 0.4 * hsv.z;
-            hsv.z = 0.2 + 0.8 * hsv.z * 1.4;
+            hsv.z = 0.2 + 1.0 * hsv.z;
         }
         else if (cr == CR_YELLOW_BRIGHT3)
         {
             hsv.x = (7.0 + 53. * hsv.z)/360.;
             hsv.y = 1.0 - 0.4 * hsv.z;
-            hsv.z = 0.2 + 0.8 * hsv.z * 1.3;
+            hsv.z = 0.2 + 0.95 * hsv.z;
         }
         else if (cr == CR_YELLOW_BRIGHT2)
         {
             hsv.x = (7.0 + 53. * hsv.z)/360.;
             hsv.y = 1.0 - 0.4 * hsv.z;
-            hsv.z = 0.2 + 0.8 * hsv.z * 1.2;
+            hsv.z = 0.2 + 0.90 * hsv.z;
         }
         else if (cr == CR_YELLOW_BRIGHT1)
         {
             hsv.x = (7.0 + 53. * hsv.z)/360.;
             hsv.y = 1.0 - 0.4 * hsv.z;
-            hsv.z = 0.2 + 0.8 * hsv.z * 1.1;
+            hsv.z = 0.2 + 0.85 * hsv.z;
         }
+
         else if (cr == CR_ORANGE)
         {
-            hsv.x = 0.0666;
+            hsv.x = 0.075;
             hsv.z *= 1.15;
         }
+        else if (cr == CR_ORANGE_BRIGHT5)
+        {
+            hsv.x = 0.075;
+            hsv.z *= 1.40;
+        }
+        else if (cr == CR_ORANGE_BRIGHT4)
+        {
+            hsv.x = 0.075;
+            hsv.z *= 1.35;
+        }
+        else if (cr == CR_ORANGE_BRIGHT3)
+        {
+            hsv.x = 0.075;
+            hsv.z *= 1.30;
+        }
+        else if (cr == CR_ORANGE_BRIGHT2)
+        {
+            hsv.x = 0.075;
+            hsv.z *= 1.25;
+        }
+        else if (cr == CR_ORANGE_BRIGHT1)
+        {
+            hsv.x = 0.075;
+            hsv.z *= 1.20;
+        }
+
+        else if (cr == CR_ORANGE_HR)
+        {
+            hsv.x = 0.0777;
+            hsv.z *= 1.15;
+        }
+        else if (cr == CR_ORANGE_HR_BRIGHT5)
+        {
+            hsv.x = 0.0777;
+            hsv.z *= 1.40;
+        }
+        else if (cr == CR_ORANGE_HR_BRIGHT4)
+        {
+            hsv.x = 0.0777;
+            hsv.z *= 1.35;
+        }
+        else if (cr == CR_ORANGE_HR_BRIGHT3)
+        {
+            hsv.x = 0.0777;
+            hsv.z *= 1.30;
+        }
+        else if (cr == CR_ORANGE_HR_BRIGHT2)
+        {
+            hsv.x = 0.0777;
+            hsv.z *= 1.25;
+        }
+        else if (cr == CR_ORANGE_HR_BRIGHT1)
+        {
+            hsv.x = 0.0777;
+            hsv.z *= 1.20;
+        }
+
         else if (cr == CR_WHITE)
         {
             hsv.y = 0;
@@ -555,11 +821,46 @@ byte V_Colorize (byte *playpal, int cr, byte source, boolean keepgray109)
             hsv.y = 0;
             hsv.z *= 0.80;
         }
+        else if (cr == CR_LIGHTGRAY_BRIGHT5)
+        {
+            hsv.y = 0;
+            hsv.z *= 1.05;
+        }
+        else if (cr == CR_LIGHTGRAY_BRIGHT4)
+        {
+            hsv.y = 0;
+            hsv.z *= 1.0;
+        }
+        else if (cr == CR_LIGHTGRAY_BRIGHT3)
+        {
+            hsv.y = 0;
+            hsv.z *= 0.95;
+        }
+        else if (cr == CR_LIGHTGRAY_BRIGHT2)
+        {
+            hsv.y = 0;
+            hsv.z *= 0.90;
+        }
+        else if (cr == CR_LIGHTGRAY_BRIGHT1)
+        {
+            hsv.y = 0;
+            hsv.z *= 0.85;
+        }
+        else if (cr == CR_LIGHTGRAY_DARK1)
+        {
+            hsv.y = 0;
+            hsv.z *= 0.6;
+        }
         else if (cr == CR_BROWN)
         {
             hsv.x = 0.1;
             hsv.y = 0.75;
             hsv.z *= 0.65;
+        }
+        else if (cr == CR_FLAME)
+        {
+            hsv.x = 0.125;
+            hsv.z *= 1.75;
         }
     }
 

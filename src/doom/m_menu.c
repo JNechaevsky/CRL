@@ -875,8 +875,12 @@ static byte *M_Line_Glow (const int tics)
 #define GLOW_RED        1
 #define GLOW_DARKRED    2
 #define GLOW_GREEN      3
-#define GLOW_DARKGREEN  4
-#define GLOW_YELLOW     5
+#define GLOW_YELLOW     4
+#define GLOW_ORANGE     5
+#define GLOW_LIGHTGRAY  6
+#define GLOW_BLUE       7
+#define GLOW_OLIVE      8
+#define GLOW_DARKGREEN  9
 
 #define ITEMONTICS      currentMenu->menuitems[itemOn].tics
 #define ITEMSETONTICS   currentMenu->menuitems[itemSetOn].tics
@@ -886,10 +890,16 @@ static byte *M_Item_Glow (const int itemSetOn, const int color)
     if (itemOn == itemSetOn)
     {
         return
-            color == GLOW_RED   || color == GLOW_DARKRED   ? cr[CR_RED_BRIGHT5]    :
-            color == GLOW_GREEN || color == GLOW_DARKGREEN ? cr[CR_GREEN_BRIGHT5]  :
-                                   color == GLOW_YELLOW    ? cr[CR_YELLOW_BRIGHT5] :
-                                                             cr[CR_MENU_BRIGHT5]   ; // GLOW_UNCOLORED
+            color == GLOW_RED ||
+            color == GLOW_DARKRED   ? cr[CR_RED_BRIGHT5]       :
+            color == GLOW_GREEN     ? cr[CR_GREEN_BRIGHT5]     :
+            color == GLOW_YELLOW    ? cr[CR_YELLOW_BRIGHT5]    :
+            color == GLOW_ORANGE    ? cr[CR_ORANGE_BRIGHT5]    :
+            color == GLOW_LIGHTGRAY ? cr[CR_LIGHTGRAY_BRIGHT5] :
+            color == GLOW_BLUE      ? cr[CR_BLUE2_BRIGHT5]     :
+            color == GLOW_OLIVE     ? cr[CR_OLIVE_BRIGHT5]     :
+            color == GLOW_DARKGREEN ? cr[CR_DARKGREEN_BRIGHT5] :
+                                      cr[CR_MENU_BRIGHT5]      ; // GLOW_UNCOLORED
     }
     else
     {
@@ -929,15 +939,6 @@ static byte *M_Item_Glow (const int itemSetOn, const int color)
                 ITEMSETONTICS == 2 ? cr[CR_GREEN_BRIGHT2] :
                 ITEMSETONTICS == 1 ? cr[CR_GREEN_BRIGHT1] : cr[CR_GREEN];
         }
-        if (color == GLOW_DARKGREEN)
-        {
-            return
-                ITEMSETONTICS == 5 ? cr[CR_GREEN_BRIGHT5] :
-                ITEMSETONTICS == 4 ? cr[CR_GREEN_BRIGHT4] :
-                ITEMSETONTICS == 3 ? cr[CR_GREEN_BRIGHT3] :
-                ITEMSETONTICS == 2 ? cr[CR_GREEN_BRIGHT2] :
-                ITEMSETONTICS == 1 ? cr[CR_GREEN_BRIGHT1] : cr[CR_DARKGREEN];
-        }
         if (color == GLOW_YELLOW)
         {
             return
@@ -946,6 +947,51 @@ static byte *M_Item_Glow (const int itemSetOn, const int color)
                 ITEMSETONTICS == 3 ? cr[CR_YELLOW_BRIGHT3] :
                 ITEMSETONTICS == 2 ? cr[CR_YELLOW_BRIGHT2] :
                 ITEMSETONTICS == 1 ? cr[CR_YELLOW_BRIGHT1] : cr[CR_YELLOW];
+        }
+        if (color == GLOW_ORANGE)
+        {
+            return
+                ITEMSETONTICS == 5 ? cr[CR_ORANGE_BRIGHT5] :
+                ITEMSETONTICS == 4 ? cr[CR_ORANGE_BRIGHT4] :
+                ITEMSETONTICS == 3 ? cr[CR_ORANGE_BRIGHT3] :
+                ITEMSETONTICS == 2 ? cr[CR_ORANGE_BRIGHT2] :
+                ITEMSETONTICS == 1 ? cr[CR_ORANGE_BRIGHT1] : cr[CR_ORANGE];
+        }
+        if (color == GLOW_LIGHTGRAY)
+        {
+            return
+                ITEMSETONTICS == 5 ? cr[CR_LIGHTGRAY_BRIGHT5] :
+                ITEMSETONTICS == 4 ? cr[CR_LIGHTGRAY_BRIGHT4] :
+                ITEMSETONTICS == 3 ? cr[CR_LIGHTGRAY_BRIGHT3] :
+                ITEMSETONTICS == 2 ? cr[CR_LIGHTGRAY_BRIGHT2] :
+                ITEMSETONTICS == 1 ? cr[CR_LIGHTGRAY_BRIGHT1] : cr[CR_LIGHTGRAY];
+        }
+        if (color == GLOW_BLUE)
+        {
+            return
+                ITEMSETONTICS == 5 ? cr[CR_BLUE2_BRIGHT5] :
+                ITEMSETONTICS == 4 ? cr[CR_BLUE2_BRIGHT4] :
+                ITEMSETONTICS == 3 ? cr[CR_BLUE2_BRIGHT3] :
+                ITEMSETONTICS == 2 ? cr[CR_BLUE2_BRIGHT2] :
+                ITEMSETONTICS == 1 ? cr[CR_BLUE2_BRIGHT1] : cr[CR_BLUE2];
+        }
+        if (color == GLOW_OLIVE)
+        {
+            return
+                ITEMSETONTICS == 5 ? cr[CR_OLIVE_BRIGHT5] :
+                ITEMSETONTICS == 4 ? cr[CR_OLIVE_BRIGHT4] :
+                ITEMSETONTICS == 3 ? cr[CR_OLIVE_BRIGHT3] :
+                ITEMSETONTICS == 2 ? cr[CR_OLIVE_BRIGHT2] :
+                ITEMSETONTICS == 1 ? cr[CR_OLIVE_BRIGHT1] : cr[CR_OLIVE];
+        }
+        if (color == GLOW_DARKGREEN)
+        {
+            return
+                ITEMSETONTICS == 5 ? cr[CR_DARKGREEN_BRIGHT5] :
+                ITEMSETONTICS == 4 ? cr[CR_DARKGREEN_BRIGHT4] :
+                ITEMSETONTICS == 3 ? cr[CR_DARKGREEN_BRIGHT3] :
+                ITEMSETONTICS == 2 ? cr[CR_DARKGREEN_BRIGHT2] :
+                ITEMSETONTICS == 1 ? cr[CR_DARKGREEN_BRIGHT1] : cr[CR_DARKGREEN];
         }
     }
     return NULL;
@@ -983,15 +1029,15 @@ static const int M_INT_Slider (int val, int min, int max, int direction)
     return val;
 }
 
-static byte *DefSkillColor (const int skill)
+static int DefSkillColor (const int skill)
 {
     return
-        skill == 0 ? cr[CR_OLIVE]     :
-        skill == 1 ? cr[CR_DARKGREEN] :
-        skill == 2 ? cr[CR_GREEN]     :
-        skill == 3 ? cr[CR_YELLOW]    :
-        skill == 4 ? cr[CR_ORANGE]    :
-                     cr[CR_RED];
+        skill == 0 ? GLOW_OLIVE     :
+        skill == 1 ? GLOW_DARKGREEN :
+        skill == 2 ? GLOW_GREEN     :
+        skill == 3 ? GLOW_YELLOW    :
+        skill == 4 ? GLOW_ORANGE    :
+                     GLOW_RED;
 }
 
 static char *const DefSkillName[5] = 
@@ -1275,7 +1321,7 @@ static void M_CRL_LimitFPS (int choice)
 
             break;
         case 1:
-            if (crl_fpslimit < 501)
+            if (crl_fpslimit < 500)
                 crl_fpslimit++;
 
             if (crl_fpslimit < TICRATE)
@@ -3061,7 +3107,7 @@ static void M_DrawCRL_Gameplay (void)
     // Default skill level
     M_snprintf(str, sizeof(str), "%s", DefSkillName[crl_default_skill]);
     M_WriteText (M_ItemRightAlign(str), 34, str, 
-                 DefSkillColor(crl_default_skill));
+                 M_Item_Glow(0, DefSkillColor(crl_default_skill)));
 
     // Pistol start game mode
     sprintf(str, crl_pistol_start ? "ON" : "OFF");
