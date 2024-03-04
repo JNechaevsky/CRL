@@ -4542,10 +4542,13 @@ boolean M_Responder (event_t* ev)
 	if (ev->type == ev_mouse && mousewait < I_GetTime())
 	{
 	    // [crispy] novert disables controlling the menus with the mouse
+	    // [JN] Not needed, as menu is fully controllable by mouse wheel and buttons.
+	    /*
 	    if (!novert)
 	    {
 	    mousey += ev->data3;
 	    }
+        */
 	    if (mousey < lasty-30)
 	    {
 		key = key_menu_down;
@@ -4590,14 +4593,34 @@ boolean M_Responder (event_t* ev)
 
 	    if (ev->data1&1)
 	    {
+		if (messageToPrint && messageNeedsInput)
+		{
+		key = key_menu_confirm;  // [JN] Confirm by left mouse button.
+		}
+		else
+		{
 		key = key_menu_forward;
-		mousewait = I_GetTime() + 15;
+		}
+		mousewait = I_GetTime() + 5;
 	    }
 			
 	    if (ev->data1&2)
 	    {
+		if (messageToPrint && messageNeedsInput)
+		{
+		key = key_menu_abort;  // [JN] Cancel by right mouse button.
+		}
+		else
+		if (saveStringEnter)
+		{
+		key = key_menu_abort;
+		saveStringEnter = 0;
+		}
+		else
+		{
 		key = key_menu_back;
-		mousewait = I_GetTime() + 15;
+		}
+		mousewait = I_GetTime() + 5;
 	    }
 
 	    // [crispy] scroll menus with mouse wheel
