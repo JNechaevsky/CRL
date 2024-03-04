@@ -542,6 +542,7 @@ static void M_CRL_UncappedFPS (int choice);
 static void M_CRL_LimitFPS (int choice);
 static void M_CRL_VSync (int choice);
 static void M_CRL_ShowFPS (int choice);
+static void M_CRL_PixelScaling (int choice);
 static void M_CRL_VisplanesDraw (int choice);
 static void M_CRL_HOMDraw (int choice);
 static void M_CRL_ScreenWipe (int choice);
@@ -1143,6 +1144,7 @@ static menuitem_t CRLMenu_Video[]=
     { 2, "FRAMERATE LIMIT",     M_CRL_LimitFPS,       'f'},
     { 2, "ENABLE VSYNC",        M_CRL_VSync,          'e'},
     { 2, "SHOW FPS COUNTER",    M_CRL_ShowFPS,        's'},
+    { 2, "PIXEL SCALING",       M_CRL_PixelScaling,   'p'},
     { 2, "VISPLANES DRAWING",   M_CRL_VisplanesDraw,  'v'},
     { 2, "HOM EFFECT",          M_CRL_HOMDraw,        'h'},
     {-1, "", 0, '\0'},
@@ -1208,39 +1210,44 @@ static void M_DrawCRL_Video (void)
         M_WriteTextCentered(151, "HIDDEN WHILE EXTENDED HUD IS OFF", cr[CR_GRAY]);
     }
 
+    // Pixel scaling
+    sprintf(str, smooth_scaling ? "SMOOTH" : "SHARP");
+    M_WriteText (M_ItemRightAlign(str), 70, str, 
+                 M_Item_Glow(4, smooth_scaling ? GLOW_GREEN : GLOW_DARKRED));
+
     // Visplanes drawing mode
     sprintf(str, crl_visplanes_drawing == 0 ? "NORMAL" :
                  crl_visplanes_drawing == 1 ? "FILL" :
                  crl_visplanes_drawing == 2 ? "OVERFILL" :
                  crl_visplanes_drawing == 3 ? "BORDER" : "OVERBORDER");
-    M_WriteText (M_ItemRightAlign(str), 70, str,
-                 M_Item_Glow(4, crl_visplanes_drawing ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (M_ItemRightAlign(str), 79, str,
+                 M_Item_Glow(5, crl_visplanes_drawing ? GLOW_GREEN : GLOW_DARKRED));
 
     // HOM effect
     sprintf(str, crl_hom_effect == 1 ? "MULTICOLOR" :
                  crl_hom_effect == 2 ? "BLACK" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 79, str,
-                 M_Item_Glow(5, crl_hom_effect ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (M_ItemRightAlign(str), 88, str,
+                 M_Item_Glow(6, crl_hom_effect ? GLOW_GREEN : GLOW_DARKRED));
 
-    M_WriteTextCentered(88, "MISCELLANEOUS", cr[CR_YELLOW]);
+    M_WriteTextCentered(97, "MISCELLANEOUS", cr[CR_YELLOW]);
 
     // Screen wipe effect
     sprintf(str, crl_screenwipe == 1 ? "ON" :
                  crl_screenwipe == 2 ? "FAST" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 97, str,
-                 M_Item_Glow(7, crl_screenwipe ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (M_ItemRightAlign(str), 106, str,
+                 M_Item_Glow(8, crl_screenwipe ? GLOW_GREEN : GLOW_DARKRED));
 
     // Screen ENDOOM screen
     sprintf(str, show_endoom ? "ON" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 106, str, 
-                 M_Item_Glow(8, show_endoom ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (M_ItemRightAlign(str), 115, str, 
+                 M_Item_Glow(9, show_endoom ? GLOW_GREEN : GLOW_DARKRED));
 
     // Colorblind
     sprintf(str, crl_colorblind == 1 ? "RED/GREEN" :
                  crl_colorblind == 2 ? "BLUE/YELLOW" :
                  crl_colorblind == 3 ? "MONOCHROME" : "NONE");
-    M_WriteText (M_ItemRightAlign(str), 115, str,
-                 M_Item_Glow(9, crl_colorblind ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (M_ItemRightAlign(str), 124, str,
+                 M_Item_Glow(10, crl_colorblind ? GLOW_GREEN : GLOW_DARKRED));
 }
 
 static void M_CRL_UncappedFPS (int choice)
@@ -1289,6 +1296,12 @@ static void M_CRL_VSync (int choice)
 static void M_CRL_ShowFPS (int choice)
 {
     crl_showfps ^= 1;
+}
+
+static void M_CRL_PixelScaling (int choice)
+{
+    smooth_scaling ^= 1;
+    I_TogglePixelScaling();
 }
 
 static void M_CRL_VisplanesDraw (int choice)

@@ -1643,6 +1643,16 @@ void I_ToggleVsync (void)
     SDL_RenderSetVSync(renderer, crl_vsync);
 }
 
+// -----------------------------------------------------------------------------
+// I_TogglePixelScaling
+// [JN] Forces recreation of upscaled texture on toggling pixel scaling.
+// -----------------------------------------------------------------------------
+
+void I_TogglePixelScaling (void)
+{
+    CreateUpscaledTexture(true);
+}
+
 // Bind all variables controlling video options into the configuration
 // file system.
 void I_BindVideoVariables(void)

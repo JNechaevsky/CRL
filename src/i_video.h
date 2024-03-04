@@ -111,6 +111,7 @@ extern unsigned int joywait;
 extern int usemouse;
 
 extern void I_ToggleVsync (void);
+extern void I_TogglePixelScaling (void);
 
 extern boolean endoom_screen_active;
 
