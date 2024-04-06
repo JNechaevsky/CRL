@@ -402,6 +402,7 @@ void M_BindMenuControls(void)
     M_BindIntVariable("key_crl_map_rotate",   &key_crl_map_rotate);
     M_BindIntVariable("key_crl_map_overlay",  &key_crl_map_overlay);
     M_BindIntVariable("key_crl_autorun",      &key_crl_autorun); // [crispy]
+    M_BindIntVariable("key_crl_novert",       &key_crl_novert);
     M_BindIntVariable("key_crl_vilebomb",     &key_crl_vilebomb);
 
     M_BindIntVariable("key_crl_clearmax",     &key_crl_clearmax);
