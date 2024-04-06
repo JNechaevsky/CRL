@@ -1013,22 +1013,48 @@ static byte *M_Cursor_Glow (const int tics)
         tics == -7 || tics ==  -8 ? cr[CR_MENU_DARK4]   : NULL;
 }
 
-static const int M_INT_Slider (int val, int min, int max, int direction)
+static const int M_INT_Slider (int val, int min, int max, int direction, boolean capped)
 {
     switch (direction)
     {
         case 0:
         val--;
         if (val < min) 
-            val = max;
+            val = capped ? min : max;
         break;
 
         case 1:
         val++;
         if (val > max)
-            val = min;
+            val = capped ? max : min;
         break;
     }
+    return val;
+}
+
+static const float M_FLOAT_Slider (float val, float min, float max, float step,
+                                   int direction, boolean capped)
+{
+    char buf[9];
+
+    switch (direction)
+    {
+        case 0:
+        val -= step;
+        if (val < min) 
+            val = capped ? min : max;
+        break;
+
+        case 1:
+        val += step;
+        if (val > max)
+            val = capped ? max : min;
+        break;
+    }
+
+    // [JN] Do a float correction to always get x.xxx000 values:
+    sprintf (buf, "%f", val);
+    val = (float)atof(buf);
     return val;
 }
 
@@ -1355,17 +1381,17 @@ static void M_CRL_PixelScaling (int choice)
 
 static void M_CRL_VisplanesDraw (int choice)
 {
-    crl_visplanes_drawing = M_INT_Slider(crl_visplanes_drawing, 0, 4, choice);
+    crl_visplanes_drawing = M_INT_Slider(crl_visplanes_drawing, 0, 4, choice, false);
 }
 
 static void M_CRL_HOMDraw (int choice)
 {
-    crl_hom_effect = M_INT_Slider(crl_hom_effect, 0, 2, choice);
+    crl_hom_effect = M_INT_Slider(crl_hom_effect, 0, 2, choice, false);
 }
 
 static void M_CRL_ScreenWipe (int choice)
 {
-    crl_screenwipe = M_INT_Slider(crl_screenwipe, 0, 2, choice);
+    crl_screenwipe = M_INT_Slider(crl_screenwipe, 0, 2, choice, false);
 }
 
 static void M_CRL_ShowENDOOM (int choice)
@@ -1375,7 +1401,7 @@ static void M_CRL_ShowENDOOM (int choice)
 
 static void M_CRL_Colorblind (int choice)
 {
-    crl_colorblind = M_INT_Slider(crl_colorblind, 0, 3, choice);
+    crl_colorblind = M_INT_Slider(crl_colorblind, 0, 3, choice, false);
 
     // [JN] 1 - always do a full palette reset when colorblind is changed.
     I_SetPalette ((byte *)W_CacheLumpName(DEH_String("PLAYPAL"), PU_CACHE) + st_palette * 768, 1);
@@ -1473,53 +1499,19 @@ static void M_DrawCRL_Display (void)
 static void M_CRL_Gamma (int choice)
 {
     shade_wait = I_GetTime() + TICRATE;
-
-    switch (choice)
-    {
-        case 0:
-            if (crl_gamma)
-                crl_gamma--;
-            break;
-        case 1:
-            if (crl_gamma < 14)
-                crl_gamma++;
-        default:
-            break;
-    }
+    crl_gamma = M_INT_Slider(crl_gamma, 0, 14, choice, true);
 
     CRL_ReloadPalette();
 }
 
 static void M_CRL_MenuBgShading (int choice)
 {
-    switch (choice)
-    {
-        case 0:
-            if (crl_menu_shading)
-                crl_menu_shading--;
-            break;
-        case 1:
-            if (crl_menu_shading < 24)
-                crl_menu_shading++;
-        default:
-            break;
-    }
+    crl_menu_shading = M_INT_Slider(crl_menu_shading, 0, 24, choice, true);
 }
 
 static void M_CRL_LevelBrightness (int choice)
 {
-    switch (choice)
-    {
-        case 0:
-            if (crl_level_brightness)
-                crl_level_brightness--;
-            break;
-        case 1:
-            if (crl_level_brightness < 8)
-                crl_level_brightness++;
-        default:
-            break;
-    }
+    crl_level_brightness = M_INT_Slider(crl_level_brightness, 0, 8, choice, true);
 }
 
 static void M_CRL_MsgCritical (int choice)
@@ -1778,18 +1770,7 @@ static void M_CRL_PitchShift (int choice)
 
 static void M_CRL_SFXChannels (int choice)
 {
-    switch (choice)
-    {
-        case 0:
-            if (snd_channels > 1)
-                snd_channels--;
-            break;
-        case 1:
-            if (snd_channels < 8)
-                snd_channels++;
-        default:
-            break;
-    }
+    snd_channels = M_INT_Slider(snd_channels, 1, 8, choice, true);
 }
 
 // -----------------------------------------------------------------------------
@@ -1868,54 +1849,18 @@ static void M_DrawCRL_Controls (void)
 
 static void M_CRL_Controls_Sensivity (int choice)
 {
-    switch (choice)
-    {
-        case 0:
-        if (mouseSensitivity)
-            mouseSensitivity--;
-        break;
-        case 1:
-        if (mouseSensitivity < 255) // [crispy] extended range
-            mouseSensitivity++;
-        break;
-    }
+    // [crispy] extended range
+    mouseSensitivity = M_INT_Slider(mouseSensitivity, 0, 255, choice, true);
 }
 
 static void M_CRL_Controls_Acceleration (int choice)
 {
-    char buf[9];
-
-    switch (choice)
-    {   // 1.0 ... 5.0
-        case 0:
-        if (mouse_acceleration > 1.0f)
-            mouse_acceleration -= 0.1f;
-        break;
-
-        case 1:
-        if (mouse_acceleration < 5.0f)
-            mouse_acceleration += 0.1f;
-        break;
-    }
-
-    // [JN] Do a float correction to always get x.x00000 values:
-    sprintf (buf, "%f", mouse_acceleration);
-    mouse_acceleration = (float) atof(buf);
+    mouse_acceleration = M_FLOAT_Slider(mouse_acceleration, 1.000000f, 5.000000f, 0.100000f, choice, true);
 }
 
 static void M_CRL_Controls_Threshold (int choice)
 {
-    switch (choice)
-    {   // 0 ... 32
-        case 0:
-        if (mouse_threshold)
-            mouse_threshold--;
-        break;
-        case 1:
-        if (mouse_threshold < 32)
-            mouse_threshold++;
-        break;
-    }
+    mouse_threshold = M_INT_Slider(mouse_threshold, 0, 32, choice, true);
 }
 
 static void M_CRL_Controls_NoVert (int choice)
@@ -3016,32 +2961,32 @@ static void M_DrawCRL_Widgets (void)
 
 static void M_CRL_Widget_Render (int choice)
 {
-    crl_widget_render = M_INT_Slider(crl_widget_render, 0, 2, choice);
+    crl_widget_render = M_INT_Slider(crl_widget_render, 0, 2, choice, false);
 }
 
 static void M_CRL_Widget_MAX (int choice)
 {
-    crl_widget_maxvp = M_INT_Slider(crl_widget_maxvp, 0, 2, choice);
+    crl_widget_maxvp = M_INT_Slider(crl_widget_maxvp, 0, 2, choice, false);
 }
 
 static void M_CRL_Widget_Playstate (int choice)
 {
-    crl_widget_playstate = M_INT_Slider(crl_widget_playstate, 0, 2, choice);
+    crl_widget_playstate = M_INT_Slider(crl_widget_playstate, 0, 2, choice, false);
 }
 
 static void M_CRL_Widget_KIS (int choice)
 {
-    crl_widget_kis = M_INT_Slider(crl_widget_kis, 0, 2, choice);
+    crl_widget_kis = M_INT_Slider(crl_widget_kis, 0, 2, choice, false);
 }
 
 static void M_CRL_Widget_Coords (int choice)
 {
-    crl_widget_coords = M_INT_Slider(crl_widget_coords, 0, 2, choice);
+    crl_widget_coords = M_INT_Slider(crl_widget_coords, 0, 2, choice, false);
 }
 
 static void M_CRL_Widget_Time (int choice)
 {
-    crl_widget_time = M_INT_Slider(crl_widget_time, 0, 2, choice);
+    crl_widget_time = M_INT_Slider(crl_widget_time, 0, 2, choice, false);
 }
 
 static void M_CRL_Widget_Powerups (int choice)
@@ -3051,7 +2996,7 @@ static void M_CRL_Widget_Powerups (int choice)
 
 static void M_CRL_Widget_Health (int choice)
 {
-    crl_widget_health = M_INT_Slider(crl_widget_health, 0, 4, choice);
+    crl_widget_health = M_INT_Slider(crl_widget_health, 0, 4, choice, false);
 }
 
 static void M_CRL_Automap_Rotate (int choice)
@@ -3066,23 +3011,12 @@ static void M_CRL_Automap_Overlay (int choice)
 
 static void M_CRL_Automap_Shading (int choice)
 {
-    switch (choice)
-    {
-        case 0:
-            if (crl_automap_shading)
-                crl_automap_shading--;
-            break;
-        case 1:
-            if (crl_automap_shading < 12)
-                crl_automap_shading++;
-        default:
-            break;
-    }
+    crl_automap_shading = M_INT_Slider(crl_automap_shading, 0, 12, choice, true);
 }
 
 static void M_CRL_Automap_Drawing (int choice)
 {
-    crl_automap_mode = M_INT_Slider(crl_automap_mode, 0, 2, choice);
+    crl_automap_mode = M_INT_Slider(crl_automap_mode, 0, 2, choice, false);
 }
 
 static void M_CRL_Automap_Secrets (int choice)
@@ -3196,7 +3130,7 @@ static void M_DrawCRL_Gameplay (void)
 
 static void M_CRL_DefaulSkill (int choice)
 {
-    crl_default_skill = M_INT_Slider(crl_default_skill, 0, 4, choice);
+    crl_default_skill = M_INT_Slider(crl_default_skill, 0, 4, choice, false);
     // [JN] Set new skill in skill level menu.
     NewDef.lastOn = crl_default_skill;
 }
@@ -3213,7 +3147,7 @@ static void M_CRL_ColoredSTBar (int choice)
 
 static void M_CRL_RevealedSecrets (int choice)
 {
-    crl_revealed_secrets = M_INT_Slider(crl_revealed_secrets, 0, 2, choice);
+    crl_revealed_secrets = M_INT_Slider(crl_revealed_secrets, 0, 2, choice, false);
 }
 
 static void M_CRL_RestoreTargets (int choice)
@@ -3223,7 +3157,7 @@ static void M_CRL_RestoreTargets (int choice)
 
 static void M_CRL_DemoTimer (int choice)
 {
-    crl_demo_timer = M_INT_Slider(crl_demo_timer, 0, 3, choice);
+    crl_demo_timer = M_INT_Slider(crl_demo_timer, 0, 3, choice, false);
 }
 
 static void M_CRL_TimerDirection (int choice)
@@ -3736,35 +3670,15 @@ static void M_Sound(int choice)
 
 static void M_SfxVol(int choice)
 {
-    switch(choice)
-    {
-      case 0:
-	if (sfxVolume)
-	    sfxVolume--;
-	break;
-      case 1:
-	if (sfxVolume < 15)
-	    sfxVolume++;
-	break;
-    }
-	
+    sfxVolume = M_INT_Slider(sfxVolume, 0, 15, choice, true);
+
     S_SetSfxVolume(sfxVolume * 8);
 }
 
 static void M_MusicVol(int choice)
 {
-    switch(choice)
-    {
-      case 0:
-	if (musicVolume)
-	    musicVolume--;
-	break;
-      case 1:
-	if (musicVolume < 15)
-	    musicVolume++;
-	break;
-    }
-	
+    musicVolume = M_INT_Slider(musicVolume, 0, 15, choice, true);
+
     S_SetMusicVolume(musicVolume * 8);
 }
 
@@ -4089,22 +4003,7 @@ static void M_ChangeDetail(int choice)
 
 static void M_SizeDisplay(int choice)
 {
-    switch(choice)
-    {
-      case 0:
-	if (crl_screen_size > 3)
-	{
-	    crl_screen_size--;
-	}
-	break;
-      case 1:
-	if (crl_screen_size < 13)
-	{
-	    crl_screen_size++;
-	}
-	break;
-    }
-	
+    crl_screen_size = M_INT_Slider(crl_screen_size, 3, 13, choice, false);
 
     R_SetViewSize (crl_screen_size, detailLevel);
 }
@@ -5067,10 +4966,7 @@ boolean M_Responder (event_t* ev)
     // [JN] Allow to change gamma while active menu.
     if (key == key_menu_gamma)    // gamma toggle
     {
-        if (++crl_gamma > 14)
-        {
-            crl_gamma = 0;
-        }
+        crl_gamma = M_INT_Slider(crl_gamma, 0, 14, 1 /*right*/, false);
         CRL_SetMessage(&players[consoleplayer], DEH_String(gammalvls[crl_gamma][0]), false, NULL);
         CRL_ReloadPalette();
         return true;
