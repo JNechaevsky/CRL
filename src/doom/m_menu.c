@@ -701,6 +701,7 @@ static void M_CRL_PistolStart (int choice);
 static void M_CRL_ColoredSTBar (int choice);
 static void M_CRL_RevealedSecrets (int choice);
 static void M_CRL_RestoreTargets (int choice);
+static void M_CRL_OnDeathAction (int choice);
 static void M_CRL_DemoTimer (int choice);
 static void M_CRL_TimerDirection (int choice);
 static void M_CRL_ProgressBar (int choice);
@@ -3035,12 +3036,12 @@ static menuitem_t CRLMenu_Gameplay[]=
     { 2, "COLORED STATUS BAR",       M_CRL_ColoredSTBar,     'c'},
     { 2, "REPORT REVEALED SECRETS",  M_CRL_RevealedSecrets,  'r'},
     { 2, "RESTORE MONSTER TARGETS",  M_CRL_RestoreTargets,   'r'},
+    { 2, "ON DEATH ACTION",          M_CRL_OnDeathAction,    'o' },
     {-1, "", 0, '\0'},
     { 2, "SHOW DEMO TIMER",          M_CRL_DemoTimer,        's'},
     { 2, "TIMER DIRECTION",          M_CRL_TimerDirection,   't'},
     { 2, "SHOW PROGRESS BAR",        M_CRL_ProgressBar,      's'},
     { 2, "PLAY INTERNAL DEMOS",      M_CRL_InternalDemos,    'p'},
-    {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'},
@@ -3097,35 +3098,41 @@ static void M_DrawCRL_Gameplay (void)
     M_WriteText (M_ItemRightAlign(str), 70, str,
                  M_Item_Glow(4, crl_restore_targets ? GLOW_GREEN : GLOW_DARKRED));
 
-    M_WriteTextCentered(79, "DEMOS", cr[CR_YELLOW]);
+    // On death action
+    sprintf(str, crl_death_use_action == 1 ? "LAST SAVE" :
+                 crl_death_use_action == 2 ? "NOTHING" : "DEFAULT");
+    M_WriteText (M_ItemRightAlign(str), 79, str,
+                 M_Item_Glow(5, crl_death_use_action ? GLOW_GREEN : GLOW_DARKRED));
+
+    M_WriteTextCentered(88, "DEMOS", cr[CR_YELLOW]);
 
     // Demo timer
     sprintf(str, crl_demo_timer == 1 ? "PLAYBACK" : 
                  crl_demo_timer == 2 ? "RECORDING" : 
                  crl_demo_timer == 3 ? "ALWAYS" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 88, str,
-                 M_Item_Glow(6, crl_demo_timer ? GLOW_GREEN : GLOW_DARKRED));
-
-    // Timer direction
-    sprintf(str, crl_demo_timerdir ? "BACKWARD" : "FORWARD");
     M_WriteText (M_ItemRightAlign(str), 97, str,
                  M_Item_Glow(7, crl_demo_timer ? GLOW_GREEN : GLOW_DARKRED));
 
+    // Timer direction
+    sprintf(str, crl_demo_timerdir ? "BACKWARD" : "FORWARD");
+    M_WriteText (M_ItemRightAlign(str), 106, str,
+                 M_Item_Glow(8, crl_demo_timer ? GLOW_GREEN : GLOW_DARKRED));
+
     // Progress bar
     sprintf(str, crl_demo_bar ? "ON" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 106, str,
-                 M_Item_Glow(8, crl_demo_bar ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (M_ItemRightAlign(str), 115, str,
+                 M_Item_Glow(9, crl_demo_bar ? GLOW_GREEN : GLOW_DARKRED));
 
     // Print informatime message if extended HUD is off.
-    if (itemOn > 5 && itemOn < 9 && !crl_extended_hud)
+    if (itemOn > 6 && itemOn < 10 && !crl_extended_hud)
     {
         M_WriteTextCentered(151, "HIDDEN WHILE EXTENDED HUD IS OFF", cr[CR_GRAY]);
     }
 
     // Play internal demos
     sprintf(str, crl_internal_demos ? "ON" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 115, str,
-                 M_Item_Glow(9, crl_internal_demos ? GLOW_DARKRED : GLOW_GREEN));
+    M_WriteText (M_ItemRightAlign(str), 124, str,
+                 M_Item_Glow(10, crl_internal_demos ? GLOW_DARKRED : GLOW_GREEN));
 }
 
 static void M_CRL_DefaulSkill (int choice)
@@ -3153,6 +3160,11 @@ static void M_CRL_RevealedSecrets (int choice)
 static void M_CRL_RestoreTargets (int choice)
 {
     crl_restore_targets ^= 1;
+}
+
+static void M_CRL_OnDeathAction (int choice)
+{
+    crl_death_use_action = M_INT_Slider(crl_death_use_action, 0, 2, choice, false);
 }
 
 static void M_CRL_DemoTimer (int choice)

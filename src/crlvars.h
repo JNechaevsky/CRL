@@ -74,6 +74,7 @@ extern int crl_pistol_start;
 extern int crl_colored_stbar;
 extern int crl_revealed_secrets;
 extern int crl_restore_targets;
+extern int crl_death_use_action;
 
 // Demos
 extern int crl_demo_timer;

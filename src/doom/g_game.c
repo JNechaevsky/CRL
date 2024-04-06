@@ -212,7 +212,7 @@ static int      joystrafemove;
 static boolean  joyarray[MAX_JOY_BUTTONS + 1]; 
 static boolean *joybuttons = &joyarray[1];		// allow [-1] 
  
-static char     savename[256]; // [crispy] moved here, made static
+char            savename[256]; // [crispy] moved here
 static int      savegameslot; 
 static char     savedescription[32]; 
  
@@ -1747,6 +1747,13 @@ void G_DeathMatchSpawnPlayer (int playernum)
     P_SpawnPlayer (&playerstarts[playernum]); 
 } 
 
+// [crispy] clear the "savename" variable,
+// i.e. restart level from scratch upon resurrection
+void G_ClearSavename (void)
+{
+    M_StringCopy(savename, "", sizeof(savename));
+}
+
 //
 // G_DoReborn 
 // 
@@ -2158,6 +2165,18 @@ void G_DoLoadGame (void)
     
     // draw the pattern into the back screen
     R_FillBackScreen ();   
+
+    // [crispy] if the player is dead in this savegame,
+    // do not consider it for reload
+    if (players[consoleplayer].health <= 0)
+	G_ClearSavename();
+
+    // [JN] If "On death action" is set to "last save",
+    // then prevent holded "use" button to work for next few tics.
+    // This fixes imidiate pressing on wall upon reloading
+    // a save game, if "use" button is kept pressed.
+    if (singleplayer && crl_death_use_action == 1)
+	players[consoleplayer].usedown = true;
 } 
  
 
@@ -2255,6 +2274,7 @@ void G_DoSaveGame (void)
 
     gameaction = ga_nothing;
     M_StringCopy(savedescription, "", sizeof(savedescription));
+    M_StringCopy(savename, savegame_file, sizeof(savename));
 
     CRL_SetMessage(&players[consoleplayer], DEH_String(GGSAVED), false, NULL);
 
@@ -2281,6 +2301,7 @@ G_DeferedInitNew
     d_skill = skill; 
     d_episode = episode; 
     d_map = map; 
+    G_ClearSavename();
     gameaction = ga_newgame; 
 
     // [crispy] if a new game is started during demo recording, start a new demo

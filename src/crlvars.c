@@ -74,6 +74,7 @@ int crl_pistol_start = 0;
 int crl_colored_stbar = 0;
 int crl_revealed_secrets = 0;
 int crl_restore_targets = 0;
+int crl_death_use_action = 0;
 
 // Demos
 int crl_demo_timer = 0;
@@ -141,6 +142,7 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_colored_stbar",              &crl_colored_stbar);
     M_BindIntVariable("crl_revealed_secrets",           &crl_revealed_secrets);
     M_BindIntVariable("crl_restore_targets",            &crl_restore_targets);
+    M_BindIntVariable("crl_death_use_action",           &crl_death_use_action);
 
     // Demos
     M_BindIntVariable("crl_demo_timer",                 &crl_demo_timer);
