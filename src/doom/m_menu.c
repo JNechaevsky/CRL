@@ -602,6 +602,7 @@ static void M_Bind_NomomentumMode (int choice);
 
 static void M_DrawCRL_Keybinds_3 (void);
 static void M_Bind_AlwaysRun (int choice);
+static void M_Bind_NoVert (int choice);
 static void M_Bind_VileBomb (int choice);
 static void M_Bind_ClearMAX (int choice);
 static void M_Bind_MoveToMAX (int choice);
@@ -2172,22 +2173,22 @@ static void M_Bind_NomomentumMode (int choice)
 
 static menuitem_t CRLMenu_Keybinds_3[]=
 {
-    { 1, "ALWAYS RUN",      M_Bind_AlwaysRun,  'a'  },
-    { 1, "ARCH-VILE JUMP",  M_Bind_VileBomb,   'a'  },
-    {-1, "",                0,                 '\0' },  // VISPLANES MAX VALUE
-    { 1, "CLEAR MAX",       M_Bind_ClearMAX,   'c'  },
-    { 1, "MOVE TO MAX ",    M_Bind_MoveToMAX,  'm'  },
-    {-1, "",                0,                 '\0' },  // CHEAT SHORTCUTS
-    { 1, "IDDQD",           M_Bind_IDDQD,      'i'  },
-    { 1, "IDKFA",           M_Bind_IDKFA,      'i'  },
-    { 1, "IDFA",            M_Bind_IDFA,       'i'  },
-    { 1, "IDCLIP",          M_Bind_IDCLIP,     'i'  },
-    { 1, "IDDT",            M_Bind_IDDT,       'i'  },
-    { 1, "MDK",             M_Bind_MDK,        'm'  },
-    {-1, "",                0,                 '\0' },
-    {-1, "",                0,                 '\0' },
-    {-1, "",                0,                 '\0' },
-    {-1, "",                0,                 '\0' }
+    { 1, "ALWAYS RUN",              M_Bind_AlwaysRun,  'a'  },
+    { 1, "VERTICAL MOUSE MOVEMENT", M_Bind_NoVert,     'v'  },
+    { 1, "ARCH-VILE JUMP",          M_Bind_VileBomb,   'a'  },
+    {-1, "",                        0,                 '\0' },  // VISPLANES MAX VALUE
+    { 1, "CLEAR MAX",               M_Bind_ClearMAX,   'c'  },
+    { 1, "MOVE TO MAX ",            M_Bind_MoveToMAX,  'm'  },
+    {-1, "",                        0,                 '\0' },  // CHEAT SHORTCUTS
+    { 1, "IDDQD",                   M_Bind_IDDQD,      'i'  },
+    { 1, "IDKFA",                   M_Bind_IDKFA,      'i'  },
+    { 1, "IDFA",                    M_Bind_IDFA,       'i'  },
+    { 1, "IDCLIP",                  M_Bind_IDCLIP,     'i'  },
+    { 1, "IDDT",                    M_Bind_IDDT,       'i'  },
+    { 1, "MDK",                     M_Bind_MDK,        'm'  },
+    {-1, "",                        0,                 '\0' },
+    {-1, "",                        0,                 '\0' },
+    {-1, "",                        0,                 '\0' }
 };
 
 static menu_t CRLDef_Keybinds_3 =
@@ -2206,49 +2207,54 @@ static void M_Bind_AlwaysRun (int choice)
     M_StartBind(300);  // key_crl_autorun
 }
 
+static void M_Bind_NoVert (int choice)
+{
+    M_StartBind(301);  // key_crl_novert
+}
+
 static void M_Bind_VileBomb (int choice)
 {
-    M_StartBind(301);  // key_crl_vilebomb
+    M_StartBind(302);  // key_crl_vilebomb
 }
 
 static void M_Bind_ClearMAX (int choice)
 {
-    M_StartBind(302);  // key_crl_clearmax
+    M_StartBind(303);  // key_crl_clearmax
 }
 
 static void M_Bind_MoveToMAX (int choice)
 {
-    M_StartBind(303);  // key_crl_movetomax
+    M_StartBind(304);  // key_crl_movetomax
 }
 
 static void M_Bind_IDDQD (int choice)
 {
-    M_StartBind(304);  // key_crl_iddqd
+    M_StartBind(305);  // key_crl_iddqd
 }
 
 static void M_Bind_IDKFA (int choice)
 {
-    M_StartBind(305);  // key_crl_idkfa
+    M_StartBind(306);  // key_crl_idkfa
 }
 
 static void M_Bind_IDFA (int choice)
 {
-    M_StartBind(306);  // key_crl_idfa
+    M_StartBind(307);  // key_crl_idfa
 }
 
 static void M_Bind_IDCLIP (int choice)
 {
-    M_StartBind(307);  // key_crl_idclip
+    M_StartBind(308);  // key_crl_idclip
 }
 
 static void M_Bind_IDDT (int choice)
 {
-    M_StartBind(308);  // key_crl_iddt
+    M_StartBind(309);  // key_crl_iddt
 }
 
 static void M_Bind_MDK (int choice)
 {
-    M_StartBind(309);  // key_crl_mdk
+    M_StartBind(310);  // key_crl_mdk
 }
 
 static void M_DrawCRL_Keybinds_3 (void)
@@ -2261,21 +2267,22 @@ static void M_DrawCRL_Keybinds_3 (void)
     M_WriteTextCentered(25, "MOVEMENT", cr[CR_YELLOW]);
 
     M_DrawBindKey(0, 34, key_crl_autorun);
-    M_DrawBindKey(1, 43, key_crl_vilebomb);
+    M_DrawBindKey(1, 43, key_crl_novert);
+    M_DrawBindKey(2, 52, key_crl_vilebomb);
 
-    M_WriteTextCentered(52, "VISPLANES MAX VALUE", cr[CR_YELLOW]);
+    M_WriteTextCentered(61, "VISPLANES MAX VALUE", cr[CR_YELLOW]);
 
-    M_DrawBindKey(3, 61, key_crl_clearmax);
-    M_DrawBindKey(4, 70, key_crl_movetomax);
+    M_DrawBindKey(4, 70, key_crl_clearmax);
+    M_DrawBindKey(5, 79, key_crl_movetomax);
 
-    M_WriteTextCentered(79, "CHEAT SHORTCUTS", cr[CR_YELLOW]);
+    M_WriteTextCentered(88, "CHEAT SHORTCUTS", cr[CR_YELLOW]);
 
-    M_DrawBindKey(6, 88, key_crl_iddqd);
-    M_DrawBindKey(7, 97, key_crl_idkfa);
-    M_DrawBindKey(8, 106, key_crl_idfa);
-    M_DrawBindKey(9, 115, key_crl_idclip);
-    M_DrawBindKey(10, 124, key_crl_iddt);
-    M_DrawBindKey(11, 133, key_crl_mdk);
+    M_DrawBindKey(7, 97, key_crl_iddqd);
+    M_DrawBindKey(8, 106, key_crl_idkfa);
+    M_DrawBindKey(9, 115, key_crl_idfa);
+    M_DrawBindKey(10, 124, key_crl_idclip);
+    M_DrawBindKey(11, 133, key_crl_iddt);
+    M_DrawBindKey(12, 142, key_crl_mdk);
 
     M_DrawBindFooter("3", true);
 }
@@ -5676,6 +5683,7 @@ static void M_CheckBind (int key)
     if (key_crl_nomomentum == key)   key_crl_nomomentum   = 0;
     // Page 3
     if (key_crl_autorun == key)      key_crl_autorun      = 0;
+    if (key_crl_novert == key)       key_crl_novert       = 0;
     if (key_crl_vilebomb == key)     key_crl_vilebomb     = 0;
     if (key_crl_clearmax == key)     key_crl_clearmax     = 0;
     if (key_crl_movetomax == key)    key_crl_movetomax    = 0;
@@ -5777,15 +5785,16 @@ static void M_DoBind (int keynum, int key)
         case 211:  key_crl_nomomentum = key;    break;
         // Page 3  
         case 300:  key_crl_autorun = key;       break;
-        case 301:  key_crl_vilebomb = key;      break;
-        case 302:  key_crl_clearmax = key;      break;
-        case 303:  key_crl_movetomax = key;     break;
-        case 304:  key_crl_iddqd = key;         break;
-        case 305:  key_crl_idkfa = key;         break;
-        case 306:  key_crl_idfa = key;          break;
-        case 307:  key_crl_idclip = key;        break;
-        case 308:  key_crl_iddt = key;          break;
-        case 309:  key_crl_mdk = key;           break;
+        case 301:  key_crl_novert = key;        break;
+        case 302:  key_crl_vilebomb = key;      break;
+        case 303:  key_crl_clearmax = key;      break;
+        case 304:  key_crl_movetomax = key;     break;
+        case 305:  key_crl_iddqd = key;         break;
+        case 306:  key_crl_idkfa = key;         break;
+        case 307:  key_crl_idfa = key;          break;
+        case 308:  key_crl_idclip = key;        break;
+        case 309:  key_crl_iddt = key;          break;
+        case 310:  key_crl_mdk = key;           break;
         // Page 4  
         case 400:  key_weapon1 = key;           break;
         case 401:  key_weapon2 = key;           break;
@@ -5883,17 +5892,18 @@ static void M_ClearBind (int itemOn)
         switch (itemOn)
         {
             case 0:   key_crl_autorun = 0;      break;
-            case 1:   key_crl_vilebomb = 0;     break;
+            case 1:   key_crl_novert = 0;       break;
+            case 2:   key_crl_vilebomb = 0;     break;
             // Visplanes MAX value title
-            case 3:   key_crl_clearmax = 0;     break;
-            case 4:   key_crl_movetomax = 0;    break;
+            case 4:   key_crl_clearmax = 0;     break;
+            case 5:   key_crl_movetomax = 0;    break;
             // Cheat shortcuts title
-            case 6:   key_crl_iddqd = 0;        break;
-            case 7:   key_crl_idkfa = 0;        break;
-            case 8:   key_crl_idfa = 0;         break;
-            case 9:   key_crl_idclip = 0;       break;
-            case 10:  key_crl_iddt = 0;         break;
-            case 11:  key_crl_mdk = 0;          break;
+            case 7:   key_crl_iddqd = 0;        break;
+            case 8:   key_crl_idkfa = 0;        break;
+            case 9:   key_crl_idfa = 0;         break;
+            case 10:  key_crl_idclip = 0;       break;
+            case 11:  key_crl_iddt = 0;         break;
+            case 12:  key_crl_mdk = 0;          break;
         }
     }
     if (currentMenu == &CRLDef_Keybinds_4)
@@ -5998,6 +6008,7 @@ static void M_ResetBinds (void)
     key_crl_nomomentum = 0;
     // Page 3
     key_crl_autorun = KEY_CAPSLOCK;
+    key_crl_novert = 0;
     key_crl_vilebomb = 0;
     key_crl_clearmax = 0;
     key_crl_movetomax = 0;

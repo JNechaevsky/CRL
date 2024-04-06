@@ -227,6 +227,7 @@ int key_crl_map_rotate = 'r';
 int key_crl_map_overlay = 'o';
 
 int key_crl_autorun = KEY_CAPSLOCK; // [crispy]
+int key_crl_novert = 0;
 int key_crl_vilebomb = 0;
 
 int key_crl_clearmax = 0;
