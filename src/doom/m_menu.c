@@ -2102,7 +2102,7 @@ static void M_DrawCRL_Keybinds_2 (void)
     M_DrawBindKey(9, 115, key_crl_freeze);
     M_DrawBindKey(10, 124, key_crl_buddha);
     M_DrawBindKey(11, 133, key_crl_notarget);
-    M_DrawBindKey(12, 145, key_crl_nomomentum);
+    M_DrawBindKey(12, 142, key_crl_nomomentum);
 
     M_DrawBindFooter("2", true);
 }
