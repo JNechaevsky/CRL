@@ -690,6 +690,7 @@ static void M_CRL_Widget_Powerups (int choice);
 static void M_CRL_Widget_Health (int choice);
 static void M_CRL_Automap_Rotate (int choice);
 static void M_CRL_Automap_Overlay (int choice);
+static void M_CRL_Automap_Shading (int choice);
 static void M_CRL_Automap_Drawing (int choice);
 static void M_CRL_Automap_Secrets (int choice);
 
@@ -2883,19 +2884,20 @@ static void M_Bind_M_Reset (int choice)
 
 static menuitem_t CRLMenu_Widgets[]=
 {
-    { 2, "RENDER COUNTERS",      M_CRL_Widget_Render,     'r'},
-    { 2, "MAX OVERFLOW STYLE",   M_CRL_Widget_MAX,        'r'},
-    { 2, "PLAYSTATE COUNTERS",   M_CRL_Widget_Playstate,  'r'},
-    { 2, "KIS STATS/FRAGS",      M_CRL_Widget_KIS,        'k'},
-    { 2, "LEVEL/DM TIMER",       M_CRL_Widget_Time,       'l'},
-    { 2, "PLAYER COORDS",        M_CRL_Widget_Coords,     'p'},
-    { 2, "POWERUP TIMERS",       M_CRL_Widget_Powerups,   'p'},
-    { 2, "TARGET'S HEALTH",      M_CRL_Widget_Health,     't'},
+    { 2, "RENDER COUNTERS",       M_CRL_Widget_Render,     'r'},
+    { 2, "MAX OVERFLOW STYLE",    M_CRL_Widget_MAX,        'r'},
+    { 2, "PLAYSTATE COUNTERS",    M_CRL_Widget_Playstate,  'r'},
+    { 2, "KIS STATS/FRAGS",       M_CRL_Widget_KIS,        'k'},
+    { 2, "LEVEL/DM TIMER",        M_CRL_Widget_Time,       'l'},
+    { 2, "PLAYER COORDS",         M_CRL_Widget_Coords,     'p'},
+    { 2, "POWERUP TIMERS",        M_CRL_Widget_Powerups,   'p'},
+    { 2, "TARGET'S HEALTH",       M_CRL_Widget_Health,     't'},
     {-1, "", 0, '\0'},
-    { 2, "ROTATE MODE",          M_CRL_Automap_Rotate,    'r'},
-    { 2, "OVERLAY MODE",         M_CRL_Automap_Overlay,   'o'},
-    { 2, "DRAWING MODE",         M_CRL_Automap_Drawing,   'd'},
-    { 2, "MARK SECRET SECTORS",  M_CRL_Automap_Secrets,   'm'},
+    { 2, "ROTATE MODE",           M_CRL_Automap_Rotate,    'r'},
+    { 2, "OVERLAY MODE",          M_CRL_Automap_Overlay,   'o'},
+    { 2, "OVERLAY SHADING LEVEL", M_CRL_Automap_Shading,   'o'},
+    { 2, "DRAWING MODE",          M_CRL_Automap_Drawing,   'd'},
+    { 2, "MARK SECRET SECTORS",   M_CRL_Automap_Secrets,   'm'},
     {-1, "", 0, '\0'},
     {-1, "", 0, '\0'}
 };
@@ -2978,7 +2980,7 @@ static void M_DrawCRL_Widgets (void)
     // Print informatime message if extended HUD is off.
     if (itemOn < 8 && !crl_extended_hud)
     {
-        M_WriteTextCentered(151, "HIDDEN WHILE EXTENDED HUD IS OFF", cr[CR_GRAY]);
+        M_WriteTextCentered(160, "HIDDEN WHILE EXTENDED HUD IS OFF", cr[CR_GRAY]);
     }
 
     M_WriteTextCentered(106, "AUTOMAP", cr[CR_YELLOW]);
@@ -2993,16 +2995,23 @@ static void M_DrawCRL_Widgets (void)
     M_WriteText (M_ItemRightAlign(str), 124, str,
                  M_Item_Glow(10, crl_automap_overlay ? GLOW_GREEN : GLOW_DARKRED));
 
+    // Overlay shading level
+    sprintf(str,"%d", crl_automap_shading);
+    M_WriteText (M_ItemRightAlign(str), 133, str,
+                 M_Item_Glow(11, !crl_automap_overlay ? GLOW_DARKRED :
+                                  crl_automap_shading ==  0 ? GLOW_RED :
+                                  crl_automap_shading == 12 ? GLOW_YELLOW : GLOW_GREEN));
+
     // Drawing mode
     sprintf(str, crl_automap_mode == 1 ? "FLOOR VISPLANES" :
                  crl_automap_mode == 2 ? "CEILING VISPLANES" : "NORMAL");
-    M_WriteText (M_ItemRightAlign(str), 133, str,
-                 M_Item_Glow(11, crl_automap_mode ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (M_ItemRightAlign(str), 142, str,
+                 M_Item_Glow(12, crl_automap_mode ? GLOW_GREEN : GLOW_DARKRED));
 
     // Mark secret sectors
     sprintf(str, crl_automap_secrets ? "ON" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 142, str,
-                 M_Item_Glow(12, crl_automap_secrets ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (M_ItemRightAlign(str), 151, str,
+                 M_Item_Glow(13, crl_automap_secrets ? GLOW_GREEN : GLOW_DARKRED));
 }
 
 static void M_CRL_Widget_Render (int choice)
@@ -3053,6 +3062,22 @@ static void M_CRL_Automap_Rotate (int choice)
 static void M_CRL_Automap_Overlay (int choice)
 {
     crl_automap_overlay ^= 1;
+}
+
+static void M_CRL_Automap_Shading (int choice)
+{
+    switch (choice)
+    {
+        case 0:
+            if (crl_automap_shading)
+                crl_automap_shading--;
+            break;
+        case 1:
+            if (crl_automap_shading < 12)
+                crl_automap_shading++;
+        default:
+            break;
+    }
 }
 
 static void M_CRL_Automap_Drawing (int choice)

@@ -1057,6 +1057,22 @@ static void AM_clearFB (void)
 }
 
 // -----------------------------------------------------------------------------
+// AM_shadeBackground
+//  [JN] Shade background in overlay mode.
+// -----------------------------------------------------------------------------
+
+static void AM_shadeBackground (void)
+{
+    const int height = crl_screen_size > 10 ? 
+                       SCREENHEIGHT : (SCREENHEIGHT - ST_HEIGHT);
+
+    for (int y = 0; y < SCREENWIDTH * height ; y++)
+    {
+        I_VideoBuffer[y] = colormaps[((crl_automap_shading + 3) * 2) * 256 + I_VideoBuffer[y]];
+    }
+}
+
+// -----------------------------------------------------------------------------
 // AM_clipMline
 // Automap clipping of lines.
 //
@@ -2005,6 +2021,11 @@ void AM_Drawer (void)
 	if (automapactive == 1 && !crl_automap_overlay)
     {
 		AM_clearFB();
+    }
+
+    if (crl_automap_shading && crl_automap_overlay)
+    {
+        AM_shadeBackground();
     }
 
     if (grid)

@@ -66,6 +66,7 @@ int crl_automap_mode = 0;
 int crl_automap_secrets = 0;
 int crl_automap_rotate = 0;
 int crl_automap_overlay = 0;
+int crl_automap_shading = 0;
 
 // Gameplay features
 int crl_default_skill = 2;
@@ -132,6 +133,7 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_automap_secrets",            &crl_automap_secrets);
     M_BindIntVariable("crl_automap_rotate",             &crl_automap_rotate);
     M_BindIntVariable("crl_automap_overlay",            &crl_automap_overlay);
+    M_BindIntVariable("crl_automap_shading",            &crl_automap_shading);
 
     // Gameplay features
     M_BindIntVariable("crl_default_skill",              &crl_default_skill);
