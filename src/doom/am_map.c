@@ -1702,6 +1702,12 @@ static void AM_drawPlayers (void)
             pt.y = p->mo->y >> FRACTOMAPBITS;
         }
 
+        // [JN] Prevent arrow jitter in non-hires mode.
+        {
+            pt.x = FTOM(MTOF(pt.x));
+            pt.y = FTOM(MTOF(pt.y));
+        }
+
         if (crl_automap_rotate)
         {
             AM_rotatePoint(&pt);
