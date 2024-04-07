@@ -4001,7 +4001,7 @@ static void M_ChangeDetail(int choice)
 
 static void M_SizeDisplay(int choice)
 {
-    crl_screen_size = M_INT_Slider(crl_screen_size, 3, 13, choice, false);
+    crl_screen_size = M_INT_Slider(crl_screen_size, 3, 13, choice, true);
 
     R_SetViewSize (crl_screen_size, detailLevel);
 }
