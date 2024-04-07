@@ -831,8 +831,6 @@ static void M_ShadeBackground (void)
         {
             I_VideoBuffer[y] = colormaps[crl_menu_shading * 256 + I_VideoBuffer[y]];
         }
-
-        st_fullupdate = true;
     }
 }
 
@@ -1130,7 +1128,6 @@ static void M_DrawCRL_Main (void)
 {
     char str[32];
 
-    M_ShadeBackground();
     M_WriteTextCentered(25, "MAIN MENU", cr[CR_YELLOW]);
 
     // Spectating
@@ -1259,8 +1256,6 @@ static void M_ChooseCRL_Video (int choice)
 static void M_DrawCRL_Video (void)
 {
     char str[32];
-
-    M_ShadeBackground();
 
     M_WriteTextCentered(25, "VIDEO OPTIONS", cr[CR_YELLOW]);
 
@@ -1457,12 +1452,6 @@ static void M_DrawCRL_Display (void)
 {
     char str[32];
 
-    // Temporary unshade background while changing gamma-correction.
-    if (shade_wait < I_GetTime())
-    {
-        M_ShadeBackground();
-    }
-
     M_WriteTextCentered(25, "DISPLAY OPTIONS", cr[CR_YELLOW]);
 
     // Gamma-correction slider and num
@@ -1574,8 +1563,6 @@ static void M_ChooseCRL_Sound (int choice)
 static void M_DrawCRL_Sound (void)
 {
     char str[16];
-
-    M_ShadeBackground();
 
     M_WriteTextCentered(25, "VOLUME", cr[CR_YELLOW]);
 
@@ -1824,8 +1811,6 @@ static void M_DrawCRL_Controls (void)
 {
     char str[32];
 
-    M_ShadeBackground();
-    
     M_WriteTextCentered(25, "BINDINGS", cr[CR_YELLOW]);
     
     M_WriteTextCentered(52, "MOUSE CONFIGURATION", cr[CR_YELLOW]);
@@ -2874,7 +2859,6 @@ static void M_DrawCRL_Widgets (void)
 {
     char str[32];
 
-    M_ShadeBackground();
     M_WriteTextCentered(25, "WIDGETS", cr[CR_YELLOW]);
 
     // Rendering counters
@@ -3074,8 +3058,6 @@ static void M_DrawCRL_Gameplay (void)
 {
     char str[32];
 
-    M_ShadeBackground();
-
     M_WriteTextCentered(25, "GAMEPLAY FEATURES", cr[CR_YELLOW]);
 
     // Default skill level
@@ -3239,8 +3221,6 @@ static void M_ChooseCRL_Limits (int choice)
 static void M_DrawCRL_Limits (void)
 {
     char str[32];
-
-    M_ShadeBackground();
 
     M_WriteTextCentered(25, "STATIC ENGINE LIMITS", cr[CR_YELLOW]);
 
@@ -5279,10 +5259,21 @@ void M_Drawer (void)
     const char *name;
     int			start;
 
+    // [JN] Shade background while active menu.
+    if (menuactive)
+    {
+        // Temporary unshade while changing certain settings.
+        if (shade_wait < I_GetTime())
+        {
+            M_ShadeBackground();
+        }
+        // Always redraw status bar background.
+        st_fullupdate = true;
+    }
+
     // Horiz. & Vertically center string and print it.
     if (messageToPrint)
     {
-	M_ShadeBackground();
 	start = 0;
 	y = SCREENHEIGHT/2 - M_StringHeight(messageString) / 2;
 	while (messageString[start] != '\0')
