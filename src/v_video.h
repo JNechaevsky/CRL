@@ -41,6 +41,7 @@ extern int dirtybox[4];
 extern byte *tintmap;
 extern byte *tinttable;
 extern byte *dp_translation;
+extern boolean dp_translucent;
 
 
 // Draw a block from the specified source screen to the screen.

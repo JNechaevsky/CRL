@@ -58,6 +58,8 @@ byte *tinttable = NULL;
 
 // [JN] Color translation.
 byte *dp_translation = NULL;
+// [JN] Translucent patch.
+boolean dp_translucent = false;
 
 // The screen buffer that the v_video.c code draws to.
 
@@ -173,9 +175,19 @@ void V_DrawPatch(int x, int y, patch_t *patch, const char *name)
             while (count--)
             {
                 if (dp_translation)
-                sourcetrans = &dp_translation[*source++];
+                {
+                    sourcetrans = &dp_translation[*source++];
+                }
 
-                *dest = *sourcetrans++;
+                if (dp_translucent)
+                {
+                    *dest = tintmap[((*dest) << 8) + *sourcetrans++];
+                }
+                else
+                {
+                    *dest = *sourcetrans++;
+                }
+
                 dest += SCREENWIDTH;
             }
             column = (column_t *)((byte *)column + column->length + 4);
@@ -302,7 +314,15 @@ void V_DrawShadowedPatch (int x, int y, const patch_t *patch, const char *name)
                     *dest2 = tintmap[((*dest2) << 8)];
                     dest2 += SCREENWIDTH;
                 }
-                *dest = *sourcetrans++;
+
+                if (dp_translucent)
+                {
+                    *dest = tintmap[((*dest) << 8) + *sourcetrans++];
+                }
+                else
+                {
+                    *dest = *sourcetrans++;
+                }
                 dest += SCREENWIDTH;
             }
             column = (column_t *) ((byte *) column + column->length + 4);
