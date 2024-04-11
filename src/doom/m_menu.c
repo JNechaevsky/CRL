@@ -5435,6 +5435,10 @@ void M_Ticker (void)
             }
         }
     }
+
+    // [JN] Make KIS/time widgets translucent while in active Save/Load menu.
+    savemenuactive = (menuactive 
+                  && (currentMenu == &SaveDef || currentMenu == &LoadDef));
 }
 
 

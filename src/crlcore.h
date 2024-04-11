@@ -229,6 +229,7 @@ extern boolean CRL_vilebomb;
 extern int  demowarp;
 
 extern boolean  menuactive;
+extern boolean  savemenuactive;
 extern boolean  automapactive;
 
 extern int      deathmatch;      // 0 = Cooperative; 1 = Deathmatch; 2 = Altdeath

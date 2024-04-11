@@ -396,11 +396,16 @@ void CRL_StatDrawer (void)
         char strb[16];
         const int yy3 = automapactive ? 0 : 9;
 
+        // Apply translucency while Save/Load menu is active.
+        dp_translucent = savemenuactive;
+
         sprintf(stra, "TIME ");
         M_WriteText(0, 151 - yy2 + yy3, stra, cr[CR_GRAY]);
  
         sprintf(strb, "%02d:%02d:%02d", time/3600, (time%3600)/60, time%60);
         M_WriteText(0 + M_StringWidth(stra), 151 - yy2 + yy3, strb, cr[CR_LIGHTGRAY]);
+
+        dp_translucent = false;
     }
 
     // K/I/S stats
@@ -408,6 +413,9 @@ void CRL_StatDrawer (void)
     || (crl_widget_kis == 2 && automapactive))
     {
         const int yy = automapactive ? 8 : -1;
+
+        // Apply translucency while Save/Load menu is active.
+        dp_translucent = savemenuactive;
 
         if (!deathmatch)
         {
@@ -525,6 +533,8 @@ void CRL_StatDrawer (void)
                             159 - yy, str8, cr[CR_RED]);
             }
         }
+        
+        dp_translucent = false;
     }
 
     // Powerup timers.
