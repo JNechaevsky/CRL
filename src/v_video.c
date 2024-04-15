@@ -36,6 +36,7 @@
 #include "i_swap.h"
 #include "i_video.h"
 #include "m_bbox.h"
+#include "m_config.h"
 #include "m_misc.h"
 #include "v_video.h"
 #include "w_wad.h"
@@ -672,14 +673,17 @@ void V_ScreenShot(char *format)
 {
     int i;
     char lbmname[16]; // haleyjd 20110213: BUG FIX - 12 is too small!
+    char *file;
     
     // find a file name to save it to
 
     for (i=0; i<=9999; i++)
     {
         M_snprintf(lbmname, sizeof(lbmname), format, i, "png");
+        // [JN] Construct full path to screenshot file.
+        file = M_StringJoin(screenshotdir, lbmname, NULL);
 
-        if (!M_FileExists(lbmname))
+        if (!M_FileExists(file))
         {
             break;      // file doesn't exist
         }
@@ -690,7 +694,7 @@ void V_ScreenShot(char *format)
         I_Error ("V_ScreenShot: Couldn't create a PNG");
     }
 
-    WritePNGfile(lbmname);
+    WritePNGfile(file);
 }
 
 #define MOUSE_SPEED_BOX_WIDTH  120
