@@ -145,9 +145,6 @@ int mouseSensitivity = 5;
 // Still used for config file compatibility.
 static int screenblocks = 10;
 
-// [JN] "savegames_path" config file variable.
-static char *SavePathConfig;
-
 
 //
 // D_ProcessEvents
@@ -511,39 +508,6 @@ void D_BindVariables(void)
 
 	// [JN] Bind CRL-specific config variables.
 	CRL_BindVariables();
-}
-
-// -----------------------------------------------------------------------------
-// D_SetDefaultSavePath
-// [JN] Set the default directory where savegames are saved.
-// -----------------------------------------------------------------------------
-
-static void D_SetDefaultSavePath (void)
-{
-    // Gather default "savegames" folder location.
-    savegamedir = M_GetSaveGameDir(D_SaveGameIWADName(gamemission, gamevariant));
-
-    if (!strcmp(savegamedir, ""))
-    {
-        if (SavePathConfig == NULL || !strcmp(SavePathConfig, ""))
-        {
-            // Config file variable not existing or emptry,
-            // so use generated path from above.
-            savegamedir = M_StringDuplicate("");
-        }
-        else
-        {
-            // Variable existing, use it's path.
-            savegamedir = M_StringDuplicate(SavePathConfig);
-        }
-    }
-
-    // Overwrite config file variable only if following command line
-    // parameters are not present:
-    if (!M_ParmExists("-savedir") && !M_ParmExists("-cdrom"))
-    {
-        SavePathConfig = savegamedir;
-    }
 }
 
 //
@@ -1924,7 +1888,7 @@ void D_DoomMain (void)
     D_SetGameDescription();
 
     // [JN] Set the default directory where savegames are saved.
-    D_SetDefaultSavePath();
+    savegamedir = M_GetSaveGameDir(D_SaveGameIWADName(gamemission, gamevariant));
 
     // [JN] Set the default directory where screenshots are saved.
     M_SetScreenshotDir();

@@ -56,6 +56,10 @@ static char *autoload_path = "";
 
 static const char *default_main_config;
 
+// [JN] "savegames_path" config file variable.
+
+char *SavePathConfig;
+
 // [JN] Location where screenshots are saved.
 
 char *screenshotdir;
@@ -1093,13 +1097,13 @@ char *M_GetSaveGameDir(const char *iwadname)
 
         if (existing_path != NULL && strlen(existing_path) > 0)
         {
-            // It exist, use it's provided path.
-            savegamedir = M_StringDuplicate("");
+            // Variable existing, use it's path.
+            savegamedir = M_StringDuplicate(SavePathConfig);
         }
         else
         {
-            // Otherwise, create and use "savegames" folder in program folder.
-            savegamedir = M_StringJoin(M_StringDuplicate(exedir), "savegames", DIR_SEPARATOR_S, NULL);
+            // Config file variable not existing or emptry, generate a path.
+            savegamedir = M_StringJoin(M_StringDuplicate(exedir), "savegames", NULL);
         }
         M_MakeDirectory(savegamedir);
 #else
@@ -1121,6 +1125,15 @@ char *M_GetSaveGameDir(const char *iwadname)
         M_MakeDirectory(savegamedir);
 
         free(topdir);
+    }
+
+    // Overwrite config file variable only if following command line
+    // parameters are not present:
+    if (!M_ParmExists("-savedir") && !M_ParmExists("-cdrom"))
+    {
+        SavePathConfig = savegamedir;
+        // add separator at end just in case
+        savegamedir = M_StringJoin(savegamedir, DIR_SEPARATOR_S, NULL);
     }
 
     return savegamedir;
@@ -1188,16 +1201,38 @@ void M_SetScreenshotDir (void)
 
         printf("Screenshot directory changed to %s\n", screenshotdir);
     }
+#ifdef _WIN32
+    // In -cdrom mode, we write screenshots to a specific directory
+    // in addition to configs.
+
+    else if (M_ParmExists("-cdrom"))
+    {
+        screenshotdir = M_StringDuplicate(configdir);
+    }
+#endif
     else
     {
+        // [JN] Check if "screenshots_path" variable is existing in config file.
+        const char *existing_path = M_GetStringVariable("screenshots_path");
+
+        if (existing_path != NULL && strlen(existing_path) > 0)
+        {
+            // Variable existing, use it's path.
+            screenshotdir = M_StringDuplicate(ShotPathConfig);
+        }
+        else
+        {
 #ifdef _WIN32
-		// [JN] Always use "screenshots" folder in program folder.
-		screenshotdir = M_StringJoin(exedir, "screenshots", DIR_SEPARATOR_S, NULL);
+            // [JN] Always use "screenshots" folder in program folder.
+            screenshotdir = M_StringJoin(exedir, "screenshots", NULL);
 #else
-		// ~/.local/share/crl/screenshots
-		screenshotdir = M_StringJoin(configdir, "screenshots", DIR_SEPARATOR_S, NULL);
+            // ~/.local/share/inter-doom/screenshots
+            screenshotdir = M_StringJoin(configdir, "screenshots", NULL);
 #endif
-		M_MakeDirectory(screenshotdir);
-		ShotPathConfig = screenshotdir;
+        }
+        M_MakeDirectory(screenshotdir);
+        ShotPathConfig = screenshotdir;
+        // add separator at end just in case
+        screenshotdir = M_StringJoin(screenshotdir, DIR_SEPARATOR_S, NULL);
     }
 }
