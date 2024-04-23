@@ -3324,15 +3324,22 @@ static void M_DrawSaveLoadBottomLine (void)
     
     M_WriteTextCentered(151, pagestr, cr[CR_MENU_DARK1]);
 
-    // [JN] Print "modified" (or created initially) time of
-    // savegame file in YYYY-MM-DD HH:MM:SS format.
+    // [JN] Print "modified" (or created initially) time of savegame file.
     if (LoadMenu[itemOn].status)
     {
         struct stat filestat;
         char filedate[32];
 
         stat(P_SaveGameFile(itemOn), &filestat);
-        strftime(filedate, sizeof(filedate), "%Y-%m-%d %X", localtime(&filestat.st_mtime));
+// [FG] suppress the most useless compiler warning ever
+#if defined(__GNUC__)
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wformat-y2k"
+#endif
+        strftime(filedate, sizeof(filedate), "%x %X", localtime(&filestat.st_mtime));
+#if defined(__GNUC__)
+#  pragma GCC diagnostic pop
+#endif
         M_WriteTextCentered(160, filedate, cr[CR_MENU_DARK2]);
     }
 }
