@@ -2010,7 +2010,7 @@ static menuitem_t CRLMenu_Keybinds_2[]=
     { M_SWTC, "RESTART LEVEL/DEMO",  M_Bind_RestartLevel,   'r'  },
     { M_SWTC, "GO TO NEXT LEVEL",    M_Bind_NextLevel,      'g'  },
     { M_SWTC, "DEMO FAST-FORWARD",   M_Bind_FastForward,    'd'  },
-    { M_SWTC, "TOGGLE EXTENDED HUD", M_Bind_ExtendedHUD,    's'  },
+    { M_SWTC, "TOGGLE EXTENDED HUD", M_Bind_ExtendedHUD,    't'  },
     { M_SKIP, "",                    0,                     '\0' },  // GAME MODES
     { M_SWTC, "SPECTATOR MODE",      M_Bind_SpectatorMode,  's'  },
     { M_SWTC, "- MOVE CAMERA UP",    M_Bind_CameraUp,       'm'  },
