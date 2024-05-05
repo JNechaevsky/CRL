@@ -142,7 +142,7 @@ extern int  CRL_MaxAnims;
 //      range of [0.0, 1.0).  Used for interpolation.
 extern fixed_t fractionaltic;
 
-extern void CRL_Init (int* __colorset, int __numcolors, int __pllim);
+extern void CRL_Init (void);
 extern void CRL_ChangeFrame (int __err);
 extern void CRL_MarkPixelP (void** __surface, void* __what, void* __drawp);
 extern void CRL_DrawVisPlanes (int __over);
@@ -180,12 +180,6 @@ extern void CRL_ImpulseCameraVert(boolean direction, fixed_t intensity);
 //
 
 extern void CRL_StatDrawer (void);
-
-//
-// HSV Coloring routines
-//
-
-extern void CRL_SetColors (uint8_t* colors, void* ref);
 
 //
 // Critical message, console output coloring

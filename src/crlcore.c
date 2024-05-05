@@ -31,6 +31,7 @@
 #include "m_argv.h"
 #include "m_misc.h"
 #include "v_trans.h"
+#include "w_wad.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
@@ -47,16 +48,9 @@ CRL_Widgets_t CRLWidgets;
 static void*   _planelist[MAXCOUNTPLANES];
 static size_t  _planesize;
 static int     _numplanes;
-static int     _maxplanes;
 
-static int* _usecolors;
-static int  _didcolors;
-static int  _numcolors;
-
-#define MAXSHADES 16
 #define DARKSHADE 8
 #define DARKMASK  7
-static uint8_t _colormap[MAXSHADES][256];
 
 // [JN] For MAX visplanes handling:
 
@@ -104,24 +98,75 @@ int demowarp;
 // Primary needed for nicer drawing below save page and date/time lines.
 boolean savemenuactive = false;
 
+
+// =============================================================================
+//
+//                            Initialization functions
+//
+// =============================================================================
+
+// VP color table.
+#define NUMPLANEBORDERCOLORS 16
+static const int _vptable[NUMPLANEBORDERCOLORS] =
+{
+    // LIGHT
+    16,     // yucky pink
+    176,    // red
+    216,    // orange
+    231,    // yellow
+
+    112,    // green
+    195,    // light blue (cyanish)
+    202,    // Deep blue
+    251,    // yuck, magenta
+
+    // DARK
+    26,
+    183,
+    232,
+    164,
+
+    122,
+    198,
+    240,
+    254,
+};
+
+// HOM color table.
+#define HOMCOUNT 256
+#define HOMQUAD (HOMCOUNT / 4)
+static int _homtable[HOMCOUNT];
+int CRL_homcolor;  // Color to use
+
 // -----------------------------------------------------------------------------
 // CRL_Init
 // Initializes things.
 // -----------------------------------------------------------------------------
 
-void CRL_Init (int* __colorset, int __numcolors, int __pllim)
+void CRL_Init (void)
 {
+    int i;
+
     // Make plane surface
     _planesize = SCREENAREA * sizeof(*CRLPlaneSurface);
     CRLPlaneSurface = Z_Malloc(_planesize, PU_STATIC, NULL);
     memset(CRLPlaneSurface, 0, _planesize);
 
-    // Set colors
-    _usecolors = __colorset;
-    _numcolors = __numcolors;
+    // [JN] Initialize HOM (RGBY) multi colors, but prevent
+    // using too bright values by multiplying by 3, not by 4.
+    {
+        unsigned char *playpal = W_CacheLumpName("PLAYPAL", PU_STATIC);
 
-    // Limits
-    _maxplanes = __pllim;
+        for (i = 0; i < 64 ; i++)
+        {
+            _homtable[i]     = V_GetPaletteIndex(playpal, i*3,   0,   0);
+            _homtable[i+64]  = V_GetPaletteIndex(playpal,   0, i*3,   0);
+            _homtable[i+128] = V_GetPaletteIndex(playpal,   0,   0, i*3);
+            _homtable[i+192] = V_GetPaletteIndex(playpal, i*3, i*3,   0);
+        }
+
+        W_ReleaseLumpName("PLAYPAL");
+    }
 }
 
 
@@ -275,7 +320,7 @@ static int CRL_ColorizeThisPlane (CRLPlaneData_t *__pl)
     int shade = DARKSHADE * __pl->isf;
 
     // Above plane limit
-    if (__pl->id >= _maxplanes)
+    if (__pl->id >= 128)
     {
         shade += _pulse & DARKMASK;
     }
@@ -301,7 +346,7 @@ static int CRL_ColorizeThisPlane (CRLPlaneData_t *__pl)
     }
 
     // Return color
-    return _colormap[shade][id & 0xFF];
+    return _vptable[id % NUMPLANEBORDERCOLORS];
 }
 
 // -----------------------------------------------------------------------------
@@ -401,12 +446,6 @@ void CRL_CountPlane (void* __key, int __chorf, int __id)
 // CRL_GetHOMMultiColor
 //  [JN] Framerate-independent HOM multi coloring. Called in G_Ticker.
 // -----------------------------------------------------------------------------
-
-// HOM color table.
-#define HOMCOUNT 256
-#define HOMQUAD (HOMCOUNT / 4)
-static int _homtable[HOMCOUNT];
-int CRL_homcolor;  // Color to use
 
 void CRL_GetHOMMultiColor (void)
 {
@@ -575,460 +614,6 @@ void CRL_ImpulseCameraVert (boolean direction, fixed_t intensity)
     }
 }
 
-
-// =============================================================================
-//
-//                            HSV Coloring routines
-//
-// =============================================================================
-
-
-// V_ColorEntry_t -- HSV table
-typedef union V_ColorEntry_s
-{
-	struct
-	{
-		uint8_t R;
-		uint8_t G;
-		uint8_t B;
-	} RGB;
-	
-	struct
-	{
-		uint8_t H;
-		uint8_t S;
-		uint8_t V;
-	} HSV;
-} V_ColorEntry_t;
-
-static V_ColorEntry_t _rgbgamecolors[256];
-static V_ColorEntry_t _hsvgamecolors[256];
-
-// V_HSVtoRGB() -- Convert HSV to RGB
-V_ColorEntry_t V_HSVtoRGB(const V_ColorEntry_t HSV)
-{
-	int R, G, B, H, S, V, P, Q, T, F;
-	V_ColorEntry_t Ret;
-	
-	// Get inital values
-	H = HSV.HSV.H;
-	S = HSV.HSV.S;
-	V = HSV.HSV.V;
-	
-	// Gray Color?
-	if (!S)
-	{
-		R = G = B = V;
-	}
-	
-	// Real Color
-	else
-	{
-		// Calculate Hue Shift
-		F = ((H % 60) * 255) / 60;
-		H /= 60;
-		
-		// Calculate channel values
-		P = (V * (256 - S)) / 256;
-		Q = (V * (256 - (S * F) / 256)) / 256;
-		T = (V * (256 - (S * (256 - F)) / 256)) / 256;
-		
-		switch (H)
-		{
-			case 0:
-				R = V;
-				G = T;
-				B = P;
-				break;
-				
-			case 1:
-				R = Q;
-				G = V;
-				B = P;
-				break;
-				
-			case 2:
-				R = P;
-				G = V;
-				B = T;
-				break;
-				
-			case 3:
-				R = P;
-				G = Q;
-				B = V;
-				break;
-				
-			case 4:
-				R = T;
-				G = P;
-				B = V;
-				break;
-				
-			default:
-				R = V;
-				G = P;
-				B = Q;
-				break;
-		}
-	}
-	
-	// Set Return
-	Ret.RGB.R = R;
-	Ret.RGB.G = G;
-	Ret.RGB.B = B;
-	
-	// Return
-	return Ret;
-}
-
-// V_RGBtoHSV() -- Convert RGB to HSV
-V_ColorEntry_t V_RGBtoHSV(const V_ColorEntry_t RGB)
-{
-	V_ColorEntry_t Ret;
-	uint8_t rMin, rMax, rDif;
-	
-	// Get min/max
-	rMin = 255;
-	rMax = 0;
-	
-	// Get RGB minimum
-	if (RGB.RGB.R < rMin)
-		rMin = RGB.RGB.R;
-	if (RGB.RGB.G < rMin)
-		rMin = RGB.RGB.G;
-	if (RGB.RGB.B < rMin)
-		rMin = RGB.RGB.B;
-		
-	// Get RGB maximum
-	if (RGB.RGB.R > rMax)
-		rMax = RGB.RGB.R;
-	if (RGB.RGB.G > rMax)
-		rMax = RGB.RGB.G;
-	if (RGB.RGB.B > rMax)
-		rMax = RGB.RGB.B;
-		
-	// Obtain value
-	Ret.HSV.V = rMax;
-	
-	// Short circuit?
-	if (Ret.HSV.V == 0)
-	{
-		Ret.HSV.H = Ret.HSV.S = 0;
-		return Ret;
-	}
-	// Obtain difference
-	rDif = rMax - rMin;
-	
-	// Obtain saturation
-	Ret.HSV.S = (uint8_t)(((uint32_t)255 * (uint32_t)rDif) / (uint32_t)Ret.HSV.V);
-	
-	// Short circuit?
-	if (Ret.HSV.S == 0)
-	{
-		Ret.HSV.H = 0;
-		return Ret;
-	}
-	
-	/* Obtain hue */
-	if (rMax == RGB.RGB.R)
-		Ret.HSV.H = 43 * (RGB.RGB.G - RGB.RGB.B) / rMax;
-	else if (rMax == RGB.RGB.G)
-		Ret.HSV.H = 85 + (43 * (RGB.RGB.B - RGB.RGB.R) / rMax);
-	else
-		Ret.HSV.H = 171 + (43 * (RGB.RGB.R - RGB.RGB.G) / rMax);
-		
-	return Ret;
-}
-
-/* V_BestHSVMatch() -- Best match between HSV for tables */
-static size_t V_BestHSVMatch(const V_ColorEntry_t* const Table, const V_ColorEntry_t HSV)
-{
-	size_t i, Best;
-	V_ColorEntry_t tRGB, iRGB;
-	int32_t BestSqr, ThisSqr, Dr, Dg, Db;
-	
-	/* Check */
-	if (!Table)
-		return 0;
-		
-	/* Convert input to RGB */
-	iRGB = V_HSVtoRGB(HSV);
-	
-	/* Loop colors */
-	for (Best = 0, BestSqr = 0x7FFFFFFFUL, i = 0; i < 256; i++)
-	{
-		// Convert table entry to RGB
-		tRGB = V_HSVtoRGB(Table[i]);
-		
-		// Perfect match?
-		if (iRGB.RGB.R == tRGB.RGB.R && iRGB.RGB.B == tRGB.RGB.B && iRGB.RGB.G == tRGB.RGB.G)
-			return i;
-			
-		// Distance of colors
-		Dr = tRGB.RGB.R - iRGB.RGB.R;
-		Dg = tRGB.RGB.G - iRGB.RGB.G;
-		Db = tRGB.RGB.B - iRGB.RGB.B;
-		ThisSqr = (Dr * Dr) + (Dg * Dg) + (Db * Db);
-		
-		// Closer?
-		if (ThisSqr < BestSqr)
-		{
-			Best = i;
-			BestSqr = ThisSqr;
-		}
-	}
-	
-	/* Fail */
-	return Best;
-}
-
-/**
- * Returns the best RGB color match.
- *
- * @param __r Red.
- * @param __g Green.
- * @param __b Blue.
- * @return The best matching color.
- * @since 2015/12/17
- */
-int CRL_BestRGBMatch(int __r, int __g, int __b)
-{
-	V_ColorEntry_t rgb, hsv;
-	
-	// Setup color request
-	rgb.RGB.R = __r;
-	rgb.RGB.G = __g;
-	rgb.RGB.B = __b;
-	
-	// Convert to HSV
-	hsv = V_RGBtoHSV(rgb);
-	
-	// Find best match
-	return (int)V_BestHSVMatch(_hsvgamecolors, hsv);
-}
-
-static byte CRL_GetLightness(byte r, byte g, byte b)
-{
-	V_ColorEntry_t rgb, hsv;
-	int rv;
-	double is, iv, ol;
-	
-	// Convert to HSV
-	rgb.RGB.R = r;
-	rgb.RGB.G = g;
-	rgb.RGB.B = b;
-	hsv = V_RGBtoHSV(rgb);
-	
-	// Convert to double space
-	is = (double)hsv.HSV.S / 255.0;
-	iv = (double)hsv.HSV.V / 255.0;
-	
-	// Calculate values
-	ol = (0.5 * iv) * (2.0 - is);
-	
-	// Retur brightness
-	rv = ol * 255;
-	if (rv > 255)
-		rv = 255;
-	else if (rv < 0)
-		rv = 0;
-	return rv;
-}
-
-static void CRL_AdjustRedGreen(byte* r, byte* g, byte* b)
-{
-	int x = CRL_GetLightness(*r, *g, 0);
-	
-	*r = x;
-	*g = x;
-}
-
-static void CRL_AdjustGreenBlue(byte* r, byte* g, byte* b)
-{
-	int x = CRL_GetLightness(0, *g, *b);
-	
-	*g = x;
-	*b = x;
-}
-
-static void CRL_AdjustMonochrome(byte* r, byte* g, byte* b)
-{
-	V_ColorEntry_t rgb, hsv;
-	
-	// Convert to HSV
-	rgb.RGB.R = *r;
-	rgb.RGB.G = *g;
-	rgb.RGB.B = *b;
-	hsv = V_RGBtoHSV(rgb);
-	
-	// Use value
-	*r = hsv.HSV.V;
-	*g = hsv.HSV.V;
-	*b = hsv.HSV.V;
-}
-
-
-/**
- * Sets the game colors.
- *
- * @param __colors Colors to use, RGB.
- */
-void CRL_SetColors (uint8_t* colors, void* ref)
-{
-	static int lastcolorblind = -1;
-	static void* oldref = NULL;
-	
-	int i, j, darksplit, idx, hueoff, count, mi, bb, k;
-	int nowcolorblind;
-	int qr, qg, qb;
-	uint8_t* x;
-	V_ColorEntry_t vc;
-	void (*adjustcolor)(byte* r, byte* g, byte* b);
-	
-	// Current color blindness used
-    // [JN] Use external config variable.
-	nowcolorblind = crl_colorblind;
-	
-	// Only if no colors were set or colorblindness changed
-	if (!_didcolors || (lastcolorblind != nowcolorblind) || (ref != oldref) ||
-		nowcolorblind >= 1)
-	{
-		// Do no more
-		_didcolors = 1;
-		lastcolorblind = nowcolorblind;
-		oldref = ref;
-		
-		// Colorblind simulation, modify colors
-		adjustcolor = NULL;
-		switch (nowcolorblind)
-		{
-				// Red/green
-			case 1:
-				adjustcolor = CRL_AdjustRedGreen;
-				break;
-			
-				// Green/Blue
-			case 2:
-				adjustcolor = CRL_AdjustGreenBlue;
-				break;
-				
-				// Monochrome
-			case 3:
-				adjustcolor = CRL_AdjustMonochrome;
-				break;
-			
-				// Do not touch
-			default:
-				break;
-		}
-		
-		// Adjust
-		if (adjustcolor != NULL)
-			for (i = 0; i < 768; i += 3)
-				adjustcolor(&colors[i], &colors[i + 1], &colors[i + 2]);
-		
-		// go through them all
-		x = colors;
-		for (i = 0; i < 256; i++)
-		{
-			// Get colors
-			vc.RGB.R = *(x++);
-			vc.RGB.G = *(x++);
-			vc.RGB.B = *(x++);
-			
-			// Set RGB
-			_rgbgamecolors[i] = vc;
-			_hsvgamecolors[i] = V_RGBtoHSV(vc);
-		}
-		
-		// Find best hue colors for bright and dark
-		darksplit = _numcolors >> 1;
-		hueoff = 0;
-		count = 0;
-		for (i = 0; i < 256; i++)
-		{
-			// Dark color hue up
-			for (j = 0; j < 2; j++)
-			{
-				// Get the index used here
-				idx = _usecolors[(j * darksplit) + (i % darksplit)];
-				vc = _hsvgamecolors[idx];
-				
-				// Increase count
-				if (count++ >= darksplit)
-				{
-					hueoff += 16;
-					count = 0;
-				}
-				
-				// Do not mess with color
-				if (hueoff == 0)
-					_colormap[DARKSHADE * j][i] = idx;
-				
-				// Otherwise shift it slightly
-				else
-				{
-					// Move hue over
-					vc.HSV.H = ((int)vc.HSV.H + hueoff) & 0xFF;
-					
-					_colormap[DARKSHADE * j][i] = V_BestHSVMatch(_hsvgamecolors, vc);
-				}
-			}
-			
-			// Make it more red
-			for (j = 1; j < DARKSHADE; j++)
-				for (k = 0; k < 2; k++)
-				{
-					// Get major index to modify
-					bb = DARKSHADE * k;
-					mi = bb + j;
-					
-					// Get the color index
-					idx = _colormap[bb][i];
-					
-					// Get base color used
-					vc = _hsvgamecolors[idx];
-					
-					// Make it a pulsing red
-					vc.HSV.H = 0;
-					
-					// Move color around a bit
-					{
-					double inv = (255.0 * ((double)j * (1.0 / (double)DARKSHADE)));
-					if (inv < 0.0)
-						inv = 0.0;
-					else if (inv > 255.0)
-					{
-						inv = 255.0;
-						
-					}
-					vc.HSV.V = (int)inv;
-					}
-					
-					// Set new color
-					_colormap[mi][i] = V_BestHSVMatch(_hsvgamecolors, vc);
-				}
-		}
-	}
-	
-	// Initialize hom colors
-	for (i = 0, k = 0; i < HOMCOUNT; k++)
-		for (j = 0; j < HOMQUAD; j++)
-		{
-			// Use specific color ranges
-			// [JN] Limit range from 255.0 to 200.0 to avoid too bright colors.
-			qr = (k == 0 || k == 3 ?
-				((int)(200.0 * ((double)(j)) / ((double)(HOMQUAD)))) : 0);
-			qg = (k == 1 || k == 3 ?
-				((int)(200.0 * ((double)(j)) / ((double)(HOMQUAD)))) : 0);
-			qb = (k == 2 ?
-				((int)(200.0 * ((double)(j)) / ((double)(HOMQUAD)))) : 0);
-			
-			// Find it and put it in
-			_homtable[i++] = CRL_BestRGBMatch(qr, qg, qb);
-		}
-}
 
 // =============================================================================
 //

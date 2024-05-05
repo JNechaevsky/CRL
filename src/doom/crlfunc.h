@@ -18,9 +18,6 @@
 
 #pragma once
 
-#define NUMPLANEBORDERCOLORS 16
-extern int  CRL_PlaneBorderColors[NUMPLANEBORDERCOLORS];
-
 extern void CRL_Clear_MAX (void);
 extern void CRL_Get_MAX (void);
 extern void CRL_MoveTo_MAX (void);

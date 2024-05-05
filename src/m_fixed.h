@@ -37,6 +37,15 @@ typedef int fixed_t;
 fixed_t FixedMul	(fixed_t a, fixed_t b);
 fixed_t FixedDiv	(fixed_t a, fixed_t b);
 
+#ifndef MIN
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#endif
+#ifndef MAX
+#define MAX(a,b) (((a)>(b))?(a):(b))
+#endif
+#ifndef BETWEEN
+#define BETWEEN(l,u,x) (((l)>(x))?(l):((x)>(u))?(u):(x))
+#endif
 
 
 #endif
