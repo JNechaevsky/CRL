@@ -1428,9 +1428,6 @@ void D_DoomMain (void)
     DEH_printf("Z_Init: Init zone memory allocation daemon. \n");
     Z_Init ();
     
-    // RestlessRodent -- Initializes CRL
-    CRL_Init(CRL_PlaneBorderColors, NUMPLANEBORDERCOLORS, 128);
-
     //!
     // @category net
     //
@@ -1932,6 +1929,9 @@ void D_DoomMain (void)
 
     I_PrintStartupBanner(gamedescription);
     PrintDehackedBanners();
+
+    // RestlessRodent -- Initializes CRL
+    CRL_Init();
 
     DEH_printf("I_Init: Setting up machine state.\n");
     I_CheckIsScreensaver();

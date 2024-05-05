@@ -1320,9 +1320,14 @@ static void M_DrawCRL_Video (void)
                  M_Item_Glow(9, show_endoom ? GLOW_GREEN : GLOW_DARKRED));
 
     // Colorblind
-    sprintf(str, crl_colorblind == 1 ? "RED/GREEN" :
-                 crl_colorblind == 2 ? "BLUE/YELLOW" :
-                 crl_colorblind == 3 ? "MONOCHROME" : "NONE");
+    sprintf(str, crl_colorblind == 1 ? "PROTANOPIA"    :
+                 crl_colorblind == 2 ? "PROTANOMALY"   :
+                 crl_colorblind == 3 ? "DEUTERANOPIA"  :
+                 crl_colorblind == 4 ? "DEUTERANOMALY" :
+                 crl_colorblind == 5 ? "TRITANOPIA"    :
+                 crl_colorblind == 6 ? "TRITANOMALY"   :
+                 crl_colorblind == 7 ? "ACHROMATOPSIA" :
+                 crl_colorblind == 8 ? "ACHROMATOMALY" : "NONE");
     M_WriteText (M_ItemRightAlign(str), 124, str,
                  M_Item_Glow(10, crl_colorblind ? GLOW_GREEN : GLOW_DARKRED));
 }
@@ -1403,7 +1408,7 @@ static void M_CRL_ShowENDOOM (int choice)
 
 static void M_CRL_Colorblind (int choice)
 {
-    crl_colorblind = M_INT_Slider(crl_colorblind, 0, 3, choice, false);
+    crl_colorblind = M_INT_Slider(crl_colorblind, 0, 8, choice, false);
 
     // [JN] 1 - always do a full palette reset when colorblind is changed.
     I_SetPalette ((byte *)W_CacheLumpName(DEH_String("PLAYPAL"), PU_CACHE) + st_palette * 768, 1);
