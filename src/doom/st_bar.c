@@ -895,8 +895,7 @@ static void ST_updateFaceWidget (void)
 void CRL_ReloadPalette (void)
 {
     byte *pal = (byte *) W_CacheLumpNum (lu_palette, PU_CACHE)+st_palette*768;
-    // [JN] crl_colorblind - do full palette reset if colorblind is enabled.
-    I_SetPalette (pal, crl_colorblind);
+    I_SetPalette (pal);
 }
 
 // -----------------------------------------------------------------------------

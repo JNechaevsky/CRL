@@ -988,7 +988,7 @@ static const double colorblind_matrix[][3][3] = {
 //
 // I_SetPalette
 //
-void I_SetPalette (byte *doompalette, int full_reset)
+void I_SetPalette (byte *doompalette)
 {
     int i;
 
@@ -1625,9 +1625,8 @@ void I_InitGraphics(void)
 
     // Set the palette
 
-    // [JN] 1 - always generate HOM colors at startup.
     doompal = W_CacheLumpName(DEH_String("PLAYPAL"), PU_CACHE);
-    I_SetPalette(doompal, 1);
+    I_SetPalette(doompal);
     SDL_SetPaletteColors(screenbuffer->format->palette, palette, 0, 256);
 
     // SDL2-TODO UpdateFocus();
