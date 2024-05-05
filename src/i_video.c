@@ -1009,7 +1009,7 @@ void I_SetPalette (byte *doompalette)
         for (i = 0 ; i < 256 ; ++i)
         {
             // [JN] Extended palette handling routine to emulate colorblind,
-            // based on implementation from DOOM Retro.
+            // based on implementation from DOOM Retro, thanks Brad Harding!
             const byte   *gamma = gammatable[crl_gamma];
             const byte    r = gamma[*doompalette++];
             const byte    g = gamma[*doompalette++];
