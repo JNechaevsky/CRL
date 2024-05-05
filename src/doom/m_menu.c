@@ -1330,6 +1330,20 @@ static void M_DrawCRL_Video (void)
                  crl_colorblind == 8 ? "ACHROMATOMALY" : "NONE");
     M_WriteText (M_ItemRightAlign(str), 124, str,
                  M_Item_Glow(10, crl_colorblind ? GLOW_GREEN : GLOW_DARKRED));
+
+    // Print hint about colorblind type
+    if (itemOn == 10 && crl_colorblind)
+    {
+        M_WriteTextCentered(151, crl_colorblind == 1 ? "RED-BLIND"    :
+                                 crl_colorblind == 2 ? "RED-WEAK"     :
+                                 crl_colorblind == 3 ? "GREEN-BLIND"  :
+                                 crl_colorblind == 4 ? "GREEN-WEAK"   :
+                                 crl_colorblind == 5 ? "BLUE-BLIND"   :
+                                 crl_colorblind == 6 ? "BLUE-WEAK"    :
+                                 crl_colorblind == 7 ? "MONOCHROMACY" :
+                              /* crl_colorblind == 8*/ "BLUE CONE MONOCHROMACY",
+                                                       cr[CR_WHITE]);
+    }
 }
 
 static void M_CRL_UncappedFPS (int choice)

@@ -1931,6 +1931,8 @@ void D_DoomMain (void)
     PrintDehackedBanners();
 
     // RestlessRodent -- Initializes CRL
+    // [JN] Moved below wad loading routines, we need PLAYPAL lump(s)
+    // to be loaded for HOM multi colors initialization.
     CRL_Init();
 
     DEH_printf("I_Init: Setting up machine state.\n");

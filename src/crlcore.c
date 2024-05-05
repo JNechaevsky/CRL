@@ -146,7 +146,6 @@ int CRL_homcolor;  // Color to use
 void CRL_Init (void)
 {
     int i;
-    unsigned char *playpal = W_CacheLumpName("PLAYPAL", PU_STATIC);
 
     // Make plane surface
     _planesize = SCREENAREA * sizeof(*CRLPlaneSurface);
@@ -155,15 +154,19 @@ void CRL_Init (void)
 
     // [JN] Initialize HOM (RGBY) multi colors, but prevent
     // using too bright values by multiplying by 3, not by 4.
-    for (i = 0; i < 64 ; i++)
     {
-        _homtable[i]     = V_GetPaletteIndex(playpal, i*3,   0,   0);
-        _homtable[i+64]  = V_GetPaletteIndex(playpal,   0, i*3,   0);
-        _homtable[i+128] = V_GetPaletteIndex(playpal,   0,   0, i*3);
-        _homtable[i+192] = V_GetPaletteIndex(playpal, i*3, i*3,   0);
-    }
+        unsigned char *playpal = W_CacheLumpName("PLAYPAL", PU_STATIC);
 
-    W_ReleaseLumpName("PLAYPAL");
+        for (i = 0; i < 64 ; i++)
+        {
+            _homtable[i]     = V_GetPaletteIndex(playpal, i*3,   0,   0);
+            _homtable[i+64]  = V_GetPaletteIndex(playpal,   0, i*3,   0);
+            _homtable[i+128] = V_GetPaletteIndex(playpal,   0,   0, i*3);
+            _homtable[i+192] = V_GetPaletteIndex(playpal, i*3, i*3,   0);
+        }
+
+        W_ReleaseLumpName("PLAYPAL");
+    }
 }
 
 
