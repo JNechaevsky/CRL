@@ -2157,6 +2157,8 @@ void G_DoLoadGame (void)
     P_UnArchiveTotalTimes ();
     // [JN] Restore monster targets.
     P_RestoreTargets ();
+    // [plums] Restore old sector specials.
+    P_UnArchiveOldSpecials ();
 
     fclose(save_stream);
     
@@ -2238,6 +2240,10 @@ void G_DoSaveGame (void)
     // [JN] Write total level times after EOF terminator
     // to keep compatibility with vanilla save games.
     P_ArchiveTotalTimes ();
+
+    // [plums] write old sector specials (for revealed secrets) at the end
+    // to keep save compatibility with previous versions
+    P_ArchiveOldSpecials ();
 
     // Enforce the same savegame size limit as in Vanilla Doom,
     // except if the vanilla_savegame_limit setting is turned off.

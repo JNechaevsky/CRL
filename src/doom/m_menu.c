@@ -2963,7 +2963,8 @@ static void M_DrawCRL_Widgets (void)
                  M_Item_Glow(12, crl_automap_mode ? GLOW_GREEN : GLOW_DARKRED));
 
     // Mark secret sectors
-    sprintf(str, crl_automap_secrets ? "ON" : "OFF");
+    sprintf(str, crl_automap_secrets == 1 ? "REVEALED" :
+                 crl_automap_secrets == 2 ? "ALWAYS" : "OFF");
     M_WriteText (M_ItemRightAlign(str), 151, str,
                  M_Item_Glow(13, crl_automap_secrets ? GLOW_GREEN : GLOW_DARKRED));
 }
@@ -3030,7 +3031,7 @@ static void M_CRL_Automap_Drawing (int choice)
 
 static void M_CRL_Automap_Secrets (int choice)
 {
-    crl_automap_secrets ^= 1;
+   crl_automap_secrets = M_INT_Slider(crl_automap_secrets, 0, 2, choice, false);
 }
 
 // -----------------------------------------------------------------------------

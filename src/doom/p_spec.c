@@ -1062,6 +1062,7 @@ void P_PlayerInSpecialSector (player_t* player)
       case 9:
 	// SECRET SECTOR
 	player->secretcount++;
+	sector->oldspecial = sector->special;
 	sector->special = 0;
 	// [JN] CRL - "A secret is revelaed!" message.
 	if (crl_revealed_secrets)

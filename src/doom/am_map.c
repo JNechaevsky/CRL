@@ -77,6 +77,7 @@
 
 // [JN] Make wall colors of secret sectors palette-independent.
 static int secretwallcolors;
+static int foundsecretwallcolors;
 
 // drawing stuff
 #define AM_NUMMARKPOINTS 10
@@ -285,6 +286,7 @@ void AM_Init (void)
     if (original_playpal)
     {
         secretwallcolors = SECRETWALLCOLORS;
+        foundsecretwallcolors = GREENS;
     }
     else
     {
@@ -294,6 +296,7 @@ void AM_Init (void)
         unsigned char *playpal = W_CacheLumpName("PLAYPAL", PU_STATIC);
 
         secretwallcolors = V_GetPaletteIndex(playpal, 255, 0, 255);
+        foundsecretwallcolors = V_GetPaletteIndex(playpal, 119, 255, 111);
 
         W_ReleaseLumpName("PLAYPAL");
     }
@@ -1460,9 +1463,14 @@ static void AM_drawWalls (void)
             if (!lines[i].backsector)
             {
                 // [JN] CRL - mark secret sectors.
-                if (crl_automap_secrets && lines[i].frontsector->special == 9)
+                if (crl_automap_secrets > 1 && lines[i].frontsector->special == 9)
                 {
                     AM_drawMline(&l, secretwallcolors);
+                }
+                // [plums] show revealed secrets
+                else if (crl_automap_secrets && lines[i].frontsector->oldspecial == 9)
+                {
+                    AM_drawMline(&l, foundsecretwallcolors);
                 }
                 else
                 {
@@ -1483,11 +1491,18 @@ static void AM_drawWalls (void)
                 }
                 // [JN] CRL - mark secret sectors.
                 else
-                if (crl_automap_secrets 
+                if (crl_automap_secrets > 1
                 && (lines[i].frontsector->special == 9
                 ||  lines[i].backsector->special == 9))
                 {
                     AM_drawMline(&l, secretwallcolors);
+                }
+                // [plums] show revealed secrets
+                else if (crl_automap_secrets
+                && (lines[i].frontsector->oldspecial == 9
+                ||  lines[i].backsector->oldspecial == 9))
+                {
+                    AM_drawMline(&l, foundsecretwallcolors);
                 }
                 else
                 if (lines[i].backsector->floorheight
