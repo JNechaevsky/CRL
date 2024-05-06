@@ -331,6 +331,8 @@ void P_ZMovement (mobj_t* mo)
 		S_StartSound (mo, sfx_oof);
 	    }
 	    mo->momz = 0;
+	    // [JN] CRL - player landed after Arch-Vile Fly, disable controls while airborne.
+	    CRL_aircontrol = false;
 	}
 	mo->z = mo->floorz;
 

@@ -401,6 +401,7 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_KEY(key_crl_autorun),
     CONFIG_VARIABLE_KEY(key_crl_novert),
     CONFIG_VARIABLE_KEY(key_crl_vilebomb),
+    CONFIG_VARIABLE_KEY(key_crl_vilefly),
     CONFIG_VARIABLE_KEY(key_crl_clearmax),
     CONFIG_VARIABLE_KEY(key_crl_movetomax),
     

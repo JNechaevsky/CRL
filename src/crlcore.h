@@ -218,6 +218,7 @@ extern void CRL_DrawFPS (void);
 extern int  CRL_fps;
 
 extern boolean CRL_vilebomb;
+extern boolean CRL_aircontrol;
 
 // [crispy] demo progress bar and timer widget
 extern int  demowarp;
