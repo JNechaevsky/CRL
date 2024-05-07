@@ -607,7 +607,6 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
             CRL_aircontrol = true;
             // Copied over from A_VileAttack:
             players[consoleplayer].mo->momz = 1000*FRACUNIT / players[consoleplayer].mo->info->mass;
-            players[consoleplayer].vilebombdown = true;
         }
 
         // Clear MAX visplanes.
