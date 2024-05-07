@@ -89,8 +89,8 @@ int CRL_fps;
 
 // [JN] Imitate jump by Arch-Vile's attack.
 // Do not modify buttoncode_t (d_event.h) for consistency.
-boolean CRL_vilebomb;
-// [JN] Allow controls while airborne after using Arch-Vile fly.
+boolean CRL_vilebomb = false;
+// [JN] Allow airborne controls while using Arch-Vile fly.
 boolean CRL_aircontrol = false;
 
 // [JN] Demo warp from Crispy Doom.

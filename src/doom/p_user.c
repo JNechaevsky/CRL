@@ -151,7 +151,7 @@ void P_MovePlayer (player_t* player)
     // Do not let the player control movement
     //  if not onground.
     onground = (player->mo->z <= player->mo->floorz);
-    // [JN] CRL - allow to control while Arch-Vile's Fly.
+    // [JN] CRL - allow airborne controls while Arch-Vile's Fly as well.
     onground |= CRL_aircontrol;
 	
     if (cmd->forwardmove && onground)

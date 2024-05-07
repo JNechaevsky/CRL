@@ -611,7 +611,7 @@ static void M_DrawCRL_Keybinds_3 (void);
 static void M_Bind_AlwaysRun (int choice);
 static void M_Bind_NoVert (int choice);
 static void M_Bind_VileBomb (int choice);
-static void M_Bind_VileBomb2 (int choice);
+static void M_Bind_VileFly (int choice);
 static void M_Bind_ClearMAX (int choice);
 static void M_Bind_MoveToMAX (int choice);
 static void M_Bind_IDDQD (int choice);
@@ -2134,7 +2134,7 @@ static menuitem_t CRLMenu_Keybinds_3[]=
     { M_SWTC, "ALWAYS RUN",              M_Bind_AlwaysRun,  'a'  },
     { M_SWTC, "VERTICAL MOUSE MOVEMENT", M_Bind_NoVert,     'v'  },
     { M_SWTC, "ARCH-VILE JUMP (PRESS)",  M_Bind_VileBomb,   'a'  },
-    { M_SWTC, "ARCH-VILE FLY (HOLD)",    M_Bind_VileBomb2,  'a'  },
+    { M_SWTC, "ARCH-VILE FLY (HOLD)",    M_Bind_VileFly,    'a'  },
     { M_SKIP, "",                        0,                 '\0' },  // VISPLANES MAX VALUE
     { M_SWTC, "CLEAR MAX",               M_Bind_ClearMAX,   'c'  },
     { M_SWTC, "MOVE TO MAX ",            M_Bind_MoveToMAX,  'm'  },
@@ -2175,7 +2175,7 @@ static void M_Bind_VileBomb (int choice)
     M_StartBind(302);  // key_crl_vilebomb
 }
 
-static void M_Bind_VileBomb2 (int choice)
+static void M_Bind_VileFly (int choice)
 {
     M_StartBind(303);  // key_crl_vilefly
 }
