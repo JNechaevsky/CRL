@@ -199,6 +199,14 @@ void P_XYMovement (mobj_t* mo)
 	mo->momx = mo->momy = 0;
 	return;
     }
+    
+    // [JN] CRL - limit/supress momentum while airborne to
+    // avoid having too high speed boost.
+    if (CRL_aircontrol)
+    {
+        mo->momx *= 0.925;
+        mo->momy *= 0.925;
+    }
 
     if (mo->flags & (MF_MISSILE | MF_SKULLFLY) )
 	return; 	// no friction for missiles ever
@@ -811,6 +819,8 @@ void P_SpawnPlayer (mapthing_t* mthing)
     CRL_invis_counter = 0;
     CRL_rad_counter = 0;
     CRL_amp_counter = 0;
+    // [JN] CRL - disallow airborne controls.
+    CRL_aircontrol = false;
 
     // [crispy] interpolate weapon bobbing
     pspr_interp = false;

@@ -192,8 +192,6 @@ void P_DeathThink (player_t* player)
 
     player->deltaviewheight = 0;
     onground = (player->mo->z <= player->mo->floorz);
-    // [JN] CRL - disallow airborne controls, just in case.
-    CRL_aircontrol = false;
     P_CalcHeight (player);
 	
     if (player->attacker && player->attacker != player->mo)

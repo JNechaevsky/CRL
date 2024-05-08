@@ -1563,6 +1563,8 @@ void G_PlayerFinishLevel (int player)
     }
     // [JN] Return controls to the player.
     crl_spectating = 0;
+    // [JN] CRL - disallow airborne controls.
+    CRL_aircontrol = false;
     // [JN] CRL - clear MAX visplanes.
     CRL_Clear_MAX();
 } 
