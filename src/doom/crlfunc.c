@@ -34,6 +34,48 @@
 
 // =============================================================================
 //
+//                                Spectator mode
+//
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// CRL_MoveTo_Camera
+//  [JN] Moves player to spectator camera position.
+// -----------------------------------------------------------------------------
+
+void CRL_MoveTo_Camera (void)
+{
+    // It's single player only function, so operate with consoleplayer.
+    player_t *player = &players[consoleplayer];
+
+    // Define subsector we will move on.
+    subsector_t *ss = R_PointInSubsector(viewx, viewy);
+
+    // Supress interpolation for next frame.
+    player->mo->interp = -1;    
+    // Unset player from subsector and/or block links.
+    P_UnsetThingPosition(player->mo);
+    // Set new position.
+    player->mo->x = CRL_camera_x;
+    player->mo->y = CRL_camera_y;
+    // Things a big more complicated in uncapped frame rate, so we have
+    // to properly update both z and viewz to prevent one frame jitter.
+    player->mo->z = CRL_camera_z - player->viewheight;
+    player->viewz = player->mo->z + player->viewheight;
+    // Supress any horizontal and vertical momentums.
+    player->mo->momx = player->mo->momy = player->mo->momz = 0;
+    // Set angle and heights.
+    player->mo->angle = viewangle;
+    player->mo->floorz = ss->sector->interpfloorheight;
+    player->mo->ceilingz = ss->sector->interpceilingheight;
+    // Set new position in subsector and/or block links.
+    P_SetThingPosition(player->mo);
+    // Check for surroundings for possible interaction with pickups.
+    P_CheckPosition(player->mo, player->mo->x, player->mo->y);
+}
+
+// =============================================================================
+//
 //                        Render Counters and Widgets
 //
 // =============================================================================

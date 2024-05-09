@@ -589,6 +589,14 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
     // for keeping demo compatibility.
     if (singleplayer)
     {
+        // Spectator - go to camera position.
+        if (gamekeydown[key_crl_cameramoveto] && crl_spectating)
+        {
+            CRL_MoveTo_Camera();
+            CRL_SetMessage(&players[consoleplayer], "MOVE TO CAMERA POSITION", false, NULL);
+            crl_spectating = 0;
+        }
+        
         // Iimitate jump by Arch-Vile's attack (press).
         if (gamekeydown[key_crl_vilebomb])
         {
