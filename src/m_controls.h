@@ -179,6 +179,7 @@ extern int key_crl_menu;
 extern int key_crl_spectator;
 extern int key_crl_cameraup;
 extern int key_crl_cameradown;
+extern int key_crl_cameramoveto;
 extern int key_crl_freeze;
 extern int key_crl_buddha;
 extern int key_crl_notarget;

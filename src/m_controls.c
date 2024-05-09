@@ -218,6 +218,7 @@ int key_crl_menu = '`';
 int key_crl_spectator = 0;
 int key_crl_cameraup = 0;
 int key_crl_cameradown = 0;
+int key_crl_cameramoveto = 0;
 
 int key_crl_freeze = 0;
 int key_crl_buddha = 0;
@@ -395,6 +396,7 @@ void M_BindMenuControls(void)
     M_BindIntVariable("key_crl_spectator",    &key_crl_spectator);
     M_BindIntVariable("key_crl_cameraup",     &key_crl_cameraup);
     M_BindIntVariable("key_crl_cameradown",   &key_crl_cameradown);
+    M_BindIntVariable("key_crl_cameramoveto", &key_crl_cameramoveto);
 
     M_BindIntVariable("key_crl_freeze",       &key_crl_freeze);
     M_BindIntVariable("key_crl_buddha",       &key_crl_buddha);
