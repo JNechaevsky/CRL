@@ -1973,7 +1973,10 @@ static void AM_MapNameDrawer (void)
     static char str[128];
 
     sprintf(str, "%s", level_name);
+    // [JN] Apply translucency while Save/Load menu is active.
+    dp_translucent = savemenuactive;
     M_WriteText(0, 160, str, NULL);
+    dp_translucent = false;
 }
 
 // -----------------------------------------------------------------------------
