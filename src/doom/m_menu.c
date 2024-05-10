@@ -1314,13 +1314,13 @@ static void M_DrawCRL_Video (void)
     sprintf(str, crl_screenwipe == 1 ? "ON" :
                  crl_screenwipe == 2 ? "FAST" : "OFF");
     M_WriteText (M_ItemRightAlign(str), 106, str,
-                 M_Item_Glow(8, crl_screenwipe ? GLOW_GREEN : GLOW_DARKRED));
+                 M_Item_Glow(8, crl_screenwipe == 1 ? GLOW_DARKRED : GLOW_GREEN));
 
     // Screen ENDOOM screen
     sprintf(str, show_endoom == 1 ? "ALWAYS" :
-                 show_endoom == 2 ? "PWAD ONLY" : "OFF");
+                 show_endoom == 2 ? "PWAD ONLY" : "NEVER");
     M_WriteText (M_ItemRightAlign(str), 115, str, 
-                 M_Item_Glow(9, show_endoom ? GLOW_GREEN : GLOW_DARKRED));
+                 M_Item_Glow(9, show_endoom == 1 ? GLOW_DARKRED : GLOW_GREEN));
 
     // Colorblind
     sprintf(str, crl_colorblind == 1 ? "PROTANOPIA"    :
