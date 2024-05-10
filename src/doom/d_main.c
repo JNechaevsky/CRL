@@ -1265,6 +1265,7 @@ void PrintGameVersion(void)
 static void D_Endoom(void)
 {
     byte *endoom;
+    const char *endoom_name;
 
     // Don't show ENDOOM if we have it disabled, or we're running
     // in screensaver or control test mode. Only show it once the
@@ -1276,9 +1277,15 @@ static void D_Endoom(void)
         return;
     }
 
-    endoom = W_CacheLumpName(DEH_String("ENDOOM"), PU_STATIC);
-
-    I_Endoom(endoom);
+    // [JN] Extended to show for "PWAD only".
+    endoom_name = DEH_String("ENDOOM");
+    endoom = W_CacheLumpName(endoom_name, PU_STATIC);
+    
+    if (show_endoom == 1
+    || (show_endoom == 2 && !W_IsIWADLump(lumpinfo[W_GetNumForName(endoom_name)])))
+    {
+        I_Endoom(endoom);
+    }
 }
 
 boolean IsFrenchIWAD(void)

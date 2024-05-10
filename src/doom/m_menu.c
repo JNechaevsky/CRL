@@ -1317,7 +1317,8 @@ static void M_DrawCRL_Video (void)
                  M_Item_Glow(8, crl_screenwipe ? GLOW_GREEN : GLOW_DARKRED));
 
     // Screen ENDOOM screen
-    sprintf(str, show_endoom ? "ON" : "OFF");
+    sprintf(str, show_endoom == 1 ? "ALWAYS" :
+                 show_endoom == 2 ? "PWAD ONLY" : "OFF");
     M_WriteText (M_ItemRightAlign(str), 115, str, 
                  M_Item_Glow(9, show_endoom ? GLOW_GREEN : GLOW_DARKRED));
 
@@ -1419,7 +1420,7 @@ static void M_CRL_ScreenWipe (int choice)
 
 static void M_CRL_ShowENDOOM (int choice)
 {
-    show_endoom ^= 1;
+    show_endoom = M_INT_Slider(show_endoom, 0, 2, choice, false);
 }
 
 static void M_CRL_Colorblind (int choice)
