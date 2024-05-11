@@ -3378,7 +3378,7 @@ static void M_DrawSaveLoadBottomLine (void)
 #if defined(__GNUC__)
 #  pragma GCC diagnostic pop
 #endif
-        M_WriteTextCentered(160, filedate, cr[CR_MENU_DARK2]);
+        M_WriteTextCentered(160, filedate, cr[CR_MENU_DARK1]);
     }
 }
 
