@@ -1281,6 +1281,17 @@ void I_GraphicsCheckCommandLine(void)
     {
         SetScaleFactor(3);
     }
+
+    //!
+    // @category video
+    //
+    // Double up the screen to 4x its normal size. Implies -window.
+    //
+
+    if (M_CheckParm("-4")) 
+    {
+        SetScaleFactor(4);
+    }
 }
 
 // Check if we have been invoked as a screensaver by xscreensaver.
