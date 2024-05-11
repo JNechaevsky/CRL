@@ -161,7 +161,7 @@ extern void AM_Stop(void);
 
 void IN_Start(void)
 {
-    I_SetPalette(W_CacheLumpName(DEH_String("PLAYPAL"), PU_CACHE), false); // [JN] TODO - colorblind
+    I_SetPalette(W_CacheLumpName(DEH_String("PLAYPAL"), PU_CACHE));
     IN_LoadPics();
     IN_InitStats();
     intermission = true;

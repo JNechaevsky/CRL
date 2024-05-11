@@ -317,7 +317,7 @@ void F_DrawUnderwater(void)
                 V_DrawFilledBox(0, 0, SCREENWIDTH, SCREENHEIGHT, 0);
                 lumpname = DEH_String("E2PAL");
                 palette = W_CacheLumpName(lumpname, PU_STATIC);
-                I_SetPalette(palette, false); // [JN] TODO - colorblind
+                I_SetPalette(palette);
                 W_ReleaseLumpName(lumpname);
                 V_DrawRawScreen(W_CacheLumpName(DEH_String("E2END"), PU_CACHE));
             }
@@ -331,7 +331,7 @@ void F_DrawUnderwater(void)
             {
                 lumpname = DEH_String("PLAYPAL");
                 palette = W_CacheLumpName(lumpname, PU_STATIC);
-                I_SetPalette(palette, false); // [JN] TODO - colorblind
+                I_SetPalette(palette);
                 W_ReleaseLumpName(lumpname);
                 underwawa = false;
             }

@@ -513,6 +513,7 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
     {
         look = -lspeed;
     }
+    /*
     if (use_analog && joylook)
     {
         joylook = joylook * joystick_look_sensitivity / 10;
@@ -532,6 +533,7 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
             look = -lspeed;
         }
     }
+    */
     // haleyjd: removed externdriver crap
     if (gamekeydown[key_lookcenter])
     {
@@ -2128,11 +2130,8 @@ void G_WriteDemoTiccmd(ticcmd_t * cmd)
 
     if (demo_p > demoend - 16)
     {
-        if (vanilla_demo_limit)
+        // [crispy] unconditionally disable savegame and demo limits
         {
-            // [JN] CRL - print in-game warning instead of quit.        
-            CRL_SetMessageCritical("G[WRITEDEMOTICCMD:", "DEMO OVERFLOW (VANILLA STOPS HERE)", MESSAGETICS);
-
             // Vanilla demo limit disabled: unlimited demo lengths!
             IncreaseDemoBuffer();
         }

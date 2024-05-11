@@ -801,7 +801,6 @@ void D_BindVariables(void)
     M_BindIntVariable("screenblocks",           &screenblocks);
     M_BindIntVariable("snd_channels",           &snd_Channels);
     M_BindIntVariable("vanilla_savegame_limit", &vanilla_savegame_limit);
-    M_BindIntVariable("vanilla_demo_limit",     &vanilla_demo_limit);
     M_BindIntVariable("show_endoom",            &show_endoom);
     M_BindIntVariable("graphical_startup",      &graphical_startup);
 
@@ -1028,9 +1027,6 @@ void D_DoomMain(void)
 
     I_AtExit(M_SaveDefaults, true); // [crispy] always save configuration at exit
 
-    // RestlessRodent -- Initializes CRL
-    CRL_Init(CRL_PlaneBorderColors, NUMPLANEBORDERCOLORS, 128);
-
     DEH_printf("W_Init: Init WADfiles.\n");
 
     iwadfile = D_FindIWAD(IWAD_MASK_HERETIC, &gamemission);
@@ -1158,6 +1154,12 @@ void D_DoomMain(void)
     savegamedir = M_GetSaveGameDir("heretic.wad");
 
     I_PrintStartupBanner(gamedescription);
+
+    // RestlessRodent -- Initializes CRL
+    // [JN] Moved below wad loading routines, we need PLAYPAL lump(s)
+    // to be loaded for HOM multi colors initialization.
+    CRL_Init();
+
 
     if (M_ParmExists("-testcontrols"))
     {

@@ -1000,7 +1000,7 @@ static boolean CRL_Gamma (int option)
         default:
             break;
     }
-    I_SetPalette(W_CacheLumpName("PLAYPAL", PU_CACHE), false); // [JN] TODO - colorblind
+    I_SetPalette(W_CacheLumpName("PLAYPAL", PU_CACHE));
     return true;
 }
 
@@ -2657,9 +2657,11 @@ static void DrawCRLLimits (void)
     MN_DrTextACentered("STATIC ENGINE LIMITS", 20, cr[CR_YELLOW]);
 
     // Prevent Z_Malloc errors
+    /*
     sprintf(str, crl_prevent_zmalloc ? "ON" : "OFF");
     MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 30,
                M_Item_Glow(0, crl_prevent_zmalloc ? GLOW_GREEN : GLOW_RED));
+               */
 
     // Save game limit warning
     sprintf(str, vanilla_savegame_limit ? "ON" : "OFF");
@@ -2667,9 +2669,11 @@ static void DrawCRLLimits (void)
                M_Item_Glow(1, vanilla_savegame_limit ? GLOW_GREEN : GLOW_RED));
 
     // Demo lenght limit warning
+    /*
     sprintf(str, vanilla_demo_limit ? "ON" : "OFF");
     MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 50,
                M_Item_Glow(2, vanilla_demo_limit ? GLOW_GREEN : GLOW_RED));
+               */
 
     // Level of the limits
     sprintf(str, crl_vanilla_limits ? "VANILLA" : "HERETIC-PLUS");
@@ -2705,7 +2709,7 @@ static void DrawCRLLimits (void)
 
 static boolean CRL_ZMalloc (int option)
 {
-    crl_prevent_zmalloc ^= 1;
+    //crl_prevent_zmalloc ^= 1;
     return true;
 }
 
@@ -2717,7 +2721,7 @@ static boolean CRL_SaveSizeWarning (int option)
 
 static boolean CRL_DemoSizeWarning (int option)
 {
-    vanilla_demo_limit ^= 1;
+    //vanilla_demo_limit ^= 1;
     return true;
 }
 
@@ -3942,7 +3946,7 @@ boolean MN_Responder(event_t * event)
                     players[consoleplayer].message = NULL;
                     paused = false;
                     I_SetPalette(W_CacheLumpName
-                                 ("PLAYPAL", PU_CACHE), false); // [JN] TODO - colorblind
+                                 ("PLAYPAL", PU_CACHE));
                     D_StartTitle();     // go to intro/demo mode.
                     break;
 
@@ -4191,7 +4195,7 @@ boolean MN_Responder(event_t * event)
                 crl_gamma = 0;
             }
             P_SetMessage(&players[consoleplayer], gammamsg[crl_gamma], false);
-            I_SetPalette((byte *) W_CacheLumpName("PLAYPAL", PU_CACHE), false); // [JN] TODO - colorblind
+            I_SetPalette((byte *) W_CacheLumpName("PLAYPAL", PU_CACHE));
             return true;
         }
         // [crispy] those two can be considered as shortcuts for the IDCLEV cheat
@@ -4539,7 +4543,7 @@ void MN_DeactivateMenu(void)
 
 void MN_DrawInfo(void)
 {
-    I_SetPalette(W_CacheLumpName("PLAYPAL", PU_CACHE), false); // [JN] TODO - colorblind
+    I_SetPalette(W_CacheLumpName("PLAYPAL", PU_CACHE));
     V_DrawRawScreen(W_CacheLumpNum(W_GetNumForName("TITLE") + InfoType,
                                    PU_CACHE));
 //      V_DrawPatch(0, 0, W_CacheLumpNum(W_GetNumForName("TITLE")+InfoType,

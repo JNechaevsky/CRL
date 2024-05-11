@@ -828,7 +828,7 @@ void SB_PaletteFlash(void)
     {
         sb_palette = palette;
         pal = (byte *) W_CacheLumpNum(playpalette, PU_CACHE) + palette * 768;
-        I_SetPalette(pal, false); // [JN] TODO - colorblind
+        I_SetPalette(pal);
     }
 }
 
