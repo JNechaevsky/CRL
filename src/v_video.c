@@ -297,10 +297,8 @@ void V_DrawShadowedPatch (int x, int y, const patch_t *patch, const char *name)
         // step through the posts in a column
         while (column->topdelta != 0xff)
         {
-            const short column_delta = column->topdelta * SCREENWIDTH;
-
             source = sourcetrans = (byte *) column + 3;
-            dest = desttop + column_delta;
+            dest = desttop + column->topdelta*SCREENWIDTH;
             dest2 = dest + SCREENWIDTH + 1;
             count = column->length;
 
@@ -434,10 +432,8 @@ void V_DrawShadowedPatchRavenOptional (int x, int y, const patch_t *patch, const
         // step through the posts in a column
         while (column->topdelta != 0xff)
         {
-            const short column_delta = column->topdelta * SCREENWIDTH;
-
             source = sourcetrans = (byte *) column + 3;
-            dest = desttop + column_delta;
+            dest = desttop + column->topdelta*SCREENWIDTH;
             dest2 = dest + SCREENWIDTH + 1;
             count = column->length;
 
