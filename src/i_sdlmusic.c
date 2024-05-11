@@ -25,7 +25,6 @@
 #include <ctype.h>
 
 #include "SDL.h"
-#include "SDL_mixer.h"
 
 #include "config.h"
 #include "doomtype.h"
@@ -127,6 +126,8 @@ void I_InitTimidityConfig(void)
 
 
 #ifndef DISABLE_SDL2MIXER
+
+#include "SDL_mixer.h"
 
 
 #define MAXMIDLENGTH (96 * 1024)
