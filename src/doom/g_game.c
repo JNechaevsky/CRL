@@ -592,8 +592,8 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
         // Spectator - go to camera position.
         if (gamekeydown[key_crl_cameramoveto] && crl_spectating)
         {
-            CRL_MoveTo_Camera();
             CRL_SetMessage(&players[consoleplayer], "MOVE TO CAMERA POSITION", false, NULL);
+            CRL_MoveTo_Camera();
             crl_spectating = 0;
         }
         
@@ -630,8 +630,8 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
         {
             demoplayback = false;
             netdemo = false;
-            CRL_MoveTo_MAX();
             CRL_SetMessage(&players[consoleplayer], "MOVE TO MAX", false, NULL);
+            CRL_MoveTo_MAX();
         }
     }
 
