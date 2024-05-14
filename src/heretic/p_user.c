@@ -405,7 +405,7 @@ void P_DeathThink(player_t * player)
     {
         if (player == &players[consoleplayer])
         {
-            I_SetPalette(W_CacheLumpName(DEH_String("PLAYPAL"), PU_CACHE), false); // [JN] TODO - colorblind
+            I_SetPalette(W_CacheLumpName(DEH_String("PLAYPAL"), PU_CACHE));
             inv_ptr = 0;
             curpos = 0;
             newtorch = 0;

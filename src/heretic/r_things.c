@@ -147,9 +147,9 @@ void R_InstallSpriteLump(int lump, unsigned frame, unsigned rotation,
 =================
 */
 
-void R_InitSpriteDefs(char **namelist)
+void R_InitSpriteDefs(const char **namelist)
 {
-    char **check;
+    const char **check;
     int i, l, frame, rotation;
     int start, end;
 
@@ -261,7 +261,7 @@ int newvissprite;
 ===================
 */
 
-void R_InitSprites(char **namelist)
+void R_InitSprites(const char **namelist)
 {
     int i;
 
@@ -771,6 +771,7 @@ void R_DrawPSprite(pspdef_t * psp)
     vis = &avis;
     vis->mobjflags = 0;
     vis->psprite = true;
+    vis->footclip = 0;
     vis->texturemid =
         (BASEYCENTER << FRACBITS) + FRACUNIT / 2 - (psp->sy -
                                                     spritetopoffset[lump]);

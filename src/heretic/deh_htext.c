@@ -690,7 +690,7 @@ static boolean StringIsUnsupported(unsigned int offset)
     return false;
 }
 
-static boolean GetStringByOffset(unsigned int offset, char **result)
+static boolean GetStringByOffset(unsigned int offset, const char **result)
 {
     int i;
 
@@ -769,7 +769,7 @@ static void SuggestOtherVersions(unsigned int offset)
 static void *DEH_TextStart(deh_context_t *context, char *line)
 {
     char *repl_text;
-    char *orig_text;
+    const char *orig_text;
     int orig_offset, repl_len;
     int i;
 
