@@ -39,9 +39,6 @@
 #define FIELDOFVIEW		2048	
 
 
-// [JN] Will be false if modified PLAYPAL lump is loaded.
-boolean original_playpal = true;
-
 int			viewangleoffset;
 
 // increment every time a check is made
@@ -734,12 +731,6 @@ void R_ExecuteSetViewSize (void)
 
 void R_Init (void)
 {
-    // [JN] Check for modified PLAYPAL lump.
-    if (W_CheckMultipleLumps("PLAYPAL") > 1)
-    {
-        original_playpal = false;
-    }
-
     // [JN] CRL - define static engine limits.
     CRL_SetStaticLimits("DOOM+");
 

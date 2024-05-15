@@ -283,23 +283,13 @@ static angle_t mapangle;
 
 void AM_Init (void)
 {
-    if (original_playpal)
-    {
-        secretwallcolors = SECRETWALLCOLORS;
-        foundsecretwallcolors = GREENS;
-    }
-    else
-    {
-        // [JN] Find closest to magenta color.
-        // Lock PLAYPAL lump and release it imideatelly after the color is found.
+    unsigned char *playpal = W_CacheLumpName("PLAYPAL", PU_STATIC);
 
-        unsigned char *playpal = W_CacheLumpName("PLAYPAL", PU_STATIC);
+    // [JN] Find closest to magenta and green colors.
+    secretwallcolors = V_GetPaletteIndex(playpal, 255, 0, 255);
+    foundsecretwallcolors = V_GetPaletteIndex(playpal, 119, 255, 111);
 
-        secretwallcolors = V_GetPaletteIndex(playpal, 255, 0, 255);
-        foundsecretwallcolors = V_GetPaletteIndex(playpal, 119, 255, 111);
-
-        W_ReleaseLumpName("PLAYPAL");
-    }
+    W_ReleaseLumpName("PLAYPAL");
 }
 
 // -----------------------------------------------------------------------------

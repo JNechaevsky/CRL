@@ -703,53 +703,41 @@ enum {
 
 static void R_InitTintMap (void)
 {
-    // [JN] Check if we have a modified PLAYPAL palette to decide
-    // how to load translucency table: as pregenerated or as generated dynamically.
-    if (original_playpal)
+    // Compose a default transparent filter map based on PLAYPAL.
+    unsigned char *playpal = W_CacheLumpName("PLAYPAL", PU_STATIC);
+
+    tintmap = Z_Malloc(256*256, PU_STATIC, 0);
+
     {
-        // [JN] We don't. Load pregenerated table for faster startup.
-        tintmap = tintmap_original;
-    }
-    else
-    {
-        // [JN] We do. Generate table dynamically.
+        byte *fg, *bg, blend[3];
+        byte *tm = tintmap;
+        int i, j;
 
-        // Compose a default transparent filter map based on PLAYPAL.
-        unsigned char *playpal = W_CacheLumpName("PLAYPAL", PU_STATIC);
-
-        tintmap = Z_Malloc(256*256, PU_STATIC, 0);
-
+        // [crispy] background color
+        for (i = 0; i < 256; i++)
         {
-            byte *fg, *bg, blend[3];
-            byte *tm = tintmap;
-            int i, j;
-
-            // [crispy] background color
-            for (i = 0; i < 256; i++)
+            // [crispy] foreground color
+            for (j = 0; j < 256; j++)
             {
-                // [crispy] foreground color
-                for (j = 0; j < 256; j++)
+                // [crispy] shortcut: identical foreground and background
+                if (i == j)
                 {
-                    // [crispy] shortcut: identical foreground and background
-                    if (i == j)
-                    {
-                        *tm++ = i;
-                        continue;
-                    }
-
-                    bg = playpal + 3*i;
-                    fg = playpal + 3*j;
-
-                    blend[r] = (50 * fg[r] + (100 - 50) * bg[r]) / 100;
-                    blend[g] = (50 * fg[g] + (100 - 50) * bg[g]) / 100;
-                    blend[b] = (50 * fg[b] + (100 - 50) * bg[b]) / 100;
-                    *tm++ = V_GetPaletteIndex(playpal, blend[r], blend[g], blend[b]);
+                    *tm++ = i;
+                    continue;
                 }
+
+                bg = playpal + 3*i;
+                fg = playpal + 3*j;
+
+                blend[r] = (50 * fg[r] + (100 - 50) * bg[r]) / 100;
+                blend[g] = (50 * fg[g] + (100 - 50) * bg[g]) / 100;
+                blend[b] = (50 * fg[b] + (100 - 50) * bg[b]) / 100;
+                *tm++ = V_GetPaletteIndex(playpal, blend[r], blend[g], blend[b]);
             }
         }
-        
-        W_ReleaseLumpName("PLAYPAL");
     }
+    
+    W_ReleaseLumpName("PLAYPAL");
 }
 
 //

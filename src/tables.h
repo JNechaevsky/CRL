@@ -93,8 +93,5 @@ extern const angle_t tantoangle[SLOPERANGE+1];
 //  called by R_PointToAngle.
 int SlopeDiv(unsigned int num, unsigned int den);
 
-// [JN] Pregenerated TINTMAP transluceny table.
-extern byte tintmap_original[];
-
 #endif
 
