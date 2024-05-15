@@ -109,34 +109,10 @@ boolean savemenuactive = false;
 
 // VP color table.
 #define NUMPLANEBORDERCOLORS 16
-static const int _vptable[NUMPLANEBORDERCOLORS] =
-{
-    // LIGHT
-    16,     // yucky pink
-    176,    // red
-    216,    // orange
-    231,    // yellow
-
-    112,    // green
-    195,    // light blue (cyanish)
-    202,    // Deep blue
-    251,    // yuck, magenta
-
-    // DARK
-    26,
-    183,
-    232,
-    164,
-
-    122,
-    198,
-    240,
-    254,
-};
+static int _vptable[NUMPLANEBORDERCOLORS];
 
 // HOM color table.
 #define HOMCOUNT 256
-#define HOMQUAD (HOMCOUNT / 4)
 static int _homtable[HOMCOUNT];
 int CRL_homcolor;  // Color to use
 
@@ -147,6 +123,7 @@ int CRL_homcolor;  // Color to use
 
 void CRL_Init (void)
 {
+    unsigned char *playpal = W_CacheLumpName("PLAYPAL", PU_STATIC);
     int i;
 
     // Make plane surface
@@ -156,19 +133,40 @@ void CRL_Init (void)
 
     // [JN] Initialize HOM (RGBY) multi colors, but prevent
     // using too bright values by multiplying by 3, not by 4.
+
+    for (i = 0; i < 64 ; i++)
     {
-        unsigned char *playpal = W_CacheLumpName("PLAYPAL", PU_STATIC);
-
-        for (i = 0; i < 64 ; i++)
-        {
-            _homtable[i]     = V_GetPaletteIndex(playpal, i*3,   0,   0);
-            _homtable[i+64]  = V_GetPaletteIndex(playpal,   0, i*3,   0);
-            _homtable[i+128] = V_GetPaletteIndex(playpal,   0,   0, i*3);
-            _homtable[i+192] = V_GetPaletteIndex(playpal, i*3, i*3,   0);
-        }
-
-        W_ReleaseLumpName("PLAYPAL");
+        _homtable[i]     = V_GetPaletteIndex(playpal, i*3,   0,   0);
+        _homtable[i+64]  = V_GetPaletteIndex(playpal,   0, i*3,   0);
+        _homtable[i+128] = V_GetPaletteIndex(playpal,   0,   0, i*3);
+        _homtable[i+192] = V_GetPaletteIndex(playpal, i*3, i*3,   0);
     }
+
+    // [JN] Initialise VP color table. Using V_GetPaletteIndex is better
+    // than directly referencing palette indexes, so we can make colours
+    // as palette-independent as possible and support other games.
+
+    // LIGHT
+    _vptable[0]  = V_GetPaletteIndex(playpal, 255, 183, 183); // yucky pink
+    _vptable[1]  = V_GetPaletteIndex(playpal, 255,   0,   0); // red
+    _vptable[2]  = V_GetPaletteIndex(playpal, 243, 115,  23); // orange
+    _vptable[3]  = V_GetPaletteIndex(playpal, 255, 255,   0); // yellow
+    _vptable[4]  = V_GetPaletteIndex(playpal, 119, 255, 111); // green
+    _vptable[5]  = V_GetPaletteIndex(playpal, 143, 143, 255); // light blue (cyanish)
+    _vptable[6]  = V_GetPaletteIndex(playpal,   0,   0, 203); // deep blue
+    _vptable[7]  = V_GetPaletteIndex(playpal, 255,   0, 255); // yuck, magenta
+
+    // DARK
+    _vptable[8]  = V_GetPaletteIndex(playpal, 191,  91,  91);
+    _vptable[9]  = V_GetPaletteIndex(playpal, 167,   0,   0);
+    _vptable[10] = V_GetPaletteIndex(playpal, 167,  63,   0);
+    _vptable[11] = V_GetPaletteIndex(playpal, 175, 123,  31);
+    _vptable[12] = V_GetPaletteIndex(playpal,  47,  99,  35);
+    _vptable[13] = V_GetPaletteIndex(playpal,  55,  55, 255);
+    _vptable[14] = V_GetPaletteIndex(playpal,   0,   0,  83);
+    _vptable[15] = V_GetPaletteIndex(playpal, 111,   0, 107);
+
+    W_ReleaseLumpName("PLAYPAL");
 }
 
 
