@@ -27,6 +27,7 @@
 #include "i_swap.h"
 #include "m_argv.h"
 #include "m_bbox.h"
+#include "m_misc.h"  // [JN] M_StringJoin()
 #include "g_game.h"
 #include "i_system.h"
 #include "w_wad.h"
@@ -613,6 +614,21 @@ void P_LoadLineDefs (int lump)
 
 	ld->sidenum[0] = SHORT(mld->sidenum[0]);
 	ld->sidenum[1] = SHORT(mld->sidenum[1]);
+
+	// [crispy] substitute dummy sidedef for missing right side
+	if (ld->sidenum[0] == -1)
+	{
+	    char  badline[8];
+	    char *string;
+
+	    ld->sidenum[0] = 0;
+
+	    // [JN] CRL - print both console and ingame warnings.
+	    sprintf(badline, "%i", i);
+	    string = M_StringJoin("linedef ", badline, " without first sidedef!", NULL);
+	    CRL_printf(string, true);
+	    CRL_SetMessageCritical("P_LoadLineDefs:", string, MESSAGETICS);
+	}
 
 	if (ld->sidenum[0] != -1)
 	    ld->frontsector = sides[ld->sidenum[0]].sector;
