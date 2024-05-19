@@ -94,7 +94,7 @@ typedef struct
 {
     ItemType_t type;
     char *text;
-    boolean(*func) (int option);
+    void (*func) (int option);
     int option;
     MenuType_t menu;
     short tics;  // [JN] Menu item timer for glowing effect.
@@ -121,18 +121,19 @@ typedef struct
 static void InitFonts(void);
 static void SetMenu(MenuType_t menu);
 static boolean SCNetCheck(int option);
-static boolean SCQuitGame(int option);
-static boolean SCEpisode(int option);
-static boolean SCSkill(int option);
-static boolean SCMouseSensi(int option);
-static boolean SCSfxVolume(int option);
-static boolean SCMusicVolume(int option);
-static boolean SCScreenSize(int option);
-static boolean SCLoadGame(int option);
-static boolean SCSaveGame(int option);
-static boolean SCMessages(int option);
-static boolean SCEndGame(int option);
-static boolean SCInfo(int option);
+static void SCNetCheck2(int option);
+static void SCQuitGame(int option);
+static void SCEpisode(int option);
+static void SCSkill(int option);
+static void SCMouseSensi(int option);
+static void SCSfxVolume(int option);
+static void SCMusicVolume(int option);
+static void SCScreenSize(int option);
+static void SCLoadGame(int option);
+static void SCSaveGame(int option);
+static void SCMessages(int option);
+static void SCEndGame(int option);
+static void SCInfo(int option);
 static void DrawMainMenu(void);
 static void DrawEpisodeMenu(void);
 static void DrawSkillMenu(void);
@@ -219,7 +220,7 @@ static const char *gammalvl[15] =
 };
 
 static MenuItem_t MainItems[] = {
-    {ITT_EFUNC, "NEW GAME", SCNetCheck, 1, MENU_EPISODE},
+    {ITT_SETMENU, "NEW GAME", SCNetCheck2, 1, MENU_EPISODE},
     {ITT_SETMENU, "OPTIONS", NULL, 0, MENU_CRLMAIN},
     {ITT_SETMENU, "GAME FILES", NULL, 0, MENU_FILES},
     {ITT_EFUNC, "INFO", SCInfo, 0, MENU_NONE},
@@ -253,7 +254,7 @@ static Menu_t EpisodeMenu = {
 };
 
 static MenuItem_t FilesItems[] = {
-    {ITT_EFUNC, "LOAD GAME", SCNetCheck, 2, MENU_LOAD},
+    {ITT_SETMENU, "LOAD GAME", SCNetCheck2, 2, MENU_LOAD},
     {ITT_SETMENU, "SAVE GAME", NULL, 0, MENU_SAVE}
 };
 
@@ -507,174 +508,174 @@ static char *const DefSkillName[5] =
 };
 
 static void DrawCRLMain (void);
-static boolean CRL_Spectating (int option);
-static boolean CRL_Freeze (int option);
-static boolean CRL_NoTarget (int option);
-static boolean CRL_NoMomentum (int option);
+static void CRL_Spectating (int option);
+static void CRL_Freeze (int option);
+static void CRL_NoTarget (int option);
+static void CRL_NoMomentum (int option);
 
 static void DrawCRLVideo (void);
-static boolean CRL_UncappedFPS (int option);
-static boolean CRL_LimitFPS (int option);
-static boolean CRL_VSync (int option);
-static boolean CRL_ShowFPS (int option);
-static boolean CRL_VisplanesDraw (int option);
-static boolean CRL_HOMDraw (int option);
-static boolean CRL_Gamma (int option);
-static boolean CRL_TextShadows (int option);
-static boolean CRL_GfxStartup (int option);
-static boolean CRL_EndText (int option);
+static void CRL_UncappedFPS (int option);
+static void CRL_LimitFPS (int option);
+static void CRL_VSync (int option);
+static void CRL_ShowFPS (int option);
+static void CRL_VisplanesDraw (int option);
+static void CRL_HOMDraw (int option);
+static void CRL_Gamma (int option);
+static void CRL_TextShadows (int option);
+static void CRL_GfxStartup (int option);
+static void CRL_EndText (int option);
 
 static void DrawCRLSound (void);
-static boolean CRL_MusicSystem (int option);
-static boolean CRL_SFXMode (int option);
-static boolean CRL_PitchShift (int option);
-static boolean CRL_SFXChannels (int option);
+static void CRL_MusicSystem (int option);
+static void CRL_SFXMode (int option);
+static void CRL_PitchShift (int option);
+static void CRL_SFXChannels (int option);
 
 static void DrawCRLControls (void);
-static boolean CRL_Controls_Acceleration (int option);
-static boolean CRL_Controls_Threshold (int option);
-static boolean CRL_Controls_MLook (int option);
-static boolean CRL_Controls_NoVert (int option);
+static void CRL_Controls_Acceleration (int option);
+static void CRL_Controls_Threshold (int option);
+static void CRL_Controls_MLook (int option);
+static void CRL_Controls_NoVert (int option);
 
 static void DrawCRLKbd1 (void);
-static boolean M_Bind_MoveForward (int option);
-static boolean M_Bind_MoveBackward (int option);
-static boolean M_Bind_TurnLeft (int option);
-static boolean M_Bind_TurnRight (int option);
-static boolean M_Bind_StrafeLeft (int option);
-static boolean M_Bind_StrafeRight (int option);
-static boolean M_Bind_SpeedOn (int option);
-static boolean M_Bind_StrafeOn (int option);
-static boolean M_Bind_FireAttack (int option);
-static boolean M_Bind_Use (int option);
+static void M_Bind_MoveForward (int option);
+static void M_Bind_MoveBackward (int option);
+static void M_Bind_TurnLeft (int option);
+static void M_Bind_TurnRight (int option);
+static void M_Bind_StrafeLeft (int option);
+static void M_Bind_StrafeRight (int option);
+static void M_Bind_SpeedOn (int option);
+static void M_Bind_StrafeOn (int option);
+static void M_Bind_FireAttack (int option);
+static void M_Bind_Use (int option);
 
 static void DrawCRLKbd2 (void);
-static boolean M_Bind_LookUp (int option);
-static boolean M_Bind_LookDown (int option);
-static boolean M_Bind_LookCenter (int option);
-static boolean M_Bind_FlyUp (int option);
-static boolean M_Bind_FlyDown (int option);
-static boolean M_Bind_FlyCenter (int option);
-static boolean M_Bind_InvLeft (int option);
-static boolean M_Bind_InvRight (int option);
-static boolean M_Bind_UseArti (int option);
+static void M_Bind_LookUp (int option);
+static void M_Bind_LookDown (int option);
+static void M_Bind_LookCenter (int option);
+static void M_Bind_FlyUp (int option);
+static void M_Bind_FlyDown (int option);
+static void M_Bind_FlyCenter (int option);
+static void M_Bind_InvLeft (int option);
+static void M_Bind_InvRight (int option);
+static void M_Bind_UseArti (int option);
 
 static void DrawCRLKbd3 (void);
-static boolean M_Bind_CRLmenu (int option);
-static boolean M_Bind_RestartLevel (int option);
-static boolean M_Bind_NextLevel (int option);
-static boolean M_Bind_FastForward (int option);
-static boolean M_Bind_SpectatorMode (int option);
-static boolean M_Bind_CameraUp (int option);
-static boolean M_Bind_CameraDown (int option);
-static boolean M_Bind_FreezeMode (int option);
-static boolean M_Bind_NotargetMode (int option);
+static void M_Bind_CRLmenu (int option);
+static void M_Bind_RestartLevel (int option);
+static void M_Bind_NextLevel (int option);
+static void M_Bind_FastForward (int option);
+static void M_Bind_SpectatorMode (int option);
+static void M_Bind_CameraUp (int option);
+static void M_Bind_CameraDown (int option);
+static void M_Bind_FreezeMode (int option);
+static void M_Bind_NotargetMode (int option);
 
 static void DrawCRLKbd4 (void);
-static boolean M_Bind_AlwaysRun (int option);
-static boolean M_Bind_MouseLook (int option);
-static boolean M_Bind_VileBomb (int option);
-static boolean M_Bind_ClearMAX (int option);
-static boolean M_Bind_MoveToMAX (int option);
-static boolean M_Bind_IDDQD (int option);
-static boolean M_Bind_IDFA (int option);
-static boolean M_Bind_IDCLIP (int option);
-static boolean M_Bind_IDDT (int option);
+static void M_Bind_AlwaysRun (int option);
+static void M_Bind_MouseLook (int option);
+static void M_Bind_VileBomb (int option);
+static void M_Bind_ClearMAX (int option);
+static void M_Bind_MoveToMAX (int option);
+static void M_Bind_IDDQD (int option);
+static void M_Bind_IDFA (int option);
+static void M_Bind_IDCLIP (int option);
+static void M_Bind_IDDT (int option);
 
 static void DrawCRLKbd5 (void);
-static boolean M_Bind_Weapon1 (int option);
-static boolean M_Bind_Weapon2 (int option);
-static boolean M_Bind_Weapon3 (int option);
-static boolean M_Bind_Weapon4 (int option);
-static boolean M_Bind_Weapon5 (int option);
-static boolean M_Bind_Weapon6 (int option);
-static boolean M_Bind_Weapon7 (int option);
-static boolean M_Bind_Weapon8 (int option);
-static boolean M_Bind_PrevWeapon (int option);
-static boolean M_Bind_NextWeapon (int option);
+static void M_Bind_Weapon1 (int option);
+static void M_Bind_Weapon2 (int option);
+static void M_Bind_Weapon3 (int option);
+static void M_Bind_Weapon4 (int option);
+static void M_Bind_Weapon5 (int option);
+static void M_Bind_Weapon6 (int option);
+static void M_Bind_Weapon7 (int option);
+static void M_Bind_Weapon8 (int option);
+static void M_Bind_PrevWeapon (int option);
+static void M_Bind_NextWeapon (int option);
 
 static void DrawCRLKbd6 (void);
-static boolean M_Bind_Quartz (int option);
-static boolean M_Bind_Urn (int option);
-static boolean M_Bind_Bomb (int option);
-static boolean M_Bind_Tome (int option);
-static boolean M_Bind_Ring (int option);
-static boolean M_Bind_Chaosdevice (int option);
-static boolean M_Bind_Shadowsphere (int option);
-static boolean M_Bind_Wings (int option);
-static boolean M_Bind_Torch (int option);
-static boolean M_Bind_Morph (int option);
+static void M_Bind_Quartz (int option);
+static void M_Bind_Urn (int option);
+static void M_Bind_Bomb (int option);
+static void M_Bind_Tome (int option);
+static void M_Bind_Ring (int option);
+static void M_Bind_Chaosdevice (int option);
+static void M_Bind_Shadowsphere (int option);
+static void M_Bind_Wings (int option);
+static void M_Bind_Torch (int option);
+static void M_Bind_Morph (int option);
 
 static void DrawCRLKbd7 (void);
-static boolean M_Bind_ToggleMap (int option);
-static boolean M_Bind_ZoomIn (int option);
-static boolean M_Bind_ZoomOut (int option);
-static boolean M_Bind_MaxZoom (int option);
-static boolean M_Bind_FollowMode (int option);
-// static boolean M_Bind_RotateMode (int option);
-// static boolean M_Bind_OverlayMode (int option);
-static boolean M_Bind_ToggleGrid (int option);
+static void M_Bind_ToggleMap (int option);
+static void M_Bind_ZoomIn (int option);
+static void M_Bind_ZoomOut (int option);
+static void M_Bind_MaxZoom (int option);
+static void M_Bind_FollowMode (int option);
+// static void M_Bind_RotateMode (int option);
+// static void M_Bind_OverlayMode (int option);
+static void M_Bind_ToggleGrid (int option);
 
 static void DrawCRLKbd8 (void);
-static boolean M_Bind_HelpScreen (int option);
-static boolean M_Bind_SaveGame (int option);
-static boolean M_Bind_LoadGame (int option);
-static boolean M_Bind_SoundVolume (int option);
-static boolean M_Bind_QuickSave (int option);
-static boolean M_Bind_EndGame (int option);
-static boolean M_Bind_ToggleMessages (int option);
-static boolean M_Bind_QuickLoad (int option);
-static boolean M_Bind_QuitGame (int option);
-static boolean M_Bind_ToggleGamma (int option);
-static boolean M_Bind_MultiplayerSpy (int option);
+static void M_Bind_HelpScreen (int option);
+static void M_Bind_SaveGame (int option);
+static void M_Bind_LoadGame (int option);
+static void M_Bind_SoundVolume (int option);
+static void M_Bind_QuickSave (int option);
+static void M_Bind_EndGame (int option);
+static void M_Bind_ToggleMessages (int option);
+static void M_Bind_QuickLoad (int option);
+static void M_Bind_QuitGame (int option);
+static void M_Bind_ToggleGamma (int option);
+static void M_Bind_MultiplayerSpy (int option);
 
 static void DrawCRLKbd9 (void);
-static boolean M_Bind_Pause (int option);
-static boolean M_Bind_SaveScreenshot (int option);
-static boolean M_Bind_FinishDemo (int option);
-static boolean M_Bind_SendMessage (int option);
-static boolean M_Bind_ToPlayer1 (int option);
-static boolean M_Bind_ToPlayer2 (int option);
-static boolean M_Bind_ToPlayer3 (int option);
-static boolean M_Bind_ToPlayer4 (int option);
-static boolean M_Bind_Reset (int option);
+static void M_Bind_Pause (int option);
+static void M_Bind_SaveScreenshot (int option);
+static void M_Bind_FinishDemo (int option);
+static void M_Bind_SendMessage (int option);
+static void M_Bind_ToPlayer1 (int option);
+static void M_Bind_ToPlayer2 (int option);
+static void M_Bind_ToPlayer3 (int option);
+static void M_Bind_ToPlayer4 (int option);
+static void M_Bind_Reset (int option);
 
 static void DrawCRLMouse (void);
-static boolean M_Bind_M_FireAttack (int option);
-static boolean M_Bind_M_MoveForward (int option);
-static boolean M_Bind_M_StrafeOn (int option);
-static boolean M_Bind_M_MoveBackward (int option);
-static boolean M_Bind_M_Use (int option);
-static boolean M_Bind_M_StrafeLeft (int option);
-static boolean M_Bind_M_StrafeRight (int option);
-static boolean M_Bind_M_PrevWeapon (int option);
-static boolean M_Bind_M_NextWeapon (int option);
+static void M_Bind_M_FireAttack (int option);
+static void M_Bind_M_MoveForward (int option);
+static void M_Bind_M_StrafeOn (int option);
+static void M_Bind_M_MoveBackward (int option);
+static void M_Bind_M_Use (int option);
+static void M_Bind_M_StrafeLeft (int option);
+static void M_Bind_M_StrafeRight (int option);
+static void M_Bind_M_PrevWeapon (int option);
+static void M_Bind_M_NextWeapon (int option);
 
 static void DrawCRLWidgets (void);
-static boolean CRL_Widget_Coords (int option);
-static boolean CRL_Widget_Playstate (int option);
-static boolean CRL_Widget_Render (int option);
-static boolean CRL_Widget_KIS (int option);
-static boolean CRL_Widget_Time (int option);
-static boolean CRL_Widget_Powerups (int option);
-static boolean CRL_Widget_Health (int option);
-static boolean CRL_Automap_Secrets (int option);
+static void CRL_Widget_Coords (int option);
+static void CRL_Widget_Playstate (int option);
+static void CRL_Widget_Render (int option);
+static void CRL_Widget_KIS (int option);
+static void CRL_Widget_Time (int option);
+static void CRL_Widget_Powerups (int option);
+static void CRL_Widget_Health (int option);
+static void CRL_Automap_Secrets (int option);
 
 static void DrawCRLGameplay (void);
-static boolean CRL_DefaulSkill (int option);
-static boolean CRL_PistolStart (int option);
-static boolean CRL_ColoredSBar (int option);
-static boolean CRL_RestoreTargets (int option);
-static boolean CRL_DemoTimer (int option);
-static boolean CRL_TimerDirection (int option);
-static boolean CRL_ProgressBar (int option);
-static boolean CRL_InternalDemos (int option);
+static void CRL_DefaulSkill (int option);
+static void CRL_PistolStart (int option);
+static void CRL_ColoredSBar (int option);
+static void CRL_RestoreTargets (int option);
+static void CRL_DemoTimer (int option);
+static void CRL_TimerDirection (int option);
+static void CRL_ProgressBar (int option);
+static void CRL_InternalDemos (int option);
 
 static void DrawCRLLimits (void);
-static boolean CRL_ZMalloc (int option);
-static boolean CRL_SaveSizeWarning (int option);
-static boolean CRL_DemoSizeWarning (int option);
-static boolean CRL_Limits (int option);
+static void CRL_ZMalloc (int option);
+static void CRL_SaveSizeWarning (int option);
+static void CRL_DemoSizeWarning (int option);
+static void CRL_Limits (int option);
 
 // Keyboard binding prototypes
 static boolean KbdIsBinding;
@@ -788,42 +789,38 @@ static void DrawCRLMain (void)
     MN_DrTextACentered ("SETTINGS", 70, cr[CR_YELLOW]);
 }
 
-static boolean CRL_Spectating (int option)
+static void CRL_Spectating (int option)
 {
     crl_spectating ^= 1;
-    return true;
 }
 
-static boolean CRL_Freeze (int option)
+static void CRL_Freeze (int option)
 {
     if (!singleplayer)
     {
-        return false;
+        return;
     }
     crl_freeze ^= 1;
-    return true;
 }
 
-static boolean CRL_NoTarget (int choice)
+static void CRL_NoTarget (int choice)
 {
     if (!singleplayer)
     {
-        return false;
+        return;
     }
 
     player->cheats ^= CF_NOTARGET;
-    return true;
 }
 
-static boolean CRL_NoMomentum (int choice)
+static void CRL_NoMomentum (int choice)
 {
     if (!singleplayer)
     {
-        return false;
+        return;
     }
 
     player->cheats ^= CF_NOMOMENTUM;
-    return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -921,19 +918,18 @@ static void DrawCRLVideo (void)
                M_Item_Glow(11, show_endoom ? GLOW_GREEN : GLOW_RED));
 }
 
-static boolean CRL_UncappedFPS (int option)
+static void CRL_UncappedFPS (int option)
 {
     crl_uncapped_fps ^= 1;
     // [JN] Skip weapon bobbing interpolation for next frame.
     pspr_interp = false;
-    return true;
 }
 
-static boolean CRL_LimitFPS (int option)
+static void CRL_LimitFPS (int option)
 {
     if (!crl_uncapped_fps)
     {
-        return false;  // Do not allow change value in capped framerate.
+        return;  // Do not allow change value in capped framerate.
     }
     
     switch (option)
@@ -956,35 +952,30 @@ static boolean CRL_LimitFPS (int option)
         default:
             break;
     }
-    return true;
 }
 
-static boolean CRL_VSync (int option)
+static void CRL_VSync (int option)
 {
     crl_vsync ^= 1;
     I_ToggleVsync();
-    return true;
 }
 
-static boolean CRL_ShowFPS (int option)
+static void CRL_ShowFPS (int option)
 {
     crl_showfps ^= 1;
-    return true;
 }
 
-static boolean CRL_VisplanesDraw (int option)
+static void CRL_VisplanesDraw (int option)
 {
     crl_visplanes_drawing = M_INT_Slider(crl_visplanes_drawing, 0, 4, option);
-    return true;
 }
 
-static boolean CRL_HOMDraw (int option)
+static void CRL_HOMDraw (int option)
 {
     crl_hom_effect = M_INT_Slider(crl_hom_effect, 0, 2, option);
-    return true;
 }
 
-static boolean CRL_Gamma (int option)
+static void CRL_Gamma (int option)
 {
     shade_wait = I_GetTime() + TICRATE;
 
@@ -1001,25 +992,21 @@ static boolean CRL_Gamma (int option)
             break;
     }
     I_SetPalette(W_CacheLumpName("PLAYPAL", PU_CACHE));
-    return true;
 }
 
-static boolean CRL_TextShadows (int option)
+static void CRL_TextShadows (int option)
 {
     crl_text_shadows ^= 1;
-    return true;
 }
 
-static boolean CRL_GfxStartup (int option)
+static void CRL_GfxStartup (int option)
 {
     graphical_startup ^= 1;
-    return true;
 }
 
-static boolean CRL_EndText (int option)
+static void CRL_EndText (int option)
 {
     show_endoom ^= 1;
-    return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -1101,7 +1088,7 @@ static void DrawCRLSound (void)
     }
 }
 
-static boolean CRL_MusicSystem (int option)
+static void CRL_MusicSystem (int option)
 {
     switch (option)
     {
@@ -1170,22 +1157,19 @@ static boolean CRL_MusicSystem (int option)
                 break;
             }
     }
-    return true;
 }
 
-static boolean CRL_SFXMode (int option)
+static void CRL_SFXMode (int option)
 {
     crl_monosfx ^= 1;
-    return true;
 }
 
-static boolean CRL_PitchShift (int option)
+static void CRL_PitchShift (int option)
 {
     snd_pitchshift ^= 1;
-    return true;
 }
 
-static boolean CRL_SFXChannels (int option)
+static void CRL_SFXChannels (int option)
 {
     switch (option)
     {
@@ -1199,7 +1183,6 @@ static boolean CRL_SFXChannels (int option)
         default:
             break;
     }
-    return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -1266,7 +1249,7 @@ static void DrawCRLControls (void)
                M_Item_Glow(13, novert ? GLOW_RED : GLOW_GREEN));
 }
 
-static boolean CRL_Controls_Acceleration (int option)
+static void CRL_Controls_Acceleration (int option)
 {
     char buf[9];
 
@@ -1286,10 +1269,9 @@ static boolean CRL_Controls_Acceleration (int option)
     // [JN] Do a float correction to always get x.x00000 values:
     sprintf (buf, "%f", mouse_acceleration);
     mouse_acceleration = (float) atof(buf);
-    return true;
 }
 
-static boolean CRL_Controls_Threshold (int option)
+static void CRL_Controls_Threshold (int option)
 {
     switch (option)
     {   // 0 ... 32
@@ -1302,23 +1284,20 @@ static boolean CRL_Controls_Threshold (int option)
             mouse_threshold++;
         break;
     }
-    return true;
 }
 
-static boolean CRL_Controls_MLook (int option)
+static void CRL_Controls_MLook (int option)
 {
     crl_mouselook ^= 1;
     if (!crl_mouselook)
     {
         players[consoleplayer].centering = true;
     }
-    return true;
 }
 
-static boolean CRL_Controls_NoVert (int option)
+static void CRL_Controls_NoVert (int option)
 {
     novert ^= 1;
-    return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -1371,64 +1350,54 @@ static void DrawCRLKbd1 (void)
     M_DrawBindFooter("1", true);
 }
 
-static boolean M_Bind_MoveForward (int option)
+static void M_Bind_MoveForward (int option)
 {
     M_StartBind(100);  // key_up
-    return true;
 }
 
-static boolean M_Bind_MoveBackward (int option)
+static void M_Bind_MoveBackward (int option)
 {
     M_StartBind(101);  // key_down
-    return true;
 }
 
-static boolean M_Bind_TurnLeft (int option)
+static void M_Bind_TurnLeft (int option)
 {
     M_StartBind(102);  // key_left
-    return true;
 }
 
-static boolean M_Bind_TurnRight (int option)
+static void M_Bind_TurnRight (int option)
 {
     M_StartBind(103);  // key_right
-    return true;
 }
 
-static boolean M_Bind_StrafeLeft (int option)
+static void M_Bind_StrafeLeft (int option)
 {
     M_StartBind(104);  // key_strafeleft
-    return true;
 }
 
-static boolean M_Bind_StrafeRight (int option)
+static void M_Bind_StrafeRight (int option)
 {
     M_StartBind(105);  // key_straferight
-    return true;
 }
 
-static boolean M_Bind_SpeedOn (int option)
+static void M_Bind_SpeedOn (int option)
 {
     M_StartBind(106);  // key_speed
-    return true;
 }
 
-static boolean M_Bind_StrafeOn (int option)
+static void M_Bind_StrafeOn (int option)
 {
     M_StartBind(107);  // key_strafe
-    return true;
 }
 
-static boolean M_Bind_FireAttack (int option)
+static void M_Bind_FireAttack (int option)
 {
     M_StartBind(108);  // key_fire
-    return true;
 }
 
-static boolean M_Bind_Use (int option)
+static void M_Bind_Use (int option)
 {
     M_StartBind(109);  // key_use
-    return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -1483,58 +1452,49 @@ static void DrawCRLKbd2 (void)
     M_DrawBindFooter("2", true);
 }
 
-static boolean M_Bind_LookUp (int option)
+static void M_Bind_LookUp (int option)
 {
     M_StartBind(200);  // key_lookup
-    return true;
 }
 
-static boolean M_Bind_LookDown (int option)
+static void M_Bind_LookDown (int option)
 {
     M_StartBind(201);  // key_lookdown
-    return true;
 }
 
-static boolean M_Bind_LookCenter (int option)
+static void M_Bind_LookCenter (int option)
 {
     M_StartBind(202);  // key_lookcenter
-    return true;
 }
 
-static boolean M_Bind_FlyUp (int option)
+static void M_Bind_FlyUp (int option)
 {
     M_StartBind(203);  // key_flyup
-    return true;
 }
 
-static boolean M_Bind_FlyDown (int option)
+static void M_Bind_FlyDown (int option)
 {
     M_StartBind(204);  // key_flydown
-    return true;
 }
 
-static boolean M_Bind_FlyCenter (int option)
+static void M_Bind_FlyCenter (int option)
 {
     M_StartBind(205);  // key_flycenter
-    return true;
 }
 
-static boolean M_Bind_InvLeft (int option)
+static void M_Bind_InvLeft (int option)
 {
     M_StartBind(206);  // key_invleft
-    return true;
 }
 
-static boolean M_Bind_InvRight (int option)
+static void M_Bind_InvRight (int option)
 {
     M_StartBind(207);  // key_invright
-    return true;
 }
 
-static boolean M_Bind_UseArti (int option)
+static void M_Bind_UseArti (int option)
 {
     M_StartBind(208);  // key_useartifact
-    return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -1585,58 +1545,49 @@ static void DrawCRLKbd3 (void)
     M_DrawBindFooter("3", true);
 }
 
-static boolean M_Bind_CRLmenu (int option)
+static void M_Bind_CRLmenu (int option)
 {
     M_StartBind(300);  // key_crl_menu
-    return true;
 }
 
-static boolean M_Bind_RestartLevel (int option)
+static void M_Bind_RestartLevel (int option)
 {
     M_StartBind(301);  // key_crl_reloadlevel
-    return true;
 }
 
-static boolean M_Bind_NextLevel (int option)
+static void M_Bind_NextLevel (int option)
 {
     M_StartBind(302);  // key_crl_nextlevel
-    return true;
 }
 
-static boolean M_Bind_FastForward (int option)
+static void M_Bind_FastForward (int option)
 {
     M_StartBind(303);  // key_crl_demospeed
-    return true;
 }
 
-static boolean M_Bind_SpectatorMode (int option)
+static void M_Bind_SpectatorMode (int option)
 {
     M_StartBind(304);  // key_crl_spectator
-    return true;
 }
 
-static boolean M_Bind_CameraUp (int option)
+static void M_Bind_CameraUp (int option)
 {
     M_StartBind(305);  // key_crl_cameraup
-    return true;
 }
 
-static boolean M_Bind_CameraDown (int option)
+static void M_Bind_CameraDown (int option)
 {
     M_StartBind(306);  // key_crl_cameradown
-    return true;
 }
 
-static boolean M_Bind_FreezeMode (int option)
+static void M_Bind_FreezeMode (int option)
 {
     M_StartBind(307);  // key_crl_freeze
-    return true;
 }
 
-static boolean M_Bind_NotargetMode (int option)
+static void M_Bind_NotargetMode (int option)
 {
     M_StartBind(308);  // key_crl_notarget
-    return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -1691,58 +1642,49 @@ static void DrawCRLKbd4 (void)
     M_DrawBindFooter("4", true);
 }
 
-static boolean M_Bind_AlwaysRun (int option)
+static void M_Bind_AlwaysRun (int option)
 {
     M_StartBind(400);  // key_crl_autorun
-    return true;
 }
 
-static boolean M_Bind_MouseLook (int option)
+static void M_Bind_MouseLook (int option)
 {
     M_StartBind(401);  // key_crl_mlook
-    return true;
 }
 
-static boolean M_Bind_VileBomb (int option)
+static void M_Bind_VileBomb (int option)
 {
     M_StartBind(402);  // key_crl_vilebomb
-    return true;
 }
 
-static boolean M_Bind_ClearMAX (int option)
+static void M_Bind_ClearMAX (int option)
 {
     M_StartBind(403);  // key_crl_clearmax
-    return true;
 }
 
-static boolean M_Bind_MoveToMAX (int option)
+static void M_Bind_MoveToMAX (int option)
 {
     M_StartBind(404);  // key_crl_movetomax
-    return true;
 }
 
-static boolean M_Bind_IDDQD (int option)
+static void M_Bind_IDDQD (int option)
 {
     M_StartBind(405);  // key_crl_iddqd
-    return true;
 }
 
-static boolean M_Bind_IDFA (int option)
+static void M_Bind_IDFA (int option)
 {
     M_StartBind(406);  // key_crl_idfa
-    return true;
 }
 
-static boolean M_Bind_IDCLIP (int option)
+static void M_Bind_IDCLIP (int option)
 {
     M_StartBind(407);  // key_crl_idclip
-    return true;
 }
 
-static boolean M_Bind_IDDT (int option)
+static void M_Bind_IDDT (int option)
 {
     M_StartBind(408);  // key_crl_iddt
-    return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -1791,64 +1733,54 @@ static void DrawCRLKbd5 (void)
     M_DrawBindFooter("5", true);
 }
 
-static boolean M_Bind_Weapon1 (int option)
+static void M_Bind_Weapon1 (int option)
 {
     M_StartBind(500);  // key_weapon1
-    return true;
 }
 
-static boolean M_Bind_Weapon2 (int option)
+static void M_Bind_Weapon2 (int option)
 {
     M_StartBind(501);  // key_weapon2
-    return true;
 }
 
-static boolean M_Bind_Weapon3 (int option)
+static void M_Bind_Weapon3 (int option)
 {
     M_StartBind(502);  // key_weapon3
-    return true;
 }
 
-static boolean M_Bind_Weapon4 (int option)
+static void M_Bind_Weapon4 (int option)
 {
     M_StartBind(503);  // key_weapon4
-    return true;
 }
 
-static boolean M_Bind_Weapon5 (int option)
+static void M_Bind_Weapon5 (int option)
 {
     M_StartBind(504);  // key_weapon5
-    return true;
 }
 
-static boolean M_Bind_Weapon6 (int option)
+static void M_Bind_Weapon6 (int option)
 {
     M_StartBind(505);  // key_weapon6
-    return true;
 }
 
-static boolean M_Bind_Weapon7 (int option)
+static void M_Bind_Weapon7 (int option)
 {
     M_StartBind(506);  // key_weapon7
-    return true;
 }
 
-static boolean M_Bind_Weapon8 (int option)
+static void M_Bind_Weapon8 (int option)
 {
     M_StartBind(507);  // key_weapon8
-    return true;
 }
 
-static boolean M_Bind_PrevWeapon (int option)
+static void M_Bind_PrevWeapon (int option)
 {
     M_StartBind(508);  // key_prevweapon
-    return true;
 }
 
-static boolean M_Bind_NextWeapon (int option)
+static void M_Bind_NextWeapon (int option)
 {
     M_StartBind(509);  // key_nextweapon
-    return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -1897,64 +1829,54 @@ static void DrawCRLKbd6 (void)
     M_DrawBindFooter("6", true);
 }
 
-static boolean M_Bind_Quartz (int option)
+static void M_Bind_Quartz (int option)
 {
     M_StartBind(600);  // key_arti_quartz
-    return true;
 }
 
-static boolean M_Bind_Urn (int option)
+static void M_Bind_Urn (int option)
 {
     M_StartBind(601);  // key_arti_urn
-    return true;
 }
 
-static boolean M_Bind_Bomb (int option)
+static void M_Bind_Bomb (int option)
 {
     M_StartBind(602);  // key_arti_bomb
-    return true;
 }
 
-static boolean M_Bind_Tome (int option)
+static void M_Bind_Tome (int option)
 {
     M_StartBind(603);  // key_arti_tome
-    return true;
 }
 
-static boolean M_Bind_Ring (int option)
+static void M_Bind_Ring (int option)
 {
     M_StartBind(604);  // key_arti_ring
-    return true;
 }
 
-static boolean M_Bind_Chaosdevice (int option)
+static void M_Bind_Chaosdevice (int option)
 {
     M_StartBind(605);  // key_arti_chaosdevice
-    return true;
 }
 
-static boolean M_Bind_Shadowsphere (int option)
+static void M_Bind_Shadowsphere (int option)
 {
     M_StartBind(606);  // key_arti_shadowsphere
-    return true;
 }
 
-static boolean M_Bind_Wings (int option)
+static void M_Bind_Wings (int option)
 {
     M_StartBind(607);  // key_arti_wings
-    return true;
 }
 
-static boolean M_Bind_Torch (int option)
+static void M_Bind_Torch (int option)
 {
     M_StartBind(608);  // key_arti_torch
-    return true;
 }
 
-static boolean M_Bind_Morph (int option)
+static void M_Bind_Morph (int option)
 {
     M_StartBind(609);  // key_arti_morph
-    return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -1999,54 +1921,46 @@ static void DrawCRLKbd7 (void)
     M_DrawBindFooter("7", true);
 }
 
-static boolean M_Bind_ToggleMap (int option)
+static void M_Bind_ToggleMap (int option)
 {
     M_StartBind(700);  // key_map_toggle
-    return true;
 }
 
-static boolean M_Bind_ZoomIn (int option)
+static void M_Bind_ZoomIn (int option)
 {
     M_StartBind(701);  // key_map_zoomin
-    return true;
 }
 
-static boolean M_Bind_ZoomOut (int option)
+static void M_Bind_ZoomOut (int option)
 {
     M_StartBind(702);  // key_map_zoomout
-    return true;
 }
 
-static boolean M_Bind_MaxZoom (int option)
+static void M_Bind_MaxZoom (int option)
 {
     M_StartBind(703);  // key_map_maxzoom
-    return true;
 }
 
-static boolean M_Bind_FollowMode (int option)
+static void M_Bind_FollowMode (int option)
 {
     M_StartBind(704);  // key_map_follow
-    return true;
 }
 
 /*
-static boolean M_Bind_RotateMode (int option)
+static void M_Bind_RotateMode (int option)
 {
     M_StartBind(705);  // key_crl_map_rotate
-    return true;
 }
 
-static boolean M_Bind_OverlayMode (int option)
+static void M_Bind_OverlayMode (int option)
 {
     M_StartBind(706);  // key_crl_map_overlay
-    return true;
 }
 */
 
-static boolean M_Bind_ToggleGrid (int option)
+static void M_Bind_ToggleGrid (int option)
 {
     M_StartBind(705);  // key_map_grid
-    return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -2097,70 +2011,59 @@ static void DrawCRLKbd8 (void)
     M_DrawBindFooter("8", true);
 }
 
-static boolean M_Bind_HelpScreen (int option)
+static void M_Bind_HelpScreen (int option)
 {
     M_StartBind(800);  // key_menu_help
-    return true;
 }
 
-static boolean M_Bind_SaveGame (int option)
+static void M_Bind_SaveGame (int option)
 {
     M_StartBind(801);  // key_menu_save
-    return true;
 }
 
-static boolean M_Bind_LoadGame (int option)
+static void M_Bind_LoadGame (int option)
 {
     M_StartBind(802);  // key_menu_load
-    return true;
 }
 
-static boolean M_Bind_SoundVolume (int option)
+static void M_Bind_SoundVolume (int option)
 {
     M_StartBind(803);  // key_menu_volume
-    return true;
 }
 
-static boolean M_Bind_QuickSave (int option)
+static void M_Bind_QuickSave (int option)
 {
     M_StartBind(804);  // key_menu_qsave
-    return true;
 }
 
-static boolean M_Bind_EndGame (int option)
+static void M_Bind_EndGame (int option)
 {
     M_StartBind(805);  // key_menu_endgame
-    return true;
 }
 
-static boolean M_Bind_ToggleMessages (int option)
+static void M_Bind_ToggleMessages (int option)
 {
     M_StartBind(806);  // key_menu_messages
-    return true;
 }
 
-static boolean M_Bind_QuickLoad (int option)
+static void M_Bind_QuickLoad (int option)
 {
     M_StartBind(807);  // key_menu_qload
-    return true;
 }
 
-static boolean M_Bind_QuitGame (int option)
+static void M_Bind_QuitGame (int option)
 {
     M_StartBind(808);  // key_menu_quit
-    return true;
 }
 
-static boolean M_Bind_ToggleGamma (int option)
+static void M_Bind_ToggleGamma (int option)
 {
     M_StartBind(809);  // key_menu_gamma
-    return true;
 }
 
-static boolean M_Bind_MultiplayerSpy (int option)
+static void M_Bind_MultiplayerSpy (int option)
 {
     M_StartBind(810);  // key_spy
-    return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -2213,60 +2116,51 @@ static void DrawCRLKbd9 (void)
     M_DrawBindFooter("9", true);
 }
 
-static boolean M_Bind_Pause (int option)
+static void M_Bind_Pause (int option)
 {
     M_StartBind(900);  // key_pause
-    return true;
 }
 
-static boolean M_Bind_SaveScreenshot (int option)
+static void M_Bind_SaveScreenshot (int option)
 {
     M_StartBind(901);  // key_menu_screenshot
-    return true;
 }
 
-static boolean M_Bind_FinishDemo (int option)
+static void M_Bind_FinishDemo (int option)
 {
     M_StartBind(902);  // key_demo_quit
-    return true;
 }
 
-static boolean M_Bind_SendMessage (int option)
+static void M_Bind_SendMessage (int option)
 {
     M_StartBind(903);  // key_multi_msg
-    return true;
 }
 
-static boolean M_Bind_ToPlayer1 (int option)
+static void M_Bind_ToPlayer1 (int option)
 {
     M_StartBind(904);  // key_multi_msgplayer[0]
-    return true;
 }
 
-static boolean M_Bind_ToPlayer2 (int option)
+static void M_Bind_ToPlayer2 (int option)
 {
     M_StartBind(905);  // key_multi_msgplayer[1]
-    return true;
 }
 
-static boolean M_Bind_ToPlayer3 (int option)
+static void M_Bind_ToPlayer3 (int option)
 {
     M_StartBind(906);  // key_multi_msgplayer[2]
-    return true;
 }
 
-static boolean M_Bind_ToPlayer4 (int option)
+static void M_Bind_ToPlayer4 (int option)
 {
     M_StartBind(907);  // key_multi_msgplayer[3]
-    return true;
 }
 
-static boolean M_Bind_Reset (int option)
+static void M_Bind_Reset (int option)
 {
     MenuActive = false;
     askforquit = true;
     typeofask = 5;      // [JN] keybinds reset
-    return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -2313,58 +2207,49 @@ static void DrawCRLMouse (void)
     M_DrawBindFooter(NULL, false);
 }
 
-static boolean M_Bind_M_FireAttack (int option)
+static void M_Bind_M_FireAttack (int option)
 {
     M_StartMouseBind(1000);  // mousebfire
-    return true;
 }
 
-static boolean M_Bind_M_MoveForward (int option)
+static void M_Bind_M_MoveForward (int option)
 {
     M_StartMouseBind(1001);  // mousebforward
-    return true;
 }
 
-static boolean M_Bind_M_StrafeOn (int option)
+static void M_Bind_M_StrafeOn (int option)
 {
     M_StartMouseBind(1002);  // mousebstrafe
-    return true;
 }
 
-static boolean M_Bind_M_MoveBackward (int option)
+static void M_Bind_M_MoveBackward (int option)
 {
     M_StartMouseBind(1003);  // mousebbackward
-    return true;
 }
 
-static boolean M_Bind_M_Use (int option)
+static void M_Bind_M_Use (int option)
 {
     M_StartMouseBind(1004);  // mousebuse
-    return true;
 }
 
-static boolean M_Bind_M_StrafeLeft (int option)
+static void M_Bind_M_StrafeLeft (int option)
 {
     M_StartMouseBind(1005);  // mousebstrafeleft
-    return true;
 }
 
-static boolean M_Bind_M_StrafeRight (int option)
+static void M_Bind_M_StrafeRight (int option)
 {
     M_StartMouseBind(1006);  // mousebstraferight
-    return true;
 }
 
-static boolean M_Bind_M_PrevWeapon (int option)
+static void M_Bind_M_PrevWeapon (int option)
 {
     M_StartMouseBind(1007);  // mousebprevweapon
-    return true;
 }
 
-static boolean M_Bind_M_NextWeapon (int option)
+static void M_Bind_M_NextWeapon (int option)
 {
     M_StartMouseBind(1008);  // mousebnextweapon
-    return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -2453,52 +2338,44 @@ static void DrawCRLWidgets (void)
                M_Item_Glow(8, crl_automap_secrets ? GLOW_GREEN : GLOW_RED));
 }
 
-static boolean CRL_Widget_Coords (int option)
+static void CRL_Widget_Coords (int option)
 {
     crl_widget_coords ^= 1;
-    return true;
 }
 
-static boolean CRL_Widget_Playstate (int option)
+static void CRL_Widget_Playstate (int option)
 {
     crl_widget_playstate = M_INT_Slider(crl_widget_playstate, 0, 2, option);
-    return true;
 }
 
-static boolean CRL_Widget_Render (int option)
+static void CRL_Widget_Render (int option)
 {
     crl_widget_render = M_INT_Slider(crl_widget_render, 0, 2, option);
-    return true;
 }
 
-static boolean CRL_Widget_KIS (int option)
+static void CRL_Widget_KIS (int option)
 {
     crl_widget_kis ^= 1;
-    return true;
 }
 
-static boolean CRL_Widget_Time (int option)
+static void CRL_Widget_Time (int option)
 {
     crl_widget_time ^= 1;
-    return true;
 }
 
-static boolean CRL_Widget_Powerups (int option)
+static void CRL_Widget_Powerups (int option)
 {
     crl_widget_powerups ^= 1;
-    return true;
 }
 
-static boolean CRL_Widget_Health (int option)
+static void CRL_Widget_Health (int option)
 {
     crl_widget_health = M_INT_Slider(crl_widget_health, 0, 4, option);
-    return true;
 }
 
-static boolean CRL_Automap_Secrets (int option)
+static void CRL_Automap_Secrets (int option)
 {
     crl_automap_secrets ^= 1;
-    return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -2579,53 +2456,45 @@ static void DrawCRLGameplay (void)
                M_Item_Glow(8, crl_internal_demos? GLOW_GREEN : GLOW_RED));
 }
 
-static boolean CRL_DefaulSkill (int option)
+static void CRL_DefaulSkill (int option)
 {
     crl_default_skill = M_INT_Slider(crl_default_skill, 0, 4, option);
     SkillMenu.oldItPos = crl_default_skill;
-    return true;
 }
 
-static boolean CRL_PistolStart (int option)
+static void CRL_PistolStart (int option)
 {
     crl_pistol_start ^= 1;
-    return true;
 }
 
-static boolean CRL_ColoredSBar (int option)
+static void CRL_ColoredSBar (int option)
 {
     crl_colored_stbar ^= 1;
-    return true;
 }
 
-static boolean CRL_RestoreTargets (int option)
+static void CRL_RestoreTargets (int option)
 {
     crl_restore_targets ^= 1;
-    return true;
 }
 
-static boolean CRL_DemoTimer (int choice)
+static void CRL_DemoTimer (int choice)
 {
     crl_demo_timer = M_INT_Slider(crl_demo_timer, 0, 3, choice);
-    return true;
 }
 
-static boolean CRL_TimerDirection (int choice)
+static void CRL_TimerDirection (int choice)
 {
     crl_demo_timerdir ^= 1;
-    return true;
 }
 
-static boolean CRL_ProgressBar (int option)
+static void CRL_ProgressBar (int option)
 {
     crl_demo_bar ^= 1;
-    return true;
 }
 
-static boolean CRL_InternalDemos (int option)
+static void CRL_InternalDemos (int option)
 {
     crl_internal_demos ^= 1;
-    return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -2707,31 +2576,27 @@ static void DrawCRLLimits (void)
     }
 }
 
-static boolean CRL_ZMalloc (int option)
+static void CRL_ZMalloc (int option)
 {
     //crl_prevent_zmalloc ^= 1;
-    return true;
 }
 
-static boolean CRL_SaveSizeWarning (int option)
+static void CRL_SaveSizeWarning (int option)
 {
     vanilla_savegame_limit ^= 1;
-    return true;
 }
 
-static boolean CRL_DemoSizeWarning (int option)
+static void CRL_DemoSizeWarning (int option)
 {
     //vanilla_demo_limit ^= 1;
-    return true;
 }
 
-static boolean CRL_Limits (int option)
+static void CRL_Limits (int option)
 {
     crl_vanilla_limits ^= 1;
 
     // [JN] CRL - re-define static engine limits.
     CRL_SetStaticLimits("HERETIC+");
-    return true;
 }
 
 
@@ -3364,11 +3229,18 @@ static boolean SCNetCheck(int option)
             P_SetMessage(&players[consoleplayer],
                          "YOU CAN'T LOAD A GAME IN NETPLAY!", true);
             break;
-        default:
+        case 3:                // end game
+            P_SetMessage(&players[consoleplayer],
+                         "YOU CAN'T END A GAME IN NETPLAY!", true);
             break;
     }
     MenuActive = false;
     return false;
+}
+
+static void SCNetCheck2(int option)
+{
+    SCNetCheck(option);
 }
 
 //---------------------------------------------------------------------------
@@ -3377,7 +3249,7 @@ static boolean SCNetCheck(int option)
 //
 //---------------------------------------------------------------------------
 
-static boolean SCQuitGame(int option)
+static void SCQuitGame(int option)
 {
     MenuActive = false;
     askforquit = true;
@@ -3386,7 +3258,6 @@ static boolean SCQuitGame(int option)
     {
         paused = true;
     }
-    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -3395,11 +3266,11 @@ static boolean SCQuitGame(int option)
 //
 //---------------------------------------------------------------------------
 
-static boolean SCEndGame(int option)
+static void SCEndGame(int option)
 {
     if (demoplayback || netgame)
     {
-        return false;
+        return;
     }
     MenuActive = false;
     askforquit = true;
@@ -3408,7 +3279,6 @@ static boolean SCEndGame(int option)
     {
         paused = true;
     }
-    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -3417,7 +3287,7 @@ static boolean SCEndGame(int option)
 //
 //---------------------------------------------------------------------------
 
-static boolean SCMessages(int option)
+static void SCMessages(int option)
 {
     messageson ^= 1;
     if (messageson)
@@ -3429,7 +3299,6 @@ static boolean SCMessages(int option)
         P_SetMessage(&players[consoleplayer], DEH_String("MESSAGES OFF"), true);
     }
     S_StartSound(NULL, sfx_chat);
-    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -3438,13 +3307,13 @@ static boolean SCMessages(int option)
 //
 //---------------------------------------------------------------------------
 
-static boolean SCLoadGame(int option)
+static void SCLoadGame(int option)
 {
     char *filename;
 
     if (!SlotStatus[option])
     {                           // slot's empty...don't try and load
-        return false;
+        return;
     }
 
     filename = SV_Filename(option);
@@ -3459,7 +3328,6 @@ static boolean SCLoadGame(int option)
         players[consoleplayer].message = NULL;
         players[consoleplayer].messageTics = 1;
     }
-    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -3468,7 +3336,7 @@ static boolean SCLoadGame(int option)
 //
 //---------------------------------------------------------------------------
 
-static boolean SCSaveGame(int option)
+static void SCSaveGame(int option)
 {
     char *ptr;
 
@@ -3494,7 +3362,7 @@ static boolean SCSaveGame(int option)
         SlotStatus[option]++;
         currentSlot = option;
         slotptr = ptr - SlotText[option];
-        return false;
+        return;
     }
     else
     {
@@ -3510,7 +3378,6 @@ static boolean SCSaveGame(int option)
         players[consoleplayer].message = NULL;
         players[consoleplayer].messageTics = 1;
     }
-    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -3519,7 +3386,7 @@ static boolean SCSaveGame(int option)
 //
 //---------------------------------------------------------------------------
 
-static boolean SCEpisode(int option)
+static void SCEpisode(int option)
 {
     if (gamemode == shareware && option > 1)
     {
@@ -3531,7 +3398,6 @@ static boolean SCEpisode(int option)
         MenuEpisode = option;
         SetMenu(MENU_SKILL);
     }
-    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -3540,11 +3406,10 @@ static boolean SCEpisode(int option)
 //
 //---------------------------------------------------------------------------
 
-static boolean SCSkill(int option)
+static void SCSkill(int option)
 {
     G_DeferedInitNew(option, MenuEpisode, 1);
     MN_DeactivateMenu();
-    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -3553,7 +3418,7 @@ static boolean SCSkill(int option)
 //
 //---------------------------------------------------------------------------
 
-static boolean SCMouseSensi(int option)
+static void SCMouseSensi(int option)
 {
     if (option == RIGHT_DIR)
     {
@@ -3566,7 +3431,6 @@ static boolean SCMouseSensi(int option)
     {
         mouseSensitivity--;
     }
-    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -3575,7 +3439,7 @@ static boolean SCMouseSensi(int option)
 //
 //---------------------------------------------------------------------------
 
-static boolean SCSfxVolume(int option)
+static void SCSfxVolume(int option)
 {
     if (option == RIGHT_DIR)
     {
@@ -3590,7 +3454,6 @@ static boolean SCSfxVolume(int option)
     }
     S_SetMaxVolume(false);      // don't recalc the sound curve, yet
     soundchanged = true;        // we'll set it when we leave the menu
-    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -3599,7 +3462,7 @@ static boolean SCSfxVolume(int option)
 //
 //---------------------------------------------------------------------------
 
-static boolean SCMusicVolume(int option)
+static void SCMusicVolume(int option)
 {
     if (option == RIGHT_DIR)
     {
@@ -3613,7 +3476,6 @@ static boolean SCMusicVolume(int option)
         snd_MusicVolume--;
     }
     S_SetMusicVolume();
-    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -3622,7 +3484,7 @@ static boolean SCMusicVolume(int option)
 //
 //---------------------------------------------------------------------------
 
-static boolean SCScreenSize(int option)
+static void SCScreenSize(int option)
 {
     if (option == RIGHT_DIR)
     {
@@ -3636,7 +3498,6 @@ static boolean SCScreenSize(int option)
         screenblocks--;
     }
     R_SetViewSize(screenblocks, detailLevel);
-    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -3645,7 +3506,7 @@ static boolean SCScreenSize(int option)
 //
 //---------------------------------------------------------------------------
 
-static boolean SCInfo(int option)
+static void SCInfo(int option)
 {
     InfoType = 1;
     S_StartSound(NULL, sfx_dorcls);
@@ -3653,7 +3514,6 @@ static boolean SCInfo(int option)
     {
         paused = true;
     }
-    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -4333,6 +4193,10 @@ boolean MN_Responder(event_t * event)
         {
             if (item->type == ITT_SETMENU)
             {
+                if (item->func != NULL)
+                {
+                    item->func(item->option);
+                }
                 SetMenu(item->menu);
             }
             else if (item->func != NULL)
@@ -4344,13 +4208,7 @@ boolean MN_Responder(event_t * event)
                 }
                 else if (item->type == ITT_EFUNC)
                 {
-                    if (item->func(item->option))
-                    {
-                        if (item->menu != MENU_NONE)
-                        {
-                            SetMenu(item->menu);
-                        }
-                    }
+                    item->func(item->option);
                 }
             }
             S_StartSound(NULL, sfx_dorcls);
