@@ -612,6 +612,23 @@ void V_DrawBox(int x, int y, int w, int h, int c)
     V_DrawVertLine(x+w-1, y, h, c);
 }
 
+// [crispy] Unified function of flat filling. Used for intermission
+// and finale screens, view border and status bar's wide screen mode.
+void V_FillFlat(int y_start, int y_stop, int x_start, int x_stop,
+                const byte *src, pixel_t *dest)
+{
+    int x, y;
+
+    for (y = y_start; y < y_stop; y++)
+    {
+        for (x = x_start; x < x_stop; x++)
+        {
+            *dest++ = src[((y & 63) * 64)
+                         + (x & 63)];
+        }
+    }
+}
+
 // Set the buffer that the code draws to.
 
 void V_UseBuffer(pixel_t *buffer)
