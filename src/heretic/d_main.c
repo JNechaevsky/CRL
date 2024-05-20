@@ -95,8 +95,8 @@ boolean advancedemo;
 
 FILE *debugfile;
 
-int show_endoom = 0;
-int showMessages = 1;      // Show messages has default, 0 = off, 1 = on
+int show_endoom = 0;       // [JN] Disabled by default
+int showMessages = 1;      // [JN] Show messages has default, 0 = off, 1 = on
 
 void D_ConnectNetGame(void);
 void D_CheckNetGame(void);
@@ -825,6 +825,7 @@ void D_BindVariables(void)
 static void D_Endoom(void)
 {
     byte *endoom_data;
+    const char *endoom_name;
 
     // Disable ENDOOM?
 
@@ -833,9 +834,15 @@ static void D_Endoom(void)
         return;
     }
 
-    endoom_data = W_CacheLumpName(DEH_String("ENDTEXT"), PU_STATIC);
+    // [JN] Extended to show for "PWAD only".
+    endoom_name = DEH_String("ENDTEXT");
+    endoom_data = W_CacheLumpName(endoom_name, PU_STATIC);
 
-    I_Endoom(endoom_data);
+    if (show_endoom == 1
+    || (show_endoom == 2 && !W_IsIWADLump(lumpinfo[W_GetNumForName(endoom_name)])))
+    {
+        I_Endoom(endoom_data);
+    }
 }
 
 //---------------------------------------------------------------------------

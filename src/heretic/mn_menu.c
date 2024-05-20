@@ -1029,9 +1029,10 @@ static void DrawCRLVideo (void)
                M_Item_Glow(8, graphical_startup ? GLOW_GREEN : GLOW_RED));
 
     // Show ENDTEXT screen
-    sprintf(str, show_endoom ? "ON" : "OFF");
+    sprintf(str, show_endoom == 1 ? "ALWAYS" :
+                 show_endoom == 2 ? "PWAD ONLY" : "NEVER");
     MN_DrTextA(str, M_ItemRightAlign(str), 120,
-               M_Item_Glow(9, show_endoom ? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(9, show_endoom == 1 ? GLOW_RED : GLOW_GREEN));
 
     // Colorblind
     sprintf(str, crl_colorblind == 1 ? "PROTANOPIA"    :
@@ -1130,7 +1131,7 @@ static void CRL_GfxStartup (int option)
 
 static void CRL_EndText (int option)
 {
-    show_endoom ^= 1;
+    show_endoom = M_INT_Slider(show_endoom, 0, 2, option, false);
 }
 
 static void CRL_Colorblind (int option)
