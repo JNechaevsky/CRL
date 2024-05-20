@@ -169,7 +169,6 @@ extern int screenblocks;
 
 boolean MenuActive;
 int InfoType;
-boolean messageson;
 
 // Private Data
 
@@ -1189,9 +1188,9 @@ static void DrawCRLDisplay (void)
     MN_DrTextACentered("MESSAGES SETTINGS", 80, cr[CR_YELLOW]);
 
     // Messages enabled
-    sprintf(str, messageson ? "ON" : "OFF");
+    sprintf(str, showMessages ? "ON" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 90,
-               M_Item_Glow(6, messageson ? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(6, showMessages ? GLOW_GREEN : GLOW_RED));
 
     // Critical message style
     sprintf(str, crl_msg_critical ? "BLINKING" : "STATIC");
@@ -2853,7 +2852,6 @@ void MN_Init(void)
 {
     InitFonts();
     MenuActive = false;
-    messageson = true;
     SkullBaseLump = W_GetNumForName(DEH_String("M_SKL00"));
 
     // [JN] CRL - player is always local, "console" player.
@@ -3406,7 +3404,7 @@ static void DrawFileSlots(Menu_t * menu)
 
 static void DrawOptionsMenu(void)
 {
-    if (messageson)
+    if (showMessages)
     {
         MN_DrTextB(DEH_String("ON"), 196, 50, NULL);
     }
@@ -3515,8 +3513,8 @@ static void SCEndGame(int option)
 
 static void SCMessages(int option)
 {
-    messageson ^= 1;
-    if (messageson)
+    showMessages ^= 1;
+    if (showMessages)
     {
         P_SetMessage(&players[consoleplayer], DEH_String("MESSAGES ON"), true);
     }

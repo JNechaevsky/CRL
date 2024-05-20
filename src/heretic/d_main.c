@@ -96,6 +96,7 @@ boolean advancedemo;
 FILE *debugfile;
 
 int show_endoom = 0;
+int showMessages = 1;      // Show messages has default, 0 = off, 1 = on
 
 void D_ConnectNetGame(void);
 void D_CheckNetGame(void);
@@ -798,6 +799,7 @@ void D_BindVariables(void)
     M_BindIntVariable("mouse_sensitivity",      &mouseSensitivity);
     M_BindIntVariable("sfx_volume",             &snd_MaxVolume);
     M_BindIntVariable("music_volume",           &snd_MusicVolume);
+    M_BindIntVariable("show_messages",          &showMessages);
     M_BindIntVariable("screenblocks",           &screenblocks);
     M_BindIntVariable("snd_channels",           &snd_Channels);
     M_BindIntVariable("vanilla_savegame_limit", &vanilla_savegame_limit);
