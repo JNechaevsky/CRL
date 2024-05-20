@@ -90,6 +90,7 @@ static int HealthMarker;
 static int ChainWiggle;
 static player_t *CPlayer;
 int playpalette;
+int sb_palette = 0;  // [JN] Externalazied variable of current palette index.
 
 patch_t *PatchLTFACE;
 patch_t *PatchRTFACE;
@@ -563,6 +564,11 @@ static int oldkeys = -1;
 int playerkeys = 0;
 
 
+// [crispy] Needed to support widescreen status bar.
+void SB_ForceRedraw(void)
+{
+    SB_state = -1;
+}
 void SB_Drawer(void)
 {
     int frame;
@@ -792,11 +798,20 @@ static byte *SB_MainBarColor (const int i)
     return NULL;
 }
 
+// -----------------------------------------------------------------------------
+// CRL_ReloadPalette
+// -----------------------------------------------------------------------------
+
+void CRL_ReloadPalette (void)
+{
+    byte *pal = (byte *) W_CacheLumpNum (playpalette, PU_CACHE)+sb_palette*768;
+    I_SetPalette (pal);
+}
+
 // sets the new palette based upon current values of player->damagecount
 // and player->bonuscount
 void SB_PaletteFlash(void)
 {
-    static int sb_palette = 0;
     int palette;
     byte *pal;
 
