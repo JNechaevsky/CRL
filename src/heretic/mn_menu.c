@@ -392,12 +392,15 @@ static void CRL_PixelScaling (int option);
 static void CRL_VisplanesDraw (int option);
 static void CRL_HOMDraw (int option);
 static void CRL_Gamma (int option);
-static void CRL_TextShadows (int option);
+static void CRL_MenuBgShading (int option);
+static void CRL_LevelBrightness (int option);
+static void CRL_MsgCritical (int option);
 static void CRL_GfxStartup (int option);
 static void CRL_EndText (int option);
 static void CRL_Colorblind (int option);
 
 static void DrawCRLDisplay (void);
+static void CRL_TextShadows (int option);
 
 static void DrawCRLSound (void);
 static void CRL_MusicSystem (int option);
@@ -596,9 +599,13 @@ static int shade_wait;
 // [JN] Shade background while in CRL menu.
 static void M_ShadeBackground (void)
 {
-    for (int y = 0; y < SCREENWIDTH * SCREENHEIGHT; y++)
+    // Return earlier if shading disabled.
+    if (crl_menu_shading)
     {
-        I_VideoBuffer[y] = colormaps[12 * 256 + I_VideoBuffer[y]];
+        for (int y = 0; y < SCREENWIDTH * SCREENHEIGHT; y++)
+        {
+            I_VideoBuffer[y] = colormaps[crl_menu_shading * 256 + I_VideoBuffer[y]];
+        }
     }
 }
 
@@ -1117,11 +1124,6 @@ static void CRL_HOMDraw (int option)
     crl_hom_effect = M_INT_Slider(crl_hom_effect, 0, 2, option, false);
 }
 
-static void CRL_TextShadows (int option)
-{
-    crl_text_shadows ^= 1;
-}
-
 static void CRL_GfxStartup (int option)
 {
     graphical_startup ^= 1;
@@ -1144,15 +1146,15 @@ static void CRL_Colorblind (int option)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLDisplayItems[] = {
-    { ITT_LRFUNC, "GAMMA-CORRECTION",        CRL_UncappedFPS, 0, MENU_NONE },
-    { ITT_EMPTY,  NULL,                      NULL,            0, MENU_NONE },
-    { ITT_EMPTY,  NULL,                      NULL,            0, MENU_NONE },
-    { ITT_LRFUNC, "MENU BACKGROUND SHADING", NULL,            0, MENU_NONE },
-    { ITT_LRFUNC, "EXTRA LEVEL BRIGHTNESS",  NULL,            0, MENU_NONE },
-    { ITT_EMPTY,  NULL,                      NULL,            0, MENU_NONE },
-    { ITT_LRFUNC, "MESSAGES ENABLED",        NULL,            0, MENU_NONE },
-    { ITT_LRFUNC, "CRITICAL MESSAGE",        NULL,            0, MENU_NONE },
-    { ITT_LRFUNC, "TEXT CAST SHADOWS",       NULL,            0, MENU_NONE },
+    { ITT_LRFUNC, "GAMMA-CORRECTION",        CRL_Gamma,           0, MENU_NONE },
+    { ITT_EMPTY,  NULL,                      NULL,                0, MENU_NONE },
+    { ITT_EMPTY,  NULL,                      NULL,                0, MENU_NONE },
+    { ITT_LRFUNC, "MENU BACKGROUND SHADING", CRL_MenuBgShading,   0, MENU_NONE },
+    { ITT_LRFUNC, "EXTRA LEVEL BRIGHTNESS",  CRL_LevelBrightness, 0, MENU_NONE },
+    { ITT_EMPTY,  NULL,                      NULL,                0, MENU_NONE },
+    { ITT_LRFUNC, "MESSAGES ENABLED",        SCMessages,          0, MENU_NONE },
+    { ITT_LRFUNC, "CRITICAL MESSAGE",        CRL_MsgCritical,     0, MENU_NONE },
+    { ITT_LRFUNC, "TEXT CAST SHADOWS",       CRL_TextShadows,     0, MENU_NONE },
 };
 
 static Menu_t CRLDisplay = {
@@ -1166,19 +1168,40 @@ static Menu_t CRLDisplay = {
 
 static void DrawCRLDisplay (void)
 {
-    // char str[32];
+    char str[32];
 
+    MN_DrTextACentered("DISPLAY OPTIONS", 20, cr[CR_YELLOW]);
 
-/*
     // Gamma-correction slider and num
-    DrawSlider(&CRLVideo, 7, 8, crl_gamma/2, false);
-    MN_DrTextA(gammalvls[crl_gamma][1], 164, 105, M_Item_Glow(6, GLOW_UNCOLORED));
+    DrawSlider(&CRLVideo, 1, 8, crl_gamma/2, false);
+    MN_DrTextA(gammalvls[crl_gamma][1], 164, 45, M_Item_Glow(0, GLOW_UNCOLORED));
+
+    // Menu background shading
+    sprintf(str, crl_menu_shading ? "%d" : "OFF", crl_menu_shading);
+    MN_DrTextA(str, M_ItemRightAlign(str), 60,
+               M_Item_Glow(3, crl_menu_shading ? GLOW_GREEN : GLOW_RED));
+
+    // Extra level brightness
+    sprintf(str, crl_level_brightness ? "%d" : "OFF", crl_level_brightness);
+    MN_DrTextA(str, M_ItemRightAlign(str), 70,
+               M_Item_Glow(4, crl_level_brightness ? GLOW_GREEN : GLOW_RED));
+
+    MN_DrTextACentered("MESSAGES SETTINGS", 80, cr[CR_YELLOW]);
+
+    // Messages enabled
+    sprintf(str, messageson ? "ON" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 90,
+               M_Item_Glow(6, messageson ? GLOW_GREEN : GLOW_RED));
+
+    // Critical message style
+    sprintf(str, crl_msg_critical ? "BLINKING" : "STATIC");
+    MN_DrTextA(str, M_ItemRightAlign(str), 100,
+               M_Item_Glow(7, crl_msg_critical ? GLOW_GREEN : GLOW_RED));
 
     // Text casts shadows
     sprintf(str, crl_text_shadows ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 120,
-               M_Item_Glow(9, crl_text_shadows ? GLOW_GREEN : GLOW_RED));
-*/
+    MN_DrTextA(str, M_ItemRightAlign(str), 110,
+               M_Item_Glow(8, crl_text_shadows ? GLOW_GREEN : GLOW_RED));
 }
 
 static void CRL_Gamma (int option)
@@ -1188,6 +1211,26 @@ static void CRL_Gamma (int option)
     crl_gamma = M_INT_Slider(crl_gamma, 0, 14, option, true);
 
     CRL_ReloadPalette();
+}
+
+static void CRL_MenuBgShading (int option)
+{
+    crl_menu_shading = M_INT_Slider(crl_menu_shading, 0, 24, option, true);
+}
+
+static void CRL_LevelBrightness (int option)
+{
+    crl_level_brightness = M_INT_Slider(crl_level_brightness, 0, 8, option, true);
+}
+
+static void CRL_MsgCritical (int option)
+{
+    crl_msg_critical ^= 1;
+}
+
+static void CRL_TextShadows (int option)
+{
+    crl_text_shadows ^= 1;
 }
 
 // -----------------------------------------------------------------------------
