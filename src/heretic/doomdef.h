@@ -714,6 +714,14 @@ uint16_t SV_ReadWord(void);
 uint32_t SV_ReadLong(void);
 
 extern char *savegamedir;
+extern char  savename[256];
+
+extern void G_ClearSavename (void);
+
+// [crispy] support up to 8 pages of savegames
+extern int savepage;
+#define SAVES_PER_PAGE 6
+#define SAVEPAGE_MAX 7
 
 void G_RecordDemo(skill_t skill, int numplayers, int episode, int map,
                   char *name);

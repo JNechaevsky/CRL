@@ -137,6 +137,7 @@ boolean precache = true;        // if true, load all graphics at start
 // TODO: Heretic uses 16-bit shorts for consistency?
 byte consistancy[MAXPLAYERS][BACKUPTICS];
 char *savegamedir;
+char  savename[256];
 
 boolean testcontrols = false;
 int testcontrols_mousespeed;
@@ -1933,11 +1934,9 @@ void G_DoWorldDone(void)
 //
 //---------------------------------------------------------------------------
 
-static char *savename = NULL;
-
 void G_LoadGame(char *name)
 {
-    savename = M_StringDuplicate(name);
+    M_StringCopy(savename, name, sizeof(savename));
     gameaction = ga_loadgame;
 }
 
@@ -1965,8 +1964,12 @@ void G_DoLoadGame(void)
 
     SV_OpenRead(savename);
 
+    // [JN] Do not erase save data,
+    // it will be needed for "On death action" feature.
+    /*
     free(savename);
     savename = NULL;
+    */
 
     // Skip the description field
     SV_Read(savestr, SAVESTRINGSIZE);

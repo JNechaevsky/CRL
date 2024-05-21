@@ -804,6 +804,9 @@ void D_BindVariables(void)
     M_BindIntVariable("show_endoom",            &show_endoom);
     M_BindIntVariable("graphical_startup",      &graphical_startup);
 
+    M_BindStringVariable("savegames_path",      &SavePathConfig);
+    M_BindStringVariable("screenshots_path",    &ShotPathConfig);
+
     for (i=0; i<10; ++i)
     {
         char buf[12];
@@ -1159,6 +1162,9 @@ void D_DoomMain(void)
     I_SetWindowTitle(gamedescription);
 
     savegamedir = M_GetSaveGameDir("heretic.wad");
+
+    // [JN] Set the default directory where screenshots are saved.
+    M_SetScreenshotDir();
 
     I_PrintStartupBanner(gamedescription);
 

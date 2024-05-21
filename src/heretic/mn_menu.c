@@ -20,6 +20,7 @@
 
 #include <stdlib.h>
 #include <ctype.h>
+#include <time.h>
 
 #include "deh_str.h"
 #include "doomdef.h"
@@ -185,9 +186,9 @@ boolean askforquit;
 static int typeofask;
 static boolean FileMenuKeySteal;
 static boolean slottextloaded;
-static char SlotText[6][SLOTTEXTLEN + 2];
+static char SlotText[SAVES_PER_PAGE][SLOTTEXTLEN + 2];
 static char oldSlotText[SLOTTEXTLEN + 2];
-static int SlotStatus[6];
+static int SlotStatus[SAVES_PER_PAGE];
 static int slotptr;
 static int currentSlot;
 static int quicksave;
@@ -265,37 +266,41 @@ static Menu_t FilesMenu = {
     MENU_MAIN
 };
 
+// [JN] Allow to chose slot by pressing number key.
+// This behavior is same to Doom.
 static MenuItem_t LoadItems[] = {
-    {ITT_EFUNC, NULL, SCLoadGame, 0, MENU_NONE},
-    {ITT_EFUNC, NULL, SCLoadGame, 1, MENU_NONE},
-    {ITT_EFUNC, NULL, SCLoadGame, 2, MENU_NONE},
-    {ITT_EFUNC, NULL, SCLoadGame, 3, MENU_NONE},
-    {ITT_EFUNC, NULL, SCLoadGame, 4, MENU_NONE},
-    {ITT_EFUNC, NULL, SCLoadGame, 5, MENU_NONE}
+    {ITT_EFUNC, "1", SCLoadGame, 0, MENU_NONE},
+    {ITT_EFUNC, "2", SCLoadGame, 1, MENU_NONE},
+    {ITT_EFUNC, "3", SCLoadGame, 2, MENU_NONE},
+    {ITT_EFUNC, "4", SCLoadGame, 3, MENU_NONE},
+    {ITT_EFUNC, "5", SCLoadGame, 4, MENU_NONE},
+    {ITT_EFUNC, "6", SCLoadGame, 5, MENU_NONE}
 };
 
 static Menu_t LoadMenu = {
-    70, 30,
+    70, 18,
     DrawLoadMenu,
-    6, LoadItems,
+    SAVES_PER_PAGE, LoadItems,
     0,
     NoFont, true, true,
     MENU_FILES
 };
 
+// [JN] Allow to chose slot by pressing number key.
+// This behavior is same to Doom.
 static MenuItem_t SaveItems[] = {
-    {ITT_EFUNC, NULL, SCSaveGame, 0, MENU_NONE},
-    {ITT_EFUNC, NULL, SCSaveGame, 1, MENU_NONE},
-    {ITT_EFUNC, NULL, SCSaveGame, 2, MENU_NONE},
-    {ITT_EFUNC, NULL, SCSaveGame, 3, MENU_NONE},
-    {ITT_EFUNC, NULL, SCSaveGame, 4, MENU_NONE},
-    {ITT_EFUNC, NULL, SCSaveGame, 5, MENU_NONE}
+    {ITT_EFUNC, "1", SCSaveGame, 0, MENU_NONE},
+    {ITT_EFUNC, "2", SCSaveGame, 1, MENU_NONE},
+    {ITT_EFUNC, "3", SCSaveGame, 2, MENU_NONE},
+    {ITT_EFUNC, "4", SCSaveGame, 3, MENU_NONE},
+    {ITT_EFUNC, "5", SCSaveGame, 4, MENU_NONE},
+    {ITT_EFUNC, "6", SCSaveGame, 5, MENU_NONE}
 };
 
 static Menu_t SaveMenu = {
-    70, 30,
+    70, 18,
     DrawSaveMenu,
-    6, SaveItems,
+    SAVES_PER_PAGE, SaveItems,
     0,
     NoFont, true, true,
     MENU_FILES
@@ -569,13 +574,6 @@ static byte   *M_ColorizeBind (int itemSetOn, int key);
 static void    M_ResetBinds (void);
 static void    M_DrawBindKey (int itemNum, int yPos, int keyBind);
 static void    M_DrawBindFooter (int y, char *pagenum, boolean drawPages);
-static void    M_ScrollKeyBindPages (boolean direction);
-
-#define KBD_BIND_MENUS (CurrentMenu == &CRLKbdBinds1 || CurrentMenu == &CRLKbdBinds2 || \
-                        CurrentMenu == &CRLKbdBinds3 || CurrentMenu == &CRLKbdBinds4 || \
-                        CurrentMenu == &CRLKbdBinds5 || CurrentMenu == &CRLKbdBinds6 || \
-                        CurrentMenu == &CRLKbdBinds7 || CurrentMenu == &CRLKbdBinds8 || \
-                        CurrentMenu == &CRLKbdBinds9)
 
 // Mouse binding prototypes
 static boolean MouseIsBinding;
@@ -590,6 +588,53 @@ static byte   *M_ColorizeMouseBind (int CurrentItPosOn, int btn);
 static void    M_DrawBindButton (int itemNum, int yPos, int btnBind);
 static void    M_ResetMouseBinds (void);
 
+// Forward declarations for scrolling and remembering last pages.
+static Menu_t CRLKbdBinds1;
+static Menu_t CRLKbdBinds2;
+static Menu_t CRLKbdBinds3;
+static Menu_t CRLKbdBinds4;
+static Menu_t CRLKbdBinds5;
+static Menu_t CRLKbdBinds6;
+static Menu_t CRLKbdBinds7;
+static Menu_t CRLKbdBinds8;
+static Menu_t CRLKbdBinds9;
+
+// Utility function for scrolling pages by arrows / PG keys.
+static void M_ScrollPages (boolean direction)
+{
+    // Save/Load menu:
+    if (CurrentMenu == &LoadMenu || CurrentMenu == &SaveMenu)
+    {
+        if (savepage > 0 && !direction)
+        {
+            savepage--;
+            S_StartSound(NULL, sfx_switch);
+        }
+        else
+        if (savepage < SAVEPAGE_MAX && direction)
+        {
+            savepage++;
+            S_StartSound(NULL, sfx_switch);
+        }
+        quicksave = -1;
+        MN_LoadSlotText();
+        return;
+    }
+
+    // Keyboard bindings:
+    else if (CurrentMenu == &CRLKbdBinds1) SetMenu(direction ? MENU_CRLKBDBINDS2 : MENU_CRLKBDBINDS9);
+    else if (CurrentMenu == &CRLKbdBinds2) SetMenu(direction ? MENU_CRLKBDBINDS3 : MENU_CRLKBDBINDS1);
+    else if (CurrentMenu == &CRLKbdBinds3) SetMenu(direction ? MENU_CRLKBDBINDS4 : MENU_CRLKBDBINDS2);
+    else if (CurrentMenu == &CRLKbdBinds4) SetMenu(direction ? MENU_CRLKBDBINDS5 : MENU_CRLKBDBINDS3);
+    else if (CurrentMenu == &CRLKbdBinds5) SetMenu(direction ? MENU_CRLKBDBINDS6 : MENU_CRLKBDBINDS4);
+    else if (CurrentMenu == &CRLKbdBinds6) SetMenu(direction ? MENU_CRLKBDBINDS7 : MENU_CRLKBDBINDS5);
+    else if (CurrentMenu == &CRLKbdBinds7) SetMenu(direction ? MENU_CRLKBDBINDS8 : MENU_CRLKBDBINDS6);
+    else if (CurrentMenu == &CRLKbdBinds8) SetMenu(direction ? MENU_CRLKBDBINDS1 : MENU_CRLKBDBINDS7);
+    else if (CurrentMenu == &CRLKbdBinds9) SetMenu(direction ? MENU_CRLKBDBINDS1 : MENU_CRLKBDBINDS8);
+
+    // Play sound.
+    S_StartSound(NULL, sfx_switch);
+}
 // -----------------------------------------------------------------------------
 
 // [JN] Delay before shading.
@@ -2861,6 +2906,33 @@ static void InitFonts(void)
     FontBBaseLump = W_GetNumForName(DEH_String("FONTB_S")) + 1;
 }
 
+// [crispy] Check if printable character is existing in FONTA/FONTB sets
+// and do a replacement or case correction if needed.
+
+enum {
+    big_font, small_font
+} fontsize_t;
+
+static const char MN_CheckValidChar (char ascii_index, int have_cursor)
+{
+    if ((ascii_index > 'Z' + have_cursor && ascii_index < 'a') || ascii_index > 'z')
+    {
+        // Replace "\]^_`" and "{|}~" with spaces,
+        // allow "[" (cursor symbol) only in small fonts.
+        return ' ';
+    }
+    else if (ascii_index >= 'a' && ascii_index <= 'z')
+    {
+        // Force lowercase "a...z" characters to uppercase "A...Z".
+        return ascii_index + 'A' - 'a';
+    }
+    else
+    {
+        // Valid char, do not modify it's ASCII index.
+        return ascii_index;
+    }
+}
+
 //---------------------------------------------------------------------------
 //
 // PROC MN_DrTextA
@@ -2878,6 +2950,8 @@ void MN_DrTextA (const char *text, int x, int y, byte *table)
 
     while ((c = *text++) != 0)
     {
+        c = MN_CheckValidChar(c, small_font); // [crispy] check for valid characters
+
         if (c < 33)
         {
             x += 5;
@@ -2910,6 +2984,8 @@ int MN_TextAWidth(const char *text)
     width = 0;
     while ((c = *text++) != 0)
     {
+        c = MN_CheckValidChar(c, small_font); // [crispy] check for valid characters
+
         if (c < 33)
         {
             width += 5;
@@ -2935,6 +3011,8 @@ void MN_DrTextACentered (const char *text, int y, byte *table)
 
     while ((c = *text++) != 0)
     {
+        c = MN_CheckValidChar(c, small_font); // [crispy] check for valid characters
+
         if (c < 33)
         {
             cx += 5;
@@ -2968,6 +3046,8 @@ void MN_DrTextACritical (const char *text1, const char *text2, int y, byte *tabl
 
     while ((c = *text1++) != 0)
     {
+        c = MN_CheckValidChar(c, small_font); // [crispy] check for valid characters
+
         if (c < 33)
         {
             cx1 += 5;
@@ -3014,6 +3094,8 @@ void MN_DrTextB(const char *text, int x, int y, byte *table)
 
     while ((c = *text++) != 0)
     {
+        c = MN_CheckValidChar(c, big_font); // [crispy] check for valid characters
+
         if (c < 33)
         {
             x += 8;
@@ -3046,6 +3128,8 @@ int MN_TextBWidth(const char *text)
     width = 0;
     while ((c = *text++) != 0)
     {
+        c = MN_CheckValidChar(c, big_font); // [crispy] check for valid characters
+
         if (c < 33)
         {
             width += 5;
@@ -3176,7 +3260,13 @@ void MN_Drawer(void)
                 MN_DrTextA(DEH_String("?"), 160 +
                            MN_TextAWidth(SlotText[quickload - 1]) / 2, 90, NULL);
             }
-            UpdateState |= I_FULLSCRN;
+            if (typeofask == 5)
+            {
+                MN_DrTextA(SlotText[CurrentItPos], 160 -
+                           MN_TextAWidth(SlotText[CurrentItPos]) / 2, 90, NULL);
+                MN_DrTextA(DEH_String("?"), 160 +
+                           MN_TextAWidth(SlotText[CurrentItPos]) / 2, 90, NULL);
+            }
         }
         return;
     }
@@ -3280,6 +3370,46 @@ static void DrawFilesMenu(void)
     players[consoleplayer].messageTics = 1;
 }
 
+// [crispy] support additional pages of savegames
+static void DrawSaveLoadBottomLine(const Menu_t *menu)
+{
+    char pagestr[16];
+    static short width;
+    const int y = menu->y + ITEM_HEIGHT * SAVES_PER_PAGE;
+
+    if (!width)
+    {
+        const patch_t *const p = W_CacheLumpName(DEH_String("M_FSLOT"), PU_CACHE);
+        width = SHORT(p->width);
+    }
+    if (savepage > 0)
+        MN_DrTextA("PGUP", menu->x + 1, y, cr[CR_MENU_DARK4]);
+    if (savepage < SAVEPAGE_MAX)
+        MN_DrTextA("PGDN", menu->x + width - MN_TextAWidth("PGDN"), y, cr[CR_MENU_DARK4]);
+
+    M_snprintf(pagestr, sizeof(pagestr), "PAGE %d/%d", savepage + 1, SAVEPAGE_MAX + 1);
+    MN_DrTextA(pagestr, SCREENWIDTH / 2 - MN_TextAWidth(pagestr) / 2, y, cr[CR_MENU_DARK4]);
+
+    // [JN] Print "modified" (or created initially) time of savegame file.
+    if (SlotStatus[CurrentItPos] && !FileMenuKeySteal)
+    {
+        struct stat filestat;
+        char filedate[32];
+
+        stat(SV_Filename(CurrentItPos), &filestat);
+// [FG] suppress the most useless compiler warning ever
+#if defined(__GNUC__)
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wformat-y2k"
+#endif
+        strftime(filedate, sizeof(filedate), "%x %X", localtime(&filestat.st_mtime));
+#if defined(__GNUC__)
+#  pragma GCC diagnostic pop
+#endif
+        MN_DrTextACentered(filedate, y + 10, cr[CR_MENU_DARK4]);
+    }
+}
+
 //---------------------------------------------------------------------------
 //
 // PROC DrawLoadMenu
@@ -3292,12 +3422,13 @@ static void DrawLoadMenu(void)
 
     title = DEH_String(quickloadTitle ? "QUICK LOAD GAME" : "LOAD GAME");
 
-    MN_DrTextB(title, 160 - MN_TextBWidth(title) / 2, 10, NULL);
     if (!slottextloaded)
     {
         MN_LoadSlotText();
     }
     DrawFileSlots(&LoadMenu);
+    MN_DrTextB(title, 160 - MN_TextBWidth(title) / 2, 1, NULL);
+    DrawSaveLoadBottomLine(&LoadMenu);
 }
 
 //---------------------------------------------------------------------------
@@ -3312,12 +3443,13 @@ static void DrawSaveMenu(void)
 
     title = DEH_String(quicksaveTitle ? "QUICK SAVE GAME" : "SAVE GAME");
 
-    MN_DrTextB(title, 160 - MN_TextBWidth(title) / 2, 10, NULL);
     if (!slottextloaded)
     {
         MN_LoadSlotText();
     }
     DrawFileSlots(&SaveMenu);
+    MN_DrTextB(title, 160 - MN_TextBWidth(title) / 2, 1, NULL);
+    DrawSaveLoadBottomLine(&SaveMenu);
 }
 
 //===========================================================================
@@ -4126,8 +4258,8 @@ boolean MN_Responder(event_t * event)
         if (key == key_menu_abort || key == KEY_ESCAPE
         || (event->type == ev_mouse && event->data1 & 2))  // [JN] Cancel by right mouse button.
         {
-            // [JN] Do not close keybindings menu after reset canceling.
-            if (typeofask == 5)
+            // [JN] Do not close reset menus after canceling.
+            if (typeofask == 6 || typeofask == 7)
             {
                 if (!netgame && !demoplayback)
                 {
@@ -4421,11 +4553,10 @@ boolean MN_Responder(event_t * event)
                 item->func(LEFT_DIR);
                 S_StartSound(NULL, sfx_keyup);
             }
-            // [JN] ...or scroll key binds menu backward.
-            else
-            if (KBD_BIND_MENUS)
+            // [JN] Go to previous-left menu by pressing Left Arrow.
+            if (CurrentMenu->ScrollAR)
             {
-                M_ScrollKeyBindPages(false);
+                M_ScrollPages(false);
             }
             return (true);
         }
@@ -4436,29 +4567,28 @@ boolean MN_Responder(event_t * event)
                 item->func(RIGHT_DIR);
                 S_StartSound(NULL, sfx_keyup);
             }
-            // [JN] ...or scroll key binds menu forward.
-            else
-            if (KBD_BIND_MENUS)
+            // [JN] Go to next-right menu by pressing Right Arrow.
+            if (CurrentMenu->ScrollAR)
             {
-                M_ScrollKeyBindPages(true);
+                M_ScrollPages(true);
             }
             return (true);
         }
-        // [crispy] next/prev Crispness menu
+        // [JN] Go to previous-left menu by pressing Page Up key.
         else if (key == KEY_PGUP)
         {
-            if (KBD_BIND_MENUS)
+            if (CurrentMenu->ScrollPG)
             {
-                M_ScrollKeyBindPages(false);
+                M_ScrollPages(false);
             }
             return (true);
         }
-        // [crispy] next/prev Crispness menu
+        // [JN] Go to next-right menu by pressing Page Down key.
         else if (key == KEY_PGDN)
         {
-            if (KBD_BIND_MENUS)
+            if (CurrentMenu->ScrollPG)
             {
-                M_ScrollKeyBindPages(true);
+                M_ScrollPages(true);
             }
             return (true);
         }
@@ -4508,8 +4638,27 @@ boolean MN_Responder(event_t * event)
         // [crispy] delete a savegame
         else if (key == key_menu_del)
         {
+            if (CurrentMenu == &LoadMenu || CurrentMenu == &SaveMenu)
+            {
+                if (SlotStatus[CurrentItPos])
+                {
+                    MenuActive = false;
+                    askforquit = true;
+                    if (!netgame && !demoplayback)
+                    {
+                        paused = true;
+                    }
+                    typeofask = 5;
+                    S_StartSound(NULL, sfx_chat);
+                }
+            }
             // [JN] ...or clear key bind.
-            if (KBD_BIND_MENUS)
+            else
+            if (CurrentMenu == &CRLKbdBinds1 || CurrentMenu == &CRLKbdBinds2
+            ||  CurrentMenu == &CRLKbdBinds3 || CurrentMenu == &CRLKbdBinds4
+            ||  CurrentMenu == &CRLKbdBinds5 || CurrentMenu == &CRLKbdBinds6
+            ||  CurrentMenu == &CRLKbdBinds7 || CurrentMenu == &CRLKbdBinds8
+            ||  CurrentMenu == &CRLKbdBinds9)
             {
                 M_ClearBind(CurrentItPos);
             }
@@ -5353,63 +5502,6 @@ static void M_DrawBindFooter (int y, char *pagenum, boolean drawPages)
         MN_DrTextACentered(M_StringJoin("PAGE ", pagenum, "/9", NULL), y + newline, cr[CR_GRAY]);
         MN_DrTextA("PGDN", M_ItemRightAlign("PGDN"), y + newline, cr[CR_GRAY]);
     }
-}
-
-// -----------------------------------------------------------------------------
-// M_ScrollKeyBindPages
-//  [JN] Scroll keyboard binding pages forward (direction = true)
-//  and backward (direction = false).
-// -----------------------------------------------------------------------------
-
-static void M_ScrollKeyBindPages (boolean direction)
-{
-
-    if (CurrentMenu == &CRLKbdBinds1)
-    {
-        SetMenu(direction ? MENU_CRLKBDBINDS2 : MENU_CRLKBDBINDS9);
-    }
-    else 
-    if (CurrentMenu == &CRLKbdBinds2)
-    {
-        SetMenu(direction ? MENU_CRLKBDBINDS3 : MENU_CRLKBDBINDS1);
-    }
-    else
-    if (CurrentMenu == &CRLKbdBinds3)
-    {
-        SetMenu(direction ? MENU_CRLKBDBINDS4 : MENU_CRLKBDBINDS2);
-    }
-    else
-    if (CurrentMenu == &CRLKbdBinds4)
-    {
-        SetMenu(direction ? MENU_CRLKBDBINDS5 : MENU_CRLKBDBINDS3);
-    }
-    else
-    if (CurrentMenu == &CRLKbdBinds5)
-    {
-        SetMenu(direction ? MENU_CRLKBDBINDS6 : MENU_CRLKBDBINDS4);
-    }
-    else
-    if (CurrentMenu == &CRLKbdBinds6)
-    {
-        SetMenu(direction ? MENU_CRLKBDBINDS7 : MENU_CRLKBDBINDS5);
-    }
-    else
-    if (CurrentMenu == &CRLKbdBinds7)
-    {
-        SetMenu(direction ? MENU_CRLKBDBINDS8 : MENU_CRLKBDBINDS6);
-    }
-    else
-    if (CurrentMenu == &CRLKbdBinds8)
-    {
-        SetMenu(direction ? MENU_CRLKBDBINDS9 : MENU_CRLKBDBINDS7);
-    }
-    else
-    if (CurrentMenu == &CRLKbdBinds9)
-    {
-        SetMenu(direction ? MENU_CRLKBDBINDS1 : MENU_CRLKBDBINDS8);
-    }
-
-    S_StartSound(NULL, sfx_switch);
 }
 
 
