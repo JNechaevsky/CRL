@@ -570,7 +570,7 @@ static void    M_ClearBind (int itemOn);
 static byte   *M_ColorizeBind (int itemSetOn, int key);
 static void    M_ResetBinds (void);
 static void    M_DrawBindKey (int itemNum, int yPos, int keyBind);
-static void    M_DrawBindFooter (char *pagenum, boolean drawPages);
+static void    M_DrawBindFooter (int y, char *pagenum, boolean drawPages);
 static void    M_ScrollKeyBindPages (boolean direction);
 
 #define KBD_BIND_MENUS (CurrentMenu == &CRLKbdBinds1 || CurrentMenu == &CRLKbdBinds2 || \
@@ -1536,7 +1536,7 @@ static void DrawCRLKbd1 (void)
     M_DrawBindKey(9, 120, key_fire);
     M_DrawBindKey(10, 130, key_use);
 
-    M_DrawBindFooter("1", true);
+    M_DrawBindFooter(170, "1", true);
 }
 
 static void M_Bind_MoveForward (int option)
@@ -1618,7 +1618,7 @@ static Menu_t CRLKbdBinds2 = {
 
 static void DrawCRLKbd2 (void)
 {
-    M_ShadeBackground();
+    M_FillBackground();
 
     MN_DrTextACentered("VIEW", 20, cr[CR_YELLOW]);
 
@@ -1638,7 +1638,7 @@ static void DrawCRLKbd2 (void)
     M_DrawBindKey(9, 120, key_invright);
     M_DrawBindKey(10, 130, key_useartifact);
 
-    M_DrawBindFooter("2", true);
+    M_DrawBindFooter(170, "2", true);
 }
 
 static void M_Bind_LookUp (int option)
@@ -1714,7 +1714,7 @@ static Menu_t CRLKbdBinds3 = {
 
 static void DrawCRLKbd3 (void)
 {
-    M_ShadeBackground();
+    M_FillBackground();
 
     MN_DrTextACentered("CRL CONTROLS", 20, cr[CR_YELLOW]);
 
@@ -1731,7 +1731,7 @@ static void DrawCRLKbd3 (void)
     M_DrawBindKey(8, 110, key_crl_freeze);
     M_DrawBindKey(9, 120, key_crl_notarget);
 
-    M_DrawBindFooter("3", true);
+    M_DrawBindFooter(170, "3", true);
 }
 
 static void M_Bind_CRLmenu (int option)
@@ -1808,7 +1808,7 @@ static Menu_t CRLKbdBinds4 = {
 
 static void DrawCRLKbd4 (void)
 {
-    M_ShadeBackground();
+    M_FillBackground();
 
     MN_DrTextACentered("ADVANCED MOVEMENT", 20, cr[CR_YELLOW]);
 
@@ -1828,7 +1828,7 @@ static void DrawCRLKbd4 (void)
     M_DrawBindKey(9, 120, key_crl_idclip);
     M_DrawBindKey(10, 130, key_crl_iddt);
 
-    M_DrawBindFooter("4", true);
+    M_DrawBindFooter(170, "4", true);
 }
 
 static void M_Bind_AlwaysRun (int option)
@@ -1904,7 +1904,7 @@ static Menu_t CRLKbdBinds5 = {
 
 static void DrawCRLKbd5 (void)
 {
-    M_ShadeBackground();
+    M_FillBackground();
 
     MN_DrTextACentered("WEAPONS", 20, cr[CR_YELLOW]);
 
@@ -1919,7 +1919,7 @@ static void DrawCRLKbd5 (void)
     M_DrawBindKey(8, 110, key_prevweapon);
     M_DrawBindKey(9, 120, key_nextweapon);
 
-    M_DrawBindFooter("5", true);
+    M_DrawBindFooter(170, "5", true);
 }
 
 static void M_Bind_Weapon1 (int option)
@@ -2000,7 +2000,7 @@ static Menu_t CRLKbdBinds6 = {
 
 static void DrawCRLKbd6 (void)
 {
-    M_ShadeBackground();
+    M_FillBackground();
 
     MN_DrTextACentered("ARTIFACTS", 20, cr[CR_YELLOW]);
 
@@ -2015,7 +2015,7 @@ static void DrawCRLKbd6 (void)
     M_DrawBindKey(8, 110, key_arti_torch);
     M_DrawBindKey(9, 120, key_arti_morph);
 
-    M_DrawBindFooter("6", true);
+    M_DrawBindFooter(170, "6", true);
 }
 
 static void M_Bind_Quartz (int option)
@@ -2094,7 +2094,7 @@ static Menu_t CRLKbdBinds7 = {
 
 static void DrawCRLKbd7 (void)
 {
-    M_ShadeBackground();
+    M_FillBackground();
 
     MN_DrTextACentered("AUTOMAP", 20, cr[CR_YELLOW]);
 
@@ -2107,7 +2107,7 @@ static void DrawCRLKbd7 (void)
 //  M_DrawBindKey(6, 90, key_crl_map_overlay);
     M_DrawBindKey(5, 80, key_map_grid);
 
-    M_DrawBindFooter("7", true);
+    M_DrawBindFooter(170, "7", true);
 }
 
 static void M_Bind_ToggleMap (int option)
@@ -2181,7 +2181,7 @@ static Menu_t CRLKbdBinds8 = {
 
 static void DrawCRLKbd8 (void)
 {
-    M_ShadeBackground();
+    M_FillBackground();
 
     MN_DrTextACentered("FUNCTION KEYS", 20, cr[CR_YELLOW]);
 
@@ -2197,7 +2197,7 @@ static void DrawCRLKbd8 (void)
     M_DrawBindKey(9, 120, key_menu_gamma);
     M_DrawBindKey(10, 130, key_spy);
 
-    M_DrawBindFooter("8", true);
+    M_DrawBindFooter(170, "8", true);
 }
 
 static void M_Bind_HelpScreen (int option)
@@ -2284,7 +2284,7 @@ static Menu_t CRLKbdBinds9 = {
 
 static void DrawCRLKbd9 (void)
 {
-    M_ShadeBackground();
+    M_FillBackground();
 
     MN_DrTextACentered("SHORTCUT KEYS", 20, cr[CR_YELLOW]);
 
@@ -2302,7 +2302,7 @@ static void DrawCRLKbd9 (void)
 
     MN_DrTextACentered("RESET", 120, cr[CR_YELLOW]);
 
-    M_DrawBindFooter("9", true);
+    M_DrawBindFooter(170, "9", true);
 }
 
 static void M_Bind_Pause (int option)
@@ -2403,7 +2403,7 @@ static void DrawCRLMouse (void)
 
     MN_DrTextACentered("RESET", 150, cr[CR_YELLOW]);
 
-    M_DrawBindFooter(NULL, false);
+    M_DrawBindFooter(180, NULL, false);
 }
 
 static void M_Bind_M_FireAttack (int option)
@@ -5371,15 +5371,17 @@ static void M_DrawBindKey (int itemNum, int yPos, int keyBind)
 //  [JN] Draw footer in key binding pages with numeration.
 // -----------------------------------------------------------------------------
 
-static void M_DrawBindFooter (char *pagenum, boolean drawPages)
+static void M_DrawBindFooter (int y, char *pagenum, boolean drawPages)
 {
-    MN_DrTextACentered("PRESS ENTER TO BIND, DEL TO CLEAR", 180, cr[CR_GRAY]);
+    const int newline = 10;
+
+    MN_DrTextACentered("PRESS ENTER TO BIND, DEL TO CLEAR", y, cr[CR_GRAY]);
     
     if (drawPages)
     {
-        MN_DrTextA("PGUP", CRL_MENU_LEFTOFFSET, 190, cr[CR_GRAY]);
-        MN_DrTextACentered(M_StringJoin("PAGE ", pagenum, "/9", NULL), 190, cr[CR_GRAY]);
-        MN_DrTextA("PGDN", M_ItemRightAlign("PGDN"), 190, cr[CR_GRAY]);
+        MN_DrTextA("PGUP", CRL_MENU_LEFTOFFSET, y + newline, cr[CR_GRAY]);
+        MN_DrTextACentered(M_StringJoin("PAGE ", pagenum, "/9", NULL), y + newline, cr[CR_GRAY]);
+        MN_DrTextA("PGDN", M_ItemRightAlign("PGDN"), y + newline, cr[CR_GRAY]);
     }
 }
 
