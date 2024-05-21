@@ -181,8 +181,6 @@ extern boolean finalestage;
 
 void D_Display(void)
 {
-    extern boolean askforquit;
-
     // For comparative timing / profiling
     if (nodrawers)
     {
