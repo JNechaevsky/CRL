@@ -526,7 +526,9 @@ static void M_Bind_M_StrafeLeft (int option);
 static void M_Bind_M_StrafeRight (int option);
 static void M_Bind_M_PrevWeapon (int option);
 static void M_Bind_M_NextWeapon (int option);
-
+static void M_Bind_M_InventoryLeft (int option);
+static void M_Bind_M_InventoryRight (int option);
+static void M_Bind_M_UseArtifact (int option);
 
 static void M_Bind_M_Reset (int option);
 
@@ -2355,15 +2357,18 @@ static void M_Bind_Reset (int option)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLMouseItems[] = {
-    {ITT_EFUNC, "FIRE/ATTACK",   M_Bind_M_FireAttack,   0, MENU_NONE},
-    {ITT_EFUNC, "MOVE FORWARD",  M_Bind_M_MoveForward,  0, MENU_NONE},
-    {ITT_EFUNC, "STRAFE ON",     M_Bind_M_StrafeOn,     0, MENU_NONE},
-    {ITT_EFUNC, "MOVE BACKWARD", M_Bind_M_MoveBackward, 0, MENU_NONE},
-    {ITT_EFUNC, "USE",           M_Bind_M_Use,          0, MENU_NONE},
-    {ITT_EFUNC, "STRAFE LEFT",   M_Bind_M_StrafeLeft,   0, MENU_NONE},
-    {ITT_EFUNC, "STRAFE RIGHT",  M_Bind_M_StrafeRight,  0, MENU_NONE},
-    {ITT_EFUNC, "PREV WEAPON",   M_Bind_M_PrevWeapon,   0, MENU_NONE},
-    {ITT_EFUNC, "NEXT WEAPON",   M_Bind_M_NextWeapon,   0, MENU_NONE},
+    { ITT_EFUNC, "FIRE/ATTACK",               M_Bind_M_FireAttack,     0, MENU_NONE },
+    { ITT_EFUNC, "MOVE FORWARD",              M_Bind_M_MoveForward,    0, MENU_NONE },
+    { ITT_EFUNC, "STRAFE ON",                 M_Bind_M_StrafeOn,       0, MENU_NONE },
+    { ITT_EFUNC, "MOVE BACKWARD",             M_Bind_M_MoveBackward,   0, MENU_NONE },
+    { ITT_EFUNC, "USE",                       M_Bind_M_Use,            0, MENU_NONE },
+    { ITT_EFUNC, "STRAFE LEFT",               M_Bind_M_StrafeLeft,     0, MENU_NONE },
+    { ITT_EFUNC, "STRAFE RIGHT",              M_Bind_M_StrafeRight,    0, MENU_NONE },
+    { ITT_EFUNC, "PREV WEAPON",               M_Bind_M_PrevWeapon,     0, MENU_NONE },
+    { ITT_EFUNC, "NEXT WEAPON",               M_Bind_M_NextWeapon,     0, MENU_NONE },
+    { ITT_EFUNC, "INVENTORY LEFT",            M_Bind_M_InventoryLeft,  0, MENU_NONE },
+    { ITT_EFUNC, "INVENTORY RIGHT",           M_Bind_M_InventoryRight, 0, MENU_NONE },
+    { ITT_EFUNC, "USE ARTIFACT",              M_Bind_M_UseArtifact,    0, MENU_NONE },
     { ITT_EMPTY, NULL,                        NULL,                    0, MENU_NONE },
     { ITT_EFUNC, "RESET BINDINGS TO DEFAULT", M_Bind_M_Reset,          0, MENU_NONE },
 };
@@ -2371,7 +2376,7 @@ static MenuItem_t CRLMouseItems[] = {
 static Menu_t CRLMouseBinds = {
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     DrawCRLMouse,
-    11, CRLMouseItems,
+    14, CRLMouseItems,
     0,
     SmallFont, false, false,
     MENU_CRLCONTROLS
@@ -2392,6 +2397,11 @@ static void DrawCRLMouse (void)
     M_DrawBindButton(6, 90, mousebstraferight);
     M_DrawBindButton(7, 100, mousebprevweapon);
     M_DrawBindButton(8, 110, mousebnextweapon);
+    M_DrawBindButton(9, 120, mousebinvleft);
+    M_DrawBindButton(10, 130, mousebinvright);
+    M_DrawBindButton(11, 140, mousebuseartifact);
+
+    MN_DrTextACentered("RESET", 150, cr[CR_YELLOW]);
 
     M_DrawBindFooter(NULL, false);
 }
@@ -2455,6 +2465,7 @@ static void M_Bind_M_UseArtifact (int option)
 {
     M_StartMouseBind(1011);  // mousebuseartifact
 }
+
 static void M_Bind_M_Reset (int option)
 {
     MenuActive = false;
@@ -5362,13 +5373,13 @@ static void M_DrawBindKey (int itemNum, int yPos, int keyBind)
 
 static void M_DrawBindFooter (char *pagenum, boolean drawPages)
 {
-    MN_DrTextACentered("PRESS ENTER TO BIND, DEL TO CLEAR", 140, cr[CR_GRAY]);
+    MN_DrTextACentered("PRESS ENTER TO BIND, DEL TO CLEAR", 180, cr[CR_GRAY]);
     
     if (drawPages)
     {
-        MN_DrTextA("PGUP", CRL_MENU_LEFTOFFSET, 150, cr[CR_GRAY]);
-        MN_DrTextACentered(M_StringJoin("PAGE ", pagenum, "/9", NULL), 150, cr[CR_GRAY]);
-        MN_DrTextA("PGDN", M_ItemRightAlign("PGDN"), 150, cr[CR_GRAY]);
+        MN_DrTextA("PGUP", CRL_MENU_LEFTOFFSET, 190, cr[CR_GRAY]);
+        MN_DrTextACentered(M_StringJoin("PAGE ", pagenum, "/9", NULL), 190, cr[CR_GRAY]);
+        MN_DrTextA("PGDN", M_ItemRightAlign("PGDN"), 190, cr[CR_GRAY]);
     }
 }
 
@@ -5496,6 +5507,9 @@ static void M_CheckMouseBind (int btn)
     if (mousebstraferight == btn) mousebstraferight = -1;
     if (mousebprevweapon == btn)  mousebprevweapon  = -1;
     if (mousebnextweapon == btn)  mousebnextweapon  = -1;
+    if (mousebinvleft == btn)     mousebinvleft     = -1;
+    if (mousebinvright == btn)    mousebinvright    = -1;
+    if (mousebuseartifact == btn) mousebuseartifact = -1;
 }
 
 // -----------------------------------------------------------------------------
@@ -5517,6 +5531,9 @@ static void M_DoMouseBind (int btnnum, int btn)
         case 1006:  mousebstraferight = btn;  break;
         case 1007:  mousebprevweapon = btn;   break;
         case 1008:  mousebnextweapon = btn;   break;
+        case 1009:  mousebinvleft = btn;      break;
+        case 1010:  mousebinvright = btn;     break;
+        case 1011:  mousebuseartifact = btn;  break;
         default:                              break;
     }
 }
@@ -5530,15 +5547,18 @@ static void M_ClearMouseBind (int itemOn)
 {
     switch (itemOn)
     {
-        case 0:  mousebfire = -1;         break;
-        case 1:  mousebforward = -1;      break;
-        case 2:  mousebstrafe = -1;       break;
-        case 3:  mousebbackward = -1;     break;
-        case 4:  mousebuse = -1;          break;
-        case 5:  mousebstrafeleft = -1;   break;
-        case 6:  mousebstraferight = -1;  break;
-        case 7:  mousebprevweapon = -1;   break;
-        case 8:  mousebnextweapon = -1;   break;
+        case 0:   mousebfire = -1;         break;
+        case 1:   mousebforward = -1;      break;
+        case 2:   mousebstrafe = -1;       break;
+        case 3:   mousebbackward = -1;     break;
+        case 4:   mousebuse = -1;          break;
+        case 5:   mousebstrafeleft = -1;   break;
+        case 6:   mousebstraferight = -1;  break;
+        case 7:   mousebprevweapon = -1;   break;
+        case 8:   mousebnextweapon = -1;   break;
+        case 9:   mousebinvleft = -1;      break;
+        case 10:  mousebinvright = -1;     break;
+        case 11:  mousebuseartifact = -1;  break;
     }
 }
 
