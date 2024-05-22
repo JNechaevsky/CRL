@@ -136,7 +136,7 @@ void D_ProcessEvents(void)
 //
 //---------------------------------------------------------------------------
 
-void DrawMessage(void)
+static void DrawMessage (void)
 {
     player_t *player;
 
@@ -149,22 +149,20 @@ void DrawMessage(void)
 }
 
 // -----------------------------------------------------------------------------
-// CRL_DrawCriticalMessage
-// [JN] Draws critical message on the second and third lines line of the screen.
+// CRL_DrawMessageCritical
+// [JN] Draws critical message on the second and third lines of the screen.
 // -----------------------------------------------------------------------------
 
-static void CRL_DrawCriticalMessage (void)
+static void CRL_DrawMessageCritical (void)
 {
-    player_t *player = &players[displayplayer];
-
-    if (player->criticalmessageTics <= 0
-    || !player->criticalmessage1 || !player->criticalmessage2)
+    if (messageCriticalTics <= 0 || !messageCritical1 || !messageCritical2)
     {
         return;  // No message
     }
 
-    MN_DrTextACritical(player->criticalmessage1, player->criticalmessage2,
-                       10, gametic & 8 ? cr[CR_GRAY] : cr[CR_WHITE]);
+    MN_DrTextACritical(messageCritical1, messageCritical2, 10, crl_msg_critical ?
+                       (gametic & 8 ? cr[CR_GRAY] : cr[CR_WHITE]) : // Blinking
+                                                    cr[CR_WHITE]);  // Static
 }
 
 //---------------------------------------------------------------------------
@@ -291,7 +289,7 @@ void D_Display(void)
     MN_Drawer();
 
     // [JN] Critical messages are drawn even higher than on top everything!
-    CRL_DrawCriticalMessage();
+    CRL_DrawMessageCritical();
 
     // Send out any new accumulation
     NetUpdate();

@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "ct_chat.h"
 #include "doomdef.h"
 #include "doomkeys.h"
 #include "deh_str.h"
@@ -382,8 +383,8 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
             joybspeed = MAX_JOY_BUTTONS;
         }
 
-        P_SetMessage(&players[consoleplayer], joybspeed >= MAX_JOY_BUTTONS ?
-                     CRL_AUTORUN_ON : CRL_AUTORUN_OFF, false);
+        CT_SetMessage(&players[consoleplayer], joybspeed >= MAX_JOY_BUTTONS ?
+                      CRL_AUTORUN_ON : CRL_AUTORUN_OFF, false, NULL);
         S_StartSound(NULL, sfx_chat);
         gamekeydown[key_crl_autorun] = false;
     }
@@ -396,8 +397,8 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
         {
             look = TOCENTER;
         }
-        P_SetMessage(&players[consoleplayer], crl_mouselook ?
-                     CRL_MLOOK_ON : CRL_MLOOK_OFF, false);
+        CT_SetMessage(&players[consoleplayer], crl_mouselook ?
+                      CRL_MLOOK_ON : CRL_MLOOK_OFF, false, NULL);
         S_StartSound(NULL, sfx_chat);
         gamekeydown[key_crl_mlook] = false;
     }
@@ -671,14 +672,14 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
         {
             CRL_Clear_MAX();
             CRL_Get_MAX();
-            P_SetMessage(&players[consoleplayer], "CLEARED MAX", false);
+            CT_SetMessage(&players[consoleplayer], "CLEARED MAX", false, NULL);
         }
 
         // Jump to MAX visplanes.
         if (gamekeydown[key_crl_movetomax])
         {
             CRL_MoveTo_MAX();
-            P_SetMessage(&players[consoleplayer], "MOVE TO MAX", false);
+            CT_SetMessage(&players[consoleplayer], "MOVE TO MAX", false, NULL);
         }
     }
 
@@ -947,7 +948,7 @@ void G_DoLoadLevel(void)
 
     if (testcontrols)
     {
-        P_SetMessage(&players[consoleplayer], "PRESS ESCAPE TO QUIT.", false);
+        CT_SetMessage(&players[consoleplayer], "PRESS ESCAPE TO QUIT.", false, NULL);
     }
 }
 
@@ -1271,8 +1272,8 @@ boolean G_Responder(event_t * ev)
             if (ev->data1 == key_crl_spectator)
             {
                 crl_spectating ^= 1;
-                P_SetMessage(&players[consoleplayer], crl_spectating ?
-                             CRL_SPECTATOR_ON : CRL_SPECTATOR_OFF, false);
+                CT_SetMessage(&players[consoleplayer], crl_spectating ?
+                              CRL_SPECTATOR_ON : CRL_SPECTATOR_OFF, false, NULL);
                 pspr_interp = false;
             }        
             // [JN] CRL - Toggle freeze mode.
@@ -1281,23 +1282,23 @@ boolean G_Responder(event_t * ev)
                 // Allow freeze only in single player game, otherwise desyncs may occur.
                 if (demorecording)
                 {
-                    P_SetMessage(&players[consoleplayer], CRL_FREEZE_NA_R , false);
+                    CT_SetMessage(&players[consoleplayer], CRL_FREEZE_NA_R, false, NULL);
                     return true;
                 }            
                 if (demoplayback)
                 {
-                    P_SetMessage(&players[consoleplayer], CRL_FREEZE_NA_P , false);
+                    CT_SetMessage(&players[consoleplayer], CRL_FREEZE_NA_P, false, NULL);
                     return true;
                 }   
                 if (netgame)
                 {
-                    P_SetMessage(&players[consoleplayer], CRL_FREEZE_NA_N , false);
+                    CT_SetMessage(&players[consoleplayer], CRL_FREEZE_NA_N, false, NULL);
                     return true;
                 }   
                 crl_freeze ^= 1;
 
-                P_SetMessage(&players[consoleplayer], crl_freeze ?
-                             CRL_FREEZE_ON : CRL_FREEZE_OFF, false);
+                CT_SetMessage(&players[consoleplayer], crl_freeze ?
+                              CRL_FREEZE_ON : CRL_FREEZE_OFF, false, NULL);
             }
             // [JN] CRL - Toggle notarget mode.
             if (ev->data1 == key_crl_notarget)
@@ -1307,24 +1308,24 @@ boolean G_Responder(event_t * ev)
                 // Allow notarget only in single player game, otherwise desyncs may occur.
                 if (demorecording)
                 {
-                    P_SetMessage(&players[consoleplayer], CRL_NOTARGET_NA_R , false);
+                    CT_SetMessage(&players[consoleplayer], CRL_NOTARGET_NA_R, false, NULL);
                     return true;
                 }
                 if (demoplayback)
                 {
-                    P_SetMessage(&players[consoleplayer], CRL_NOTARGET_NA_P , false);
+                    CT_SetMessage(&players[consoleplayer], CRL_NOTARGET_NA_P, false, NULL);
                     return true;
                 }
                 if (netgame)
                 {
-                    P_SetMessage(&players[consoleplayer], CRL_NOTARGET_NA_N , false);
+                    CT_SetMessage(&players[consoleplayer], CRL_NOTARGET_NA_N, false, NULL);
                     return true;
                 }   
 
                 player->cheats ^= CF_NOTARGET;
 
-                P_SetMessage(player, player->cheats & CF_NOTARGET ?
-                            CRL_NOTARGET_ON : CRL_NOTARGET_OFF, false);
+                CT_SetMessage(player, player->cheats & CF_NOTARGET ?
+                              CRL_NOTARGET_ON : CRL_NOTARGET_OFF, false, NULL);
             }
             // [JN] CRL - Toggle static engine limits.
             if (ev->data1 == key_crl_limits)
@@ -1333,8 +1334,8 @@ boolean G_Responder(event_t * ev)
             
                 // [JN] CRL - re-define static engine limits.
                 CRL_SetStaticLimits("HERETIC+");
-                P_SetMessage(&players[consoleplayer], crl_vanilla_limits ?
-                             CRL_VANILLA_LIMITS_ON : CRL_VANILLA_LIMITS_OFF, false);
+                CT_SetMessage(&players[consoleplayer], crl_vanilla_limits ?
+                              CRL_VANILLA_LIMITS_ON : CRL_VANILLA_LIMITS_OFF, false, NULL);
             }     
             return (true);      // eat key down events
 
@@ -1532,7 +1533,11 @@ void G_Ticker(void)
             P_Ticker();
             SB_Ticker();
             AM_Ticker();
-            CT_Ticker();
+            // [JN] Not really needed in single player game.
+            if (netgame)
+            {
+                CT_Ticker();
+            }
             // [JN] CRL - framerate-independent multicolor HOM drawing.
             CRL_GetHOMMultiColor();
             // [JN] Target's health widget.
@@ -1553,6 +1558,10 @@ void G_Ticker(void)
             D_PageTicker();
             break;
     }
+
+    // [JN] Reduce message tics independently from framerate and game states.
+    // Tics can't go negative.
+    MSG_Ticker();
 }
 
 
@@ -1626,7 +1635,6 @@ void G_PlayerFinishLevel(int player)
         p->chickenTics = 0;
     }
     p->messageTics = 0;
-    p->criticalmessageTics = 0;
     p->targetsheathTics = 0;
     p->lookdir = p->oldlookdir = 0;
     p->mo->flags &= ~MF_SHADOW; // Remove invisibility
@@ -1687,7 +1695,6 @@ void G_PlayerReborn(int player)
     p->weaponowned[wp_staff] = true;
     p->weaponowned[wp_goldwand] = true;
     p->messageTics = 0;
-    p->criticalmessageTics = 0;
     p->targetsheathTics = 0;
     p->lookdir = 0;
     p->ammo[am_goldwand] = 50;
@@ -2640,7 +2647,7 @@ void G_DoSaveGame(void)
 
     gameaction = ga_nothing;
     savedescription[0] = 0;
-    P_SetMessage(&players[consoleplayer], DEH_String(TXT_GAMESAVED), true);
+    CT_SetMessage(&players[consoleplayer], DEH_String(TXT_GAMESAVED), true, NULL);
 
     free(filename);
 }

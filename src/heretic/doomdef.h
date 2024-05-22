@@ -472,11 +472,7 @@ typedef struct player_s
     int killcount, itemcount, secretcount;      // for intermission
     const char *message;        // hint messages
     int messageTics;            // counter for showing messages
-
-    // [JN] CRL - hint critical messages.
-    const char *criticalmessage1;
-    const char *criticalmessage2;
-    int   criticalmessageTics;
+    byte *messageColor;
 
     // [JN] CRL - target's health.
     const char*	targetsname;
@@ -832,7 +828,6 @@ void CT_Ticker(void);
 char CT_dequeueChatChar(void);
 
 extern boolean chatmodeon;
-extern boolean ultimatemsg;
 
 //--------------------
 // Finale (F_finale.c)

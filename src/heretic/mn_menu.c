@@ -22,6 +22,7 @@
 #include <ctype.h>
 #include <time.h>
 
+#include "ct_chat.h"
 #include "deh_str.h"
 #include "doomdef.h"
 #include "doomkeys.h"
@@ -1242,6 +1243,11 @@ static void DrawCRLDisplay (void)
     sprintf(str, crl_msg_critical ? "BLINKING" : "STATIC");
     MN_DrTextA(str, M_ItemRightAlign(str), 100,
                M_Item_Glow(7, crl_msg_critical ? GLOW_GREEN : GLOW_RED));
+    // Show nice preview-reminder :)
+    if (CurrentItPos == 7)
+    {
+        CRL_SetMessageCritical("CRITICAL MESSAGES ARE ALWAYS ENABLED!", "", 2);
+    }
 
     // Text casts shadows
     sprintf(str, crl_text_shadows ? "ON" : "OFF");
@@ -1751,7 +1757,7 @@ static Menu_t CRLKbdBinds3 = {
     DrawCRLKbd3,
     10, CRLKbsBinds3Items,
     0,
-    SmallFont, false, false,
+    SmallFont, true, true,
     MENU_CRLCONTROLS
 };
 
@@ -1845,7 +1851,7 @@ static Menu_t CRLKbdBinds4 = {
     DrawCRLKbd4,
     11, CRLKbsBinds4Items,
     0,
-    SmallFont, false, false,
+    SmallFont, true, true,
     MENU_CRLCONTROLS
 };
 
@@ -1941,7 +1947,7 @@ static Menu_t CRLKbdBinds5 = {
     DrawCRLKbd5,
     10, CRLKbsBinds5Items,
     0,
-    SmallFont, false, false,
+    SmallFont, true, true,
     MENU_CRLCONTROLS
 };
 
@@ -2037,7 +2043,7 @@ static Menu_t CRLKbdBinds6 = {
     DrawCRLKbd6,
     10, CRLKbsBinds6Items,
     0,
-    SmallFont, false, false,
+    SmallFont, true, true,
     MENU_CRLCONTROLS
 };
 
@@ -2131,7 +2137,7 @@ static Menu_t CRLKbdBinds7 = {
     DrawCRLKbd7,
     6, CRLKbsBinds7Items,
     0,
-    SmallFont, false, false,
+    SmallFont, true, true,
     MENU_CRLCONTROLS
 };
 
@@ -2218,7 +2224,7 @@ static Menu_t CRLKbdBinds8 = {
     DrawCRLKbd8,
     11, CRLKbsBinds8Items,
     0,
-    SmallFont, false, false,
+    SmallFont, true, true,
     MENU_CRLCONTROLS
 };
 
@@ -2321,7 +2327,7 @@ static Menu_t CRLKbdBinds9 = {
     DrawCRLKbd9,
     11, CRLKbsBinds9Items,
     0,
-    SmallFont, false, false,
+    SmallFont, true, true,
     MENU_CRLCONTROLS
 };
 
@@ -3557,16 +3563,16 @@ static boolean SCNetCheck(int option)
     switch (option)
     {
         case 1:
-            P_SetMessage(&players[consoleplayer],
-                         "YOU CAN'T START A NEW GAME IN NETPLAY!", true);
+            CT_SetMessage(&players[consoleplayer],
+                          "YOU CAN'T START A NEW GAME IN NETPLAY!", true, NULL);
             break;
         case 2:
-            P_SetMessage(&players[consoleplayer],
-                         "YOU CAN'T LOAD A GAME IN NETPLAY!", true);
+            CT_SetMessage(&players[consoleplayer],
+                          "YOU CAN'T LOAD A GAME IN NETPLAY!", true, NULL);
             break;
         case 3:                // end game
-            P_SetMessage(&players[consoleplayer],
-                         "YOU CAN'T END A GAME IN NETPLAY!", true);
+            CT_SetMessage(&players[consoleplayer],
+                          "YOU CAN'T END A GAME IN NETPLAY!", true, NULL);
             break;
     }
     MenuActive = false;
@@ -3630,11 +3636,11 @@ static void SCMessages(int option)
     showMessages ^= 1;
     if (showMessages)
     {
-        P_SetMessage(&players[consoleplayer], DEH_String("MESSAGES ON"), true);
+        CT_SetMessage(&players[consoleplayer], DEH_String("MESSAGES ON"), true, NULL);
     }
     else
     {
-        P_SetMessage(&players[consoleplayer], DEH_String("MESSAGES OFF"), true);
+        CT_SetMessage(&players[consoleplayer], DEH_String("MESSAGES OFF"), true, NULL);
     }
     S_StartSound(NULL, sfx_chat);
 }
@@ -3708,8 +3714,8 @@ static void SCSaveCheck(int option)
 {
     if (!usergame)
     {
-        P_SetMessage(&players[consoleplayer],
-                     "YOU CAN'T SAVE IF YOU AREN'T PLAYING", true);
+        CT_SetMessage(&players[consoleplayer],
+                      "YOU CAN'T SAVE IF YOU AREN'T PLAYING", true, NULL);
     }
     else
     {
@@ -3773,8 +3779,8 @@ static void SCEpisode(int option)
 {
     if (gamemode == shareware && option > 1)
     {
-        P_SetMessage(&players[consoleplayer],
-                     "ONLY AVAILABLE IN THE REGISTERED VERSION", true);
+        CT_SetMessage(&players[consoleplayer],
+                      "ONLY AVAILABLE IN THE REGISTERED VERSION", true, NULL);
     }
     else
     {
@@ -4210,15 +4216,15 @@ boolean MN_Responder(event_t * event)
                     break;
 
                 case 3:
-                    P_SetMessage(&players[consoleplayer],
-                                 "QUICKSAVING....", false);
+                    CT_SetMessage(&players[consoleplayer],
+                                  "QUICKSAVING....", false, NULL);
                     FileMenuKeySteal = true;
                     SCSaveGame(quicksave - 1);
                     break;
 
                 case 4:
-                    P_SetMessage(&players[consoleplayer],
-                                 "QUICKLOADING....", false);
+                    CT_SetMessage(&players[consoleplayer],
+                                  "QUICKLOADING....", false, NULL);
                     SCLoadGame(quickload - 1);
                     break;
 
@@ -4474,7 +4480,7 @@ boolean MN_Responder(event_t * event)
     if (key == key_menu_gamma)           // F11 (gamma correction)
     {
         crl_gamma = M_INT_Slider(crl_gamma, 0, 14, 1 /*right*/, false);
-        P_SetMessage(&players[consoleplayer], gammalvls[crl_gamma][0], false);
+        CT_SetMessage(&players[consoleplayer], gammalvls[crl_gamma][0], false, NULL);
         CRL_ReloadPalette();
         return true;
     }

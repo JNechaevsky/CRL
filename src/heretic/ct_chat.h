@@ -19,8 +19,10 @@
 // Chat mode stuff
 //
 
-#ifndef HERETIC_CT_CHAT_H
-#define HERETIC_CT_CHAT_H
+#pragma once
+
+#include "doomdef.h"
+
 
 #define CT_PLR_GREEN	1
 #define CT_PLR_YELLOW	2
@@ -34,7 +36,11 @@
 #define CT_KEY_BLUE		'b'
 #define CT_KEY_ALL		't'
 
+
+extern void CT_SetMessage (player_t *player, const char *message, boolean ultmsg, byte *table);
+extern void MSG_Ticker (void);
+
+extern boolean ultimatemsg;
+
 extern char *chat_macros[10];
-
-#endif /* #ifndef HERETIC_CT_CHAT_H */
-
+extern const char *lastmessage;
