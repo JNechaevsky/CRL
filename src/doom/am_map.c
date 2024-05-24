@@ -875,7 +875,7 @@ boolean AM_Responder (event_t *ev)
             crl_automap_sndprop = !crl_automap_sndprop;
             if (crl_automap_sndprop)
             {
-                // [JN] Erase old propagation data before toggling on.
+                // [JN] Reset propagation timers before toggling on.
                 for (int i = 0 ; i < numlines ; i++)
                 {
                     lines[i].sndprop_tics = 0;
