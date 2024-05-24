@@ -869,6 +869,19 @@ boolean AM_Responder (event_t *ev)
                 st_fullupdate = true;
             }
         }
+        else if (key == key_crl_map_sndprop)
+        {
+            // [JN] CRL - Sound propagation mode
+            crl_automap_sndprop = !crl_automap_sndprop;
+            if (crl_automap_sndprop)
+            {
+                CRL_SetMessage(plr, DEH_String(CRL_AUTOMAPSNDPROP_ON), false, NULL);
+            }
+            else
+            {
+                CRL_SetMessage(plr, DEH_String(CRL_AUTOMAPSNDPROP_OFF), false, NULL);
+            }
+        }
         else
         {
             rc = false;
