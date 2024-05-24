@@ -1212,15 +1212,18 @@ void P_UpdateSpecials (void)
 	}
 
     // [JN] CRL - Sound propagation mode﻿ for automap.
-    for (i = 0 ; i < numlines ; i++)
+    if (crl_automap_sndprop)
     {
-        if (lines[i].sfx_tics)
+        for (i = 0 ; i < numlines ; i++)
         {
-            lines[i].sfx_tics--;
-        }
-        else
-        {
-            lines[i].flags &= ~ML_SFX;
+            if (lines[i].sfx_tics)
+            {
+                lines[i].sfx_tics--;
+            }
+            else
+            {
+                lines[i].flags &= ~ML_SFX;
+            }
         }
     }
 

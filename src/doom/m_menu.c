@@ -703,6 +703,7 @@ static void M_CRL_Automap_Overlay (int choice);
 static void M_CRL_Automap_Shading (int choice);
 static void M_CRL_Automap_Drawing (int choice);
 static void M_CRL_Automap_Secrets (int choice);
+static void M_CRL_Automap_SndProp (int choice);
 
 static void M_ChooseCRL_Gameplay (int choice);
 static void M_DrawCRL_Gameplay (void);
@@ -2872,7 +2873,7 @@ static menuitem_t CRLMenu_Widgets[]=
     { M_LFRT, "OVERLAY SHADING LEVEL", M_CRL_Automap_Shading,   'o'},
     { M_LFRT, "DRAWING MODE",          M_CRL_Automap_Drawing,   'd'},
     { M_LFRT, "MARK SECRET SECTORS",   M_CRL_Automap_Secrets,   'm'},
-    { M_SKIP, "", 0, '\0'},
+    { M_LFRT, "SOUND PROPAGATION",     M_CRL_Automap_SndProp,   's'},
     { M_SKIP, "", 0, '\0'}
 };
 
@@ -2953,7 +2954,7 @@ static void M_DrawCRL_Widgets (void)
     // Print informatime message if extended HUD is off.
     if (itemOn < 8 && !crl_extended_hud)
     {
-        M_WriteTextCentered(160, "HIDDEN WHILE EXTENDED HUD IS OFF", cr[CR_GRAY]);
+        M_WriteTextCentered(169, "HIDDEN WHILE EXTENDED HUD IS OFF", cr[CR_GRAY]);
     }
 
     M_WriteTextCentered(106, "AUTOMAP", cr[CR_YELLOW]);
@@ -2986,6 +2987,11 @@ static void M_DrawCRL_Widgets (void)
                  crl_automap_secrets == 2 ? "ALWAYS" : "OFF");
     M_WriteText (M_ItemRightAlign(str), 151, str,
                  M_Item_Glow(13, crl_automap_secrets ? GLOW_GREEN : GLOW_DARKRED));
+
+    // Sound propagation
+    sprintf(str, crl_automap_sndprop ? "ON" : "OFF");
+    M_WriteText (M_ItemRightAlign(str), 160, str,
+                 M_Item_Glow(14, crl_automap_sndprop ? GLOW_GREEN : GLOW_DARKRED));
 }
 
 static void M_CRL_Widget_Render (int choice)
@@ -3051,6 +3057,11 @@ static void M_CRL_Automap_Drawing (int choice)
 static void M_CRL_Automap_Secrets (int choice)
 {
    crl_automap_secrets = M_INT_Slider(crl_automap_secrets, 0, 2, choice, false);
+}
+
+static void M_CRL_Automap_SndProp (int choice)
+{
+    crl_automap_sndprop ^= 1;
 }
 
 // -----------------------------------------------------------------------------
