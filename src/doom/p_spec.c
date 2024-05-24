@@ -1220,10 +1220,6 @@ void P_UpdateSpecials (void)
             {
                 lines[i].sfx_tics--;
             }
-            else
-            {
-                lines[i].flags &= ~ML_SFX;
-            }
         }
     }
 
