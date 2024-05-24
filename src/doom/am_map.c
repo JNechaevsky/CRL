@@ -875,6 +875,11 @@ boolean AM_Responder (event_t *ev)
             crl_automap_sndprop = !crl_automap_sndprop;
             if (crl_automap_sndprop)
             {
+                // [JN] Erase old propagation data before toggling on.
+                for (int i = 0 ; i < numlines ; i++)
+                {
+                    lines[i].sfx_tics = 0;
+                }
                 CRL_SetMessage(plr, DEH_String(CRL_AUTOMAPSNDPROP_ON), false, NULL);
             }
             else
