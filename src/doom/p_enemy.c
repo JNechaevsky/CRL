@@ -106,7 +106,8 @@ P_RecursiveSound
 	check = sec->lines[i];
 
 	// [JN] CRL - Sound propagation mode﻿ for automap.
-	check->sfx_tics = (TICRATE / 3.5);
+	// Set line timer for drawing.
+	check->sndprop_tics = (TICRATE / 3.5);
 
 	if (! (check->flags & ML_TWOSIDED) )
 	    continue;

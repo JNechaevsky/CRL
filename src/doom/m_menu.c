@@ -2377,22 +2377,22 @@ static void M_Bind_NextWeapon (int choice)
 
 static menuitem_t CRLMenu_Keybinds_5[]=
 {
-    { M_SWTC, "TOGGLE MAP",        M_Bind_ToggleMap,    't'  },
-    { M_SWTC, "ZOOM IN",           M_Bind_ZoomIn,       'z'  },
-    { M_SWTC, "ZOOM OUT",          M_Bind_ZoomOut,      'z'  },
-    { M_SWTC, "MAXIMUM ZOOM OUT",  M_Bind_MaxZoom,      'm'  },
-    { M_SWTC, "FOLLOW MODE",       M_Bind_FollowMode,   'f'  },
-    { M_SWTC, "ROTATE MODE",       M_Bind_RotateMode,   'r'  },
-    { M_SWTC, "OVERLAY MODE",      M_Bind_OverlayMode,  'o'  },
-    { M_SWTC, "SOUND PROPAGATION", M_Bind_SndPropMode,  's'  },
-    { M_SWTC, "TOGGLE GRID",       M_Bind_ToggleGrid,   't'  },
-    { M_SWTC, "MARK LOCATION",     M_Bind_AddMark,      'm'  },
-    { M_SWTC, "CLEAR ALL MARKS",   M_Bind_ClearMarks,   'c'  },
-    { M_SKIP, "",                  0,                   '\0' },
-    { M_SKIP, "",                  0,                   '\0' },
-    { M_SKIP, "",                  0,                   '\0' },
-    { M_SKIP, "",                  0,                   '\0' },
-    { M_SKIP, "",                  0,                   '\0' }
+    { M_SWTC, "TOGGLE MAP",             M_Bind_ToggleMap,    't'  },
+    { M_SWTC, "ZOOM IN",                M_Bind_ZoomIn,       'z'  },
+    { M_SWTC, "ZOOM OUT",               M_Bind_ZoomOut,      'z'  },
+    { M_SWTC, "MAXIMUM ZOOM OUT",       M_Bind_MaxZoom,      'm'  },
+    { M_SWTC, "FOLLOW MODE",            M_Bind_FollowMode,   'f'  },
+    { M_SWTC, "ROTATE MODE",            M_Bind_RotateMode,   'r'  },
+    { M_SWTC, "OVERLAY MODE",           M_Bind_OverlayMode,  'o'  },
+    { M_SWTC, "SOUND PROPAGATION MODE", M_Bind_SndPropMode,  's'  },
+    { M_SWTC, "TOGGLE GRID",            M_Bind_ToggleGrid,   't'  },
+    { M_SWTC, "MARK LOCATION",          M_Bind_AddMark,      'm'  },
+    { M_SWTC, "CLEAR ALL MARKS",        M_Bind_ClearMarks,   'c'  },
+    { M_SKIP, "",                       0,                   '\0' },
+    { M_SKIP, "",                       0,                   '\0' },
+    { M_SKIP, "",                       0,                   '\0' },
+    { M_SKIP, "",                       0,                   '\0' },
+    { M_SKIP, "",                       0,                   '\0' }
 };
 
 static menu_t CRLDef_Keybinds_5 =
@@ -2866,21 +2866,21 @@ static void M_Bind_M_Reset (int choice)
 
 static menuitem_t CRLMenu_Widgets[]=
 {
-    { M_LFRT, "RENDER COUNTERS",       M_CRL_Widget_Render,     'r'},
-    { M_LFRT, "MAX OVERFLOW STYLE",    M_CRL_Widget_MAX,        'r'},
-    { M_LFRT, "PLAYSTATE COUNTERS",    M_CRL_Widget_Playstate,  'r'},
-    { M_LFRT, "KIS STATS/FRAGS",       M_CRL_Widget_KIS,        'k'},
-    { M_LFRT, "LEVEL/DM TIMER",        M_CRL_Widget_Time,       'l'},
-    { M_LFRT, "PLAYER COORDS",         M_CRL_Widget_Coords,     'p'},
-    { M_LFRT, "POWERUP TIMERS",        M_CRL_Widget_Powerups,   'p'},
-    { M_LFRT, "TARGET'S HEALTH",       M_CRL_Widget_Health,     't'},
+    { M_LFRT, "RENDER COUNTERS",        M_CRL_Widget_Render,     'r'},
+    { M_LFRT, "MAX OVERFLOW STYLE",     M_CRL_Widget_MAX,        'r'},
+    { M_LFRT, "PLAYSTATE COUNTERS",     M_CRL_Widget_Playstate,  'r'},
+    { M_LFRT, "KIS STATS/FRAGS",        M_CRL_Widget_KIS,        'k'},
+    { M_LFRT, "LEVEL/DM TIMER",         M_CRL_Widget_Time,       'l'},
+    { M_LFRT, "PLAYER COORDS",          M_CRL_Widget_Coords,     'p'},
+    { M_LFRT, "POWERUP TIMERS",         M_CRL_Widget_Powerups,   'p'},
+    { M_LFRT, "TARGET'S HEALTH",        M_CRL_Widget_Health,     't'},
     { M_SKIP, "", 0, '\0'},
-    { M_LFRT, "ROTATE MODE",           M_CRL_Automap_Rotate,    'r'},
-    { M_LFRT, "OVERLAY MODE",          M_CRL_Automap_Overlay,   'o'},
-    { M_LFRT, "OVERLAY SHADING LEVEL", M_CRL_Automap_Shading,   'o'},
-    { M_LFRT, "DRAWING MODE",          M_CRL_Automap_Drawing,   'd'},
-    { M_LFRT, "MARK SECRET SECTORS",   M_CRL_Automap_Secrets,   'm'},
-    { M_LFRT, "SOUND PROPAGATION",     M_CRL_Automap_SndProp,   's'},
+    { M_LFRT, "ROTATE MODE",            M_CRL_Automap_Rotate,    'r'},
+    { M_LFRT, "OVERLAY MODE",           M_CRL_Automap_Overlay,   'o'},
+    { M_LFRT, "OVERLAY SHADING LEVEL",  M_CRL_Automap_Shading,   'o'},
+    { M_LFRT, "DRAWING MODE",           M_CRL_Automap_Drawing,   'd'},
+    { M_LFRT, "MARK SECRET SECTORS",    M_CRL_Automap_Secrets,   'm'},
+    { M_LFRT, "SOUND PROPAGATION MODE", M_CRL_Automap_SndProp,   's'},
     { M_SKIP, "", 0, '\0'}
 };
 
@@ -2995,7 +2995,7 @@ static void M_DrawCRL_Widgets (void)
     M_WriteText (M_ItemRightAlign(str), 151, str,
                  M_Item_Glow(13, crl_automap_secrets ? GLOW_GREEN : GLOW_DARKRED));
 
-    // Sound propagation
+    // Sound propagation mode
     sprintf(str, crl_automap_sndprop ? "ON" : "OFF");
     M_WriteText (M_ItemRightAlign(str), 160, str,
                  M_Item_Glow(14, crl_automap_sndprop ? GLOW_GREEN : GLOW_DARKRED));

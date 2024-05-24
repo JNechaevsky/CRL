@@ -203,8 +203,8 @@ typedef struct line_s
     // thinker_t for reversable actions
     void *specialdata;		
 	
-    // [JN] CRL - Sound propagation mode﻿ for automap.
-    int sfx_tics;
+    // [JN] CRL - Line timer of sound propagation mode﻿ for automap.
+    int sndprop_tics;
 } line_t;
 
 //

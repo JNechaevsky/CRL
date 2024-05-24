@@ -878,7 +878,7 @@ boolean AM_Responder (event_t *ev)
                 // [JN] Erase old propagation data before toggling on.
                 for (int i = 0 ; i < numlines ; i++)
                 {
-                    lines[i].sfx_tics = 0;
+                    lines[i].sndprop_tics = 0;
                 }
                 CRL_SetMessage(plr, DEH_String(CRL_AUTOMAPSNDPROP_ON), false, NULL);
             }
@@ -1462,7 +1462,7 @@ static void AM_drawWalls (void)
         }
 
         // [JN] CRL - Sound propagation mode﻿ for automap.
-        if (lines[i].sfx_tics && crl_automap_sndprop)
+        if (lines[i].sndprop_tics && crl_automap_sndprop)
         {
             AM_drawMline(&l, foundsecretwallcolors);
             continue;
