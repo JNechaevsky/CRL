@@ -1462,7 +1462,7 @@ static void AM_drawWalls (void)
         }
 
         // [JN] CRL - Sound propagation mode﻿ for automap.
-        if (lines[i].sndprop_tics && crl_automap_sndprop)
+        if (crl_automap_sndprop && lines[i].sndprop_tics)
         {
             AM_drawMline(&l, foundsecretwallcolors);
             continue;
