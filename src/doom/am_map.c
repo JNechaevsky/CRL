@@ -1443,6 +1443,13 @@ static void AM_drawWalls (void)
             AM_rotatePoint(&l.b);
         }
 
+        // [JN] CRL - Sound propagation mode﻿ for automap.
+        if (lines[i].flags & ML_SFX)
+        {
+            AM_drawMline(&l, foundsecretwallcolors);
+            continue;
+        }
+
         if (iddt_cheating || (lines[i].flags & ML_MAPPED))
         {
             if ((lines[i].flags & ML_DONTDRAW) && !iddt_cheating)

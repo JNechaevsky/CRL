@@ -1211,6 +1211,19 @@ void P_UpdateSpecials (void)
 	    }
 	}
 
+    // [JN] CRL - Sound propagation mode﻿ for automap.
+    for (i = 0 ; i < numlines ; i++)
+    {
+        if (lines[i].sfx_tics)
+        {
+            lines[i].sfx_tics--;
+        }
+        else
+        {
+            lines[i].flags &= ~ML_SFX;
+        }
+    }
+
     // [crispy] draw fuzz effect independent of rendering frame rate
     R_SetFuzzPosTic();
 }

@@ -186,6 +186,8 @@ typedef PACKED_STRUCT (
 // Set if already seen, thus drawn in automap.
 #define ML_MAPPED		256
 
+// [JN] CRL - Sound propagation mode﻿ for automap.
+#define ML_SFX		512
 
 
 

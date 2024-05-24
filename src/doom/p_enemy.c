@@ -104,6 +104,11 @@ P_RecursiveSound
     for (i=0 ;i<sec->linecount ; i++)
     {
 	check = sec->lines[i];
+
+	// [JN] CRL - Sound propagation mode﻿ for automap.
+	check->flags |= ML_SFX;
+	check->sfx_tics = (TICRATE * 0.25);
+
 	if (! (check->flags & ML_TWOSIDED) )
 	    continue;
 	
