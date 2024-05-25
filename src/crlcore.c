@@ -317,13 +317,6 @@ static int CRL_ColorizeThisPlane (CRLPlaneData_t *__pl)
 {
     // Initial color
     int id = 0;
-    int shade = DARKSHADE * __pl->isf;
-
-    // Above plane limit
-    if (__pl->id >= 128)
-    {
-        shade += _pulse & DARKMASK;
-    }
 	
     // Make the colors consistent when running around to determine where
     // things come from
