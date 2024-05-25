@@ -78,6 +78,7 @@
 // [JN] Make wall colors of secret sectors palette-independent.
 static int secretwallcolors;
 static int foundsecretwallcolors;
+static int sndpropwallcolors;
 
 // drawing stuff
 #define AM_NUMMARKPOINTS 10
@@ -288,6 +289,7 @@ void AM_Init (void)
     // [JN] Find closest to magenta and green colors.
     secretwallcolors = V_GetPaletteIndex(playpal, 255, 0, 255);
     foundsecretwallcolors = V_GetPaletteIndex(playpal, 119, 255, 111);
+    sndpropwallcolors = V_GetPaletteIndex(playpal, 64, 255, 64);
 
     W_ReleaseLumpName("PLAYPAL");
 }
@@ -1464,7 +1466,7 @@ static void AM_drawWalls (void)
         // [JN] CRL - Sound propagation mode﻿ for automap.
         if (crl_automap_sndprop && lines[i].sndprop_tics)
         {
-            AM_drawMline(&l, foundsecretwallcolors);
+            AM_drawMline(&l, sndpropwallcolors);
             continue;
         }
 
