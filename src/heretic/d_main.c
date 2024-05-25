@@ -282,11 +282,11 @@ void D_Display(void)
             V_DrawShadowedPatchRavenOptional(160, 70, W_CacheLumpName(DEH_String("PAUSED"), PU_CACHE), "PAUSED");
         }
     }
-    // Handle player messages
-    DrawMessage();
-
     // Menu drawing
     MN_Drawer();
+
+    // Handle player messages
+    DrawMessage();
 
     // [JN] Critical messages are drawn even higher than on top everything!
     CRL_DrawMessageCritical();
