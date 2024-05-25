@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "ct_chat.h"
 #include "doomdef.h"
 #include "doomkeys.h"
 #include "deh_str.h"
@@ -137,6 +138,7 @@ boolean precache = true;        // if true, load all graphics at start
 // TODO: Heretic uses 16-bit shorts for consistency?
 byte consistancy[MAXPLAYERS][BACKUPTICS];
 char *savegamedir;
+char  savename[256];
 
 boolean testcontrols = false;
 int testcontrols_mousespeed;
@@ -329,10 +331,10 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
 
 	// [JN] Deny all player control events while active menu 
 	// in multiplayer to eliminate movement and camera rotation.
- 	if (netgame && MenuActive)
+ 	if (netgame && (MenuActive || askforquit))
  	return;
 
- 	// [JN] RestlessRodent -- If spectating then the player loses all input
+ 	// RestlessRodent -- If spectating then the player loses all input
  	memmove(&spect, cmd, sizeof(spect));
  	// [JN] Allow saving and pausing while spectating.
  	if (crl_spectating && !sendsave && !sendpause)
@@ -381,8 +383,8 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
             joybspeed = MAX_JOY_BUTTONS;
         }
 
-        P_SetMessage(&players[consoleplayer], joybspeed >= MAX_JOY_BUTTONS ?
-                     CRL_AUTORUN_ON : CRL_AUTORUN_OFF, false);
+        CT_SetMessage(&players[consoleplayer], joybspeed >= MAX_JOY_BUTTONS ?
+                      CRL_AUTORUN_ON : CRL_AUTORUN_OFF, false, NULL);
         S_StartSound(NULL, sfx_chat);
         gamekeydown[key_crl_autorun] = false;
     }
@@ -395,8 +397,8 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
         {
             look = TOCENTER;
         }
-        P_SetMessage(&players[consoleplayer], crl_mouselook ?
-                     CRL_MLOOK_ON : CRL_MLOOK_OFF, false);
+        CT_SetMessage(&players[consoleplayer], crl_mouselook ?
+                      CRL_MLOOK_ON : CRL_MLOOK_OFF, false, NULL);
         S_StartSound(NULL, sfx_chat);
         gamekeydown[key_crl_mlook] = false;
     }
@@ -559,13 +561,14 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
     }
 
     // Use artifact key
-    if (gamekeydown[key_useartifact])
+    if (gamekeydown[key_useartifact] || mousebuttons[mousebuseartifact])
     {
         if (gamekeydown[key_speed] && !noartiskip)
         {
             if (players[consoleplayer].inventory[inv_ptr].type != arti_none)
             {
                 gamekeydown[key_useartifact] = false;
+                mousebuttons[mousebuseartifact] = false;
                 cmd->arti = 0xff;       // skip artifact code
             }
         }
@@ -669,14 +672,14 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
         {
             CRL_Clear_MAX();
             CRL_Get_MAX();
-            P_SetMessage(&players[consoleplayer], "CLEARED MAX", false);
+            CT_SetMessage(&players[consoleplayer], "CLEARED MAX", false, NULL);
         }
 
         // Jump to MAX visplanes.
         if (gamekeydown[key_crl_movetomax])
         {
             CRL_MoveTo_MAX();
-            P_SetMessage(&players[consoleplayer], "MOVE TO MAX", false);
+            CT_SetMessage(&players[consoleplayer], "MOVE TO MAX", false, NULL);
         }
     }
 
@@ -870,7 +873,7 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
         }
     }
 
-    // [JN] RestlessRodent -- If spectating, send the movement commands instead
+    // RestlessRodent -- If spectating, send the movement commands instead
     if (crl_spectating && !MenuActive)
     	CRL_ImpulseCamera(cmd->forwardmove, cmd->sidemove, cmd->angleturn); 
 }
@@ -923,7 +926,12 @@ void G_DoLoadLevel(void)
     }
 
     P_SetupLevel(gameepisode, gamemap, 0, gameskill);
-    displayplayer = consoleplayer;      // view the guy you are playing
+    // [JN] Do not reset chosen player view across levels in multiplayer
+    // demo playback. However, it must be reset when starting a new game.
+    if (usergame)
+    {
+        displayplayer = consoleplayer;      // view the guy you are playing
+    }
     gameaction = ga_nothing;
     Z_CheckHeap();
 
@@ -940,7 +948,7 @@ void G_DoLoadLevel(void)
 
     if (testcontrols)
     {
-        P_SetMessage(&players[consoleplayer], "PRESS ESCAPE TO QUIT.", false);
+        CT_SetMessage(&players[consoleplayer], "PRESS ESCAPE TO QUIT.", false, NULL);
     }
 }
 
@@ -972,9 +980,84 @@ static void SetJoyButtons(unsigned int buttons_mask)
     }
 }
 
+// If an InventoryMove*() function is called when the inventory is not active,
+// it will instead activate the inventory without attempting to change the
+// selected item. This action is indicated by a return value of false.
+// Otherwise, it attempts to change items and will return a value of true.
+
+static boolean InventoryMoveLeft(void)
+{
+    inventoryTics = 5 * TICRATE;
+
+    // [JN] Do not pop-up while active menu or demo playback.
+    if (MenuActive || demoplayback)
+    {
+        return false;
+    }
+
+    if (!inventory)
+    {
+        inventory = true;
+        return false;
+    }
+    inv_ptr--;
+    if (inv_ptr < 0)
+    {
+        inv_ptr = 0;
+    }
+    else
+    {
+        curpos--;
+        if (curpos < 0)
+        {
+            curpos = 0;
+        }
+    }
+    return true;
+}
+
+static boolean InventoryMoveRight(void)
+{
+    player_t *plr;
+
+    plr = &players[consoleplayer];
+    inventoryTics = 5 * TICRATE;
+
+    // [JN] Do not pop-up while active menu or demo playback.
+    if (MenuActive || demoplayback)
+    {
+        return false;
+    }
+
+    if (!inventory)
+    {
+        inventory = true;
+        return false;
+    }
+    inv_ptr++;
+    if (inv_ptr >= plr->inventorySlotNum)
+    {
+        inv_ptr--;
+        if (inv_ptr < 0)
+            inv_ptr = 0;
+    }
+    else
+    {
+        curpos++;
+        if (curpos > CURPOS_MAX)
+        {
+            curpos = CURPOS_MAX;
+        }
+    }
+    return true;
+}
+
 static void SetMouseButtons(unsigned int buttons_mask)
 {
     int i;
+    player_t *plr;
+
+    plr = &players[consoleplayer];
 
     for (i=0; i<MAX_MOUSE_BUTTONS; ++i)
     {
@@ -984,27 +1067,45 @@ static void SetMouseButtons(unsigned int buttons_mask)
 
         if (!mousebuttons[i] && button_on)
         {
-            if (i == mousebprevweapon)
+            // [JN] CRL - move spectator camera up/down.
+            if (crl_spectating && !MenuActive)
             {
-                // [JN] CRL - move spectator camera down.
-                if (crl_spectating && !MenuActive)
+                if (i == 4)  // Hardcoded mouse wheel down
                 {
-                    CRL_ImpulseCameraVert(false, crl_camzspeed ? 64 : 32);
-                    
+                    CRL_ImpulseCameraVert(false, crl_camzspeed ? 64 : 32); 
                 }
                 else
-                next_weapon = -1;
-            }
-            else if (i == mousebnextweapon)
-            {
-                // [JN] CRL - move spectator camera up.
-                if (crl_spectating && !MenuActive)
+                if (i == 3)  // Hardcoded Mouse wheel down
                 {
                     CRL_ImpulseCameraVert(true, crl_camzspeed ? 64 : 32);
-                    
                 }
-                else
-                next_weapon = 1;
+            }
+            else
+            {
+                if (i == mousebprevweapon)
+                {
+                    next_weapon = -1;
+                }
+                else if (i == mousebnextweapon)
+                {
+                    next_weapon = 1;
+                }
+                else if (i == mousebinvleft)
+                {
+                    InventoryMoveLeft();
+                }
+                else if (i == mousebinvright)
+                {
+                    InventoryMoveRight();
+                }
+                else if (i == mousebuseartifact)
+                {
+                    if (!inventory)
+                    {
+                        plr->readyArtifact = plr->inventory[inv_ptr].type;
+                    }
+                    usearti = true;
+                }
             }
         }
 
@@ -1047,7 +1148,7 @@ boolean G_Responder(event_t * ev)
 
     // Check for spy mode player cycle
     if (gamestate == GS_LEVEL && ev->type == ev_keydown
-        && ev->data1 == KEY_F12 && !deathmatch)
+        && ev->data1 == key_spy && !deathmatch)
     {                           // Cycle the display player
         do
         {
@@ -1064,7 +1165,7 @@ boolean G_Responder(event_t * ev)
 
     // [JN] CRL - same to Doom behavior:
     // any other key pops up menu if in demos
-    if (gameaction == ga_nothing && !singledemo
+    if (gameaction == ga_nothing && !singledemo && !askforquit
     && (demoplayback || gamestate == GS_DEMOSCREEN)) 
     {
         if (ev->type == ev_keydown
@@ -1171,8 +1272,8 @@ boolean G_Responder(event_t * ev)
             if (ev->data1 == key_crl_spectator)
             {
                 crl_spectating ^= 1;
-                P_SetMessage(&players[consoleplayer], crl_spectating ?
-                             CRL_SPECTATOR_ON : CRL_SPECTATOR_OFF, false);
+                CT_SetMessage(&players[consoleplayer], crl_spectating ?
+                              CRL_SPECTATOR_ON : CRL_SPECTATOR_OFF, false, NULL);
                 pspr_interp = false;
             }        
             // [JN] CRL - Toggle freeze mode.
@@ -1181,23 +1282,23 @@ boolean G_Responder(event_t * ev)
                 // Allow freeze only in single player game, otherwise desyncs may occur.
                 if (demorecording)
                 {
-                    P_SetMessage(&players[consoleplayer], CRL_FREEZE_NA_R , false);
+                    CT_SetMessage(&players[consoleplayer], CRL_FREEZE_NA_R, false, NULL);
                     return true;
                 }            
                 if (demoplayback)
                 {
-                    P_SetMessage(&players[consoleplayer], CRL_FREEZE_NA_P , false);
+                    CT_SetMessage(&players[consoleplayer], CRL_FREEZE_NA_P, false, NULL);
                     return true;
                 }   
                 if (netgame)
                 {
-                    P_SetMessage(&players[consoleplayer], CRL_FREEZE_NA_N , false);
+                    CT_SetMessage(&players[consoleplayer], CRL_FREEZE_NA_N, false, NULL);
                     return true;
                 }   
                 crl_freeze ^= 1;
 
-                P_SetMessage(&players[consoleplayer], crl_freeze ?
-                             CRL_FREEZE_ON : CRL_FREEZE_OFF, false);
+                CT_SetMessage(&players[consoleplayer], crl_freeze ?
+                              CRL_FREEZE_ON : CRL_FREEZE_OFF, false, NULL);
             }
             // [JN] CRL - Toggle notarget mode.
             if (ev->data1 == key_crl_notarget)
@@ -1207,24 +1308,24 @@ boolean G_Responder(event_t * ev)
                 // Allow notarget only in single player game, otherwise desyncs may occur.
                 if (demorecording)
                 {
-                    P_SetMessage(&players[consoleplayer], CRL_NOTARGET_NA_R , false);
+                    CT_SetMessage(&players[consoleplayer], CRL_NOTARGET_NA_R, false, NULL);
                     return true;
                 }
                 if (demoplayback)
                 {
-                    P_SetMessage(&players[consoleplayer], CRL_NOTARGET_NA_P , false);
+                    CT_SetMessage(&players[consoleplayer], CRL_NOTARGET_NA_P, false, NULL);
                     return true;
                 }
                 if (netgame)
                 {
-                    P_SetMessage(&players[consoleplayer], CRL_NOTARGET_NA_N , false);
+                    CT_SetMessage(&players[consoleplayer], CRL_NOTARGET_NA_N, false, NULL);
                     return true;
                 }   
 
                 player->cheats ^= CF_NOTARGET;
 
-                P_SetMessage(player, player->cheats & CF_NOTARGET ?
-                            CRL_NOTARGET_ON : CRL_NOTARGET_OFF, false);
+                CT_SetMessage(player, player->cheats & CF_NOTARGET ?
+                              CRL_NOTARGET_ON : CRL_NOTARGET_OFF, false, NULL);
             }
             // [JN] CRL - Toggle static engine limits.
             if (ev->data1 == key_crl_limits)
@@ -1233,8 +1334,8 @@ boolean G_Responder(event_t * ev)
             
                 // [JN] CRL - re-define static engine limits.
                 CRL_SetStaticLimits("HERETIC+");
-                P_SetMessage(&players[consoleplayer], crl_vanilla_limits ?
-                             CRL_VANILLA_LIMITS_ON : CRL_VANILLA_LIMITS_OFF, false);
+                CT_SetMessage(&players[consoleplayer], crl_vanilla_limits ?
+                              CRL_VANILLA_LIMITS_ON : CRL_VANILLA_LIMITS_OFF, false, NULL);
             }     
             return (true);      // eat key down events
 
@@ -1432,7 +1533,11 @@ void G_Ticker(void)
             P_Ticker();
             SB_Ticker();
             AM_Ticker();
-            CT_Ticker();
+            // [JN] Not really needed in single player game.
+            if (netgame)
+            {
+                CT_Ticker();
+            }
             // [JN] CRL - framerate-independent multicolor HOM drawing.
             CRL_GetHOMMultiColor();
             // [JN] Target's health widget.
@@ -1453,6 +1558,10 @@ void G_Ticker(void)
             D_PageTicker();
             break;
     }
+
+    // [JN] Reduce message tics independently from framerate and game states.
+    // Tics can't go negative.
+    MSG_Ticker();
 }
 
 
@@ -1526,7 +1635,6 @@ void G_PlayerFinishLevel(int player)
         p->chickenTics = 0;
     }
     p->messageTics = 0;
-    p->criticalmessageTics = 0;
     p->targetsheathTics = 0;
     p->lookdir = p->oldlookdir = 0;
     p->mo->flags &= ~MF_SHADOW; // Remove invisibility
@@ -1587,7 +1695,6 @@ void G_PlayerReborn(int player)
     p->weaponowned[wp_staff] = true;
     p->weaponowned[wp_goldwand] = true;
     p->messageTics = 0;
-    p->criticalmessageTics = 0;
     p->targetsheathTics = 0;
     p->lookdir = 0;
     p->ammo[am_goldwand] = 50;
@@ -1834,11 +1941,9 @@ void G_DoWorldDone(void)
 //
 //---------------------------------------------------------------------------
 
-static char *savename = NULL;
-
 void G_LoadGame(char *name)
 {
-    savename = M_StringDuplicate(name);
+    M_StringCopy(savename, name, sizeof(savename));
     gameaction = ga_loadgame;
 }
 
@@ -1858,13 +1963,20 @@ void G_DoLoadGame(void)
     int a, b, c;
     char savestr[SAVESTRINGSIZE];
     char vcheck[VERSIONSIZE], readversion[VERSIONSIZE];
+    const player_t *p; // [crispy]
+
+    p = &players[consoleplayer]; // [crispy]
 
     gameaction = ga_nothing;
 
     SV_OpenRead(savename);
 
+    // [JN] Do not erase save data,
+    // it will be needed for "On death action" feature.
+    /*
     free(savename);
     savename = NULL;
+    */
 
     // Skip the description field
     SV_Read(savestr, SAVESTRINGSIZE);
@@ -1898,6 +2010,17 @@ void G_DoLoadGame(void)
     P_UnArchiveWorld();
     P_UnArchiveThinkers();
     P_UnArchiveSpecials();
+
+    // [crispy] point to active artifact after load
+    for (i = 0; i < p->inventorySlotNum; i++)
+    {
+        if (p->inventory[i].type == p->readyArtifact)
+        {
+            curpos = inv_ptr = i;
+            curpos = (curpos > CURPOS_MAX) ? CURPOS_MAX : curpos;
+            break;
+        }
+    }
 
     if (SV_ReadByte() != SAVE_GAME_TERMINATOR)
     {                           // Missing savegame termination marker
@@ -2524,7 +2647,7 @@ void G_DoSaveGame(void)
 
     gameaction = ga_nothing;
     savedescription[0] = 0;
-    P_SetMessage(&players[consoleplayer], DEH_String(TXT_GAMESAVED), true);
+    CT_SetMessage(&players[consoleplayer], DEH_String(TXT_GAMESAVED), true, NULL);
 
     free(filename);
 }

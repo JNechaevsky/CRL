@@ -472,11 +472,7 @@ typedef struct player_s
     int killcount, itemcount, secretcount;      // for intermission
     const char *message;        // hint messages
     int messageTics;            // counter for showing messages
-
-    // [JN] CRL - hint critical messages.
-    const char *criticalmessage1;
-    const char *criticalmessage2;
-    int   criticalmessageTics;
+    byte *messageColor;
 
     // [JN] CRL - target's health.
     const char*	targetsname;
@@ -714,6 +710,14 @@ uint16_t SV_ReadWord(void);
 uint32_t SV_ReadLong(void);
 
 extern char *savegamedir;
+extern char  savename[256];
+
+extern void G_ClearSavename (void);
+
+// [crispy] support up to 8 pages of savegames
+extern int savepage;
+#define SAVES_PER_PAGE 6
+#define SAVEPAGE_MAX 7
 
 void G_RecordDemo(skill_t skill, int numplayers, int episode, int map,
                   char *name);
@@ -824,7 +828,6 @@ void CT_Ticker(void);
 char CT_dequeueChatChar(void);
 
 extern boolean chatmodeon;
-extern boolean ultimatemsg;
 
 //--------------------
 // Finale (F_finale.c)
@@ -838,6 +841,8 @@ void F_StartFinale(void);
 // STATUS BAR (SB_bar.c)
 //----------------------
 
+#define CURPOS_MAX 6 // [crispy] 7 total artifact frames
+
 void SB_Init(void);
 boolean SB_Responder(event_t * event);
 void SB_Ticker(void);
@@ -847,6 +852,7 @@ void SB_Drawer(void);
 // MENU (MN_menu.c)
 //-----------------
 
+extern boolean askforquit;
 extern boolean MenuActive;
 
 void MN_Init(void);
@@ -859,7 +865,7 @@ void MN_DrTextA(const char *text, int x, int y, byte *table);
 int MN_TextAWidth(const char *text);
 void MN_DrTextACentered (const char *text, int y, byte *table);
 void MN_DrTextACritical (const char *text1, const char *text2, int y, byte *table);
-void MN_DrTextB(const char *text, int x, int y);
+void MN_DrTextB(const char *text, int x, int y, byte *table);
 int MN_TextBWidth(const char *text);
 
 #include "sounds.h"

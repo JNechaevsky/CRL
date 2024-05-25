@@ -20,6 +20,7 @@
 
 #include <stdlib.h>
 
+#include "ct_chat.h"
 #include "doomdef.h"
 #include "deh_str.h"
 #include "i_timer.h"
@@ -599,21 +600,6 @@ void P_PlayerThink(player_t * player)
         cmd->forwardmove = 0xc800 / 512;
         cmd->sidemove = 0;
         player->mo->flags &= ~MF_JUSTATTACKED;
-    }
-// messageTics is above the rest of the counters so that messages will
-//              go away, even in death.
-    if (player->messageTics)
-    {
-        player->messageTics--;  // [JN] Can't go negative.
-    }
-    if (player->criticalmessageTics)
-    {
-        player->criticalmessageTics--;  // [JN] Can't go negative.
-    }
-    if (!player->messageTics)
-    {                           // Refresh the screen when a message goes away
-        ultimatemsg = false;    // clear out any chat messages.
-        BorderTopRefresh = true;
     }
     if (player->playerstate == PST_DEAD)
     {

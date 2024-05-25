@@ -521,13 +521,20 @@ void R_DrawPlanes(void)
 
                     fracstep = 1;
                     frac = (dc_texturemid >> FRACBITS) + (dc_yl - centery);
+                    dc_visplaneused = pl;
                     do
                     {
+                        // RestlessRodent -- Possibly mark visplane
+                        if (dc_visplaneused != NULL)
+                        {
+                            CRL_MarkPixelP(CRLPlaneSurface, dc_visplaneused, dest);
+                        }
                         *dest = dc_source[frac];
                         dest += SCREENWIDTH;
                         frac += fracstep;
                     }
                     while (count--);
+                    dc_visplaneused = NULL;
 
 //                                      colfunc ();
                 }

@@ -72,6 +72,8 @@ void V_DrawBox(int x, int y, int w, int h, int c);
 
 // Temporarily switch to using a different buffer to draw graphics, etc.
 
+void V_FillFlat(int y_start, int y_stop, int x_start, int x_stop,
+                const byte *src, pixel_t *dest);    // [crispy]
 void V_UseBuffer(pixel_t *buffer);
 
 // Return to using the normal screen buffer to draw graphics.

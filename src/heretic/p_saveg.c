@@ -32,6 +32,8 @@
 
 
 static FILE *SaveGameFP;
+
+int savepage; // [crispy]
 const uint32_t P_ThinkerToIndex (const thinker_t *thinker);
 
 
@@ -52,7 +54,8 @@ char *SV_Filename(int slot)
     filename_len = strlen(savegamedir) + strlen(SAVEGAMENAME) + 8;
     filename = malloc(filename_len);
     M_snprintf(filename, filename_len,
-               "%s" SAVEGAMENAME "%d.hsg", savegamedir, slot);
+               "%s" SAVEGAMENAME "%d.hsg", savegamedir,
+               SAVES_PER_PAGE * savepage + slot);
 
     return filename;
 }

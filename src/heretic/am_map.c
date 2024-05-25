@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 
+#include "ct_chat.h"
 #include "doomdef.h"
 #include "deh_str.h"
 #include "i_timer.h"
@@ -625,16 +626,16 @@ boolean AM_Responder(event_t * ev)
         {
             followplayer = !followplayer;
             f_oldloc.x = INT_MAX;
-            P_SetMessage(plr,
-                         followplayer ? AMSTR_FOLLOWON : AMSTR_FOLLOWOFF,
-                         false);
+            CT_SetMessage(plr,
+                          followplayer ? AMSTR_FOLLOWON : AMSTR_FOLLOWOFF,
+                          false, NULL);
         }
         else if (key == key_map_grid)
         {
             grid = !grid;
-            P_SetMessage(plr,
-                         grid ? AMSTR_GRIDON : AMSTR_GRIDOFF,
-                         false);
+            CT_SetMessage(plr,
+                          grid ? AMSTR_GRIDON : AMSTR_GRIDOFF,
+                          false, NULL);
         }
         /*
         else if (key == key_map_mark)

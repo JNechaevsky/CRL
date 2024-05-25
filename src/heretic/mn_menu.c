@@ -20,7 +20,9 @@
 
 #include <stdlib.h>
 #include <ctype.h>
+#include <time.h>
 
+#include "ct_chat.h"
 #include "deh_str.h"
 #include "doomdef.h"
 #include "doomkeys.h"
@@ -72,6 +74,7 @@ typedef enum
     MENU_SAVE,
     MENU_CRLMAIN,
     MENU_CRLVIDEO,
+    MENU_CRLDISPLAY,
     MENU_CRLSOUND,
     MENU_CRLCONTROLS,
     MENU_CRLKBDBINDS1,
@@ -94,7 +97,7 @@ typedef struct
 {
     ItemType_t type;
     char *text;
-    boolean(*func) (int option);
+    void (*func) (int option);
     int option;
     MenuType_t menu;
     short tics;  // [JN] Menu item timer for glowing effect.
@@ -104,6 +107,15 @@ typedef struct
 static short   cursor_tics = 0;
 static boolean cursor_direction = false;
 
+// [JN] Font enum's used by FontType in Menu_t below.
+// NoFont is used only in Save/Load menu for allowing to 
+// choose slot by pressing number key.
+enum {
+    NoFont,
+    SmallFont,
+    BigFont
+} FontType_t;
+
 typedef struct
 {
     int x;
@@ -112,7 +124,9 @@ typedef struct
     int itemCount;
     MenuItem_t *items;
     int oldItPos;
-    boolean smallFont;  // [JN] If true, use small font
+    int FontType;       // [JN] 0 = no font, 1 = small font, 2 = big font
+    boolean ScrollAR;   // [JN] Menu can be scrolled by arrow keys
+    boolean ScrollPG;   // [JN] Menu can be scrolled by PGUP/PGDN keys
     MenuType_t prevMenu;
 } Menu_t;
 
@@ -121,18 +135,20 @@ typedef struct
 static void InitFonts(void);
 static void SetMenu(MenuType_t menu);
 static boolean SCNetCheck(int option);
-static boolean SCQuitGame(int option);
-static boolean SCEpisode(int option);
-static boolean SCSkill(int option);
-static boolean SCMouseSensi(int option);
-static boolean SCSfxVolume(int option);
-static boolean SCMusicVolume(int option);
-static boolean SCScreenSize(int option);
-static boolean SCLoadGame(int option);
-static boolean SCSaveGame(int option);
-static boolean SCMessages(int option);
-static boolean SCEndGame(int option);
-static boolean SCInfo(int option);
+static void SCNetCheck2(int option);
+static void SCQuitGame(int option);
+static void SCEpisode(int option);
+static void SCSkill(int option);
+static void SCMouseSensi(int option);
+static void SCSfxVolume(int option);
+static void SCMusicVolume(int option);
+static void SCScreenSize(int option);
+static void SCLoadGame(int option);
+static void SCSaveCheck(int option);
+static void SCSaveGame(int option);
+static void SCMessages(int option);
+static void SCEndGame(int option);
+static void SCInfo(int option);
 static void DrawMainMenu(void);
 static void DrawEpisodeMenu(void);
 static void DrawSkillMenu(void);
@@ -155,7 +171,6 @@ extern int screenblocks;
 
 boolean MenuActive;
 int InfoType;
-boolean messageson;
 
 // Private Data
 
@@ -172,54 +187,40 @@ boolean askforquit;
 static int typeofask;
 static boolean FileMenuKeySteal;
 static boolean slottextloaded;
-static char SlotText[6][SLOTTEXTLEN + 2];
+static char SlotText[SAVES_PER_PAGE][SLOTTEXTLEN + 2];
 static char oldSlotText[SLOTTEXTLEN + 2];
-static int SlotStatus[6];
+static int SlotStatus[SAVES_PER_PAGE];
 static int slotptr;
 static int currentSlot;
 static int quicksave;
 static int quickload;
 
-static const char gammamsg[15][32] =
-{
-    GAMMALVL05,
-    GAMMALVL055,
-    GAMMALVL06,
-    GAMMALVL065,
-    GAMMALVL07,
-    GAMMALVL075,
-    GAMMALVL08,
-    GAMMALVL085,
-    GAMMALVL09,
-    GAMMALVL095,
-    GAMMALVL0,
-    GAMMALVL1,
-    GAMMALVL2,
-    GAMMALVL3,
-    GAMMALVL4
-};
+// [JN] Show custom titles while performing quick save/load.
+static boolean quicksaveTitle = false;
+static boolean quickloadTitle = false;
 
-static const char *gammalvl[15] =
+static char *gammalvls[16][32] =
 {
-    "0.50",
-    "0.55",
-    "0.60",
-    "0.65",
-    "0.70",
-    "0.75",
-    "0.80",
-    "0.85",
-    "0.90",
-    "0.95",
-    "OFF",
-    "1",
-    "2",
-    "3",
-    "4"
+    { GAMMALVL05,   "0.50" },
+    { GAMMALVL055,  "0.55" },
+    { GAMMALVL06,   "0.60" },
+    { GAMMALVL065,  "0.65" },
+    { GAMMALVL07,   "0.70" },
+    { GAMMALVL075,  "0.75" },
+    { GAMMALVL08,   "0.80" },
+    { GAMMALVL085,  "0.85" },
+    { GAMMALVL09,   "0.90" },
+    { GAMMALVL095,  "0.95" },
+    { GAMMALVL0,    "OFF"  },
+    { GAMMALVL1,    "1"    },
+    { GAMMALVL2,    "2"    },
+    { GAMMALVL3,    "3"    },
+    { GAMMALVL4,    "4"    },
+    { NULL,         NULL   },
 };
 
 static MenuItem_t MainItems[] = {
-    {ITT_EFUNC, "NEW GAME", SCNetCheck, 1, MENU_EPISODE},
+    {ITT_SETMENU, "NEW GAME", SCNetCheck2, 1, MENU_EPISODE},
     {ITT_SETMENU, "OPTIONS", NULL, 0, MENU_CRLMAIN},
     {ITT_SETMENU, "GAME FILES", NULL, 0, MENU_FILES},
     {ITT_EFUNC, "INFO", SCInfo, 0, MENU_NONE},
@@ -231,7 +232,7 @@ static Menu_t MainMenu = {
     DrawMainMenu,
     5, MainItems,
     0,
-    false,
+    BigFont, false, false,
     MENU_NONE
 };
 
@@ -248,13 +249,13 @@ static Menu_t EpisodeMenu = {
     DrawEpisodeMenu,
     3, EpisodeItems,
     0,
-    false,
+    BigFont, false, false,
     MENU_MAIN
 };
 
 static MenuItem_t FilesItems[] = {
-    {ITT_EFUNC, "LOAD GAME", SCNetCheck, 2, MENU_LOAD},
-    {ITT_SETMENU, "SAVE GAME", NULL, 0, MENU_SAVE}
+    {ITT_SETMENU, "LOAD GAME", SCNetCheck2,  2, MENU_LOAD},
+    {ITT_EFUNC, "SAVE GAME", SCSaveCheck, 0, MENU_SAVE}
 };
 
 static Menu_t FilesMenu = {
@@ -262,43 +263,47 @@ static Menu_t FilesMenu = {
     DrawFilesMenu,
     2, FilesItems,
     0,
-    false,
+    BigFont, false, false,
     MENU_MAIN
 };
 
+// [JN] Allow to chose slot by pressing number key.
+// This behavior is same to Doom.
 static MenuItem_t LoadItems[] = {
-    {ITT_EFUNC, NULL, SCLoadGame, 0, MENU_NONE},
-    {ITT_EFUNC, NULL, SCLoadGame, 1, MENU_NONE},
-    {ITT_EFUNC, NULL, SCLoadGame, 2, MENU_NONE},
-    {ITT_EFUNC, NULL, SCLoadGame, 3, MENU_NONE},
-    {ITT_EFUNC, NULL, SCLoadGame, 4, MENU_NONE},
-    {ITT_EFUNC, NULL, SCLoadGame, 5, MENU_NONE}
+    {ITT_EFUNC, "1", SCLoadGame, 0, MENU_NONE},
+    {ITT_EFUNC, "2", SCLoadGame, 1, MENU_NONE},
+    {ITT_EFUNC, "3", SCLoadGame, 2, MENU_NONE},
+    {ITT_EFUNC, "4", SCLoadGame, 3, MENU_NONE},
+    {ITT_EFUNC, "5", SCLoadGame, 4, MENU_NONE},
+    {ITT_EFUNC, "6", SCLoadGame, 5, MENU_NONE}
 };
 
 static Menu_t LoadMenu = {
-    70, 30,
+    70, 18,
     DrawLoadMenu,
-    6, LoadItems,
+    SAVES_PER_PAGE, LoadItems,
     0,
-    false,
+    NoFont, true, true,
     MENU_FILES
 };
 
+// [JN] Allow to chose slot by pressing number key.
+// This behavior is same to Doom.
 static MenuItem_t SaveItems[] = {
-    {ITT_EFUNC, NULL, SCSaveGame, 0, MENU_NONE},
-    {ITT_EFUNC, NULL, SCSaveGame, 1, MENU_NONE},
-    {ITT_EFUNC, NULL, SCSaveGame, 2, MENU_NONE},
-    {ITT_EFUNC, NULL, SCSaveGame, 3, MENU_NONE},
-    {ITT_EFUNC, NULL, SCSaveGame, 4, MENU_NONE},
-    {ITT_EFUNC, NULL, SCSaveGame, 5, MENU_NONE}
+    {ITT_EFUNC, "1", SCSaveGame, 0, MENU_NONE},
+    {ITT_EFUNC, "2", SCSaveGame, 1, MENU_NONE},
+    {ITT_EFUNC, "3", SCSaveGame, 2, MENU_NONE},
+    {ITT_EFUNC, "4", SCSaveGame, 3, MENU_NONE},
+    {ITT_EFUNC, "5", SCSaveGame, 4, MENU_NONE},
+    {ITT_EFUNC, "6", SCSaveGame, 5, MENU_NONE}
 };
 
 static Menu_t SaveMenu = {
-    70, 30,
+    70, 18,
     DrawSaveMenu,
-    6, SaveItems,
+    SAVES_PER_PAGE, SaveItems,
     0,
-    false,
+    NoFont, true, true,
     MENU_FILES
 };
 
@@ -316,7 +321,7 @@ static Menu_t SkillMenu = {
     DrawSkillMenu,
     5, SkillItems,
     2,
-    false,
+    BigFont, false, false,
     MENU_EPISODE
 };
 
@@ -333,7 +338,7 @@ static Menu_t OptionsMenu = {
     DrawOptionsMenu,
     5, OptionsItems,
     0,
-    false,
+    BigFont, false, false,
     MENU_CRLMAIN
 };
 
@@ -351,7 +356,7 @@ static Menu_t Options2Menu = {
     DrawOptions2Menu,
     6, Options2Items,
     0,
-    false,
+    BigFont, false, false,
     MENU_OPTIONS
 };
 
@@ -362,16 +367,310 @@ static Menu_t Options2Menu = {
 #define CRL_MENU_TOPOFFSET     (30)
 #define CRL_MENU_LEFTOFFSET    (48)
 #define CRL_MENU_RIGHTOFFSET   (SCREENWIDTH - CRL_MENU_LEFTOFFSET)
-
 #define CRL_MENU_LEFTOFFSET_SML    (72)
 #define CRL_MENU_RIGHTOFFSET_SML   (SCREENWIDTH - CRL_MENU_LEFTOFFSET_SML)
 
-#define ITEM_HEIGHT_SMALL        10
-#define SELECTOR_XOFFSET_SMALL  -10
+#define ID_MENU_LINEHEIGHT_SMALL  (10)
+#define ID_MENU_CURSOR_OFFSET     (10)
+
+// Utility function to align menu item names by the right side.
+static int M_ItemRightAlign (const char *text)
+{
+    return SCREENWIDTH - CurrentMenu->x - MN_TextAWidth(text);
+}
 
 static player_t *player;
 
-static byte *M_Line_Glow (const int tics)
+static void DrawCRLMain (void);
+
+static void CRL_Spectating (int option);
+static void CRL_Freeze (int option);
+static void CRL_NoTarget (int option);
+static void CRL_NoMomentum (int option);
+
+static void DrawCRLVideo (void);
+static void CRL_UncappedFPS (int option);
+static void CRL_LimitFPS (int option);
+static void CRL_VSync (int option);
+static void CRL_ShowFPS (int option);
+static void CRL_PixelScaling (int option);
+static void CRL_VisplanesDraw (int option);
+static void CRL_HOMDraw (int option);
+static void CRL_Gamma (int option);
+static void CRL_MenuBgShading (int option);
+static void CRL_LevelBrightness (int option);
+static void CRL_MsgCritical (int option);
+static void CRL_GfxStartup (int option);
+static void CRL_EndText (int option);
+static void CRL_Colorblind (int option);
+
+static void DrawCRLDisplay (void);
+static void CRL_TextShadows (int option);
+
+static void DrawCRLSound (void);
+static void CRL_MusicSystem (int option);
+static void CRL_SFXMode (int option);
+static void CRL_PitchShift (int option);
+static void CRL_SFXChannels (int option);
+
+static void DrawCRLControls (void);
+static void CRL_Controls_Acceleration (int option);
+static void CRL_Controls_Threshold (int option);
+static void CRL_Controls_MLook (int option);
+static void CRL_Controls_NoVert (int option);
+
+static void DrawCRLKbd1 (void);
+static void M_Bind_MoveForward (int option);
+static void M_Bind_MoveBackward (int option);
+static void M_Bind_TurnLeft (int option);
+static void M_Bind_TurnRight (int option);
+static void M_Bind_StrafeLeft (int option);
+static void M_Bind_StrafeRight (int option);
+static void M_Bind_SpeedOn (int option);
+static void M_Bind_StrafeOn (int option);
+static void M_Bind_FireAttack (int option);
+static void M_Bind_Use (int option);
+
+static void DrawCRLKbd2 (void);
+static void M_Bind_LookUp (int option);
+static void M_Bind_LookDown (int option);
+static void M_Bind_LookCenter (int option);
+static void M_Bind_FlyUp (int option);
+static void M_Bind_FlyDown (int option);
+static void M_Bind_FlyCenter (int option);
+static void M_Bind_InvLeft (int option);
+static void M_Bind_InvRight (int option);
+static void M_Bind_UseArti (int option);
+
+static void DrawCRLKbd3 (void);
+static void M_Bind_CRLmenu (int option);
+static void M_Bind_RestartLevel (int option);
+static void M_Bind_NextLevel (int option);
+static void M_Bind_FastForward (int option);
+static void M_Bind_SpectatorMode (int option);
+static void M_Bind_CameraUp (int option);
+static void M_Bind_CameraDown (int option);
+static void M_Bind_FreezeMode (int option);
+static void M_Bind_NotargetMode (int option);
+
+static void DrawCRLKbd4 (void);
+static void M_Bind_AlwaysRun (int option);
+static void M_Bind_MouseLook (int option);
+static void M_Bind_VileBomb (int option);
+static void M_Bind_ClearMAX (int option);
+static void M_Bind_MoveToMAX (int option);
+static void M_Bind_IDDQD (int option);
+static void M_Bind_IDFA (int option);
+static void M_Bind_IDCLIP (int option);
+static void M_Bind_IDDT (int option);
+
+static void DrawCRLKbd5 (void);
+static void M_Bind_Weapon1 (int option);
+static void M_Bind_Weapon2 (int option);
+static void M_Bind_Weapon3 (int option);
+static void M_Bind_Weapon4 (int option);
+static void M_Bind_Weapon5 (int option);
+static void M_Bind_Weapon6 (int option);
+static void M_Bind_Weapon7 (int option);
+static void M_Bind_Weapon8 (int option);
+static void M_Bind_PrevWeapon (int option);
+static void M_Bind_NextWeapon (int option);
+
+static void DrawCRLKbd6 (void);
+static void M_Bind_Quartz (int option);
+static void M_Bind_Urn (int option);
+static void M_Bind_Bomb (int option);
+static void M_Bind_Tome (int option);
+static void M_Bind_Ring (int option);
+static void M_Bind_Chaosdevice (int option);
+static void M_Bind_Shadowsphere (int option);
+static void M_Bind_Wings (int option);
+static void M_Bind_Torch (int option);
+static void M_Bind_Morph (int option);
+
+static void DrawCRLKbd7 (void);
+static void M_Bind_ToggleMap (int option);
+static void M_Bind_ZoomIn (int option);
+static void M_Bind_ZoomOut (int option);
+static void M_Bind_MaxZoom (int option);
+static void M_Bind_FollowMode (int option);
+// static void M_Bind_RotateMode (int option);
+// static void M_Bind_OverlayMode (int option);
+static void M_Bind_ToggleGrid (int option);
+
+static void DrawCRLKbd8 (void);
+static void M_Bind_HelpScreen (int option);
+static void M_Bind_SaveGame (int option);
+static void M_Bind_LoadGame (int option);
+static void M_Bind_SoundVolume (int option);
+static void M_Bind_QuickSave (int option);
+static void M_Bind_EndGame (int option);
+static void M_Bind_ToggleMessages (int option);
+static void M_Bind_QuickLoad (int option);
+static void M_Bind_QuitGame (int option);
+static void M_Bind_ToggleGamma (int option);
+static void M_Bind_MultiplayerSpy (int option);
+
+static void DrawCRLKbd9 (void);
+static void M_Bind_Pause (int option);
+static void M_Bind_SaveScreenshot (int option);
+static void M_Bind_FinishDemo (int option);
+static void M_Bind_SendMessage (int option);
+static void M_Bind_ToPlayer1 (int option);
+static void M_Bind_ToPlayer2 (int option);
+static void M_Bind_ToPlayer3 (int option);
+static void M_Bind_ToPlayer4 (int option);
+static void M_Bind_Reset (int option);
+
+static void DrawCRLMouse (void);
+static void M_Bind_M_FireAttack (int option);
+static void M_Bind_M_MoveForward (int option);
+static void M_Bind_M_StrafeOn (int option);
+static void M_Bind_M_MoveBackward (int option);
+static void M_Bind_M_Use (int option);
+static void M_Bind_M_StrafeLeft (int option);
+static void M_Bind_M_StrafeRight (int option);
+static void M_Bind_M_PrevWeapon (int option);
+static void M_Bind_M_NextWeapon (int option);
+static void M_Bind_M_InventoryLeft (int option);
+static void M_Bind_M_InventoryRight (int option);
+static void M_Bind_M_UseArtifact (int option);
+
+static void M_Bind_M_Reset (int option);
+
+static void DrawCRLWidgets (void);
+static void CRL_Widget_Coords (int option);
+static void CRL_Widget_Playstate (int option);
+static void CRL_Widget_Render (int option);
+static void CRL_Widget_KIS (int option);
+static void CRL_Widget_Time (int option);
+static void CRL_Widget_Powerups (int option);
+static void CRL_Widget_Health (int option);
+static void CRL_Automap_Secrets (int option);
+
+static void DrawCRLGameplay (void);
+static void CRL_DefaulSkill (int option);
+static void CRL_PistolStart (int option);
+static void CRL_ColoredSBar (int option);
+static void CRL_RestoreTargets (int option);
+static void CRL_DemoTimer (int option);
+static void CRL_TimerDirection (int option);
+static void CRL_ProgressBar (int option);
+static void CRL_InternalDemos (int option);
+
+static void DrawCRLLimits (void);
+static void CRL_SaveSizeWarning (int option);
+static void CRL_Limits (int option);
+
+// Keyboard binding prototypes
+static boolean KbdIsBinding;
+static int     keyToBind;
+
+static char   *M_NameBind (int itemSetOn, int key);
+static void    M_StartBind (int keynum);
+static void    M_CheckBind (int key);
+static void    M_DoBind (int keynum, int key);
+static void    M_ClearBind (int itemOn);
+static byte   *M_ColorizeBind (int itemSetOn, int key);
+static void    M_ResetBinds (void);
+static void    M_DrawBindKey (int itemNum, int yPos, int keyBind);
+static void    M_DrawBindFooter (int y, char *pagenum, boolean drawPages);
+
+// Mouse binding prototypes
+static boolean MouseIsBinding;
+static int     btnToBind;
+
+static char   *M_NameMouseBind (int CurrentItPosOn, int btn);
+static void    M_StartMouseBind (int btn);
+static void    M_CheckMouseBind (int btn);
+static void    M_DoMouseBind (int btnnum, int btn);
+static void    M_ClearMouseBind (int itemOn);
+static byte   *M_ColorizeMouseBind (int CurrentItPosOn, int btn);
+static void    M_DrawBindButton (int itemNum, int yPos, int btnBind);
+static void    M_ResetMouseBinds (void);
+
+// Forward declarations for scrolling and remembering last pages.
+static Menu_t CRLKbdBinds1;
+static Menu_t CRLKbdBinds2;
+static Menu_t CRLKbdBinds3;
+static Menu_t CRLKbdBinds4;
+static Menu_t CRLKbdBinds5;
+static Menu_t CRLKbdBinds6;
+static Menu_t CRLKbdBinds7;
+static Menu_t CRLKbdBinds8;
+static Menu_t CRLKbdBinds9;
+
+// Remember last keybindings page.
+static int Keybinds_Cur;
+
+static void CRL_Choose_Keybinds (int choice)
+{
+    SetMenu(Keybinds_Cur);
+}
+
+// Utility function for scrolling pages by arrows / PG keys.
+static void M_ScrollPages (boolean direction)
+{
+    // Save/Load menu:
+    if (CurrentMenu == &LoadMenu || CurrentMenu == &SaveMenu)
+    {
+        if (savepage > 0 && !direction)
+        {
+            savepage--;
+            S_StartSound(NULL, sfx_switch);
+        }
+        else
+        if (savepage < SAVEPAGE_MAX && direction)
+        {
+            savepage++;
+            S_StartSound(NULL, sfx_switch);
+        }
+        quicksave = -1;
+        MN_LoadSlotText();
+        return;
+    }
+
+    // Keyboard bindings:
+    else if (CurrentMenu == &CRLKbdBinds1) SetMenu(direction ? MENU_CRLKBDBINDS2 : MENU_CRLKBDBINDS9);
+    else if (CurrentMenu == &CRLKbdBinds2) SetMenu(direction ? MENU_CRLKBDBINDS3 : MENU_CRLKBDBINDS1);
+    else if (CurrentMenu == &CRLKbdBinds3) SetMenu(direction ? MENU_CRLKBDBINDS4 : MENU_CRLKBDBINDS2);
+    else if (CurrentMenu == &CRLKbdBinds4) SetMenu(direction ? MENU_CRLKBDBINDS5 : MENU_CRLKBDBINDS3);
+    else if (CurrentMenu == &CRLKbdBinds5) SetMenu(direction ? MENU_CRLKBDBINDS6 : MENU_CRLKBDBINDS4);
+    else if (CurrentMenu == &CRLKbdBinds6) SetMenu(direction ? MENU_CRLKBDBINDS7 : MENU_CRLKBDBINDS5);
+    else if (CurrentMenu == &CRLKbdBinds7) SetMenu(direction ? MENU_CRLKBDBINDS8 : MENU_CRLKBDBINDS6);
+    else if (CurrentMenu == &CRLKbdBinds8) SetMenu(direction ? MENU_CRLKBDBINDS1 : MENU_CRLKBDBINDS7);
+    else if (CurrentMenu == &CRLKbdBinds9) SetMenu(direction ? MENU_CRLKBDBINDS1 : MENU_CRLKBDBINDS8);
+
+    // Play sound.
+    S_StartSound(NULL, sfx_switch);
+}
+// -----------------------------------------------------------------------------
+
+// [JN] Delay before shading.
+static int shade_wait;
+
+// [JN] Shade background while in CRL menu.
+static void M_ShadeBackground (void)
+{
+    // Return earlier if shading disabled.
+    if (crl_menu_shading)
+    {
+        for (int y = 0; y < SCREENWIDTH * SCREENHEIGHT; y++)
+        {
+            I_VideoBuffer[y] = colormaps[crl_menu_shading * 256 + I_VideoBuffer[y]];
+        }
+    }
+}
+
+static void M_FillBackground (void)
+{
+    const byte *src = W_CacheLumpName("FLOOR16", PU_CACHE);
+    pixel_t *dest = I_VideoBuffer;
+
+    V_FillFlat(0, SCREENHEIGHT, 0, SCREENWIDTH, src, dest);
+}
+
+static byte *M_Small_Line_Glow (const int tics)
 {
     return
         tics == 5 ? cr[CR_MENU_BRIGHT2] :
@@ -379,17 +678,29 @@ static byte *M_Line_Glow (const int tics)
         tics == 3 ? NULL :
         tics == 2 ? cr[CR_MENU_DARK1]   :
                     cr[CR_MENU_DARK2]   ;
-        /*            
-        tics == 1 ? cr[CR_MENU_DARK2]  :
-                    cr[CR_MENU_DARK3]  ;
-        */
 }
+
+/*
+static byte *M_Big_Line_Glow (const int tics)
+{
+    return
+        tics == 5 ? cr[CR_MENU_BRIGHT3] :
+        tics >= 3 ? cr[CR_MENU_BRIGHT2] :
+        tics >= 1 ? cr[CR_MENU_BRIGHT1] : NULL;
+}
+*/
 
 #define GLOW_UNCOLORED  0
 #define GLOW_RED        1
 #define GLOW_DARKRED    2
 #define GLOW_GREEN      3
-#define GLOW_DARKGREEN  4
+#define GLOW_YELLOW     4
+#define GLOW_ORANGE     5
+#define GLOW_LIGHTGRAY  6
+#define GLOW_DARKGRAY   7
+#define GLOW_BLUE       8
+#define GLOW_OLIVE      9
+#define GLOW_DARKGREEN  10
 
 #define ITEMONTICS      CurrentMenu->items[CurrentItPos].tics
 #define ITEMSETONTICS   CurrentMenu->items[CurrentItPosOn].tics
@@ -399,9 +710,17 @@ static byte *M_Item_Glow (const int CurrentItPosOn, const int color)
     if (CurrentItPos == CurrentItPosOn)
     {
         return
-            color == GLOW_RED   || color == GLOW_DARKRED   ? cr[CR_RED_BRIGHT5]   :
-            color == GLOW_GREEN || color == GLOW_DARKGREEN ? cr[CR_GREEN_BRIGHT5] :
-                                                             cr[CR_MENU_BRIGHT5]  ; // GLOW_UNCOLORED
+            color == GLOW_RED ||
+            color == GLOW_DARKRED   ? cr[CR_RED_BRIGHT5]       :
+            color == GLOW_GREEN     ? cr[CR_GREEN_BRIGHT5]     :
+            color == GLOW_YELLOW    ? cr[CR_YELLOW_BRIGHT5]    :
+            color == GLOW_ORANGE    ? cr[CR_ORANGE_HR_BRIGHT5] :
+            color == GLOW_LIGHTGRAY ? cr[CR_LIGHTGRAY_BRIGHT5] :
+            color == GLOW_DARKGRAY  ? cr[CR_MENU_DARK1]        :
+            color == GLOW_BLUE      ? cr[CR_BLUE2_BRIGHT5]     :
+            color == GLOW_OLIVE     ? cr[CR_OLIVE_BRIGHT5]     :
+            color == GLOW_DARKGREEN ? cr[CR_DARKGREEN_BRIGHT5] :
+                                      cr[CR_MENU_BRIGHT5]      ; // GLOW_UNCOLORED
     }
     else
     {
@@ -441,14 +760,68 @@ static byte *M_Item_Glow (const int CurrentItPosOn, const int color)
                 ITEMSETONTICS == 2 ? cr[CR_GREEN_BRIGHT2] :
                 ITEMSETONTICS == 1 ? cr[CR_GREEN_BRIGHT1] : cr[CR_GREEN];
         }
+        if (color == GLOW_YELLOW)
+        {
+            return
+                ITEMSETONTICS == 5 ? cr[CR_YELLOW_BRIGHT5] :
+                ITEMSETONTICS == 4 ? cr[CR_YELLOW_BRIGHT4] :
+                ITEMSETONTICS == 3 ? cr[CR_YELLOW_BRIGHT3] :
+                ITEMSETONTICS == 2 ? cr[CR_YELLOW_BRIGHT2] :
+                ITEMSETONTICS == 1 ? cr[CR_YELLOW_BRIGHT1] : cr[CR_YELLOW];
+        }
+        if (color == GLOW_ORANGE)
+        {
+            return
+                ITEMSETONTICS == 5 ? cr[CR_ORANGE_HR_BRIGHT5] :
+                ITEMSETONTICS == 4 ? cr[CR_ORANGE_HR_BRIGHT4] :
+                ITEMSETONTICS == 3 ? cr[CR_ORANGE_HR_BRIGHT3] :
+                ITEMSETONTICS == 2 ? cr[CR_ORANGE_HR_BRIGHT2] :
+                ITEMSETONTICS == 1 ? cr[CR_ORANGE_HR_BRIGHT1] : cr[CR_ORANGE_HR];
+        }
+        if (color == GLOW_LIGHTGRAY)
+        {
+            return
+                ITEMSETONTICS == 5 ? cr[CR_LIGHTGRAY_BRIGHT5] :
+                ITEMSETONTICS == 4 ? cr[CR_LIGHTGRAY_BRIGHT4] :
+                ITEMSETONTICS == 3 ? cr[CR_LIGHTGRAY_BRIGHT3] :
+                ITEMSETONTICS == 2 ? cr[CR_LIGHTGRAY_BRIGHT2] :
+                ITEMSETONTICS == 1 ? cr[CR_LIGHTGRAY_BRIGHT1] : cr[CR_LIGHTGRAY];
+        }
+        if (color == GLOW_DARKGRAY)
+        {
+            return
+                ITEMSETONTICS == 5 ? cr[CR_MENU_DARK1] :
+                ITEMSETONTICS == 4 ? cr[CR_MENU_DARK2] :
+                ITEMSETONTICS == 3 ? cr[CR_MENU_DARK3] :
+                ITEMSETONTICS == 2 ? cr[CR_MENU_DARK4] :
+                ITEMSETONTICS == 1 ? cr[CR_MENU_DARK4] : cr[CR_MENU_DARK4];
+        }
+        if (color == GLOW_BLUE)
+        {
+            return
+                ITEMSETONTICS == 5 ? cr[CR_BLUE2_BRIGHT5] :
+                ITEMSETONTICS == 4 ? cr[CR_BLUE2_BRIGHT4] :
+                ITEMSETONTICS == 3 ? cr[CR_BLUE2_BRIGHT3] :
+                ITEMSETONTICS == 2 ? cr[CR_BLUE2_BRIGHT2] :
+                ITEMSETONTICS == 1 ? cr[CR_BLUE2_BRIGHT1] : cr[CR_BLUE2];
+        }
+        if (color == GLOW_OLIVE)
+        {
+            return
+                ITEMSETONTICS == 5 ? cr[CR_OLIVE_BRIGHT5] :
+                ITEMSETONTICS == 4 ? cr[CR_OLIVE_BRIGHT4] :
+                ITEMSETONTICS == 3 ? cr[CR_OLIVE_BRIGHT3] :
+                ITEMSETONTICS == 2 ? cr[CR_OLIVE_BRIGHT2] :
+                ITEMSETONTICS == 1 ? cr[CR_OLIVE_BRIGHT1] : cr[CR_OLIVE];
+        }
         if (color == GLOW_DARKGREEN)
         {
             return
-                ITEMSETONTICS == 5 ? cr[CR_GREEN_BRIGHT5] :
-                ITEMSETONTICS == 4 ? cr[CR_GREEN_BRIGHT4] :
-                ITEMSETONTICS == 3 ? cr[CR_GREEN_BRIGHT3] :
-                ITEMSETONTICS == 2 ? cr[CR_GREEN_BRIGHT2] :
-                ITEMSETONTICS == 1 ? cr[CR_GREEN_BRIGHT1] : cr[CR_DARKGREEN];
+                ITEMSETONTICS == 5 ? cr[CR_DARKGREEN_BRIGHT5] :
+                ITEMSETONTICS == 4 ? cr[CR_DARKGREEN_BRIGHT4] :
+                ITEMSETONTICS == 3 ? cr[CR_DARKGREEN_BRIGHT3] :
+                ITEMSETONTICS == 2 ? cr[CR_DARKGREEN_BRIGHT2] :
+                ITEMSETONTICS == 1 ? cr[CR_DARKGREEN_BRIGHT1] : cr[CR_DARKGREEN];
         }
     }
     return NULL;
@@ -457,44 +830,70 @@ static byte *M_Item_Glow (const int CurrentItPosOn, const int color)
 static byte *M_Cursor_Glow (const int tics)
 {
     return
-        tics >  6 ? cr[CR_MENU_BRIGHT3] :
-        tics >  4 ? cr[CR_MENU_BRIGHT2] :
-        tics >  2 ? cr[CR_MENU_BRIGHT1] :
-        tics > -1 ? NULL                :
-        tics > -3 ? cr[CR_MENU_DARK1]   :
-        tics > -5 ? cr[CR_MENU_DARK2]   :
-        tics > -7 ? cr[CR_MENU_DARK3]   :
-        tics > -9 ? cr[CR_MENU_DARK4]   : NULL;
+        tics ==  8 || tics ==  7 ? cr[CR_MENU_BRIGHT4] :
+        tics ==  6 || tics ==  5 ? cr[CR_MENU_BRIGHT3] :
+        tics ==  4 || tics ==  3 ? cr[CR_MENU_BRIGHT2] :
+        tics ==  2 || tics ==  1 ? cr[CR_MENU_BRIGHT1] :
+        tics == -1 || tics == -2 ? cr[CR_MENU_DARK1]   :
+        tics == -3 || tics == -4 ? cr[CR_MENU_DARK2]   :
+        tics == -5 || tics == -6 ? cr[CR_MENU_DARK3]   :
+        tics == -7 || tics == -8 ? cr[CR_MENU_DARK4]   : NULL;
 }
 
-static const int M_INT_Slider (int val, int min, int max, int direction)
+static const int M_INT_Slider (int val, int min, int max, int direction, boolean capped)
 {
     switch (direction)
     {
         case 0:
         val--;
         if (val < min) 
-            val = max;
+            val = capped ? min : max;
         break;
 
         case 1:
         val++;
         if (val > max)
-            val = min;
+            val = capped ? max : min;
         break;
     }
     return val;
 }
 
-static byte *DefSkillColor (const int skill)
+static const float M_FLOAT_Slider (float val, float min, float max, float step,
+                                   int direction, boolean capped)
+{
+    char buf[9];
+
+    switch (direction)
+    {
+        case 0:
+        val -= step;
+        if (val < min) 
+            val = capped ? min : max;
+        break;
+
+        case 1:
+        val += step;
+        if (val > max)
+            val = capped ? max : min;
+        break;
+    }
+
+    // [JN] Do a float correction to always get x.xxx000 values:
+    sprintf (buf, "%f", val);
+    val = (float)atof(buf);
+    return val;
+}
+
+static int DefSkillColor (const int skill)
 {
     return
-        skill == 0 ? cr[CR_OLIVE]     :
-        skill == 1 ? cr[CR_DARKGREEN] :
-        skill == 2 ? cr[CR_GREEN]     :
-        skill == 3 ? cr[CR_YELLOW]    :
-        skill == 4 ? cr[CR_RED]       :
-                     NULL;
+        skill == 0 ? GLOW_OLIVE     :
+        skill == 1 ? GLOW_DARKGREEN :
+        skill == 2 ? GLOW_GREEN     :
+        skill == 3 ? GLOW_YELLOW    :
+        skill == 4 ? GLOW_ORANGE    :
+                     GLOW_RED       ;
 }
 
 static char *const DefSkillName[5] = 
@@ -505,224 +904,6 @@ static char *const DefSkillName[5] =
     "SMITE-MEISTER" ,
     "BLACK PLAGUE"
 };
-
-static void DrawCRLMain (void);
-static boolean CRL_Spectating (int option);
-static boolean CRL_Freeze (int option);
-static boolean CRL_NoTarget (int option);
-static boolean CRL_NoMomentum (int option);
-
-static void DrawCRLVideo (void);
-static boolean CRL_UncappedFPS (int option);
-static boolean CRL_LimitFPS (int option);
-static boolean CRL_VSync (int option);
-static boolean CRL_ShowFPS (int option);
-static boolean CRL_VisplanesDraw (int option);
-static boolean CRL_HOMDraw (int option);
-static boolean CRL_Gamma (int option);
-static boolean CRL_TextShadows (int option);
-static boolean CRL_GfxStartup (int option);
-static boolean CRL_EndText (int option);
-
-static void DrawCRLSound (void);
-static boolean CRL_MusicSystem (int option);
-static boolean CRL_SFXMode (int option);
-static boolean CRL_PitchShift (int option);
-static boolean CRL_SFXChannels (int option);
-
-static void DrawCRLControls (void);
-static boolean CRL_Controls_Acceleration (int option);
-static boolean CRL_Controls_Threshold (int option);
-static boolean CRL_Controls_MLook (int option);
-static boolean CRL_Controls_NoVert (int option);
-
-static void DrawCRLKbd1 (void);
-static boolean M_Bind_MoveForward (int option);
-static boolean M_Bind_MoveBackward (int option);
-static boolean M_Bind_TurnLeft (int option);
-static boolean M_Bind_TurnRight (int option);
-static boolean M_Bind_StrafeLeft (int option);
-static boolean M_Bind_StrafeRight (int option);
-static boolean M_Bind_SpeedOn (int option);
-static boolean M_Bind_StrafeOn (int option);
-static boolean M_Bind_FireAttack (int option);
-static boolean M_Bind_Use (int option);
-
-static void DrawCRLKbd2 (void);
-static boolean M_Bind_LookUp (int option);
-static boolean M_Bind_LookDown (int option);
-static boolean M_Bind_LookCenter (int option);
-static boolean M_Bind_FlyUp (int option);
-static boolean M_Bind_FlyDown (int option);
-static boolean M_Bind_FlyCenter (int option);
-static boolean M_Bind_InvLeft (int option);
-static boolean M_Bind_InvRight (int option);
-static boolean M_Bind_UseArti (int option);
-
-static void DrawCRLKbd3 (void);
-static boolean M_Bind_CRLmenu (int option);
-static boolean M_Bind_RestartLevel (int option);
-static boolean M_Bind_NextLevel (int option);
-static boolean M_Bind_FastForward (int option);
-static boolean M_Bind_SpectatorMode (int option);
-static boolean M_Bind_CameraUp (int option);
-static boolean M_Bind_CameraDown (int option);
-static boolean M_Bind_FreezeMode (int option);
-static boolean M_Bind_NotargetMode (int option);
-
-static void DrawCRLKbd4 (void);
-static boolean M_Bind_AlwaysRun (int option);
-static boolean M_Bind_MouseLook (int option);
-static boolean M_Bind_VileBomb (int option);
-static boolean M_Bind_ClearMAX (int option);
-static boolean M_Bind_MoveToMAX (int option);
-static boolean M_Bind_IDDQD (int option);
-static boolean M_Bind_IDFA (int option);
-static boolean M_Bind_IDCLIP (int option);
-static boolean M_Bind_IDDT (int option);
-
-static void DrawCRLKbd5 (void);
-static boolean M_Bind_Weapon1 (int option);
-static boolean M_Bind_Weapon2 (int option);
-static boolean M_Bind_Weapon3 (int option);
-static boolean M_Bind_Weapon4 (int option);
-static boolean M_Bind_Weapon5 (int option);
-static boolean M_Bind_Weapon6 (int option);
-static boolean M_Bind_Weapon7 (int option);
-static boolean M_Bind_Weapon8 (int option);
-static boolean M_Bind_PrevWeapon (int option);
-static boolean M_Bind_NextWeapon (int option);
-
-static void DrawCRLKbd6 (void);
-static boolean M_Bind_Quartz (int option);
-static boolean M_Bind_Urn (int option);
-static boolean M_Bind_Bomb (int option);
-static boolean M_Bind_Tome (int option);
-static boolean M_Bind_Ring (int option);
-static boolean M_Bind_Chaosdevice (int option);
-static boolean M_Bind_Shadowsphere (int option);
-static boolean M_Bind_Wings (int option);
-static boolean M_Bind_Torch (int option);
-static boolean M_Bind_Morph (int option);
-
-static void DrawCRLKbd7 (void);
-static boolean M_Bind_ToggleMap (int option);
-static boolean M_Bind_ZoomIn (int option);
-static boolean M_Bind_ZoomOut (int option);
-static boolean M_Bind_MaxZoom (int option);
-static boolean M_Bind_FollowMode (int option);
-// static boolean M_Bind_RotateMode (int option);
-// static boolean M_Bind_OverlayMode (int option);
-static boolean M_Bind_ToggleGrid (int option);
-
-static void DrawCRLKbd8 (void);
-static boolean M_Bind_HelpScreen (int option);
-static boolean M_Bind_SaveGame (int option);
-static boolean M_Bind_LoadGame (int option);
-static boolean M_Bind_SoundVolume (int option);
-static boolean M_Bind_QuickSave (int option);
-static boolean M_Bind_EndGame (int option);
-static boolean M_Bind_ToggleMessages (int option);
-static boolean M_Bind_QuickLoad (int option);
-static boolean M_Bind_QuitGame (int option);
-static boolean M_Bind_ToggleGamma (int option);
-static boolean M_Bind_MultiplayerSpy (int option);
-
-static void DrawCRLKbd9 (void);
-static boolean M_Bind_Pause (int option);
-static boolean M_Bind_SaveScreenshot (int option);
-static boolean M_Bind_FinishDemo (int option);
-static boolean M_Bind_SendMessage (int option);
-static boolean M_Bind_ToPlayer1 (int option);
-static boolean M_Bind_ToPlayer2 (int option);
-static boolean M_Bind_ToPlayer3 (int option);
-static boolean M_Bind_ToPlayer4 (int option);
-static boolean M_Bind_Reset (int option);
-
-static void DrawCRLMouse (void);
-static boolean M_Bind_M_FireAttack (int option);
-static boolean M_Bind_M_MoveForward (int option);
-static boolean M_Bind_M_StrafeOn (int option);
-static boolean M_Bind_M_MoveBackward (int option);
-static boolean M_Bind_M_Use (int option);
-static boolean M_Bind_M_StrafeLeft (int option);
-static boolean M_Bind_M_StrafeRight (int option);
-static boolean M_Bind_M_PrevWeapon (int option);
-static boolean M_Bind_M_NextWeapon (int option);
-
-static void DrawCRLWidgets (void);
-static boolean CRL_Widget_Coords (int option);
-static boolean CRL_Widget_Playstate (int option);
-static boolean CRL_Widget_Render (int option);
-static boolean CRL_Widget_KIS (int option);
-static boolean CRL_Widget_Time (int option);
-static boolean CRL_Widget_Powerups (int option);
-static boolean CRL_Widget_Health (int option);
-static boolean CRL_Automap_Secrets (int option);
-
-static void DrawCRLGameplay (void);
-static boolean CRL_DefaulSkill (int option);
-static boolean CRL_PistolStart (int option);
-static boolean CRL_ColoredSBar (int option);
-static boolean CRL_RestoreTargets (int option);
-static boolean CRL_DemoTimer (int option);
-static boolean CRL_TimerDirection (int option);
-static boolean CRL_ProgressBar (int option);
-static boolean CRL_InternalDemos (int option);
-
-static void DrawCRLLimits (void);
-static boolean CRL_ZMalloc (int option);
-static boolean CRL_SaveSizeWarning (int option);
-static boolean CRL_DemoSizeWarning (int option);
-static boolean CRL_Limits (int option);
-
-// Keyboard binding prototypes
-static boolean KbdIsBinding;
-static int     keyToBind;
-
-static char   *M_NameBind (int itemSetOn, int key);
-static void    M_StartBind (int keynum);
-static void    M_CheckBind (int key);
-static void    M_DoBind (int keynum, int key);
-static void    M_ClearBind (int itemOn);
-static byte   *M_ColorizeBind (int itemSetOn, int key);
-static void    M_ResetBinds (void);
-static void    M_DrawBindKey (int itemNum, int yPos, int keyBind);
-static void    M_DrawBindFooter (char *pagenum, boolean drawPages);
-static void    M_ScrollKeyBindPages (boolean direction);
-
-#define KBD_BIND_MENUS (CurrentMenu == &CRLKbdBinds1 || CurrentMenu == &CRLKbdBinds2 || \
-                        CurrentMenu == &CRLKbdBinds3 || CurrentMenu == &CRLKbdBinds4 || \
-                        CurrentMenu == &CRLKbdBinds5 || CurrentMenu == &CRLKbdBinds6 || \
-                        CurrentMenu == &CRLKbdBinds7 || CurrentMenu == &CRLKbdBinds8 || \
-                        CurrentMenu == &CRLKbdBinds9)
-
-// Mouse binding prototypes
-static boolean MouseIsBinding;
-static int     btnToBind;
-
-static char   *M_NameMouseBind (int CurrentItPosOn, int btn);
-static void    M_StartMouseBind (int btn);
-static void    M_CheckMouseBind (int btn);
-static void    M_DoMouseBind (int btnnum, int btn);
-static void    M_ClearMouseBind (int itemOn);
-static byte   *M_ColorizeMouseBind (int CurrentItPosOn, int btn);
-static void    M_DrawBindButton (int itemNum, int yPos, int btnBind);
-
-// -----------------------------------------------------------------------------
-
-// [JN] Delay before shading.
-static int shade_wait;
-
-// [JN] Shade background while in CRL menu.
-static void M_ShadeBackground (void)
-{
-    for (int y = 0; y < SCREENWIDTH * SCREENHEIGHT; y++)
-    {
-        I_VideoBuffer[y] = colormaps[12 * 256 + I_VideoBuffer[y]];
-    }
-    SB_state = -1;  // Refresh the statbar.
-}
 
 // -----------------------------------------------------------------------------
 // Main CRL Menu
@@ -735,6 +916,7 @@ static MenuItem_t CRLMainItems[] = {
     {ITT_LRFUNC,  "NO MOMENTUM MODE",     CRL_NoMomentum, 0, MENU_NONE},
     {ITT_EMPTY,   NULL,                   NULL,           0, MENU_NONE},
     {ITT_SETMENU, "VIDEO OPTIONS",        NULL,           0, MENU_CRLVIDEO},
+    {ITT_SETMENU, "DISPLAY OPTIONS",      NULL,           0, MENU_CRLDISPLAY},
     {ITT_SETMENU, "SOUND OPTIONS",        NULL,           0, MENU_CRLSOUND},
     {ITT_SETMENU, "CONTROL SETTINGS",     NULL,           0, MENU_CRLCONTROLS},
     {ITT_SETMENU, "WIDGETS AND AUTOMAP",  NULL,           0, MENU_CRLWIDGETS},
@@ -746,17 +928,15 @@ static MenuItem_t CRLMainItems[] = {
 static Menu_t CRLMain = {
     CRL_MENU_LEFTOFFSET_SML, CRL_MENU_TOPOFFSET,
     DrawCRLMain,
-    12, CRLMainItems,
+    13, CRLMainItems,
     0,
-    true,
+    SmallFont, false, false,
     MENU_MAIN
 };
 
 static void DrawCRLMain (void)
 {
-    static char str[32];
-
-    M_ShadeBackground();
+    char str[32];
 
     MN_DrTextACentered("MAIN MENU", 20, cr[CR_YELLOW]);
 
@@ -788,42 +968,38 @@ static void DrawCRLMain (void)
     MN_DrTextACentered ("SETTINGS", 70, cr[CR_YELLOW]);
 }
 
-static boolean CRL_Spectating (int option)
+static void CRL_Spectating (int option)
 {
     crl_spectating ^= 1;
-    return true;
 }
 
-static boolean CRL_Freeze (int option)
+static void CRL_Freeze (int option)
 {
     if (!singleplayer)
     {
-        return false;
+        return;
     }
     crl_freeze ^= 1;
-    return true;
 }
 
-static boolean CRL_NoTarget (int choice)
+static void CRL_NoTarget (int choice)
 {
     if (!singleplayer)
     {
-        return false;
+        return;
     }
 
     player->cheats ^= CF_NOTARGET;
-    return true;
 }
 
-static boolean CRL_NoMomentum (int choice)
+static void CRL_NoMomentum (int choice)
 {
     if (!singleplayer)
     {
-        return false;
+        return;
     }
 
     player->cheats ^= CF_NOMOMENTUM;
-    return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -831,109 +1007,126 @@ static boolean CRL_NoMomentum (int choice)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLVideoItems[] = {
-    {ITT_LRFUNC, "UNCAPPED FRAMERATE",  CRL_UncappedFPS,   0, MENU_NONE},
-    {ITT_LRFUNC, "FRAMERATE LIMIT",     CRL_LimitFPS,      0, MENU_NONE},
-    {ITT_LRFUNC, "ENABLE VSYNC",        CRL_VSync,         0, MENU_NONE},
-    {ITT_LRFUNC, "SHOW FPS COUNTER",    CRL_ShowFPS,       0, MENU_NONE},
-    {ITT_LRFUNC, "VISPLANES DRAWING",   CRL_VisplanesDraw, 0, MENU_NONE},
-    {ITT_LRFUNC, "HOM EFFECT",          CRL_HOMDraw,       0, MENU_NONE},
-    {ITT_LRFUNC, "GAMMA-CORRECTION",    CRL_Gamma,         0, MENU_NONE},
-    {ITT_EMPTY,  NULL,                  NULL,              0, MENU_NONE},
-    {ITT_EMPTY,  NULL,                  NULL,              0, MENU_NONE},
-    {ITT_LRFUNC, "TEXT CASTS SHADOWS",  CRL_TextShadows,   0, MENU_NONE},
-    {ITT_LRFUNC, "GRAPHICAL STARTUP",   CRL_GfxStartup,    0, MENU_NONE},
-    {ITT_LRFUNC, "SHOW ENDTEXT SCREEN", CRL_EndText,       0, MENU_NONE}
+    { ITT_LRFUNC, "UNCAPPED FRAMERATE",  CRL_UncappedFPS,   0, MENU_NONE },
+    { ITT_LRFUNC, "FRAMERATE LIMIT",     CRL_LimitFPS,      0, MENU_NONE },
+    { ITT_LRFUNC, "ENABLE VSYNC",        CRL_VSync,         0, MENU_NONE },
+    { ITT_LRFUNC, "SHOW FPS COUNTER",    CRL_ShowFPS,       0, MENU_NONE },
+    { ITT_LRFUNC, "PIXEL SCALING",       CRL_PixelScaling,  0, MENU_NONE },
+    { ITT_LRFUNC, "VISPLANES DRAWING",   CRL_VisplanesDraw, 0, MENU_NONE },
+    { ITT_LRFUNC, "HOM EFFECT",          CRL_HOMDraw,       0, MENU_NONE },
+    { ITT_EMPTY,  NULL,                  NULL,              0, MENU_NONE },
+    { ITT_LRFUNC, "GRAPHICAL STARTUP",   CRL_GfxStartup,    0, MENU_NONE },
+    { ITT_LRFUNC, "SHOW ENDTEXT SCREEN", CRL_EndText,       0, MENU_NONE },
+    { ITT_LRFUNC, "COLORBLIND",          CRL_Colorblind,    0, MENU_NONE },
 };
 
 static Menu_t CRLVideo = {
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     DrawCRLVideo,
-    12, CRLVideoItems,
+    11, CRLVideoItems,
     0,
-    true,
+    SmallFont, false, false,
     MENU_CRLMAIN
 };
 
 static void DrawCRLVideo (void)
 {
-    static char str[32];
-
-    // Temporary unshade background while changing gamma-correction.
-    if (shade_wait < I_GetTime())
-    {
-        M_ShadeBackground();
-    }
+    char str[32];
 
     MN_DrTextACentered("VIDEO OPTIONS", 20, cr[CR_YELLOW]);
 
     // Uncapped framerate
     sprintf(str, crl_uncapped_fps ? "ON" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 30,
+    MN_DrTextA(str, M_ItemRightAlign(str), 30,
                M_Item_Glow(0, crl_uncapped_fps ? GLOW_GREEN : GLOW_RED));
 
     // Framerate limit
     sprintf(str, !crl_uncapped_fps ? "35" :
                  crl_fpslimit ? "%d" : "NONE", crl_fpslimit);
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 40,
+    MN_DrTextA(str, M_ItemRightAlign(str), 40,
                M_Item_Glow(1, crl_uncapped_fps ? GLOW_GREEN : GLOW_RED));
 
     // Enable vsync
     sprintf(str, crl_vsync ? "ON" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 50,
+    MN_DrTextA(str, M_ItemRightAlign(str), 50,
                M_Item_Glow(2, crl_vsync ? GLOW_GREEN : GLOW_RED));
 
     // Show FPS counter
     sprintf(str, crl_showfps ? "ON" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 60,
+    MN_DrTextA(str, M_ItemRightAlign(str), 60,
                M_Item_Glow(3, crl_showfps ? GLOW_GREEN : GLOW_RED));
+
+    // Pixel scaling
+    sprintf(str, smooth_scaling ? "SMOOTH" : "SHARP");
+    MN_DrTextA(str, M_ItemRightAlign(str), 70,
+               M_Item_Glow(4, smooth_scaling ? GLOW_GREEN : GLOW_DARKRED));
 
     // Visplanes drawing
     sprintf(str, crl_visplanes_drawing == 0 ? "NORMAL" :
                  crl_visplanes_drawing == 1 ? "FILL" :
                  crl_visplanes_drawing == 2 ? "OVERFILL" :
                  crl_visplanes_drawing == 3 ? "BORDER" : "OVERBORDER");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 70,
-               M_Item_Glow(4, crl_visplanes_drawing ? GLOW_GREEN : GLOW_RED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 80,
+               M_Item_Glow(5, crl_visplanes_drawing ? GLOW_GREEN : GLOW_RED));
     
     // HOM effect
     sprintf(str, crl_hom_effect == 0 ? "OFF" :
                  crl_hom_effect == 1 ? "MULTICOLOR" : "BLACK");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 80,
-               M_Item_Glow(5, crl_hom_effect ? GLOW_GREEN : GLOW_RED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 90,
+               M_Item_Glow(6, crl_hom_effect ? GLOW_GREEN : GLOW_RED));
 
-    // Gamma-correction slider and num
-    DrawSlider(&CRLVideo, 7, 8, crl_gamma/2, false);
-    MN_DrTextA(gammalvl[crl_gamma], 164, 105, M_Item_Glow(6, GLOW_UNCOLORED));
-
-    // Text casts shadows
-    sprintf(str, crl_text_shadows ? "ON" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 120,
-               M_Item_Glow(9, crl_text_shadows ? GLOW_GREEN : GLOW_RED));
+    MN_DrTextACentered("MISCELLANEOUS", 100, cr[CR_YELLOW]);
 
     // Graphical startup
     sprintf(str, graphical_startup ? "ON" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 130,
-               M_Item_Glow(10, graphical_startup ? GLOW_GREEN : GLOW_RED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 110,
+               M_Item_Glow(8, graphical_startup ? GLOW_GREEN : GLOW_RED));
 
     // Show ENDTEXT screen
-    sprintf(str, show_endoom ? "ON" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 140,
-               M_Item_Glow(11, show_endoom ? GLOW_GREEN : GLOW_RED));
+    sprintf(str, show_endoom == 1 ? "ALWAYS" :
+                 show_endoom == 2 ? "PWAD ONLY" : "NEVER");
+    MN_DrTextA(str, M_ItemRightAlign(str), 120,
+               M_Item_Glow(9, show_endoom == 1 ? GLOW_RED : GLOW_GREEN));
+
+    // Colorblind
+    sprintf(str, crl_colorblind == 1 ? "PROTANOPIA"    :
+                 crl_colorblind == 2 ? "PROTANOMALY"   :
+                 crl_colorblind == 3 ? "DEUTERANOPIA"  :
+                 crl_colorblind == 4 ? "DEUTERANOMALY" :
+                 crl_colorblind == 5 ? "TRITANOPIA"    :
+                 crl_colorblind == 6 ? "TRITANOMALY"   :
+                 crl_colorblind == 7 ? "ACHROMATOPSIA" :
+                 crl_colorblind == 8 ? "ACHROMATOMALY" : "NONE");
+    MN_DrTextA(str, M_ItemRightAlign(str), 130,
+               M_Item_Glow(10, crl_colorblind ? GLOW_GREEN : GLOW_RED));
+
+    // Print hint about colorblind type
+    if (CurrentItPos == 10 && crl_colorblind)
+    {
+        MN_DrTextACentered(crl_colorblind == 1 ? "RED-BLIND"    :
+                           crl_colorblind == 2 ? "RED-WEAK"     :
+                           crl_colorblind == 3 ? "GREEN-BLIND"  :
+                           crl_colorblind == 4 ? "GREEN-WEAK"   :
+                           crl_colorblind == 5 ? "BLUE-BLIND"   :
+                           crl_colorblind == 6 ? "BLUE-WEAK"    :
+                           crl_colorblind == 7 ? "MONOCHROMACY" :
+                        /* crl_colorblind == 8*/ "BLUE CONE MONOCHROMACY",
+                           150, cr[CR_WHITE]);
+    }
 }
 
-static boolean CRL_UncappedFPS (int option)
+static void CRL_UncappedFPS (int option)
 {
     crl_uncapped_fps ^= 1;
     // [JN] Skip weapon bobbing interpolation for next frame.
     pspr_interp = false;
-    return true;
 }
 
-static boolean CRL_LimitFPS (int option)
+static void CRL_LimitFPS (int option)
 {
     if (!crl_uncapped_fps)
     {
-        return false;  // Do not allow change value in capped framerate.
+        return;  // Do not allow change value in capped framerate.
     }
     
     switch (option)
@@ -956,70 +1149,147 @@ static boolean CRL_LimitFPS (int option)
         default:
             break;
     }
-    return true;
 }
 
-static boolean CRL_VSync (int option)
+static void CRL_VSync (int option)
 {
     crl_vsync ^= 1;
     I_ToggleVsync();
-    return true;
 }
 
-static boolean CRL_ShowFPS (int option)
+static void CRL_ShowFPS (int option)
 {
     crl_showfps ^= 1;
-    return true;
 }
 
-static boolean CRL_VisplanesDraw (int option)
+static void CRL_PixelScaling (int choice)
 {
-    crl_visplanes_drawing = M_INT_Slider(crl_visplanes_drawing, 0, 4, option);
-    return true;
+    smooth_scaling ^= 1;
+    I_TogglePixelScaling();
 }
 
-static boolean CRL_HOMDraw (int option)
+static void CRL_VisplanesDraw (int option)
 {
-    crl_hom_effect = M_INT_Slider(crl_hom_effect, 0, 2, option);
-    return true;
+    crl_visplanes_drawing = M_INT_Slider(crl_visplanes_drawing, 0, 4, option, false);
 }
 
-static boolean CRL_Gamma (int option)
+static void CRL_HOMDraw (int option)
 {
-    shade_wait = I_GetTime() + TICRATE;
-
-    switch (option)
-    {
-        case 0:
-            if (crl_gamma)
-                crl_gamma--;
-            break;
-        case 1:
-            if (crl_gamma < 14)
-                crl_gamma++;
-        default:
-            break;
-    }
-    I_SetPalette(W_CacheLumpName("PLAYPAL", PU_CACHE));
-    return true;
+    crl_hom_effect = M_INT_Slider(crl_hom_effect, 0, 2, option, false);
 }
 
-static boolean CRL_TextShadows (int option)
-{
-    crl_text_shadows ^= 1;
-    return true;
-}
-
-static boolean CRL_GfxStartup (int option)
+static void CRL_GfxStartup (int option)
 {
     graphical_startup ^= 1;
-    return true;
 }
 
-static boolean CRL_EndText (int option)
+static void CRL_EndText (int option)
 {
-    show_endoom ^= 1;
-    return true;
+    show_endoom = M_INT_Slider(show_endoom, 0, 2, option, false);
+}
+
+static void CRL_Colorblind (int option)
+{
+    crl_colorblind = M_INT_Slider(crl_colorblind, 0, 8, option, false);
+
+    CRL_ReloadPalette();
+}
+
+// -----------------------------------------------------------------------------
+// Display options
+// -----------------------------------------------------------------------------
+
+static MenuItem_t CRLDisplayItems[] = {
+    { ITT_LRFUNC, "GAMMA-CORRECTION",        CRL_Gamma,           0, MENU_NONE },
+    { ITT_EMPTY,  NULL,                      NULL,                0, MENU_NONE },
+    { ITT_EMPTY,  NULL,                      NULL,                0, MENU_NONE },
+    { ITT_LRFUNC, "MENU BACKGROUND SHADING", CRL_MenuBgShading,   0, MENU_NONE },
+    { ITT_LRFUNC, "EXTRA LEVEL BRIGHTNESS",  CRL_LevelBrightness, 0, MENU_NONE },
+    { ITT_EMPTY,  NULL,                      NULL,                0, MENU_NONE },
+    { ITT_LRFUNC, "MESSAGES ENABLED",        SCMessages,          0, MENU_NONE },
+    { ITT_LRFUNC, "CRITICAL MESSAGE",        CRL_MsgCritical,     0, MENU_NONE },
+    { ITT_LRFUNC, "TEXT CAST SHADOWS",       CRL_TextShadows,     0, MENU_NONE },
+};
+
+static Menu_t CRLDisplay = {
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    DrawCRLDisplay,
+    9, CRLDisplayItems,
+    0,
+    SmallFont, false, false,
+    MENU_CRLMAIN
+};
+
+static void DrawCRLDisplay (void)
+{
+    char str[32];
+
+    MN_DrTextACentered("DISPLAY OPTIONS", 20, cr[CR_YELLOW]);
+
+    // Gamma-correction slider and num
+    DrawSlider(&CRLVideo, 1, 8, crl_gamma/2, false);
+    MN_DrTextA(gammalvls[crl_gamma][1], 164, 45, M_Item_Glow(0, GLOW_UNCOLORED));
+
+    // Menu background shading
+    sprintf(str, crl_menu_shading ? "%d" : "OFF", crl_menu_shading);
+    MN_DrTextA(str, M_ItemRightAlign(str), 60,
+               M_Item_Glow(3, crl_menu_shading ? GLOW_GREEN : GLOW_RED));
+
+    // Extra level brightness
+    sprintf(str, crl_level_brightness ? "%d" : "OFF", crl_level_brightness);
+    MN_DrTextA(str, M_ItemRightAlign(str), 70,
+               M_Item_Glow(4, crl_level_brightness ? GLOW_GREEN : GLOW_RED));
+
+    MN_DrTextACentered("MESSAGES SETTINGS", 80, cr[CR_YELLOW]);
+
+    // Messages enabled
+    sprintf(str, showMessages ? "ON" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 90,
+               M_Item_Glow(6, showMessages ? GLOW_GREEN : GLOW_RED));
+
+    // Critical message style
+    sprintf(str, crl_msg_critical ? "BLINKING" : "STATIC");
+    MN_DrTextA(str, M_ItemRightAlign(str), 100,
+               M_Item_Glow(7, crl_msg_critical ? GLOW_GREEN : GLOW_RED));
+    // Show nice preview-reminder :)
+    if (CurrentItPos == 7)
+    {
+        CRL_SetMessageCritical("CRITICAL MESSAGES ARE ALWAYS ENABLED!", "", 2);
+    }
+
+    // Text casts shadows
+    sprintf(str, crl_text_shadows ? "ON" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 110,
+               M_Item_Glow(8, crl_text_shadows ? GLOW_GREEN : GLOW_RED));
+}
+
+static void CRL_Gamma (int option)
+{
+	shade_wait = I_GetTime() + TICRATE;
+   
+    crl_gamma = M_INT_Slider(crl_gamma, 0, 14, option, true);
+
+    CRL_ReloadPalette();
+}
+
+static void CRL_MenuBgShading (int option)
+{
+    crl_menu_shading = M_INT_Slider(crl_menu_shading, 0, 24, option, true);
+}
+
+static void CRL_LevelBrightness (int option)
+{
+    crl_level_brightness = M_INT_Slider(crl_level_brightness, 0, 8, option, true);
+}
+
+static void CRL_MsgCritical (int option)
+{
+    crl_msg_critical ^= 1;
+}
+
+static void CRL_TextShadows (int option)
+{
+    crl_text_shadows ^= 1;
 }
 
 // -----------------------------------------------------------------------------
@@ -1027,17 +1297,17 @@ static boolean CRL_EndText (int option)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLSoundItems[] = {
-    {ITT_LRFUNC, "SFX VOLUME",           SCSfxVolume,        MENU_NONE},
-    {ITT_EMPTY,  NULL,                   NULL,            0, MENU_NONE},
-    {ITT_EMPTY,  NULL,                   NULL,            0, MENU_NONE},
-    {ITT_LRFUNC, "MUSIC VOLUME",         SCMusicVolume,      MENU_NONE},
-    {ITT_EMPTY,  NULL,                   NULL,            0, MENU_NONE},
-    {ITT_EMPTY,  NULL,                   NULL,            0, MENU_NONE},
-    {ITT_EMPTY,  NULL,                   NULL,            0, MENU_NONE},
-    {ITT_LRFUNC, "MUSIC PLAYBACK",       CRL_MusicSystem, 0, MENU_NONE},
-    {ITT_LRFUNC,  "SOUNDS EFFECTS MODE", CRL_SFXMode,     0, MENU_NONE},
-    {ITT_LRFUNC, "PITCH-SHIFTED SOUNDS", CRL_PitchShift,  0, MENU_NONE},
-    {ITT_LRFUNC, "NUMBER OF SFX TO MIX", CRL_SFXChannels, 0, MENU_NONE}
+    { ITT_LRFUNC, "SFX VOLUME",           SCSfxVolume,        MENU_NONE },
+    { ITT_EMPTY,  NULL,                   NULL,            0, MENU_NONE },
+    { ITT_EMPTY,  NULL,                   NULL,            0, MENU_NONE },
+    { ITT_LRFUNC, "MUSIC VOLUME",         SCMusicVolume,      MENU_NONE },
+    { ITT_EMPTY,  NULL,                   NULL,            0, MENU_NONE },
+    { ITT_EMPTY,  NULL,                   NULL,            0, MENU_NONE },
+    { ITT_EMPTY,  NULL,                   NULL,            0, MENU_NONE },
+    { ITT_LRFUNC, "MUSIC PLAYBACK",       CRL_MusicSystem, 0, MENU_NONE },
+    { ITT_LRFUNC, "SOUNDS EFFECTS MODE",  CRL_SFXMode,     0, MENU_NONE },
+    { ITT_LRFUNC, "PITCH-SHIFTED SOUNDS", CRL_PitchShift,  0, MENU_NONE },
+    { ITT_LRFUNC, "NUMBER OF SFX TO MIX", CRL_SFXChannels, 0, MENU_NONE },
 };
 
 static Menu_t CRLSound = {
@@ -1045,15 +1315,13 @@ static Menu_t CRLSound = {
     DrawCRLSound,
     11, CRLSoundItems,
     0,
-    true,
+    SmallFont, false, false,
     MENU_CRLMAIN
 };
 
 static void DrawCRLSound (void)
 {
-    static char str[32];
-
-    M_ShadeBackground();
+    char str[32];
 
     MN_DrTextACentered("SOUND OPTIONS", 20, cr[CR_YELLOW]);
 
@@ -1075,22 +1343,22 @@ static void DrawCRLSound (void)
                  snd_musicdevice == 8 ?  "NATIVE MIDI" :
                  snd_musicdevice == 11 ? "FLUIDSYNTH" :
                                          "UNKNOWN");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 100,
+    MN_DrTextA(str, M_ItemRightAlign(str), 100,
                M_Item_Glow(7, snd_musicdevice ? GLOW_GREEN : GLOW_RED));
 
     // Sound effects mode
     sprintf(str, crl_monosfx ? "MONO" : "STEREO");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 110,
+    MN_DrTextA(str, M_ItemRightAlign(str), 110,
                M_Item_Glow(8, crl_monosfx ? GLOW_RED : GLOW_GREEN));
 
     // Pitch-shifted sounds
     sprintf(str, snd_pitchshift ? "ON" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 120,
+    MN_DrTextA(str, M_ItemRightAlign(str), 120,
                M_Item_Glow(9, snd_pitchshift ? GLOW_GREEN : GLOW_RED));
 
     // Number of SFX to mix
     sprintf(str, "%i", snd_Channels);
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 130,
+    MN_DrTextA(str, M_ItemRightAlign(str), 130,
                M_Item_Glow(10, snd_Channels == 8 ? GLOW_GREEN :
                                snd_Channels == 1 ? GLOW_RED : GLOW_DARKGREEN));
 
@@ -1101,7 +1369,7 @@ static void DrawCRLSound (void)
     }
 }
 
-static boolean CRL_MusicSystem (int option)
+static void CRL_MusicSystem (int option)
 {
     switch (option)
     {
@@ -1170,36 +1438,24 @@ static boolean CRL_MusicSystem (int option)
                 break;
             }
     }
-    return true;
 }
 
-static boolean CRL_SFXMode (int option)
+static void CRL_SFXMode (int option)
 {
     crl_monosfx ^= 1;
-    return true;
 }
 
-static boolean CRL_PitchShift (int option)
+static void CRL_PitchShift (int option)
 {
     snd_pitchshift ^= 1;
-    return true;
 }
 
-static boolean CRL_SFXChannels (int option)
+static void CRL_SFXChannels (int option)
 {
-    switch (option)
-    {
-        case 0:
-            if (snd_Channels > 1)
-                snd_Channels--;
-            break;
-        case 1:
-            if (snd_Channels < 16)
-                snd_Channels++;
-        default:
-            break;
-    }
-    return true;
+    // [JN] Note: cap minimum channels to 2, not 1.
+    // Only one channel produces a strange effect, 
+    // as if there were no channels at all.
+    snd_Channels = M_INT_Slider(snd_Channels, 2, 16, option, true);
 }
 
 // -----------------------------------------------------------------------------
@@ -1207,20 +1463,20 @@ static boolean CRL_SFXChannels (int option)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLControlsItems[] = {
-    {ITT_SETMENU, "KEYBOARD BINDINGS",       NULL,         0, MENU_CRLKBDBINDS1},
-    {ITT_SETMENU, "MOUSE BINDINGS",          NULL,         0, MENU_CRLMOUSEBINDS},
-    {ITT_EMPTY,   NULL,                      NULL,         0, MENU_NONE},
-    {ITT_LRFUNC,  "SENSIVITY",               SCMouseSensi, 0, MENU_NONE},
-    {ITT_EMPTY,   NULL,                      NULL,         0, MENU_NONE},
-    {ITT_EMPTY,   NULL,                      NULL,         0, MENU_NONE},
+    {ITT_EFUNC,   "KEYBOARD BINDINGS",       CRL_Choose_Keybinds,       0, MENU_NONE},
+    {ITT_SETMENU, "MOUSE BINDINGS",          NULL,                      0, MENU_CRLMOUSEBINDS},
+    {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
+    {ITT_LRFUNC,  "SENSIVITY",               SCMouseSensi,              0, MENU_NONE},
+    {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
+    {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
     {ITT_LRFUNC,  "ACCELERATION",            CRL_Controls_Acceleration, 0, MENU_NONE},
-    {ITT_EMPTY,   NULL,                      NULL,         0, MENU_NONE},
-    {ITT_EMPTY,   NULL,                      NULL,         0, MENU_NONE},
-    {ITT_LRFUNC,  "ACCELERATION THRESHOLD",  CRL_Controls_Threshold, 0, MENU_NONE},
-    {ITT_EMPTY,   NULL,                      NULL,         0, MENU_NONE},
-    {ITT_EMPTY,   NULL,                      NULL,         0, MENU_NONE},
-    {ITT_LRFUNC,  "MOUSE LOOK",              CRL_Controls_MLook, 0, MENU_NONE},
-    {ITT_LRFUNC,  "VERTICAL MOUSE MOVEMENT", CRL_Controls_NoVert, 0, MENU_NONE}
+    {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
+    {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
+    {ITT_LRFUNC,  "ACCELERATION THRESHOLD",  CRL_Controls_Threshold,    0, MENU_NONE},
+    {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
+    {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
+    {ITT_LRFUNC,  "MOUSE LOOK",              CRL_Controls_MLook,        0, MENU_NONE},
+    {ITT_LRFUNC,  "VERTICAL MOUSE MOVEMENT", CRL_Controls_NoVert,       0, MENU_NONE}
 };
 
 static Menu_t CRLControls = {
@@ -1228,15 +1484,15 @@ static Menu_t CRLControls = {
     DrawCRLControls,
     14, CRLControlsItems,
     0,
-    true,
+    SmallFont, false, false,
     MENU_CRLMAIN
 };
 
 static void DrawCRLControls (void)
 {
-    static char str[32];
+    char str[32];
 
-    M_ShadeBackground();
+    M_FillBackground();
 
     MN_DrTextACentered("BINDINGS", 20, cr[CR_YELLOW]);
 
@@ -1257,68 +1513,37 @@ static void DrawCRLControls (void)
 
     // Mouse look
     sprintf(str, crl_mouselook ? "ON" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 150,
+    MN_DrTextA(str, M_ItemRightAlign(str), 150,
                M_Item_Glow(12, crl_mouselook ? GLOW_GREEN : GLOW_RED));
 
     // Vertical mouse movement
     sprintf(str, novert ? "OFF" : "ON");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 160,
+    MN_DrTextA(str, M_ItemRightAlign(str), 160,
                M_Item_Glow(13, novert ? GLOW_RED : GLOW_GREEN));
 }
 
-static boolean CRL_Controls_Acceleration (int option)
+static void CRL_Controls_Acceleration (int option)
 {
-    char buf[9];
-
-    switch (option)
-    {   // 1.0 ... 5.0
-        case 0:
-        if (mouse_acceleration > 1.0f)
-            mouse_acceleration -= 0.1f;
-        break;
-
-        case 1:
-        if (mouse_acceleration < 5.0f)
-            mouse_acceleration += 0.1f;
-        break;
-    }
-
-    // [JN] Do a float correction to always get x.x00000 values:
-    sprintf (buf, "%f", mouse_acceleration);
-    mouse_acceleration = (float) atof(buf);
-    return true;
+    mouse_acceleration = M_FLOAT_Slider(mouse_acceleration, 1.000000f, 5.000000f, 0.100000f, option, true);
 }
 
-static boolean CRL_Controls_Threshold (int option)
+static void CRL_Controls_Threshold (int option)
 {
-    switch (option)
-    {   // 0 ... 32
-        case 0:
-        if (mouse_threshold)
-            mouse_threshold--;
-        break;
-        case 1:
-        if (mouse_threshold < 32)
-            mouse_threshold++;
-        break;
-    }
-    return true;
+    mouse_threshold = M_INT_Slider(mouse_threshold, 0, 32, option, true);
 }
 
-static boolean CRL_Controls_MLook (int option)
+static void CRL_Controls_MLook (int option)
 {
     crl_mouselook ^= 1;
     if (!crl_mouselook)
     {
         players[consoleplayer].centering = true;
     }
-    return true;
 }
 
-static boolean CRL_Controls_NoVert (int option)
+static void CRL_Controls_NoVert (int option)
 {
     novert ^= 1;
-    return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -1326,17 +1551,17 @@ static boolean CRL_Controls_NoVert (int option)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLKbsBinds1Items[] = {
-    {ITT_EFUNC, "MOVE FORWARD",  M_Bind_MoveForward,  0, MENU_NONE},
-    {ITT_EFUNC, "MOVE BACKWARD", M_Bind_MoveBackward, 0, MENU_NONE},
-    {ITT_EFUNC, "TURN LEFT",     M_Bind_TurnLeft,     0, MENU_NONE},
-    {ITT_EFUNC, "TURN RIGHT",    M_Bind_TurnRight,    0, MENU_NONE},
-    {ITT_EFUNC, "STRAFE LEFT",   M_Bind_StrafeLeft,   0, MENU_NONE},
-    {ITT_EFUNC, "STRAFE RIGHT",  M_Bind_StrafeRight,  0, MENU_NONE},
-    {ITT_EFUNC, "SPEED ON",      M_Bind_SpeedOn,      0, MENU_NONE},
-    {ITT_EFUNC, "STRAFE ON",     M_Bind_StrafeOn,     0, MENU_NONE},
-    {ITT_EMPTY, NULL,            NULL,                0, MENU_NONE},
-    {ITT_EFUNC, "FIRE/ATTACK",   M_Bind_FireAttack,   0, MENU_NONE},
-    {ITT_EFUNC, "USE",           M_Bind_Use,          0, MENU_NONE}
+    { ITT_EFUNC, "MOVE FORWARD",  M_Bind_MoveForward,  0, MENU_NONE },
+    { ITT_EFUNC, "MOVE BACKWARD", M_Bind_MoveBackward, 0, MENU_NONE },
+    { ITT_EFUNC, "TURN LEFT",     M_Bind_TurnLeft,     0, MENU_NONE },
+    { ITT_EFUNC, "TURN RIGHT",    M_Bind_TurnRight,    0, MENU_NONE },
+    { ITT_EFUNC, "STRAFE LEFT",   M_Bind_StrafeLeft,   0, MENU_NONE },
+    { ITT_EFUNC, "STRAFE RIGHT",  M_Bind_StrafeRight,  0, MENU_NONE },
+    { ITT_EFUNC, "SPEED ON",      M_Bind_SpeedOn,      0, MENU_NONE },
+    { ITT_EFUNC, "STRAFE ON",     M_Bind_StrafeOn,     0, MENU_NONE },
+    { ITT_EMPTY, NULL,            NULL,                0, MENU_NONE },
+    { ITT_EFUNC, "FIRE/ATTACK",   M_Bind_FireAttack,   0, MENU_NONE },
+    { ITT_EFUNC, "USE",           M_Bind_Use,          0, MENU_NONE },
 };
 
 static Menu_t CRLKbdBinds1 = {
@@ -1344,13 +1569,15 @@ static Menu_t CRLKbdBinds1 = {
     DrawCRLKbd1,
     11, CRLKbsBinds1Items,
     0,
-    true,
+    SmallFont, true, true,
     MENU_CRLCONTROLS
 };
 
 static void DrawCRLKbd1 (void)
 {
-    M_ShadeBackground();
+    Keybinds_Cur = (MenuType_t)MENU_CRLKBDBINDS1;
+
+    M_FillBackground();
 
     MN_DrTextACentered("MOVEMENT", 20, cr[CR_YELLOW]);
 
@@ -1368,67 +1595,57 @@ static void DrawCRLKbd1 (void)
     M_DrawBindKey(9, 120, key_fire);
     M_DrawBindKey(10, 130, key_use);
 
-    M_DrawBindFooter("1", true);
+    M_DrawBindFooter(170, "1", true);
 }
 
-static boolean M_Bind_MoveForward (int option)
+static void M_Bind_MoveForward (int option)
 {
     M_StartBind(100);  // key_up
-    return true;
 }
 
-static boolean M_Bind_MoveBackward (int option)
+static void M_Bind_MoveBackward (int option)
 {
     M_StartBind(101);  // key_down
-    return true;
 }
 
-static boolean M_Bind_TurnLeft (int option)
+static void M_Bind_TurnLeft (int option)
 {
     M_StartBind(102);  // key_left
-    return true;
 }
 
-static boolean M_Bind_TurnRight (int option)
+static void M_Bind_TurnRight (int option)
 {
     M_StartBind(103);  // key_right
-    return true;
 }
 
-static boolean M_Bind_StrafeLeft (int option)
+static void M_Bind_StrafeLeft (int option)
 {
     M_StartBind(104);  // key_strafeleft
-    return true;
 }
 
-static boolean M_Bind_StrafeRight (int option)
+static void M_Bind_StrafeRight (int option)
 {
     M_StartBind(105);  // key_straferight
-    return true;
 }
 
-static boolean M_Bind_SpeedOn (int option)
+static void M_Bind_SpeedOn (int option)
 {
     M_StartBind(106);  // key_speed
-    return true;
 }
 
-static boolean M_Bind_StrafeOn (int option)
+static void M_Bind_StrafeOn (int option)
 {
     M_StartBind(107);  // key_strafe
-    return true;
 }
 
-static boolean M_Bind_FireAttack (int option)
+static void M_Bind_FireAttack (int option)
 {
     M_StartBind(108);  // key_fire
-    return true;
 }
 
-static boolean M_Bind_Use (int option)
+static void M_Bind_Use (int option)
 {
     M_StartBind(109);  // key_use
-    return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -1436,17 +1653,17 @@ static boolean M_Bind_Use (int option)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLKbsBinds2Items[] = {
-    {ITT_EFUNC, "LOOK UP",         M_Bind_LookUp,     0, MENU_NONE},
-    {ITT_EFUNC, "LOOK DOWN",       M_Bind_LookDown,   0, MENU_NONE},
-    {ITT_EFUNC, "CENTER VIEW",     M_Bind_LookCenter, 0, MENU_NONE},
-    {ITT_EMPTY, NULL,              NULL,              0, MENU_NONE},
-    {ITT_EFUNC, "FLY UP",          M_Bind_FlyUp,      0, MENU_NONE},
-    {ITT_EFUNC, "FLY DOWN",        M_Bind_FlyDown,    0, MENU_NONE},
-    {ITT_EFUNC, "FLY CENTER",      M_Bind_FlyCenter,  0, MENU_NONE},
-    {ITT_EMPTY, NULL,              NULL,              0, MENU_NONE},
-    {ITT_EFUNC, "INVENTORY LEFT",  M_Bind_InvLeft,    0, MENU_NONE},
-    {ITT_EFUNC, "INVENTORY RIGHT", M_Bind_InvRight,   0, MENU_NONE},
-    {ITT_EFUNC, "USE ARTIFACT",    M_Bind_UseArti,    0, MENU_NONE}
+    { ITT_EFUNC, "LOOK UP",         M_Bind_LookUp,     0, MENU_NONE },
+    { ITT_EFUNC, "LOOK DOWN",       M_Bind_LookDown,   0, MENU_NONE },
+    { ITT_EFUNC, "CENTER VIEW",     M_Bind_LookCenter, 0, MENU_NONE },
+    { ITT_EMPTY, NULL,              NULL,              0, MENU_NONE },
+    { ITT_EFUNC, "FLY UP",          M_Bind_FlyUp,      0, MENU_NONE },
+    { ITT_EFUNC, "FLY DOWN",        M_Bind_FlyDown,    0, MENU_NONE },
+    { ITT_EFUNC, "STOP FLYING",     M_Bind_FlyCenter,  0, MENU_NONE },
+    { ITT_EMPTY, NULL,              NULL,              0, MENU_NONE },
+    { ITT_EFUNC, "INVENTORY LEFT",  M_Bind_InvLeft,    0, MENU_NONE },
+    { ITT_EFUNC, "INVENTORY RIGHT", M_Bind_InvRight,   0, MENU_NONE },
+    { ITT_EFUNC, "USE ARTIFACT",    M_Bind_UseArti,    0, MENU_NONE },
 };
 
 static Menu_t CRLKbdBinds2 = {
@@ -1454,13 +1671,15 @@ static Menu_t CRLKbdBinds2 = {
     DrawCRLKbd2,
     11, CRLKbsBinds2Items,
     0,
-    true,
+    SmallFont, true, true,
     MENU_CRLCONTROLS
 };
 
 static void DrawCRLKbd2 (void)
 {
-    M_ShadeBackground();
+    Keybinds_Cur = (MenuType_t)MENU_CRLKBDBINDS2;
+
+    M_FillBackground();
 
     MN_DrTextACentered("VIEW", 20, cr[CR_YELLOW]);
 
@@ -1480,61 +1699,52 @@ static void DrawCRLKbd2 (void)
     M_DrawBindKey(9, 120, key_invright);
     M_DrawBindKey(10, 130, key_useartifact);
 
-    M_DrawBindFooter("2", true);
+    M_DrawBindFooter(170, "2", true);
 }
 
-static boolean M_Bind_LookUp (int option)
+static void M_Bind_LookUp (int option)
 {
     M_StartBind(200);  // key_lookup
-    return true;
 }
 
-static boolean M_Bind_LookDown (int option)
+static void M_Bind_LookDown (int option)
 {
     M_StartBind(201);  // key_lookdown
-    return true;
 }
 
-static boolean M_Bind_LookCenter (int option)
+static void M_Bind_LookCenter (int option)
 {
     M_StartBind(202);  // key_lookcenter
-    return true;
 }
 
-static boolean M_Bind_FlyUp (int option)
+static void M_Bind_FlyUp (int option)
 {
     M_StartBind(203);  // key_flyup
-    return true;
 }
 
-static boolean M_Bind_FlyDown (int option)
+static void M_Bind_FlyDown (int option)
 {
     M_StartBind(204);  // key_flydown
-    return true;
 }
 
-static boolean M_Bind_FlyCenter (int option)
+static void M_Bind_FlyCenter (int option)
 {
     M_StartBind(205);  // key_flycenter
-    return true;
 }
 
-static boolean M_Bind_InvLeft (int option)
+static void M_Bind_InvLeft (int option)
 {
     M_StartBind(206);  // key_invleft
-    return true;
 }
 
-static boolean M_Bind_InvRight (int option)
+static void M_Bind_InvRight (int option)
 {
     M_StartBind(207);  // key_invright
-    return true;
 }
 
-static boolean M_Bind_UseArti (int option)
+static void M_Bind_UseArti (int option)
 {
     M_StartBind(208);  // key_useartifact
-    return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -1559,13 +1769,15 @@ static Menu_t CRLKbdBinds3 = {
     DrawCRLKbd3,
     10, CRLKbsBinds3Items,
     0,
-    true,
+    SmallFont, true, true,
     MENU_CRLCONTROLS
 };
 
 static void DrawCRLKbd3 (void)
 {
-    M_ShadeBackground();
+    Keybinds_Cur = (MenuType_t)MENU_CRLKBDBINDS3;
+
+    M_FillBackground();
 
     MN_DrTextACentered("CRL CONTROLS", 20, cr[CR_YELLOW]);
 
@@ -1582,61 +1794,52 @@ static void DrawCRLKbd3 (void)
     M_DrawBindKey(8, 110, key_crl_freeze);
     M_DrawBindKey(9, 120, key_crl_notarget);
 
-    M_DrawBindFooter("3", true);
+    M_DrawBindFooter(170, "3", true);
 }
 
-static boolean M_Bind_CRLmenu (int option)
+static void M_Bind_CRLmenu (int option)
 {
     M_StartBind(300);  // key_crl_menu
-    return true;
 }
 
-static boolean M_Bind_RestartLevel (int option)
+static void M_Bind_RestartLevel (int option)
 {
     M_StartBind(301);  // key_crl_reloadlevel
-    return true;
 }
 
-static boolean M_Bind_NextLevel (int option)
+static void M_Bind_NextLevel (int option)
 {
     M_StartBind(302);  // key_crl_nextlevel
-    return true;
 }
 
-static boolean M_Bind_FastForward (int option)
+static void M_Bind_FastForward (int option)
 {
     M_StartBind(303);  // key_crl_demospeed
-    return true;
 }
 
-static boolean M_Bind_SpectatorMode (int option)
+static void M_Bind_SpectatorMode (int option)
 {
     M_StartBind(304);  // key_crl_spectator
-    return true;
 }
 
-static boolean M_Bind_CameraUp (int option)
+static void M_Bind_CameraUp (int option)
 {
     M_StartBind(305);  // key_crl_cameraup
-    return true;
 }
 
-static boolean M_Bind_CameraDown (int option)
+static void M_Bind_CameraDown (int option)
 {
     M_StartBind(306);  // key_crl_cameradown
-    return true;
 }
 
-static boolean M_Bind_FreezeMode (int option)
+static void M_Bind_FreezeMode (int option)
 {
     M_StartBind(307);  // key_crl_freeze
-    return true;
 }
 
-static boolean M_Bind_NotargetMode (int option)
+static void M_Bind_NotargetMode (int option)
 {
     M_StartBind(308);  // key_crl_notarget
-    return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -1662,13 +1865,15 @@ static Menu_t CRLKbdBinds4 = {
     DrawCRLKbd4,
     11, CRLKbsBinds4Items,
     0,
-    true,
+    SmallFont, true, true,
     MENU_CRLCONTROLS
 };
 
 static void DrawCRLKbd4 (void)
 {
-    M_ShadeBackground();
+    Keybinds_Cur = (MenuType_t)MENU_CRLKBDBINDS4;
+
+    M_FillBackground();
 
     MN_DrTextACentered("ADVANCED MOVEMENT", 20, cr[CR_YELLOW]);
 
@@ -1688,61 +1893,52 @@ static void DrawCRLKbd4 (void)
     M_DrawBindKey(9, 120, key_crl_idclip);
     M_DrawBindKey(10, 130, key_crl_iddt);
 
-    M_DrawBindFooter("4", true);
+    M_DrawBindFooter(170, "4", true);
 }
 
-static boolean M_Bind_AlwaysRun (int option)
+static void M_Bind_AlwaysRun (int option)
 {
     M_StartBind(400);  // key_crl_autorun
-    return true;
 }
 
-static boolean M_Bind_MouseLook (int option)
+static void M_Bind_MouseLook (int option)
 {
     M_StartBind(401);  // key_crl_mlook
-    return true;
 }
 
-static boolean M_Bind_VileBomb (int option)
+static void M_Bind_VileBomb (int option)
 {
     M_StartBind(402);  // key_crl_vilebomb
-    return true;
 }
 
-static boolean M_Bind_ClearMAX (int option)
+static void M_Bind_ClearMAX (int option)
 {
     M_StartBind(403);  // key_crl_clearmax
-    return true;
 }
 
-static boolean M_Bind_MoveToMAX (int option)
+static void M_Bind_MoveToMAX (int option)
 {
     M_StartBind(404);  // key_crl_movetomax
-    return true;
 }
 
-static boolean M_Bind_IDDQD (int option)
+static void M_Bind_IDDQD (int option)
 {
     M_StartBind(405);  // key_crl_iddqd
-    return true;
 }
 
-static boolean M_Bind_IDFA (int option)
+static void M_Bind_IDFA (int option)
 {
     M_StartBind(406);  // key_crl_idfa
-    return true;
 }
 
-static boolean M_Bind_IDCLIP (int option)
+static void M_Bind_IDCLIP (int option)
 {
     M_StartBind(407);  // key_crl_idclip
-    return true;
 }
 
-static boolean M_Bind_IDDT (int option)
+static void M_Bind_IDDT (int option)
 {
     M_StartBind(408);  // key_crl_iddt
-    return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -1767,13 +1963,15 @@ static Menu_t CRLKbdBinds5 = {
     DrawCRLKbd5,
     10, CRLKbsBinds5Items,
     0,
-    true,
+    SmallFont, true, true,
     MENU_CRLCONTROLS
 };
 
 static void DrawCRLKbd5 (void)
 {
-    M_ShadeBackground();
+    Keybinds_Cur = (MenuType_t)MENU_CRLKBDBINDS5;
+
+    M_FillBackground();
 
     MN_DrTextACentered("WEAPONS", 20, cr[CR_YELLOW]);
 
@@ -1788,67 +1986,57 @@ static void DrawCRLKbd5 (void)
     M_DrawBindKey(8, 110, key_prevweapon);
     M_DrawBindKey(9, 120, key_nextweapon);
 
-    M_DrawBindFooter("5", true);
+    M_DrawBindFooter(170, "5", true);
 }
 
-static boolean M_Bind_Weapon1 (int option)
+static void M_Bind_Weapon1 (int option)
 {
     M_StartBind(500);  // key_weapon1
-    return true;
 }
 
-static boolean M_Bind_Weapon2 (int option)
+static void M_Bind_Weapon2 (int option)
 {
     M_StartBind(501);  // key_weapon2
-    return true;
 }
 
-static boolean M_Bind_Weapon3 (int option)
+static void M_Bind_Weapon3 (int option)
 {
     M_StartBind(502);  // key_weapon3
-    return true;
 }
 
-static boolean M_Bind_Weapon4 (int option)
+static void M_Bind_Weapon4 (int option)
 {
     M_StartBind(503);  // key_weapon4
-    return true;
 }
 
-static boolean M_Bind_Weapon5 (int option)
+static void M_Bind_Weapon5 (int option)
 {
     M_StartBind(504);  // key_weapon5
-    return true;
 }
 
-static boolean M_Bind_Weapon6 (int option)
+static void M_Bind_Weapon6 (int option)
 {
     M_StartBind(505);  // key_weapon6
-    return true;
 }
 
-static boolean M_Bind_Weapon7 (int option)
+static void M_Bind_Weapon7 (int option)
 {
     M_StartBind(506);  // key_weapon7
-    return true;
 }
 
-static boolean M_Bind_Weapon8 (int option)
+static void M_Bind_Weapon8 (int option)
 {
     M_StartBind(507);  // key_weapon8
-    return true;
 }
 
-static boolean M_Bind_PrevWeapon (int option)
+static void M_Bind_PrevWeapon (int option)
 {
     M_StartBind(508);  // key_prevweapon
-    return true;
 }
 
-static boolean M_Bind_NextWeapon (int option)
+static void M_Bind_NextWeapon (int option)
 {
     M_StartBind(509);  // key_nextweapon
-    return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -1873,13 +2061,15 @@ static Menu_t CRLKbdBinds6 = {
     DrawCRLKbd6,
     10, CRLKbsBinds6Items,
     0,
-    true,
+    SmallFont, true, true,
     MENU_CRLCONTROLS
 };
 
 static void DrawCRLKbd6 (void)
 {
-    M_ShadeBackground();
+    Keybinds_Cur = (MenuType_t)MENU_CRLKBDBINDS6;
+
+    M_FillBackground();
 
     MN_DrTextACentered("ARTIFACTS", 20, cr[CR_YELLOW]);
 
@@ -1894,67 +2084,57 @@ static void DrawCRLKbd6 (void)
     M_DrawBindKey(8, 110, key_arti_torch);
     M_DrawBindKey(9, 120, key_arti_morph);
 
-    M_DrawBindFooter("6", true);
+    M_DrawBindFooter(170, "6", true);
 }
 
-static boolean M_Bind_Quartz (int option)
+static void M_Bind_Quartz (int option)
 {
     M_StartBind(600);  // key_arti_quartz
-    return true;
 }
 
-static boolean M_Bind_Urn (int option)
+static void M_Bind_Urn (int option)
 {
     M_StartBind(601);  // key_arti_urn
-    return true;
 }
 
-static boolean M_Bind_Bomb (int option)
+static void M_Bind_Bomb (int option)
 {
     M_StartBind(602);  // key_arti_bomb
-    return true;
 }
 
-static boolean M_Bind_Tome (int option)
+static void M_Bind_Tome (int option)
 {
     M_StartBind(603);  // key_arti_tome
-    return true;
 }
 
-static boolean M_Bind_Ring (int option)
+static void M_Bind_Ring (int option)
 {
     M_StartBind(604);  // key_arti_ring
-    return true;
 }
 
-static boolean M_Bind_Chaosdevice (int option)
+static void M_Bind_Chaosdevice (int option)
 {
     M_StartBind(605);  // key_arti_chaosdevice
-    return true;
 }
 
-static boolean M_Bind_Shadowsphere (int option)
+static void M_Bind_Shadowsphere (int option)
 {
     M_StartBind(606);  // key_arti_shadowsphere
-    return true;
 }
 
-static boolean M_Bind_Wings (int option)
+static void M_Bind_Wings (int option)
 {
     M_StartBind(607);  // key_arti_wings
-    return true;
 }
 
-static boolean M_Bind_Torch (int option)
+static void M_Bind_Torch (int option)
 {
     M_StartBind(608);  // key_arti_torch
-    return true;
 }
 
-static boolean M_Bind_Morph (int option)
+static void M_Bind_Morph (int option)
 {
     M_StartBind(609);  // key_arti_morph
-    return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -1977,13 +2157,15 @@ static Menu_t CRLKbdBinds7 = {
     DrawCRLKbd7,
     6, CRLKbsBinds7Items,
     0,
-    true,
+    SmallFont, true, true,
     MENU_CRLCONTROLS
 };
 
 static void DrawCRLKbd7 (void)
 {
-    M_ShadeBackground();
+    Keybinds_Cur = (MenuType_t)MENU_CRLKBDBINDS7;
+
+    M_FillBackground();
 
     MN_DrTextACentered("AUTOMAP", 20, cr[CR_YELLOW]);
 
@@ -1996,57 +2178,49 @@ static void DrawCRLKbd7 (void)
 //  M_DrawBindKey(6, 90, key_crl_map_overlay);
     M_DrawBindKey(5, 80, key_map_grid);
 
-    M_DrawBindFooter("7", true);
+    M_DrawBindFooter(170, "7", true);
 }
 
-static boolean M_Bind_ToggleMap (int option)
+static void M_Bind_ToggleMap (int option)
 {
     M_StartBind(700);  // key_map_toggle
-    return true;
 }
 
-static boolean M_Bind_ZoomIn (int option)
+static void M_Bind_ZoomIn (int option)
 {
     M_StartBind(701);  // key_map_zoomin
-    return true;
 }
 
-static boolean M_Bind_ZoomOut (int option)
+static void M_Bind_ZoomOut (int option)
 {
     M_StartBind(702);  // key_map_zoomout
-    return true;
 }
 
-static boolean M_Bind_MaxZoom (int option)
+static void M_Bind_MaxZoom (int option)
 {
     M_StartBind(703);  // key_map_maxzoom
-    return true;
 }
 
-static boolean M_Bind_FollowMode (int option)
+static void M_Bind_FollowMode (int option)
 {
     M_StartBind(704);  // key_map_follow
-    return true;
 }
 
 /*
-static boolean M_Bind_RotateMode (int option)
+static void M_Bind_RotateMode (int option)
 {
     M_StartBind(705);  // key_crl_map_rotate
-    return true;
 }
 
-static boolean M_Bind_OverlayMode (int option)
+static void M_Bind_OverlayMode (int option)
 {
     M_StartBind(706);  // key_crl_map_overlay
-    return true;
 }
 */
 
-static boolean M_Bind_ToggleGrid (int option)
+static void M_Bind_ToggleGrid (int option)
 {
     M_StartBind(705);  // key_map_grid
-    return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -2072,13 +2246,15 @@ static Menu_t CRLKbdBinds8 = {
     DrawCRLKbd8,
     11, CRLKbsBinds8Items,
     0,
-    true,
+    SmallFont, true, true,
     MENU_CRLCONTROLS
 };
 
 static void DrawCRLKbd8 (void)
 {
-    M_ShadeBackground();
+    Keybinds_Cur = (MenuType_t)MENU_CRLKBDBINDS8;
+
+    M_FillBackground();
 
     MN_DrTextACentered("FUNCTION KEYS", 20, cr[CR_YELLOW]);
 
@@ -2094,73 +2270,62 @@ static void DrawCRLKbd8 (void)
     M_DrawBindKey(9, 120, key_menu_gamma);
     M_DrawBindKey(10, 130, key_spy);
 
-    M_DrawBindFooter("8", true);
+    M_DrawBindFooter(170, "8", true);
 }
 
-static boolean M_Bind_HelpScreen (int option)
+static void M_Bind_HelpScreen (int option)
 {
     M_StartBind(800);  // key_menu_help
-    return true;
 }
 
-static boolean M_Bind_SaveGame (int option)
+static void M_Bind_SaveGame (int option)
 {
     M_StartBind(801);  // key_menu_save
-    return true;
 }
 
-static boolean M_Bind_LoadGame (int option)
+static void M_Bind_LoadGame (int option)
 {
     M_StartBind(802);  // key_menu_load
-    return true;
 }
 
-static boolean M_Bind_SoundVolume (int option)
+static void M_Bind_SoundVolume (int option)
 {
     M_StartBind(803);  // key_menu_volume
-    return true;
 }
 
-static boolean M_Bind_QuickSave (int option)
+static void M_Bind_QuickSave (int option)
 {
     M_StartBind(804);  // key_menu_qsave
-    return true;
 }
 
-static boolean M_Bind_EndGame (int option)
+static void M_Bind_EndGame (int option)
 {
     M_StartBind(805);  // key_menu_endgame
-    return true;
 }
 
-static boolean M_Bind_ToggleMessages (int option)
+static void M_Bind_ToggleMessages (int option)
 {
     M_StartBind(806);  // key_menu_messages
-    return true;
 }
 
-static boolean M_Bind_QuickLoad (int option)
+static void M_Bind_QuickLoad (int option)
 {
     M_StartBind(807);  // key_menu_qload
-    return true;
 }
 
-static boolean M_Bind_QuitGame (int option)
+static void M_Bind_QuitGame (int option)
 {
     M_StartBind(808);  // key_menu_quit
-    return true;
 }
 
-static boolean M_Bind_ToggleGamma (int option)
+static void M_Bind_ToggleGamma (int option)
 {
     M_StartBind(809);  // key_menu_gamma
-    return true;
 }
 
-static boolean M_Bind_MultiplayerSpy (int option)
+static void M_Bind_MultiplayerSpy (int option)
 {
     M_StartBind(810);  // key_spy
-    return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -2186,13 +2351,15 @@ static Menu_t CRLKbdBinds9 = {
     DrawCRLKbd9,
     11, CRLKbsBinds9Items,
     0,
-    true,
+    SmallFont, true, true,
     MENU_CRLCONTROLS
 };
 
 static void DrawCRLKbd9 (void)
 {
-    M_ShadeBackground();
+    Keybinds_Cur = (MenuType_t)MENU_CRLKBDBINDS9;
+
+    M_FillBackground();
 
     MN_DrTextACentered("SHORTCUT KEYS", 20, cr[CR_YELLOW]);
 
@@ -2210,63 +2377,54 @@ static void DrawCRLKbd9 (void)
 
     MN_DrTextACentered("RESET", 120, cr[CR_YELLOW]);
 
-    M_DrawBindFooter("9", true);
+    M_DrawBindFooter(170, "9", true);
 }
 
-static boolean M_Bind_Pause (int option)
+static void M_Bind_Pause (int option)
 {
     M_StartBind(900);  // key_pause
-    return true;
 }
 
-static boolean M_Bind_SaveScreenshot (int option)
+static void M_Bind_SaveScreenshot (int option)
 {
     M_StartBind(901);  // key_menu_screenshot
-    return true;
 }
 
-static boolean M_Bind_FinishDemo (int option)
+static void M_Bind_FinishDemo (int option)
 {
     M_StartBind(902);  // key_demo_quit
-    return true;
 }
 
-static boolean M_Bind_SendMessage (int option)
+static void M_Bind_SendMessage (int option)
 {
     M_StartBind(903);  // key_multi_msg
-    return true;
 }
 
-static boolean M_Bind_ToPlayer1 (int option)
+static void M_Bind_ToPlayer1 (int option)
 {
     M_StartBind(904);  // key_multi_msgplayer[0]
-    return true;
 }
 
-static boolean M_Bind_ToPlayer2 (int option)
+static void M_Bind_ToPlayer2 (int option)
 {
     M_StartBind(905);  // key_multi_msgplayer[1]
-    return true;
 }
 
-static boolean M_Bind_ToPlayer3 (int option)
+static void M_Bind_ToPlayer3 (int option)
 {
     M_StartBind(906);  // key_multi_msgplayer[2]
-    return true;
 }
 
-static boolean M_Bind_ToPlayer4 (int option)
+static void M_Bind_ToPlayer4 (int option)
 {
     M_StartBind(907);  // key_multi_msgplayer[3]
-    return true;
 }
 
-static boolean M_Bind_Reset (int option)
+static void M_Bind_Reset (int option)
 {
     MenuActive = false;
     askforquit = true;
-    typeofask = 5;      // [JN] keybinds reset
-    return true;
+    typeofask = 6;      // [JN] keybinds reset
 }
 
 // -----------------------------------------------------------------------------
@@ -2274,29 +2432,34 @@ static boolean M_Bind_Reset (int option)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLMouseItems[] = {
-    {ITT_EFUNC, "FIRE/ATTACK",   M_Bind_M_FireAttack,   0, MENU_NONE},
-    {ITT_EFUNC, "MOVE FORWARD",  M_Bind_M_MoveForward,  0, MENU_NONE},
-    {ITT_EFUNC, "STRAFE ON",     M_Bind_M_StrafeOn,     0, MENU_NONE},
-    {ITT_EFUNC, "MOVE BACKWARD", M_Bind_M_MoveBackward, 0, MENU_NONE},
-    {ITT_EFUNC, "USE",           M_Bind_M_Use,          0, MENU_NONE},
-    {ITT_EFUNC, "STRAFE LEFT",   M_Bind_M_StrafeLeft,   0, MENU_NONE},
-    {ITT_EFUNC, "STRAFE RIGHT",  M_Bind_M_StrafeRight,  0, MENU_NONE},
-    {ITT_EFUNC, "PREV WEAPON",   M_Bind_M_PrevWeapon,   0, MENU_NONE},
-    {ITT_EFUNC, "NEXT WEAPON",   M_Bind_M_NextWeapon,   0, MENU_NONE}
+    { ITT_EFUNC, "FIRE/ATTACK",               M_Bind_M_FireAttack,     0, MENU_NONE },
+    { ITT_EFUNC, "MOVE FORWARD",              M_Bind_M_MoveForward,    0, MENU_NONE },
+    { ITT_EFUNC, "STRAFE ON",                 M_Bind_M_StrafeOn,       0, MENU_NONE },
+    { ITT_EFUNC, "MOVE BACKWARD",             M_Bind_M_MoveBackward,   0, MENU_NONE },
+    { ITT_EFUNC, "USE",                       M_Bind_M_Use,            0, MENU_NONE },
+    { ITT_EFUNC, "STRAFE LEFT",               M_Bind_M_StrafeLeft,     0, MENU_NONE },
+    { ITT_EFUNC, "STRAFE RIGHT",              M_Bind_M_StrafeRight,    0, MENU_NONE },
+    { ITT_EFUNC, "PREV WEAPON",               M_Bind_M_PrevWeapon,     0, MENU_NONE },
+    { ITT_EFUNC, "NEXT WEAPON",               M_Bind_M_NextWeapon,     0, MENU_NONE },
+    { ITT_EFUNC, "INVENTORY LEFT",            M_Bind_M_InventoryLeft,  0, MENU_NONE },
+    { ITT_EFUNC, "INVENTORY RIGHT",           M_Bind_M_InventoryRight, 0, MENU_NONE },
+    { ITT_EFUNC, "USE ARTIFACT",              M_Bind_M_UseArtifact,    0, MENU_NONE },
+    { ITT_EMPTY, NULL,                        NULL,                    0, MENU_NONE },
+    { ITT_EFUNC, "RESET BINDINGS TO DEFAULT", M_Bind_M_Reset,          0, MENU_NONE },
 };
 
 static Menu_t CRLMouseBinds = {
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     DrawCRLMouse,
-    9, CRLMouseItems,
+    14, CRLMouseItems,
     0,
-    true,
+    SmallFont, false, false,
     MENU_CRLCONTROLS
 };
 
 static void DrawCRLMouse (void)
 {
-    M_ShadeBackground();
+    M_FillBackground();
 
     MN_DrTextACentered("MOUSE BINDINGS", 20, cr[CR_YELLOW]);
 
@@ -2309,62 +2472,80 @@ static void DrawCRLMouse (void)
     M_DrawBindButton(6, 90, mousebstraferight);
     M_DrawBindButton(7, 100, mousebprevweapon);
     M_DrawBindButton(8, 110, mousebnextweapon);
+    M_DrawBindButton(9, 120, mousebinvleft);
+    M_DrawBindButton(10, 130, mousebinvright);
+    M_DrawBindButton(11, 140, mousebuseartifact);
 
-    M_DrawBindFooter(NULL, false);
+    MN_DrTextACentered("RESET", 150, cr[CR_YELLOW]);
+
+    M_DrawBindFooter(180, NULL, false);
 }
 
-static boolean M_Bind_M_FireAttack (int option)
+static void M_Bind_M_FireAttack (int option)
 {
     M_StartMouseBind(1000);  // mousebfire
-    return true;
 }
 
-static boolean M_Bind_M_MoveForward (int option)
+static void M_Bind_M_MoveForward (int option)
 {
     M_StartMouseBind(1001);  // mousebforward
-    return true;
 }
 
-static boolean M_Bind_M_StrafeOn (int option)
+static void M_Bind_M_StrafeOn (int option)
 {
     M_StartMouseBind(1002);  // mousebstrafe
-    return true;
 }
 
-static boolean M_Bind_M_MoveBackward (int option)
+static void M_Bind_M_MoveBackward (int option)
 {
     M_StartMouseBind(1003);  // mousebbackward
-    return true;
 }
 
-static boolean M_Bind_M_Use (int option)
+static void M_Bind_M_Use (int option)
 {
     M_StartMouseBind(1004);  // mousebuse
-    return true;
 }
 
-static boolean M_Bind_M_StrafeLeft (int option)
+static void M_Bind_M_StrafeLeft (int option)
 {
     M_StartMouseBind(1005);  // mousebstrafeleft
-    return true;
 }
 
-static boolean M_Bind_M_StrafeRight (int option)
+static void M_Bind_M_StrafeRight (int option)
 {
     M_StartMouseBind(1006);  // mousebstraferight
-    return true;
 }
 
-static boolean M_Bind_M_PrevWeapon (int option)
+static void M_Bind_M_PrevWeapon (int option)
 {
     M_StartMouseBind(1007);  // mousebprevweapon
-    return true;
 }
 
-static boolean M_Bind_M_NextWeapon (int option)
+static void M_Bind_M_NextWeapon (int option)
 {
     M_StartMouseBind(1008);  // mousebnextweapon
-    return true;
+}
+
+static void M_Bind_M_InventoryLeft (int option)
+{
+    M_StartMouseBind(1009);  // mousebinvleft
+}
+
+static void M_Bind_M_InventoryRight (int option)
+{
+    M_StartMouseBind(1010);  // mousebinvright
+}
+
+static void M_Bind_M_UseArtifact (int option)
+{
+    M_StartMouseBind(1011);  // mousebuseartifact
+}
+
+static void M_Bind_M_Reset (int option)
+{
+    MenuActive = false;
+    askforquit = true;
+    typeofask = 7;      // [JN] mouse binds reset
 }
 
 // -----------------------------------------------------------------------------
@@ -2391,7 +2572,7 @@ static Menu_t CRLWidgetsMap = {
     DrawCRLWidgets,
     11, CRLWidgetsItems,
     0,
-    true,
+    SmallFont, false, false,
     MENU_CRLMAIN
 };
 
@@ -2405,36 +2586,36 @@ static void DrawCRLWidgets (void)
 
     // Player coords
     sprintf(str, crl_widget_coords ? "ON" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 30,
+    MN_DrTextA(str, M_ItemRightAlign(str), 30,
                M_Item_Glow(0, crl_widget_coords ? GLOW_GREEN : GLOW_RED));
 
     // Playstate counters
     sprintf(str, crl_widget_playstate == 1 ? "ON" :
                  crl_widget_playstate == 2 ? "OVERFLOWS" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 40,
+    MN_DrTextA(str, M_ItemRightAlign(str), 40,
                M_Item_Glow(1, crl_widget_playstate == 1 ? GLOW_GREEN :
                               crl_widget_playstate == 2 ? GLOW_DARKGREEN : GLOW_RED));
 
     // Render counters
     sprintf(str, crl_widget_render == 1 ? "ON" :
                  crl_widget_render == 2 ? "OVERFLOWS" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 50,
+    MN_DrTextA(str, M_ItemRightAlign(str), 50,
                M_Item_Glow(2, crl_widget_render == 1 ? GLOW_GREEN :
                               crl_widget_render == 2 ? GLOW_DARKGREEN : GLOW_RED));
 
     // K/I/S stats
     sprintf(str, crl_widget_kis ? "ON" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 60,
+    MN_DrTextA(str, M_ItemRightAlign(str), 60,
                M_Item_Glow(3, crl_widget_kis ? GLOW_GREEN : GLOW_RED));
 
     // Level time
     sprintf(str, crl_widget_time ? "ON" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 70,
+    MN_DrTextA(str, M_ItemRightAlign(str), 70,
                M_Item_Glow(4, crl_widget_time ? GLOW_GREEN : GLOW_RED));
 
     // Powerup timers
     sprintf(str, crl_widget_powerups ? "ON" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 80,
+    MN_DrTextA(str, M_ItemRightAlign(str), 80,
                M_Item_Glow(5, crl_widget_powerups ? GLOW_GREEN : GLOW_RED));
 
     // Target's health
@@ -2442,63 +2623,55 @@ static void DrawCRLWidgets (void)
                  crl_widget_health == 2 ? "TOP+NAME" :
                  crl_widget_health == 3 ? "BOTTOM" :
                  crl_widget_health == 4 ? "BOTTOM+NAME" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 90,
+    MN_DrTextA(str, M_ItemRightAlign(str), 90,
                M_Item_Glow(6, crl_widget_health ? GLOW_GREEN : GLOW_RED));
 
     MN_DrTextACentered("AUTOMAP", 100, cr[CR_YELLOW]);
 
     // Level time
     sprintf(str, crl_automap_secrets ? "ON" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 110,
+    MN_DrTextA(str, M_ItemRightAlign(str), 110,
                M_Item_Glow(8, crl_automap_secrets ? GLOW_GREEN : GLOW_RED));
 }
 
-static boolean CRL_Widget_Coords (int option)
+static void CRL_Widget_Coords (int option)
 {
     crl_widget_coords ^= 1;
-    return true;
 }
 
-static boolean CRL_Widget_Playstate (int option)
+static void CRL_Widget_Playstate (int option)
 {
-    crl_widget_playstate = M_INT_Slider(crl_widget_playstate, 0, 2, option);
-    return true;
+    crl_widget_playstate = M_INT_Slider(crl_widget_playstate, 0, 2, option, false);
 }
 
-static boolean CRL_Widget_Render (int option)
+static void CRL_Widget_Render (int option)
 {
-    crl_widget_render = M_INT_Slider(crl_widget_render, 0, 2, option);
-    return true;
+    crl_widget_render = M_INT_Slider(crl_widget_render, 0, 2, option, false);
 }
 
-static boolean CRL_Widget_KIS (int option)
+static void CRL_Widget_KIS (int option)
 {
     crl_widget_kis ^= 1;
-    return true;
 }
 
-static boolean CRL_Widget_Time (int option)
+static void CRL_Widget_Time (int option)
 {
     crl_widget_time ^= 1;
-    return true;
 }
 
-static boolean CRL_Widget_Powerups (int option)
+static void CRL_Widget_Powerups (int option)
 {
     crl_widget_powerups ^= 1;
-    return true;
 }
 
-static boolean CRL_Widget_Health (int option)
+static void CRL_Widget_Health (int option)
 {
-    crl_widget_health = M_INT_Slider(crl_widget_health, 0, 4, option);
-    return true;
+    crl_widget_health = M_INT_Slider(crl_widget_health, 0, 4, option, false);
 }
 
-static boolean CRL_Automap_Secrets (int option)
+static void CRL_Automap_Secrets (int option)
 {
     crl_automap_secrets ^= 1;
-    return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -2522,7 +2695,7 @@ static Menu_t CRLGameplay = {
     DrawCRLGameplay,
     9, CRLGameplayItems,
     0,
-    true,
+    SmallFont, false, false,
     MENU_CRLMAIN
 };
 
@@ -2536,22 +2709,22 @@ static void DrawCRLGameplay (void)
 
     // Default skill level
     M_snprintf(str, sizeof(str), "%s", DefSkillName[crl_default_skill]);
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 30,
-               DefSkillColor(crl_default_skill));
+    MN_DrTextA(str, M_ItemRightAlign(str), 30,
+               M_Item_Glow(0, DefSkillColor(crl_default_skill)));
 
     // Wand start game mode
     sprintf(str, crl_pistol_start ? "ON" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 40,
+    MN_DrTextA(str, M_ItemRightAlign(str), 40,
                M_Item_Glow(1, crl_pistol_start ? GLOW_GREEN : GLOW_RED));
 
     // Colored status bar
     sprintf(str, crl_colored_stbar ? "ON" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 50,
+    MN_DrTextA(str, M_ItemRightAlign(str), 50,
                M_Item_Glow(2, crl_colored_stbar? GLOW_GREEN : GLOW_RED));
 
     // Restore monster targets
     sprintf(str, crl_restore_targets ? "ON" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 60,
+    MN_DrTextA(str, M_ItemRightAlign(str), 60,
                M_Item_Glow(3, crl_restore_targets? GLOW_GREEN : GLOW_RED));
 
     MN_DrTextACentered("DEMOS", 70, cr[CR_YELLOW]);
@@ -2560,72 +2733,64 @@ static void DrawCRLGameplay (void)
     sprintf(str, crl_demo_timer == 1 ? "PLAYBACK" : 
                  crl_demo_timer == 2 ? "RECORDING" : 
                  crl_demo_timer == 3 ? "ALWAYS" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 80,
+    MN_DrTextA(str, M_ItemRightAlign(str), 80,
                M_Item_Glow(5, crl_demo_timer ? GLOW_GREEN : GLOW_RED));
 
     // Timer direction
     sprintf(str, crl_demo_timerdir ? "BACKWARD" : "FORWARD");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 90,
+    MN_DrTextA(str, M_ItemRightAlign(str), 90,
                M_Item_Glow(6, crl_demo_timer ? GLOW_GREEN : GLOW_RED));
 
     // Show progress bar
     sprintf(str, crl_demo_bar ? "ON" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 100,
+    MN_DrTextA(str, M_ItemRightAlign(str), 100,
                M_Item_Glow(7, crl_demo_bar? GLOW_GREEN : GLOW_RED));
 
     // Play internal demos
     sprintf(str, crl_internal_demos ? "ON" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 110,
+    MN_DrTextA(str, M_ItemRightAlign(str), 110,
                M_Item_Glow(8, crl_internal_demos? GLOW_GREEN : GLOW_RED));
 }
 
-static boolean CRL_DefaulSkill (int option)
+static void CRL_DefaulSkill (int option)
 {
-    crl_default_skill = M_INT_Slider(crl_default_skill, 0, 4, option);
+    crl_default_skill = M_INT_Slider(crl_default_skill, 0, 4, option, false);
     SkillMenu.oldItPos = crl_default_skill;
-    return true;
 }
 
-static boolean CRL_PistolStart (int option)
+static void CRL_PistolStart (int option)
 {
     crl_pistol_start ^= 1;
-    return true;
 }
 
-static boolean CRL_ColoredSBar (int option)
+static void CRL_ColoredSBar (int option)
 {
     crl_colored_stbar ^= 1;
-    return true;
 }
 
-static boolean CRL_RestoreTargets (int option)
+static void CRL_RestoreTargets (int option)
 {
     crl_restore_targets ^= 1;
-    return true;
 }
 
-static boolean CRL_DemoTimer (int choice)
+static void CRL_DemoTimer (int choice)
 {
-    crl_demo_timer = M_INT_Slider(crl_demo_timer, 0, 3, choice);
-    return true;
+    crl_demo_timer = M_INT_Slider(crl_demo_timer, 0, 3, choice, false);
 }
 
-static boolean CRL_TimerDirection (int choice)
+static void CRL_TimerDirection (int choice)
 {
     crl_demo_timerdir ^= 1;
-    return true;
 }
 
-static boolean CRL_ProgressBar (int option)
+static void CRL_ProgressBar (int option)
 {
     crl_demo_bar ^= 1;
-    return true;
 }
 
-static boolean CRL_InternalDemos (int option)
+static void CRL_InternalDemos (int option)
 {
     crl_internal_demos ^= 1;
-    return true;
 }
 
 // -----------------------------------------------------------------------------
@@ -2633,108 +2798,76 @@ static boolean CRL_InternalDemos (int option)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLLimitsItems[] = {
-    {ITT_LRFUNC, "PREVENT Z[MALLOC ERRORS",    CRL_ZMalloc,         0, MENU_NONE},
     {ITT_LRFUNC, "SAVE GAME LIMIT WARNING",    CRL_SaveSizeWarning, 0, MENU_NONE},
-    {ITT_LRFUNC, "DEMO LENGHT LIMIT WARNING",  CRL_DemoSizeWarning, 0, MENU_NONE},
     {ITT_LRFUNC, "RENDER LIMITS LEVEL",        CRL_Limits,          0, MENU_NONE}
 };
 
 static Menu_t CRLLimits = {
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     DrawCRLLimits,
-    4, CRLLimitsItems,
+    2, CRLLimitsItems,
     0,
-    true,
+    SmallFont, false, false,
     MENU_CRLMAIN
 };
 
 static void DrawCRLLimits (void)
 {
-    static char str[32];
+    char str[32];
 
     M_ShadeBackground();
 
     MN_DrTextACentered("STATIC ENGINE LIMITS", 20, cr[CR_YELLOW]);
 
-    // Prevent Z_Malloc errors
-    /*
-    sprintf(str, crl_prevent_zmalloc ? "ON" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 30,
-               M_Item_Glow(0, crl_prevent_zmalloc ? GLOW_GREEN : GLOW_RED));
-               */
-
     // Save game limit warning
     sprintf(str, vanilla_savegame_limit ? "ON" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 40,
-               M_Item_Glow(1, vanilla_savegame_limit ? GLOW_GREEN : GLOW_RED));
-
-    // Demo lenght limit warning
-    /*
-    sprintf(str, vanilla_demo_limit ? "ON" : "OFF");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 50,
-               M_Item_Glow(2, vanilla_demo_limit ? GLOW_GREEN : GLOW_RED));
-               */
+    MN_DrTextA(str, M_ItemRightAlign(str), 30,
+               M_Item_Glow(0, vanilla_savegame_limit ? GLOW_GREEN : GLOW_RED));
 
     // Level of the limits
     sprintf(str, crl_vanilla_limits ? "VANILLA" : "HERETIC-PLUS");
-    MN_DrTextA(str, CRL_MENU_RIGHTOFFSET - MN_TextAWidth(str), 60,
-               M_Item_Glow(3, crl_vanilla_limits ? GLOW_RED : GLOW_GREEN));
+    MN_DrTextA(str, M_ItemRightAlign(str), 40,
+               M_Item_Glow(1, crl_vanilla_limits ? GLOW_RED : GLOW_GREEN));
 
-    MN_DrTextA("MAXVISPLANES", CRL_MENU_LEFTOFFSET_SML + 16, 80, cr[CR_MENU_DARK2]);
-    MN_DrTextA("MAXDRAWSEGS", CRL_MENU_LEFTOFFSET_SML + 16, 90, cr[CR_MENU_DARK2]);
-    MN_DrTextA("MAXVISSPRITES", CRL_MENU_LEFTOFFSET_SML + 16, 100, cr[CR_MENU_DARK2]);
-    MN_DrTextA("MAXOPENINGS", CRL_MENU_LEFTOFFSET_SML + 16, 110, cr[CR_MENU_DARK2]);
-    MN_DrTextA("MAXPLATS", CRL_MENU_LEFTOFFSET_SML + 16, 120, cr[CR_MENU_DARK2]);
-    MN_DrTextA("MAXLINEANIMS", CRL_MENU_LEFTOFFSET_SML + 16, 130, cr[CR_MENU_DARK2]);
+    MN_DrTextA("MAXVISPLANES", CRL_MENU_LEFTOFFSET_SML + 16, 60, cr[CR_MENU_DARK2]);
+    MN_DrTextA("MAXDRAWSEGS", CRL_MENU_LEFTOFFSET_SML + 16, 70, cr[CR_MENU_DARK2]);
+    MN_DrTextA("MAXVISSPRITES", CRL_MENU_LEFTOFFSET_SML + 16, 80, cr[CR_MENU_DARK2]);
+    MN_DrTextA("MAXOPENINGS", CRL_MENU_LEFTOFFSET_SML + 16, 90, cr[CR_MENU_DARK2]);
+    MN_DrTextA("MAXPLATS", CRL_MENU_LEFTOFFSET_SML + 16, 100, cr[CR_MENU_DARK2]);
+    MN_DrTextA("MAXLINEANIMS", CRL_MENU_LEFTOFFSET_SML + 16, 110, cr[CR_MENU_DARK2]);
 
     if (crl_vanilla_limits)
     {
+        MN_DrTextA("128", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("128"), 60, cr[CR_RED]);
+        MN_DrTextA("256", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("256"), 70, cr[CR_RED]);
         MN_DrTextA("128", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("128"), 80, cr[CR_RED]);
-        MN_DrTextA("256", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("256"), 90, cr[CR_RED]);
-        MN_DrTextA("128", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("128"), 100, cr[CR_RED]);
-        MN_DrTextA("20480", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("20480"), 110, cr[CR_RED]);
-        MN_DrTextA("30", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("30"), 120, cr[CR_RED]);
-        MN_DrTextA("64", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("64"), 130, cr[CR_RED]);
+        MN_DrTextA("20480", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("20480"), 90, cr[CR_RED]);
+        MN_DrTextA("30", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("30"), 100, cr[CR_RED]);
+        MN_DrTextA("64", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("64"), 110, cr[CR_RED]);
     }
     else
     {
+        MN_DrTextA("1024", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("1024"), 60, cr[CR_GREEN]);
+        MN_DrTextA("2048", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("2048"), 70, cr[CR_GREEN]);
         MN_DrTextA("1024", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("1024"), 80, cr[CR_GREEN]);
-        MN_DrTextA("2048", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("2048"), 90, cr[CR_GREEN]);
-        MN_DrTextA("1024", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("1024"), 100, cr[CR_GREEN]);
-        MN_DrTextA("65536", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("65536"), 110, cr[CR_GREEN]);
-        MN_DrTextA("7680", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("7680"), 120, cr[CR_GREEN]);
-        MN_DrTextA("16384", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("16384"), 130, cr[CR_GREEN]);
+        MN_DrTextA("65536", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("65536"), 90, cr[CR_GREEN]);
+        MN_DrTextA("7680", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("7680"), 100, cr[CR_GREEN]);
+        MN_DrTextA("16384", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("16384"), 110, cr[CR_GREEN]);
     }
 }
 
-static boolean CRL_ZMalloc (int option)
-{
-    //crl_prevent_zmalloc ^= 1;
-    return true;
-}
-
-static boolean CRL_SaveSizeWarning (int option)
+static void CRL_SaveSizeWarning (int option)
 {
     vanilla_savegame_limit ^= 1;
-    return true;
 }
 
-static boolean CRL_DemoSizeWarning (int option)
-{
-    //vanilla_demo_limit ^= 1;
-    return true;
-}
-
-static boolean CRL_Limits (int option)
+static void CRL_Limits (int option)
 {
     crl_vanilla_limits ^= 1;
 
     // [JN] CRL - re-define static engine limits.
     CRL_SetStaticLimits("HERETIC+");
-    return true;
 }
-
-
 
 static Menu_t *Menus[] = {
     &MainMenu,
@@ -2748,6 +2881,7 @@ static Menu_t *Menus[] = {
     // [JN] CRL menu
     &CRLMain,
     &CRLVideo,
+    &CRLDisplay,
     &CRLSound,
     &CRLControls,
     &CRLKbdBinds1,
@@ -2777,7 +2911,6 @@ void MN_Init(void)
 {
     InitFonts();
     MenuActive = false;
-    messageson = true;
     SkullBaseLump = W_GetNumForName(DEH_String("M_SKL00"));
 
     // [JN] CRL - player is always local, "console" player.
@@ -2791,6 +2924,9 @@ void MN_Init(void)
 
     // [crispy] apply default difficulty
     SkillMenu.oldItPos = crl_default_skill;
+
+    // [JN] Apply default first page of Keybinds menu.
+    Keybinds_Cur = (MenuType_t)MENU_CRLKBDBINDS1;
 }
 
 //---------------------------------------------------------------------------
@@ -2803,6 +2939,33 @@ static void InitFonts(void)
 {
     FontABaseLump = W_GetNumForName(DEH_String("FONTA_S")) + 1;
     FontBBaseLump = W_GetNumForName(DEH_String("FONTB_S")) + 1;
+}
+
+// [crispy] Check if printable character is existing in FONTA/FONTB sets
+// and do a replacement or case correction if needed.
+
+enum {
+    big_font, small_font
+} fontsize_t;
+
+static const char MN_CheckValidChar (char ascii_index, int have_cursor)
+{
+    if ((ascii_index > 'Z' + have_cursor && ascii_index < 'a') || ascii_index > 'z')
+    {
+        // Replace "\]^_`" and "{|}~" with spaces,
+        // allow "[" (cursor symbol) only in small fonts.
+        return ' ';
+    }
+    else if (ascii_index >= 'a' && ascii_index <= 'z')
+    {
+        // Force lowercase "a...z" characters to uppercase "A...Z".
+        return ascii_index + 'A' - 'a';
+    }
+    else
+    {
+        // Valid char, do not modify it's ASCII index.
+        return ascii_index;
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -2822,6 +2985,8 @@ void MN_DrTextA (const char *text, int x, int y, byte *table)
 
     while ((c = *text++) != 0)
     {
+        c = MN_CheckValidChar(c, small_font); // [crispy] check for valid characters
+
         if (c < 33)
         {
             x += 5;
@@ -2854,6 +3019,8 @@ int MN_TextAWidth(const char *text)
     width = 0;
     while ((c = *text++) != 0)
     {
+        c = MN_CheckValidChar(c, small_font); // [crispy] check for valid characters
+
         if (c < 33)
         {
             width += 5;
@@ -2879,6 +3046,8 @@ void MN_DrTextACentered (const char *text, int y, byte *table)
 
     while ((c = *text++) != 0)
     {
+        c = MN_CheckValidChar(c, small_font); // [crispy] check for valid characters
+
         if (c < 33)
         {
             cx += 5;
@@ -2912,6 +3081,8 @@ void MN_DrTextACritical (const char *text1, const char *text2, int y, byte *tabl
 
     while ((c = *text1++) != 0)
     {
+        c = MN_CheckValidChar(c, small_font); // [crispy] check for valid characters
+
         if (c < 33)
         {
             cx1 += 5;
@@ -2949,13 +3120,17 @@ void MN_DrTextACritical (const char *text1, const char *text2, int y, byte *tabl
 //
 //---------------------------------------------------------------------------
 
-void MN_DrTextB(const char *text, int x, int y)
+void MN_DrTextB(const char *text, int x, int y, byte *table)
 {
     char c;
     patch_t *p;
 
+    dp_translation = table;
+
     while ((c = *text++) != 0)
     {
+        c = MN_CheckValidChar(c, big_font); // [crispy] check for valid characters
+
         if (c < 33)
         {
             x += 8;
@@ -2967,6 +3142,8 @@ void MN_DrTextB(const char *text, int x, int y)
             x += SHORT(p->width) - 1;
         }
     }
+
+    dp_translation = NULL;
 }
 
 //---------------------------------------------------------------------------
@@ -2986,6 +3163,8 @@ int MN_TextBWidth(const char *text)
     width = 0;
     while ((c = *text++) != 0)
     {
+        c = MN_CheckValidChar(c, big_font); // [crispy] check for valid characters
+
         if (c < 33)
         {
             width += 5;
@@ -3013,8 +3192,15 @@ void MN_Ticker(void)
     }
     MenuTime++;
 
-    // [JN] Menu glowing animation:
+    // [JN] Don't go any farther with effects while active info screens.
     
+    if (InfoType)
+    {
+        return;
+    }
+
+    // [JN] Menu glowing animation:
+
     if (!cursor_direction && ++cursor_tics == 8)
     {
         // Brightening
@@ -3029,23 +3215,19 @@ void MN_Ticker(void)
 
     // [JN] Menu item fading effect:
 
-    if (CurrentMenu->smallFont)
+    for (int i = 0 ; i < CurrentMenu->itemCount ; i++)
     {
-        for (int i = 0 ; i < CurrentMenu->itemCount ; i++)
+        if (CurrentItPos == i)
         {
-            if (CurrentItPos == i)
-            {
-                // Keep menu item bright
-                CurrentMenu->items[i].tics = 5;
-            }
-            else
-            {
-                // Decrease tics for glowing effect
-                CurrentMenu->items[i].tics--;
-            }
+            // Keep menu item bright
+            CurrentMenu->items[i].tics = 5;
+        }
+        else
+        {
+            // Decrease tics for glowing effect
+            CurrentMenu->items[i].tics--;
         }
     }
-
 }
 
 //---------------------------------------------------------------------------
@@ -3059,7 +3241,9 @@ char *QuitEndMsg[] = {
     "ARE YOU SURE YOU WANT TO END THE GAME?",
     "DO YOU WANT TO QUICKSAVE THE GAME NAMED",
     "DO YOU WANT TO QUICKLOAD THE GAME NAMED",
-    "RESET KEYBOARD BINDINGS TO DEFAULT VALUES?",  // [JN] typeofask 5 (reset keybinds)
+    "DO YOU WANT TO DELETE THE GAME NAMED",        // [crispy] typeofask 5 (delete a savegame)
+    "RESET KEYBOARD BINDINGS TO DEFAULT VALUES?",  // [JN] typeofask 6 (reset keyboard binds)
+    "RESET MOUSE BINDINGS TO DEFAULT VALUES?",     // [JN] typeofask 7 (reset mouse binds)
 };
 
 void MN_Drawer(void)
@@ -3071,11 +3255,30 @@ void MN_Drawer(void)
     const char *message;
     const char *selName;
 
+    if (MenuActive || typeofask)
+    {
+        // Temporary unshade while changing certain settings.
+        if (shade_wait < I_GetTime())
+        {
+            M_ShadeBackground();
+        }
+        // Always redraw status bar background.
+        SB_ForceRedraw();
+    }
+
     if (MenuActive == false)
     {
         if (askforquit)
         {
             message = DEH_String(QuitEndMsg[typeofask - 1]);
+
+            // [JN] Keep backgound filling while asking for 
+            // reset and inform about Y or N pressing.
+            if (typeofask == 6 || typeofask == 7)
+            {
+                M_FillBackground();
+                MN_DrTextACentered("PRESS Y OR N.", 100, NULL);
+            }
 
             MN_DrTextA(message, 160 - MN_TextAWidth(message) / 2, 80, NULL);
             if (typeofask == 3)
@@ -3092,21 +3295,22 @@ void MN_Drawer(void)
                 MN_DrTextA(DEH_String("?"), 160 +
                            MN_TextAWidth(SlotText[quickload - 1]) / 2, 90, NULL);
             }
-            UpdateState |= I_FULLSCRN;
+            if (typeofask == 5)
+            {
+                MN_DrTextA(SlotText[CurrentItPos], 160 -
+                           MN_TextAWidth(SlotText[CurrentItPos]) / 2, 90, NULL);
+                MN_DrTextA(DEH_String("?"), 160 +
+                           MN_TextAWidth(SlotText[CurrentItPos]) / 2, 90, NULL);
+            }
         }
         return;
     }
     else
     {
-        UpdateState |= I_FULLSCRN;
         if (InfoType)
         {
             MN_DrawInfo();
             return;
-        }
-        if (screenblocks < 10)
-        {
-            BorderNeedRefresh = true;
         }
         if (CurrentMenu->drawFunc != NULL)
         {
@@ -3117,38 +3321,27 @@ void MN_Drawer(void)
         item = CurrentMenu->items;
         for (i = 0; i < CurrentMenu->itemCount; i++)
         {
-            if (CurrentMenu->smallFont)
+            if (item->type != ITT_EMPTY && item->text)
             {
-                if (item->type != ITT_EMPTY && item->text)
+                if (CurrentMenu->FontType == SmallFont)
                 {
-                    if (CurrentItPos == i)
-                    {
-                        // [JN] Highlight menu item on which the cursor is positioned.
-                        MN_DrTextA(DEH_String(item->text), x, y, cr[CR_MENU_BRIGHT2]);
-                    }
-                    else
-                    {
-                        // [JN] Apply fading effect in MN_Ticker.
-                        MN_DrTextA(DEH_String(item->text), x, y, M_Line_Glow(CurrentMenu->items[i].tics));
-                    }
+                    MN_DrTextA(DEH_String(item->text), x, y, M_Small_Line_Glow(CurrentMenu->items[i].tics));
                 }
-                y += ITEM_HEIGHT_SMALL;
-            }
-            else
-            {
-                if (item->type != ITT_EMPTY && item->text)
+                else
+                if (CurrentMenu->FontType == BigFont)
                 {
-                    MN_DrTextB(DEH_String(item->text), x, y);
+                    MN_DrTextB(DEH_String(item->text), x, y, NULL/*M_Big_Line_Glow(CurrentMenu->items[i].tics)*/);
                 }
-                y += ITEM_HEIGHT;
+                // [JN] Else, don't draw file slot names (1, 2, 3, ...) in Save/Load menus.
             }
+            y += CurrentMenu->FontType == SmallFont ? ID_MENU_LINEHEIGHT_SMALL : ITEM_HEIGHT;
             item++;
         }
         
-        if (CurrentMenu->smallFont)
+        if (CurrentMenu->FontType == SmallFont)
         {
-            y = CurrentMenu->y + (CurrentItPos * ITEM_HEIGHT_SMALL);
-            MN_DrTextA("*", x + SELECTOR_XOFFSET_SMALL, y, M_Cursor_Glow(cursor_tics));
+            y = CurrentMenu->y + (CurrentItPos * ID_MENU_LINEHEIGHT_SMALL);
+            MN_DrTextA("*", x - ID_MENU_CURSOR_OFFSET, y, M_Cursor_Glow(cursor_tics));
         }
         else
         {
@@ -3212,6 +3405,46 @@ static void DrawFilesMenu(void)
     players[consoleplayer].messageTics = 1;
 }
 
+// [crispy] support additional pages of savegames
+static void DrawSaveLoadBottomLine(const Menu_t *menu)
+{
+    char pagestr[16];
+    static short width;
+    const int y = menu->y + ITEM_HEIGHT * SAVES_PER_PAGE;
+
+    if (!width)
+    {
+        const patch_t *const p = W_CacheLumpName(DEH_String("M_FSLOT"), PU_CACHE);
+        width = SHORT(p->width);
+    }
+    if (savepage > 0)
+        MN_DrTextA("PGUP", menu->x + 1, y, cr[CR_MENU_DARK4]);
+    if (savepage < SAVEPAGE_MAX)
+        MN_DrTextA("PGDN", menu->x + width - MN_TextAWidth("PGDN"), y, cr[CR_MENU_DARK4]);
+
+    M_snprintf(pagestr, sizeof(pagestr), "PAGE %d/%d", savepage + 1, SAVEPAGE_MAX + 1);
+    MN_DrTextA(pagestr, SCREENWIDTH / 2 - MN_TextAWidth(pagestr) / 2, y, cr[CR_MENU_DARK4]);
+
+    // [JN] Print "modified" (or created initially) time of savegame file.
+    if (SlotStatus[CurrentItPos] && !FileMenuKeySteal)
+    {
+        struct stat filestat;
+        char filedate[32];
+
+        stat(SV_Filename(CurrentItPos), &filestat);
+// [FG] suppress the most useless compiler warning ever
+#if defined(__GNUC__)
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wformat-y2k"
+#endif
+        strftime(filedate, sizeof(filedate), "%x %X", localtime(&filestat.st_mtime));
+#if defined(__GNUC__)
+#  pragma GCC diagnostic pop
+#endif
+        MN_DrTextACentered(filedate, y + 10, cr[CR_MENU_DARK4]);
+    }
+}
+
 //---------------------------------------------------------------------------
 //
 // PROC DrawLoadMenu
@@ -3222,14 +3455,15 @@ static void DrawLoadMenu(void)
 {
     const char *title;
 
-    title = DEH_String("LOAD GAME");
+    title = DEH_String(quickloadTitle ? "QUICK LOAD GAME" : "LOAD GAME");
 
-    MN_DrTextB(title, 160 - MN_TextBWidth(title) / 2, 10);
     if (!slottextloaded)
     {
         MN_LoadSlotText();
     }
     DrawFileSlots(&LoadMenu);
+    MN_DrTextB(title, 160 - MN_TextBWidth(title) / 2, 1, NULL);
+    DrawSaveLoadBottomLine(&LoadMenu);
 }
 
 //---------------------------------------------------------------------------
@@ -3242,14 +3476,15 @@ static void DrawSaveMenu(void)
 {
     const char *title;
 
-    title = DEH_String("SAVE GAME");
+    title = DEH_String(quicksaveTitle ? "QUICK SAVE GAME" : "SAVE GAME");
 
-    MN_DrTextB(title, 160 - MN_TextBWidth(title) / 2, 10);
     if (!slottextloaded)
     {
         MN_LoadSlotText();
     }
     DrawFileSlots(&SaveMenu);
+    MN_DrTextB(title, 160 - MN_TextBWidth(title) / 2, 1, NULL);
+    DrawSaveLoadBottomLine(&SaveMenu);
 }
 
 //===========================================================================
@@ -3318,13 +3553,13 @@ static void DrawFileSlots(Menu_t * menu)
 
 static void DrawOptionsMenu(void)
 {
-    if (messageson)
+    if (showMessages)
     {
-        MN_DrTextB(DEH_String("ON"), 196, 50);
+        MN_DrTextB(DEH_String("ON"), 196, 50, NULL);
     }
     else
     {
-        MN_DrTextB(DEH_String("OFF"), 196, 50);
+        MN_DrTextB(DEH_String("OFF"), 196, 50, NULL);
     }
     DrawSlider(&OptionsMenu, 3, 10, mouseSensitivity, true);
 }
@@ -3357,18 +3592,25 @@ static boolean SCNetCheck(int option)
     switch (option)
     {
         case 1:
-            P_SetMessage(&players[consoleplayer],
-                         "YOU CAN'T START A NEW GAME IN NETPLAY!", true);
+            CT_SetMessage(&players[consoleplayer],
+                          "YOU CAN'T START A NEW GAME IN NETPLAY!", true, NULL);
             break;
         case 2:
-            P_SetMessage(&players[consoleplayer],
-                         "YOU CAN'T LOAD A GAME IN NETPLAY!", true);
+            CT_SetMessage(&players[consoleplayer],
+                          "YOU CAN'T LOAD A GAME IN NETPLAY!", true, NULL);
             break;
-        default:
+        case 3:                // end game
+            CT_SetMessage(&players[consoleplayer],
+                          "YOU CAN'T END A GAME IN NETPLAY!", true, NULL);
             break;
     }
     MenuActive = false;
     return false;
+}
+
+static void SCNetCheck2(int option)
+{
+    SCNetCheck(option);
 }
 
 //---------------------------------------------------------------------------
@@ -3377,7 +3619,7 @@ static boolean SCNetCheck(int option)
 //
 //---------------------------------------------------------------------------
 
-static boolean SCQuitGame(int option)
+static void SCQuitGame(int option)
 {
     MenuActive = false;
     askforquit = true;
@@ -3386,7 +3628,6 @@ static boolean SCQuitGame(int option)
     {
         paused = true;
     }
-    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -3395,20 +3636,22 @@ static boolean SCQuitGame(int option)
 //
 //---------------------------------------------------------------------------
 
-static boolean SCEndGame(int option)
+static void SCEndGame(int option)
 {
     if (demoplayback || netgame)
     {
-        return false;
+        return;
     }
-    MenuActive = false;
-    askforquit = true;
-    typeofask = 2;              //endgame
-    if (!netgame && !demoplayback)
+    if (SCNetCheck(3))
     {
-        paused = true;
+        MenuActive = false;
+        askforquit = true;
+        typeofask = 2;              //endgame
+        if (!netgame && !demoplayback)
+        {
+            paused = true;
+        }
     }
-    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -3417,19 +3660,18 @@ static boolean SCEndGame(int option)
 //
 //---------------------------------------------------------------------------
 
-static boolean SCMessages(int option)
+static void SCMessages(int option)
 {
-    messageson ^= 1;
-    if (messageson)
+    showMessages ^= 1;
+    if (showMessages)
     {
-        P_SetMessage(&players[consoleplayer], DEH_String("MESSAGES ON"), true);
+        CT_SetMessage(&players[consoleplayer], DEH_String("MESSAGES ON"), true, NULL);
     }
     else
     {
-        P_SetMessage(&players[consoleplayer], DEH_String("MESSAGES OFF"), true);
+        CT_SetMessage(&players[consoleplayer], DEH_String("MESSAGES OFF"), true, NULL);
     }
     S_StartSound(NULL, sfx_chat);
-    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -3438,13 +3680,13 @@ static boolean SCMessages(int option)
 //
 //---------------------------------------------------------------------------
 
-static boolean SCLoadGame(int option)
+static void SCLoadGame(int option)
 {
     char *filename;
 
     if (!SlotStatus[option])
     {                           // slot's empty...don't try and load
-        return false;
+        return;
     }
 
     filename = SV_Filename(option);
@@ -3452,14 +3694,29 @@ static boolean SCLoadGame(int option)
     free(filename);
 
     MN_DeactivateMenu();
-    BorderNeedRefresh = true;
     if (quickload == -1)
     {
         quickload = option + 1;
         players[consoleplayer].message = NULL;
         players[consoleplayer].messageTics = 1;
     }
-    return true;
+}
+
+static void SCDeleteGame(int option)
+{
+    char *filename;
+
+    if (!SlotStatus[option])
+    {
+        return;
+    }
+
+    filename = SV_Filename(option);
+    remove(filename);
+    free(filename);
+
+    CurrentMenu->oldItPos = CurrentItPos;  // [JN] Do not reset cursor position.
+    MN_LoadSlotText();
 }
 
 //---------------------------------------------------------------------------
@@ -3468,7 +3725,34 @@ static boolean SCLoadGame(int option)
 //
 //---------------------------------------------------------------------------
 
-static boolean SCSaveGame(int option)
+// [crispy] override savegame name if it already starts with a map identifier
+static boolean StartsWithMapIdentifier (char *str)
+{
+    if (strlen(str) >= 4 &&
+        toupper(str[0]) == 'E' && isdigit(str[1]) &&
+        toupper(str[2]) == 'M' && isdigit(str[3]))
+    {
+        return true;
+    }
+
+    return false;
+}
+
+// [JN] Check if Save Game menu should be accessable.
+static void SCSaveCheck(int option)
+{
+    if (!usergame)
+    {
+        CT_SetMessage(&players[consoleplayer],
+                      "YOU CAN'T SAVE IF YOU AREN'T PLAYING", true, NULL);
+    }
+    else
+    {
+        SetMenu(MENU_SAVE);
+    }
+}
+
+static void SCSaveGame(int option)
 {
     char *ptr;
 
@@ -3485,6 +3769,9 @@ static boolean SCSaveGame(int option)
 
         M_StringCopy(oldSlotText, SlotText[option], sizeof(oldSlotText));
         ptr = SlotText[option];
+        // [crispy] generate a default save slot name when the user saves to an empty slot
+        if (!oldSlotText[0] || StartsWithMapIdentifier(oldSlotText))
+          M_snprintf(ptr, sizeof(oldSlotText), "E%dM%d", gameepisode, gamemap);
         while (*ptr)
         {
             ptr++;
@@ -3494,7 +3781,7 @@ static boolean SCSaveGame(int option)
         SlotStatus[option]++;
         currentSlot = option;
         slotptr = ptr - SlotText[option];
-        return false;
+        return;
     }
     else
     {
@@ -3503,14 +3790,12 @@ static boolean SCSaveGame(int option)
         I_StopTextInput();
         MN_DeactivateMenu();
     }
-    BorderNeedRefresh = true;
     if (quicksave == -1)
     {
         quicksave = option + 1;
         players[consoleplayer].message = NULL;
         players[consoleplayer].messageTics = 1;
     }
-    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -3519,19 +3804,18 @@ static boolean SCSaveGame(int option)
 //
 //---------------------------------------------------------------------------
 
-static boolean SCEpisode(int option)
+static void SCEpisode(int option)
 {
     if (gamemode == shareware && option > 1)
     {
-        P_SetMessage(&players[consoleplayer],
-                     "ONLY AVAILABLE IN THE REGISTERED VERSION", true);
+        CT_SetMessage(&players[consoleplayer],
+                      "ONLY AVAILABLE IN THE REGISTERED VERSION", true, NULL);
     }
     else
     {
         MenuEpisode = option;
         SetMenu(MENU_SKILL);
     }
-    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -3540,11 +3824,10 @@ static boolean SCEpisode(int option)
 //
 //---------------------------------------------------------------------------
 
-static boolean SCSkill(int option)
+static void SCSkill(int option)
 {
     G_DeferedInitNew(option, MenuEpisode, 1);
     MN_DeactivateMenu();
-    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -3553,20 +3836,10 @@ static boolean SCSkill(int option)
 //
 //---------------------------------------------------------------------------
 
-static boolean SCMouseSensi(int option)
+static void SCMouseSensi(int option)
 {
-    if (option == RIGHT_DIR)
-    {
-        if (mouseSensitivity < 255) // [crispy] extended range
-        {
-            mouseSensitivity++;
-        }
-    }
-    else if (mouseSensitivity)
-    {
-        mouseSensitivity--;
-    }
-    return true;
+    // [crispy] extended range
+    mouseSensitivity = M_INT_Slider(mouseSensitivity, 0, 255, option, true);
 }
 
 //---------------------------------------------------------------------------
@@ -3575,7 +3848,7 @@ static boolean SCMouseSensi(int option)
 //
 //---------------------------------------------------------------------------
 
-static boolean SCSfxVolume(int option)
+static void SCSfxVolume(int option)
 {
     if (option == RIGHT_DIR)
     {
@@ -3590,7 +3863,6 @@ static boolean SCSfxVolume(int option)
     }
     S_SetMaxVolume(false);      // don't recalc the sound curve, yet
     soundchanged = true;        // we'll set it when we leave the menu
-    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -3599,7 +3871,7 @@ static boolean SCSfxVolume(int option)
 //
 //---------------------------------------------------------------------------
 
-static boolean SCMusicVolume(int option)
+static void SCMusicVolume(int option)
 {
     if (option == RIGHT_DIR)
     {
@@ -3613,7 +3885,6 @@ static boolean SCMusicVolume(int option)
         snd_MusicVolume--;
     }
     S_SetMusicVolume();
-    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -3622,7 +3893,7 @@ static boolean SCMusicVolume(int option)
 //
 //---------------------------------------------------------------------------
 
-static boolean SCScreenSize(int option)
+static void SCScreenSize(int option)
 {
     if (option == RIGHT_DIR)
     {
@@ -3636,7 +3907,6 @@ static boolean SCScreenSize(int option)
         screenblocks--;
     }
     R_SetViewSize(screenblocks, detailLevel);
-    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -3645,7 +3915,7 @@ static boolean SCScreenSize(int option)
 //
 //---------------------------------------------------------------------------
 
-static boolean SCInfo(int option)
+static void SCInfo(int option)
 {
     InfoType = 1;
     S_StartSound(NULL, sfx_dorcls);
@@ -3653,7 +3923,6 @@ static boolean SCInfo(int option)
     {
         paused = true;
     }
-    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -3710,6 +3979,14 @@ static int G_GotoNextLevel(void)
     }
 
     return changed;
+}
+
+static void MN_ReturnToMenu (void)
+{
+	Menu_t *cur = CurrentMenu;
+	MN_ActivateMenu();
+	CurrentMenu = cur;
+	CurrentItPos = CurrentMenu->oldItPos;
 }
 
 //---------------------------------------------------------------------------
@@ -3785,13 +4062,17 @@ boolean MN_Responder(event_t * event)
     else
     {
         // [JN] Allow menu control by mouse.
-        if (event->type == ev_mouse && mousewait < I_GetTime())
+        if (event->type == ev_mouse && mousewait < I_GetTime()
+        && !event->data2 && !event->data3) // [JN] Do not consider movement as pressing.
         {
             // [crispy] novert disables controlling the menus with the mouse
+            // [JN] Not needed, as menu is fully controllable by mouse wheel and buttons.
+            /*
             if (!novert)
             {
                 mousey += event->data3;
             }
+            */
 
             if (mousey < lasty - 30)
             {
@@ -3821,23 +4102,32 @@ boolean MN_Responder(event_t * event)
             if (event->data1 & 1)
             {
                 key = key_menu_forward;
-                mousewait = I_GetTime() + 15;
+                mousewait = I_GetTime() + 5;
             }
 
             if (event->data1 & 2)
             {
-                key = key_menu_back;
-                mousewait = I_GetTime() + 15;
+                if (FileMenuKeySteal)
+                {
+                    key = KEY_ESCAPE;
+                    FileMenuKeySteal = false;
+                }
+                else
+                {
+                    key = key_menu_back;
+                }
+                mousewait = I_GetTime() + 5;
             }
 
             // [crispy] scroll menus with mouse wheel
-            if (mousebprevweapon >= 0 && event->data1 & (1 << mousebprevweapon))
+            // [JN] Buttons hardcoded to wheel so we won't mix it up with inventory scrolling.
+            if (/*mousebprevweapon >= 0 &&*/ event->data1 & (1 << 4/*mousebprevweapon*/))
             {
                 key = key_menu_down;
                 mousewait = I_GetTime() + 1;
             }
             else
-            if (mousebnextweapon >= 0 && event->data1 & (1 << mousebnextweapon))
+            if (/*mousebnextweapon >= 0 &&*/ event->data1 & (1 << 3/*mousebnextweapon*/))
             {
                 key = key_menu_up;
                 mousewait = I_GetTime() + 1;
@@ -3877,7 +4167,6 @@ boolean MN_Responder(event_t * event)
             paused = false;
             MN_DeactivateMenu();
             SB_state = -1;      //refresh the statbar
-            BorderNeedRefresh = true;
         }
         S_StartSound(NULL, sfx_dorcls);
         return (true);          //make the info screen eat the keypress
@@ -3926,12 +4215,17 @@ boolean MN_Responder(event_t * event)
         (key != 0 && key == key_menu_screenshot))
     {
         G_ScreenShot();
+        // [JN] Audible feedback.
+        S_StartSound(NULL, sfx_itemup);
         return (true);
     }
 
     if (askforquit)
     {
-        if (key == key_menu_confirm)
+        if (key == key_menu_confirm
+        // [JN] Allow to confirm quit (1) and end game (2) by pressing Enter.
+        || (key == key_menu_forward && (typeofask == 1 || typeofask == 2))
+        || (event->type == ev_mouse && event->data1 & 1))  // [JN] Confirm by left mouse button.
         {
             switch (typeofask)
             {
@@ -3951,27 +4245,39 @@ boolean MN_Responder(event_t * event)
                     break;
 
                 case 3:
-                    P_SetMessage(&players[consoleplayer],
-                                 "QUICKSAVING....", false);
+                    CT_SetMessage(&players[consoleplayer],
+                                  "QUICKSAVING....", false, NULL);
                     FileMenuKeySteal = true;
                     SCSaveGame(quicksave - 1);
-                    BorderNeedRefresh = true;
                     break;
 
                 case 4:
-                    P_SetMessage(&players[consoleplayer],
-                                 "QUICKLOADING....", false);
+                    CT_SetMessage(&players[consoleplayer],
+                                  "QUICKLOADING....", false, NULL);
                     SCLoadGame(quickload - 1);
-                    BorderNeedRefresh = true;
                     break;
 
-                case 5: // [JN] Reset keybinds.
+                case 5:
+                    SCDeleteGame(CurrentItPos);
+                    MN_ReturnToMenu();
+                    break;
+
+                case 6: // [JN] Reset keybinds.
                     M_ResetBinds();
                     if (!netgame && !demoplayback)
                     {
                         paused = true;
                     }
-                    MenuActive = true;
+                    MN_ReturnToMenu();
+                    break;
+
+                case 7: // [JN] Reset mouse binds.
+                    M_ResetMouseBinds();
+                    if (!netgame && !demoplayback)
+                    {
+                        paused = true;
+                    }
+                    MN_ReturnToMenu();
                     break;
 
                 default:
@@ -3983,10 +4289,12 @@ boolean MN_Responder(event_t * event)
 
             return true;
         }
-        else if (key == key_menu_abort || key == KEY_ESCAPE)
+        else
+        if (key == key_menu_abort || key == KEY_ESCAPE
+        || (event->type == ev_mouse && event->data1 & 2))  // [JN] Cancel by right mouse button.
         {
-            // [JN] Do not close keybindings menu after reset canceling.
-            if (typeofask == 5)
+            // [JN] Do not close reset menus after canceling.
+            if (typeofask == 6 || typeofask == 7)
             {
                 if (!netgame && !demoplayback)
                 {
@@ -4002,8 +4310,6 @@ boolean MN_Responder(event_t * event)
                 askforquit = false;
                 typeofask = 0;
                 paused = false;
-                UpdateState |= I_FULLSCRN;
-                BorderNeedRefresh = true;
                 return true;
             }
         }
@@ -4021,8 +4327,6 @@ boolean MN_Responder(event_t * event)
             }
             SCScreenSize(LEFT_DIR);
             S_StartSound(NULL, sfx_keyup);
-            BorderNeedRefresh = true;
-            UpdateState |= I_FULLSCRN;
             return (true);
         }
         else if (key == key_menu_incscreen)
@@ -4033,8 +4337,6 @@ boolean MN_Responder(event_t * event)
             }
             SCScreenSize(RIGHT_DIR);
             S_StartSound(NULL, sfx_keyup);
-            BorderNeedRefresh = true;
-            UpdateState |= I_FULLSCRN;
             return (true);
         }
         else if (key == key_menu_help)           // F1
@@ -4058,6 +4360,7 @@ boolean MN_Responder(event_t * event)
                 }
                 S_StartSound(NULL, sfx_dorcls);
                 slottextloaded = false;     //reload the slot text, when needed
+                quicksaveTitle = false;  // [JN] "Save game" title.
             }
             return true;
         }
@@ -4076,6 +4379,7 @@ boolean MN_Responder(event_t * event)
                 }
                 S_StartSound(NULL, sfx_dorcls);
                 slottextloaded = false;     //reload the slot text, when needed
+                quickloadTitle = false;  // [JN] "Load game" title.
             }
             return true;
         }
@@ -4117,28 +4421,28 @@ boolean MN_Responder(event_t * event)
                     S_StartSound(NULL, sfx_dorcls);
                     slottextloaded = false; //reload the slot text, when needed
                     quicksave = -1;
-                    P_SetMessage(&players[consoleplayer],
-                                 "CHOOSE A QUICKSAVE SLOT", true);
+                    // [JN] "Quick save game" title instead of message.
+                    quicksaveTitle = true;
                 }
                 else
                 {
-                    askforquit = true;
-                    typeofask = 3;
-                    if (!netgame && !demoplayback)
-                    {
-                        paused = true;
-                    }
-                    S_StartSound(NULL, sfx_chat);
+                    // [JN] Do not ask for quick save confirmation.
+                    S_StartSound(NULL, sfx_dorcls);
+                    FileMenuKeySteal = true;
+                    SCSaveGame(quicksave - 1);
                 }
             }
             return true;
         }
         else if (key == key_menu_endgame)         // F7 (end game)
         {
-            if (gamestate == GS_LEVEL && !demoplayback)
+            if (SCNetCheck(3))
             {
-                S_StartSound(NULL, sfx_chat);
-                SCEndGame(0);
+                if (gamestate == GS_LEVEL && !demoplayback)
+                {
+                    S_StartSound(NULL, sfx_chat);
+                    SCEndGame(0);
+                }
             }
             return true;
         }
@@ -4149,32 +4453,30 @@ boolean MN_Responder(event_t * event)
         }
         else if (key == key_menu_qload)           // F9 (quickload)
         {
-            if (!quickload || quickload == -1)
+            if (SCNetCheck(2))
             {
-                MenuActive = true;
-                FileMenuKeySteal = false;
-                MenuTime = 0;
-                CurrentMenu = &LoadMenu;
-                CurrentItPos = CurrentMenu->oldItPos;
-                if (!netgame && !demoplayback)
+                if (!quickload || quickload == -1)
                 {
-                    paused = true;
+                    MenuActive = true;
+                    FileMenuKeySteal = false;
+                    MenuTime = 0;
+                    CurrentMenu = &LoadMenu;
+                    CurrentItPos = CurrentMenu->oldItPos;
+                    if (!netgame && !demoplayback)
+                    {
+                        paused = true;
+                    }
+                    S_StartSound(NULL, sfx_dorcls);
+                    slottextloaded = false;     //reload the slot text, when needed
+                    quickload = -1;
+                    // [JN] "Quick load game" title instead of message.
+                    quickloadTitle = true;
                 }
-                S_StartSound(NULL, sfx_dorcls);
-                slottextloaded = false;     //reload the slot text, when needed
-                quickload = -1;
-                P_SetMessage(&players[consoleplayer],
-                             "CHOOSE A QUICKLOAD SLOT", true);
-            }
-            else
-            {
-                askforquit = true;
-                if (!netgame && !demoplayback)
+                else
                 {
-                    paused = true;
+                    // [JN] Do not ask for quick load confirmation.
+                    SCLoadGame(quickload - 1);
                 }
-                typeofask = 4;
-                S_StartSound(NULL, sfx_chat);
             }
             return true;
         }
@@ -4186,16 +4488,6 @@ boolean MN_Responder(event_t * event)
                 SCQuitGame(0);
                 S_StartSound(NULL, sfx_chat);
             }
-            return true;
-        }
-        else if (key == key_menu_gamma)           // F11 (gamma correction)
-        {
-            if (++crl_gamma > 14)
-            {
-                crl_gamma = 0;
-            }
-            P_SetMessage(&players[consoleplayer], gammamsg[crl_gamma], false);
-            I_SetPalette((byte *) W_CacheLumpName("PLAYPAL", PU_CACHE));
             return true;
         }
         // [crispy] those two can be considered as shortcuts for the IDCLEV cheat
@@ -4213,12 +4505,20 @@ boolean MN_Responder(event_t * event)
 
     }
 
+    // [JN] Allow to change gamma while active menu.
+    if (key == key_menu_gamma)           // F11 (gamma correction)
+    {
+        crl_gamma = M_INT_Slider(crl_gamma, 0, 14, 1 /*right*/, false);
+        CT_SetMessage(&players[consoleplayer], gammalvls[crl_gamma][0], false, NULL);
+        CRL_ReloadPalette();
+        return true;
+    }
+
     if (!MenuActive)
     {
-        if (key == key_menu_activate || key == key_crl_menu 
         // [JN] Open Heretic/CRL menu only by pressing it's keys to allow 
         // certain CRL features to be toggled. This behavior is same to Doom.
-        /*||  gamestate == GS_DEMOSCREEN || demoplayback*/)
+        if (key == key_menu_activate || key == key_crl_menu)
         {
             MN_ActivateMenu();
 
@@ -4288,11 +4588,10 @@ boolean MN_Responder(event_t * event)
                 item->func(LEFT_DIR);
                 S_StartSound(NULL, sfx_keyup);
             }
-            // [JN] ...or scroll key binds menu backward.
-            else
-            if (KBD_BIND_MENUS)
+            // [JN] Go to previous-left menu by pressing Left Arrow.
+            if (CurrentMenu->ScrollAR)
             {
-                M_ScrollKeyBindPages(false);
+                M_ScrollPages(false);
             }
             return (true);
         }
@@ -4303,29 +4602,28 @@ boolean MN_Responder(event_t * event)
                 item->func(RIGHT_DIR);
                 S_StartSound(NULL, sfx_keyup);
             }
-            // [JN] ...or scroll key binds menu forward.
-            else
-            if (KBD_BIND_MENUS)
+            // [JN] Go to next-right menu by pressing Right Arrow.
+            if (CurrentMenu->ScrollAR)
             {
-                M_ScrollKeyBindPages(true);
+                M_ScrollPages(true);
             }
             return (true);
         }
-        // [crispy] next/prev Crispness menu
+        // [JN] Go to previous-left menu by pressing Page Up key.
         else if (key == KEY_PGUP)
         {
-            if (KBD_BIND_MENUS)
+            if (CurrentMenu->ScrollPG)
             {
-                M_ScrollKeyBindPages(false);
+                M_ScrollPages(false);
             }
             return (true);
         }
-        // [crispy] next/prev Crispness menu
+        // [JN] Go to next-right menu by pressing Page Down key.
         else if (key == KEY_PGDN)
         {
-            if (KBD_BIND_MENUS)
+            if (CurrentMenu->ScrollPG)
             {
-                M_ScrollKeyBindPages(true);
+                M_ScrollPages(true);
             }
             return (true);
         }
@@ -4333,6 +4631,10 @@ boolean MN_Responder(event_t * event)
         {
             if (item->type == ITT_SETMENU)
             {
+                if (item->func != NULL)
+                {
+                    item->func(item->option);
+                }
                 SetMenu(item->menu);
             }
             else if (item->func != NULL)
@@ -4344,13 +4646,7 @@ boolean MN_Responder(event_t * event)
                 }
                 else if (item->type == ITT_EFUNC)
                 {
-                    if (item->func(item->option))
-                    {
-                        if (item->menu != MENU_NONE)
-                        {
-                            SetMenu(item->menu);
-                        }
-                    }
+                    item->func(item->option);
                 }
             }
             S_StartSound(NULL, sfx_dorcls);
@@ -4377,8 +4673,27 @@ boolean MN_Responder(event_t * event)
         // [crispy] delete a savegame
         else if (key == key_menu_del)
         {
+            if (CurrentMenu == &LoadMenu || CurrentMenu == &SaveMenu)
+            {
+                if (SlotStatus[CurrentItPos])
+                {
+                    MenuActive = false;
+                    askforquit = true;
+                    if (!netgame && !demoplayback)
+                    {
+                        paused = true;
+                    }
+                    typeofask = 5;
+                    S_StartSound(NULL, sfx_chat);
+                }
+            }
             // [JN] ...or clear key bind.
-            if (KBD_BIND_MENUS)
+            else
+            if (CurrentMenu == &CRLKbdBinds1 || CurrentMenu == &CRLKbdBinds2
+            ||  CurrentMenu == &CRLKbdBinds3 || CurrentMenu == &CRLKbdBinds4
+            ||  CurrentMenu == &CRLKbdBinds5 || CurrentMenu == &CRLKbdBinds6
+            ||  CurrentMenu == &CRLKbdBinds7 || CurrentMenu == &CRLKbdBinds8
+            ||  CurrentMenu == &CRLKbdBinds9)
             {
                 M_ClearBind(CurrentItPos);
             }
@@ -4393,7 +4708,9 @@ boolean MN_Responder(event_t * event)
         {
             // Jump to menu item based on first letter:
 
-            for (i = 0; i < CurrentMenu->itemCount; i++)
+            // [JN] Allow multiple jumps over menu items with
+            // same first letters. This behavior is same to Doom.
+            for (i = CurrentItPos + 1; i < CurrentMenu->itemCount; i++)
             {
                 if (CurrentMenu->items[i].text)
                 {
@@ -4401,6 +4718,20 @@ boolean MN_Responder(event_t * event)
                         == toupper(DEH_String(CurrentMenu->items[i].text)[0]))
                     {
                         CurrentItPos = i;
+                        S_StartSound(NULL, sfx_switch);
+                        return (true);
+                    }
+                }
+            }
+            for (i = 0; i <= CurrentItPos; i++)
+            {
+                if (CurrentMenu->items[i].text)
+                {
+                    if (toupper(charTyped)
+                        == toupper(DEH_String(CurrentMenu->items[i].text)[0]))
+                    {
+                        CurrentItPos = i;
+                        S_StartSound(NULL, sfx_switch);
                         return (true);
                     }
                 }
@@ -4578,7 +4909,7 @@ static void DrawSlider(Menu_t * menu, int item, int width, int slot, boolean big
     int count;
 
     x = menu->x + 24;
-    y = menu->y + 2 + (item * (bigspacing ? ITEM_HEIGHT : ITEM_HEIGHT_SMALL));
+    y = menu->y + 2 + (item * (bigspacing ? ITEM_HEIGHT : ID_MENU_LINEHEIGHT_SMALL));
     V_DrawShadowedPatchRavenOptional(x - 32, y, W_CacheLumpName(DEH_String("M_SLDLT"), PU_CACHE), "M_SLDLT");
     for (x2 = x, count = width; count--; x2 += 8)
     {
@@ -5184,7 +5515,7 @@ static byte *M_ColorizeBind (int CurrentItPosOn, int key)
 static void M_DrawBindKey (int itemNum, int yPos, int keyBind)
 {
     MN_DrTextA(M_NameBind(itemNum, keyBind),
-               CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_NameBind(itemNum, keyBind)),
+               M_ItemRightAlign(M_NameBind(itemNum, keyBind)),
                yPos,
                M_ColorizeBind(itemNum, keyBind));
 }
@@ -5194,73 +5525,18 @@ static void M_DrawBindKey (int itemNum, int yPos, int keyBind)
 //  [JN] Draw footer in key binding pages with numeration.
 // -----------------------------------------------------------------------------
 
-static void M_DrawBindFooter (char *pagenum, boolean drawPages)
+static void M_DrawBindFooter (int y, char *pagenum, boolean drawPages)
 {
-    MN_DrTextACentered("PRESS ENTER TO BIND, DEL TO CLEAR", 140, cr[CR_GRAY]);
+    const int newline = 10;
+
+    MN_DrTextACentered("PRESS ENTER TO BIND, DEL TO CLEAR", y, cr[CR_GRAY]);
     
     if (drawPages)
     {
-        MN_DrTextA("PGUP", CRL_MENU_LEFTOFFSET, 150, cr[CR_GRAY]);
-        MN_DrTextACentered(M_StringJoin("PAGE ", pagenum, "/9", NULL), 150, cr[CR_GRAY]);
-        MN_DrTextA("PGDN", CRL_MENU_RIGHTOFFSET - MN_TextAWidth("PGDN"), 150, cr[CR_GRAY]);
+        MN_DrTextA("PGUP", CRL_MENU_LEFTOFFSET, y + newline, cr[CR_GRAY]);
+        MN_DrTextACentered(M_StringJoin("PAGE ", pagenum, "/9", NULL), y + newline, cr[CR_GRAY]);
+        MN_DrTextA("PGDN", M_ItemRightAlign("PGDN"), y + newline, cr[CR_GRAY]);
     }
-}
-
-// -----------------------------------------------------------------------------
-// M_ScrollKeyBindPages
-//  [JN] Scroll keyboard binding pages forward (direction = true)
-//  and backward (direction = false).
-// -----------------------------------------------------------------------------
-
-static void M_ScrollKeyBindPages (boolean direction)
-{
-
-    if (CurrentMenu == &CRLKbdBinds1)
-    {
-        SetMenu(direction ? MENU_CRLKBDBINDS2 : MENU_CRLKBDBINDS9);
-    }
-    else 
-    if (CurrentMenu == &CRLKbdBinds2)
-    {
-        SetMenu(direction ? MENU_CRLKBDBINDS3 : MENU_CRLKBDBINDS1);
-    }
-    else
-    if (CurrentMenu == &CRLKbdBinds3)
-    {
-        SetMenu(direction ? MENU_CRLKBDBINDS4 : MENU_CRLKBDBINDS2);
-    }
-    else
-    if (CurrentMenu == &CRLKbdBinds4)
-    {
-        SetMenu(direction ? MENU_CRLKBDBINDS5 : MENU_CRLKBDBINDS3);
-    }
-    else
-    if (CurrentMenu == &CRLKbdBinds5)
-    {
-        SetMenu(direction ? MENU_CRLKBDBINDS6 : MENU_CRLKBDBINDS4);
-    }
-    else
-    if (CurrentMenu == &CRLKbdBinds6)
-    {
-        SetMenu(direction ? MENU_CRLKBDBINDS7 : MENU_CRLKBDBINDS5);
-    }
-    else
-    if (CurrentMenu == &CRLKbdBinds7)
-    {
-        SetMenu(direction ? MENU_CRLKBDBINDS8 : MENU_CRLKBDBINDS6);
-    }
-    else
-    if (CurrentMenu == &CRLKbdBinds8)
-    {
-        SetMenu(direction ? MENU_CRLKBDBINDS9 : MENU_CRLKBDBINDS7);
-    }
-    else
-    if (CurrentMenu == &CRLKbdBinds9)
-    {
-        SetMenu(direction ? MENU_CRLKBDBINDS1 : MENU_CRLKBDBINDS8);
-    }
-
-    S_StartSound(NULL, sfx_switch);
 }
 
 
@@ -5330,6 +5606,9 @@ static void M_CheckMouseBind (int btn)
     if (mousebstraferight == btn) mousebstraferight = -1;
     if (mousebprevweapon == btn)  mousebprevweapon  = -1;
     if (mousebnextweapon == btn)  mousebnextweapon  = -1;
+    if (mousebinvleft == btn)     mousebinvleft     = -1;
+    if (mousebinvright == btn)    mousebinvright    = -1;
+    if (mousebuseartifact == btn) mousebuseartifact = -1;
 }
 
 // -----------------------------------------------------------------------------
@@ -5351,6 +5630,9 @@ static void M_DoMouseBind (int btnnum, int btn)
         case 1006:  mousebstraferight = btn;  break;
         case 1007:  mousebprevweapon = btn;   break;
         case 1008:  mousebnextweapon = btn;   break;
+        case 1009:  mousebinvleft = btn;      break;
+        case 1010:  mousebinvright = btn;     break;
+        case 1011:  mousebuseartifact = btn;  break;
         default:                              break;
     }
 }
@@ -5364,15 +5646,18 @@ static void M_ClearMouseBind (int itemOn)
 {
     switch (itemOn)
     {
-        case 0:  mousebfire = -1;         break;
-        case 1:  mousebforward = -1;      break;
-        case 2:  mousebstrafe = -1;       break;
-        case 3:  mousebbackward = -1;     break;
-        case 4:  mousebuse = -1;          break;
-        case 5:  mousebstrafeleft = -1;   break;
-        case 6:  mousebstraferight = -1;  break;
-        case 7:  mousebprevweapon = -1;   break;
-        case 8:  mousebnextweapon = -1;   break;
+        case 0:   mousebfire = -1;         break;
+        case 1:   mousebforward = -1;      break;
+        case 2:   mousebstrafe = -1;       break;
+        case 3:   mousebbackward = -1;     break;
+        case 4:   mousebuse = -1;          break;
+        case 5:   mousebstrafeleft = -1;   break;
+        case 6:   mousebstraferight = -1;  break;
+        case 7:   mousebprevweapon = -1;   break;
+        case 8:   mousebnextweapon = -1;   break;
+        case 9:   mousebinvleft = -1;      break;
+        case 10:  mousebinvright = -1;     break;
+        case 11:  mousebuseartifact = -1;  break;
     }
 }
 
@@ -5418,7 +5703,28 @@ static byte *M_ColorizeMouseBind (int CurrentItPosOn, int btn)
 static void M_DrawBindButton (int itemNum, int yPos, int btnBind)
 {
     MN_DrTextA(M_NameMouseBind(itemNum, btnBind),
-               CRL_MENU_RIGHTOFFSET - MN_TextAWidth(M_NameMouseBind(itemNum, btnBind)),
+               M_ItemRightAlign(M_NameMouseBind(itemNum, btnBind)),
                yPos,
                M_ColorizeMouseBind(itemNum, btnBind));
+}
+
+// -----------------------------------------------------------------------------
+// M_ResetBinds
+//  [JN] Reset all mouse binding to it's defaults.
+// -----------------------------------------------------------------------------
+
+static void M_ResetMouseBinds (void)
+{
+    mousebfire = 0;
+    mousebforward = 2;
+    mousebstrafe = 1;
+    mousebbackward = -1;
+    mousebuse = -1;
+    mousebstrafeleft = -1;
+    mousebstraferight = -1;
+    mousebprevweapon = 4;
+    mousebnextweapon = 3;
+    mousebinvleft = -1;
+    mousebinvright = -1;
+    mousebuseartifact = -1;
 }

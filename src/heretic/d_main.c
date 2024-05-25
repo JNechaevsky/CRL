@@ -95,7 +95,8 @@ boolean advancedemo;
 
 FILE *debugfile;
 
-int show_endoom = 0;
+int show_endoom = 0;       // [JN] Disabled by default
+int showMessages = 1;      // [JN] Show messages has default, 0 = off, 1 = on
 
 void D_ConnectNetGame(void);
 void D_CheckNetGame(void);
@@ -135,7 +136,7 @@ void D_ProcessEvents(void)
 //
 //---------------------------------------------------------------------------
 
-void DrawMessage(void)
+static void DrawMessage (void)
 {
     player_t *player;
 
@@ -148,22 +149,20 @@ void DrawMessage(void)
 }
 
 // -----------------------------------------------------------------------------
-// CRL_DrawCriticalMessage
-// [JN] Draws critical message on the second and third lines line of the screen.
+// CRL_DrawMessageCritical
+// [JN] Draws critical message on the second and third lines of the screen.
 // -----------------------------------------------------------------------------
 
-static void CRL_DrawCriticalMessage (void)
+static void CRL_DrawMessageCritical (void)
 {
-    player_t *player = &players[displayplayer];
-
-    if (player->criticalmessageTics <= 0
-    || !player->criticalmessage1 || !player->criticalmessage2)
+    if (messageCriticalTics <= 0 || !messageCritical1 || !messageCritical2)
     {
         return;  // No message
     }
 
-    MN_DrTextACritical(player->criticalmessage1, player->criticalmessage2,
-                       10, gametic & 8 ? cr[CR_GRAY] : cr[CR_WHITE]);
+    MN_DrTextACritical(messageCritical1, messageCritical2, 10, crl_msg_critical ?
+                       (gametic & 8 ? cr[CR_GRAY] : cr[CR_WHITE]) : // Blinking
+                                                    cr[CR_WHITE]);  // Static
 }
 
 //---------------------------------------------------------------------------
@@ -180,8 +179,6 @@ extern boolean finalestage;
 
 void D_Display(void)
 {
-    extern boolean askforquit;
-
     // For comparative timing / profiling
     if (nodrawers)
     {
@@ -285,14 +282,14 @@ void D_Display(void)
             V_DrawShadowedPatchRavenOptional(160, 70, W_CacheLumpName(DEH_String("PAUSED"), PU_CACHE), "PAUSED");
         }
     }
-    // Handle player messages
-    DrawMessage();
-
     // Menu drawing
     MN_Drawer();
 
+    // Handle player messages
+    DrawMessage();
+
     // [JN] Critical messages are drawn even higher than on top everything!
-    CRL_DrawCriticalMessage();
+    CRL_DrawMessageCritical();
 
     // Send out any new accumulation
     NetUpdate();
@@ -798,11 +795,15 @@ void D_BindVariables(void)
     M_BindIntVariable("mouse_sensitivity",      &mouseSensitivity);
     M_BindIntVariable("sfx_volume",             &snd_MaxVolume);
     M_BindIntVariable("music_volume",           &snd_MusicVolume);
+    M_BindIntVariable("show_messages",          &showMessages);
     M_BindIntVariable("screenblocks",           &screenblocks);
     M_BindIntVariable("snd_channels",           &snd_Channels);
     M_BindIntVariable("vanilla_savegame_limit", &vanilla_savegame_limit);
     M_BindIntVariable("show_endoom",            &show_endoom);
     M_BindIntVariable("graphical_startup",      &graphical_startup);
+
+    M_BindStringVariable("savegames_path",      &SavePathConfig);
+    M_BindStringVariable("screenshots_path",    &ShotPathConfig);
 
     for (i=0; i<10; ++i)
     {
@@ -823,6 +824,7 @@ void D_BindVariables(void)
 static void D_Endoom(void)
 {
     byte *endoom_data;
+    const char *endoom_name;
 
     // Disable ENDOOM?
 
@@ -831,9 +833,15 @@ static void D_Endoom(void)
         return;
     }
 
-    endoom_data = W_CacheLumpName(DEH_String("ENDTEXT"), PU_STATIC);
+    // [JN] Extended to show for "PWAD only".
+    endoom_name = DEH_String("ENDTEXT");
+    endoom_data = W_CacheLumpName(endoom_name, PU_STATIC);
 
-    I_Endoom(endoom_data);
+    if (show_endoom == 1
+    || (show_endoom == 2 && !W_IsIWADLump(lumpinfo[W_GetNumForName(endoom_name)])))
+    {
+        I_Endoom(endoom_data);
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -857,7 +865,7 @@ void D_DoomMain(void)
                            | FOREGROUND_INTENSITY);
 
     for (p = 0 ; p < 34 ; p++) printf(" ");
-    printf(PACKAGE_STRING);
+    printf(PACKAGE_STRING_HERETIC);
     for (p = 0 ; p < 34 ; p++) printf(" ");
     printf("\n");
 
@@ -865,7 +873,7 @@ void D_DoomMain(void)
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 
                             FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 #else
-    I_PrintBanner(PACKAGE_STRING);
+    I_PrintBanner(PACKAGE_STRING_HERETIC);
 #endif
 
     I_AtExit(I_ShutdownGraphics, true);
@@ -1152,6 +1160,9 @@ void D_DoomMain(void)
     I_SetWindowTitle(gamedescription);
 
     savegamedir = M_GetSaveGameDir("heretic.wad");
+
+    // [JN] Set the default directory where screenshots are saved.
+    M_SetScreenshotDir();
 
     I_PrintStartupBanner(gamedescription);
 

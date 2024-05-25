@@ -77,6 +77,12 @@ typedef enum
 
 #define BASETHRESHOLD 100       // follow a player exlusively for 3 seconds
 
+
+// ***** D_MAIN *****
+
+extern int showMessages;
+
+
 // ***** P_TICK *****
 
 extern thinker_t thinkercap;    // both the head and tail of the thinker list
@@ -276,6 +282,7 @@ void AM_Drawer(void);
 
 extern int SB_state;
 extern int ArtifactFlash;
+extern void SB_ForceRedraw (void);
 void SB_PaletteFlash(void);
 
 // ***** P_SAVEG *****
