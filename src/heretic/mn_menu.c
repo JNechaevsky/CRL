@@ -600,6 +600,14 @@ static Menu_t CRLKbdBinds7;
 static Menu_t CRLKbdBinds8;
 static Menu_t CRLKbdBinds9;
 
+// Remember last keybindings page.
+static int Keybinds_Cur;
+
+static void CRL_Choose_Keybinds (int choice)
+{
+    SetMenu(Keybinds_Cur);
+}
+
 // Utility function for scrolling pages by arrows / PG keys.
 static void M_ScrollPages (boolean direction)
 {
@@ -1455,20 +1463,20 @@ static void CRL_SFXChannels (int option)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLControlsItems[] = {
-    {ITT_SETMENU, "KEYBOARD BINDINGS",       NULL,         0, MENU_CRLKBDBINDS1},
-    {ITT_SETMENU, "MOUSE BINDINGS",          NULL,         0, MENU_CRLMOUSEBINDS},
-    {ITT_EMPTY,   NULL,                      NULL,         0, MENU_NONE},
-    {ITT_LRFUNC,  "SENSIVITY",               SCMouseSensi, 0, MENU_NONE},
-    {ITT_EMPTY,   NULL,                      NULL,         0, MENU_NONE},
-    {ITT_EMPTY,   NULL,                      NULL,         0, MENU_NONE},
+    {ITT_EFUNC,   "KEYBOARD BINDINGS",       CRL_Choose_Keybinds,       0, MENU_NONE},
+    {ITT_SETMENU, "MOUSE BINDINGS",          NULL,                      0, MENU_CRLMOUSEBINDS},
+    {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
+    {ITT_LRFUNC,  "SENSIVITY",               SCMouseSensi,              0, MENU_NONE},
+    {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
+    {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
     {ITT_LRFUNC,  "ACCELERATION",            CRL_Controls_Acceleration, 0, MENU_NONE},
-    {ITT_EMPTY,   NULL,                      NULL,         0, MENU_NONE},
-    {ITT_EMPTY,   NULL,                      NULL,         0, MENU_NONE},
-    {ITT_LRFUNC,  "ACCELERATION THRESHOLD",  CRL_Controls_Threshold, 0, MENU_NONE},
-    {ITT_EMPTY,   NULL,                      NULL,         0, MENU_NONE},
-    {ITT_EMPTY,   NULL,                      NULL,         0, MENU_NONE},
-    {ITT_LRFUNC,  "MOUSE LOOK",              CRL_Controls_MLook, 0, MENU_NONE},
-    {ITT_LRFUNC,  "VERTICAL MOUSE MOVEMENT", CRL_Controls_NoVert, 0, MENU_NONE}
+    {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
+    {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
+    {ITT_LRFUNC,  "ACCELERATION THRESHOLD",  CRL_Controls_Threshold,    0, MENU_NONE},
+    {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
+    {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
+    {ITT_LRFUNC,  "MOUSE LOOK",              CRL_Controls_MLook,        0, MENU_NONE},
+    {ITT_LRFUNC,  "VERTICAL MOUSE MOVEMENT", CRL_Controls_NoVert,       0, MENU_NONE}
 };
 
 static Menu_t CRLControls = {
@@ -1567,6 +1575,8 @@ static Menu_t CRLKbdBinds1 = {
 
 static void DrawCRLKbd1 (void)
 {
+    Keybinds_Cur = (MenuType_t)MENU_CRLKBDBINDS1;
+
     M_FillBackground();
 
     MN_DrTextACentered("MOVEMENT", 20, cr[CR_YELLOW]);
@@ -1667,6 +1677,8 @@ static Menu_t CRLKbdBinds2 = {
 
 static void DrawCRLKbd2 (void)
 {
+    Keybinds_Cur = (MenuType_t)MENU_CRLKBDBINDS2;
+
     M_FillBackground();
 
     MN_DrTextACentered("VIEW", 20, cr[CR_YELLOW]);
@@ -1763,6 +1775,8 @@ static Menu_t CRLKbdBinds3 = {
 
 static void DrawCRLKbd3 (void)
 {
+    Keybinds_Cur = (MenuType_t)MENU_CRLKBDBINDS3;
+
     M_FillBackground();
 
     MN_DrTextACentered("CRL CONTROLS", 20, cr[CR_YELLOW]);
@@ -1857,6 +1871,8 @@ static Menu_t CRLKbdBinds4 = {
 
 static void DrawCRLKbd4 (void)
 {
+    Keybinds_Cur = (MenuType_t)MENU_CRLKBDBINDS4;
+
     M_FillBackground();
 
     MN_DrTextACentered("ADVANCED MOVEMENT", 20, cr[CR_YELLOW]);
@@ -1953,6 +1969,8 @@ static Menu_t CRLKbdBinds5 = {
 
 static void DrawCRLKbd5 (void)
 {
+    Keybinds_Cur = (MenuType_t)MENU_CRLKBDBINDS5;
+
     M_FillBackground();
 
     MN_DrTextACentered("WEAPONS", 20, cr[CR_YELLOW]);
@@ -2049,6 +2067,8 @@ static Menu_t CRLKbdBinds6 = {
 
 static void DrawCRLKbd6 (void)
 {
+    Keybinds_Cur = (MenuType_t)MENU_CRLKBDBINDS6;
+
     M_FillBackground();
 
     MN_DrTextACentered("ARTIFACTS", 20, cr[CR_YELLOW]);
@@ -2143,6 +2163,8 @@ static Menu_t CRLKbdBinds7 = {
 
 static void DrawCRLKbd7 (void)
 {
+    Keybinds_Cur = (MenuType_t)MENU_CRLKBDBINDS7;
+
     M_FillBackground();
 
     MN_DrTextACentered("AUTOMAP", 20, cr[CR_YELLOW]);
@@ -2230,6 +2252,8 @@ static Menu_t CRLKbdBinds8 = {
 
 static void DrawCRLKbd8 (void)
 {
+    Keybinds_Cur = (MenuType_t)MENU_CRLKBDBINDS8;
+
     M_FillBackground();
 
     MN_DrTextACentered("FUNCTION KEYS", 20, cr[CR_YELLOW]);
@@ -2333,6 +2357,8 @@ static Menu_t CRLKbdBinds9 = {
 
 static void DrawCRLKbd9 (void)
 {
+    Keybinds_Cur = (MenuType_t)MENU_CRLKBDBINDS9;
+
     M_FillBackground();
 
     MN_DrTextACentered("SHORTCUT KEYS", 20, cr[CR_YELLOW]);
@@ -2898,6 +2924,9 @@ void MN_Init(void)
 
     // [crispy] apply default difficulty
     SkillMenu.oldItPos = crl_default_skill;
+
+    // [JN] Apply default first page of Keybinds menu.
+    Keybinds_Cur = (MenuType_t)MENU_CRLKBDBINDS1;
 }
 
 //---------------------------------------------------------------------------
