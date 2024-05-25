@@ -877,6 +877,7 @@ void D_DoomMain(void)
 #endif
 
     I_AtExit(I_ShutdownGraphics, true);
+    i_error_title = PACKAGE_STRING_HERETIC;
 
     I_AtExit(D_Endoom, false);
 
