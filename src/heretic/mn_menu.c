@@ -3401,8 +3401,6 @@ static void DrawFilesMenu(void)
 // clear out the quicksave/quickload stuff
     quicksave = 0;
     quickload = 0;
-    players[consoleplayer].message = NULL;
-    players[consoleplayer].messageTics = 1;
 }
 
 // [crispy] support additional pages of savegames
