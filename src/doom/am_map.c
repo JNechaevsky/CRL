@@ -78,6 +78,7 @@
 // [JN] Make wall colors of secret sectors palette-independent.
 static int secretwallcolors;
 static int foundsecretwallcolors;
+static int sndpropwallcolors;
 
 // drawing stuff
 #define AM_NUMMARKPOINTS 10
@@ -288,6 +289,7 @@ void AM_Init (void)
     // [JN] Find closest to magenta and green colors.
     secretwallcolors = V_GetPaletteIndex(playpal, 255, 0, 255);
     foundsecretwallcolors = V_GetPaletteIndex(playpal, 119, 255, 111);
+    sndpropwallcolors = V_GetPaletteIndex(playpal, 64, 255, 64);
 
     W_ReleaseLumpName("PLAYPAL");
 }
@@ -869,6 +871,24 @@ boolean AM_Responder (event_t *ev)
                 st_fullupdate = true;
             }
         }
+        else if (key == key_crl_map_sndprop)
+        {
+            // [JN] CRL - Sound propagation mode
+            crl_automap_sndprop = !crl_automap_sndprop;
+            if (crl_automap_sndprop)
+            {
+                // [JN] Reset propagation timers before toggling on.
+                for (int i = 0 ; i < numlines ; i++)
+                {
+                    lines[i].sndprop_tics = 0;
+                }
+                CRL_SetMessage(plr, DEH_String(CRL_AUTOMAPSNDPROP_ON), false, NULL);
+            }
+            else
+            {
+                CRL_SetMessage(plr, DEH_String(CRL_AUTOMAPSNDPROP_OFF), false, NULL);
+            }
+        }
         else
         {
             rc = false;
@@ -1441,6 +1461,13 @@ static void AM_drawWalls (void)
         {
             AM_rotatePoint(&l.a);
             AM_rotatePoint(&l.b);
+        }
+
+        // [JN] CRL - Sound propagation mode﻿ for automap.
+        if (crl_automap_sndprop && lines[i].sndprop_tics)
+        {
+            AM_drawMline(&l, sndpropwallcolors);
+            continue;
         }
 
         if (iddt_cheating || (lines[i].flags & ML_MAPPED))

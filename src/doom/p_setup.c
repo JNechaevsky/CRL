@@ -618,7 +618,7 @@ void P_LoadLineDefs (int lump)
 	// [crispy] substitute dummy sidedef for missing right side
 	if (ld->sidenum[0] == -1)
 	{
-	    char  badline[8];
+	    char  badline[11];
 	    char *string;
 
 	    ld->sidenum[0] = 0;
