@@ -186,6 +186,7 @@ extern int key_crl_notarget;
 extern int key_crl_nomomentum;
 extern int key_crl_map_rotate;
 extern int key_crl_map_overlay;
+extern int key_crl_map_sndprop;
 extern int key_crl_autorun;
 extern int key_crl_novert;
 extern int key_crl_vilebomb;

@@ -644,6 +644,7 @@ static void M_Bind_MaxZoom (int choice);
 static void M_Bind_FollowMode (int choice);
 static void M_Bind_RotateMode (int choice);
 static void M_Bind_OverlayMode (int choice);
+static void M_Bind_SndPropMode (int choice);
 static void M_Bind_ToggleGrid (int choice);
 static void M_Bind_AddMark (int choice);
 static void M_Bind_ClearMarks (int choice);
@@ -703,6 +704,7 @@ static void M_CRL_Automap_Overlay (int choice);
 static void M_CRL_Automap_Shading (int choice);
 static void M_CRL_Automap_Drawing (int choice);
 static void M_CRL_Automap_Secrets (int choice);
+static void M_CRL_Automap_SndProp (int choice);
 
 static void M_ChooseCRL_Gameplay (int choice);
 static void M_DrawCRL_Gameplay (void);
@@ -2375,22 +2377,22 @@ static void M_Bind_NextWeapon (int choice)
 
 static menuitem_t CRLMenu_Keybinds_5[]=
 {
-    { M_SWTC, "TOGGLE MAP",        M_Bind_ToggleMap,    't'  },
-    { M_SWTC, "ZOOM IN",           M_Bind_ZoomIn,       'z'  },
-    { M_SWTC, "ZOOM OUT",          M_Bind_ZoomOut,      'z'  },
-    { M_SWTC, "MAXIMUM ZOOM OUT",  M_Bind_MaxZoom,      'm'  },
-    { M_SWTC, "FOLLOW MODE",       M_Bind_FollowMode,   'f'  },
-    { M_SWTC, "ROTATE MODE",       M_Bind_RotateMode,   'r'  },
-    { M_SWTC, "OVERLAY MODE",      M_Bind_OverlayMode,  'o'  },
-    { M_SWTC, "TOGGLE GRID",       M_Bind_ToggleGrid,   't'  },
-    { M_SWTC, "MARK LOCATION",     M_Bind_AddMark,      'm'  },
-    { M_SWTC, "CLEAR ALL MARKS",   M_Bind_ClearMarks,   'c'  },
-    { M_SKIP, "",                  0,                   '\0' },
-    { M_SKIP, "",                  0,                   '\0' },
-    { M_SKIP, "",                  0,                   '\0' },
-    { M_SKIP, "",                  0,                   '\0' },
-    { M_SKIP, "",                  0,                   '\0' },
-    { M_SKIP, "",                  0,                   '\0' }
+    { M_SWTC, "TOGGLE MAP",             M_Bind_ToggleMap,    't'  },
+    { M_SWTC, "ZOOM IN",                M_Bind_ZoomIn,       'z'  },
+    { M_SWTC, "ZOOM OUT",               M_Bind_ZoomOut,      'z'  },
+    { M_SWTC, "MAXIMUM ZOOM OUT",       M_Bind_MaxZoom,      'm'  },
+    { M_SWTC, "FOLLOW MODE",            M_Bind_FollowMode,   'f'  },
+    { M_SWTC, "ROTATE MODE",            M_Bind_RotateMode,   'r'  },
+    { M_SWTC, "OVERLAY MODE",           M_Bind_OverlayMode,  'o'  },
+    { M_SWTC, "SOUND PROPAGATION MODE", M_Bind_SndPropMode,  's'  },
+    { M_SWTC, "TOGGLE GRID",            M_Bind_ToggleGrid,   't'  },
+    { M_SWTC, "MARK LOCATION",          M_Bind_AddMark,      'm'  },
+    { M_SWTC, "CLEAR ALL MARKS",        M_Bind_ClearMarks,   'c'  },
+    { M_SKIP, "",                       0,                   '\0' },
+    { M_SKIP, "",                       0,                   '\0' },
+    { M_SKIP, "",                       0,                   '\0' },
+    { M_SKIP, "",                       0,                   '\0' },
+    { M_SKIP, "",                       0,                   '\0' }
 };
 
 static menu_t CRLDef_Keybinds_5 =
@@ -2420,9 +2422,10 @@ static void M_DrawCRL_Keybinds_5 (void)
     M_DrawBindKey(4, 70, key_map_follow);
     M_DrawBindKey(5, 79, key_crl_map_rotate);
     M_DrawBindKey(6, 88, key_crl_map_overlay);
-    M_DrawBindKey(7, 97, key_map_grid);
-    M_DrawBindKey(8, 106, key_map_mark);
-    M_DrawBindKey(9, 115, key_map_clearmark);
+    M_DrawBindKey(7, 97, key_crl_map_sndprop);
+    M_DrawBindKey(8, 106, key_map_grid);
+    M_DrawBindKey(9, 115, key_map_mark);
+    M_DrawBindKey(10, 124, key_map_clearmark);
 
     M_DrawBindFooter("5", true);
 }
@@ -2462,19 +2465,24 @@ static void M_Bind_OverlayMode (int choice)
     M_StartBind(506);  // key_crl_map_overlay
 }
 
+static void M_Bind_SndPropMode (int choice)
+{
+    M_StartBind(507);  // key_crl_map_sndprop
+}
+
 static void M_Bind_ToggleGrid (int choice)
 {
-    M_StartBind(507);  // key_map_grid
+    M_StartBind(508);  // key_map_grid
 }
 
 static void M_Bind_AddMark (int choice)
 {
-    M_StartBind(508);  // key_map_mark
+    M_StartBind(509);  // key_map_mark
 }
 
 static void M_Bind_ClearMarks (int choice)
 {
-    M_StartBind(509);  // key_map_clearmark
+    M_StartBind(510);  // key_map_clearmark
 }
 
 // -----------------------------------------------------------------------------
@@ -2858,21 +2866,21 @@ static void M_Bind_M_Reset (int choice)
 
 static menuitem_t CRLMenu_Widgets[]=
 {
-    { M_LFRT, "RENDER COUNTERS",       M_CRL_Widget_Render,     'r'},
-    { M_LFRT, "MAX OVERFLOW STYLE",    M_CRL_Widget_MAX,        'r'},
-    { M_LFRT, "PLAYSTATE COUNTERS",    M_CRL_Widget_Playstate,  'r'},
-    { M_LFRT, "KIS STATS/FRAGS",       M_CRL_Widget_KIS,        'k'},
-    { M_LFRT, "LEVEL/DM TIMER",        M_CRL_Widget_Time,       'l'},
-    { M_LFRT, "PLAYER COORDS",         M_CRL_Widget_Coords,     'p'},
-    { M_LFRT, "POWERUP TIMERS",        M_CRL_Widget_Powerups,   'p'},
-    { M_LFRT, "TARGET'S HEALTH",       M_CRL_Widget_Health,     't'},
+    { M_LFRT, "RENDER COUNTERS",        M_CRL_Widget_Render,     'r'},
+    { M_LFRT, "MAX OVERFLOW STYLE",     M_CRL_Widget_MAX,        'r'},
+    { M_LFRT, "PLAYSTATE COUNTERS",     M_CRL_Widget_Playstate,  'r'},
+    { M_LFRT, "KIS STATS/FRAGS",        M_CRL_Widget_KIS,        'k'},
+    { M_LFRT, "LEVEL/DM TIMER",         M_CRL_Widget_Time,       'l'},
+    { M_LFRT, "PLAYER COORDS",          M_CRL_Widget_Coords,     'p'},
+    { M_LFRT, "POWERUP TIMERS",         M_CRL_Widget_Powerups,   'p'},
+    { M_LFRT, "TARGET'S HEALTH",        M_CRL_Widget_Health,     't'},
     { M_SKIP, "", 0, '\0'},
-    { M_LFRT, "ROTATE MODE",           M_CRL_Automap_Rotate,    'r'},
-    { M_LFRT, "OVERLAY MODE",          M_CRL_Automap_Overlay,   'o'},
-    { M_LFRT, "OVERLAY SHADING LEVEL", M_CRL_Automap_Shading,   'o'},
-    { M_LFRT, "DRAWING MODE",          M_CRL_Automap_Drawing,   'd'},
-    { M_LFRT, "MARK SECRET SECTORS",   M_CRL_Automap_Secrets,   'm'},
-    { M_SKIP, "", 0, '\0'},
+    { M_LFRT, "ROTATE MODE",            M_CRL_Automap_Rotate,    'r'},
+    { M_LFRT, "OVERLAY MODE",           M_CRL_Automap_Overlay,   'o'},
+    { M_LFRT, "OVERLAY SHADING LEVEL",  M_CRL_Automap_Shading,   'o'},
+    { M_LFRT, "DRAWING MODE",           M_CRL_Automap_Drawing,   'd'},
+    { M_LFRT, "MARK SECRET SECTORS",    M_CRL_Automap_Secrets,   'm'},
+    { M_LFRT, "SOUND PROPAGATION MODE", M_CRL_Automap_SndProp,   's'},
     { M_SKIP, "", 0, '\0'}
 };
 
@@ -2953,7 +2961,7 @@ static void M_DrawCRL_Widgets (void)
     // Print informatime message if extended HUD is off.
     if (itemOn < 8 && !crl_extended_hud)
     {
-        M_WriteTextCentered(160, "HIDDEN WHILE EXTENDED HUD IS OFF", cr[CR_GRAY]);
+        M_WriteTextCentered(169, "HIDDEN WHILE EXTENDED HUD IS OFF", cr[CR_GRAY]);
     }
 
     M_WriteTextCentered(106, "AUTOMAP", cr[CR_YELLOW]);
@@ -2986,6 +2994,11 @@ static void M_DrawCRL_Widgets (void)
                  crl_automap_secrets == 2 ? "ALWAYS" : "OFF");
     M_WriteText (M_ItemRightAlign(str), 151, str,
                  M_Item_Glow(13, crl_automap_secrets ? GLOW_GREEN : GLOW_DARKRED));
+
+    // Sound propagation mode
+    sprintf(str, crl_automap_sndprop ? "ON" : "OFF");
+    M_WriteText (M_ItemRightAlign(str), 160, str,
+                 M_Item_Glow(14, crl_automap_sndprop ? GLOW_GREEN : GLOW_DARKRED));
 }
 
 static void M_CRL_Widget_Render (int choice)
@@ -3051,6 +3064,11 @@ static void M_CRL_Automap_Drawing (int choice)
 static void M_CRL_Automap_Secrets (int choice)
 {
    crl_automap_secrets = M_INT_Slider(crl_automap_secrets, 0, 2, choice, false);
+}
+
+static void M_CRL_Automap_SndProp (int choice)
+{
+    crl_automap_sndprop ^= 1;
 }
 
 // -----------------------------------------------------------------------------
@@ -5725,6 +5743,7 @@ static void M_CheckBind (int key)
         if (key_map_follow == key)       key_map_follow       = 0;
         if (key_crl_map_rotate == key)   key_crl_map_rotate   = 0;
         if (key_crl_map_overlay == key)  key_crl_map_overlay  = 0;
+        if (key_crl_map_sndprop == key)  key_crl_map_sndprop  = 0;
         if (key_map_grid == key)         key_map_grid         = 0;
         if (key_map_mark == key)         key_map_mark         = 0;
         if (key_map_clearmark == key)    key_map_clearmark    = 0;
@@ -5826,9 +5845,10 @@ static void M_DoBind (int keynum, int key)
         case 504:  key_map_follow = key;        break;
         case 505:  key_crl_map_rotate = key;    break;
         case 506:  key_crl_map_overlay = key;   break;
-        case 507:  key_map_grid = key;          break;
-        case 508:  key_map_mark = key;          break;
-        case 509:  key_map_clearmark = key;     break;
+        case 507:  key_crl_map_sndprop = key;   break;
+        case 508:  key_map_grid = key;          break;
+        case 509:  key_map_mark = key;          break;
+        case 510:  key_map_clearmark = key;     break;
         // Page 6  
         case 600:  key_menu_help = key;         break;
         case 601:  key_menu_save = key;         break;
@@ -5947,9 +5967,10 @@ static void M_ClearBind (int itemOn)
             case 4:   key_map_follow = 0;       break;
             case 5:   key_crl_map_rotate = 0;   break;
             case 6:   key_crl_map_overlay = 0;  break;
-            case 7:   key_map_grid = 0;         break;
-            case 8:   key_map_mark = 0;         break;
-            case 9:   key_map_clearmark = 0;    break;
+            case 7:   key_crl_map_sndprop = 0;  break;
+            case 8:   key_map_grid = 0;         break;
+            case 9:   key_map_mark = 0;         break;
+            case 10:  key_map_clearmark = 0;    break;
         }
     }
     if (currentMenu == &CRLDef_Keybinds_6)
@@ -6053,6 +6074,7 @@ static void M_ResetBinds (void)
     key_map_follow = 'f';
     key_crl_map_rotate = 'r';
     key_crl_map_overlay = 'o';
+    key_crl_map_sndprop = 'p';
     key_map_grid = 'g';
     key_map_mark = 'm';
     key_map_clearmark = 'c';

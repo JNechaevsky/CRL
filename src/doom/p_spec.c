@@ -1211,6 +1211,19 @@ void P_UpdateSpecials (void)
 	    }
 	}
 
+    // [JN] CRL - Sound propagation mode﻿ for automap.
+    // If enabled, scan through all map lines and reduce line timers.
+    if (crl_automap_sndprop)
+    {
+        for (i = 0 ; i < numlines ; i++)
+        {
+            if (lines[i].sndprop_tics)
+            {
+                lines[i].sndprop_tics--;
+            }
+        }
+    }
+
     // [crispy] draw fuzz effect independent of rendering frame rate
     R_SetFuzzPosTic();
 }
