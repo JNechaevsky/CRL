@@ -188,6 +188,24 @@ void CRL_MoveTo_MAX (void)
     P_SetThingPosition(players[displayplayer].mo);
 }
 
+static byte *CRL_Colorize_MAX (int style)
+{
+    switch (style)
+    {
+        case 1:  // Slow blinking
+            return gametic & 8 ? cr[CR_YELLOW] : cr[CR_GREEN];
+            break;
+
+        case 2:  // Fast blinking
+            return gametic & 16 ? cr[CR_YELLOW] : cr[CR_GREEN];
+            break;
+
+        default:
+            return cr[CR_YELLOW];
+            break;
+    }
+}
+
 // -----------------------------------------------------------------------------
 // Draws CRL stats.
 //  [JN] Draw all the widgets and counters.
@@ -317,16 +335,32 @@ void CRL_StatDrawer (void)
         }
 
         // Planes (vanilla: 128, doom+: 1024)
+        // Show even if only MAX got overflow.
         if (crl_widget_render == 1
-        || (crl_widget_render == 2 && TotalVisPlanes >= CRL_MaxVisPlanes))
+        || (crl_widget_render == 2 && (TotalVisPlanes >= CRL_MaxVisPlanes
+                                   ||  CRL_MAX_count >= CRL_MaxVisPlanes)))
         {
-            char pln[32];
+            char vis[32];
+            char max[32];
 
             MN_DrTextA("PLN:", 0, 115 + yy, TotalVisPlanes >= CRL_MaxVisPlanes ? 
                       (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
-            M_snprintf(pln, 32, "%d/%d (MAX: %d)", TotalVisPlanes, CRL_MaxVisPlanes, CRL_MAX_count);
-            MN_DrTextA(pln, 32, 115 + yy, TotalVisPlanes >= CRL_MaxVisPlanes ?
+
+            M_snprintf(vis, 32, "%d/%d (MAX: ", TotalVisPlanes, CRL_MaxVisPlanes);
+            M_snprintf(max, 32, "%d", CRL_MAX_count);
+
+            // PLN: x/x (MAX:
+            MN_DrTextA(vis, 32, 115 + yy, TotalVisPlanes >= CRL_MaxVisPlanes ?
                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
+
+            // x
+            MN_DrTextA(max, 32 + MN_TextAWidth(vis), 115 + yy, TotalVisPlanes >= CRL_MaxVisPlanes ?
+                      (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : 
+                      CRL_MAX_count >= CRL_MaxVisPlanes ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
+
+            // )
+            MN_DrTextA(")", 32 + MN_TextAWidth(vis) + MN_TextAWidth(max), 115 + yy, TotalVisPlanes >= CRL_MaxVisPlanes ?
+                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
         }
     }
 

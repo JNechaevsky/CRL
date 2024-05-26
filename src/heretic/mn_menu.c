@@ -534,11 +534,12 @@ static void M_Bind_M_UseArtifact (int option);
 static void M_Bind_M_Reset (int option);
 
 static void DrawCRLWidgets (void);
-static void CRL_Widget_Coords (int option);
-static void CRL_Widget_Playstate (int option);
 static void CRL_Widget_Render (int option);
+static void CRL_Widget_MAX (int option);
+static void CRL_Widget_Playstate (int option);
 static void CRL_Widget_KIS (int option);
 static void CRL_Widget_Time (int option);
+static void CRL_Widget_Coords (int option);
 static void CRL_Widget_Powerups (int option);
 static void CRL_Widget_Health (int option);
 static void CRL_Automap_Secrets (int option);
@@ -2548,18 +2549,19 @@ static void M_Bind_M_Reset (int option)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLWidgetsItems[] = {
-    {ITT_LRFUNC, "PLAYER COORDS",       CRL_Widget_Coords,    0, MENU_NONE},
-    {ITT_LRFUNC, "PLAYSTATE COUNTERS",  CRL_Widget_Playstate, 0, MENU_NONE},
-    {ITT_LRFUNC, "RENDER COUNTERS",     CRL_Widget_Render,    0, MENU_NONE},
-    {ITT_LRFUNC, "KIS STATS",           CRL_Widget_KIS,       0, MENU_NONE},
-    {ITT_LRFUNC, "LEVEL TIME",          CRL_Widget_Time,      0, MENU_NONE},
-    {ITT_LRFUNC, "POWERUP TIMERS",      CRL_Widget_Powerups,  0, MENU_NONE},
-    {ITT_LRFUNC, "TARGET'S HEALTH",     CRL_Widget_Health,    0, MENU_NONE},
-    {ITT_EMPTY,  NULL,                  NULL,                 0, MENU_NONE},
-    {ITT_LRFUNC, "MARK SECRET SECTORS", CRL_Automap_Secrets,  0, MENU_NONE},
-    {ITT_EMPTY,  NULL,                  NULL,                 0, MENU_NONE},
-    {ITT_EMPTY,  NULL,                  NULL,                 0, MENU_NONE},
-    {ITT_EMPTY,  NULL,                  NULL,                 0, MENU_NONE}
+    { ITT_LRFUNC, "RENDER COUNTERS",     CRL_Widget_Render,    0, MENU_NONE },
+    { ITT_LRFUNC, "MAX OVERFLOW STYLE",  CRL_Widget_MAX,       0, MENU_NONE },
+    { ITT_LRFUNC, "PLAYSTATE COUNTERS",  CRL_Widget_Playstate, 0, MENU_NONE },
+    { ITT_LRFUNC, "KIS STATS",           CRL_Widget_KIS,       0, MENU_NONE },
+    { ITT_LRFUNC, "LEVEL TIME",          CRL_Widget_Time,      0, MENU_NONE },
+    { ITT_LRFUNC, "PLAYER COORDS",       CRL_Widget_Coords,    0, MENU_NONE },
+    { ITT_LRFUNC, "POWERUP TIMERS",      CRL_Widget_Powerups,  0, MENU_NONE },
+    { ITT_LRFUNC, "TARGET'S HEALTH",     CRL_Widget_Health,    0, MENU_NONE },
+    { ITT_EMPTY,  NULL,                  NULL,                 0, MENU_NONE },
+    { ITT_LRFUNC, "MARK SECRET SECTORS", CRL_Automap_Secrets,  0, MENU_NONE },
+    { ITT_EMPTY,  NULL,                  NULL,                 0, MENU_NONE },
+    { ITT_EMPTY,  NULL,                  NULL,                 0, MENU_NONE },
+    { ITT_EMPTY,  NULL,                  NULL,                 0, MENU_NONE },
 };
 
 static Menu_t CRLWidgetsMap = {
@@ -2573,30 +2575,32 @@ static Menu_t CRLWidgetsMap = {
 
 static void DrawCRLWidgets (void)
 {
-    static char str[32];
+    char str[32];
 
     M_ShadeBackground();
 
     MN_DrTextACentered("WIDGETS", 20, cr[CR_YELLOW]);
 
-    // Player coords
-    sprintf(str, crl_widget_coords ? "ON" : "OFF");
+    // Render counters
+    sprintf(str, crl_widget_render == 1 ? "ON" :
+                 crl_widget_render == 2 ? "OVERFLOWS" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 30,
-               M_Item_Glow(0, crl_widget_coords ? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(0, crl_widget_render == 1 ? GLOW_GREEN :
+                              crl_widget_render == 2 ? GLOW_DARKGREEN : GLOW_RED));
+
+    // MAX overflow style
+    sprintf(str, crl_widget_maxvp == 1 ? "BLINKING 1" :
+                 crl_widget_maxvp == 2 ? "BLINKING 2" : "STATIC");
+    MN_DrTextA(str, M_ItemRightAlign(str), 40,
+               M_Item_Glow(1, crl_widget_maxvp == 1 ? (gametic &  8 ? GLOW_YELLOW : GLOW_GREEN) :
+                              crl_widget_maxvp == 2 ? (gametic & 16 ? GLOW_YELLOW : GLOW_GREEN) : GLOW_YELLOW));
 
     // Playstate counters
     sprintf(str, crl_widget_playstate == 1 ? "ON" :
                  crl_widget_playstate == 2 ? "OVERFLOWS" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 40,
-               M_Item_Glow(1, crl_widget_playstate == 1 ? GLOW_GREEN :
-                              crl_widget_playstate == 2 ? GLOW_DARKGREEN : GLOW_RED));
-
-    // Render counters
-    sprintf(str, crl_widget_render == 1 ? "ON" :
-                 crl_widget_render == 2 ? "OVERFLOWS" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 50,
-               M_Item_Glow(2, crl_widget_render == 1 ? GLOW_GREEN :
-                              crl_widget_render == 2 ? GLOW_DARKGREEN : GLOW_RED));
+               M_Item_Glow(2, crl_widget_playstate == 1 ? GLOW_GREEN :
+                              crl_widget_playstate == 2 ? GLOW_DARKGREEN : GLOW_RED));
 
     // K/I/S stats
     sprintf(str, crl_widget_kis ? "ON" : "OFF");
@@ -2608,40 +2612,45 @@ static void DrawCRLWidgets (void)
     MN_DrTextA(str, M_ItemRightAlign(str), 70,
                M_Item_Glow(4, crl_widget_time ? GLOW_GREEN : GLOW_RED));
 
+    // Player coords
+    sprintf(str, crl_widget_coords ? "ON" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 80,
+               M_Item_Glow(5, crl_widget_coords ? GLOW_GREEN : GLOW_RED));
+
     // Powerup timers
     sprintf(str, crl_widget_powerups ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 80,
-               M_Item_Glow(5, crl_widget_powerups ? GLOW_GREEN : GLOW_RED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 90,
+               M_Item_Glow(6, crl_widget_powerups ? GLOW_GREEN : GLOW_RED));
 
     // Target's health
     sprintf(str, crl_widget_health == 1 ? "TOP" :
                  crl_widget_health == 2 ? "TOP+NAME" :
                  crl_widget_health == 3 ? "BOTTOM" :
                  crl_widget_health == 4 ? "BOTTOM+NAME" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 90,
-               M_Item_Glow(6, crl_widget_health ? GLOW_GREEN : GLOW_RED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 100,
+               M_Item_Glow(7, crl_widget_health ? GLOW_GREEN : GLOW_RED));
 
-    MN_DrTextACentered("AUTOMAP", 100, cr[CR_YELLOW]);
+    MN_DrTextACentered("AUTOMAP", 110, cr[CR_YELLOW]);
 
     // Level time
     sprintf(str, crl_automap_secrets ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 110,
-               M_Item_Glow(8, crl_automap_secrets ? GLOW_GREEN : GLOW_RED));
-}
-
-static void CRL_Widget_Coords (int option)
-{
-    crl_widget_coords ^= 1;
-}
-
-static void CRL_Widget_Playstate (int option)
-{
-    crl_widget_playstate = M_INT_Slider(crl_widget_playstate, 0, 2, option, false);
+    MN_DrTextA(str, M_ItemRightAlign(str), 120,
+               M_Item_Glow(9, crl_automap_secrets ? GLOW_GREEN : GLOW_RED));
 }
 
 static void CRL_Widget_Render (int option)
 {
     crl_widget_render = M_INT_Slider(crl_widget_render, 0, 2, option, false);
+}
+
+static void CRL_Widget_MAX (int option)
+{
+    crl_widget_maxvp = M_INT_Slider(crl_widget_maxvp, 0, 2, option, false);
+}
+
+static void CRL_Widget_Playstate (int option)
+{
+    crl_widget_playstate = M_INT_Slider(crl_widget_playstate, 0, 2, option, false);
 }
 
 static void CRL_Widget_KIS (int option)
@@ -2652,6 +2661,11 @@ static void CRL_Widget_KIS (int option)
 static void CRL_Widget_Time (int option)
 {
     crl_widget_time ^= 1;
+}
+
+static void CRL_Widget_Coords (int option)
+{
+    crl_widget_coords ^= 1;
 }
 
 static void CRL_Widget_Powerups (int option)
