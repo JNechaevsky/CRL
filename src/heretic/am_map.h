@@ -110,6 +110,7 @@ typedef struct
 
 extern int ravmap_cheating;
 extern vertex_t KeyPoints[NUM_KEY_TYPES];
+extern const char *LevelNames[];
 
 extern void AM_Stop (void);
 

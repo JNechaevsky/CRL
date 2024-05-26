@@ -36,7 +36,7 @@
 //      that spawn thinkers
 //
 //==================================================================
-void T_LightFlash(thinker_t * thinker)
+void T_LightFlash(thinker_t *thinker)
 {
     lightflash_t *flash = (lightflash_t *) thinker;
 
@@ -95,7 +95,7 @@ void P_SpawnLightFlash(sector_t * sector)
 //      After the map has been loaded, scan each sector for specials that spawn thinkers
 //
 //==================================================================
-void T_StrobeFlash(thinker_t * thinker)
+void T_StrobeFlash(thinker_t *thinker)
 {
     strobe_t *flash = (strobe_t *) thinker;
 

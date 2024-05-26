@@ -36,7 +36,7 @@ ceiling_t *activeceilings[MAXCEILINGS];
 //      T_MoveCeiling
 //
 //==================================================================
-void T_MoveCeiling(thinker_t * thinker)
+void T_MoveCeiling(thinker_t *thinker)
 {
     ceiling_t *ceiling = (ceiling_t *) thinker;
     result_e res;

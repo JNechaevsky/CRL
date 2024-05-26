@@ -1139,6 +1139,7 @@ void P_SpawnMapThing(mapthing_t * mthing)
     {
         // save spots for respawning in network games
         playerstarts[mthing->type - 1] = *mthing;
+        playerstartsingame[mthing->type - 1] = true;
         if (!deathmatch)
         {
             P_SpawnPlayer(mthing);
@@ -1161,7 +1162,7 @@ void P_SpawnMapThing(mapthing_t * mthing)
         return;
     }
 
-// check for apropriate skill level
+// check for appropriate skill level
     if (!netgame && (mthing->options & 16))
         return;
 
@@ -1272,7 +1273,6 @@ void P_SpawnMapThing(mapthing_t * mthing)
 //
 //---------------------------------------------------------------------------
 
-extern fixed_t attackrange;
 
 void P_SpawnPuff(fixed_t x, fixed_t y, fixed_t z)
 {
@@ -1718,7 +1718,7 @@ mobj_t *P_SPMAngle(mobj_t * source, mobjtype_t type, angle_t angle)
 //
 //---------------------------------------------------------------------------
 
-void A_ContMobjSound(mobj_t * actor)
+void A_ContMobjSound(mobj_t * actor, player_t *player, pspdef_t *psp)
 {
     switch (actor->type)
     {

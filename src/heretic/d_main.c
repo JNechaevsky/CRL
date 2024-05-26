@@ -73,7 +73,7 @@
 #define STARTUP_WINDOW_Y 7
 
 GameMode_t gamemode = indetermined;
-char *gamedescription = "unknown";
+const char *gamedescription = "unknown";
 
 boolean nomonsters;             // checkparm of -nomonsters
 boolean respawnparm;            // checkparm of -respawn
@@ -878,6 +878,7 @@ void D_DoomMain(void)
     I_AtExit(D_Endoom, false);
 
     //!
+    // @category game
     // @vanilla
     //
     // Disable monsters.
@@ -886,6 +887,7 @@ void D_DoomMain(void)
     nomonsters = M_ParmExists("-nomonsters");
 
     //!
+    // @category game
     // @vanilla
     //
     // Monsters respawn after being killed.
@@ -902,6 +904,7 @@ void D_DoomMain(void)
     ravpic = M_ParmExists("-ravpic");
 
     //!
+    // @category obscure
     // @vanilla
     //
     // Allow artifacts to be used when the run key is held down.
@@ -933,6 +936,7 @@ void D_DoomMain(void)
     }
 
     //!
+    // @category game
     // @arg <skill>
     // @vanilla
     //
@@ -948,6 +952,7 @@ void D_DoomMain(void)
     }
 
     //!
+    // @category game
     // @arg <n>
     // @vanilla
     //
@@ -963,6 +968,7 @@ void D_DoomMain(void)
     }
 
     //!
+    // @category game
     // @arg <x> <y>
     // @vanilla
     //
@@ -988,6 +994,7 @@ void D_DoomMain(void)
 #ifdef _WIN32
 
     //!
+    // @category obscure
     // @platform windows
     // @vanilla
     //
@@ -1010,9 +1017,6 @@ void D_DoomMain(void)
         M_SetConfigDir(NULL);
     }
 
-    DEH_printf("Z_Init: Init zone memory allocation daemon.\n");
-    Z_Init();
-
     // Load defaults before initing other systems
     DEH_printf("M_LoadDefaults: Load system defaults.\n");
     D_BindVariables();
@@ -1031,6 +1035,9 @@ void D_DoomMain(void)
 #endif
 
     I_AtExit(M_SaveDefaults, true); // [crispy] always save configuration at exit
+
+    DEH_printf("Z_Init: Init zone memory allocation daemon.\n");
+    Z_Init();
 
     DEH_printf("W_Init: Init WADfiles.\n");
 
@@ -1168,7 +1175,6 @@ void D_DoomMain(void)
     // to be loaded for HOM multi colors initialization.
     CRL_Init();
 
-
     if (M_ParmExists("-testcontrols"))
     {
         startepisode = 1;
@@ -1282,6 +1288,7 @@ void D_DoomMain(void)
     }
 
     //!
+    // @category game
     // @arg <s>
     // @vanilla
     //

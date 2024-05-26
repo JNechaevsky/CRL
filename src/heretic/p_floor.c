@@ -189,7 +189,7 @@ result_e T_MovePlane(sector_t * sector, fixed_t speed,
 //      MOVE A FLOOR TO IT'S DESTINATION (UP OR DOWN)
 //
 //==================================================================
-void T_MoveFloor(thinker_t * thinker)
+void T_MoveFloor(thinker_t *thinker)
 {
     floormove_t *floor = (floormove_t *) thinker;
     result_e res;
