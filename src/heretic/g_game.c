@@ -313,8 +313,6 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
     int flyheight;
     ticcmd_t spect;
 
-    extern boolean noartiskip;
-
     // haleyjd: removed externdriver crap
 
     memset(cmd, 0, sizeof(*cmd));
@@ -2263,7 +2261,7 @@ void G_WriteDemoTiccmd(ticcmd_t * cmd)
 */
 
 void G_RecordDemo(skill_t skill, int numplayers, int episode, int map,
-                  char *name)
+                  const char *name)
 {
     int i;
     int maxsize;

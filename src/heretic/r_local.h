@@ -374,6 +374,7 @@ extern fixed_t viewcos, viewsin;
 extern fixed_t viewx, viewy, viewz;
 
 extern int centerx, centery;
+extern int detailLevel;
 extern int detailshift;         // 0 = high, 1 = low
 extern int extralight;
 extern int flyheight;

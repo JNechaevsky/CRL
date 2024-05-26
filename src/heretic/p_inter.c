@@ -18,7 +18,6 @@
 
 // P_inter.c
 
-#include "ct_chat.h"
 #include "doomdef.h"
 #include "deh_str.h"
 #include "i_system.h"
@@ -26,6 +25,8 @@
 #include "m_random.h"
 #include "p_local.h"
 #include "s_sound.h"
+#include "am_map.h"
+#include "ct_chat.h"
 
 #include "crlcore.h"
 
@@ -297,7 +298,6 @@ boolean P_GiveArmor(player_t * player, int armortype)
 
 void P_GiveKey(player_t * player, keytype_t key)
 {
-    extern vertex_t KeyPoints[];
 
     if (player->keys[key])
     {

@@ -125,9 +125,10 @@ void P_PlayerThink(player_t * player);
 void P_Thrust(player_t * player, angle_t angle, fixed_t move);
 void P_PlayerRemoveArtifact(player_t * player, int slot);
 void P_PlayerUseArtifact(player_t * player, artitype_t arti);
-boolean P_UndoPlayerChicken(player_t * player);
 boolean P_UseArtifact(player_t * player, artitype_t arti);
 int P_GetPlayerNum(player_t * player);
+boolean P_UndoPlayerChicken(player_t *player);
+
 
 // ***** P_MOBJ *****
 
@@ -150,8 +151,8 @@ boolean P_SetMobjStateNF(mobj_t * mobj, statenum_t state);
 void P_ThrustMobj(mobj_t * mo, angle_t angle, fixed_t move);
 int P_FaceMobj(mobj_t * source, mobj_t * target, angle_t * delta);
 boolean P_SeekerMissile(mobj_t * actor, angle_t thresh, angle_t turnMax);
-void P_MobjThinker(thinker_t * thinker);
-void P_BlasterMobjThinker(thinker_t * thinker);
+void P_MobjThinker(thinker_t *thinker);
+void P_BlasterMobjThinker(thinker_t *thinker);
 void P_SpawnPuff(fixed_t x, fixed_t y, fixed_t z);
 void P_SpawnBlood(fixed_t x, fixed_t y, fixed_t z, int damage);
 void P_BloodSplatter(fixed_t x, fixed_t y, fixed_t z, mobj_t * originator);
@@ -227,6 +228,10 @@ void P_SetThingPosition(mobj_t * thing);
 extern boolean floatok;         // if true, move would be ok if
 extern fixed_t tmfloorz, tmceilingz;    // within tmfloorz - tmceilingz
 
+#define	MAXSPECIALCROSS 8
+extern line_t *spechit[MAXSPECIALCROSS];
+extern int numspechit;
+
 extern line_t *ceilingline;
 boolean P_TestMobjLocation(mobj_t * mobj);
 boolean P_CheckPosition(mobj_t * thing, fixed_t x, fixed_t y);
@@ -235,6 +240,9 @@ void P_FakeZMovement(mobj_t * mo);
 boolean P_TryMove(mobj_t * thing, fixed_t x, fixed_t y);
 boolean P_TeleportMove(mobj_t * thing, fixed_t x, fixed_t y);
 void P_SlideMove(mobj_t * mo);
+
+extern fixed_t topslope, bottomslope;   // slopes to top and bottom of target
+
 boolean P_CheckSight(mobj_t * t1, mobj_t * t2);
 void P_UseLines(player_t * player);
 

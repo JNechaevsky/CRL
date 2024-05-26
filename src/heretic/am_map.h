@@ -18,6 +18,10 @@
 #ifndef __AMMAP_H__
 #define __AMMAP_H__
 
+
+#include "r_local.h"
+
+
 // For use if I do walls with outsides/insides
 #define REDS		12*8
 #define REDRANGE	1       //16
@@ -108,10 +112,15 @@ typedef struct
     fixed_t slp, islp;
 } islope_t;
 
-extern int ravmap_cheating;
-extern vertex_t KeyPoints[NUM_KEY_TYPES];
-extern const char *LevelNames[];
+// extern int f_x, f_y, f_w, f_h;
 
-extern void AM_Stop (void);
+
+//extern boolean automapactive;
+extern vertex_t KeyPoints[];
+extern const char *LevelNames[];
+extern int ravmap_cheating;
+
+void AM_Stop(void);
+
 
 #endif

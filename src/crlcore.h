@@ -220,6 +220,9 @@ extern int  CRL_fps;
 extern boolean CRL_vilebomb;
 extern boolean CRL_aircontrol;
 
+
+extern boolean paused;
+
 // [crispy] demo progress bar and timer widget
 extern int  demowarp;
 
@@ -229,4 +232,3 @@ extern boolean  automapactive;
 
 extern int      deathmatch;      // 0 = Cooperative; 1 = Deathmatch; 2 = Altdeath
 extern boolean  playeringame[4]; // [MAXPLAYERS]
-

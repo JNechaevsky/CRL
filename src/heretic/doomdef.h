@@ -24,14 +24,13 @@
 #include <string.h>
 //haleyjd: removed WATCOMC
 #include <limits.h>
-#include <signal.h>
 
 #define HERETIC_VERSION 130
 #define HERETIC_VERSION_TEXT "v1.3"
 
 // if rangecheck is undefined, most parameter validation debugging code
 // will not be compiled
-#define RANGECHECK
+//#define RANGECHECK
 
 // all external data is defined here
 #include "doomdata.h"
@@ -129,6 +128,7 @@ typedef enum
 
 ===============================================================================
 */
+
 
 struct thinker_s;
 
@@ -518,7 +518,7 @@ typedef struct player_s
 
 extern gameaction_t gameaction;
 
-extern boolean paused;
+//extern boolean paused;
 
 extern GameMode_t gamemode;
 
@@ -537,6 +537,10 @@ extern boolean ravpic;          // checkparm of -ravpic
 extern boolean altpal;          // checkparm to use an alternate palette routine
 
 extern boolean cdrom;           // true if cd-rom mode active ("-cdrom")
+
+extern boolean noartiskip;      // whether shift-enter skips an artifact
+
+extern boolean viewactive;
 
 //extern boolean deathmatch;      // only if started as net death
 
@@ -574,7 +578,7 @@ extern int prevmap;
 extern int totalkills, totalitems, totalsecret; // for intermission
 extern int levelstarttic;       // gametic at level start
 extern int leveltime;           // tics in game play for par
-extern  int	realleveltime;	// [JN] Keep ticking in Freeze mode.
+extern int realleveltime;       // [JN] Keep ticking in Freeze mode.
 
 extern ticcmd_t *netcmds;
 
@@ -725,7 +729,7 @@ extern int savepage;
 #define SAVEPAGE_MAX 7
 
 void G_RecordDemo(skill_t skill, int numplayers, int episode, int map,
-                  char *name);
+                  const char *name);
 // only called by startup code
 
 void G_PlayDemo(char *name);
@@ -850,6 +854,7 @@ extern boolean inventory;
 extern int curpos;
 extern int inv_ptr;
 extern int playerkeys;
+
 
 void SB_Init(void);
 boolean SB_Responder(event_t * event);

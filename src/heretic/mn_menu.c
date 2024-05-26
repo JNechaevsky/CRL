@@ -162,10 +162,6 @@ static void DrawSaveMenu(void);
 static void DrawSlider(Menu_t * menu, int item, int width, int slot, boolean bigspacing);
 void MN_LoadSlotText(void);
 
-// External Data
-
-extern int detailLevel;
-
 // Public Data
 
 boolean MenuActive;

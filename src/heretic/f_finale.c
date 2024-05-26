@@ -25,19 +25,20 @@
 #include "i_video.h"
 #include "s_sound.h"
 #include "v_video.h"
+#include "am_map.h"
 
-int finalestage;                // 0 = text, 1 = art screen
-int finalecount;
+#include "crlcore.h"
+
+static int finalestage;                // 0 = text, 1 = art screen
+static int finalecount;
 
 #define TEXTSPEED       3
 #define TEXTWAIT        250
 
-const char *finaletext;
-const char *finaleflat;
+static const char *finaletext;
+static const char *finaleflat;
 
-int FontABaseLump;
-
-extern boolean automapactive;
+static int FontABaseLump;
 
 
 /*
