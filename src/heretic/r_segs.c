@@ -139,7 +139,7 @@ static boolean medusa_indicator (const byte *data, int texture)
 ================
 */
 
-void R_RenderMaskedSegRange(drawseg_t * ds, int x1, int x2)
+void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
 {
     unsigned index;
     column_t *col;

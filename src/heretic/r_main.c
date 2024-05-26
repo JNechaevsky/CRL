@@ -748,7 +748,6 @@ void R_SetupFrame(player_t * player)
     int tempCentery;
     int pitch; // [crispy]
 
-    //drawbsp = 1;
     viewplayer = player;
     // haleyjd: removed WATCOMC
     // haleyjd FIXME: viewangleoffset handling?
