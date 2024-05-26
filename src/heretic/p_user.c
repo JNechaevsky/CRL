@@ -27,7 +27,6 @@
 #include "m_random.h"
 #include "p_local.h"
 #include "s_sound.h"
-#include "sb_bar.h"
 
 #include "crlcore.h"
 #include "crlvars.h"

@@ -35,7 +35,6 @@
 #include "m_random.h"
 #include "p_local.h"
 #include "s_sound.h"
-#include "sb_bar.h"
 #include "v_video.h"
 
 #include "crlcore.h"
@@ -1593,7 +1592,6 @@ void G_InitPlayer(int player)
 = Can when a player completes a level
 ====================
 */
-extern int playerkeys;
 
 void G_PlayerFinishLevel(int player)
 {

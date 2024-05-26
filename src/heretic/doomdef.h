@@ -846,6 +846,11 @@ void F_StartFinale(void);
 
 #define CURPOS_MAX 6 // [crispy] 7 total artifact frames
 
+extern boolean inventory;
+extern int curpos;
+extern int inv_ptr;
+extern int playerkeys;
+
 void SB_Init(void);
 boolean SB_Responder(event_t * event);
 void SB_Ticker(void);
