@@ -179,8 +179,6 @@ static void CRL_DrawMessageCritical (void)
 
 void R_ExecuteSetViewSize(void);
 
-extern boolean finalestage;
-
 void D_Display(void)
 {
     // For comparative timing / profiling

@@ -39,7 +39,6 @@ int FontABaseLump;
 
 extern boolean automapactive;
 
-extern void D_StartTitle(void);
 
 /*
 =======================

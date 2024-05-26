@@ -596,7 +596,7 @@ extern skill_t startskill;
 extern int startepisode;
 extern int startmap;
 extern boolean autostart;
-
+extern boolean advancedemo;
 extern boolean nodrawers;
 
 extern boolean testcontrols;
@@ -619,6 +619,7 @@ extern int show_endoom;
 //BASE LEVEL
 //----------
 void D_DoomMain(void);
+void CheckAbortStartup(void);
 void IncThermo(void);
 void InitThermo(int max);
 void tprintf(const char *string, int initflag);
@@ -633,6 +634,9 @@ void D_DoomLoop(void);
 // manages timing and IO
 // calls all ?_Responder, ?_Ticker, and ?_Drawer functions
 // calls I_GetTime, I_StartFrame, and I_StartTic
+
+void D_StartTitle(void);
+
 
 //---------
 //SYSTEM IO
@@ -725,11 +729,17 @@ void G_RecordDemo(skill_t skill, int numplayers, int episode, int map,
 
 void G_PlayDemo(char *name);
 void G_TimeDemo(char *name);
+boolean G_CheckDemoStatus(void);
+void D_DoAdvanceDemo(void);
 
 void G_ExitLevel(void);
 void G_SecretExitLevel(void);
 
+void D_ProcessEvents(void);
+
 void G_WorldDone(void);
+
+void G_BuildTiccmd(ticcmd_t *cmd, int maketic);
 
 void G_Ticker(void);
 boolean G_Responder(event_t * ev);
