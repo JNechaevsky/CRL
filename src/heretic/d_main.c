@@ -861,7 +861,7 @@ void D_DoomMain(void)
                            | FOREGROUND_INTENSITY);
 
     for (p = 0 ; p < 34 ; p++) printf(" ");
-    printf(PACKAGE_STRING_HERETIC);
+    printf(PACKAGE_STRING);
     for (p = 0 ; p < 34 ; p++) printf(" ");
     printf("\n");
 
@@ -869,11 +869,11 @@ void D_DoomMain(void)
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 
                             FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 #else
-    I_PrintBanner(PACKAGE_STRING_HERETIC);
+    I_PrintBanner(PACKAGE_STRING);
 #endif
 
     I_AtExit(I_ShutdownGraphics, true);
-    i_error_title = PACKAGE_STRING_HERETIC;
+    i_error_title = PACKAGE_STRING;
 
     I_AtExit(D_Endoom, false);
 
