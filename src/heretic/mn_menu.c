@@ -2577,8 +2577,6 @@ static void DrawCRLWidgets (void)
 {
     char str[32];
 
-    M_ShadeBackground();
-
     MN_DrTextACentered("WIDGETS", 20, cr[CR_YELLOW]);
 
     // Render counters
@@ -2710,9 +2708,7 @@ static Menu_t CRLGameplay = {
 
 static void DrawCRLGameplay (void)
 {
-    static char str[32];
-
-    M_ShadeBackground();
+    char str[32];
 
     MN_DrTextACentered("GAMEPLAY FEATURES", 20, cr[CR_YELLOW]);
 
@@ -2823,8 +2819,6 @@ static Menu_t CRLLimits = {
 static void DrawCRLLimits (void)
 {
     char str[32];
-
-    M_ShadeBackground();
 
     MN_DrTextACentered("STATIC ENGINE LIMITS", 20, cr[CR_YELLOW]);
 
