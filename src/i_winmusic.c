@@ -206,7 +206,7 @@ static void UnprepareHeader(void)
     // midiOutUnprepareHeader() deallocates with GlobalFree(GlobalHandle
     // (...)). By design, this kind of allocator mismatch is an issue that ASan
     // is designed to catch. It is theoretically possible for us to support
-    // this kind of code, but it’s not very high priority since it is undefined
+    // this kind of code, but it's not very high priority since it is undefined
     // behavior, though it happens to work right now outside of ASan."
     // https://developercommunity.visualstudio.com/t/1597288
 
