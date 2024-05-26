@@ -35,7 +35,6 @@ sector_t *frontsector, *backsector;
 drawseg_t  drawsegs[REALMAXDRAWSEGS];
 drawseg_t *ds_p;
 
-void R_StoreWallRange(int start, int stop, seg_t* __line, subsector_t* __sub);
 
 /*
 ====================

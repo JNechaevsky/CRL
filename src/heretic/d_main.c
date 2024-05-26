@@ -73,7 +73,7 @@
 #define STARTUP_WINDOW_Y 7
 
 GameMode_t gamemode = indetermined;
-char *gamedescription = "unknown";
+const char *gamedescription = "unknown";
 
 boolean nomonsters;             // checkparm of -nomonsters
 boolean respawnparm;            // checkparm of -respawn
@@ -85,7 +85,6 @@ boolean noartiskip;             // whether shift-enter skips an artifact
 skill_t startskill;
 int startepisode;
 int startmap;
-int UpdateState;
 int graphical_startup = 0;
 static boolean using_graphical_startup;
 static boolean main_loop_started = false;
@@ -97,6 +96,11 @@ FILE *debugfile;
 
 int show_endoom = 0;       // [JN] Disabled by default
 int showMessages = 1;      // [JN] Show messages has default, 0 = off, 1 = on
+
+// [JN] DOS-specific option: now replaced with "crl_screen_size", which is 
+// using extended range and because of this can't be used in DOS version.
+// Still used for config file compatibility.
+static int screenblocks = 10;
 
 void D_ConnectNetGame(void);
 void D_CheckNetGame(void);
@@ -175,8 +179,6 @@ static void CRL_DrawMessageCritical (void)
 
 void R_ExecuteSetViewSize(void);
 
-extern boolean finalestage;
-
 void D_Display(void)
 {
     // For comparative timing / profiling
@@ -238,7 +240,6 @@ void D_Display(void)
             }
 
             CT_Drawer();
-            UpdateState |= I_FULLVIEW;
             SB_Drawer();
 
             // [crispy] demo progress bar
@@ -410,7 +411,6 @@ void D_PageDrawer(void)
     {
         V_DrawPatch(4, 160, W_CacheLumpName(DEH_String("ADVISOR"), PU_CACHE), "ADVISOR");
     }
-    UpdateState |= I_FULLSCRN;
 }
 
 /*
@@ -450,7 +450,6 @@ void D_DoAdvanceDemo(void)
             break;
         case 2:
             BorderNeedRefresh = true;
-            UpdateState |= I_FULLSCRN;
             if (crl_internal_demos)
             {
                 G_DeferedPlayDemo(DEH_String("demo1"));
@@ -463,7 +462,6 @@ void D_DoAdvanceDemo(void)
             break;
         case 4:
             BorderNeedRefresh = true;
-            UpdateState |= I_FULLSCRN;
             if (crl_internal_demos)
             {
                 G_DeferedPlayDemo(DEH_String("demo2"));
@@ -483,7 +481,6 @@ void D_DoAdvanceDemo(void)
             break;
         case 6:
             BorderNeedRefresh = true;
-            UpdateState |= I_FULLSCRN;
             if (crl_internal_demos)
             {
                 G_DeferedPlayDemo(DEH_String("demo3"));
@@ -767,7 +764,6 @@ void InitThermo(int max)
 
 void D_BindVariables(void)
 {
-    extern int screenblocks;
     int i;
 
     M_ApplyPlatformDefaults();
@@ -865,7 +861,7 @@ void D_DoomMain(void)
                            | FOREGROUND_INTENSITY);
 
     for (p = 0 ; p < 34 ; p++) printf(" ");
-    printf(PACKAGE_STRING_HERETIC);
+    printf(PACKAGE_STRING);
     for (p = 0 ; p < 34 ; p++) printf(" ");
     printf("\n");
 
@@ -873,15 +869,16 @@ void D_DoomMain(void)
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 
                             FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 #else
-    I_PrintBanner(PACKAGE_STRING_HERETIC);
+    I_PrintBanner(PACKAGE_STRING);
 #endif
 
     I_AtExit(I_ShutdownGraphics, true);
-    i_error_title = PACKAGE_STRING_HERETIC;
+    i_error_title = PACKAGE_STRING;
 
     I_AtExit(D_Endoom, false);
 
     //!
+    // @category game
     // @vanilla
     //
     // Disable monsters.
@@ -890,6 +887,7 @@ void D_DoomMain(void)
     nomonsters = M_ParmExists("-nomonsters");
 
     //!
+    // @category game
     // @vanilla
     //
     // Monsters respawn after being killed.
@@ -906,6 +904,7 @@ void D_DoomMain(void)
     ravpic = M_ParmExists("-ravpic");
 
     //!
+    // @category obscure
     // @vanilla
     //
     // Allow artifacts to be used when the run key is held down.
@@ -937,6 +936,7 @@ void D_DoomMain(void)
     }
 
     //!
+    // @category game
     // @arg <skill>
     // @vanilla
     //
@@ -952,6 +952,7 @@ void D_DoomMain(void)
     }
 
     //!
+    // @category game
     // @arg <n>
     // @vanilla
     //
@@ -967,6 +968,7 @@ void D_DoomMain(void)
     }
 
     //!
+    // @category game
     // @arg <x> <y>
     // @vanilla
     //
@@ -992,6 +994,7 @@ void D_DoomMain(void)
 #ifdef _WIN32
 
     //!
+    // @category obscure
     // @platform windows
     // @vanilla
     //
@@ -1014,9 +1017,6 @@ void D_DoomMain(void)
         M_SetConfigDir(NULL);
     }
 
-    DEH_printf("Z_Init: Init zone memory allocation daemon.\n");
-    Z_Init();
-
     // Load defaults before initing other systems
     DEH_printf("M_LoadDefaults: Load system defaults.\n");
     D_BindVariables();
@@ -1035,6 +1035,9 @@ void D_DoomMain(void)
 #endif
 
     I_AtExit(M_SaveDefaults, true); // [crispy] always save configuration at exit
+
+    DEH_printf("Z_Init: Init zone memory allocation daemon.\n");
+    Z_Init();
 
     DEH_printf("W_Init: Init WADfiles.\n");
 
@@ -1172,7 +1175,6 @@ void D_DoomMain(void)
     // to be loaded for HOM multi colors initialization.
     CRL_Init();
 
-
     if (M_ParmExists("-testcontrols"))
     {
         startepisode = 1;
@@ -1286,6 +1288,7 @@ void D_DoomMain(void)
     }
 
     //!
+    // @category game
     // @arg <s>
     // @vanilla
     //
@@ -1314,7 +1317,6 @@ void D_DoomMain(void)
 
     if (gameaction != ga_loadgame)
     {
-        UpdateState |= I_FULLSCRN;
         BorderNeedRefresh = true;
         if (autostart || netgame)
         {

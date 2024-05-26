@@ -13,13 +13,13 @@ FILETYPE 1
  {
   BLOCK "040904E4"
   {
-   VALUE "FileVersion", "@PACKAGE_VERSION_HERETIC@.0"
-   VALUE "FileDescription", "@PACKAGE_STRING_HERETIC@"
-   VALUE "InternalName", "@PACKAGE_TARNAME_HERETIC@"
+   VALUE "FileVersion", "@PACKAGE_VERSION@.0"
+   VALUE "FileDescription", "@PACKAGE_STRING@"
+   VALUE "InternalName", "@PACKAGE_TARNAME@"
    VALUE "CompanyName", "@PACKAGE_BUGREPORT@"
    VALUE "LegalCopyright", "@PACKAGE_COPYRIGHT@. Licensed under @PACKAGE_LICENSE@"
    VALUE "ProductName", "@PACKAGE_NAME@"
-   VALUE "ProductVersion", "@PACKAGE_VERSION_HERETIC@"
+   VALUE "ProductVersion", "@PACKAGE_VERSION@"
   }
  }
  BLOCK "VarFileInfo"

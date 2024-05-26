@@ -40,6 +40,7 @@
 #include "net_sdl.h"
 #include "net_loop.h"
 
+#include "crlcore.h"
 #include "crlvars.h"
 
 // The complete set of data for a particular tic.
@@ -698,7 +699,6 @@ void TryRunTics (void)
     // [AM] If we've uncapped the framerate and there are no tics
     //      to run, return early instead of waiting around.
     // [JN] CRL - Keep uncapped framerate while paused and Spectator mode.
-    extern boolean paused;
     #define return_early (crl_uncapped_fps && counts == 0 && \
                          ((paused && crl_spectating) || realleveltime > oldleveltime) && \
                          screenvisible)

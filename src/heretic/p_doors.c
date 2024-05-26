@@ -38,7 +38,7 @@
 //      T_VerticalDoor
 //
 //==================================================================
-void T_VerticalDoor(thinker_t * thinker)
+void T_VerticalDoor(thinker_t *thinker)
 {
     vldoor_t *door = (vldoor_t *) thinker;
     result_e res;

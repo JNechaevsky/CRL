@@ -284,7 +284,7 @@ typedef struct
 
 void EV_VerticalDoor(line_t * line, mobj_t * thing);
 int EV_DoDoor(line_t * line, vldoor_e type, fixed_t speed);
-void T_VerticalDoor(thinker_t * thinker);
+void T_VerticalDoor(thinker_t *thinker);
 void P_SpawnDoorCloseIn30(sector_t * sec);
 void P_SpawnDoorRaiseIn5Mins(sector_t * sec, int secnum);
 
@@ -382,7 +382,7 @@ result_e T_MovePlane(sector_t * sector, fixed_t speed,
 
 int EV_BuildStairs(line_t * line, fixed_t stepDelta);
 int EV_DoFloor(line_t * line, floor_e floortype);
-void T_MoveFloor(thinker_t * thinker);
+void T_MoveFloor(thinker_t *thinker);
 
 /*
 ===============================================================================

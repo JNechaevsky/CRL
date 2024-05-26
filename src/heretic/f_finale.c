@@ -25,22 +25,21 @@
 #include "i_video.h"
 #include "s_sound.h"
 #include "v_video.h"
+#include "am_map.h"
 
-int finalestage;                // 0 = text, 1 = art screen
-int finalecount;
+#include "crlcore.h"
+
+static int finalestage;                // 0 = text, 1 = art screen
+static int finalecount;
 
 #define TEXTSPEED       3
 #define TEXTWAIT        250
 
-const char *finaletext;
-const char *finaleflat;
+static const char *finaletext;
+static const char *finaleflat;
 
-int FontABaseLump;
+static int FontABaseLump;
 
-extern boolean automapactive;
-extern boolean viewactive;
-
-extern void D_StartTitle(void);
 
 /*
 =======================
@@ -54,7 +53,6 @@ void F_StartFinale(void)
 {
     gameaction = ga_nothing;
     gamestate = GS_FINALE;
-    viewactive = false;
     automapactive = false;
     players[consoleplayer].messageTics = 1;
     players[consoleplayer].message = NULL;
@@ -150,8 +148,6 @@ void F_Ticker(void)
 =======================
 */
 
-//#include "hu_stuff.h"
-//extern        patch_t *hu_font[HU_FONTSIZE];
 
 void F_TextWrite(void)
 {
@@ -411,7 +407,6 @@ void F_BunnyScroll(void)
 
 void F_Drawer(void)
 {
-    UpdateState |= I_FULLSCRN;
     if (!finalestage)
         F_TextWrite();
     else

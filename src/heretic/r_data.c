@@ -28,7 +28,6 @@
 #include "p_local.h"
 #include "v_trans.h"
 
-extern void CheckAbortStartup(void);
 
 typedef struct
 {

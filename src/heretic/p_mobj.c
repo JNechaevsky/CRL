@@ -1045,7 +1045,6 @@ void P_SpawnPlayer(mapthing_t * mthing)
     fixed_t x, y, z;
     mobj_t *mobj;
     int i;
-    extern int playerkeys;
 
     if (!playeringame[mthing->type - 1])
         return;                 // not playing
@@ -1093,20 +1092,18 @@ void P_SpawnPlayer(mapthing_t * mthing)
     P_SetupPsprites(p);         // setup gun psprite        
     if (deathmatch)
     {                           // Give all keys in death match mode
-        for (i = 0; i < NUMKEYS; i++)
+        for (i = 0; i < NUM_KEY_TYPES; i++)
         {
             p->keys[i] = true;
             if (p == &players[consoleplayer])
             {
                 playerkeys = 7;
-                UpdateState |= I_STATBAR;
             }
         }
     }
     else if (p == &players[consoleplayer])
     {
         playerkeys = 0;
-        UpdateState |= I_STATBAR;
     }
 }
 
@@ -1141,6 +1138,7 @@ void P_SpawnMapThing(mapthing_t * mthing)
     {
         // save spots for respawning in network games
         playerstarts[mthing->type - 1] = *mthing;
+        playerstartsingame[mthing->type - 1] = true;
         if (!deathmatch)
         {
             P_SpawnPlayer(mthing);
@@ -1163,7 +1161,7 @@ void P_SpawnMapThing(mapthing_t * mthing)
         return;
     }
 
-// check for apropriate skill level
+// check for appropriate skill level
     if (!netgame && (mthing->options & 16))
         return;
 
@@ -1274,7 +1272,6 @@ void P_SpawnMapThing(mapthing_t * mthing)
 //
 //---------------------------------------------------------------------------
 
-extern fixed_t attackrange;
 
 void P_SpawnPuff(fixed_t x, fixed_t y, fixed_t z)
 {
@@ -1720,7 +1717,7 @@ mobj_t *P_SPMAngle(mobj_t * source, mobjtype_t type, angle_t angle)
 //
 //---------------------------------------------------------------------------
 
-void A_ContMobjSound(mobj_t * actor)
+void A_ContMobjSound(mobj_t * actor, player_t *player, pspdef_t *psp)
 {
     switch (actor->type)
     {

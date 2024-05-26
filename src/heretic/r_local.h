@@ -15,40 +15,33 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
-// R_local.h
 
-#ifndef __R_LOCAL__
-#define __R_LOCAL__
+#pragma once
 
 #include "i_video.h"
 #include "v_patch.h"
 
-#define	ANGLETOSKYSHIFT		22      // sky map is 256*128*4 maps
 
-#define	BASEYCENTER			100
-
+#define ANGLETOSKYSHIFT     22      // sky map is 256*128*4 maps
+#define BASEYCENTER         100
+#define MAXHEIGHT           832
+#define PI                  3.141592657
+#define MINZ                (FRACUNIT * 4)
+#define FIELDOFVIEW         2048    // fineangles in the SCREENWIDTH wide window
 #define MAXWIDTH			1120
-#define	MAXHEIGHT			832
-
-#define	PI					3.141592657
-
-#define	CENTERY				(SCREENHEIGHT/2)
-
-#define	MINZ			(FRACUNIT*4)
-
-#define	FIELDOFVIEW		2048    // fineangles in the SCREENWIDTH wide window
 
 //
 // lighting constants
 //
-#define	LIGHTLEVELS			16
-#define	LIGHTSEGSHIFT		4
-#define	MAXLIGHTSCALE		48
-#define	LIGHTSCALESHIFT		12
-#define	MAXLIGHTZ			128
-#define	LIGHTZSHIFT			20
-#define	NUMCOLORMAPS		32      // number of diminishing
-#define	INVERSECOLORMAP		32
+#define	LIGHTLEVELS         16
+#define	LIGHTSEGSHIFT       4
+#define	MAXLIGHTSCALE       48
+#define	LIGHTSCALESHIFT     12
+#define	MAXLIGHTZ           128
+#define	LIGHTZSHIFT         20
+#define	NUMCOLORMAPS        32      // number of diminishing
+#define	INVERSECOLORMAP     32
+
 
 /*
 ==============================================================================
@@ -96,7 +89,7 @@ typedef struct
     //      from storing old positions twice in a tic, and
     //      prevents the renderer from attempting to interpolate
     //      if old values were not updated recently.
-    int         oldgametic;
+    int     oldgametic;
 
     // [AM] Interpolated floor and ceiling height.
     //      Calculated once per tic and used inside
@@ -233,9 +226,6 @@ typedef struct vissprite_s
     fixed_t footclip;           // foot clipping
 } vissprite_t;
 
-
-extern visplane_t *floorplane, *ceilingplane;
-
 // Sprites are patches with a special naming convention so they can be 
 // recognized by R_InitSprites.  The sprite and frame specified by a 
 // thing_t is range checked at run time.
@@ -260,8 +250,6 @@ typedef struct
 extern spritedef_t *sprites;
 extern int numsprites;
 
-//=============================================================================
-
 extern int numvertexes;
 extern vertex_t *vertexes;
 
@@ -283,242 +271,224 @@ extern line_t *lines;
 extern int numsides;
 extern side_t *sides;
 
+//==============================================================================
 
+// -----------------------------------------------------------------------------
+// R_BSP.C
+// -----------------------------------------------------------------------------
 
-extern fixed_t viewx, viewy, viewz;
-extern angle_t viewangle;
-extern player_t *viewplayer;
-
-
-extern angle_t clipangle;
-
-extern int viewangletox[FINEANGLES / 2];
-extern angle_t xtoviewangle[SCREENWIDTH + 1];
-
-extern fixed_t rw_distance;
-extern angle_t rw_normalangle;
-
-//
-// R_main.c
-//
-extern int viewwidth, viewheight, viewwindowx, viewwindowy;
-extern int scaledviewwidth;
-extern int centerx, centery;
-extern int flyheight;
-extern fixed_t centerxfrac;
-extern fixed_t centeryfrac;
-extern fixed_t projection;
-
-extern int validcount;
-
-extern lighttable_t *scalelight[LIGHTLEVELS][MAXLIGHTSCALE];
-extern lighttable_t *scalelightfixed[MAXLIGHTSCALE];
-extern lighttable_t *zlight[LIGHTLEVELS][MAXLIGHTZ];
-
-extern int extralight;
-extern lighttable_t *fixedcolormap;
-
-extern fixed_t viewcos, viewsin;
-
-extern int detailshift;         // 0 = high, 1 = low
-
-extern void (*colfunc) (void);
-extern void (*basecolfunc) (void);
-extern void (*tlcolfunc) (void);
-extern void (*spanfunc) (void);
-
-int R_PointOnSide(fixed_t x, fixed_t y, node_t * node);
-int R_PointOnSegSide(fixed_t x, fixed_t y, seg_t * line);
-angle_t R_PointToAngle(fixed_t x, fixed_t y);
-angle_t R_PointToAngle2(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2);
-fixed_t R_PointToDist(fixed_t x, fixed_t y);
-fixed_t R_ScaleFromGlobalAngle(angle_t visangle);
-subsector_t *R_PointInSubsector(fixed_t x, fixed_t y);
-void R_AddPointToBox(int x, int y, fixed_t * box);
-
-// [AM] Interpolate between two angles.
-angle_t R_InterpolateAngle(angle_t oangle, angle_t nangle, fixed_t scale);
-
-//
-// R_bsp.c
-//
 extern seg_t *curline;
 extern side_t *sidedef;
 extern line_t *linedef;
 extern sector_t *frontsector, *backsector;
 
-extern int rw_x;
-extern int rw_stopx;
-
-extern boolean segtextured;
-extern boolean markfloor;       // false if the back side is the same plane
-extern boolean markceiling;
-extern boolean skymap;
-
 extern drawseg_t  drawsegs[REALMAXDRAWSEGS];
 extern drawseg_t *ds_p;
 
-extern lighttable_t **hscalelight, **vscalelight, **dscalelight;
+extern void R_ClearClipSegs(void);
+extern void R_ClearDrawSegs(void);
+extern void R_RenderBSPNode(int bspnum);
 
-typedef void (*drawfunc_t) (int start, int stop);
-void R_ClearClipSegs(void);
+// -----------------------------------------------------------------------------
+// R_DATA.C
+// -----------------------------------------------------------------------------
 
-void R_ClearDrawSegs(void);
-void R_InitSkyMap(void);
-void R_RenderBSPNode(int bspnum);
+extern byte **texturecomposite;
+extern byte  *R_GetColumn(int tex, int col);
 
-//
-// R_segs.c
-//
-extern int rw_angle1;           // angle to line origin
+extern fixed_t *spriteoffset;
+extern fixed_t *spritetopoffset;
+extern fixed_t *spritewidth;    // needed for pre rendering (fracs)
+extern fixed_t *textureheight;  // needed for texture pegging
 
-void R_RenderMaskedSegRange(drawseg_t * ds, int x1, int x2);
+extern int *texturecompositesize;
+extern int *flattranslation;    // for global animation
+extern int *texturetranslation; // for global animation
+extern int  firstflat;
+extern int  firstspritelump, lastspritelump, numspritelumps;
+extern int  numflats;
 
+extern lighttable_t *colormaps;
 
-//
-// R_plane.c
-//
-typedef void (*planefunction_t) (int top, int bottom);
-extern planefunction_t floorfunc, ceilingfunc;
+extern void R_InitData(void);
+extern void R_PrecacheLevel(void);
 
-extern int skyflatnum;
+// -----------------------------------------------------------------------------
+// R_DRAW.C
+// -----------------------------------------------------------------------------
 
-// [JN] 32-bit integer maths
-extern size_t  maxopenings;            
-extern int    *lastopening;
-extern int    *openings;
+extern byte *dc_source;         // first pixel in a column
+extern byte *dc_translation;
+extern byte *ds_source;         // start of a 64*64 tile image
+extern byte *translationtables;
+extern byte *ylookup[MAXHEIGHT];
 
-extern int floorclip[SCREENWIDTH];
-extern int ceilingclip[SCREENWIDTH];
+extern fixed_t dc_iscale;
+extern fixed_t dc_texturemid;
+extern fixed_t ds_xfrac;
+extern fixed_t ds_xstep;
+extern fixed_t ds_yfrac;
+extern fixed_t ds_ystep;
+
+extern int columnofs[MAXWIDTH];
+extern int dc_x;
+extern int dc_yh;
+extern int dc_yl;
+extern int ds_x1;
+extern int ds_x2;
+extern int ds_y;
+
+extern lighttable_t *dc_colormap;
+extern lighttable_t *ds_colormap;
+
+extern visplane_t *dc_visplaneused; // RestlessRodent -- CRL
+
+extern void R_DrawColumn(void);
+extern void R_DrawColumnLow(void);
+extern void R_DrawSpan(void);
+extern void R_DrawSpanLow(void);
+extern void R_DrawTLColumn(void);
+extern void R_DrawTLColumnLow(void);
+extern void R_DrawTranslatedColumn(void);
+extern void R_DrawTranslatedColumnLow(void);
+extern void R_DrawTranslatedTLColumn(void);
+extern void R_InitBuffer(int width, int height);
+extern void R_InitTranslationTables(void);
+
+// -----------------------------------------------------------------------------
+// R_MAIN.C
+// -----------------------------------------------------------------------------
+
+extern angle_t clipangle;
+extern angle_t R_PointToAngle(fixed_t x, fixed_t y);
+extern angle_t R_PointToAngle2(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2);
+extern angle_t viewangle;
+extern angle_t xtoviewangle[SCREENWIDTH + 1];
+
+extern fixed_t centerxfrac;
+extern fixed_t centeryfrac;
+extern fixed_t projection;
+extern fixed_t R_PointToDist(fixed_t x, fixed_t y);
+extern fixed_t R_ScaleFromGlobalAngle(angle_t visangle);
+extern fixed_t viewcos, viewsin;
+extern fixed_t viewx, viewy, viewz;
+
+extern int centerx, centery;
+extern int detailLevel;
+extern int detailshift;         // 0 = high, 1 = low
+extern int extralight;
+extern int flyheight;
+extern int R_PointOnSegSide(fixed_t x, fixed_t y, seg_t * line);
+extern int R_PointOnSide(fixed_t x, fixed_t y, node_t * node);
+extern int scaledviewwidth;
+extern int validcount;
+extern int viewwidth, viewheight, viewwindowx, viewwindowy;
+extern int viewangletox[FINEANGLES / 2];
+
+extern lighttable_t *fixedcolormap;
+extern lighttable_t *scalelight[LIGHTLEVELS][MAXLIGHTSCALE];
+extern lighttable_t *scalelightfixed[MAXLIGHTSCALE];
+extern lighttable_t *zlight[LIGHTLEVELS][MAXLIGHTZ];
+
+extern player_t *viewplayer;
+
+extern subsector_t *R_PointInSubsector(fixed_t x, fixed_t y);
+
+extern void (*basecolfunc) (void);
+extern void (*colfunc) (void);
+extern void (*spanfunc) (void);
+extern void (*tlcolfunc) (void);
+
+extern void R_AddPointToBox(int x, int y, fixed_t * box);
+extern void R_InterpolateTextureOffsets (void);
+
+// [AM] Interpolate between two angles.
+extern angle_t R_InterpolateAngle(angle_t oangle, angle_t nangle, fixed_t scale);
+
+// -----------------------------------------------------------------------------
+// R_PLANE.C
+// -----------------------------------------------------------------------------
 
 #define MAXVISPLANES        128
 #define REALMAXVISPLANES    SHRT_MAX
+
+extern fixed_t distscale[SCREENWIDTH];
+extern fixed_t yslope[SCREENHEIGHT];
+
+extern int *lastopening; // [JN] 32-bit integer math
+extern int *openings;    // [JN] 32-bit integer math
+
+extern int ceilingclip[SCREENWIDTH];
+extern int floorclip[SCREENWIDTH];
+extern int skyflatnum;
+
+extern size_t  maxopenings; // [JN] 32-bit integer math
+
+extern visplane_t *floorplane, *ceilingplane;
 extern visplane_t  visplanes[REALMAXVISPLANES];
 extern visplane_t *lastvisplane;
+extern visplane_t *R_CheckPlane(visplane_t * pl, int start, int stop,
+                                seg_t* __line, subsector_t* __sub);
+extern visplane_t *R_FindPlane(fixed_t height, int picnum, int lightlevel, int special,
+                                seg_t* __line, subsector_t* __sub);
 
-extern fixed_t yslope[SCREENHEIGHT];
-extern fixed_t distscale[SCREENWIDTH];
+extern void R_InitSkyMap(void);
+extern void R_ClearPlanes(void);
+extern void R_MakeSpans(unsigned int x, unsigned int t1, unsigned int b1,
+                        unsigned int t2, unsigned int b2, visplane_t* __plane);
+extern void R_DrawPlanes(void);
 
-void R_ClearPlanes(void);
-void R_MakeSpans(unsigned int x, unsigned int t1, unsigned int b1,
-                 unsigned int t2, unsigned int b2, visplane_t* __plane);
-void R_DrawPlanes(void);
+// -----------------------------------------------------------------------------
+// R_SEGS.C
+// -----------------------------------------------------------------------------
 
-visplane_t *R_FindPlane(fixed_t height, int picnum, int lightlevel,
-                        int special, seg_t* __line, subsector_t* __sub);
-visplane_t *R_CheckPlane(visplane_t * pl, int start, int stop, seg_t* __line, subsector_t* __sub);
+extern angle_t rw_normalangle;
 
+extern boolean segtextured;
+extern boolean markfloor;   // false if the back side is the same plane
+extern boolean markceiling;
 
-//
-// R_debug.m
-//
-extern int drawbsp;
+extern fixed_t rw_distance;
 
-//
-// R_data.c
-//
-extern fixed_t *textureheight;  // needed for texture pegging
-extern fixed_t *spritewidth;    // needed for pre rendering (fracs)
-extern fixed_t *spriteoffset;
-extern fixed_t *spritetopoffset;
-extern lighttable_t *colormaps;
-extern int firstflat;
-extern int numflats;
+extern int rw_x;
+extern int rw_stopx;
+extern int rw_angle1;       // angle to line origin
 
-extern int *flattranslation;    // for global animation
-extern int *texturetranslation; // for global animation
+extern lighttable_t **walllights;
 
-extern int firstspritelump, lastspritelump, numspritelumps;
+extern void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2);
+extern void R_StoreWallRange(int start, int stop, seg_t* __line, subsector_t* __sub);
 
-extern int   *texturecompositesize;
-extern byte **texturecomposite;
+// -----------------------------------------------------------------------------
+// R_THINGS.C
+// -----------------------------------------------------------------------------
 
-byte *R_GetColumn(int tex, int col);
-void R_InitData(void);
-void R_PrecacheLevel(void);
-
-
-//
-// R_things.c
-//
 #define MAXVISSPRITES     128
 #define REALMAXVISSPRITES 1024
+
+extern boolean pspr_interp; // [crispy] interpolate weapon bobbing
+
+extern fixed_t pspritescale, pspriteiscale;
+extern fixed_t sprbotscreen;
+extern fixed_t sprtopscreen;
+extern fixed_t spryscale;
+
+extern int *mceilingclip;  // [JN] 32-bit integer math
+extern int *mfloorclip;    // [JN] 32-bit integer math
+extern int negonearray[SCREENWIDTH];
+extern int screenheightarray[SCREENWIDTH];
 
 extern vissprite_t vissprites[REALMAXVISSPRITES], *vissprite_p;
 extern vissprite_t vsprsortedhead;
 
-// constant arrays used for psprite clipping and initializing clipping
-extern int negonearray[SCREENWIDTH];
-extern int screenheightarray[SCREENWIDTH];
-
-// vars for R_DrawMaskedColumn
-extern int *mfloorclip;    // [JN] 32-bit integer math
-extern int *mceilingclip;  // [JN] 32-bit integer math
-extern fixed_t spryscale;
-extern fixed_t sprtopscreen;
-extern fixed_t sprbotscreen;
-
-extern fixed_t pspritescale, pspriteiscale;
-
-// [crispy] interpolate weapon bobbing
-extern boolean pspr_interp;
+extern void R_AddPSprites(void);
+extern void R_AddSprites(sector_t *sec);
+extern void R_ClearSprites(void);
+extern void R_ClipVisSprite(vissprite_t *vis, int xl, int xh);
+extern void R_DrawMasked(void);
+extern void R_DrawMaskedColumn(column_t *column, signed int baseclip);
+extern void R_DrawSprites(void);
+extern void R_InitSprites(const char **namelist);
+extern void R_SortVisSprites(void);
 
 
-void R_DrawMaskedColumn(column_t * column, signed int baseclip);
-
-
-void R_SortVisSprites(void);
-
-void R_AddSprites(sector_t * sec);
-void R_AddPSprites(void);
-void R_DrawSprites(void);
-void R_InitSprites(const char **namelist);
-void R_ClearSprites(void);
-void R_DrawMasked(void);
-void R_ClipVisSprite(vissprite_t * vis, int xl, int xh);
-
-//=============================================================================
-//
-// R_draw.c
-//
-//=============================================================================
-
-extern lighttable_t *dc_colormap;
-extern int dc_x;
-extern int dc_yl;
-extern int dc_yh;
-extern fixed_t dc_iscale;
-extern fixed_t dc_texturemid;
-extern byte *dc_source;         // first pixel in a column
-
-void R_DrawColumn(void);
-void R_DrawColumnLow(void);
-void R_DrawTLColumn(void);
-void R_DrawTLColumnLow(void);
-void R_DrawTranslatedColumn(void);
-void R_DrawTranslatedTLColumn(void);
-void R_DrawTranslatedColumnLow(void);
-
-extern int ds_y;
-extern int ds_x1;
-extern int ds_x2;
-extern lighttable_t *ds_colormap;
-extern fixed_t ds_xfrac;
-extern fixed_t ds_yfrac;
-extern fixed_t ds_xstep;
-extern fixed_t ds_ystep;
-extern byte *ds_source;         // start of a 64*64 tile image
-
-extern byte *translationtables;
-extern byte *dc_translation;
-
-// [JN] RestlessRodent -- CRL
-extern visplane_t *dc_visplaneused;
-
-void R_DrawSpan(void);
-void R_DrawSpanLow(void);
-
-void R_InitBuffer(int width, int height);
-void R_InitTranslationTables(void);
-
-#endif // __R_LOCAL__

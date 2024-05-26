@@ -51,7 +51,6 @@
 
 // Functions
 
-boolean G_CheckDemoStatus(void);
 void G_ReadDemoTiccmd(ticcmd_t * cmd);
 void G_WriteDemoTiccmd(ticcmd_t * cmd);
 void G_PlayerReborn(int player);
@@ -107,8 +106,6 @@ boolean usergame;               // ok to save / end game
 boolean timingdemo;             // if true, exit with report on completion
 boolean nodrawers;              // for comparative timing purposes 
 int starttime;                  // for comparative timing purposes
-
-boolean viewactive;
 
 int deathmatch;                 // only if started as net death
 boolean netgame;                // only true if packets are broadcast
@@ -304,10 +301,6 @@ boolean speedkeydown (void)
 ====================
 */
 
-extern boolean inventory;
-extern int curpos;
-extern int inv_ptr;
-
 boolean usearti = true;
 
 void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
@@ -319,8 +312,6 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
     int look, arti;
     int flyheight;
     ticcmd_t spect;
-
-    extern boolean noartiskip;
 
     // haleyjd: removed externdriver crap
 
@@ -1599,7 +1590,6 @@ void G_InitPlayer(int player)
 = Can when a player completes a level
 ====================
 */
-extern int playerkeys;
 
 void G_PlayerFinishLevel(int player)
 {
@@ -1930,7 +1920,6 @@ void G_DoWorldDone(void)
     gamestate = GS_LEVEL;
     G_DoLoadLevel();
     gameaction = ga_nothing;
-    viewactive = true;
 }
 
 //---------------------------------------------------------------------------
@@ -2114,11 +2103,9 @@ void G_InitNew(skill_t skill, int episode, int map)
     demorecording = false;
     demoplayback = false;
     netdemo = false;
-    viewactive = true;
     gameepisode = episode;
     gamemap = map;
     gameskill = skill;
-    viewactive = true;
     BorderNeedRefresh = true;
 
     defdemotics = 0;
@@ -2274,7 +2261,7 @@ void G_WriteDemoTiccmd(ticcmd_t * cmd)
 */
 
 void G_RecordDemo(skill_t skill, int numplayers, int episode, int map,
-                  char *name)
+                  const char *name)
 {
     int i;
     int maxsize;

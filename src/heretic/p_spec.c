@@ -200,7 +200,7 @@ anim_t *lastanim;
 int *TerrainTypes;
 struct
 {
-    char *name;
+    const char *name;
     int type;
 } TerrainTypeDefs[] =
 {
@@ -429,6 +429,13 @@ fixed_t P_FindNextHighestFloor(sector_t * sec, int currentheight)
 
             ++h;
         }
+    }
+
+    // Don't return INT_MAX if no higher floor is found.
+
+    if (!h)
+    {
+        return height;
     }
 
     // Compatibility note, in case of demo desyncs.

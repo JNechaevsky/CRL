@@ -24,14 +24,13 @@
 #include <string.h>
 //haleyjd: removed WATCOMC
 #include <limits.h>
-#include <signal.h>
 
 #define HERETIC_VERSION 130
 #define HERETIC_VERSION_TEXT "v1.3"
 
 // if rangecheck is undefined, most parameter validation debugging code
 // will not be compiled
-#define RANGECHECK
+//#define RANGECHECK
 
 // all external data is defined here
 #include "doomdata.h"
@@ -129,6 +128,7 @@ typedef enum
 
 ===============================================================================
 */
+
 
 struct thinker_s;
 
@@ -317,7 +317,7 @@ typedef enum
     key_yellow,
     key_green,
     key_blue,
-    NUMKEYS
+    NUM_KEY_TYPES
 } keytype_t;
 
 typedef enum
@@ -454,7 +454,7 @@ typedef struct player_s
     int artifactCount;
     int inventorySlotNum;
     int powers[NUMPOWERS];
-    boolean keys[NUMKEYS];
+    boolean keys[NUM_KEY_TYPES];
     boolean backpack;
     signed int frags[MAXPLAYERS];       // kills of other players
     weapontype_t readyweapon;
@@ -518,7 +518,7 @@ typedef struct player_s
 
 extern gameaction_t gameaction;
 
-extern boolean paused;
+//extern boolean paused;
 
 extern GameMode_t gamemode;
 
@@ -537,6 +537,10 @@ extern boolean ravpic;          // checkparm of -ravpic
 extern boolean altpal;          // checkparm to use an alternate palette routine
 
 extern boolean cdrom;           // true if cd-rom mode active ("-cdrom")
+
+extern boolean noartiskip;      // whether shift-enter skips an artifact
+
+extern boolean viewactive;
 
 //extern boolean deathmatch;      // only if started as net death
 
@@ -574,7 +578,7 @@ extern int prevmap;
 extern int totalkills, totalitems, totalsecret; // for intermission
 extern int levelstarttic;       // gametic at level start
 extern int leveltime;           // tics in game play for par
-extern  int	realleveltime;	// [JN] Keep ticking in Freeze mode.
+extern int realleveltime;       // [JN] Keep ticking in Freeze mode.
 
 extern ticcmd_t *netcmds;
 
@@ -584,6 +588,7 @@ extern ticcmd_t *netcmds;
 extern mapthing_t *deathmatch_p;
 extern mapthing_t deathmatchstarts[10];
 extern mapthing_t playerstarts[MAXPLAYERS];
+extern boolean playerstartsingame[MAXPLAYERS];
 
 extern int mouseSensitivity;
 
@@ -596,7 +601,7 @@ extern skill_t startskill;
 extern int startepisode;
 extern int startmap;
 extern boolean autostart;
-
+extern boolean advancedemo;
 extern boolean nodrawers;
 
 extern boolean testcontrols;
@@ -619,6 +624,7 @@ extern int show_endoom;
 //BASE LEVEL
 //----------
 void D_DoomMain(void);
+void CheckAbortStartup(void);
 void IncThermo(void);
 void InitThermo(int max);
 void tprintf(const char *string, int initflag);
@@ -633,6 +639,9 @@ void D_DoomLoop(void);
 // manages timing and IO
 // calls all ?_Responder, ?_Ticker, and ?_Drawer functions
 // calls I_GetTime, I_StartFrame, and I_StartTic
+
+void D_StartTitle(void);
+
 
 //---------
 //SYSTEM IO
@@ -720,16 +729,22 @@ extern int savepage;
 #define SAVEPAGE_MAX 7
 
 void G_RecordDemo(skill_t skill, int numplayers, int episode, int map,
-                  char *name);
+                  const char *name);
 // only called by startup code
 
 void G_PlayDemo(char *name);
 void G_TimeDemo(char *name);
+boolean G_CheckDemoStatus(void);
+void D_DoAdvanceDemo(void);
 
 void G_ExitLevel(void);
 void G_SecretExitLevel(void);
 
+void D_ProcessEvents(void);
+
 void G_WorldDone(void);
+
+void G_BuildTiccmd(ticcmd_t *cmd, int maketic);
 
 void G_Ticker(void);
 boolean G_Responder(event_t * ev);
@@ -770,14 +785,6 @@ extern boolean setsizeneeded;
 
 extern boolean BorderNeedRefresh;
 extern boolean BorderTopRefresh;
-
-extern int UpdateState;
-// define the different areas for the dirty map
-#define I_NOUPDATE	0
-#define I_FULLVIEW	1
-#define I_STATBAR	2
-#define I_MESSAGES	4
-#define I_FULLSCRN	8
 
 void R_RenderPlayerView(player_t * player);
 // called by G_Drawer
@@ -842,6 +849,12 @@ void F_StartFinale(void);
 //----------------------
 
 #define CURPOS_MAX 6 // [crispy] 7 total artifact frames
+
+extern boolean inventory;
+extern int curpos;
+extern int inv_ptr;
+extern int playerkeys;
+
 
 void SB_Init(void);
 boolean SB_Responder(event_t * event);
