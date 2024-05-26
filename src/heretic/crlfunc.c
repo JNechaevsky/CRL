@@ -33,40 +33,6 @@
 
 // =============================================================================
 //
-//                            Visplanes coloring
-//
-// =============================================================================
-
-int CRL_PlaneBorderColors[NUMPLANEBORDERCOLORS] =
-{
-    // [JN] Note: Heretic using different color indexes,
-    // but let's try to replicate Doom ones as close as possible.
-
-    // LIGHT
-    165,    // yucky pink
-    160,    // red
-    244,    // orange
-    144,    // yellow
-
-    223,
-    182,    // light blue (magentish)
-    202,    // deep blue
-    175,    // yikes, magenta
-
-    // DARK
-    163,    // burgundy
-    153,    // dark red
-    138,    // bronze
-    124,    // dark gold
-
-    214,    // dark green
-    198,    // dull blue
-    189,    // dark blue
-    172,    // dark magenta
-};
-
-// =============================================================================
-//
 //                        Render Counters and Widgets
 //
 // =============================================================================
@@ -215,6 +181,7 @@ void CRL_StatDrawer (void)
 {
     int yy = 0;
     int yy2 = 0;
+
     const int CRL_MAX_count_old = (int)(lastvisplane - visplanes);
     const int TotalVisPlanes = CRLData.numcheckplanes + CRLData.numfindplanes;
 
@@ -229,7 +196,8 @@ void CRL_StatDrawer (void)
     }
 
     // Player coords
-    if (crl_widget_coords)
+    if (crl_widget_coords == 1
+    || (crl_widget_coords == 2 && automapactive))
     {
         char x[8] = {0}, xpos[128] = {0};
         char y[8] = {0}, ypos[128] = {0};
@@ -370,7 +338,8 @@ void CRL_StatDrawer (void)
     }
 
     // Level timer
-    if (crl_widget_time)
+    if (crl_widget_time == 1
+    || (crl_widget_time == 2 && automapactive))
     {
         char stra[8];
         char strb[16];
@@ -383,7 +352,8 @@ void CRL_StatDrawer (void)
     }
 
     // K/I/S stats
-    if (crl_widget_kis)
+    if (crl_widget_kis == 1
+    || (crl_widget_kis == 2 && automapactive))
     {
         char str1[8], str2[16];  // kills
         char str3[8], str4[16];  // items
@@ -537,10 +507,22 @@ void CRL_DemoTimer (const int time)
 
 void CRL_DemoBar (void)
 {
+    static boolean colors_set = false;
+    static int black = 0;
+    static int white = 0;
     const int i = SCREENWIDTH * defdemotics / deftotaldemotics;
 
-    V_DrawHorizLine(0, SCREENHEIGHT - 2, i, 0); // [crispy] black
-    V_DrawHorizLine(0, SCREENHEIGHT - 1, i, 255); // [crispy] white
+    // [JN] Don't rely on palette indexes,
+    // try to find nearest colors instead.
+    if (!colors_set)
+    {
+        black = I_GetPaletteIndex(0, 0, 0);
+        white = I_GetPaletteIndex(255, 255, 255);
+        colors_set = true;
+    }
+
+    V_DrawHorizLine(0, SCREENHEIGHT - 2, i, black); // [crispy] black
+    V_DrawHorizLine(0, SCREENHEIGHT - 1, i, white); // [crispy] white
 }
 
 // -----------------------------------------------------------------------------

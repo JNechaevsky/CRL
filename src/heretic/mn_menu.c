@@ -2601,17 +2601,20 @@ static void DrawCRLWidgets (void)
                               crl_widget_playstate == 2 ? GLOW_DARKGREEN : GLOW_RED));
 
     // K/I/S stats
-    sprintf(str, crl_widget_kis ? "ON" : "OFF");
+    sprintf(str, crl_widget_kis == 1 ? "ON" :
+                 crl_widget_kis == 2 ? "AUTOMAP" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 60,
                M_Item_Glow(3, crl_widget_kis ? GLOW_GREEN : GLOW_RED));
 
     // Level time
-    sprintf(str, crl_widget_time ? "ON" : "OFF");
+    sprintf(str, crl_widget_time == 1 ? "ON" : 
+                 crl_widget_time == 2 ? "AUTOMAP" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 70,
                M_Item_Glow(4, crl_widget_time ? GLOW_GREEN : GLOW_RED));
 
     // Player coords
-    sprintf(str, crl_widget_coords ? "ON" : "OFF");
+    sprintf(str, crl_widget_coords == 1 ? "ON" :
+                 crl_widget_coords == 2 ? "AUTOMAP" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 80,
                M_Item_Glow(5, crl_widget_coords ? GLOW_GREEN : GLOW_RED));
 
@@ -2653,17 +2656,17 @@ static void CRL_Widget_Playstate (int option)
 
 static void CRL_Widget_KIS (int option)
 {
-    crl_widget_kis ^= 1;
+    crl_widget_kis = M_INT_Slider(crl_widget_kis, 0, 2, option, false);
 }
 
 static void CRL_Widget_Time (int option)
 {
-    crl_widget_time ^= 1;
+    crl_widget_time = M_INT_Slider(crl_widget_time, 0, 2, option, false);
 }
 
 static void CRL_Widget_Coords (int option)
 {
-    crl_widget_coords ^= 1;
+    crl_widget_coords = M_INT_Slider(crl_widget_coords, 0, 2, option, false);
 }
 
 static void CRL_Widget_Powerups (int option)
