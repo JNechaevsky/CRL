@@ -518,7 +518,6 @@ static void DrawSoundInfo(void)
         M_snprintf(text, sizeof(text), "%d", c->distance);
         MN_DrTextA(text, xPos[x++], y, NULL);
     }
-    UpdateState |= I_FULLSCRN;
     BorderNeedRefresh = true;
 }
 
@@ -671,12 +670,10 @@ void SB_Drawer(void)
                 }
             }
             BorderTopRefresh = true;
-            UpdateState |= I_MESSAGES;
         }
         else
         {
             BorderTopRefresh = true;
-            UpdateState |= I_MESSAGES;
         }
     }
 
@@ -689,12 +686,10 @@ void SB_Drawer(void)
             V_DrawPatch(300, 17,
                         W_CacheLumpNum(spinbooklump + frame, PU_CACHE), "NULL"); // [JN] TODO - patch name
             BorderTopRefresh = true;
-            UpdateState |= I_MESSAGES;
         }
         else
         {
             BorderTopRefresh = true;
-            UpdateState |= I_MESSAGES;
         }
     }
 /*
@@ -887,7 +882,6 @@ void DrawCommonBar(void)
         V_DrawPatch(0, 190, PatchLTFACE, "LTFACE");
         V_DrawPatch(276, 190, PatchRTFACE, "RTFACE");
         ShadeChain();
-        UpdateState |= I_STATBAR;
     }
 }
 
@@ -912,7 +906,6 @@ void DrawMainBar(void)
         V_DrawPatch(182, 161, W_CacheLumpNum(temp, PU_CACHE), "NULL"); // [JN] TODO - patch name
         ArtifactFlash--;
         oldarti = -1;           // so that the correct artifact fills in after the flash
-        UpdateState |= I_STATBAR;
     }
     else if (oldarti != CPlayer->readyArtifact
              || oldartiCount != CPlayer->inventory[inv_ptr].count)
@@ -927,7 +920,6 @@ void DrawMainBar(void)
         }
         oldarti = CPlayer->readyArtifact;
         oldartiCount = CPlayer->inventory[inv_ptr].count;
-        UpdateState |= I_STATBAR;
     }
 
     // Frags
@@ -945,7 +937,6 @@ void DrawMainBar(void)
             DrINumber(temp, 61, 170);
             dp_translation = NULL;
             oldfrags = temp;
-            UpdateState |= I_STATBAR;
         }
     }
     else
@@ -966,7 +957,6 @@ void DrawMainBar(void)
             dp_translation = SB_MainBarColor(hudcolor_health);
             DrINumber(temp, 61, 170);
             dp_translation = NULL;
-            UpdateState |= I_STATBAR;
         }
     }
 
@@ -986,7 +976,6 @@ void DrawMainBar(void)
             V_DrawPatch(153, 180, W_CacheLumpName(DEH_String("bkeyicon"), PU_CACHE), "bkeyicon");
         }
         oldkeys = playerkeys;
-        UpdateState |= I_STATBAR;
     }
     // Ammo
     temp = CPlayer->ammo[wpnlev1info[CPlayer->readyweapon].ammo];
@@ -1004,7 +993,6 @@ void DrawMainBar(void)
         }
         oldammo = temp;
         oldweapon = CPlayer->readyweapon;
-        UpdateState |= I_STATBAR;
     }
 
     // Armor
@@ -1015,7 +1003,6 @@ void DrawMainBar(void)
         DrINumber(CPlayer->armorpoints, 228, 170);
         dp_translation = NULL;
         oldarmor = CPlayer->armorpoints;
-        UpdateState |= I_STATBAR;
     }
 }
 
@@ -1032,7 +1019,6 @@ void DrawInventoryBar(void)
     int x;
 
     x = inv_ptr - curpos;
-    UpdateState |= I_STATBAR;
     V_DrawPatch(34, 160, PatchINVBAR, "INVBAR");
     for (i = 0; i < 7; i++)
     {
@@ -1066,7 +1052,6 @@ void DrawFullScreenStuff(void)
     int x;
     int temp;
 
-    UpdateState |= I_FULLSCRN;
     dp_translation = SB_MainBarColor(hudcolor_health);
     if (CPlayer->mo->health > 0)
     {
@@ -1245,7 +1230,6 @@ static void CheatNoClipFunc(player_t * player, Cheat_t * cheat)
 static void CheatWeaponsFunc(player_t * player, Cheat_t * cheat)
 {
     int i;
-    //extern boolean *WeaponInShareware;
 
     player->armorpoints = 200;
     player->armortype = 2;
@@ -1415,8 +1399,6 @@ static void CheatWarpFunc(player_t * player, Cheat_t * cheat)
 
 static void CheatChickenFunc(player_t * player, Cheat_t * cheat)
 {
-    extern boolean P_UndoPlayerChicken(player_t * player);
-
     if (player->chickenTics)
     {
         if (P_UndoPlayerChicken(player))

@@ -35,6 +35,7 @@
 #include "m_random.h"
 #include "p_local.h"
 #include "s_sound.h"
+#include "sb_bar.h"
 #include "v_video.h"
 
 #include "crlcore.h"
@@ -107,8 +108,6 @@ boolean usergame;               // ok to save / end game
 boolean timingdemo;             // if true, exit with report on completion
 boolean nodrawers;              // for comparative timing purposes 
 int starttime;                  // for comparative timing purposes
-
-boolean viewactive;
 
 int deathmatch;                 // only if started as net death
 boolean netgame;                // only true if packets are broadcast
@@ -303,10 +302,6 @@ boolean speedkeydown (void)
 = If recording a demo, write it out
 ====================
 */
-
-extern boolean inventory;
-extern int curpos;
-extern int inv_ptr;
 
 boolean usearti = true;
 
@@ -1930,7 +1925,6 @@ void G_DoWorldDone(void)
     gamestate = GS_LEVEL;
     G_DoLoadLevel();
     gameaction = ga_nothing;
-    viewactive = true;
 }
 
 //---------------------------------------------------------------------------
@@ -2114,11 +2108,9 @@ void G_InitNew(skill_t skill, int episode, int map)
     demorecording = false;
     demoplayback = false;
     netdemo = false;
-    viewactive = true;
     gameepisode = episode;
     gamemap = map;
     gameskill = skill;
-    viewactive = true;
     BorderNeedRefresh = true;
 
     defdemotics = 0;

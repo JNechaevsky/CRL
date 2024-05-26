@@ -444,9 +444,6 @@ void R_DrawPlanes(void)
     int count;
     fixed_t frac, fracstep;
 
-    extern byte *ylookup[MAXHEIGHT];
-    extern int columnofs[MAXWIDTH];
-
     // [JN] CRL - openings counter.
     CRLData.numopenings = lastopening - openings;
 

@@ -165,7 +165,6 @@ void MN_LoadSlotText(void);
 // External Data
 
 extern int detailLevel;
-extern int screenblocks;
 
 // Public Data
 
@@ -3570,7 +3569,7 @@ static void DrawOptionsMenu(void)
 
 static void DrawOptions2Menu(void)
 {
-    DrawSlider(&Options2Menu, 1, 9, screenblocks - 3, true);
+    DrawSlider(&Options2Menu, 1, 9, crl_screen_size - 3, true);
     DrawSlider(&Options2Menu, 3, 16, snd_MaxVolume, true);
     DrawSlider(&Options2Menu, 5, 16, snd_MusicVolume, true);
 }
@@ -3895,16 +3894,16 @@ static void SCScreenSize(int option)
 {
     if (option == RIGHT_DIR)
     {
-        if (screenblocks < 11)
+        if (crl_screen_size < 11)
         {
-            screenblocks++;
+            crl_screen_size++;
         }
     }
-    else if (screenblocks > 3)
+    else if (crl_screen_size > 3)
     {
-        screenblocks--;
+        crl_screen_size--;
     }
-    R_SetViewSize(screenblocks, detailLevel);
+    R_SetViewSize(crl_screen_size, detailLevel);
 }
 
 //---------------------------------------------------------------------------

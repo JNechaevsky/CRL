@@ -317,7 +317,7 @@ typedef enum
     key_yellow,
     key_green,
     key_blue,
-    NUMKEYS
+    NUM_KEY_TYPES
 } keytype_t;
 
 typedef enum
@@ -454,7 +454,7 @@ typedef struct player_s
     int artifactCount;
     int inventorySlotNum;
     int powers[NUMPOWERS];
-    boolean keys[NUMKEYS];
+    boolean keys[NUM_KEY_TYPES];
     boolean backpack;
     signed int frags[MAXPLAYERS];       // kills of other players
     weapontype_t readyweapon;
@@ -770,14 +770,6 @@ extern boolean setsizeneeded;
 
 extern boolean BorderNeedRefresh;
 extern boolean BorderTopRefresh;
-
-extern int UpdateState;
-// define the different areas for the dirty map
-#define I_NOUPDATE	0
-#define I_FULLVIEW	1
-#define I_STATBAR	2
-#define I_MESSAGES	4
-#define I_FULLSCRN	8
 
 void R_RenderPlayerView(player_t * player);
 // called by G_Drawer

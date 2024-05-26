@@ -32,6 +32,7 @@
 #include "i_system.h"
 #include "i_video.h"
 #include "v_video.h"
+#include "am_map.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
@@ -156,8 +157,6 @@ static yahpt_t YAHspot[3][9] = {
 // IN_Start
 //
 //========================================================================
-
-extern void AM_Stop(void);
 
 void IN_Start(void)
 {
@@ -517,7 +516,6 @@ void IN_Drawer(void)
     {
         return;
     }
-    UpdateState |= I_FULLSCRN;
     if (oldinterstate != 2 && interstate == 2)
     {
         S_StartSound(NULL, sfx_pstop);

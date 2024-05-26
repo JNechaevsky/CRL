@@ -108,7 +108,9 @@ typedef struct
     fixed_t slp, islp;
 } islope_t;
 
-// extern int f_x, f_y, f_w, f_h;
 extern int ravmap_cheating;
+extern vertex_t KeyPoints[NUM_KEY_TYPES];
+
+extern void AM_Stop (void);
 
 #endif

@@ -85,7 +85,6 @@ boolean noartiskip;             // whether shift-enter skips an artifact
 skill_t startskill;
 int startepisode;
 int startmap;
-int UpdateState;
 int graphical_startup = 0;
 static boolean using_graphical_startup;
 static boolean main_loop_started = false;
@@ -97,6 +96,11 @@ FILE *debugfile;
 
 int show_endoom = 0;       // [JN] Disabled by default
 int showMessages = 1;      // [JN] Show messages has default, 0 = off, 1 = on
+
+// [JN] DOS-specific option: now replaced with "crl_screen_size", which is 
+// using extended range and because of this can't be used in DOS version.
+// Still used for config file compatibility.
+static int screenblocks = 10;
 
 void D_ConnectNetGame(void);
 void D_CheckNetGame(void);
@@ -238,7 +242,6 @@ void D_Display(void)
             }
 
             CT_Drawer();
-            UpdateState |= I_FULLVIEW;
             SB_Drawer();
 
             // [crispy] demo progress bar
@@ -410,7 +413,6 @@ void D_PageDrawer(void)
     {
         V_DrawPatch(4, 160, W_CacheLumpName(DEH_String("ADVISOR"), PU_CACHE), "ADVISOR");
     }
-    UpdateState |= I_FULLSCRN;
 }
 
 /*
@@ -450,7 +452,6 @@ void D_DoAdvanceDemo(void)
             break;
         case 2:
             BorderNeedRefresh = true;
-            UpdateState |= I_FULLSCRN;
             if (crl_internal_demos)
             {
                 G_DeferedPlayDemo(DEH_String("demo1"));
@@ -463,7 +464,6 @@ void D_DoAdvanceDemo(void)
             break;
         case 4:
             BorderNeedRefresh = true;
-            UpdateState |= I_FULLSCRN;
             if (crl_internal_demos)
             {
                 G_DeferedPlayDemo(DEH_String("demo2"));
@@ -483,7 +483,6 @@ void D_DoAdvanceDemo(void)
             break;
         case 6:
             BorderNeedRefresh = true;
-            UpdateState |= I_FULLSCRN;
             if (crl_internal_demos)
             {
                 G_DeferedPlayDemo(DEH_String("demo3"));
@@ -767,7 +766,6 @@ void InitThermo(int max)
 
 void D_BindVariables(void)
 {
-    extern int screenblocks;
     int i;
 
     M_ApplyPlatformDefaults();
@@ -1314,7 +1312,6 @@ void D_DoomMain(void)
 
     if (gameaction != ga_loadgame)
     {
-        UpdateState |= I_FULLSCRN;
         BorderNeedRefresh = true;
         if (autostart || netgame)
         {

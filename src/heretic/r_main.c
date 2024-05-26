@@ -36,7 +36,6 @@ int viewangleoffset;
 int validcount = 1;             // increment every time a check is made
 
 lighttable_t *fixedcolormap;
-extern lighttable_t **walllights;
 
 int centerx, centery;
 fixed_t centerxfrac, centeryfrac;
@@ -679,7 +678,6 @@ void R_ExecuteSetViewSize(void)
 */
 
 int detailLevel;
-int screenblocks = 10;
 
 void R_Init(void)
 {
@@ -696,7 +694,7 @@ void R_Init(void)
     R_InitTables();
     // viewwidth / viewheight / detailLevel are set by the defaults
     printf (".");
-    R_SetViewSize(screenblocks, detailLevel);
+    R_SetViewSize(crl_screen_size, detailLevel);
     //tprintf("R_InitLightTables ", 0);
     R_InitLightTables();
     printf (".");
@@ -825,7 +823,7 @@ void R_SetupFrame(player_t * player)
     // [JN] RestlessRodent -- Just report it
     CRL_ReportPosition(viewx, viewy, viewz, viewangle);
 
-    tempCentery = viewheight / 2 + pitch * screenblocks / 10;
+    tempCentery = viewheight / 2 + pitch * crl_screen_size / 10;
     if (centery != tempCentery)
     {
         centery = tempCentery;
@@ -863,7 +861,6 @@ void R_SetupFrame(player_t * player)
         }
         BorderNeedRefresh = false;
         BorderTopRefresh = false;
-        UpdateState |= I_FULLSCRN;
     }
     if (BorderTopRefresh)
     {
@@ -872,7 +869,6 @@ void R_SetupFrame(player_t * player)
             R_DrawTopBorder();
         }
         BorderTopRefresh = false;
-        UpdateState |= I_MESSAGES;
     }
 }
 
@@ -887,8 +883,6 @@ void R_SetupFrame(player_t * player)
 void R_RenderPlayerView(player_t * player)
 {
     int js;
-
-    extern void R_InterpolateTextureOffsets (void);
 
 	// [JN] RestlessRodent -- Start of frame
 	CRL_ChangeFrame(0);

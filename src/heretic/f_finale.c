@@ -38,7 +38,6 @@ const char *finaleflat;
 int FontABaseLump;
 
 extern boolean automapactive;
-extern boolean viewactive;
 
 extern void D_StartTitle(void);
 
@@ -54,7 +53,6 @@ void F_StartFinale(void)
 {
     gameaction = ga_nothing;
     gamestate = GS_FINALE;
-    viewactive = false;
     automapactive = false;
     players[consoleplayer].messageTics = 1;
     players[consoleplayer].message = NULL;
@@ -411,7 +409,6 @@ void F_BunnyScroll(void)
 
 void F_Drawer(void)
 {
-    UpdateState |= I_FULLSCRN;
     if (!finalestage)
         F_TextWrite();
     else

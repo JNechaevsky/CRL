@@ -335,6 +335,7 @@ fixed_t R_PointToDist(fixed_t x, fixed_t y);
 fixed_t R_ScaleFromGlobalAngle(angle_t visangle);
 subsector_t *R_PointInSubsector(fixed_t x, fixed_t y);
 void R_AddPointToBox(int x, int y, fixed_t * box);
+extern void R_InterpolateTextureOffsets (void);
 
 // [AM] Interpolate between two angles.
 angle_t R_InterpolateAngle(angle_t oangle, angle_t nangle, fixed_t scale);
@@ -371,6 +372,7 @@ void R_RenderBSPNode(int bspnum);
 // R_segs.c
 //
 extern int rw_angle1;           // angle to line origin
+extern lighttable_t **walllights;
 
 void R_RenderMaskedSegRange(drawseg_t * ds, int x1, int x2);
 
@@ -490,6 +492,8 @@ extern int dc_yh;
 extern fixed_t dc_iscale;
 extern fixed_t dc_texturemid;
 extern byte *dc_source;         // first pixel in a column
+extern byte *ylookup[MAXHEIGHT];
+extern int columnofs[MAXWIDTH];
 
 void R_DrawColumn(void);
 void R_DrawColumnLow(void);

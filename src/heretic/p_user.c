@@ -27,6 +27,7 @@
 #include "m_random.h"
 #include "p_local.h"
 #include "s_sound.h"
+#include "sb_bar.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
@@ -324,8 +325,6 @@ void P_MovePlayer(player_t * player)
 */
 
 #define         ANG5    (ANG90/18)
-extern int inv_ptr;
-extern int curpos;
 
 void P_DeathThink(player_t * player)
 {

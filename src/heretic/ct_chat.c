@@ -366,7 +366,6 @@ void CT_Drawer(void)
         }
         V_DrawShadowedPatchRavenOptional(x, 10, W_CacheLumpName(DEH_String("FONTA59"), PU_CACHE), "FONTA59");
         BorderTopRefresh = true;
-        UpdateState |= I_MESSAGES;
     }
 }
 
