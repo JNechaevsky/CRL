@@ -423,6 +423,7 @@ static void M_Bind_StrafeLeft (int option);
 static void M_Bind_StrafeRight (int option);
 static void M_Bind_SpeedOn (int option);
 static void M_Bind_StrafeOn (int option);
+static void M_Bind_180Turn (int option);
 static void M_Bind_FireAttack (int option);
 static void M_Bind_Use (int option);
 
@@ -1547,23 +1548,24 @@ static void CRL_Controls_NoVert (int option)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLKbsBinds1Items[] = {
-    { ITT_EFUNC, "MOVE FORWARD",  M_Bind_MoveForward,  0, MENU_NONE },
-    { ITT_EFUNC, "MOVE BACKWARD", M_Bind_MoveBackward, 0, MENU_NONE },
-    { ITT_EFUNC, "TURN LEFT",     M_Bind_TurnLeft,     0, MENU_NONE },
-    { ITT_EFUNC, "TURN RIGHT",    M_Bind_TurnRight,    0, MENU_NONE },
-    { ITT_EFUNC, "STRAFE LEFT",   M_Bind_StrafeLeft,   0, MENU_NONE },
-    { ITT_EFUNC, "STRAFE RIGHT",  M_Bind_StrafeRight,  0, MENU_NONE },
-    { ITT_EFUNC, "SPEED ON",      M_Bind_SpeedOn,      0, MENU_NONE },
-    { ITT_EFUNC, "STRAFE ON",     M_Bind_StrafeOn,     0, MENU_NONE },
-    { ITT_EMPTY, NULL,            NULL,                0, MENU_NONE },
-    { ITT_EFUNC, "FIRE/ATTACK",   M_Bind_FireAttack,   0, MENU_NONE },
-    { ITT_EFUNC, "USE",           M_Bind_Use,          0, MENU_NONE },
+    { ITT_EFUNC, "MOVE FORWARD",    M_Bind_MoveForward,  0, MENU_NONE },
+    { ITT_EFUNC, "MOVE BACKWARD",   M_Bind_MoveBackward, 0, MENU_NONE },
+    { ITT_EFUNC, "TURN LEFT",       M_Bind_TurnLeft,     0, MENU_NONE },
+    { ITT_EFUNC, "TURN RIGHT",      M_Bind_TurnRight,    0, MENU_NONE },
+    { ITT_EFUNC, "STRAFE LEFT",     M_Bind_StrafeLeft,   0, MENU_NONE },
+    { ITT_EFUNC, "STRAFE RIGHT",    M_Bind_StrafeRight,  0, MENU_NONE },
+    { ITT_EFUNC, "SPEED ON",        M_Bind_SpeedOn,      0, MENU_NONE },
+    { ITT_EFUNC, "STRAFE ON",       M_Bind_StrafeOn,     0, MENU_NONE },
+    { ITT_EFUNC, "180 DEGREE TURN", M_Bind_180Turn,      0, MENU_NONE },
+    { ITT_EMPTY, NULL,              NULL,                0, MENU_NONE },
+    { ITT_EFUNC, "FIRE/ATTACK",     M_Bind_FireAttack,   0, MENU_NONE },
+    { ITT_EFUNC, "USE",             M_Bind_Use,          0, MENU_NONE },
 };
 
 static Menu_t CRLKbdBinds1 = {
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     DrawCRLKbd1,
-    11, CRLKbsBinds1Items,
+    12, CRLKbsBinds1Items,
     0,
     SmallFont, true, true,
     MENU_CRLCONTROLS
@@ -1585,11 +1587,12 @@ static void DrawCRLKbd1 (void)
     M_DrawBindKey(5, 80, key_straferight);
     M_DrawBindKey(6, 90, key_speed);
     M_DrawBindKey(7, 100, key_strafe);
+    M_DrawBindKey(8, 110, key_180turn);
 
-    MN_DrTextACentered("ACTION", 110, cr[CR_YELLOW]);
+    MN_DrTextACentered("ACTION", 120, cr[CR_YELLOW]);
 
-    M_DrawBindKey(9, 120, key_fire);
-    M_DrawBindKey(10, 130, key_use);
+    M_DrawBindKey(10, 130, key_fire);
+    M_DrawBindKey(11, 140, key_use);
 
     M_DrawBindFooter(170, "1", true);
 }
@@ -1634,14 +1637,19 @@ static void M_Bind_StrafeOn (int option)
     M_StartBind(107);  // key_strafe
 }
 
+static void M_Bind_180Turn (int choice)
+{
+    M_StartBind(108);  // key_180turn
+}
+
 static void M_Bind_FireAttack (int option)
 {
-    M_StartBind(108);  // key_fire
+    M_StartBind(109);  // key_fire
 }
 
 static void M_Bind_Use (int option)
 {
-    M_StartBind(109);  // key_use
+    M_StartBind(110);  // key_use
 }
 
 // -----------------------------------------------------------------------------
@@ -4996,6 +5004,7 @@ static void M_CheckBind (int key)
     if (key_straferight == key)      key_straferight      = 0;
     if (key_speed == key)            key_speed            = 0;
     if (key_strafe == key)           key_strafe           = 0;
+    if (key_180turn == key)          key_180turn          = 0;
     if (key_fire == key)             key_fire             = 0;
     if (key_use == key)              key_use              = 0;
 
@@ -5109,8 +5118,9 @@ static void M_DoBind (int keynum, int key)
         case 105:  key_straferight = key;       break;
         case 106:  key_speed = key;             break;
         case 107:  key_strafe = key;            break;
-        case 108:  key_fire = key;              break;
-        case 109:  key_use = key;               break;
+        case 108:  key_180turn = key;           break;
+        case 109:  key_fire = key;              break;
+        case 110:  key_use = key;               break;
 
         // Page 2  
         case 200:  key_lookup = key;            break;
@@ -5229,9 +5239,10 @@ static void M_ClearBind (int CurrentItPos)
             case 5:   key_straferight = 0;      break;
             case 6:   key_speed = 0;            break;
             case 7:   key_strafe = 0;           break;
+            case 8:   key_180turn = 0;          break;
             // Action title
-            case 9:   key_fire = 0;             break;
-            case 10:  key_use = 0;              break;
+            case 10:  key_fire = 0;             break;
+            case 11:  key_use = 0;              break;
         }
     }
     if (CurrentMenu == &CRLKbdBinds2)
@@ -5381,6 +5392,7 @@ static void M_ResetBinds (void)
     key_straferight = 'd';
     key_speed = KEY_RSHIFT; 
     key_strafe = KEY_RALT;
+    key_180turn = 0;
     key_fire = KEY_RCTRL;
     key_use = ' ';
 
