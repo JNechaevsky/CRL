@@ -1368,6 +1368,33 @@ boolean G_Responder(event_t * ev)
                 CT_SetMessage(player, player->cheats & CF_NOTARGET ?
                               CRL_NOTARGET_ON : CRL_NOTARGET_OFF, false, NULL);
             }
+            // [JN] CRL - Toggle nomomentum mode.
+            if (ev->data1 == key_crl_nomomentum)
+            {
+                player_t *player = &players[consoleplayer];
+
+                // Allow no momentum only in single player game, otherwise desyncs may occur.
+                if (demorecording)
+                {
+                    CT_SetMessage(&players[consoleplayer], CRL_NOMOMENTUM_NA_R , false, NULL);
+                    return true;
+                }
+                if (demoplayback)
+                {
+                    CT_SetMessage(&players[consoleplayer], CRL_NOMOMENTUM_NA_P , false, NULL);
+                    return true;
+                }
+                if (netgame)
+                {
+                    CT_SetMessage(&players[consoleplayer], CRL_NOMOMENTUM_NA_N , false, NULL);
+                    return true;
+                }   
+
+                player->cheats ^= CF_NOMOMENTUM;
+
+                CT_SetMessage(player, player->cheats & CF_NOMOMENTUM ?
+                              CRL_NOMOMENTUM_ON : CRL_NOMOMENTUM_OFF, false, NULL);
+            }
             // [JN] CRL - Toggle static engine limits.
             if (ev->data1 == key_crl_limits)
             {

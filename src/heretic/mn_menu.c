@@ -452,6 +452,7 @@ static void M_Bind_CameraMoveTo (int option);
 static void M_Bind_FreezeMode (int option);
 static void M_Bind_BuddhaMode (int option);
 static void M_Bind_NotargetMode (int option);
+static void M_Bind_NomomentumMode (int option);
 
 static void DrawCRLKbd4 (void);
 static void M_Bind_AlwaysRun (int option);
@@ -1778,25 +1779,26 @@ static void M_Bind_UseArti (int option)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLKbsBinds3Items[] = {
-    { ITT_EFUNC, "MAIN CRL MENU",        M_Bind_CRLmenu,       0, MENU_NONE },
-    { ITT_EFUNC, "RESTART LEVEL/DEMO",   M_Bind_RestartLevel,  0, MENU_NONE },
-    { ITT_EFUNC, "GO TO NEXT LEVEL",     M_Bind_NextLevel,     0, MENU_NONE },
-    { ITT_EFUNC, "DEMO FAST-FORWARD",    M_Bind_FastForward,   0, MENU_NONE },
-    { ITT_EFUNC, "TOGGLE EXTENDED HUD",  M_Bind_ExtendedHUD,   0, MENU_NONE },
-    { ITT_EMPTY, NULL,                   NULL,                 0, MENU_NONE },
-    { ITT_EFUNC, "SPECTATOR MODE",       M_Bind_SpectatorMode, 0, MENU_NONE },
-    { ITT_EFUNC, "- MOVE CAMERA UP",     M_Bind_CameraUp,      0, MENU_NONE },
-    { ITT_EFUNC, "- MOVE CAMERA DOWN",   M_Bind_CameraDown,    0, MENU_NONE },
-    { ITT_EFUNC, "- MOVE TO CAMERA POS", M_Bind_CameraMoveTo,  0, MENU_NONE },
-    { ITT_EFUNC, "FREEZE MODE",          M_Bind_FreezeMode,    0, MENU_NONE },
-    { ITT_EFUNC, "BUDDHA MODE",          M_Bind_BuddhaMode,    0, MENU_NONE },
-    { ITT_EFUNC, "NOTARGET MODE",        M_Bind_NotargetMode,  0, MENU_NONE }
+    { ITT_EFUNC, "MAIN CRL MENU",        M_Bind_CRLmenu,        0, MENU_NONE },
+    { ITT_EFUNC, "RESTART LEVEL/DEMO",   M_Bind_RestartLevel,   0, MENU_NONE },
+    { ITT_EFUNC, "GO TO NEXT LEVEL",     M_Bind_NextLevel,      0, MENU_NONE },
+    { ITT_EFUNC, "DEMO FAST-FORWARD",    M_Bind_FastForward,    0, MENU_NONE },
+    { ITT_EFUNC, "TOGGLE EXTENDED HUD",  M_Bind_ExtendedHUD,    0, MENU_NONE },
+    { ITT_EMPTY, NULL,                   NULL,                  0, MENU_NONE },
+    { ITT_EFUNC, "SPECTATOR MODE",       M_Bind_SpectatorMode,  0, MENU_NONE },
+    { ITT_EFUNC, "- MOVE CAMERA UP",     M_Bind_CameraUp,       0, MENU_NONE },
+    { ITT_EFUNC, "- MOVE CAMERA DOWN",   M_Bind_CameraDown,     0, MENU_NONE },
+    { ITT_EFUNC, "- MOVE TO CAMERA POS", M_Bind_CameraMoveTo,   0, MENU_NONE },
+    { ITT_EFUNC, "FREEZE MODE",          M_Bind_FreezeMode,     0, MENU_NONE },
+    { ITT_EFUNC, "BUDDHA MODE",          M_Bind_BuddhaMode,     0, MENU_NONE },
+    { ITT_EFUNC, "NO TARGET MODE",       M_Bind_NotargetMode,   0, MENU_NONE },
+    { ITT_EFUNC, "NO MOMENTUM MODE",     M_Bind_NomomentumMode, 0, MENU_NONE }
 };
 
 static Menu_t CRLKbdBinds3 = {
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     DrawCRLKbd3,
-    13, CRLKbsBinds3Items,
+    14, CRLKbsBinds3Items,
     0,
     SmallFont, true, true,
     MENU_CRLCONTROLS
@@ -1825,6 +1827,7 @@ static void DrawCRLKbd3 (void)
     M_DrawBindKey(10, 130, key_crl_freeze);
     M_DrawBindKey(11, 140, key_crl_buddha);
     M_DrawBindKey(12, 150, key_crl_notarget);
+    M_DrawBindKey(13, 160, key_crl_nomomentum);
 
     M_DrawBindFooter(170, "3", true);
 }
@@ -1887,6 +1890,11 @@ static void M_Bind_BuddhaMode (int choice)
 static void M_Bind_NotargetMode (int option)
 {
     M_StartBind(311);  // key_crl_notarget
+}
+
+static void M_Bind_NomomentumMode (int choice)
+{
+    M_StartBind(312);  // key_crl_nomomentum
 }
 
 // -----------------------------------------------------------------------------
@@ -5079,6 +5087,7 @@ static void M_CheckBind (int key)
     if (key_crl_freeze == key)       key_crl_freeze       = 0;
     if (key_crl_buddha == key)       key_crl_buddha       = 0;
     if (key_crl_notarget == key)     key_crl_notarget     = 0;
+    if (key_crl_nomomentum == key)   key_crl_nomomentum   = 0;
 
     // Page 4
     if (key_crl_autorun == key)      key_crl_autorun      = 0;
@@ -5196,6 +5205,7 @@ static void M_DoBind (int keynum, int key)
         case 309:  key_crl_freeze = key;        break;
         case 310:  key_crl_buddha = key;        break;
         case 311:  key_crl_notarget = key;      break;
+        case 312:  key_crl_nomomentum = key;    break;
 
         // Page 4  
         case 400:  key_crl_autorun = key;       break;
@@ -5332,6 +5342,7 @@ static void M_ClearBind (int CurrentItPos)
             case 10:  key_crl_freeze = 0;       break;
             case 11:  key_crl_buddha = 0;       break;
             case 12:  key_crl_notarget = 0;     break;
+            case 13:  key_crl_nomomentum = 0;   break;
         }
     }
     if (CurrentMenu == &CRLKbdBinds4)
@@ -5476,6 +5487,7 @@ static void M_ResetBinds (void)
     key_crl_freeze = 0;
     key_crl_buddha = 0;
     key_crl_notarget = 0;
+    key_crl_nomomentum = 0;
 
     // Page 4
     key_crl_autorun = KEY_CAPSLOCK;
