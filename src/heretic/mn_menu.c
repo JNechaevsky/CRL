@@ -176,7 +176,6 @@ static Menu_t *CurrentMenu;
 static int CurrentItPos;
 static int MenuEpisode;
 static int MenuTime;
-static boolean soundchanged;
 
 boolean askforquit;
 static int typeofask;
@@ -338,16 +337,16 @@ static Menu_t OptionsMenu = {
 };
 
 static MenuItem_t Options2Items[] = {
-    {ITT_LRFUNC, "SCREEN SIZE", SCScreenSize, 0, MENU_NONE},
-    {ITT_EMPTY, NULL, NULL, 0, MENU_NONE},
-    {ITT_LRFUNC, "SFX VOLUME", SCSfxVolume, 0, MENU_NONE},
-    {ITT_EMPTY, NULL, NULL, 0, MENU_NONE},
-    {ITT_LRFUNC, "MUSIC VOLUME", SCMusicVolume, 0, MENU_NONE},
-    {ITT_EMPTY, NULL, NULL, 0, MENU_NONE}
+    { ITT_LRFUNC, "SFX VOLUME",   SCSfxVolume,   0, MENU_NONE },
+    { ITT_EMPTY,  NULL,           NULL,          0, MENU_NONE },
+    { ITT_LRFUNC, "MUSIC VOLUME", SCMusicVolume, 0, MENU_NONE },
+    { ITT_EMPTY,  NULL,           NULL,          0, MENU_NONE },
+    { ITT_LRFUNC, "SCREEN SIZE",  SCScreenSize,  0, MENU_NONE },
+    { ITT_EMPTY,  NULL,           NULL,          0, MENU_NONE },
 };
 
 static Menu_t Options2Menu = {
-    90, 20,
+    72, 20,
     DrawOptions2Menu,
     6, Options2Items,
     0,
@@ -3639,9 +3638,22 @@ static void DrawOptionsMenu(void)
 
 static void DrawOptions2Menu(void)
 {
-    DrawSlider(&Options2Menu, 1, 9, crl_screen_size - 3, true);
-    DrawSlider(&Options2Menu, 3, 16, snd_MaxVolume, true);
-    DrawSlider(&Options2Menu, 5, 16, snd_MusicVolume, true);
+    char str[32];
+
+    // SFX Volume
+    sprintf(str, "%d", snd_MaxVolume);
+    DrawSlider(&Options2Menu, 1, 16, snd_MaxVolume, true);
+    MN_DrTextA(str, 252, 45, NULL);
+
+    // Music Volume
+    sprintf(str, "%d", snd_MusicVolume);
+    DrawSlider(&Options2Menu, 3, 16, snd_MusicVolume, true);
+    MN_DrTextA(str, 252, 85, NULL);
+
+    // Screen Size
+    sprintf(str, "%d", crl_screen_size);
+    DrawSlider(&Options2Menu, 5, 9, crl_screen_size - 3, true);
+    MN_DrTextA(str, 196, 125, NULL);
 }
 
 //---------------------------------------------------------------------------
@@ -3917,19 +3929,11 @@ static void SCMouseSensi(int option)
 
 static void SCSfxVolume(int option)
 {
-    if (option == RIGHT_DIR)
-    {
-        if (snd_MaxVolume < 15)
-        {
-            snd_MaxVolume++;
-        }
-    }
-    else if (snd_MaxVolume)
-    {
-        snd_MaxVolume--;
-    }
-    S_SetMaxVolume(false);      // don't recalc the sound curve, yet
-    soundchanged = true;        // we'll set it when we leave the menu
+    snd_MaxVolume = M_INT_Slider(snd_MaxVolume, 0, 15, option, true);
+    // [JN] Always do a full recalc of the sound curve imideatelly.
+    // Needed for proper volume update of ambient sounds
+    // while active menu and in demo playback mode.
+    S_SetMaxVolume();
 }
 
 //---------------------------------------------------------------------------
@@ -3940,17 +3944,7 @@ static void SCSfxVolume(int option)
 
 static void SCMusicVolume(int option)
 {
-    if (option == RIGHT_DIR)
-    {
-        if (snd_MusicVolume < 15)
-        {
-            snd_MusicVolume++;
-        }
-    }
-    else if (snd_MusicVolume)
-    {
-        snd_MusicVolume--;
-    }
+    snd_MusicVolume = M_INT_Slider(snd_MusicVolume, 0, 15, option, true);
     S_SetMusicVolume();
 }
 
@@ -4921,14 +4915,12 @@ void MN_DeactivateMenu(void)
     {
         paused = false;
     }
-    S_StartSound(NULL, sfx_dorcls);
-    if (soundchanged)
+    // [JN] Do not play closing menu sound on quick save/loading actions.
+    // Quick save playing it separatelly, quick load doesn't need it at all.
+    if (!quicksave && !quickload)
     {
-        S_SetMaxVolume(true);   //recalc the sound curve
-        soundchanged = false;
+        S_StartSound(NULL, sfx_dorcls);
     }
-    players[consoleplayer].message = NULL;
-    players[consoleplayer].messageTics = 1;
 }
 
 //---------------------------------------------------------------------------

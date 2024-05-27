@@ -35,7 +35,7 @@ void S_UpdateSounds(mobj_t * listener);
 void S_StartSong(int song, boolean loop);
 void S_Init(void);
 void S_GetChannelInfo(SoundInfo_t * s);
-void S_SetMaxVolume(boolean fullprocess);
+void S_SetMaxVolume(void);
 void S_SetMusicVolume(void);
 
 #endif
