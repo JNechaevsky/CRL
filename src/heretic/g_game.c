@@ -1316,6 +1316,31 @@ boolean G_Responder(event_t * ev)
                 CT_SetMessage(&players[consoleplayer], crl_freeze ?
                               CRL_FREEZE_ON : CRL_FREEZE_OFF, false, NULL);
             }
+            // [JN] CRL (Woof!) - Toggle Buddha mode.
+            if (ev->data1 == key_crl_buddha)
+            {
+                player_t *player = &players[consoleplayer];
+
+                // Allow Buddha mode only in single player game, otherwise desyncs may occur.
+                if (demorecording)
+                {
+                    CT_SetMessage(&players[consoleplayer], CRL_BUDDHA_NA_R , false, NULL);
+                    return true;
+                }
+                if (demoplayback)
+                {
+                    CT_SetMessage(&players[consoleplayer], CRL_BUDDHA_NA_P , false, NULL);
+                    return true;
+                }
+                if (netgame)
+                {
+                    CT_SetMessage(&players[consoleplayer], CRL_BUDDHA_NA_N , false, NULL);
+                    return true;
+                }
+                player->cheats ^= CF_BUDDHA;
+                CT_SetMessage(player, player->cheats & CF_BUDDHA ?
+                              CRL_BUDDHA_ON : CRL_BUDDHA_OFF, false, NULL);
+            }
             // [JN] CRL - Toggle notarget mode.
             if (ev->data1 == key_crl_notarget)
             {
