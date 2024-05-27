@@ -219,39 +219,45 @@ void D_Display(void)
                 CRL_DrawVisPlanes(1);
             }
 
-            // [JN] CRL Stats
-            CRL_StatDrawer();
+            if (crl_extended_hud)
+            {
+                // [JN] CRL Stats
+                CRL_StatDrawer();
 
-            // [crispy] demo timer widget
-            if (demoplayback && (crl_demo_timer == 1 || crl_demo_timer == 3))
-            {
-                CRL_DemoTimer(crl_demo_timerdir ? (deftotaldemotics - defdemotics) : defdemotics);
-            }
-            else if (demorecording && (crl_demo_timer == 2 || crl_demo_timer == 3))
-            {
-                CRL_DemoTimer(leveltime);
-            }
+                // [crispy] demo timer widget
+                if (demoplayback && (crl_demo_timer == 1 || crl_demo_timer == 3))
+                {
+                    CRL_DemoTimer(crl_demo_timerdir ? (deftotaldemotics - defdemotics) : defdemotics);
+                }
+                else if (demorecording && (crl_demo_timer == 2 || crl_demo_timer == 3))
+                {
+                    CRL_DemoTimer(leveltime);
+                }
 
-            // [JN] Target's health widget.
-            // Actual health values are gathered in G_Ticker.
-            if (crl_widget_health)
-            {
-                CRL_DrawTargetsHealth();
+                // [JN] Target's health widget.
+                // Actual health values are gathered in G_Ticker.
+                if (crl_widget_health)
+                {
+                    CRL_DrawTargetsHealth();
+                }
             }
 
             CT_Drawer();
             SB_Drawer();
 
-            // [crispy] demo progress bar
-            if (demoplayback && crl_demo_bar)
+            if (crl_extended_hud)
             {
-                CRL_DemoBar();
-            }
+                // [crispy] demo progress bar
+                if (demoplayback && crl_demo_bar)
+                {
+                    CRL_DemoBar();
+                }
 
-            // [JN] Draw FPS counter.
-            if (crl_showfps)
-            {
-                CRL_DrawFPS();
+                // [JN] Draw FPS counter.
+                if (crl_showfps)
+                {
+                    CRL_DrawFPS();
+                }
             }
 
             break;

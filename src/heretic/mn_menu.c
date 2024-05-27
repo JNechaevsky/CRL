@@ -443,6 +443,7 @@ static void M_Bind_CRLmenu (int option);
 static void M_Bind_RestartLevel (int option);
 static void M_Bind_NextLevel (int option);
 static void M_Bind_FastForward (int option);
+static void M_Bind_ExtendedHUD (int choice);
 static void M_Bind_SpectatorMode (int option);
 static void M_Bind_CameraUp (int option);
 static void M_Bind_CameraDown (int option);
@@ -1756,16 +1757,17 @@ static void M_Bind_UseArti (int option)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLKbsBinds3Items[] = {
-    {ITT_EFUNC, "MAIN CRL MENU",      M_Bind_CRLmenu,       0, MENU_NONE},
-    {ITT_EFUNC, "RESTART LEVEL/DEMO", M_Bind_RestartLevel,  0, MENU_NONE},
-    {ITT_EFUNC, "GO TO NEXT LEVEL",   M_Bind_NextLevel,     0, MENU_NONE},
-    {ITT_EFUNC, "DEMO FAST-FORWARD",  M_Bind_FastForward,   0, MENU_NONE},
-    {ITT_EMPTY, NULL,                 NULL,                 0, MENU_NONE},
-    {ITT_EFUNC, "SPECTATOR MODE",     M_Bind_SpectatorMode, 0, MENU_NONE},
-    {ITT_EFUNC, "MOVE CAMERA UP",     M_Bind_CameraUp,      0, MENU_NONE},
-    {ITT_EFUNC, "MOVE CAMERA DOWN",   M_Bind_CameraDown,    0, MENU_NONE},
-    {ITT_EFUNC, "FREEZE MODE",        M_Bind_FreezeMode,    0, MENU_NONE},
-    {ITT_EFUNC, "NOTARGET MODE",      M_Bind_NotargetMode,  0, MENU_NONE}
+    {ITT_EFUNC, "MAIN CRL MENU",       M_Bind_CRLmenu,       0, MENU_NONE},
+    {ITT_EFUNC, "RESTART LEVEL/DEMO",  M_Bind_RestartLevel,  0, MENU_NONE},
+    {ITT_EFUNC, "GO TO NEXT LEVEL",    M_Bind_NextLevel,     0, MENU_NONE},
+    {ITT_EFUNC, "DEMO FAST-FORWARD",   M_Bind_FastForward,   0, MENU_NONE},
+    {ITT_EFUNC, "TOGGLE EXTENDED HUD", M_Bind_ExtendedHUD,   0, MENU_NONE},
+    {ITT_EMPTY, NULL,                  NULL,                 0, MENU_NONE},
+    {ITT_EFUNC, "SPECTATOR MODE",      M_Bind_SpectatorMode, 0, MENU_NONE},
+    {ITT_EFUNC, "MOVE CAMERA UP",      M_Bind_CameraUp,      0, MENU_NONE},
+    {ITT_EFUNC, "MOVE CAMERA DOWN",    M_Bind_CameraDown,    0, MENU_NONE},
+    {ITT_EFUNC, "FREEZE MODE",         M_Bind_FreezeMode,    0, MENU_NONE},
+    {ITT_EFUNC, "NOTARGET MODE",       M_Bind_NotargetMode,  0, MENU_NONE}
 };
 
 static Menu_t CRLKbdBinds3 = {
@@ -1789,14 +1791,15 @@ static void DrawCRLKbd3 (void)
     M_DrawBindKey(1, 40, key_crl_reloadlevel);
     M_DrawBindKey(2, 50, key_crl_nextlevel);
     M_DrawBindKey(3, 60, key_crl_demospeed);
+    M_DrawBindKey(4, 70, key_crl_extendedhud);
 
-    MN_DrTextACentered("GAME MODES", 70, cr[CR_YELLOW]);
+    MN_DrTextACentered("GAME MODES", 80, cr[CR_YELLOW]);
 
-    M_DrawBindKey(5, 80, key_crl_spectator);
-    M_DrawBindKey(6, 90, key_crl_cameraup);
-    M_DrawBindKey(7, 100, key_crl_cameradown);
-    M_DrawBindKey(8, 110, key_crl_freeze);
-    M_DrawBindKey(9, 120, key_crl_notarget);
+    M_DrawBindKey(6, 90, key_crl_spectator);
+    M_DrawBindKey(7, 100, key_crl_cameraup);
+    M_DrawBindKey(8, 110, key_crl_cameradown);
+    M_DrawBindKey(9, 120, key_crl_freeze);
+    M_DrawBindKey(10, 130, key_crl_notarget);
 
     M_DrawBindFooter(170, "3", true);
 }
@@ -1821,29 +1824,34 @@ static void M_Bind_FastForward (int option)
     M_StartBind(303);  // key_crl_demospeed
 }
 
+static void M_Bind_ExtendedHUD (int choice)
+{
+    M_StartBind(304);  // key_crl_extendedhud
+}
+
 static void M_Bind_SpectatorMode (int option)
 {
-    M_StartBind(304);  // key_crl_spectator
+    M_StartBind(305);  // key_crl_spectator
 }
 
 static void M_Bind_CameraUp (int option)
 {
-    M_StartBind(305);  // key_crl_cameraup
+    M_StartBind(306);  // key_crl_cameraup
 }
 
 static void M_Bind_CameraDown (int option)
 {
-    M_StartBind(306);  // key_crl_cameradown
+    M_StartBind(307);  // key_crl_cameradown
 }
 
 static void M_Bind_FreezeMode (int option)
 {
-    M_StartBind(307);  // key_crl_freeze
+    M_StartBind(308);  // key_crl_freeze
 }
 
 static void M_Bind_NotargetMode (int option)
 {
-    M_StartBind(308);  // key_crl_notarget
+    M_StartBind(309);  // key_crl_notarget
 }
 
 // -----------------------------------------------------------------------------
@@ -2802,6 +2810,10 @@ static void CRL_TimerDirection (int choice)
 static void CRL_ProgressBar (int option)
 {
     crl_demo_bar ^= 1;
+
+    // [JN] Redraw status bar to possibly 
+    // clean up remainings of progress bar.
+    SB_state = -1;
 }
 
 static void CRL_InternalDemos (int option)
@@ -5024,6 +5036,7 @@ static void M_CheckBind (int key)
     if (key_crl_reloadlevel == key)  key_crl_reloadlevel  = 0;
     if (key_crl_nextlevel == key)    key_crl_nextlevel    = 0;
     if (key_crl_demospeed == key)    key_crl_demospeed    = 0;
+    if (key_crl_extendedhud == key)  key_crl_extendedhud  = 0;
     if (key_crl_spectator == key)    key_crl_spectator    = 0;
     if (key_crl_cameraup == key)     key_crl_cameraup     = 0;
     if (key_crl_cameradown == key)   key_crl_cameradown   = 0;
@@ -5138,11 +5151,12 @@ static void M_DoBind (int keynum, int key)
         case 301:  key_crl_reloadlevel = key;   break;
         case 302:  key_crl_nextlevel = key;     break;
         case 303:  key_crl_demospeed = key;     break;
-        case 304:  key_crl_spectator = key;     break;
-        case 305:  key_crl_cameraup = key;      break;
-        case 306:  key_crl_cameradown = key;    break;
-        case 307:  key_crl_freeze = key;        break;
-        case 308:  key_crl_notarget = key;      break;
+        case 304:  key_crl_extendedhud = key;   break;
+        case 305:  key_crl_spectator = key;     break;
+        case 306:  key_crl_cameraup = key;      break;
+        case 307:  key_crl_cameradown = key;    break;
+        case 308:  key_crl_freeze = key;        break;
+        case 309:  key_crl_notarget = key;      break;
 
         // Page 4  
         case 400:  key_crl_autorun = key;       break;
@@ -5270,12 +5284,13 @@ static void M_ClearBind (int CurrentItPos)
             case 1:   key_crl_reloadlevel = 0;  break;
             case 2:   key_crl_nextlevel = 0;    break;
             case 3:   key_crl_demospeed = 0;    break;
+            case 4:   key_crl_extendedhud = 0;  break;
             // Game modes title
-            case 5:   key_crl_spectator = 0;    break;
-            case 6:   key_crl_cameraup = 0;     break;
-            case 7:   key_crl_cameradown = 0;   break;
-            case 8:   key_crl_freeze = 0;       break;
-            case 9:   key_crl_notarget = 0;     break;
+            case 6:   key_crl_spectator = 0;    break;
+            case 7:   key_crl_cameraup = 0;     break;
+            case 8:   key_crl_cameradown = 0;   break;
+            case 9:   key_crl_freeze = 0;       break;
+            case 10:  key_crl_notarget = 0;     break;
         }
     }
     if (CurrentMenu == &CRLKbdBinds4)
@@ -5412,6 +5427,7 @@ static void M_ResetBinds (void)
     key_crl_reloadlevel = 0;
     key_crl_nextlevel = 0;
     key_crl_demospeed = 0;
+    key_crl_extendedhud = 0;
     key_crl_spectator = 0;
     key_crl_cameraup = 0;
     key_crl_cameradown = 0;

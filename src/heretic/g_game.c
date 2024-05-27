@@ -1266,6 +1266,16 @@ boolean G_Responder(event_t * ev)
             {
                 gamekeydown[ev->data1] = true;
             }
+            // [JN] CRL - Toggle extended HUD.
+            if (ev->data1 == key_crl_extendedhud)
+            {
+                crl_extended_hud ^= 1;
+                CT_SetMessage(&players[consoleplayer], crl_extended_hud ?
+                              CRL_EXTHUD_ON : CRL_EXTHUD_OFF, false, NULL);
+                // Redraw status bar to possibly clean up 
+                // remainings of demo progress bar.
+                SB_state = -1;
+            }
             // [JN] CRL - Toggle spectator mode.
             if (ev->data1 == key_crl_spectator)
             {
