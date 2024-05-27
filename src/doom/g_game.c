@@ -967,6 +967,10 @@ static void SetMouseButtons(unsigned int buttons_mask)
 // 
 boolean G_Responder (event_t* ev) 
 { 
+    player_t *plr;
+
+    plr = &players[consoleplayer];
+
     // [crispy] demo pause (from prboom-plus)
     if (gameaction == ga_nothing && 
         (demoplayback || gamestate == GS_INTERMISSION))
@@ -1097,7 +1101,7 @@ boolean G_Responder (event_t* ev)
     if (ev->data1 == key_crl_extendedhud)
     {
         crl_extended_hud ^= 1;
-        CRL_SetMessage(&players[consoleplayer], crl_extended_hud ?
+        CRL_SetMessage(plr, crl_extended_hud ?
                        CRL_EXTHUD_ON : CRL_EXTHUD_OFF, false, NULL);
         // Redraw status bar to possibly clean up 
         // remainings of demo progress bar.
@@ -1107,7 +1111,7 @@ boolean G_Responder (event_t* ev)
     if (ev->data1 == key_crl_spectator)
     {
         crl_spectating ^= 1;
-        CRL_SetMessage(&players[consoleplayer], crl_spectating ?
+        CRL_SetMessage(plr, crl_spectating ?
                        CRL_SPECTATOR_ON : CRL_SPECTATOR_OFF, false, NULL);
         pspr_interp = false;
     }        
@@ -1118,105 +1122,99 @@ boolean G_Responder (event_t* ev)
         // Allow freeze only in single player game, otherwise desyncs may occur.
         if (demorecording)
         {
-            CRL_SetMessage(&players[consoleplayer], CRL_FREEZE_NA_R , false, NULL);
+            CRL_SetMessage(plr, CRL_FREEZE_NA_R, false, NULL);
             return true;
         }            
         if (demoplayback)
         {
-            CRL_SetMessage(&players[consoleplayer], CRL_FREEZE_NA_P , false, NULL);
+            CRL_SetMessage(plr, CRL_FREEZE_NA_P, false, NULL);
             return true;
         }   
         if (netgame)
         {
-            CRL_SetMessage(&players[consoleplayer], CRL_FREEZE_NA_N , false, NULL);
+            CRL_SetMessage(plr, CRL_FREEZE_NA_N, false, NULL);
             return true;
         }   
         
         crl_freeze ^= 1;
 
-        CRL_SetMessage(&players[consoleplayer], crl_freeze ?
+        CRL_SetMessage(plr, crl_freeze ?
                        CRL_FREEZE_ON : CRL_FREEZE_OFF, false, NULL);
     }    
 
     // [JN] CRL (Woof!) - Toggle Buddha mode.
     if (ev->data1 == key_crl_buddha)
     {
-        player_t *player = &players[consoleplayer];
-
         // Allow Buddha mode only in single player game, otherwise desyncs may occur.
         if (demorecording)
         {
-            CRL_SetMessage(&players[consoleplayer], CRL_BUDDHA_NA_R , false, NULL);
+            CRL_SetMessage(plr, CRL_BUDDHA_NA_R, false, NULL);
             return true;
         }
         if (demoplayback)
         {
-            CRL_SetMessage(&players[consoleplayer], CRL_BUDDHA_NA_P , false, NULL);
+            CRL_SetMessage(plr, CRL_BUDDHA_NA_P, false, NULL);
             return true;
         }
         if (netgame)
         {
-            CRL_SetMessage(&players[consoleplayer], CRL_BUDDHA_NA_N , false, NULL);
+            CRL_SetMessage(plr, CRL_BUDDHA_NA_N, false, NULL);
             return true;
         }
-        player->cheats ^= CF_BUDDHA;
-        CRL_SetMessage(player, player->cheats & CF_BUDDHA ?
+        plr->cheats ^= CF_BUDDHA;
+        CRL_SetMessage(plr, plr->cheats & CF_BUDDHA ?
                        CRL_BUDDHA_ON : CRL_BUDDHA_OFF, false, NULL);
     }
 
     // [JN] CRL - Toggle notarget mode.
     if (ev->data1 == key_crl_notarget)
     {
-        player_t *player = &players[consoleplayer];
-
         // Allow notarget only in single player game, otherwise desyncs may occur.
         if (demorecording)
         {
-            CRL_SetMessage(&players[consoleplayer], CRL_NOTARGET_NA_R , false, NULL);
+            CRL_SetMessage(plr, CRL_NOTARGET_NA_R, false, NULL);
             return true;
         }
         if (demoplayback)
         {
-            CRL_SetMessage(&players[consoleplayer], CRL_NOTARGET_NA_P , false, NULL);
+            CRL_SetMessage(plr, CRL_NOTARGET_NA_P, false, NULL);
             return true;
         }
         if (netgame)
         {
-            CRL_SetMessage(&players[consoleplayer], CRL_NOTARGET_NA_N , false, NULL);
+            CRL_SetMessage(plr, CRL_NOTARGET_NA_N, false, NULL);
             return true;
         }   
 
-        player->cheats ^= CF_NOTARGET;
-        P_ForgetPlayer(player);
-        CRL_SetMessage(player, player->cheats & CF_NOTARGET ?
+        plr->cheats ^= CF_NOTARGET;
+        P_ForgetPlayer(plr);
+        CRL_SetMessage(plr, plr->cheats & CF_NOTARGET ?
                        CRL_NOTARGET_ON : CRL_NOTARGET_OFF, false, NULL);
     }
 
     // [JN] CRL - Toggle nomomentum mode.
     if (ev->data1 == key_crl_nomomentum)
     {
-        player_t *player = &players[consoleplayer];
-
         // Allow no momentum only in single player game, otherwise desyncs may occur.
         if (demorecording)
         {
-            CRL_SetMessage(&players[consoleplayer], CRL_NOMOMENTUM_NA_R , false, NULL);
+            CRL_SetMessage(plr, CRL_NOMOMENTUM_NA_R, false, NULL);
             return true;
         }
         if (demoplayback)
         {
-            CRL_SetMessage(&players[consoleplayer], CRL_NOMOMENTUM_NA_P , false, NULL);
+            CRL_SetMessage(plr, CRL_NOMOMENTUM_NA_P, false, NULL);
             return true;
         }
         if (netgame)
         {
-            CRL_SetMessage(&players[consoleplayer], CRL_NOMOMENTUM_NA_N , false, NULL);
+            CRL_SetMessage(plr, CRL_NOMOMENTUM_NA_N, false, NULL);
             return true;
         }   
 
-        player->cheats ^= CF_NOMOMENTUM;
+        plr->cheats ^= CF_NOMOMENTUM;
 
-        CRL_SetMessage(player, player->cheats & CF_NOMOMENTUM ?
+        CRL_SetMessage(plr, plr->cheats & CF_NOMOMENTUM ?
                        CRL_NOMOMENTUM_ON : CRL_NOMOMENTUM_OFF, false, NULL);
     }
 
@@ -1226,17 +1224,17 @@ boolean G_Responder (event_t* ev)
         // Allow MDK only in single player game, otherwise desyncs may occur.
         if (demorecording)
         {
-            CRL_SetMessage(&players[consoleplayer], CRL_MDK_NA_R , false, NULL);
+            CRL_SetMessage(plr, CRL_MDK_NA_R, false, NULL);
             return true;
         }
         if (demoplayback)
         {
-            CRL_SetMessage(&players[consoleplayer], CRL_MDK_NA_P , false, NULL);
+            CRL_SetMessage(plr, CRL_MDK_NA_P, false, NULL);
             return true;
         }
         if (netgame)
         {
-            CRL_SetMessage(&players[consoleplayer], CRL_MDK_NA_N , false, NULL);
+            CRL_SetMessage(plr, CRL_MDK_NA_N, false, NULL);
             return true;
         }
         
@@ -1251,8 +1249,8 @@ boolean G_Responder (event_t* ev)
         // [JN] CRL - re-define static engine limits.
         CRL_SetStaticLimits("DOOM+");
 
-         CRL_SetMessage(&players[consoleplayer], crl_vanilla_limits ?
-                        CRL_VANILLA_LIMITS_ON : CRL_VANILLA_LIMITS_OFF, false, NULL);
+        CRL_SetMessage(plr, crl_vanilla_limits ?
+                       CRL_VANILLA_LIMITS_ON : CRL_VANILLA_LIMITS_OFF, false, NULL);
     }     
 
 	return true;    // eat key down events 
