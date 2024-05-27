@@ -209,11 +209,6 @@ extern int  CRL_plats_counter;
 extern int  CRL_brain_counter;
 extern int  CRL_buttons_counter;
 
-extern int CRL_invul_counter;
-extern int CRL_invis_counter;
-extern int CRL_rad_counter;
-extern int CRL_amp_counter;
-
 extern void CRL_DrawFPS (void);
 extern int  CRL_fps;
 

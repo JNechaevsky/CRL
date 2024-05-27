@@ -77,13 +77,6 @@ int CRL_plats_counter;
 // Will be reset on level restart.
 int CRL_buttons_counter;
 
-// Powerup timers.
-// Will be reset on level restart.
-int CRL_invul_counter;
-int CRL_invis_counter;
-int CRL_rad_counter;
-int CRL_amp_counter;
-
 // FPS counter.
 int CRL_fps;
 

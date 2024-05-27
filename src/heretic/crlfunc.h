@@ -18,21 +18,22 @@
 
 #pragma once
 
-#define NUMPLANEBORDERCOLORS 16
-extern int  CRL_PlaneBorderColors[NUMPLANEBORDERCOLORS];
-
-extern int CRL_counter_tome;
-extern int CRL_counter_ring;
-extern int CRL_counter_shadow;
-extern int CRL_counter_wings;
-extern int CRL_counter_torch;
+extern void CRL_MoveTo_Camera (void);
 
 extern void CRL_Clear_MAX (void);
 extern void CRL_Get_MAX (void);
 extern void CRL_MoveTo_MAX (void);
-extern void CRL_DrawTargetsHealth (void);
 
 // [crispy] demo progress bar and timer widget
 extern void CRL_DemoTimer (const int time);
 extern void CRL_DemoBar (void);
 extern int  defdemotics, deftotaldemotics;
+
+extern void CRL_DrawTargetsHealth (void);
+
+// Power-up counters:
+extern int CRL_counter_tome;
+extern int CRL_counter_ring;
+extern int CRL_counter_shadow;
+extern int CRL_counter_wings;
+extern int CRL_counter_torch;

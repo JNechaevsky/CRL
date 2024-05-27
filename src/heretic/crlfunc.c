@@ -33,6 +33,48 @@
 
 // =============================================================================
 //
+//                                Spectator mode
+//
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// CRL_MoveTo_Camera
+//  [JN] Moves player to spectator camera position.
+// -----------------------------------------------------------------------------
+
+void CRL_MoveTo_Camera (void)
+{
+    // It's single player only function, so operate with consoleplayer.
+    player_t *player = &players[consoleplayer];
+
+    // Define subsector we will move on.
+    subsector_t *ss = R_PointInSubsector(viewx, viewy);
+
+    // Supress interpolation for next frame.
+    player->mo->interp = -1;    
+    // Unset player from subsector and/or block links.
+    P_UnsetThingPosition(player->mo);
+    // Set new position.
+    player->mo->x = CRL_camera_x;
+    player->mo->y = CRL_camera_y;
+    // Things a big more complicated in uncapped frame rate, so we have
+    // to properly update both z and viewz to prevent one frame jitter.
+    player->mo->z = CRL_camera_z - player->viewheight;
+    player->viewz = player->mo->z + player->viewheight;
+    // Supress any horizontal and vertical momentums.
+    player->mo->momx = player->mo->momy = player->mo->momz = 0;
+    // Set angle and heights.
+    player->mo->angle = viewangle;
+    player->mo->floorz = ss->sector->interpfloorheight;
+    player->mo->ceilingz = ss->sector->interpceilingheight;
+    // Set new position in subsector and/or block links.
+    P_SetThingPosition(player->mo);
+    // Check for surroundings for possible interaction with pickups.
+    P_CheckPosition(player->mo, player->mo->x, player->mo->y);
+}
+
+// =============================================================================
+//
 //                        Render Counters and Widgets
 //
 // =============================================================================
@@ -71,13 +113,6 @@ static byte *CRL_PowerupColor (const int val1, const int val2)
 //  [JN] Handling of MAX visplanes, based on implementation from RestlessRodent.
 // -----------------------------------------------------------------------------
 
-// Power-up counters:
-int CRL_counter_tome;
-int CRL_counter_ring;
-int CRL_counter_shadow;
-int CRL_counter_wings;
-int CRL_counter_torch;
-
 static int CRL_MAX_count;
 
 void CRL_Clear_MAX (void)
@@ -99,14 +134,14 @@ void CRL_Get_MAX (void)
         {
             CRL_MAX_x = CRL_camera_oldx + FixedMul(CRL_camera_x - CRL_camera_oldx, fractionaltic);
             CRL_MAX_y = CRL_camera_oldy + FixedMul(CRL_camera_y - CRL_camera_oldy, fractionaltic);
-            CRL_MAX_z = CRL_camera_oldz + FixedMul(CRL_camera_z - CRL_camera_oldz, fractionaltic);
+            CRL_MAX_z = CRL_camera_oldz + FixedMul(CRL_camera_z - CRL_camera_oldz, fractionaltic) - VIEWHEIGHT;
             CRL_MAX_ang = R_InterpolateAngle(CRL_camera_oldang, CRL_camera_ang, fractionaltic);
         }
         else
         {
             CRL_MAX_x = CRL_camera_x;
             CRL_MAX_y = CRL_camera_y;
-            CRL_MAX_z = CRL_camera_z;
+            CRL_MAX_z = CRL_camera_z - VIEWHEIGHT;
             CRL_MAX_ang = CRL_camera_ang;
         }
     }
@@ -139,19 +174,19 @@ void CRL_MoveTo_MAX (void)
     // Supress interpolation for next frame.
     player->mo->interp = -1;    
     // Unset player from subsector and/or block links.
-    P_UnsetThingPosition(players[displayplayer].mo);
+    P_UnsetThingPosition(player->mo);
     // Set new position.
-    players[displayplayer].mo->x = CRL_MAX_x;
-    players[displayplayer].mo->y = CRL_MAX_y;
-    players[displayplayer].mo->z = CRL_MAX_z;
+    player->mo->x = CRL_MAX_x;
+    player->mo->y = CRL_MAX_y;
+    player->mo->z = CRL_MAX_z;
     // Supress any horizontal and vertical momentums.
-    players[displayplayer].mo->momx = players[displayplayer].mo->momy = players[displayplayer].mo->momz = 0;
+    player->mo->momx = player->mo->momy = player->mo->momz = 0;
     // Set angle and heights.
-    players[displayplayer].mo->angle = CRL_MAX_ang;
-    players[displayplayer].mo->floorz = ss->sector->interpfloorheight;
-    players[displayplayer].mo->ceilingz = ss->sector->interpceilingheight;
+    player->mo->angle = CRL_MAX_ang;
+    player->mo->floorz = ss->sector->interpfloorheight;
+    player->mo->ceilingz = ss->sector->interpceilingheight;
     // Set new position in subsector and/or block links.
-    P_SetThingPosition(players[displayplayer].mo);
+    P_SetThingPosition(player->mo);
 }
 
 static byte *CRL_Colorize_MAX (int style)
@@ -176,6 +211,13 @@ static byte *CRL_Colorize_MAX (int style)
 // Draws CRL stats.
 //  [JN] Draw all the widgets and counters.
 // -----------------------------------------------------------------------------
+
+// Power-up counters:
+int CRL_counter_tome;
+int CRL_counter_ring;
+int CRL_counter_shadow;
+int CRL_counter_wings;
+int CRL_counter_torch;
 
 void CRL_StatDrawer (void)
 {
@@ -526,8 +568,8 @@ void CRL_DemoBar (void)
 }
 
 // -----------------------------------------------------------------------------
-// CRL_DrawTargetsHealth.
-//  [JN] Draw and colorize target's health widget.
+// CRL_HealthColor, CRL_TargetHealth
+//  [JN] Indicates and colorizes current target's health.
 // -----------------------------------------------------------------------------
 
 static byte *CRL_HealthColor (const int val1, const int val2)

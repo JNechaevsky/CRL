@@ -213,6 +213,12 @@ static byte *CRL_Colorize_MAX (int style)
 //  [JN] Draw all the widgets and counters.
 // -----------------------------------------------------------------------------
 
+// Power-up counters:
+int CRL_invul_counter;
+int CRL_invis_counter;
+int CRL_rad_counter;
+int CRL_amp_counter;
+
 void CRL_StatDrawer (void)
 {
     int yy = 0;

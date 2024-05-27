@@ -28,6 +28,7 @@
 
 #include "crlcore.h"
 #include "crlvars.h"
+#include "crlfunc.h"
 
 
 // Index of the special effects (INVUL inverse) map.
