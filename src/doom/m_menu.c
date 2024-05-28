@@ -2239,7 +2239,7 @@ static void M_DrawCRL_Keybinds_3 (void)
 
     M_FillBackground();
 
-    M_WriteTextCentered(25, "MOVEMENT", cr[CR_YELLOW]);
+    M_WriteTextCentered(25, "ADVANCED MOVEMENT", cr[CR_YELLOW]);
 
     M_DrawBindKey(0, 34, key_crl_autorun);
     M_DrawBindKey(1, 43, key_crl_novert);
