@@ -457,6 +457,7 @@ static void DrawCRLKbd4 (void);
 static void M_Bind_AlwaysRun (int option);
 static void M_Bind_MouseLook (int option);
 static void M_Bind_VileBomb (int option);
+static void M_Bind_VileFly (int option);
 static void M_Bind_ClearMAX (int option);
 static void M_Bind_MoveToMAX (int option);
 static void M_Bind_IDDQD (int option);
@@ -1901,17 +1902,18 @@ static void M_Bind_NomomentumMode (int choice)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLKbsBinds4Items[] = {
-    {ITT_EFUNC, "ALWAYS RUN",     M_Bind_AlwaysRun, 0, MENU_NONE},
-    {ITT_EFUNC, "MOUSE LOOK",     M_Bind_MouseLook, 0, MENU_NONE},
-    {ITT_EFUNC, "ARCH-VILE JUMP", M_Bind_VileBomb,  0, MENU_NONE},
-    {ITT_EMPTY, NULL,             NULL,             0, MENU_NONE},
-    {ITT_EFUNC, "CLEAR MAX",      M_Bind_ClearMAX,  0, MENU_NONE},
-    {ITT_EFUNC, "MOVE TO MAX",    M_Bind_MoveToMAX, 0, MENU_NONE},
-    {ITT_EMPTY, NULL,             NULL,             0, MENU_NONE},
-    {ITT_EFUNC, "QUICKEN",        M_Bind_IDDQD,     0, MENU_NONE},
-    {ITT_EFUNC, "RAMBO",          M_Bind_IDFA,      0, MENU_NONE},
-    {ITT_EFUNC, "KITTY",          M_Bind_IDCLIP,    0, MENU_NONE},
-    {ITT_EFUNC, "RAVMAP",         M_Bind_IDDT,      0, MENU_NONE}
+    { ITT_EFUNC, "ALWAYS RUN",             M_Bind_AlwaysRun, 0, MENU_NONE},
+    { ITT_EFUNC, "MOUSE LOOK",             M_Bind_MouseLook, 0, MENU_NONE},
+    { ITT_EFUNC, "ARCH-VILE JUMP (PRESS)", M_Bind_VileBomb,  0, MENU_NONE},
+    { ITT_EFUNC, "ARCH-VILE JUMP (HOLD)",  M_Bind_VileFly,   0, MENU_NONE},
+    { ITT_EMPTY, NULL,                     NULL,             0, MENU_NONE},
+    { ITT_EFUNC, "CLEAR MAX",              M_Bind_ClearMAX,  0, MENU_NONE},
+    { ITT_EFUNC, "MOVE TO MAX",            M_Bind_MoveToMAX, 0, MENU_NONE},
+    { ITT_EMPTY, NULL,                     NULL,             0, MENU_NONE},
+    { ITT_EFUNC, "QUICKEN",                M_Bind_IDDQD,     0, MENU_NONE},
+    { ITT_EFUNC, "RAMBO",                  M_Bind_IDFA,      0, MENU_NONE},
+    { ITT_EFUNC, "KITTY",                  M_Bind_IDCLIP,    0, MENU_NONE},
+    { ITT_EFUNC, "RAVMAP",                 M_Bind_IDDT,      0, MENU_NONE}
 };
 
 static Menu_t CRLKbdBinds4 = {
@@ -1934,18 +1936,19 @@ static void DrawCRLKbd4 (void)
     M_DrawBindKey(0, 30, key_crl_autorun);
     M_DrawBindKey(1, 40, key_crl_mlook);
     M_DrawBindKey(2, 50, key_crl_vilebomb);
+    M_DrawBindKey(3, 60, key_crl_vilefly);
 
-    MN_DrTextACentered("VISPLANES MAX VALUE", 60, cr[CR_YELLOW]);
+    MN_DrTextACentered("VISPLANES MAX VALUE", 70, cr[CR_YELLOW]);
 
-    M_DrawBindKey(4, 70, key_crl_clearmax);
-    M_DrawBindKey(5, 80, key_crl_movetomax);
+    M_DrawBindKey(5, 80, key_crl_clearmax);
+    M_DrawBindKey(6, 90, key_crl_movetomax);
 
-    MN_DrTextACentered("CHEAT SHORTCUTS", 90, cr[CR_YELLOW]);
+    MN_DrTextACentered("CHEAT SHORTCUTS", 100, cr[CR_YELLOW]);
 
-    M_DrawBindKey(7, 100, key_crl_iddqd);
-    M_DrawBindKey(8, 110, key_crl_idfa);
-    M_DrawBindKey(9, 120, key_crl_idclip);
-    M_DrawBindKey(10, 130, key_crl_iddt);
+    M_DrawBindKey(8, 110, key_crl_iddqd);
+    M_DrawBindKey(9, 120, key_crl_idfa);
+    M_DrawBindKey(10, 130, key_crl_idclip);
+    M_DrawBindKey(11, 140, key_crl_iddt);
 
     M_DrawBindFooter(170, "4", true);
 }
@@ -1965,34 +1968,39 @@ static void M_Bind_VileBomb (int option)
     M_StartBind(402);  // key_crl_vilebomb
 }
 
+static void M_Bind_VileFly (int option)
+{
+    M_StartBind(403);  // key_crl_vilefly
+}
+
 static void M_Bind_ClearMAX (int option)
 {
-    M_StartBind(403);  // key_crl_clearmax
+    M_StartBind(404);  // key_crl_clearmax
 }
 
 static void M_Bind_MoveToMAX (int option)
 {
-    M_StartBind(404);  // key_crl_movetomax
+    M_StartBind(405);  // key_crl_movetomax
 }
 
 static void M_Bind_IDDQD (int option)
 {
-    M_StartBind(405);  // key_crl_iddqd
+    M_StartBind(406);  // key_crl_iddqd
 }
 
 static void M_Bind_IDFA (int option)
 {
-    M_StartBind(406);  // key_crl_idfa
+    M_StartBind(407);  // key_crl_idfa
 }
 
 static void M_Bind_IDCLIP (int option)
 {
-    M_StartBind(407);  // key_crl_idclip
+    M_StartBind(408);  // key_crl_idclip
 }
 
 static void M_Bind_IDDT (int option)
 {
-    M_StartBind(408);  // key_crl_iddt
+    M_StartBind(409);  // key_crl_iddt
 }
 
 // -----------------------------------------------------------------------------
@@ -5085,6 +5093,7 @@ static void M_CheckBind (int key)
     if (key_crl_autorun == key)      key_crl_autorun      = 0;
     if (key_crl_mlook == key)        key_crl_mlook        = 0;
     if (key_crl_vilebomb == key)     key_crl_vilebomb     = 0;
+    if (key_crl_vilefly == key)      key_crl_vilefly      = 0;
     if (key_crl_clearmax == key)     key_crl_clearmax     = 0;
     if (key_crl_movetomax == key)    key_crl_movetomax    = 0;
     if (key_crl_iddqd == key)        key_crl_iddqd        = 0;
@@ -5203,12 +5212,13 @@ static void M_DoBind (int keynum, int key)
         case 400:  key_crl_autorun = key;       break;
         case 401:  key_crl_mlook = key;         break;
         case 402:  key_crl_vilebomb = key;      break;
-        case 403:  key_crl_clearmax = key;      break;
-        case 404:  key_crl_movetomax = key;     break;
-        case 405:  key_crl_iddqd = key;         break;
-        case 406:  key_crl_idfa = key;          break;
-        case 407:  key_crl_idclip = key;        break;
-        case 408:  key_crl_iddt = key;          break;
+        case 403:  key_crl_vilefly = key;       break;
+        case 404:  key_crl_clearmax = key;      break;
+        case 405:  key_crl_movetomax = key;     break;
+        case 406:  key_crl_iddqd = key;         break;
+        case 407:  key_crl_idfa = key;          break;
+        case 408:  key_crl_idclip = key;        break;
+        case 409:  key_crl_iddt = key;          break;
 
         // Page 5  
         case 500:  key_weapon1 = key;           break;
@@ -5344,14 +5354,15 @@ static void M_ClearBind (int CurrentItPos)
             case 0:   key_crl_autorun = 0;      break;
             case 1:   key_crl_mlook = 0;        break;
             case 2:   key_crl_vilebomb = 0;     break;
+            case 3:   key_crl_vilefly = 0;      break;
             // Visplanes max value title
-            case 4:   key_crl_clearmax = 0;     break;
-            case 5:   key_crl_movetomax = 0;    break;
+            case 5:   key_crl_clearmax = 0;     break;
+            case 6:   key_crl_movetomax = 0;    break;
             // Visplanes max value title
-            case 7:   key_crl_iddqd = 0;        break;
-            case 8:   key_crl_idfa = 0;         break;
-            case 9:   key_crl_idclip = 0;       break;
-            case 10:  key_crl_iddt = 0;         break;
+            case 8:   key_crl_iddqd = 0;        break;
+            case 9:   key_crl_idfa = 0;         break;
+            case 10:   key_crl_idclip = 0;      break;
+            case 11:  key_crl_iddt = 0;         break;
         }
     }
     if (CurrentMenu == &CRLKbdBinds5)
@@ -5485,6 +5496,7 @@ static void M_ResetBinds (void)
     key_crl_autorun = KEY_CAPSLOCK;
     key_crl_mlook = 0;
     key_crl_vilebomb = 0;
+    key_crl_vilefly = 0;
     key_crl_clearmax = 0;
     key_crl_movetomax = 0;
     key_crl_iddqd = 0;

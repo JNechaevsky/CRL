@@ -663,7 +663,7 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
             crl_spectating = 0;
         }
 
-        // Iimitate jump by Arch-Vile's attack.
+        // Iimitate jump by Arch-Vile's attack (press).
         if (gamekeydown[key_crl_vilebomb])
         {
             CRL_vilebomb = true;
@@ -671,6 +671,16 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
         else
         {
             CRL_vilebomb = false;
+        }
+
+        // Iimitate jump by Arch-Vile's attack (hold).
+        if (gamekeydown[key_crl_vilefly])
+        {
+            // Allow airborne controls.
+            // Will be disabled in P_ZMovement after player landing.
+            CRL_aircontrol = true;
+            // Copied over from A_VileAttack:
+            players[consoleplayer].mo->momz = 1000*FRACUNIT / players[consoleplayer].mo->info->mass;
         }
 
         // Clear MAX visplanes.

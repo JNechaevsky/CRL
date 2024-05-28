@@ -203,6 +203,8 @@ void P_MovePlayer(player_t * player)
 
     onground = (player->mo->z <= player->mo->floorz
                 || (player->mo->flags2 & MF2_ONMOBJ));
+    // [JN] CRL - allow airborne controls while Arch-Vile's Fly as well.
+    onground |= CRL_aircontrol;
 
     if (player->chickenTics)
     {                           // Chicken speed
