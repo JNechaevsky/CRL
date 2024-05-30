@@ -155,6 +155,13 @@ void P_MovePlayer (player_t* player)
     // [JN] CRL - allow airborne controls while Arch-Vile's Fly as well.
     onground |= CRL_aircontrol;
 	
+    // [crispy] fast polling
+    if (player == &players[consoleplayer])
+    {
+        localview.ticangle += localview.ticangleturn << 16;
+        localview.ticangleturn = 0;
+    }
+
     if (cmd->forwardmove && onground)
 	P_Thrust (player, player->mo->angle, cmd->forwardmove*2048);
     
@@ -275,6 +282,12 @@ void P_PlayerThink (player_t* player)
     player->mo->oldz = player->mo->z;
     player->mo->oldangle = player->mo->angle;
     player->oldviewz = player->viewz;
+
+    // [crispy] fast polling
+    if (player == &players[consoleplayer])
+    {
+        localview.oldticangle = localview.ticangle;
+    }
 
     // [JN] Handle Spectator camera:
     if (crl_spectating)
