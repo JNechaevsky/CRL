@@ -463,7 +463,6 @@ fixed_t R_ScaleFromGlobalAngle (angle_t visangle)
 
 
 
-
 //
 // R_InitTextureMapping
 //
@@ -801,12 +800,6 @@ void R_SetupFrame (player_t* player)
         	viewy = LerpFixed(CRL_camera_oldy, by);
         	viewz = LerpFixed(CRL_camera_oldz, bz);
         	viewangle = LerpAngle(CRL_camera_oldang, ba);
-        	/*
-            viewx = CRL_camera_oldx + FixedMul(bx - CRL_camera_oldx, fractionaltic);
-            viewy = CRL_camera_oldy + FixedMul(by - CRL_camera_oldy, fractionaltic);
-            viewz = CRL_camera_oldz + FixedMul(bz - CRL_camera_oldz, fractionaltic);
-            viewangle = R_InterpolateAngle(CRL_camera_oldang, ba, fractionaltic);
-            */
         }
         else
         {
@@ -831,29 +824,22 @@ void R_SetupFrame (player_t* player)
         {
         	const boolean use_localview = CheckLocalView(player);
 
-        	viewx = LerpFixed(player->mo->oldx, player->mo->x);
-        	viewy = LerpFixed(player->mo->oldy, player->mo->y);
+            viewx = LerpFixed(player->mo->oldx, player->mo->x);
+            viewy = LerpFixed(player->mo->oldy, player->mo->y);
             viewz = LerpFixed(player->oldviewz, player->viewz);
 
-        if (use_localview)
-        {
-            viewangle = (player->mo->angle + localview.angle -
-                        localview.ticangle + LerpAngle(localview.oldticangle,
-                                                       localview.ticangle)) + viewangleoffset;
-        }
-        else
-        {
-            viewangle = LerpAngle(player->mo->oldangle, player->mo->angle) + viewangleoffset;
-        }
-
-        	//viewangle = LerpAngle(player->mo->oldangle, player->mo->angle);
-        	/*
-            // Interpolate player camera from their old position to their current one.
-            viewx = player->mo->oldx + FixedMul(player->mo->x - player->mo->oldx, fractionaltic);
-            viewy = player->mo->oldy + FixedMul(player->mo->y - player->mo->oldy, fractionaltic);
-            viewz = player->oldviewz + FixedMul(player->viewz - player->oldviewz, fractionaltic);
-            viewangle = R_InterpolateAngle(player->mo->oldangle, player->mo->angle, fractionaltic) + viewangleoffset;
+            /*
+            if (use_localview)
+            {
+                viewangle = (player->mo->angle + localview.angle -
+                            localview.ticangle + LerpAngle(localview.oldticangle,
+                                                           localview.ticangle)) + viewangleoffset;
+            }
+            else
             */
+            {
+                viewangle = LerpAngle(player->mo->oldangle, player->mo->angle) + viewangleoffset;
+            }
         }
         else
         {

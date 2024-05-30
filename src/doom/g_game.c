@@ -352,10 +352,12 @@ static short CarryAngle(double angle)
     return CarryError(angle, &prevcarry.angle, &carry.angle);
 }
 
+/*
 static short CarryPitch(double pitch)
 {
     return CarryError(pitch, &prevcarry.pitch, &carry.pitch);
 }
+*/
 
 static int CarryMouseVert(double vert)
 {
@@ -792,14 +794,14 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
     forward += CarryMouseVert(CalcMouseVert(mousey));
     }
 
+/*
     if (strafe && !cmd->angleturn)
 	side += CarryMouseSide(CalcMouseSide(mousex));
-/*
+*/
     if (strafe) 
 	side += mousex*2;
     else 
-	cmd->angleturn -= mousex*0x8; 
-*/
+	cmd->angleturn += CarryMouseSide(CalcMouseSide(mousex));
 
     if (mousex == 0)
     {

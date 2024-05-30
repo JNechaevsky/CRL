@@ -498,12 +498,6 @@ void R_ProjectSprite (mobj_t* thing)
         interpy = LerpFixed(thing->oldy, thing->y);
         interpz = LerpFixed(thing->oldz, thing->z);
         interpangle = LerpAngle(thing->oldangle, thing->angle);
-    	/*
-        interpx = thing->oldx + FixedMul(thing->x - thing->oldx, fractionaltic);
-        interpy = thing->oldy + FixedMul(thing->y - thing->oldy, fractionaltic);
-        interpz = thing->oldz + FixedMul(thing->z - thing->oldz, fractionaltic);
-        interpangle = R_InterpolateAngle(thing->oldangle, thing->angle, fractionaltic);
-        */
     }
     else
     {
