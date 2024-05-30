@@ -1751,7 +1751,6 @@ static void AM_drawPlayers (void)
         }
         else
         {
-            //smoothangle = R_InterpolateAngle(p->mo->oldangle, p->mo->angle, fractionaltic);
             smoothangle = LerpAngle(p->mo->oldangle, p->mo->angle);
         }
 
@@ -1792,12 +1791,9 @@ static void AM_drawThings (void)
             // [JN] Interpolate things if possible.
             if (crl_uncapped_fps && realleveltime > oldleveltime)
             {
-                // pt.x = (t->oldx + FixedMul(t->x - t->oldx, fractionaltic)) >> FRACTOMAPBITS;
-                // pt.y = (t->oldy + FixedMul(t->y - t->oldy, fractionaltic)) >> FRACTOMAPBITS;
                 pt.x = LerpFixed(t->oldx, t->x) >> FRACTOMAPBITS;
                 pt.y = LerpFixed(t->oldy, t->y) >> FRACTOMAPBITS;
                 actualangle = LerpAngle(t->oldangle, t->angle);
-                //actualangle = R_InterpolateAngle(t->oldangle, t->angle, fractionaltic);
             }
             else
             {
@@ -1874,11 +1870,6 @@ static void AM_drawSpectator (void)
             // [JN] Interpolate things if possible.
             if (crl_uncapped_fps && realleveltime > oldleveltime)
             {
-                /*
-                pt.x = (t->oldx + FixedMul(t->x - t->oldx, fractionaltic)) >> FRACTOMAPBITS;
-                pt.y = (t->oldy + FixedMul(t->y - t->oldy, fractionaltic)) >> FRACTOMAPBITS;
-                actualangle = R_InterpolateAngle(t->oldangle, t->angle, fractionaltic);
-                */
                 pt.x = LerpFixed(t->oldx, t->x) >> FRACTOMAPBITS;
                 pt.y = LerpFixed(t->oldy, t->y) >> FRACTOMAPBITS;
                 actualangle = LerpAngle(t->oldangle, t->angle);
