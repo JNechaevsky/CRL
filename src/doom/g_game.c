@@ -414,10 +414,18 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
     int		side;
     ticcmd_t spect;
 
-    // [crispy] For fast polling.
-    G_PrepTiccmd();
-    memcpy(cmd, &basecmd, sizeof(*cmd));
-    memset(&basecmd, 0, sizeof(ticcmd_t));
+    if (!crl_spectating)
+    {
+        // [crispy] For fast polling.
+        G_PrepTiccmd();
+        memcpy(cmd, &basecmd, sizeof(*cmd));
+        memset(&basecmd, 0, sizeof(ticcmd_t));
+    }
+    else
+    {
+        // [JN] CRL - can't interpolate spectator.
+        memset(cmd, 0, sizeof(ticcmd_t));
+    }
 
 	// needed for net games
     cmd->consistancy = consistancy[consoleplayer][maketic%BACKUPTICS]; 
@@ -801,7 +809,12 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
     if (strafe) 
 	side += mousex*2;
     else 
-	cmd->angleturn += CarryMouseSide(CalcMouseSide(mousex));
+    {
+        if (!crl_spectating)
+        cmd->angleturn += CarryMouseSide(CalcMouseSide(mousex));
+        else
+        angle -= mousex*0x8;
+    }
 
     if (mousex == 0)
     {
