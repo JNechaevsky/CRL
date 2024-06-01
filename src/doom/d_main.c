@@ -241,6 +241,13 @@ static void D_Display (void)
         return;  // for comparative timing / profiling
     }
 
+    if (crl_uncapped_fps)
+    {
+        I_StartDisplay();
+        G_FastResponder();
+        G_PrepTiccmd();
+    }
+
     // change the view size if needed
     if (setsizeneeded)
     {

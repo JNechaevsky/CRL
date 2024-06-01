@@ -28,6 +28,8 @@
 
 extern boolean G_CheckDemoStatus (void);
 extern boolean G_Responder (event_t *ev);
+void G_FastResponder (void); // [crispy]
+void G_PrepTiccmd (void); // [crispy]
 extern fixed_t forwardmove[2];
 extern fixed_t sidemove[2];
 
