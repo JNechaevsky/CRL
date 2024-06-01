@@ -25,12 +25,11 @@
 
 #include "tables.h"
 #include "d_player.h"
-#include "i_video.h" // [crispy] fractionaltic
 #include "doomdef.h"
 #include "i_video.h"
 #include "v_patch.h"
 
-#include "crlcore.h" // [crispy] fractionaltic
+#include "crlcore.h"
 
 
 #define MAXVISSPRITES   128
@@ -479,8 +478,8 @@ extern fixed_t viewy;
 extern fixed_t viewz;
 
 extern angle_t   viewangle;
-extern localview_t      localview; // [crispy]
 extern player_t *viewplayer;
+extern localview_t localview; // [crispy]
 
 extern int      viewangletox[FINEANGLES/2];
 extern angle_t  xtoviewangle[SCREENWIDTH+1];

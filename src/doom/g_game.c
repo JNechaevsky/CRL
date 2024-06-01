@@ -352,13 +352,6 @@ static short CarryAngle(double angle)
     return CarryError(angle, &prevcarry.angle, &carry.angle);
 }
 
-/*
-static short CarryPitch(double pitch)
-{
-    return CarryError(pitch, &prevcarry.pitch, &carry.pitch);
-}
-*/
-
 static int CarryMouseVert(double vert)
 {
     return CarryError(vert, &prevcarry.vert, &carry.vert);
@@ -410,8 +403,8 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
     {
         // [JN] CRL - can't interpolate spectator.
         memset(cmd, 0, sizeof(ticcmd_t));
-        // [JN] CRL - do not count basecmd.angleturn for precise position
-        // of jumping to spectator camera position.
+        // [JN] CRL - reset basecmd.angleturn for exact
+        // position of jumping to the camera position.
         basecmd.angleturn = 0;
     }
 
@@ -790,10 +783,6 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
     forward += CarryMouseVert(mousey);
     }
 
-/*
-    if (strafe && !cmd->angleturn)
-	side += CarryMouseSide(CalcMouseSide(mousex));
-*/
     if (strafe) 
 	side += mousex*2;
     else 
@@ -1371,8 +1360,8 @@ boolean G_Responder (event_t* ev)
 		 
       case ev_mouse: 
         SetMouseButtons(ev->data1);
-        mousex += ev->data2;
-        mousey += ev->data3;
+	mousex += ev->data2;
+	mousey += ev->data3;
 	return true;    // eat events 
  
       case ev_joystick: 

@@ -128,7 +128,7 @@ void CRL_Clear_MAX (void)
 void CRL_Get_MAX (void)
 {
     player_t *player = &players[displayplayer];
-    
+
     CRL_MAX_x = viewx;
     CRL_MAX_y = viewy;
     if (crl_spectating)

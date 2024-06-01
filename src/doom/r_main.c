@@ -796,10 +796,10 @@ void R_SetupFrame (player_t* player)
         
         if (crl_uncapped_fps)
         {
-        	viewx = LerpFixed(CRL_camera_oldx, bx);
-        	viewy = LerpFixed(CRL_camera_oldy, by);
-        	viewz = LerpFixed(CRL_camera_oldz, bz);
-        	viewangle = LerpAngle(CRL_camera_oldang, ba);
+            viewx = LerpFixed(CRL_camera_oldx, bx);
+            viewy = LerpFixed(CRL_camera_oldy, by);
+            viewz = LerpFixed(CRL_camera_oldz, bz);
+            viewangle = LerpAngle(CRL_camera_oldang, ba);
         }
         else
         {
@@ -822,7 +822,7 @@ void R_SetupFrame (player_t* player)
             // Don't interpolate during a paused state
             realleveltime > oldleveltime)
         {
-        	const boolean use_localview = CheckLocalView(player);
+            const boolean use_localview = CheckLocalView(player);
 
             viewx = LerpFixed(player->mo->oldx, player->mo->x);
             viewy = LerpFixed(player->mo->oldy, player->mo->y);
