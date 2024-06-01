@@ -127,9 +127,18 @@ void CRL_Clear_MAX (void)
 
 void CRL_Get_MAX (void)
 {
+    player_t *player = &players[displayplayer];
+    
     CRL_MAX_x = viewx;
     CRL_MAX_y = viewy;
-    CRL_MAX_z = viewz - VIEWHEIGHT;
+    if (!crl_spectating)
+    {
+        CRL_MAX_z = LerpFixed(player->mo->oldz, player->mo->z);
+    }
+    else
+    {
+        CRL_MAX_z = LerpFixed(CRL_camera_oldz, CRL_camera_z) - VIEWHEIGHT;
+    }
     CRL_MAX_ang = viewangle;
 }
 
