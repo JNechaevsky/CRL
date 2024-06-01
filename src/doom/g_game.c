@@ -380,21 +380,6 @@ static double CalcMouseAngle(int mousex)
     return (I_AccelerateMouse(mousex) * (mouseSensitivity + 5) * 8 / 10);
 }
 
-static double CalcMouseSide(int mousex)
-{
-    //if (!mouseSensitivity_x2)
-        return 0.0;
-
-    //return (I_AccelerateMouse(mousex) * (mouseSensitivity_x2 + 5) * 2 / 10);
-}
-
-static double CalcMouseVert(int mousey)
-{
-    //if (!mouseSensitivity_y)
-        return 0.0;
-
-    //return (I_AccelerateMouseY(mousey) * (mouseSensitivity_y + 5) / 10);
-}
 
 //
 // G_BuildTiccmd
@@ -802,7 +787,7 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
 
     if (!novert)
     {
-    forward += CarryMouseVert(CalcMouseVert(mousey));
+    forward += CarryMouseVert(mousey);
     }
 
 /*
@@ -814,7 +799,7 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
     else 
     {
         if (!crl_spectating)
-        cmd->angleturn += CarryMouseSide(CalcMouseSide(mousex));
+        cmd->angleturn += CarryMouseSide(mousex);
         else
         {
             if (crl_uncapped_fps)
@@ -1429,15 +1414,6 @@ void G_PrepTiccmd (void)
         localview.angle = (basecmd.angleturn << 16);
         mousex = 0;
     }
-/*
-    if (mousey && crispy->mouselook)
-    {
-        const double vert = CalcMouseVert(mousey);
-        basecmd.lookdir += mouse_y_invert ?
-                            CarryPitch(-vert): CarryPitch(vert);
-        mousey = 0;
-    }
-*/
 }
 
 // [crispy] re-read game parameters from command line
