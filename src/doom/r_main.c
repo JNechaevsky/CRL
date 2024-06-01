@@ -828,7 +828,6 @@ void R_SetupFrame (player_t* player)
             viewy = LerpFixed(player->mo->oldy, player->mo->y);
             viewz = LerpFixed(player->oldviewz, player->viewz);
 
-            /*
             if (use_localview)
             {
                 viewangle = (player->mo->angle + localview.angle -
@@ -836,7 +835,6 @@ void R_SetupFrame (player_t* player)
                                                            localview.ticangle)) + viewangleoffset;
             }
             else
-            */
             {
                 viewangle = LerpAngle(player->mo->oldangle, player->mo->angle) + viewangleoffset;
             }

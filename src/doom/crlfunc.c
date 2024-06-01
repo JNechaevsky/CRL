@@ -127,42 +127,10 @@ void CRL_Clear_MAX (void)
 
 void CRL_Get_MAX (void)
 {
-    player_t *player = &players[displayplayer];
-
-    if (crl_spectating)
-    {
-        if (crl_uncapped_fps)
-        {
-            CRL_MAX_x = LerpFixed(CRL_camera_oldx, CRL_camera_x);
-            CRL_MAX_y = LerpFixed(CRL_camera_oldy, CRL_camera_y);
-            CRL_MAX_z = LerpFixed(CRL_camera_oldz, CRL_camera_z) - VIEWHEIGHT;
-            CRL_MAX_ang = LerpAngle(CRL_camera_oldang, CRL_camera_ang);
-        }
-        else
-        {
-            CRL_MAX_x = CRL_camera_x;
-            CRL_MAX_y = CRL_camera_y;
-            CRL_MAX_z = CRL_camera_z - VIEWHEIGHT;
-            CRL_MAX_ang = CRL_camera_ang;
-        }
-    }
-    else
-    {
-        if (crl_uncapped_fps)
-        {
-            CRL_MAX_x = LerpFixed(player->mo->oldx, player->mo->x);
-            CRL_MAX_y = LerpFixed(player->mo->oldy, player->mo->y);
-            CRL_MAX_z = LerpFixed(player->mo->oldz, player->mo->z);
-            CRL_MAX_ang = LerpAngle(player->mo->oldangle, player->mo->angle);
-        }
-        else
-        {
-            CRL_MAX_x = player->mo->x;
-            CRL_MAX_y = player->mo->y;
-            CRL_MAX_z = player->mo->z;
-            CRL_MAX_ang = player->mo->angle;
-        }
-    }
+    CRL_MAX_x = viewx;
+    CRL_MAX_y = viewy;
+    CRL_MAX_z = viewz - VIEWHEIGHT;
+    CRL_MAX_ang = viewangle;
 }
 
 void CRL_MoveTo_MAX (void)
