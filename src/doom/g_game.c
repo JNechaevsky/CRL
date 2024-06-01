@@ -425,6 +425,9 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
     {
         // [JN] CRL - can't interpolate spectator.
         memset(cmd, 0, sizeof(ticcmd_t));
+        // [JN] CRL - do not count basecmd.angleturn for precise position
+        // of jumping to spectator camera position.
+        basecmd.angleturn = 0;
     }
 
 	// needed for net games
@@ -813,7 +816,16 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
         if (!crl_spectating)
         cmd->angleturn += CarryMouseSide(CalcMouseSide(mousex));
         else
-        angle -= mousex*0x8;
+        {
+            if (crl_uncapped_fps)
+            {
+                angle -= CarryMouseSide(mousex);
+            }
+            else
+            {
+                angle -= mousex*0x8;
+            }
+        }
     }
 
     if (mousex == 0)
