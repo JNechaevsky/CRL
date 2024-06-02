@@ -187,6 +187,13 @@ void D_Display(void)
         return;
     }
 
+    if (crl_uncapped_fps)
+    {
+        I_StartDisplay();
+        G_FastResponder();
+        G_PrepTiccmd();
+    }
+
     // Change the view size if needed
     if (setsizeneeded)
     {

@@ -128,40 +128,17 @@ void CRL_Get_MAX (void)
 {
     player_t *player = &players[displayplayer];
 
+    CRL_MAX_x = viewx;
+    CRL_MAX_y = viewy;
     if (crl_spectating)
     {
-        if (crl_uncapped_fps)
-        {
-            CRL_MAX_x = CRL_camera_oldx + FixedMul(CRL_camera_x - CRL_camera_oldx, fractionaltic);
-            CRL_MAX_y = CRL_camera_oldy + FixedMul(CRL_camera_y - CRL_camera_oldy, fractionaltic);
-            CRL_MAX_z = CRL_camera_oldz + FixedMul(CRL_camera_z - CRL_camera_oldz, fractionaltic) - VIEWHEIGHT;
-            CRL_MAX_ang = R_InterpolateAngle(CRL_camera_oldang, CRL_camera_ang, fractionaltic);
-        }
-        else
-        {
-            CRL_MAX_x = CRL_camera_x;
-            CRL_MAX_y = CRL_camera_y;
-            CRL_MAX_z = CRL_camera_z - VIEWHEIGHT;
-            CRL_MAX_ang = CRL_camera_ang;
-        }
+        CRL_MAX_z = LerpFixed(CRL_camera_oldz, CRL_camera_z) - VIEWHEIGHT;
     }
     else
     {
-        if (crl_uncapped_fps)
-        {
-            CRL_MAX_x = player->mo->oldx + FixedMul(player->mo->x - player->mo->oldx, fractionaltic);
-            CRL_MAX_y = player->mo->oldy + FixedMul(player->mo->y - player->mo->oldy, fractionaltic);
-            CRL_MAX_z = player->mo->oldz + FixedMul(player->mo->z - player->mo->oldz, fractionaltic);
-            CRL_MAX_ang = R_InterpolateAngle(player->mo->oldangle, player->mo->angle, fractionaltic);
-        }
-        else
-        {
-            CRL_MAX_x = player->mo->x;
-            CRL_MAX_y = player->mo->y;
-            CRL_MAX_z = player->mo->z;
-            CRL_MAX_ang = player->mo->angle;
-        }
+        CRL_MAX_z = LerpFixed(player->mo->oldz, player->mo->z);
     }
+    CRL_MAX_ang = viewangle;
 }
 
 void CRL_MoveTo_MAX (void)

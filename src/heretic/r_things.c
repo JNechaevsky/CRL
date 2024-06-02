@@ -496,12 +496,15 @@ void R_ProjectSprite(mobj_t * thing)
         // Don't interpolate during a paused state.
         realleveltime > oldleveltime &&
         // [JN] Don't interpolate things while freeze mode.
-        !crl_freeze)
+        (!crl_freeze ||
+        // [JN] ... Hovewer, interpolate player while freeze mode,
+        // so their sprite won't get desynced with moving camera.
+        (crl_freeze && thing->type == MT_PLAYER)))
     {
-        interpx = thing->oldx + FixedMul(thing->x - thing->oldx, fractionaltic);
-        interpy = thing->oldy + FixedMul(thing->y - thing->oldy, fractionaltic);
-        interpz = thing->oldz + FixedMul(thing->z - thing->oldz, fractionaltic);
-        interpangle = R_InterpolateAngle(thing->oldangle, thing->angle, fractionaltic);
+        interpx = LerpFixed(thing->oldx, thing->x);
+        interpy = LerpFixed(thing->oldy, thing->y);
+        interpz = LerpFixed(thing->oldz, thing->z);
+        interpangle = LerpAngle(thing->oldangle, thing->angle);
     }
     else
     {
@@ -511,26 +514,7 @@ void R_ProjectSprite(mobj_t * thing)
         interpangle = thing->angle;
     }
 
-    // [JN] ... Hovewer, interpolate player while freeze mode,
-    // so it's sprite won't get desynced with moving camera.
-    // TODO - make it smarter and move to condition above?
-    if (crl_freeze && thing->type == MT_PLAYER)
-    {
-        if (crl_uncapped_fps && realleveltime > oldleveltime)
-        {
-            interpx = thing->oldx + FixedMul(thing->x - thing->oldx, fractionaltic);
-            interpy = thing->oldy + FixedMul(thing->y - thing->oldy, fractionaltic);
-            interpz = thing->oldz + FixedMul(thing->z - thing->oldz, fractionaltic);
-            interpangle = R_InterpolateAngle(thing->oldangle, thing->angle, fractionaltic);
-        }
-        else
-        {
-            interpx = thing->x;
-            interpy = thing->y;
-            interpz = thing->z;
-            interpangle = thing->angle;
-        }
-    }
+
 
 //
 // transform the origin point
@@ -840,10 +824,10 @@ void R_DrawPSprite(pspdef_t * psp)
         if (lump == oldlump && pspr_interp)
         {
             int deltax = vis->x2 - vis->x1;
-            vis->x1 = oldx1 + FixedMul(vis->x1 - oldx1, fractionaltic);
+            vis->x1 = LerpFixed(oldx1, vis->x1);
             vis->x2 = vis->x1 + deltax;
             vis->x2 = vis->x2 >= viewwidth ? viewwidth - 1 : vis->x2;
-            vis->texturemid = oldtexturemid + FixedMul(vis->texturemid - oldtexturemid, fractionaltic);
+            vis->texturemid = LerpFixed(oldtexturemid, vis->texturemid);
         }
         else
         {

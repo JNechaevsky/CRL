@@ -21,6 +21,8 @@
 #include "i_video.h"
 #include "v_patch.h"
 
+#include "crlcore.h"
+
 
 #define ANGLETOSKYSHIFT     22      // sky map is 256*128*4 maps
 #define BASEYCENTER         100
@@ -373,6 +375,16 @@ extern fixed_t R_ScaleFromGlobalAngle(angle_t visangle);
 extern fixed_t viewcos, viewsin;
 extern fixed_t viewx, viewy, viewz;
 
+// [crispy]
+typedef struct localview_s
+{
+    angle_t oldticangle;
+    angle_t ticangle;
+    short ticangleturn;
+    double rawangle;
+    angle_t angle;
+} localview_t;
+
 extern int centerx, centery;
 extern int detailLevel;
 extern int detailshift;         // 0 = high, 1 = low
@@ -391,6 +403,7 @@ extern lighttable_t *scalelightfixed[MAXLIGHTSCALE];
 extern lighttable_t *zlight[LIGHTLEVELS][MAXLIGHTZ];
 
 extern player_t *viewplayer;
+extern localview_t localview; // [crispy]
 
 extern subsector_t *R_PointInSubsector(fixed_t x, fixed_t y);
 
@@ -402,8 +415,36 @@ extern void (*tlcolfunc) (void);
 extern void R_AddPointToBox(int x, int y, fixed_t * box);
 extern void R_InterpolateTextureOffsets (void);
 
+inline static fixed_t LerpFixed(fixed_t oldvalue, fixed_t newvalue)
+{
+    return (oldvalue + FixedMul(newvalue - oldvalue, fractionaltic));
+}
+
+inline static int LerpInt(int oldvalue, int newvalue)
+{
+    return (oldvalue + (int)((newvalue - oldvalue) * FIXED2DOUBLE(fractionaltic)));
+}
+
 // [AM] Interpolate between two angles.
-extern angle_t R_InterpolateAngle(angle_t oangle, angle_t nangle, fixed_t scale);
+inline static angle_t LerpAngle(angle_t oangle, angle_t nangle)
+{
+    if (nangle == oangle)
+        return nangle;
+    else if (nangle > oangle)
+    {
+        if (nangle - oangle < ANG270)
+            return oangle + (angle_t)((nangle - oangle) * FIXED2DOUBLE(fractionaltic));
+        else // Wrapped around
+            return oangle - (angle_t)((oangle - nangle) * FIXED2DOUBLE(fractionaltic));
+    }
+    else // nangle < oangle
+    {
+        if (oangle - nangle < ANG270)
+            return oangle - (angle_t)((oangle - nangle) * FIXED2DOUBLE(fractionaltic));
+        else // Wrapped around
+            return oangle + (angle_t)((nangle - oangle) * FIXED2DOUBLE(fractionaltic));
+    }
+}
 
 // -----------------------------------------------------------------------------
 // R_PLANE.C
