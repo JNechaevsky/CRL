@@ -4840,6 +4840,7 @@ boolean M_Responder (event_t* ev)
             if (key == key_menu_quit && messageRoutine == M_QuitResponse)
             {
                 I_Quit ();
+                return true;
             }
 
             if (key != ' ' && key != KEY_ESCAPE
