@@ -790,16 +790,7 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
         if (!crl_spectating)
         cmd->angleturn += CarryMouseSide(mousex);
         else
-        {
-            if (crl_uncapped_fps)
-            {
-                angle -= CarryMouseSide(mousex);
-            }
-            else
-            {
-                angle -= mousex*0x8;
-            }
-        }
+        angle -= mousex*0x8;
     }
 
     if (mousex == 0)
