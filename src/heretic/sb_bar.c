@@ -679,11 +679,21 @@ void SB_Drawer(void)
 
     if (CPlayer->powers[pw_weaponlevel2] && !CPlayer->chickenTics)
     {
+        int spinbook_x = 300; // [crispy]
+
+        // [JN] Shift tome icon left if fps counter or demo timer is active.
+        if (crl_showfps
+        || (demoplayback && (crl_demo_timer == 1 || crl_demo_timer == 3))
+        || (demorecording && (crl_demo_timer == 2 || crl_demo_timer == 3)))
+        {
+            spinbook_x -= 70;
+        }
+
         if (CPlayer->powers[pw_weaponlevel2] > BLINKTHRESHOLD
             || !(CPlayer->powers[pw_weaponlevel2] & 16))
         {
             frame = (leveltime / 3) & 15;
-            V_DrawPatch(300, 17,
+            V_DrawPatch(spinbook_x, 17,
                         W_CacheLumpNum(spinbooklump + frame, PU_CACHE), "NULL"); // [JN] TODO - patch name
             BorderTopRefresh = true;
         }

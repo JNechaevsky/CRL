@@ -588,9 +588,9 @@ void CRL_DrawFPS (void)
     sprintf(fps_str, "FPS");
 
     M_WriteText(SCREENWIDTH - 11 - M_StringWidth(fps) 
-                                 - M_StringWidth(fps_str), 17, fps, cr[CR_GRAY]);
+                                 - M_StringWidth(fps_str), 9, fps, cr[CR_GRAY]);
 
-    M_WriteText(SCREENWIDTH - 7 - M_StringWidth(fps_str), 17, "FPS", cr[CR_GRAY]);
+    M_WriteText(SCREENWIDTH - 7 - M_StringWidth(fps_str), 9, "FPS", cr[CR_GRAY]);
 }
 
 // =============================================================================
