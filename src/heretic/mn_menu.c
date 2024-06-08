@@ -358,7 +358,7 @@ static Menu_t Options2Menu = {
 // [JN] CRL custom menu
 // =============================================================================
 
-#define CRL_MENU_TOPOFFSET     (30)
+#define CRL_MENU_TOPOFFSET     (20)
 #define CRL_MENU_LEFTOFFSET    (48)
 #define CRL_MENU_RIGHTOFFSET   (SCREENWIDTH - CRL_MENU_LEFTOFFSET)
 #define CRL_MENU_LEFTOFFSET_SML    (72)
@@ -939,41 +939,41 @@ static void DrawCRLMain (void)
 {
     char str[32];
 
-    MN_DrTextACentered("MAIN MENU", 20, cr[CR_YELLOW]);
+    MN_DrTextACentered("MAIN MENU", 10, cr[CR_YELLOW]);
 
     // Spectating
     sprintf(str, crl_spectating ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 30,
+    MN_DrTextA(str, M_ItemRightAlign(str), 20,
                M_Item_Glow(0, crl_spectating ? GLOW_GREEN : GLOW_RED));
 
     // Freeze
     sprintf(str, !singleplayer ? "N/A" : crl_freeze ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 40,
+    MN_DrTextA(str, M_ItemRightAlign(str), 30,
                  M_Item_Glow(1, !singleplayer ? GLOW_DARKRED :
                              crl_freeze ? GLOW_GREEN : GLOW_RED));
 
     // Buddha
     sprintf(str, !singleplayer ? "N/A" :
             player->cheats & CF_BUDDHA ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 50,
+    MN_DrTextA(str, M_ItemRightAlign(str), 40,
                  M_Item_Glow(2, !singleplayer ? GLOW_DARKRED :
                              player->cheats & CF_BUDDHA ? GLOW_GREEN : GLOW_RED));
 
     // No target
     sprintf(str, !singleplayer ? "N/A" :
             player->cheats & CF_NOTARGET ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 60,
-                 M_Item_Glow(2, !singleplayer ? GLOW_DARKRED :
+    MN_DrTextA(str, M_ItemRightAlign(str), 50,
+                 M_Item_Glow(3, !singleplayer ? GLOW_DARKRED :
                              player->cheats & CF_NOTARGET ? GLOW_GREEN : GLOW_RED));
 
     // No momentum
     sprintf(str, !singleplayer ? "N/A" :
             player->cheats & CF_NOMOMENTUM ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 70, 
-                 M_Item_Glow(3, !singleplayer ? GLOW_DARKRED :
+    MN_DrTextA(str, M_ItemRightAlign(str), 60, 
+                 M_Item_Glow(4, !singleplayer ? GLOW_DARKRED :
                              player->cheats & CF_NOMOMENTUM ? GLOW_GREEN : GLOW_RED));
 
-    MN_DrTextACentered ("SETTINGS", 80, cr[CR_YELLOW]);
+    MN_DrTextACentered ("SETTINGS", 70, cr[CR_YELLOW]);
 }
 
 static void CRL_Spectating (int option)
@@ -1051,32 +1051,32 @@ static void DrawCRLVideo (void)
 {
     char str[32];
 
-    MN_DrTextACentered("VIDEO OPTIONS", 20, cr[CR_YELLOW]);
+    MN_DrTextACentered("VIDEO OPTIONS", 10, cr[CR_YELLOW]);
 
     // Uncapped framerate
     sprintf(str, crl_uncapped_fps ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 30,
+    MN_DrTextA(str, M_ItemRightAlign(str), 20,
                M_Item_Glow(0, crl_uncapped_fps ? GLOW_GREEN : GLOW_RED));
 
     // Framerate limit
     sprintf(str, !crl_uncapped_fps ? "35" :
                  crl_fpslimit ? "%d" : "NONE", crl_fpslimit);
-    MN_DrTextA(str, M_ItemRightAlign(str), 40,
+    MN_DrTextA(str, M_ItemRightAlign(str), 30,
                M_Item_Glow(1, crl_uncapped_fps ? GLOW_GREEN : GLOW_RED));
 
     // Enable vsync
     sprintf(str, crl_vsync ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 50,
+    MN_DrTextA(str, M_ItemRightAlign(str), 40,
                M_Item_Glow(2, crl_vsync ? GLOW_GREEN : GLOW_RED));
 
     // Show FPS counter
     sprintf(str, crl_showfps ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 60,
+    MN_DrTextA(str, M_ItemRightAlign(str), 50,
                M_Item_Glow(3, crl_showfps ? GLOW_GREEN : GLOW_RED));
 
     // Pixel scaling
     sprintf(str, smooth_scaling ? "SMOOTH" : "SHARP");
-    MN_DrTextA(str, M_ItemRightAlign(str), 70,
+    MN_DrTextA(str, M_ItemRightAlign(str), 60,
                M_Item_Glow(4, smooth_scaling ? GLOW_GREEN : GLOW_DARKRED));
 
     // Visplanes drawing
@@ -1084,26 +1084,26 @@ static void DrawCRLVideo (void)
                  crl_visplanes_drawing == 1 ? "FILL" :
                  crl_visplanes_drawing == 2 ? "OVERFILL" :
                  crl_visplanes_drawing == 3 ? "BORDER" : "OVERBORDER");
-    MN_DrTextA(str, M_ItemRightAlign(str), 80,
+    MN_DrTextA(str, M_ItemRightAlign(str), 70,
                M_Item_Glow(5, crl_visplanes_drawing ? GLOW_GREEN : GLOW_RED));
     
     // HOM effect
     sprintf(str, crl_hom_effect == 0 ? "OFF" :
                  crl_hom_effect == 1 ? "MULTICOLOR" : "BLACK");
-    MN_DrTextA(str, M_ItemRightAlign(str), 90,
+    MN_DrTextA(str, M_ItemRightAlign(str), 80,
                M_Item_Glow(6, crl_hom_effect ? GLOW_GREEN : GLOW_RED));
 
-    MN_DrTextACentered("MISCELLANEOUS", 100, cr[CR_YELLOW]);
+    MN_DrTextACentered("MISCELLANEOUS", 90, cr[CR_YELLOW]);
 
     // Graphical startup
     sprintf(str, graphical_startup ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 110,
+    MN_DrTextA(str, M_ItemRightAlign(str), 100,
                M_Item_Glow(8, graphical_startup ? GLOW_GREEN : GLOW_RED));
 
     // Show ENDTEXT screen
     sprintf(str, show_endoom == 1 ? "ALWAYS" :
                  show_endoom == 2 ? "PWAD ONLY" : "NEVER");
-    MN_DrTextA(str, M_ItemRightAlign(str), 120,
+    MN_DrTextA(str, M_ItemRightAlign(str), 110,
                M_Item_Glow(9, show_endoom == 1 ? GLOW_RED : GLOW_GREEN));
 
     // Colorblind
@@ -1115,7 +1115,7 @@ static void DrawCRLVideo (void)
                  crl_colorblind == 6 ? "TRITANOMALY"   :
                  crl_colorblind == 7 ? "ACHROMATOPSIA" :
                  crl_colorblind == 8 ? "ACHROMATOMALY" : "NONE");
-    MN_DrTextA(str, M_ItemRightAlign(str), 130,
+    MN_DrTextA(str, M_ItemRightAlign(str), 120,
                M_Item_Glow(10, crl_colorblind ? GLOW_GREEN : GLOW_RED));
 
     // Print hint about colorblind type
@@ -1129,7 +1129,7 @@ static void DrawCRLVideo (void)
                            crl_colorblind == 6 ? "BLUE-WEAK"    :
                            crl_colorblind == 7 ? "MONOCHROMACY" :
                         /* crl_colorblind == 8*/ "BLUE CONE MONOCHROMACY",
-                           150, cr[CR_WHITE]);
+                           140, cr[CR_WHITE]);
     }
 }
 
@@ -1230,7 +1230,7 @@ static MenuItem_t CRLDisplayItems[] = {
 };
 
 static Menu_t CRLDisplay = {
-    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET + 10,
     DrawCRLDisplay,
     9, CRLDisplayItems,
     0,
@@ -1245,7 +1245,7 @@ static void DrawCRLDisplay (void)
     MN_DrTextACentered("DISPLAY OPTIONS", 20, cr[CR_YELLOW]);
 
     // Gamma-correction slider and num
-    DrawSlider(&CRLVideo, 1, 8, crl_gamma/2, false);
+    DrawSlider(&CRLDisplay, 1, 8, crl_gamma/2, false);
     MN_DrTextA(gammalvls[crl_gamma][1], 164, 45, M_Item_Glow(0, GLOW_UNCOLORED));
 
     // Menu background shading
@@ -1341,17 +1341,17 @@ static void DrawCRLSound (void)
 {
     char str[32];
 
-    MN_DrTextACentered("SOUND OPTIONS", 20, cr[CR_YELLOW]);
+    MN_DrTextACentered("SOUND OPTIONS", 10, cr[CR_YELLOW]);
 
     DrawSlider(&CRLSound, 1, 16, snd_MaxVolume, false);
     sprintf(str,"%d", snd_MaxVolume);
-    MN_DrTextA(str, 228, 45, M_Item_Glow(0, GLOW_UNCOLORED));
+    MN_DrTextA(str, 228, 35, M_Item_Glow(0, GLOW_UNCOLORED));
 
     DrawSlider(&CRLSound, 4, 16, snd_MusicVolume, false);
     sprintf(str,"%d", snd_MusicVolume);
-    MN_DrTextA(str, 228, 75, M_Item_Glow(3, GLOW_UNCOLORED));
+    MN_DrTextA(str, 228, 65, M_Item_Glow(3, GLOW_UNCOLORED));
 
-    MN_DrTextACentered("SOUND SYSTEM", 90, cr[CR_YELLOW]);
+    MN_DrTextACentered("SOUND SYSTEM", 80, cr[CR_YELLOW]);
 
     // Music playback
     sprintf(str, snd_musicdevice == 0 ? "DISABLED" :
@@ -1361,29 +1361,29 @@ static void DrawCRLSound (void)
                  snd_musicdevice == 8 ?  "NATIVE MIDI" :
                  snd_musicdevice == 11 ? "FLUIDSYNTH" :
                                          "UNKNOWN");
-    MN_DrTextA(str, M_ItemRightAlign(str), 100,
+    MN_DrTextA(str, M_ItemRightAlign(str), 90,
                M_Item_Glow(7, snd_musicdevice ? GLOW_GREEN : GLOW_RED));
 
     // Sound effects mode
     sprintf(str, crl_monosfx ? "MONO" : "STEREO");
-    MN_DrTextA(str, M_ItemRightAlign(str), 110,
+    MN_DrTextA(str, M_ItemRightAlign(str), 100,
                M_Item_Glow(8, crl_monosfx ? GLOW_RED : GLOW_GREEN));
 
     // Pitch-shifted sounds
     sprintf(str, snd_pitchshift ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 120,
+    MN_DrTextA(str, M_ItemRightAlign(str), 110,
                M_Item_Glow(9, snd_pitchshift ? GLOW_GREEN : GLOW_RED));
 
     // Number of SFX to mix
     sprintf(str, "%i", snd_Channels);
-    MN_DrTextA(str, M_ItemRightAlign(str), 130,
+    MN_DrTextA(str, M_ItemRightAlign(str), 120,
                M_Item_Glow(10, snd_Channels == 8 ? GLOW_GREEN :
                                snd_Channels == 1 ? GLOW_RED : GLOW_DARKGREEN));
 
     // Inform that music system is not hot-swappable. :(
     if (CurrentItPos == 7)
     {
-        MN_DrTextACentered("CHANGE WILL REQUIRE RESTART OF THE PROGRAM", 142, cr[CR_GRAY]);
+        MN_DrTextACentered("CHANGE WILL REQUIRE RESTART OF THE PROGRAM", 140, cr[CR_GRAY]);
     }
 }
 
@@ -1512,31 +1512,31 @@ static void DrawCRLControls (void)
 
     M_FillBackground();
 
-    MN_DrTextACentered("BINDINGS", 20, cr[CR_YELLOW]);
+    MN_DrTextACentered("BINDINGS", 10, cr[CR_YELLOW]);
 
-    MN_DrTextACentered("MOUSE CONFIGURATION", 50, cr[CR_YELLOW]);
+    MN_DrTextACentered("MOUSE CONFIGURATION", 40, cr[CR_YELLOW]);
 
     DrawSlider(&CRLControls, 4, 10, mouseSensitivity, false);
     sprintf(str,"%d", mouseSensitivity);
-    MN_DrTextA(str, 180, 75, M_Item_Glow(3, mouseSensitivity > 9 ?
+    MN_DrTextA(str, 180, 65, M_Item_Glow(3, mouseSensitivity > 9 ?
                                          GLOW_GREEN : GLOW_UNCOLORED));
 
     DrawSlider(&CRLControls, 7, 12, mouse_acceleration * 2, false);
     sprintf(str,"%.1f", mouse_acceleration);
-    MN_DrTextA(str, 196, 105, M_Item_Glow(6, GLOW_UNCOLORED));
+    MN_DrTextA(str, 196, 95, M_Item_Glow(6, GLOW_UNCOLORED));
 
     DrawSlider(&CRLControls, 10, 14, mouse_threshold / 2, false);
     sprintf(str,"%d", mouse_threshold);
-    MN_DrTextA(str, 212, 135, M_Item_Glow(9, GLOW_UNCOLORED));
+    MN_DrTextA(str, 212, 125, M_Item_Glow(9, GLOW_UNCOLORED));
 
     // Mouse look
     sprintf(str, crl_mouselook ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 150,
+    MN_DrTextA(str, M_ItemRightAlign(str), 140,
                M_Item_Glow(12, crl_mouselook ? GLOW_GREEN : GLOW_RED));
 
     // Vertical mouse movement
     sprintf(str, novert ? "OFF" : "ON");
-    MN_DrTextA(str, M_ItemRightAlign(str), 160,
+    MN_DrTextA(str, M_ItemRightAlign(str), 150,
                M_Item_Glow(13, novert ? GLOW_RED : GLOW_GREEN));
 }
 
@@ -1598,22 +1598,22 @@ static void DrawCRLKbd1 (void)
 
     M_FillBackground();
 
-    MN_DrTextACentered("MOVEMENT", 20, cr[CR_YELLOW]);
+    MN_DrTextACentered("MOVEMENT", 10, cr[CR_YELLOW]);
 
-    M_DrawBindKey(0, 30, key_up);
-    M_DrawBindKey(1, 40, key_down);
-    M_DrawBindKey(2, 50, key_left);
-    M_DrawBindKey(3, 60, key_right);
-    M_DrawBindKey(4, 70, key_strafeleft);
-    M_DrawBindKey(5, 80, key_straferight);
-    M_DrawBindKey(6, 90, key_speed);
-    M_DrawBindKey(7, 100, key_strafe);
-    M_DrawBindKey(8, 110, key_180turn);
+    M_DrawBindKey(0, 20, key_up);
+    M_DrawBindKey(1, 30, key_down);
+    M_DrawBindKey(2, 40, key_left);
+    M_DrawBindKey(3, 50, key_right);
+    M_DrawBindKey(4, 60, key_strafeleft);
+    M_DrawBindKey(5, 70, key_straferight);
+    M_DrawBindKey(6, 80, key_speed);
+    M_DrawBindKey(7, 90, key_strafe);
+    M_DrawBindKey(8, 100, key_180turn);
 
-    MN_DrTextACentered("ACTION", 120, cr[CR_YELLOW]);
+    MN_DrTextACentered("ACTION", 110, cr[CR_YELLOW]);
 
-    M_DrawBindKey(10, 130, key_fire);
-    M_DrawBindKey(11, 140, key_use);
+    M_DrawBindKey(10, 120, key_fire);
+    M_DrawBindKey(11, 130, key_use);
 
     M_DrawBindFooter(170, "1", true);
 }
@@ -1706,23 +1706,23 @@ static void DrawCRLKbd2 (void)
 
     M_FillBackground();
 
-    MN_DrTextACentered("VIEW", 20, cr[CR_YELLOW]);
+    MN_DrTextACentered("VIEW", 10, cr[CR_YELLOW]);
 
-    M_DrawBindKey(0, 30, key_lookup);
-    M_DrawBindKey(1, 40, key_lookdown);
-    M_DrawBindKey(2, 50, key_lookcenter);
+    M_DrawBindKey(0, 20, key_lookup);
+    M_DrawBindKey(1, 30, key_lookdown);
+    M_DrawBindKey(2, 40, key_lookcenter);
 
-    MN_DrTextACentered("FLYING", 60, cr[CR_YELLOW]);
+    MN_DrTextACentered("FLYING", 50, cr[CR_YELLOW]);
 
-    M_DrawBindKey(4, 70, key_flyup);
-    M_DrawBindKey(5, 80, key_flydown);
-    M_DrawBindKey(6, 90, key_flycenter);
+    M_DrawBindKey(4, 60, key_flyup);
+    M_DrawBindKey(5, 70, key_flydown);
+    M_DrawBindKey(6, 80, key_flycenter);
 
-    MN_DrTextACentered("INVENTORY", 100, cr[CR_YELLOW]);
+    MN_DrTextACentered("INVENTORY", 90, cr[CR_YELLOW]);
 
-    M_DrawBindKey(8, 110, key_invleft);
-    M_DrawBindKey(9, 120, key_invright);
-    M_DrawBindKey(10, 130, key_useartifact);
+    M_DrawBindKey(8, 100, key_invleft);
+    M_DrawBindKey(9, 110, key_invright);
+    M_DrawBindKey(10, 120, key_useartifact);
 
     M_DrawBindFooter(170, "2", true);
 }
@@ -1808,24 +1808,24 @@ static void DrawCRLKbd3 (void)
 
     M_FillBackground();
 
-    MN_DrTextACentered("CRL CONTROLS", 20, cr[CR_YELLOW]);
+    MN_DrTextACentered("CRL CONTROLS", 10, cr[CR_YELLOW]);
 
-    M_DrawBindKey(0, 30, key_crl_menu);
-    M_DrawBindKey(1, 40, key_crl_reloadlevel);
-    M_DrawBindKey(2, 50, key_crl_nextlevel);
-    M_DrawBindKey(3, 60, key_crl_demospeed);
-    M_DrawBindKey(4, 70, key_crl_extendedhud);
+    M_DrawBindKey(0, 20, key_crl_menu);
+    M_DrawBindKey(1, 30, key_crl_reloadlevel);
+    M_DrawBindKey(2, 40, key_crl_nextlevel);
+    M_DrawBindKey(3, 50, key_crl_demospeed);
+    M_DrawBindKey(4, 60, key_crl_extendedhud);
 
-    MN_DrTextACentered("GAME MODES", 80, cr[CR_YELLOW]);
+    MN_DrTextACentered("GAME MODES", 70, cr[CR_YELLOW]);
 
-    M_DrawBindKey(6, 90, key_crl_spectator);
-    M_DrawBindKey(7, 100, key_crl_cameraup);
-    M_DrawBindKey(8, 110, key_crl_cameradown);
-    M_DrawBindKey(9, 120, key_crl_cameramoveto);
-    M_DrawBindKey(10, 130, key_crl_freeze);
-    M_DrawBindKey(11, 140, key_crl_buddha);
-    M_DrawBindKey(12, 150, key_crl_notarget);
-    M_DrawBindKey(13, 160, key_crl_nomomentum);
+    M_DrawBindKey(6, 80, key_crl_spectator);
+    M_DrawBindKey(7, 90, key_crl_cameraup);
+    M_DrawBindKey(8, 100, key_crl_cameradown);
+    M_DrawBindKey(9, 110, key_crl_cameramoveto);
+    M_DrawBindKey(10, 120, key_crl_freeze);
+    M_DrawBindKey(11, 130, key_crl_buddha);
+    M_DrawBindKey(12, 140, key_crl_notarget);
+    M_DrawBindKey(13, 150, key_crl_nomomentum);
 
     M_DrawBindFooter(170, "3", true);
 }
@@ -1929,24 +1929,24 @@ static void DrawCRLKbd4 (void)
 
     M_FillBackground();
 
-    MN_DrTextACentered("ADVANCED MOVEMENT", 20, cr[CR_YELLOW]);
+    MN_DrTextACentered("ADVANCED MOVEMENT", 10, cr[CR_YELLOW]);
 
-    M_DrawBindKey(0, 30, key_crl_autorun);
-    M_DrawBindKey(1, 40, key_crl_mlook);
-    M_DrawBindKey(2, 50, key_crl_vilebomb);
-    M_DrawBindKey(3, 60, key_crl_vilefly);
+    M_DrawBindKey(0, 20, key_crl_autorun);
+    M_DrawBindKey(1, 30, key_crl_mlook);
+    M_DrawBindKey(2, 40, key_crl_vilebomb);
+    M_DrawBindKey(3, 50, key_crl_vilefly);
 
-    MN_DrTextACentered("VISPLANES MAX VALUE", 70, cr[CR_YELLOW]);
+    MN_DrTextACentered("VISPLANES MAX VALUE", 60, cr[CR_YELLOW]);
 
-    M_DrawBindKey(5, 80, key_crl_clearmax);
-    M_DrawBindKey(6, 90, key_crl_movetomax);
+    M_DrawBindKey(5, 70, key_crl_clearmax);
+    M_DrawBindKey(6, 80, key_crl_movetomax);
 
-    MN_DrTextACentered("CHEAT SHORTCUTS", 100, cr[CR_YELLOW]);
+    MN_DrTextACentered("CHEAT SHORTCUTS", 90, cr[CR_YELLOW]);
 
-    M_DrawBindKey(8, 110, key_crl_iddqd);
-    M_DrawBindKey(9, 120, key_crl_idfa);
-    M_DrawBindKey(10, 130, key_crl_idclip);
-    M_DrawBindKey(11, 140, key_crl_iddt);
+    M_DrawBindKey(8, 100, key_crl_iddqd);
+    M_DrawBindKey(9, 110, key_crl_idfa);
+    M_DrawBindKey(10, 120, key_crl_idclip);
+    M_DrawBindKey(11, 130, key_crl_iddt);
 
     M_DrawBindFooter(170, "4", true);
 }
@@ -2033,18 +2033,18 @@ static void DrawCRLKbd5 (void)
 
     M_FillBackground();
 
-    MN_DrTextACentered("WEAPONS", 20, cr[CR_YELLOW]);
+    MN_DrTextACentered("WEAPONS", 10, cr[CR_YELLOW]);
 
-    M_DrawBindKey(0, 30, key_weapon1);
-    M_DrawBindKey(1, 40, key_weapon2);
-    M_DrawBindKey(2, 50, key_weapon3);
-    M_DrawBindKey(3, 60, key_weapon4);
-    M_DrawBindKey(4, 70, key_weapon5);
-    M_DrawBindKey(5, 80, key_weapon6);
-    M_DrawBindKey(6, 90, key_weapon7);
-    M_DrawBindKey(7, 100, key_weapon8);
-    M_DrawBindKey(8, 110, key_prevweapon);
-    M_DrawBindKey(9, 120, key_nextweapon);
+    M_DrawBindKey(0, 20, key_weapon1);
+    M_DrawBindKey(1, 30, key_weapon2);
+    M_DrawBindKey(2, 40, key_weapon3);
+    M_DrawBindKey(3, 50, key_weapon4);
+    M_DrawBindKey(4, 60, key_weapon5);
+    M_DrawBindKey(5, 70, key_weapon6);
+    M_DrawBindKey(6, 80, key_weapon7);
+    M_DrawBindKey(7, 90, key_weapon8);
+    M_DrawBindKey(8, 100, key_prevweapon);
+    M_DrawBindKey(9, 110, key_nextweapon);
 
     M_DrawBindFooter(170, "5", true);
 }
@@ -2131,18 +2131,18 @@ static void DrawCRLKbd6 (void)
 
     M_FillBackground();
 
-    MN_DrTextACentered("ARTIFACTS", 20, cr[CR_YELLOW]);
+    MN_DrTextACentered("ARTIFACTS", 10, cr[CR_YELLOW]);
 
-    M_DrawBindKey(0, 30, key_arti_quartz);
-    M_DrawBindKey(1, 40, key_arti_urn);
-    M_DrawBindKey(2, 50, key_arti_bomb);
-    M_DrawBindKey(3, 60, key_arti_tome);
-    M_DrawBindKey(4, 70, key_arti_ring);
-    M_DrawBindKey(5, 80, key_arti_chaosdevice);
-    M_DrawBindKey(6, 90, key_arti_shadowsphere);
-    M_DrawBindKey(7, 100, key_arti_wings);
-    M_DrawBindKey(8, 110, key_arti_torch);
-    M_DrawBindKey(9, 120, key_arti_morph);
+    M_DrawBindKey(0, 20, key_arti_quartz);
+    M_DrawBindKey(1, 30, key_arti_urn);
+    M_DrawBindKey(2, 40, key_arti_bomb);
+    M_DrawBindKey(3, 50, key_arti_tome);
+    M_DrawBindKey(4, 60, key_arti_ring);
+    M_DrawBindKey(5, 70, key_arti_chaosdevice);
+    M_DrawBindKey(6, 80, key_arti_shadowsphere);
+    M_DrawBindKey(7, 90, key_arti_wings);
+    M_DrawBindKey(8, 100, key_arti_torch);
+    M_DrawBindKey(9, 110, key_arti_morph);
 
     M_DrawBindFooter(170, "6", true);
 }
@@ -2227,16 +2227,16 @@ static void DrawCRLKbd7 (void)
 
     M_FillBackground();
 
-    MN_DrTextACentered("AUTOMAP", 20, cr[CR_YELLOW]);
+    MN_DrTextACentered("AUTOMAP", 10, cr[CR_YELLOW]);
 
-    M_DrawBindKey(0, 30, key_map_toggle);
-    M_DrawBindKey(1, 40, key_map_zoomin);
-    M_DrawBindKey(2, 50, key_map_zoomout);
-    M_DrawBindKey(3, 60, key_map_maxzoom);
-    M_DrawBindKey(4, 70, key_map_follow);
+    M_DrawBindKey(0, 20, key_map_toggle);
+    M_DrawBindKey(1, 30, key_map_zoomin);
+    M_DrawBindKey(2, 40, key_map_zoomout);
+    M_DrawBindKey(3, 50, key_map_maxzoom);
+    M_DrawBindKey(4, 60, key_map_follow);
 //  M_DrawBindKey(5, 80, key_crl_map_rotate);
 //  M_DrawBindKey(6, 90, key_crl_map_overlay);
-    M_DrawBindKey(5, 80, key_map_grid);
+    M_DrawBindKey(5, 70, key_map_grid);
 
     M_DrawBindFooter(170, "7", true);
 }
@@ -2316,19 +2316,19 @@ static void DrawCRLKbd8 (void)
 
     M_FillBackground();
 
-    MN_DrTextACentered("FUNCTION KEYS", 20, cr[CR_YELLOW]);
+    MN_DrTextACentered("FUNCTION KEYS", 10, cr[CR_YELLOW]);
 
-    M_DrawBindKey(0, 30, key_menu_help);
-    M_DrawBindKey(1, 40, key_menu_save);
-    M_DrawBindKey(2, 50, key_menu_load);
-    M_DrawBindKey(3, 60, key_menu_volume);
-    M_DrawBindKey(4, 70, key_menu_qsave);
-    M_DrawBindKey(5, 80, key_menu_endgame);
-    M_DrawBindKey(6, 90, key_menu_messages);
-    M_DrawBindKey(7, 100, key_menu_qload);
-    M_DrawBindKey(8, 110, key_menu_quit);
-    M_DrawBindKey(9, 120, key_menu_gamma);
-    M_DrawBindKey(10, 130, key_spy);
+    M_DrawBindKey(0, 20, key_menu_help);
+    M_DrawBindKey(1, 30, key_menu_save);
+    M_DrawBindKey(2, 40, key_menu_load);
+    M_DrawBindKey(3, 50, key_menu_volume);
+    M_DrawBindKey(4, 60, key_menu_qsave);
+    M_DrawBindKey(5, 70, key_menu_endgame);
+    M_DrawBindKey(6, 80, key_menu_messages);
+    M_DrawBindKey(7, 90, key_menu_qload);
+    M_DrawBindKey(8, 100, key_menu_quit);
+    M_DrawBindKey(9, 110, key_menu_gamma);
+    M_DrawBindKey(10, 120, key_spy);
 
     M_DrawBindFooter(170, "8", true);
 }
@@ -2421,21 +2421,21 @@ static void DrawCRLKbd9 (void)
 
     M_FillBackground();
 
-    MN_DrTextACentered("SHORTCUT KEYS", 20, cr[CR_YELLOW]);
+    MN_DrTextACentered("SHORTCUT KEYS", 10, cr[CR_YELLOW]);
 
-    M_DrawBindKey(0, 30, key_pause);
-    M_DrawBindKey(1, 40, key_menu_screenshot);
-    M_DrawBindKey(2, 50, key_demo_quit);
+    M_DrawBindKey(0, 20, key_pause);
+    M_DrawBindKey(1, 30, key_menu_screenshot);
+    M_DrawBindKey(2, 40, key_demo_quit);
 
-    MN_DrTextACentered("MULTIPLAYER", 60, cr[CR_YELLOW]);
+    MN_DrTextACentered("MULTIPLAYER", 50, cr[CR_YELLOW]);
 
-    M_DrawBindKey(4, 70, key_multi_msg);
-    M_DrawBindKey(5, 80, key_multi_msgplayer[0]);
-    M_DrawBindKey(6, 90, key_multi_msgplayer[1]);
-    M_DrawBindKey(7, 100, key_multi_msgplayer[2]);
-    M_DrawBindKey(8, 110, key_multi_msgplayer[3]);
+    M_DrawBindKey(4, 60, key_multi_msg);
+    M_DrawBindKey(5, 70, key_multi_msgplayer[0]);
+    M_DrawBindKey(6, 80, key_multi_msgplayer[1]);
+    M_DrawBindKey(7, 90, key_multi_msgplayer[2]);
+    M_DrawBindKey(8, 100, key_multi_msgplayer[3]);
 
-    MN_DrTextACentered("RESET", 120, cr[CR_YELLOW]);
+    MN_DrTextACentered("RESET", 110, cr[CR_YELLOW]);
 
     M_DrawBindFooter(170, "9", true);
 }
@@ -2521,22 +2521,22 @@ static void DrawCRLMouse (void)
 {
     M_FillBackground();
 
-    MN_DrTextACentered("MOUSE BINDINGS", 20, cr[CR_YELLOW]);
+    MN_DrTextACentered("MOUSE BINDINGS", 10, cr[CR_YELLOW]);
 
-    M_DrawBindButton(0, 30, mousebfire);
-    M_DrawBindButton(1, 40, mousebforward);
-    M_DrawBindButton(2, 50, mousebstrafe);
-    M_DrawBindButton(3, 60, mousebbackward);
-    M_DrawBindButton(4, 70, mousebuse);
-    M_DrawBindButton(5, 80, mousebstrafeleft);
-    M_DrawBindButton(6, 90, mousebstraferight);
-    M_DrawBindButton(7, 100, mousebprevweapon);
-    M_DrawBindButton(8, 110, mousebnextweapon);
-    M_DrawBindButton(9, 120, mousebinvleft);
-    M_DrawBindButton(10, 130, mousebinvright);
-    M_DrawBindButton(11, 140, mousebuseartifact);
+    M_DrawBindButton(0, 20, mousebfire);
+    M_DrawBindButton(1, 30, mousebforward);
+    M_DrawBindButton(2, 40, mousebstrafe);
+    M_DrawBindButton(3, 50, mousebbackward);
+    M_DrawBindButton(4, 60, mousebuse);
+    M_DrawBindButton(5, 70, mousebstrafeleft);
+    M_DrawBindButton(6, 80, mousebstraferight);
+    M_DrawBindButton(7, 90, mousebprevweapon);
+    M_DrawBindButton(8, 100, mousebnextweapon);
+    M_DrawBindButton(9, 110, mousebinvleft);
+    M_DrawBindButton(10, 120, mousebinvright);
+    M_DrawBindButton(11, 130, mousebuseartifact);
 
-    MN_DrTextACentered("RESET", 150, cr[CR_YELLOW]);
+    MN_DrTextACentered("RESET", 140, cr[CR_YELLOW]);
 
     M_DrawBindFooter(180, NULL, false);
 }
@@ -2641,50 +2641,50 @@ static void DrawCRLWidgets (void)
 {
     char str[32];
 
-    MN_DrTextACentered("WIDGETS", 20, cr[CR_YELLOW]);
+    MN_DrTextACentered("WIDGETS", 10, cr[CR_YELLOW]);
 
     // Render counters
     sprintf(str, crl_widget_render == 1 ? "ON" :
                  crl_widget_render == 2 ? "OVERFLOWS" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 30,
+    MN_DrTextA(str, M_ItemRightAlign(str), 20,
                M_Item_Glow(0, crl_widget_render == 1 ? GLOW_GREEN :
                               crl_widget_render == 2 ? GLOW_DARKGREEN : GLOW_RED));
 
     // MAX overflow style
     sprintf(str, crl_widget_maxvp == 1 ? "BLINKING 1" :
                  crl_widget_maxvp == 2 ? "BLINKING 2" : "STATIC");
-    MN_DrTextA(str, M_ItemRightAlign(str), 40,
+    MN_DrTextA(str, M_ItemRightAlign(str), 30,
                M_Item_Glow(1, crl_widget_maxvp == 1 ? (gametic &  8 ? GLOW_YELLOW : GLOW_GREEN) :
                               crl_widget_maxvp == 2 ? (gametic & 16 ? GLOW_YELLOW : GLOW_GREEN) : GLOW_YELLOW));
 
     // Playstate counters
     sprintf(str, crl_widget_playstate == 1 ? "ON" :
                  crl_widget_playstate == 2 ? "OVERFLOWS" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 50,
+    MN_DrTextA(str, M_ItemRightAlign(str), 40,
                M_Item_Glow(2, crl_widget_playstate == 1 ? GLOW_GREEN :
                               crl_widget_playstate == 2 ? GLOW_DARKGREEN : GLOW_RED));
 
     // K/I/S stats
     sprintf(str, crl_widget_kis == 1 ? "ON" :
                  crl_widget_kis == 2 ? "AUTOMAP" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 60,
+    MN_DrTextA(str, M_ItemRightAlign(str), 50,
                M_Item_Glow(3, crl_widget_kis ? GLOW_GREEN : GLOW_RED));
 
     // Level time
     sprintf(str, crl_widget_time == 1 ? "ON" : 
                  crl_widget_time == 2 ? "AUTOMAP" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 70,
+    MN_DrTextA(str, M_ItemRightAlign(str), 60,
                M_Item_Glow(4, crl_widget_time ? GLOW_GREEN : GLOW_RED));
 
     // Player coords
     sprintf(str, crl_widget_coords == 1 ? "ON" :
                  crl_widget_coords == 2 ? "AUTOMAP" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 80,
+    MN_DrTextA(str, M_ItemRightAlign(str), 70,
                M_Item_Glow(5, crl_widget_coords ? GLOW_GREEN : GLOW_RED));
 
     // Powerup timers
     sprintf(str, crl_widget_powerups ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 90,
+    MN_DrTextA(str, M_ItemRightAlign(str), 80,
                M_Item_Glow(6, crl_widget_powerups ? GLOW_GREEN : GLOW_RED));
 
     // Target's health
@@ -2692,14 +2692,14 @@ static void DrawCRLWidgets (void)
                  crl_widget_health == 2 ? "TOP+NAME" :
                  crl_widget_health == 3 ? "BOTTOM" :
                  crl_widget_health == 4 ? "BOTTOM+NAME" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 100,
+    MN_DrTextA(str, M_ItemRightAlign(str), 90,
                M_Item_Glow(7, crl_widget_health ? GLOW_GREEN : GLOW_RED));
 
-    MN_DrTextACentered("AUTOMAP", 110, cr[CR_YELLOW]);
+    MN_DrTextACentered("AUTOMAP", 100, cr[CR_YELLOW]);
 
     // Level time
     sprintf(str, crl_automap_secrets ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 120,
+    MN_DrTextA(str, M_ItemRightAlign(str), 110,
                M_Item_Glow(9, crl_automap_secrets ? GLOW_GREEN : GLOW_RED));
 }
 
@@ -2777,50 +2777,50 @@ static void DrawCRLGameplay (void)
 {
     char str[32];
 
-    MN_DrTextACentered("GAMEPLAY FEATURES", 20, cr[CR_YELLOW]);
+    MN_DrTextACentered("GAMEPLAY FEATURES", 10, cr[CR_YELLOW]);
 
     // Default skill level
     M_snprintf(str, sizeof(str), "%s", DefSkillName[crl_default_skill]);
-    MN_DrTextA(str, M_ItemRightAlign(str), 30,
+    MN_DrTextA(str, M_ItemRightAlign(str), 20,
                M_Item_Glow(0, DefSkillColor(crl_default_skill)));
 
     // Wand start game mode
     sprintf(str, crl_pistol_start ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 40,
+    MN_DrTextA(str, M_ItemRightAlign(str), 30,
                M_Item_Glow(1, crl_pistol_start ? GLOW_GREEN : GLOW_RED));
 
     // Colored status bar
     sprintf(str, crl_colored_stbar ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 50,
+    MN_DrTextA(str, M_ItemRightAlign(str), 40,
                M_Item_Glow(2, crl_colored_stbar? GLOW_GREEN : GLOW_RED));
 
     // Restore monster targets
     sprintf(str, crl_restore_targets ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 60,
+    MN_DrTextA(str, M_ItemRightAlign(str), 50,
                M_Item_Glow(3, crl_restore_targets? GLOW_GREEN : GLOW_RED));
 
-    MN_DrTextACentered("DEMOS", 70, cr[CR_YELLOW]);
+    MN_DrTextACentered("DEMOS", 60, cr[CR_YELLOW]);
 
     // Show Demo timer
     sprintf(str, crl_demo_timer == 1 ? "PLAYBACK" : 
                  crl_demo_timer == 2 ? "RECORDING" : 
                  crl_demo_timer == 3 ? "ALWAYS" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 80,
+    MN_DrTextA(str, M_ItemRightAlign(str), 70,
                M_Item_Glow(5, crl_demo_timer ? GLOW_GREEN : GLOW_RED));
 
     // Timer direction
     sprintf(str, crl_demo_timerdir ? "BACKWARD" : "FORWARD");
-    MN_DrTextA(str, M_ItemRightAlign(str), 90,
+    MN_DrTextA(str, M_ItemRightAlign(str), 80,
                M_Item_Glow(6, crl_demo_timer ? GLOW_GREEN : GLOW_RED));
 
     // Show progress bar
     sprintf(str, crl_demo_bar ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 100,
+    MN_DrTextA(str, M_ItemRightAlign(str), 90,
                M_Item_Glow(7, crl_demo_bar? GLOW_GREEN : GLOW_RED));
 
     // Play internal demos
     sprintf(str, crl_internal_demos ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 110,
+    MN_DrTextA(str, M_ItemRightAlign(str), 100,
                M_Item_Glow(8, crl_internal_demos? GLOW_GREEN : GLOW_RED));
 }
 
@@ -2891,42 +2891,42 @@ static void DrawCRLLimits (void)
 {
     char str[32];
 
-    MN_DrTextACentered("STATIC ENGINE LIMITS", 20, cr[CR_YELLOW]);
+    MN_DrTextACentered("STATIC ENGINE LIMITS", 10, cr[CR_YELLOW]);
 
     // Save game limit warning
     sprintf(str, vanilla_savegame_limit ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 30,
+    MN_DrTextA(str, M_ItemRightAlign(str), 20,
                M_Item_Glow(0, vanilla_savegame_limit ? GLOW_GREEN : GLOW_RED));
 
     // Level of the limits
     sprintf(str, crl_vanilla_limits ? "VANILLA" : "HERETIC-PLUS");
-    MN_DrTextA(str, M_ItemRightAlign(str), 40,
+    MN_DrTextA(str, M_ItemRightAlign(str), 30,
                M_Item_Glow(1, crl_vanilla_limits ? GLOW_RED : GLOW_GREEN));
 
-    MN_DrTextA("MAXVISPLANES", CRL_MENU_LEFTOFFSET_SML + 16, 60, cr[CR_MENU_DARK2]);
-    MN_DrTextA("MAXDRAWSEGS", CRL_MENU_LEFTOFFSET_SML + 16, 70, cr[CR_MENU_DARK2]);
-    MN_DrTextA("MAXVISSPRITES", CRL_MENU_LEFTOFFSET_SML + 16, 80, cr[CR_MENU_DARK2]);
-    MN_DrTextA("MAXOPENINGS", CRL_MENU_LEFTOFFSET_SML + 16, 90, cr[CR_MENU_DARK2]);
-    MN_DrTextA("MAXPLATS", CRL_MENU_LEFTOFFSET_SML + 16, 100, cr[CR_MENU_DARK2]);
-    MN_DrTextA("MAXLINEANIMS", CRL_MENU_LEFTOFFSET_SML + 16, 110, cr[CR_MENU_DARK2]);
+    MN_DrTextA("MAXVISPLANES", CRL_MENU_LEFTOFFSET_SML + 16, 50, cr[CR_MENU_DARK2]);
+    MN_DrTextA("MAXDRAWSEGS", CRL_MENU_LEFTOFFSET_SML + 16, 60, cr[CR_MENU_DARK2]);
+    MN_DrTextA("MAXVISSPRITES", CRL_MENU_LEFTOFFSET_SML + 16, 70, cr[CR_MENU_DARK2]);
+    MN_DrTextA("MAXOPENINGS", CRL_MENU_LEFTOFFSET_SML + 16, 80, cr[CR_MENU_DARK2]);
+    MN_DrTextA("MAXPLATS", CRL_MENU_LEFTOFFSET_SML + 16, 90, cr[CR_MENU_DARK2]);
+    MN_DrTextA("MAXLINEANIMS", CRL_MENU_LEFTOFFSET_SML + 16, 100, cr[CR_MENU_DARK2]);
 
     if (crl_vanilla_limits)
     {
-        MN_DrTextA("128", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("128"), 60, cr[CR_RED]);
-        MN_DrTextA("256", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("256"), 70, cr[CR_RED]);
-        MN_DrTextA("128", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("128"), 80, cr[CR_RED]);
-        MN_DrTextA("20480", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("20480"), 90, cr[CR_RED]);
-        MN_DrTextA("30", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("30"), 100, cr[CR_RED]);
-        MN_DrTextA("64", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("64"), 110, cr[CR_RED]);
+        MN_DrTextA("128", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("128"), 50, cr[CR_RED]);
+        MN_DrTextA("256", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("256"), 60, cr[CR_RED]);
+        MN_DrTextA("128", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("128"), 70, cr[CR_RED]);
+        MN_DrTextA("20480", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("20480"), 80, cr[CR_RED]);
+        MN_DrTextA("30", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("30"), 90, cr[CR_RED]);
+        MN_DrTextA("64", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("64"), 100, cr[CR_RED]);
     }
     else
     {
-        MN_DrTextA("1024", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("1024"), 60, cr[CR_GREEN]);
-        MN_DrTextA("2048", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("2048"), 70, cr[CR_GREEN]);
-        MN_DrTextA("1024", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("1024"), 80, cr[CR_GREEN]);
-        MN_DrTextA("65536", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("65536"), 90, cr[CR_GREEN]);
-        MN_DrTextA("7680", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("7680"), 100, cr[CR_GREEN]);
-        MN_DrTextA("16384", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("16384"), 110, cr[CR_GREEN]);
+        MN_DrTextA("1024", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("1024"), 50, cr[CR_GREEN]);
+        MN_DrTextA("2048", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("2048"), 60, cr[CR_GREEN]);
+        MN_DrTextA("1024", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("1024"), 70, cr[CR_GREEN]);
+        MN_DrTextA("65536", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("65536"), 80, cr[CR_GREEN]);
+        MN_DrTextA("7680", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("7680"), 90, cr[CR_GREEN]);
+        MN_DrTextA("16384", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("16384"), 100, cr[CR_GREEN]);
     }
 }
 
