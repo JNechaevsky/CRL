@@ -682,7 +682,6 @@ static byte *M_Small_Line_Glow (const int tics)
                     cr[CR_MENU_DARK2]   ;
 }
 
-/*
 static byte *M_Big_Line_Glow (const int tics)
 {
     return
@@ -690,7 +689,6 @@ static byte *M_Big_Line_Glow (const int tics)
         tics >= 3 ? cr[CR_MENU_BRIGHT2] :
         tics >= 1 ? cr[CR_MENU_BRIGHT1] : NULL;
 }
-*/
 
 #define GLOW_UNCOLORED  0
 #define GLOW_RED        1
@@ -3406,7 +3404,7 @@ void MN_Drawer(void)
                 else
                 if (CurrentMenu->FontType == BigFont)
                 {
-                    MN_DrTextB(DEH_String(item->text), x, y, NULL/*M_Big_Line_Glow(CurrentMenu->items[i].tics)*/);
+                    MN_DrTextB(DEH_String(item->text), x, y, M_Big_Line_Glow(CurrentMenu->items[i].tics));
                 }
                 // [JN] Else, don't draw file slot names (1, 2, 3, ...) in Save/Load menus.
             }
@@ -3574,7 +3572,7 @@ void MN_LoadSlotText(void)
     int i;
     char *filename;
 
-    for (i = 0; i < 6; i++)
+    for (i = 0; i < SAVES_PER_PAGE; i++)
     {
         int retval;
         filename = SV_Filename(i);
@@ -3608,12 +3606,15 @@ static void DrawFileSlots(Menu_t * menu)
 
     x = menu->x;
     y = menu->y;
-    for (i = 0; i < 6; i++)
+    for (i = 0; i < SAVES_PER_PAGE; i++)
     {
+        // [JN] Highlight selected item (CurrentItPos == i) or apply fading effect.
+        dp_translation = CurrentItPos == i ? cr[CR_MENU_BRIGHT2] : NULL;
         V_DrawShadowedPatchRavenOptional(x, y, W_CacheLumpName(DEH_String("M_FSLOT"), PU_CACHE), "M_FSLOT");
         if (SlotStatus[i])
         {
-            MN_DrTextA(SlotText[i], x + 5, y + 5, NULL);
+            MN_DrTextA(SlotText[i], x + 5, y + 5, CurrentItPos == i ?
+                       cr[CR_MENU_BRIGHT2] : M_Small_Line_Glow(CurrentMenu->items[i].tics));
         }
         y += ITEM_HEIGHT;
     }
@@ -3627,14 +3628,8 @@ static void DrawFileSlots(Menu_t * menu)
 
 static void DrawOptionsMenu(void)
 {
-    if (showMessages)
-    {
-        MN_DrTextB(DEH_String("ON"), 196, 50, NULL);
-    }
-    else
-    {
-        MN_DrTextB(DEH_String("OFF"), 196, 50, NULL);
-    }
+    MN_DrTextB(DEH_String(showMessages ? "ON" : "OFF"), 196, 50,
+                   M_Big_Line_Glow(CurrentMenu->items[1].tics));
     DrawSlider(&OptionsMenu, 3, 10, mouseSensitivity, true);
 }
 
@@ -3651,17 +3646,17 @@ static void DrawOptions2Menu(void)
     // SFX Volume
     sprintf(str, "%d", snd_MaxVolume);
     DrawSlider(&Options2Menu, 1, 16, snd_MaxVolume, true);
-    MN_DrTextA(str, 252, 45, NULL);
+    MN_DrTextA(str, 252, 45, M_Item_Glow(0, snd_MaxVolume ? GLOW_LIGHTGRAY : GLOW_DARKGRAY));
 
     // Music Volume
     sprintf(str, "%d", snd_MusicVolume);
     DrawSlider(&Options2Menu, 3, 16, snd_MusicVolume, true);
-    MN_DrTextA(str, 252, 85, NULL);
+    MN_DrTextA(str, 252, 85, M_Item_Glow(2, snd_MusicVolume ? GLOW_LIGHTGRAY : GLOW_DARKGRAY));
 
     // Screen Size
     sprintf(str, "%d", crl_screen_size);
     DrawSlider(&Options2Menu, 5, 9, crl_screen_size - 3, true);
-    MN_DrTextA(str, 196, 125, NULL);
+    MN_DrTextA(str, 196, 125, M_Item_Glow(4, GLOW_LIGHTGRAY));
 }
 
 //---------------------------------------------------------------------------

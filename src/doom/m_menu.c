@@ -875,7 +875,7 @@ enum
     m_crl_end
 } crl1_e;
 
-static byte *M_Line_Glow (const int tics)
+static byte *M_Small_Line_Glow (const int tics)
 {
     return
         tics == 5 ? cr[CR_MENU_BRIGHT5] :
@@ -883,6 +883,14 @@ static byte *M_Line_Glow (const int tics)
         tics == 3 ? cr[CR_MENU_BRIGHT3] :
         tics == 2 ? cr[CR_MENU_BRIGHT2] :
         tics == 1 ? cr[CR_MENU_BRIGHT1] : NULL;
+}
+
+static byte *M_Big_Line_Glow (const int tics)
+{
+    return
+        tics == 5 ? cr[CR_MENU_BRIGHT3] :
+        tics >= 3 ? cr[CR_MENU_BRIGHT2] :
+        tics >= 1 ? cr[CR_MENU_BRIGHT1] : NULL;
 }
 
 #define GLOW_UNCOLORED  0
@@ -3414,7 +3422,8 @@ static void M_DrawLoad(void)
     for (i = 0;i < load_end; i++)
     {
 	M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i+7);
-	M_WriteText(LoadDef.x,LoadDef.y+LINEHEIGHT*i,savegamestrings[i], NULL);
+	M_WriteText(LoadDef.x,LoadDef.y+LINEHEIGHT*i,savegamestrings[i], itemOn == i ?
+	            cr[CR_MENU_BRIGHT5] : M_Small_Line_Glow(currentMenu->menuitems[i].tics));
     }
 
     M_DrawSaveLoadBottomLine();
@@ -3491,13 +3500,14 @@ static void M_DrawSave(void)
     for (i = 0;i < load_end; i++)
     {
 	M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i+7);
-	M_WriteText(LoadDef.x,LoadDef.y+LINEHEIGHT*i,savegamestrings[i], NULL);
+	M_WriteText(LoadDef.x,LoadDef.y+LINEHEIGHT*i,savegamestrings[i], itemOn == i ?
+	            cr[CR_MENU_BRIGHT5] : M_Small_Line_Glow(currentMenu->menuitems[i].tics));
     }
 	
     if (saveStringEnter)
     {
 	i = M_StringWidth(savegamestrings[saveSlot]);
-	M_WriteText(LoadDef.x + i,LoadDef.y+LINEHEIGHT*saveSlot,"_", NULL);
+	M_WriteText(LoadDef.x + i,LoadDef.y+LINEHEIGHT*saveSlot,"_", cr[CR_MENU_BRIGHT5]);
     }
 
     M_DrawSaveLoadBottomLine();
@@ -3725,11 +3735,11 @@ static void M_DrawSound(void)
 
     M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (sfx_vol + 1), 16, sfxVolume);
     sprintf(str,"%d", sfxVolume);
-    M_WriteText (226, 83, str, sfxVolume ? NULL : cr[CR_DARKRED]);
+    M_WriteText (226, 83, str, M_Item_Glow(0, sfxVolume ? GLOW_UNCOLORED : GLOW_DARKRED));
 
     M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (music_vol + 1), 16, musicVolume);
     sprintf(str,"%d", musicVolume);
-    M_WriteText (226, 115, str, musicVolume ? NULL : cr[CR_DARKRED]);
+    M_WriteText (226, 115, str, M_Item_Glow(2, musicVolume ? GLOW_UNCOLORED : GLOW_DARKRED));
 }
 
 static void M_Sound(int choice)
@@ -3857,13 +3867,17 @@ static void M_DrawOptions(void)
 
     V_DrawShadowedPatch(108, 15, W_CacheLumpName(m_optttl, PU_CACHE), m_optttl);
 	
+    dp_translation = M_Big_Line_Glow(currentMenu->menuitems[2].tics);
     V_DrawShadowedPatch(OptionsDef.x + 175, OptionsDef.y + LINEHEIGHT * detail,
 		        W_CacheLumpName(DEH_String(detailNames[detailLevel]), PU_CACHE),
                                 DEH_String(detailNames[detailLevel]));
+    dp_translation = NULL;
 
+    dp_translation = M_Big_Line_Glow(currentMenu->menuitems[1].tics);
     V_DrawShadowedPatch(OptionsDef.x + 120, OptionsDef.y + LINEHEIGHT * messages,
                 W_CacheLumpName(DEH_String(msgNames[showMessages]), PU_CACHE),
                                 DEH_String(msgNames[showMessages]));
+    dp_translation = NULL;
 
     M_DrawThermo(OptionsDef.x, OptionsDef.y + LINEHEIGHT * (mousesens + 1),
 		 10, mouseSensitivity);
@@ -5413,39 +5427,18 @@ void M_Drawer (void)
     y = currentMenu->y;
     max = currentMenu->numitems;
 
-    for (i=0;i<max;i++)
-    {
-        name = DEH_String(currentMenu->menuitems[i].name);
-
-        if (currentMenu->smallFont)
-        {
-            if (itemOn == i)
-            {
-                // [JN] Highlight menu item on which the cursor is positioned.
-                M_WriteText (x, y, name, cr[CR_MENU_BRIGHT5]);
-            }
-            else
-            {
-                // [JN] Apply fading effect in M_Ticker.
-                M_WriteText (x, y, name, M_Line_Glow(currentMenu->menuitems[i].tics));
-            }
-            y += CRL_MENU_LINEHEIGHT_SMALL;
-        }
-        else
-        {
-            if (name[0])
-            {
-                V_DrawShadowedPatch(x, y, W_CacheLumpName(name, PU_CACHE), name);
-            }
-            y += LINEHEIGHT;
-        }
-    }
-
     if (currentMenu->smallFont)
     {
         // [JN] Draw glowing * symbol.
-        M_WriteText(x - CRL_MENU_CURSOR_OFFSET, currentMenu->y + itemOn * CRL_MENU_LINEHEIGHT_SMALL,
-                    "*", M_Cursor_Glow(cursor_tics));
+        M_WriteText(x - CRL_MENU_CURSOR_OFFSET, y + itemOn * CRL_MENU_LINEHEIGHT_SMALL, "*",
+                    M_Cursor_Glow(cursor_tics));
+
+        for (i = 0 ; i < max ; i++)
+        {
+            M_WriteText (x, y, currentMenu->menuitems[i].name,
+                         M_Small_Line_Glow(currentMenu->menuitems[i].tics));
+            y += CRL_MENU_LINEHEIGHT_SMALL;
+        }
     }
     else
     {
@@ -5453,6 +5446,19 @@ void M_Drawer (void)
         V_DrawShadowedPatch(x + SKULLXOFF, currentMenu->y - 5 + itemOn*LINEHEIGHT,
                             W_CacheLumpName(DEH_String(skullName[whichSkull]), PU_CACHE),
                             DEH_String(skullName[whichSkull]));
+
+        for (i = 0 ; i < max ; i++)
+        {
+            name = DEH_String(currentMenu->menuitems[i].name);
+
+            if (name[0])
+            {
+                dp_translation = M_Big_Line_Glow(currentMenu->menuitems[i].tics);
+                V_DrawShadowedPatch(x, y, W_CacheLumpName(name, PU_CACHE), name);
+                dp_translation = NULL;
+            }
+            y += LINEHEIGHT;
+        }
     }
 }
 
@@ -5505,20 +5511,17 @@ void M_Ticker (void)
 
     // [JN] Menu item fading effect:
 
-    if (currentMenu->smallFont)
+    for (int i = 0 ; i < currentMenu->numitems ; i++)
     {
-        for (int i = 0 ; i < currentMenu->numitems ; i++)
+        if (itemOn == i)
         {
-            if (itemOn == i)
-            {
-                // Keep menu item bright
-                currentMenu->menuitems[i].tics = 5;
-            }
-            else
-            {
-                // Decrease tics for glowing effect
-                currentMenu->menuitems[i].tics--;
-            }
+            // Keep menu item bright
+            currentMenu->menuitems[i].tics = 5;
+        }
+        else
+        {
+            // Decrease tics for glowing effect
+            currentMenu->menuitems[i].tics--;
         }
     }
 
