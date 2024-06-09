@@ -583,14 +583,22 @@ void CRL_DrawFPS (void)
 {
     char fps[8];
     char fps_str[4];
+    int yy = 9;
+
+    // [JN] If demo timer is active and running, shift FPS widget one line down.
+    if ((demoplayback && (crl_demo_timer == 1 || crl_demo_timer == 3))
+    ||  (demorecording && (crl_demo_timer == 2 || crl_demo_timer == 3)))
+    {
+        yy += 9;
+    }
 
     sprintf(fps, "%d", CRL_fps);
     sprintf(fps_str, "FPS");
 
     M_WriteText(SCREENWIDTH - 11 - M_StringWidth(fps) 
-                                 - M_StringWidth(fps_str), 9, fps, cr[CR_GRAY]);
+                                 - M_StringWidth(fps_str), yy, fps, cr[CR_GRAY]);
 
-    M_WriteText(SCREENWIDTH - 7 - M_StringWidth(fps_str), 9, "FPS", cr[CR_GRAY]);
+    M_WriteText(SCREENWIDTH - 7 - M_StringWidth(fps_str), yy, "FPS", cr[CR_GRAY]);
 }
 
 // =============================================================================

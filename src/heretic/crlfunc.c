@@ -473,14 +473,22 @@ void CRL_DrawFPS (void)
 {
     char fps[8];
     char fps_str[4];
+    int yy = 10;
+
+    // [JN] If demo timer is active and running, shift FPS widget one line down.
+    if ((demoplayback && (crl_demo_timer == 1 || crl_demo_timer == 3))
+    ||  (demorecording && (crl_demo_timer == 2 || crl_demo_timer == 3)))
+    {
+        yy += 10;
+    }
 
     sprintf(fps, "%d", CRL_fps);
     sprintf(fps_str, "FPS");
 
     MN_DrTextA(fps, SCREENWIDTH - 11 - MN_TextAWidth(fps) 
-                                     - MN_TextAWidth(fps_str), 10, cr[CR_GRAY]);
+                                     - MN_TextAWidth(fps_str), yy, cr[CR_GRAY]);
 
-    MN_DrTextA(fps_str, SCREENWIDTH - 7 - MN_TextAWidth(fps_str), 10, cr[CR_GRAY]);
+    MN_DrTextA(fps_str, SCREENWIDTH - 7 - MN_TextAWidth(fps_str), yy, cr[CR_GRAY]);
 }
 
 
@@ -516,7 +524,7 @@ void CRL_DemoTimer (const int time)
         x += 20;
     }
 
-    MN_DrTextA(n, x, 20, cr[CR_LIGHTGRAY]);
+    MN_DrTextA(n, x, 10, cr[CR_LIGHTGRAY]);
 }
 
 // -----------------------------------------------------------------------------
