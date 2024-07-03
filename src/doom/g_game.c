@@ -349,7 +349,15 @@ static int CarryError(double value, const double *prevcarry, double *carry)
 
 static short CarryAngle(double angle)
 {
-    return CarryError(angle, &prevcarry.angle, &carry.angle);
+    if (lowres_turn && abs(angle + prevcarry.angle) < 128)
+    {
+        carry.angle = angle + prevcarry.angle;
+        return 0;
+    }
+    else
+    {
+        return CarryError(angle, &prevcarry.angle, &carry.angle);
+    }
 }
 
 static int CarryMouseVert(double vert)
@@ -388,6 +396,7 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
     int		speed;
     int		tspeed; 
     int		angle = 0; // [crispy]
+    short	mousex_angleturn; // [crispy]
     int		forward;
     int		side;
     ticcmd_t spect;
@@ -793,7 +802,9 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
         angle -= mousex*0x8;
     }
 
-    if (mousex == 0)
+    mousex_angleturn = cmd->angleturn;
+
+    if (mousex_angleturn == 0)
     {
         // No movement in the previous frame
 
@@ -802,9 +813,17 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
     
     if (angle)
     {
+        if (!crl_spectating)
+        {
+        cmd->angleturn = CarryAngle(cmd->angleturn + angle);
+        localview.ticangleturn = (cmd->angleturn - mousex_angleturn);
+        }
+        else
+        {
         const short old_angleturn = cmd->angleturn;
         cmd->angleturn = CarryAngle(localview.rawangle + angle);
         localview.ticangleturn = (cmd->angleturn - old_angleturn);
+        }
     }
 
     mousex = mousey = 0;
@@ -847,20 +866,24 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
 
     if (lowres_turn)
     {
-        static signed short carry = 0;
         signed short desired_angleturn;
 
-        desired_angleturn = cmd->angleturn + carry;
+        desired_angleturn = cmd->angleturn;
 
         // round angleturn to the nearest 256 unit boundary
         // for recording demos with single byte values for turn
 
         cmd->angleturn = (desired_angleturn + 128) & 0xff00;
 
+        if (angle)
+        {
+            localview.ticangleturn = cmd->angleturn - mousex_angleturn;
+        }
+
         // Carry forward the error from the reduced resolution to the
         // next tic, so that successive small movements can accumulate.
 
-        carry = desired_angleturn - cmd->angleturn;
+        prevcarry.angle += desired_angleturn - cmd->angleturn;
     }
     
     // If spectating, send the movement commands instead
