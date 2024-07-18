@@ -106,18 +106,18 @@ int key_invdrop   = KEY_BACKSPACE;
 // Mouse controls
 //
 
-int mousebfire = 0;
-int mousebstrafe = 1;
-int mousebforward = 2;
-
-int mousebstrafeleft = -1;
+int mousebfire        = 0;
+int mousebforward     = 2;
+int mousebspeed       = -1;
+int mousebstrafe      = 1;
+int mousebbackward    = -1;
+int mousebuse         = -1;
+int mousebstrafeleft  = -1;
 int mousebstraferight = -1;
-int mousebbackward = -1;
-int mousebuse = -1;
+int mousebprevweapon  = 4;
+int mousebnextweapon  = 3;
 
-int mousebprevweapon = 4;
-int mousebnextweapon = 3;
-
+// Heretic: Inventory
 int mousebinvleft = -1;
 int mousebinvright = -1;
 int mousebuseartifact = -1;
@@ -286,6 +286,7 @@ void M_BindBaseControls(void)
 
     M_BindIntVariable("joyb_strafeleft",     &joybstrafeleft);
     M_BindIntVariable("joyb_straferight",    &joybstraferight);
+    M_BindIntVariable("mouseb_speed",        &mousebspeed);
     M_BindIntVariable("mouseb_strafeleft",   &mousebstrafeleft);
     M_BindIntVariable("mouseb_straferight",  &mousebstraferight);
     M_BindIntVariable("mouseb_use",          &mousebuse);

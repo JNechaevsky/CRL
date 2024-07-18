@@ -138,22 +138,31 @@ extern int key_menu_decscreen;
 extern int key_menu_screenshot;
 extern int key_menu_del; // [crispy]
 
+
+//
+// Mouse controls
+//
+
 extern int mousebfire;
-extern int mousebstrafe;
 extern int mousebforward;
-
-extern int mousebjump;
-
-extern int mousebstrafeleft;
-extern int mousebstraferight;
+extern int mousebspeed;
+extern int mousebstrafe;
 extern int mousebbackward;
 extern int mousebuse;
-
+extern int mousebstrafeleft;
+extern int mousebstraferight;
 extern int mousebprevweapon;
 extern int mousebnextweapon;
+
 extern int mousebinvleft;
 extern int mousebinvright;
 extern int mousebuseartifact;
+
+extern int mousebjump;
+
+//
+// Joystick controls
+//
 
 extern int joybfire;
 extern int joybstrafe;
