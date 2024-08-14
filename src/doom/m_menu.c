@@ -1694,7 +1694,7 @@ static void M_CRL_SFXSystem (int choice)
     S_SetMusicVolume(musicVolume * 8);
 
     // Restart current music
-    S_ChangeMusic(crl_musicnum, true);
+    S_ChangeMusic(crl_musicnum, usergame);
 }
 
 static void M_CRL_MusicSystem (int choice)
@@ -1780,7 +1780,7 @@ static void M_CRL_MusicSystem (int choice)
     S_SetMusicVolume(musicVolume * 8);
 
     // Restart current music
-    S_ChangeMusic(crl_musicnum, true);
+    S_ChangeMusic(crl_musicnum, usergame);
 }
 
 static void M_CRL_SFXMode (int choice)
