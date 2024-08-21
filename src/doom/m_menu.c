@@ -4986,7 +4986,7 @@ boolean M_Responder (event_t* ev)
         {
 	    M_StartControlPanel ();
 	    currentMenu = &SoundDef;
-	    itemOn = sfx_vol;
+	    itemOn = currentMenu->lastOn;
 	    S_StartSound(NULL,sfx_swtchn);
 	    return true;
 	}
