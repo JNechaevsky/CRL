@@ -151,7 +151,7 @@ void V_DrawPatch(int x, int y, patch_t *patch, const char *name)
 		// RestlessRodent -- Do not die
 		// [JN] ... print a critical message instead.
         CRL_SetMessageCritical("V_DRAWPATCH:", 
-        M_StringJoin("BAD V_DRAWPATCH \"", name, "\""), 2);
+        M_StringJoin("BAD V_DRAWPATCH \"", name, "\"", NULL), 2);
 		return;
     }
 
