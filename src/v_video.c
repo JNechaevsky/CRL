@@ -223,7 +223,7 @@ void V_DrawPatchFlipped(int x, int y, patch_t *patch)
     {
         // [JN] Do not crash, print a critical message instead.
         CRL_SetMessageCritical("V_DRAWPATCHFLIPPED:", 
-        M_StringJoin("BAD V_DRAWPATCH \"", "UNKNOWN", "\""), 2);
+        M_StringJoin("BAD V_DRAWPATCH \"", "UNKNOWN", "\"", NULL), 2);
         return;
     }
 #endif
@@ -280,7 +280,7 @@ void V_DrawShadowedPatch (int x, int y, const patch_t *patch, const char *name)
     {
         // [JN] Do not crash, print a critical message instead.
         CRL_SetMessageCritical("V_DRAWPATCH:",
-        M_StringJoin("BAD V_DRAWPATCH \"", name, "\""), 2);
+        M_StringJoin("BAD V_DRAWPATCH \"", name, "\"", NULL), 2);
         return;
     }
 #endif
@@ -415,7 +415,7 @@ void V_DrawShadowedPatchRavenOptional (int x, int y, const patch_t *patch, const
     {
         // [JN] Do not crash, print a critical message instead.
         CRL_SetMessageCritical("V_DRAWPATCH:",
-        M_StringJoin("BAD V_DRAWPATCH \"", name, "\""), 2);
+        M_StringJoin("BAD V_DRAWPATCH \"", name, "\"", NULL), 2);
         return;
     }
 #endif
