@@ -159,7 +159,7 @@ static void DrawFilesMenu(void);
 static void MN_DrawInfo(void);
 static void DrawLoadMenu(void);
 static void DrawSaveMenu(void);
-static void DrawSlider(Menu_t * menu, int item, int width, int slot, boolean bigspacing);
+static void DrawSlider(Menu_t * menu, int item, int width, int slot, boolean bigspacing, int itemPos);
 void MN_LoadSlotText(void);
 
 // Public Data
@@ -1254,7 +1254,7 @@ static void DrawCRLDisplay (void)
     MN_DrTextACentered("DISPLAY OPTIONS", 20, cr[CR_YELLOW]);
 
     // Gamma-correction slider and num
-    DrawSlider(&CRLDisplay, 1, 8, crl_gamma/2, false);
+    DrawSlider(&CRLDisplay, 1, 8, crl_gamma/2, false, 0);
     MN_DrTextA(gammalvls[crl_gamma][1], 164, 45, M_Item_Glow(0, GLOW_UNCOLORED));
 
     // Menu background shading
@@ -1352,11 +1352,11 @@ static void DrawCRLSound (void)
 
     MN_DrTextACentered("SOUND OPTIONS", 10, cr[CR_YELLOW]);
 
-    DrawSlider(&CRLSound, 1, 16, snd_MaxVolume, false);
+    DrawSlider(&CRLSound, 1, 16, snd_MaxVolume, false, 0);
     sprintf(str,"%d", snd_MaxVolume);
     MN_DrTextA(str, 228, 35, M_Item_Glow(0, GLOW_UNCOLORED));
 
-    DrawSlider(&CRLSound, 4, 16, snd_MusicVolume, false);
+    DrawSlider(&CRLSound, 4, 16, snd_MusicVolume, false, 3);
     sprintf(str,"%d", snd_MusicVolume);
     MN_DrTextA(str, 228, 65, M_Item_Glow(3, GLOW_UNCOLORED));
 
@@ -1525,16 +1525,16 @@ static void DrawCRLControls (void)
 
     MN_DrTextACentered("MOUSE CONFIGURATION", 40, cr[CR_YELLOW]);
 
-    DrawSlider(&CRLControls, 4, 10, mouseSensitivity, false);
+    DrawSlider(&CRLControls, 4, 10, mouseSensitivity, false, 3);
     sprintf(str,"%d", mouseSensitivity);
     MN_DrTextA(str, 180, 65, M_Item_Glow(3, mouseSensitivity > 9 ?
                                          GLOW_GREEN : GLOW_UNCOLORED));
 
-    DrawSlider(&CRLControls, 7, 12, mouse_acceleration * 2, false);
+    DrawSlider(&CRLControls, 7, 12, mouse_acceleration * 2, false, 6);
     sprintf(str,"%.1f", mouse_acceleration);
     MN_DrTextA(str, 196, 95, M_Item_Glow(6, GLOW_UNCOLORED));
 
-    DrawSlider(&CRLControls, 10, 14, mouse_threshold / 2, false);
+    DrawSlider(&CRLControls, 10, 14, mouse_threshold / 2, false, 9);
     sprintf(str,"%d", mouse_threshold);
     MN_DrTextA(str, 212, 125, M_Item_Glow(9, GLOW_UNCOLORED));
 
@@ -3648,7 +3648,7 @@ static void DrawOptionsMenu(void)
 {
     MN_DrTextB(DEH_String(showMessages ? "ON" : "OFF"), 196, 50,
                    M_Big_Line_Glow(CurrentMenu->items[1].tics));
-    DrawSlider(&OptionsMenu, 3, 10, mouseSensitivity, true);
+    DrawSlider(&OptionsMenu, 3, 10, mouseSensitivity, true, 2);
 }
 
 //---------------------------------------------------------------------------
@@ -3663,17 +3663,17 @@ static void DrawOptions2Menu(void)
 
     // SFX Volume
     sprintf(str, "%d", snd_MaxVolume);
-    DrawSlider(&Options2Menu, 1, 16, snd_MaxVolume, true);
+    DrawSlider(&Options2Menu, 1, 16, snd_MaxVolume, true, 0);
     MN_DrTextA(str, 252, 45, M_Item_Glow(0, snd_MaxVolume ? GLOW_LIGHTGRAY : GLOW_DARKGRAY));
 
     // Music Volume
     sprintf(str, "%d", snd_MusicVolume);
-    DrawSlider(&Options2Menu, 3, 16, snd_MusicVolume, true);
+    DrawSlider(&Options2Menu, 3, 16, snd_MusicVolume, true, 2);
     MN_DrTextA(str, 252, 85, M_Item_Glow(2, snd_MusicVolume ? GLOW_LIGHTGRAY : GLOW_DARKGRAY));
 
     // Screen Size
     sprintf(str, "%d", crl_screen_size);
-    DrawSlider(&Options2Menu, 5, 9, crl_screen_size - 3, true);
+    DrawSlider(&Options2Menu, 5, 9, crl_screen_size - 3, true, 4);
     MN_DrTextA(str, 196, 125, M_Item_Glow(4, GLOW_LIGHTGRAY));
 }
 
@@ -4985,7 +4985,7 @@ static void SetMenu(MenuType_t menu)
 //
 //---------------------------------------------------------------------------
 
-static void DrawSlider(Menu_t * menu, int item, int width, int slot, boolean bigspacing)
+static void DrawSlider(Menu_t * menu, int item, int width, int slot, boolean bigspacing, int itemPos)
 {
     int x;
     int y;
@@ -4994,6 +4994,13 @@ static void DrawSlider(Menu_t * menu, int item, int width, int slot, boolean big
 
     x = menu->x + 24;
     y = menu->y + 2 + (item * (bigspacing ? ITEM_HEIGHT : ID_MENU_LINEHEIGHT_SMALL));
+
+    // [JN] Highlight active slider and gem.
+    if (itemPos == CurrentItPos)
+    {
+        dp_translation = cr[CR_MENU_BRIGHT2];
+    }
+
     V_DrawShadowedPatchRavenOptional(x - 32, y, W_CacheLumpName(DEH_String("M_SLDLT"), PU_CACHE), "M_SLDLT");
     for (x2 = x, count = width; count--; x2 += 8)
     {
@@ -5010,6 +5017,8 @@ static void DrawSlider(Menu_t * menu, int item, int width, int slot, boolean big
 
     V_DrawPatch(x + 4 + slot * 8, y + 7,
                 W_CacheLumpName(DEH_String("M_SLDKB"), PU_CACHE), "M_SLDKB");
+
+    dp_translation = NULL;
 }
 
 

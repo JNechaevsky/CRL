@@ -220,7 +220,7 @@ static void M_DrawSave(void);
 
 static void M_DrawSaveLoadBorder(int x,int y);
 static void M_SetupNextMenu(menu_t *menudef);
-static void M_DrawThermo(int x,int y,int thermWidth,int thermDot);
+static void M_DrawThermo(int x,int y,int thermWidth,int thermDot,int itemPos);
 static const int M_StringHeight(const char *string);
 static void M_StartMessage(const char *string,void (*routine)(int),boolean input);
 static void M_ClearMenus (void);
@@ -1497,7 +1497,7 @@ static void M_DrawCRL_Display (void)
     M_WriteTextCentered(25, "DISPLAY OPTIONS", cr[CR_YELLOW]);
 
     // Gamma-correction slider and num
-    M_DrawThermo(46, 44, 15, crl_gamma);
+    M_DrawThermo(46, 44, 15, crl_gamma, 0);
     M_WriteText (184, 47, gammalvls[crl_gamma][1],
                            M_Item_Glow(0, GLOW_UNCOLORED));
 
@@ -1608,11 +1608,11 @@ static void M_DrawCRL_Sound (void)
 
     M_WriteTextCentered(25, "VOLUME", cr[CR_YELLOW]);
 
-    M_DrawThermo(46, 44, 16, sfxVolume);
+    M_DrawThermo(46, 44, 16, sfxVolume, 0);
     sprintf(str,"%d", sfxVolume);
     M_WriteText (192, 47, str, M_Item_Glow(0, GLOW_UNCOLORED));
 
-    M_DrawThermo(46, 71, 16, musicVolume);
+    M_DrawThermo(46, 71, 16, musicVolume, 3);
     sprintf(str,"%d", musicVolume);
     M_WriteText (192, 74, str, M_Item_Glow(3, GLOW_UNCOLORED));
 
@@ -1857,16 +1857,16 @@ static void M_DrawCRL_Controls (void)
     
     M_WriteTextCentered(52, "MOUSE CONFIGURATION", cr[CR_YELLOW]);
 
-    M_DrawThermo(46, 72, 10, mouseSensitivity);
+    M_DrawThermo(46, 72, 10, mouseSensitivity, 3);
     sprintf(str,"%d", mouseSensitivity);
     M_WriteText (144, 75, str, M_Item_Glow(3, mouseSensitivity > 9 ? GLOW_GREEN :
                                               mouseSensitivity < 1 ? GLOW_DARKRED : GLOW_UNCOLORED));
 
-    M_DrawThermo(46, 98, 12, (mouse_acceleration * 3) - 3);
+    M_DrawThermo(46, 98, 12, (mouse_acceleration * 3) - 3, 6);
     sprintf(str,"%.1f", mouse_acceleration);
     M_WriteText (160, 101, str, M_Item_Glow(6, GLOW_UNCOLORED));
 
-    M_DrawThermo(46, 125, 15, mouse_threshold / 2);
+    M_DrawThermo(46, 125, 15, mouse_threshold / 2, 9);
     sprintf(str,"%d", mouse_threshold);
     M_WriteText (184, 128, str, M_Item_Glow(9, mouse_threshold == 0 ? GLOW_DARKRED : GLOW_UNCOLORED));
 
@@ -3750,11 +3750,11 @@ static void M_DrawSound(void)
 
     V_DrawShadowedPatch(60, 38, W_CacheLumpName(m_svol, PU_CACHE), m_svol);
 
-    M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (sfx_vol + 1), 16, sfxVolume);
+    M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (sfx_vol + 1), 16, sfxVolume, 0);
     sprintf(str,"%d", sfxVolume);
     M_WriteText (226, 83, str, M_Item_Glow(0, sfxVolume ? GLOW_UNCOLORED : GLOW_DARKRED));
 
-    M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (music_vol + 1), 16, musicVolume);
+    M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (music_vol + 1), 16, musicVolume, 2);
     sprintf(str,"%d", musicVolume);
     M_WriteText (226, 115, str, M_Item_Glow(2, musicVolume ? GLOW_UNCOLORED : GLOW_DARKRED));
 }
@@ -3897,10 +3897,10 @@ static void M_DrawOptions(void)
     dp_translation = NULL;
 
     M_DrawThermo(OptionsDef.x, OptionsDef.y + LINEHEIGHT * (mousesens + 1),
-		 10, mouseSensitivity);
+		 10, mouseSensitivity, 5);
 
     M_DrawThermo(OptionsDef.x,OptionsDef.y+LINEHEIGHT*(scrnsize+1),
-		 9,crl_screen_size-3);
+		 9,crl_screen_size-3, 3);
 }
 
 static void M_Options(int choice)
@@ -4119,7 +4119,8 @@ M_DrawThermo
 ( int	x,
   int	y,
   int	thermWidth,
-  int	thermDot )
+  int	thermDot,
+  int	itemPos )
 {
     int		xx;
     int		i;
@@ -4127,6 +4128,12 @@ M_DrawThermo
     const char	*m_thermm = DEH_String("M_THERMM");
     const char	*m_thermr = DEH_String("M_THERMR");
     const char	*m_thermo = DEH_String("M_THERMO");
+
+    // [JN] Highlight active slider and gem.
+    if (itemPos == itemOn)
+    {
+        dp_translation = cr[CR_MENU_BRIGHT2];
+    }
 
     xx = x;
     V_DrawShadowedPatch(xx, y, W_CacheLumpName(m_therml, PU_CACHE), m_therml);
@@ -4145,6 +4152,8 @@ M_DrawThermo
     }
 
     V_DrawPatch((x + 8) + thermDot * 8, y, W_CacheLumpName(m_thermo, PU_CACHE), m_thermo);
+
+    dp_translation = NULL;
 }
 
 static void
