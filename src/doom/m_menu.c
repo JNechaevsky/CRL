@@ -894,6 +894,14 @@ static byte *M_Big_Line_Glow (const int tics)
         tics >= 1 ? cr[CR_MENU_BRIGHT1] : NULL;
 }
 
+static void M_Reset_Line_Glow (void)
+{
+    for (int i = 0 ; i < currentMenu->numitems ; i++)
+    {
+        currentMenu->menuitems[i].tics = 0;
+    }
+}
+
 #define GLOW_UNCOLORED  0
 #define GLOW_RED        1
 #define GLOW_DARKRED    2
@@ -5205,6 +5213,7 @@ boolean M_Responder (event_t* ev)
 	if (currentMenu->prevMenu)
 	{
 	    currentMenu = currentMenu->prevMenu;
+	    M_Reset_Line_Glow();
 	    itemOn = currentMenu->lastOn;
 	    S_StartSound(NULL,sfx_swtchn);
 	}
@@ -5311,6 +5320,7 @@ void M_StartControlPanel (void)
     
     menuactive = 1;
     currentMenu = &MainDef;         // JDC
+    M_Reset_Line_Glow();
     itemOn = currentMenu->lastOn;   // JDC
 }
 
@@ -5489,6 +5499,7 @@ static void M_ClearMenus (void)
 static void M_SetupNextMenu(menu_t *menudef)
 {
     currentMenu = menudef;
+    M_Reset_Line_Glow();
     itemOn = currentMenu->lastOn;
 }
 
