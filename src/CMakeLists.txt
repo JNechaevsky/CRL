@@ -1,7 +1,4 @@
-foreach(SUBDIR 
-        doom 
-        heretic 
-        setup)
+foreach(SUBDIR doom heretic setup)
     add_subdirectory("${SUBDIR}")
 endforeach()
 
@@ -36,11 +33,11 @@ set(DEDSERV_FILES
 
 set(GAME_SOURCE_FILES
     aes_prng.c          aes_prng.h
+    crlcore.c            crlcore.h
+    crlvars.c            crlvars.h
     d_event.c           d_event.h
                         doomkeys.h
                         doomtype.h
-    crlcore.c           crlcore.h
-    crlvars.c           crlvars.h
     d_iwad.c            d_iwad.h
     d_loop.c            d_loop.h
     d_mode.c            d_mode.h
@@ -83,9 +80,9 @@ set(GAME_SOURCE_FILES
     memio.c             memio.h
     tables.c            tables.h
     v_diskicon.c        v_diskicon.h
-    v_trans.c           v_trans.h
     v_video.c           v_video.h
                         v_patch.h
+    v_trans.c           v_trans.h
     w_checksum.c        w_checksum.h
     w_main.c            w_main.h
     w_wad.c             w_wad.h
@@ -96,10 +93,16 @@ set(GAME_SOURCE_FILES
 
 # Platform-dependent source files:
 
+set(GAME_INCLUDE_DIRS "${CMAKE_CURRENT_BINARY_DIR}/../")
+
 if(WIN32)
     list(APPEND GAME_SOURCE_FILES i_winmusic.c)
     list(APPEND GAME_SOURCE_FILES midifallback.c    midifallback.h)
     list(APPEND GAME_SOURCE_FILES w_file_win32.c)
+    list(APPEND GAME_SOURCE_FILES
+        "../win32/win_opendir.c" "../win32/win_opendir.h")
+    list(APPEND GAME_INCLUDE_DIRS
+         "${PROJECT_SOURCE_DIR}/win32/")
 elseif(POSIX)
     list(APPEND GAME_SOURCE_FILES w_file_posix.c)
 endif()
@@ -109,8 +112,6 @@ endif()
 if(HAVE_FLUIDSYNTH)
     list(APPEND GAME_SOURCE_FILES i_flmusic.c)
 endif()
-
-set(GAME_INCLUDE_DIRS "${CMAKE_CURRENT_BINARY_DIR}/../")
 
 set(DEHACKED_SOURCE_FILES
     deh_defs.h
@@ -138,7 +139,7 @@ if(FluidSynth_FOUND)
     list(APPEND EXTRA_LIBS FluidSynth::libfluidsynth)
 endif()
 if(WIN32)
-	list(APPEND EXTRA_LIBS winmm)
+	list(APPEND EXTRA_LIBS winmm shlwapi)
 endif()
 
 if(WIN32)

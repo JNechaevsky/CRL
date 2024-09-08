@@ -82,11 +82,7 @@ if(SampleRate_FOUND)
 endif()
 
 # Check for Miniz (replaces libpng).
-find_package(miniz 2.0.0)
-if(NOT miniz_FOUND)
-    message(STATUS "Using vendored miniz library")
-    add_subdirectory("miniz")
-endif()
+add_subdirectory("miniz")
 
 # Check for FluidSynth.
 # [JN] Disabled to get rid of bunch of DLL files.
