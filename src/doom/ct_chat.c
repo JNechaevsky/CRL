@@ -138,7 +138,7 @@ static void CT_Stop (void)
 // ValidChatChar
 // [JN] These keys are allowed by Vanilla Doom:
 // -----------------------------------------------------------------------------
-static const boolean ValidChatChar (const char c)
+static boolean ValidChatChar (const char c)
 {
     return (c >= 'a' && c <= 'z')
         || (c >= 'A' && c <= 'Z')

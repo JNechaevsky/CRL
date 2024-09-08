@@ -195,7 +195,7 @@ void wipe_EndScreen (void)
 // wipe_ScreenWipe
 // -----------------------------------------------------------------------------
 
-const int wipe_ScreenWipe (const int ticks)
+int wipe_ScreenWipe (const int ticks)
 {
     // when zero, stop the wipe
     static boolean go = false;

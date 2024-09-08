@@ -24,4 +24,4 @@
 
 extern void wipe_StartScreen (void);
 extern void wipe_EndScreen (void);
-extern const int wipe_ScreenWipe (const int ticks);
+extern int  wipe_ScreenWipe (const int ticks);

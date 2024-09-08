@@ -1107,7 +1107,7 @@ static const struct
 
 // [FG] support named complevels on the command line, e.g. "-complevel boom"
 
-static const int G_GetNamedComplevel (const char *arg)
+static int G_GetNamedComplevel (const char *arg)
 {
     const struct 
     {

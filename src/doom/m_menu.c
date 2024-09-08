@@ -221,7 +221,7 @@ static void M_DrawSave(void);
 static void M_DrawSaveLoadBorder(int x,int y);
 static void M_SetupNextMenu(menu_t *menudef);
 static void M_DrawThermo(int x,int y,int thermWidth,int thermDot,int itemPos);
-static const int M_StringHeight(const char *string);
+static int  M_StringHeight(const char *string);
 static void M_StartMessage(const char *string,void (*routine)(int),boolean input);
 static void M_ClearMenus (void);
 
@@ -366,7 +366,7 @@ static menu_t OptionsDef =
     M_DrawOptions,
     60,37,
     0,
-    false
+    false, false, false,
 };
 
 //
@@ -1043,7 +1043,7 @@ static byte *M_Cursor_Glow (const int tics)
         tics == -7 || tics ==  -8 ? cr[CR_MENU_DARK4]   : NULL;
 }
 
-static const int M_INT_Slider (int val, int min, int max, int direction, boolean capped)
+static int M_INT_Slider (int val, int min, int max, int direction, boolean capped)
 {
     switch (direction)
     {
@@ -1062,8 +1062,8 @@ static const int M_INT_Slider (int val, int min, int max, int direction, boolean
     return val;
 }
 
-static const float M_FLOAT_Slider (float val, float min, float max, float step,
-                                   int direction, boolean capped)
+static float M_FLOAT_Slider (float val, float min, float max, float step,
+                             int direction, boolean capped)
 {
     char buf[9];
 
@@ -4164,7 +4164,7 @@ M_StartMessage
 //
 // Find string width from hu_font chars
 //
-const int M_StringWidth(const char* string)
+int M_StringWidth(const char* string)
 {
     size_t             i;
     int             w = 0;
@@ -4187,7 +4187,7 @@ const int M_StringWidth(const char* string)
 //
 //      Find string height from hu_font chars
 //
-static const int M_StringHeight(const char* string)
+static int M_StringHeight(const char* string)
 {
     size_t             i;
     int             h;

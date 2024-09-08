@@ -849,7 +849,7 @@ static byte *M_Cursor_Glow (const int tics)
         tics == -7 || tics == -8 ? cr[CR_MENU_DARK4]   : NULL;
 }
 
-static const int M_INT_Slider (int val, int min, int max, int direction, boolean capped)
+static int M_INT_Slider (int val, int min, int max, int direction, boolean capped)
 {
     switch (direction)
     {
@@ -868,8 +868,8 @@ static const int M_INT_Slider (int val, int min, int max, int direction, boolean
     return val;
 }
 
-static const float M_FLOAT_Slider (float val, float min, float max, float step,
-                                   int direction, boolean capped)
+static float M_FLOAT_Slider (float val, float min, float max, float step,
+                             int direction, boolean capped)
 {
     char buf[9];
 
@@ -3038,7 +3038,7 @@ enum {
     big_font, small_font
 } fontsize_t;
 
-static const char MN_CheckValidChar (char ascii_index, int have_cursor)
+static char MN_CheckValidChar (char ascii_index, int have_cursor)
 {
     if ((ascii_index > 'Z' + have_cursor && ascii_index < 'a') || ascii_index > 'z')
     {

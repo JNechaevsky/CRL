@@ -888,7 +888,7 @@ void P_MobjThinker(thinker_t *thinker)
 ===============
 */
 
-static const int P_FindDoomedNum (unsigned type)
+static int P_FindDoomedNum (unsigned type)
 {
     static struct { int first, next; } *hash;
     int i;

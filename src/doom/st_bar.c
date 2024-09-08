@@ -182,7 +182,7 @@ static char *facenames[] =
 // cht_CheckCheatSP
 // [crispy] restrict cheat usage
 // -----------------------------------------------------------------------------
-static const inline int cht_CheckCheatSP (cheatseq_t *cht, char key)
+static inline int cht_CheckCheatSP (cheatseq_t *cht, char key)
 {
     if (!cht_CheckCheat(cht, key))
     {
@@ -684,7 +684,7 @@ boolean ST_Responder (event_t *ev)
 // ST_calcPainOffset
 // -----------------------------------------------------------------------------
 
-static const int ST_calcPainOffset (void)
+static int ST_calcPainOffset (void)
 {
     int        health;
     static int lastcalc;
@@ -973,7 +973,7 @@ void ST_doPaletteStuff (void)
 // [JN] Updated to int type, allowing to show frags of any player.
 // -----------------------------------------------------------------------------
 
-static const int ST_UpdateFragsCounter (const int playernum, const boolean big_values)
+static int ST_UpdateFragsCounter (const int playernum, const boolean big_values)
 {
     st_fragscount = 0;
 
