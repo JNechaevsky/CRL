@@ -886,6 +886,7 @@ static byte *M_Small_Line_Glow (const int tics)
         tics == 1 ? cr[CR_MENU_BRIGHT1] : NULL;
 }
 
+/*
 static byte *M_Big_Line_Glow (const int tics)
 {
     return
@@ -893,6 +894,7 @@ static byte *M_Big_Line_Glow (const int tics)
         tics >= 3 ? cr[CR_MENU_BRIGHT2] :
         tics >= 1 ? cr[CR_MENU_BRIGHT1] : NULL;
 }
+*/
 
 static void M_Reset_Line_Glow (void)
 {
@@ -3884,17 +3886,13 @@ static void M_DrawOptions(void)
 
     V_DrawShadowedPatch(108, 15, W_CacheLumpName(m_optttl, PU_CACHE), m_optttl);
 	
-    dp_translation = M_Big_Line_Glow(currentMenu->menuitems[2].tics);
     V_DrawShadowedPatch(OptionsDef.x + 175, OptionsDef.y + LINEHEIGHT * detail,
 		        W_CacheLumpName(DEH_String(detailNames[detailLevel]), PU_CACHE),
                                 DEH_String(detailNames[detailLevel]));
-    dp_translation = NULL;
 
-    dp_translation = M_Big_Line_Glow(currentMenu->menuitems[1].tics);
     V_DrawShadowedPatch(OptionsDef.x + 120, OptionsDef.y + LINEHEIGHT * messages,
                 W_CacheLumpName(DEH_String(msgNames[showMessages]), PU_CACHE),
                                 DEH_String(msgNames[showMessages]));
-    dp_translation = NULL;
 
     M_DrawThermo(OptionsDef.x, OptionsDef.y + LINEHEIGHT * (mousesens + 1),
 		 10, mouseSensitivity, 5);
@@ -4129,12 +4127,6 @@ M_DrawThermo
     const char	*m_thermr = DEH_String("M_THERMR");
     const char	*m_thermo = DEH_String("M_THERMO");
 
-    // [JN] Highlight active slider and gem.
-    if (itemPos == itemOn)
-    {
-        dp_translation = cr[CR_MENU_BRIGHT2];
-    }
-
     xx = x;
     V_DrawShadowedPatch(xx, y, W_CacheLumpName(m_therml, PU_CACHE), m_therml);
     xx += 8;
@@ -4152,8 +4144,6 @@ M_DrawThermo
     }
 
     V_DrawPatch((x + 8) + thermDot * 8, y, W_CacheLumpName(m_thermo, PU_CACHE), m_thermo);
-
-    dp_translation = NULL;
 }
 
 static void
@@ -5481,9 +5471,7 @@ void M_Drawer (void)
 
             if (name[0])
             {
-                dp_translation = M_Big_Line_Glow(currentMenu->menuitems[i].tics);
                 V_DrawShadowedPatch(x, y, W_CacheLumpName(name, PU_CACHE), name);
-                dp_translation = NULL;
             }
             y += LINEHEIGHT;
         }
