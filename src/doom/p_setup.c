@@ -431,15 +431,14 @@ void P_LoadSectors (int lump)
 	// [JN] CRL - detect unsupported sector specials.
 	if (ms->special > 17)
 	{
-		char  badline[8];
+		char  badspec[8];
 		char  badsec[8];
 		char *string;
 
-		sprintf(badline, "%i", ms->special);
+		sprintf(badspec, "%i", ms->special);
 		sprintf(badsec, "%i", i);
-		string = M_StringJoin("unknown special ", badline, " in sector ", badsec, NULL);
-		// TODO - console printf, should have "\n" symbol.
-		// CRL_printf(string, true);
+		string = M_StringJoin("unknown special ", badspec, " in sector ", badsec, NULL);
+		CRL_printf(string, true);
 		CRL_SetMessageCritical("P_LoadSectors:", string, MESSAGETICS);
 	}
     }
