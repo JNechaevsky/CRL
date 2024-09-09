@@ -428,6 +428,20 @@ void P_LoadSectors (int lump)
 	ss->oldgametic = 0;
 	// [crispy] inhibit sector interpolation during the 0th gametic
 	ss->oldgametic = -1;
+	// [JN] CRL - detect unsupported sector specials.
+	if (ms->special > 17)
+	{
+		char  badline[8];
+		char  badsec[8];
+		char *string;
+
+		sprintf(badline, "%i", ms->special);
+		sprintf(badsec, "%i", i);
+		string = M_StringJoin("unknown special ", badline, " in sector ", badsec, NULL);
+		// TODO - console printf, should have "\n" symbol.
+		// CRL_printf(string, true);
+		CRL_SetMessageCritical("P_LoadSectors:", string, MESSAGETICS);
+	}
     }
 	
     W_ReleaseLumpNum(lump);
