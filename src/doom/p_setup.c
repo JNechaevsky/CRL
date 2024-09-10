@@ -437,7 +437,7 @@ void P_LoadSectors (int lump)
 
 		sprintf(badspec, "%i", ms->special);
 		sprintf(badsec, "%i", i);
-		string = M_StringJoin("unknown special ", badspec, " in sector ", badsec, NULL);
+		string = M_StringJoin("Unknown special ", badspec, " in sector ", badsec, NULL);
 		CRL_printf(string, true);
 		CRL_SetMessageCritical("P_LoadSectors:", string, MESSAGETICS);
 	}
@@ -585,6 +585,19 @@ void P_LoadLineDefs (int lump)
     {
 	ld->flags = SHORT(mld->flags);
 	ld->special = SHORT(mld->special);
+	// [crispy] warn about unknown linedef types
+	if ((unsigned short) ld->special > 141 && ld->special != 271 && ld->special != 272)
+	{
+	    char  badspec[8];
+	    char  badline[8];
+	    char *string;
+        
+	    sprintf(badspec, "%d", ld->special);
+	    sprintf(badline, "%d", i);
+	    string = M_StringJoin("Unknown special ", badspec, " at line ", badline, NULL);
+	    CRL_printf(string, false);
+	    CRL_SetMessageCritical("P_LoadLineDefs:", string, MESSAGETICS);
+	}
 	ld->tag = SHORT(mld->tag);
 	v1 = ld->v1 = &vertexes[SHORT(mld->v1)];
 	v2 = ld->v2 = &vertexes[SHORT(mld->v2)];
