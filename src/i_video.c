@@ -80,8 +80,6 @@ static SDL_Rect blit_rect = {
     SCREENHEIGHT
 };
 
-static uint32_t pixel_format;
-
 // palette
 
 static SDL_Color palette[256];
@@ -778,7 +776,7 @@ static void CreateUpscaledTexture(boolean force)
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, smooth_scaling ? "linear" : "nearest");
 
     new_texture = SDL_CreateTexture(renderer,
-                                pixel_format,
+                                SDL_PIXELFORMAT_ARGB8888,
                                 SDL_TEXTUREACCESS_TARGET,
                                 w_upscale*SCREENWIDTH,
                                 h_upscale*SCREENHEIGHT);
@@ -898,13 +896,13 @@ void I_FinishUpdate (void)
     }
 
     // Blit from the paletted 8-bit screen buffer to the intermediate
-    // 32-bit RGBA buffer that we can load into the texture.
+    // 32-bit RGBA buffer and update the intermediate texture with the
+    // contents of the RGBA buffer.
 
+    SDL_LockTexture(texture, &blit_rect, &argbbuffer->pixels,
+                    &argbbuffer->pitch);
     SDL_LowerBlit(screenbuffer, &blit_rect, argbbuffer, &blit_rect);
-
-    // Update the intermediate texture with the contents of the RGBA buffer.
-
-    SDL_UpdateTexture(texture, NULL, argbbuffer->pixels, argbbuffer->pitch);
+    SDL_UnlockTexture(texture);
 
     // Make sure the pillarboxes are kept clear each frame.
 
@@ -1008,6 +1006,7 @@ void I_SetPalette (byte *doompalette)
             // Zero out the bottom two bits of each channel - the PC VGA
             // controller only supports 6 bits of accuracy.
 
+            palette[i].a = 0xFFU;
             palette[i].r = gammatable[crl_gamma][*doompalette++] & ~3;
             palette[i].g = gammatable[crl_gamma][*doompalette++] & ~3;
             palette[i].b = gammatable[crl_gamma][*doompalette++] & ~3;
@@ -1034,6 +1033,7 @@ void I_SetPalette (byte *doompalette)
                                      g * g * colorblind_matrix[crl_colorblind][2][1] +
                                      b * b * colorblind_matrix[crl_colorblind][2][2]);
 
+            palette[i].a = 0xFFU;
             palette[i].r = (byte)((p_r + (r - p_r) / p_r));
             palette[i].g = (byte)((p_g + (g - p_g) / p_g));
             palette[i].b = (byte)((p_b + (b - p_b) / p_b));
@@ -1364,8 +1364,6 @@ static void SetVideoMode(void)
 {
     int w, h;
     int x = 0, y = 0;
-    unsigned int rmask, gmask, bmask, amask;
-    int bpp;
     int window_flags = 0, renderer_flags = 0;
     SDL_DisplayMode mode;
 
@@ -1430,8 +1428,6 @@ static void SetVideoMode(void)
             I_Error("Error creating window for video startup: %s",
             SDL_GetError());
         }
-
-        pixel_format = SDL_GetWindowPixelFormat(screen);
 
         SDL_SetWindowMinimumSize(screen, SCREENWIDTH, actualheight);
 
@@ -1548,12 +1544,10 @@ static void SetVideoMode(void)
 
     if (argbbuffer == NULL)
     {
-        SDL_PixelFormatEnumToMasks(pixel_format, &bpp,
-                                   &rmask, &gmask, &bmask, &amask);
-        argbbuffer = SDL_CreateRGBSurface(0,
-                                          SCREENWIDTH, SCREENHEIGHT, bpp,
-                                          rmask, gmask, bmask, amask);
-        SDL_FillRect(argbbuffer, NULL, 0);
+	    // pixels and pitch will be filled with the texture's values
+	    // in I_FinishUpdate()
+	    argbbuffer = SDL_CreateRGBSurfaceWithFormatFrom(
+                     NULL, w, h, 0, 0, SDL_PIXELFORMAT_ARGB8888);
     }
 
     if (texture != NULL)
@@ -1572,7 +1566,7 @@ static void SetVideoMode(void)
     // is going to change frequently.
 
     texture = SDL_CreateTexture(renderer,
-                                pixel_format,
+                                SDL_PIXELFORMAT_ARGB8888,
                                 SDL_TEXTUREACCESS_STREAMING,
                                 SCREENWIDTH, SCREENHEIGHT);
 
