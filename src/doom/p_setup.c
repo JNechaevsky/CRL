@@ -979,7 +979,7 @@ static void P_CheckMapFormat (int lumpnum)
     && (nodes = W_CacheLumpNum(b, PU_CACHE))
     && W_LumpLength(b) > 0))
     {
-        I_Error ("Map does not contain nodes.");
+        printf("(no nodes on map) ");
     }
     else
     if (!memcmp(nodes, "XNOD", 4))
