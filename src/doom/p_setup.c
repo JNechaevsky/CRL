@@ -428,6 +428,19 @@ void P_LoadSectors (int lump)
 	ss->oldgametic = 0;
 	// [crispy] inhibit sector interpolation during the 0th gametic
 	ss->oldgametic = -1;
+	// [JN] CRL - detect unsupported sector specials.
+	if (ms->special > 17)
+	{
+		char  badspec[8];
+		char  badsec[8];
+		char *string;
+
+		sprintf(badspec, "%i", ms->special);
+		sprintf(badsec, "%i", i);
+		string = M_StringJoin("Unknown special ", badspec, " in sector ", badsec, NULL);
+		CRL_printf(string, true);
+		CRL_SetMessageCritical("P_LoadSectors:", string, MESSAGETICS);
+	}
     }
 	
     W_ReleaseLumpNum(lump);
@@ -572,7 +585,51 @@ void P_LoadLineDefs (int lump)
     {
 	ld->flags = SHORT(mld->flags);
 	ld->special = SHORT(mld->special);
+	// [crispy] warn about unknown linedef types
+	if ((unsigned short) ld->special > 141 && ld->special != 271 && ld->special != 272)
+	{
+	    char  badspec[8];
+	    char  badline[8];
+	    char *string;
+        
+	    sprintf(badspec, "%d", ld->special);
+	    sprintf(badline, "%d", i);
+	    string = M_StringJoin("Unknown special ", badspec, " at line ", badline, NULL);
+	    CRL_printf(string, false);
+	    CRL_SetMessageCritical("P_LoadLineDefs:", string, MESSAGETICS);
+	}
 	ld->tag = SHORT(mld->tag);
+	// [crispy] warn about special linedefs without tag
+	if (ld->special && !ld->tag)
+	{
+	    char  badline[11];
+	    char *string;
+
+	    switch (ld->special)
+	    {
+		case 1:	// Vertical Door
+		case 26:	// Blue Door/Locked
+		case 27:	// Yellow Door /Locked
+		case 28:	// Red Door /Locked
+		case 31:	// Manual door open
+		case 32:	// Blue locked door open
+		case 33:	// Red locked door open
+		case 34:	// Yellow locked door open
+		case 117:	// Blazing door raise
+		case 118:	// Blazing door open
+		case 48:	// Scroll Wall Left
+		case 11:	// s1 Exit level
+		case 51:	// s1 Secret exit
+		case 52:	// w1 Exit level
+		case 124:	// w1 Secret exit
+		    break;
+		default:
+		    sprintf(badline, "%i", i);
+		    string = M_StringJoin("Special linedef ", badline, " without tag", NULL);
+		    CRL_printf(string, false);
+		    break;
+	    }
+	}
 	v1 = ld->v1 = &vertexes[SHORT(mld->v1)];
 	v2 = ld->v2 = &vertexes[SHORT(mld->v2)];
 	ld->dx = v2->x - v1->x;
@@ -953,7 +1010,7 @@ static void P_CheckMapFormat (int lumpnum)
     && (nodes = W_CacheLumpNum(b, PU_CACHE))
     && W_LumpLength(b) > 0))
     {
-        I_Error ("Map does not contain nodes.");
+        printf("(no nodes on map) ");
     }
     else
     if (!memcmp(nodes, "XNOD", 4))
