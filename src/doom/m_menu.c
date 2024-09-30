@@ -1655,11 +1655,19 @@ static void M_DrawCRL_Sound (void)
                  M_Item_Glow(11, snd_channels == 8 ? GLOW_GREEN :
                                  snd_channels == 1 ? GLOW_DARKRED : GLOW_DARKGREEN));
 
-    // Inform if GUS patches patch isn't set.
-    if (itemOn == 8 && snd_musicdevice == 5 && strcmp(gus_patch_path, "") == 0)
+    // Inform if FSYNTH/GUS paths anen't set.
+    if (itemOn == 8)
     {
-        M_WriteTextCentered(142, "\"GUS_PATCH_PATH\" VARIABLE IS NOT SET,\n", cr[CR_GRAY]);
-        M_WriteTextCentered(151, "PLEASE EDIT IT IN DEFAULT.CFG FILE.", cr[CR_GRAY]);
+        if (snd_musicdevice == 5 && strcmp(gus_patch_path, "") == 0)
+        {
+            M_WriteTextCentered(151, "\"GUS_PATCH_PATH\" VARIABLE IS NOT SET", cr[CR_GRAY]);
+        }
+#ifdef HAVE_FLUIDSYNTH
+        if (snd_musicdevice == 11 && strcmp(fsynth_sf_path, "") == 0)
+        {
+            M_WriteTextCentered(151, "\"FSYNTH_SF_PATH\" VARIABLE IS NOT SET", cr[CR_GRAY]);
+        }
+#endif // HAVE_FLUIDSYNTH
     }
 }
 
