@@ -432,7 +432,7 @@ void P_LoadSectors (int lump)
 	if (ms->special > 17)
 	{
 		char  badspec[8];
-		char  badsec[8];
+		char  badsec[11];
 		char *string;
 
 		sprintf(badspec, "%i", ms->special);
@@ -589,7 +589,7 @@ void P_LoadLineDefs (int lump)
 	if ((unsigned short) ld->special > 141 && ld->special != 271 && ld->special != 272)
 	{
 	    char  badspec[8];
-	    char  badline[8];
+	    char  badline[11];
 	    char *string;
         
 	    sprintf(badspec, "%d", ld->special);
