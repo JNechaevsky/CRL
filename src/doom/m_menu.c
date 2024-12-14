@@ -834,7 +834,7 @@ static void M_ShadeBackground (void)
     // Return earlier if shading disabled.
     if (crl_menu_shading)
     {
-        for (int y = 0; y < SCREENWIDTH * SCREENHEIGHT; y++)
+        for (int y = 0; y < SCREENAREA; y++)
         {
             I_VideoBuffer[y] = colormaps[crl_menu_shading * 256 + I_VideoBuffer[y]];
         }
@@ -855,26 +855,6 @@ static void M_FillBackground (void)
         }
     }
 }
-
-enum
-{
-    m_crl_01,    // 16
-    m_crl_02,    // 25
-    m_crl_03,    // 34
-    m_crl_04,    // 43
-    m_crl_05,    // 52
-    m_crl_06,    // 61
-    m_crl_07,    // 70
-    m_crl_08,    // 79
-    m_crl_09,    // 88
-    m_crl_10,    // 97
-    m_crl_11,    // 106
-    m_crl_12,    // 115
-    m_crl_13,    // 124
-    m_crl_14,    // 133
-    m_crl_15,    // 142
-    m_crl_end
-} crl1_e;
 
 static byte *M_Small_Line_Glow (const int tics)
 {
@@ -1045,46 +1025,34 @@ static byte *M_Cursor_Glow (const int tics)
 
 static int M_INT_Slider (int val, int min, int max, int direction, boolean capped)
 {
-    switch (direction)
-    {
-        case 0:
-        val--;
-        if (val < min) 
-            val = capped ? min : max;
-        break;
+    // [PN] Adjust the slider value based on direction and handle min/max limits
+    val += (direction == 0) ? -1 : 1;
 
-        case 1:
-        val++;
-        if (val > max)
-            val = capped ? max : min;
-        break;
-    }
+    if (val < min)
+        val = capped ? min : max;
+    else
+    if (val > max)
+        val = capped ? max : min;
+
     return val;
 }
 
 static float M_FLOAT_Slider (float val, float min, float max, float step,
                              int direction, boolean capped)
 {
-    char buf[9];
+    // [PN] Adjust value based on direction
+    val += (direction == 0) ? -step : step;
 
-    switch (direction)
-    {
-        case 0:
-        val -= step;
-        if (val < min) 
-            val = capped ? min : max;
-        break;
+    // [PN] Handle min/max limits
+    if (val < min)
+        val = capped ? min : max;
+    else
+    if (val > max)
+        val = capped ? max : min;
 
-        case 1:
-        val += step;
-        if (val > max)
-            val = capped ? max : min;
-        break;
-    }
+    // [PN/JN] Do a float correction to get x.xxx000 values
+    val = roundf(val * 1000.0f) / 1000.0f;
 
-    // [JN] Do a float correction to always get x.xxx000 values:
-    sprintf (buf, "%f", val);
-    val = (float)atof(buf);
     return val;
 }
 
@@ -1115,27 +1083,25 @@ static char *const DefSkillName[5] =
 
 static menuitem_t CRLMenu_Main[]=
 {
-    { M_LFRT, "SPECTATOR MODE",       M_CRL_Spectating,      's'},
-    { M_LFRT, "FREEZE MODE",          M_CRL_Freeze,          'f'},
-    { M_LFRT, "BUDDHA MODE",          M_CRL_Buddha,          'f'},
-    { M_LFRT, "NO TARGET MODE",       M_CRL_NoTarget,        'n'},
-    { M_LFRT, "NO MOMENTUM MODE",     M_CRL_NoMomentum,      'n'},
+    { M_LFRT, "SPECTATOR MODE",       M_CRL_Spectating,     's'},
+    { M_LFRT, "FREEZE MODE",          M_CRL_Freeze,         'f'},
+    { M_LFRT, "BUDDHA MODE",          M_CRL_Buddha,         'f'},
+    { M_LFRT, "NO TARGET MODE",       M_CRL_NoTarget,       'n'},
+    { M_LFRT, "NO MOMENTUM MODE",     M_CRL_NoMomentum,     'n'},
     { M_SKIP, "", 0, '\0'},
-    { M_SWTC, "VIDEO OPTIONS",        M_ChooseCRL_Video,     'v'},
-    { M_SWTC, "DISPLAY OPTIONS",      M_ChooseCRL_Display,   'd'},
-    { M_SWTC, "SOUND OPTIONS",        M_ChooseCRL_Sound,     's'},
-    { M_SWTC, "CONTROL SETTINGS",     M_ChooseCRL_Controls,  'c'},
-    { M_SWTC, "WIDGETS AND AUTOMAP",  M_ChooseCRL_Widgets,   'w'},
-    { M_SWTC, "GAMEPLAY FEATURES",    M_ChooseCRL_Gameplay,  'g'},
-    { M_SWTC, "STATIC ENGINE LIMITS", M_ChooseCRL_Limits,    's'},
-    { M_SWTC, "VANILLA OPTIONS MENU", M_Options,             'v'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'}
+    { M_SWTC, "VIDEO OPTIONS",        M_ChooseCRL_Video,    'v'},
+    { M_SWTC, "DISPLAY OPTIONS",      M_ChooseCRL_Display,  'd'},
+    { M_SWTC, "SOUND OPTIONS",        M_ChooseCRL_Sound,    's'},
+    { M_SWTC, "CONTROL SETTINGS",     M_ChooseCRL_Controls, 'c'},
+    { M_SWTC, "WIDGETS AND AUTOMAP",  M_ChooseCRL_Widgets,  'w'},
+    { M_SWTC, "GAMEPLAY FEATURES",    M_ChooseCRL_Gameplay, 'g'},
+    { M_SWTC, "STATIC ENGINE LIMITS", M_ChooseCRL_Limits,   's'},
+    { M_SWTC, "VANILLA OPTIONS MENU", M_Options,            'v'},
 };
 
 static menu_t CRLDef_Main =
 {
-    m_crl_end,
+    14,
     &MainDef,
     CRLMenu_Main,
     M_DrawCRL_Main,
@@ -1244,27 +1210,22 @@ static void M_CRL_NoMomentum (int choice)
 
 static menuitem_t CRLMenu_Video[]=
 {
-    { M_LFRT, "UNCAPPED FRAMERATE",  M_CRL_UncappedFPS,    'u'},
-    { M_LFRT, "FRAMERATE LIMIT",     M_CRL_LimitFPS,       'f'},
-    { M_LFRT, "ENABLE VSYNC",        M_CRL_VSync,          'e'},
-    { M_LFRT, "SHOW FPS COUNTER",    M_CRL_ShowFPS,        's'},
-    { M_LFRT, "PIXEL SCALING",       M_CRL_PixelScaling,   'p'},
-    { M_LFRT, "VISPLANES DRAWING",   M_CRL_VisplanesDraw,  'v'},
-    { M_LFRT, "HOM EFFECT",          M_CRL_HOMDraw,        'h'},
-    { M_SKIP, "", 0, '\0'},
-    { M_LFRT, "SCREEN WIPE EFFECT",  M_CRL_ScreenWipe,     's'},
-    { M_LFRT, "SHOW ENDOOM SCREEN",  M_CRL_ShowENDOOM,     's'},
-    { M_LFRT, "COLORBLIND",          M_CRL_Colorblind,     'c'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'}
+    { M_LFRT, "UNCAPPED FRAMERATE", M_CRL_UncappedFPS,   'u' },
+    { M_LFRT, "FRAMERATE LIMIT",    M_CRL_LimitFPS,      'f' },
+    { M_LFRT, "ENABLE VSYNC",       M_CRL_VSync,         'e' },
+    { M_LFRT, "SHOW FPS COUNTER",   M_CRL_ShowFPS,       's' },
+    { M_LFRT, "PIXEL SCALING",      M_CRL_PixelScaling,  'p' },
+    { M_LFRT, "VISPLANES DRAWING",  M_CRL_VisplanesDraw, 'v' },
+    { M_LFRT, "HOM EFFECT",         M_CRL_HOMDraw,       'h' },
+    { M_SKIP, "", 0, '\0'},                              
+    { M_LFRT, "SCREEN WIPE EFFECT", M_CRL_ScreenWipe,    's' },
+    { M_LFRT, "SHOW ENDOOM SCREEN", M_CRL_ShowENDOOM,    's' },
+    { M_LFRT, "COLORBLIND",         M_CRL_Colorblind,    'c' },
 };
 
 static menu_t CRLDef_Video =
 {
-    m_crl_end,
+    11,
     &CRLDef_Main,
     CRLMenu_Video,
     M_DrawCRL_Video,
@@ -1281,6 +1242,10 @@ static void M_ChooseCRL_Video (int choice)
 static void M_DrawCRL_Video (void)
 {
     char str[32];
+    const char *colorblind_name[] = {
+        "NONE","PROTANOPIA","PROTANOMALY","DEUTERANOPIA","DEUTERANOMALY",
+        "TRITANOPIA","TRITANOMALY","ACHROMATOPSIA","ACHROMATOMALY"
+    };
 
     M_WriteTextCentered(25, "VIDEO OPTIONS", cr[CR_YELLOW]);
 
@@ -1346,29 +1311,19 @@ static void M_DrawCRL_Video (void)
                  M_Item_Glow(9, show_endoom == 1 ? GLOW_DARKRED : GLOW_GREEN));
 
     // Colorblind
-    sprintf(str, crl_colorblind == 1 ? "PROTANOPIA"    :
-                 crl_colorblind == 2 ? "PROTANOMALY"   :
-                 crl_colorblind == 3 ? "DEUTERANOPIA"  :
-                 crl_colorblind == 4 ? "DEUTERANOMALY" :
-                 crl_colorblind == 5 ? "TRITANOPIA"    :
-                 crl_colorblind == 6 ? "TRITANOMALY"   :
-                 crl_colorblind == 7 ? "ACHROMATOPSIA" :
-                 crl_colorblind == 8 ? "ACHROMATOMALY" : "NONE");
+    sprintf(str, "%s", colorblind_name[crl_colorblind]);
     M_WriteText (M_ItemRightAlign(str), 124, str,
                  M_Item_Glow(10, crl_colorblind ? GLOW_GREEN : GLOW_DARKRED));
 
-    // Print hint about colorblind type
+    // [PN] Added explanations for colorblind filters
     if (itemOn == 10 && crl_colorblind)
     {
-        M_WriteTextCentered(151, crl_colorblind == 1 ? "RED-BLIND"    :
-                                 crl_colorblind == 2 ? "RED-WEAK"     :
-                                 crl_colorblind == 3 ? "GREEN-BLIND"  :
-                                 crl_colorblind == 4 ? "GREEN-WEAK"   :
-                                 crl_colorblind == 5 ? "BLUE-BLIND"   :
-                                 crl_colorblind == 6 ? "BLUE-WEAK"    :
-                                 crl_colorblind == 7 ? "MONOCHROMACY" :
-                              /* crl_colorblind == 8*/ "BLUE CONE MONOCHROMACY",
-                                                       cr[CR_WHITE]);
+        const char *colorblind_hint[] = {
+            "","RED-BLIND","RED-WEAK","GREEN-BLIND","GREEN-WEAK",
+            "BLUE-BLIND","BLUE-WEAK","MONOCHROMACY","BLUE CONE MONOCHROMACY"
+        };
+
+        M_WriteTextCentered(151, colorblind_hint[crl_colorblind], cr[CR_WHITE]);
     }
 }
 
@@ -1459,26 +1414,20 @@ static void M_CRL_Colorblind (int choice)
 
 static menuitem_t CRLMenu_Display[]=
 {
-    { M_LFRT, "GAMMA-CORRECTION",         M_CRL_Gamma,            'g'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'},
-    { M_LFRT, "MENU BACKGROUND SHADING",  M_CRL_MenuBgShading,    'm'},
-    { M_LFRT, "EXTRA LEVEL BRIGHTNESS",   M_CRL_LevelBrightness,  'e'},
-    { M_SKIP, "", 0, '\0'},
-    { M_LFRT, "MESSAGES ENABLED",         M_ChangeMessages,       'm'},
-    { M_LFRT, "CRITICAL MESSAGE",         M_CRL_MsgCritical,      'c'},
-    { M_LFRT, "TEXT CAST SHADOWS",        M_CRL_TextShadows,      't'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'}
+    { M_LFRT, "GAMMA-CORRECTION",        M_CRL_Gamma,           'g'},
+    { M_SKIP, "", 0, '\0'},                                     
+    { M_SKIP, "", 0, '\0'},                                     
+    { M_LFRT, "MENU BACKGROUND SHADING", M_CRL_MenuBgShading,   'm'},
+    { M_LFRT, "EXTRA LEVEL BRIGHTNESS",  M_CRL_LevelBrightness, 'e'},
+    { M_SKIP, "", 0, '\0'},                                     
+    { M_LFRT, "MESSAGES ENABLED",        M_ChangeMessages,      'm'},
+    { M_LFRT, "CRITICAL MESSAGE",        M_CRL_MsgCritical,     'c'},
+    { M_LFRT, "TEXT CAST SHADOWS",       M_CRL_TextShadows,     't'},
 };
 
 static menu_t CRLDef_Display =
 {
-    m_crl_end,
+    9,
     &CRLDef_Main,
     CRLMenu_Display,
     M_DrawCRL_Display,
@@ -1582,15 +1531,11 @@ static menuitem_t CRLMenu_Sound[]=
     { M_LFRT, "SOUNDS EFFECTS MODE",   M_CRL_SFXMode,      's'},
     { M_LFRT, "PITCH-SHIFTED SOUNDS",  M_CRL_PitchShift,   'p'},
     { M_LFRT, "NUMBER OF SFX TO MIX",  M_CRL_SFXChannels,  'n'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'}
 };
 
 static menu_t CRLDef_Sound =
 {
-    m_crl_end,
+    12,
     &CRLDef_Main,
     CRLMenu_Sound,
     M_DrawCRL_Sound,
@@ -1839,13 +1784,11 @@ static menuitem_t CRLMenu_Controls[]=
     { M_SKIP, "", 0, '\0'},
     { M_LFRT, "VERTICAL MOUSE MOVEMENT",      M_CRL_Controls_NoVert,       'v'},
     { M_LFRT, "DOUBLE CLICK ACTS AS \"USE\"", M_CRL_Controls_DblClck,      'd'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'}
 };
 
 static menu_t CRLDef_Controls =
 {
-    m_crl_end,
+    14,
     &CRLDef_Main,
     CRLMenu_Controls,
     M_DrawCRL_Controls,
@@ -1932,18 +1875,14 @@ static menuitem_t CRLMenu_Keybinds_1[]=
     { M_SWTC, "SPEED ON",       M_Bind_SpeedOn,       's' },
     { M_SWTC, "STRAFE ON",      M_Bind_StrafeOn,      's' },
     { M_SWTC, "180 DEGREE TURN",M_Bind_180Turn,       '1' },
-    { M_SKIP, "",               0,                    '\0'},  // ACTION
+    { M_SKIP, "", 0, '\0' },
     { M_SWTC, "FIRE/ATTACK",    M_Bind_FireAttack,    'f' },
     { M_SWTC, "USE",            M_Bind_Use,           'u' },
-    { M_SKIP, "",               0,                    '\0'},
-    { M_SKIP, "",               0,                    '\0'},
-    { M_SKIP, "",               0,                    '\0'},
-    { M_SKIP, "",               0,                    '\0'}
 };
 
 static menu_t CRLDef_Keybinds_1 =
 {
-    m_crl_end,
+    12,
     &CRLDef_Controls,
     CRLMenu_Keybinds_1,
     M_DrawCRL_Keybinds_1,
@@ -2040,28 +1979,25 @@ static void M_Bind_Use (int choice)
 
 static menuitem_t CRLMenu_Keybinds_2[]=
 {
-    { M_SWTC, "MAIN CRL MENU",             M_Bind_CRLmenu,        'm'  },
-    { M_SWTC, "RESTART LEVEL/DEMO",        M_Bind_RestartLevel,   'r'  },
-    { M_SWTC, "GO TO NEXT LEVEL",          M_Bind_NextLevel,      'g'  },
-    { M_SWTC, "DEMO FAST-FORWARD",         M_Bind_FastForward,    'd'  },
-    { M_SWTC, "TOGGLE EXTENDED HUD",       M_Bind_ExtendedHUD,    't'  },
-    { M_SKIP, "",                          0,                     '\0' },  // GAME MODES
-    { M_SWTC, "SPECTATOR MODE",            M_Bind_SpectatorMode,  's'  },
-    { M_SWTC, "- MOVE CAMERA UP",          M_Bind_CameraUp,       'm'  },
-    { M_SWTC, "- MOVE CAMERA DOWN",        M_Bind_CameraDown,     'm'  },
-    { M_SWTC, "- MOVE TO CAMERA POSITION", M_Bind_CameraMoveTo,   'm'  },
-    { M_SWTC, "FREEZE MODE",               M_Bind_FreezeMode,     'f'  },
-    { M_SWTC, "BUDDHA MODE",               M_Bind_BuddhaMode,     'b'  },
-    { M_SWTC, "NO TARGET MODE",            M_Bind_NotargetMode,   'n'  },
-    { M_SWTC, "NO MOMENTUM MODE",          M_Bind_NomomentumMode, 'n'  },
-    { M_SKIP, "",                          0,                     '\0' },
-    { M_SKIP, "",                          0,                     '\0' },
-    { M_SKIP, "",                          0,                     '\0' }
+    { M_SWTC, "MAIN CRL MENU",             M_Bind_CRLmenu,        'm' },
+    { M_SWTC, "RESTART LEVEL/DEMO",        M_Bind_RestartLevel,   'r' },
+    { M_SWTC, "GO TO NEXT LEVEL",          M_Bind_NextLevel,      'g' },
+    { M_SWTC, "DEMO FAST-FORWARD",         M_Bind_FastForward,    'd' },
+    { M_SWTC, "TOGGLE EXTENDED HUD",       M_Bind_ExtendedHUD,    't' },
+    { M_SKIP, "", 0, '\0' },
+    { M_SWTC, "SPECTATOR MODE",            M_Bind_SpectatorMode,  's' },
+    { M_SWTC, "- MOVE CAMERA UP",          M_Bind_CameraUp,       'm' },
+    { M_SWTC, "- MOVE CAMERA DOWN",        M_Bind_CameraDown,     'm' },
+    { M_SWTC, "- MOVE TO CAMERA POSITION", M_Bind_CameraMoveTo,   'm' },
+    { M_SWTC, "FREEZE MODE",               M_Bind_FreezeMode,     'f' },
+    { M_SWTC, "BUDDHA MODE",               M_Bind_BuddhaMode,     'b' },
+    { M_SWTC, "NO TARGET MODE",            M_Bind_NotargetMode,   'n' },
+    { M_SWTC, "NO MOMENTUM MODE",          M_Bind_NomomentumMode, 'n' },
 };
 
 static menu_t CRLDef_Keybinds_2 =
 {
-    m_crl_end,
+    14,
     &CRLDef_Controls,
     CRLMenu_Keybinds_2,
     M_DrawCRL_Keybinds_2,
@@ -2174,23 +2110,21 @@ static menuitem_t CRLMenu_Keybinds_3[]=
     { M_SWTC, "VERTICAL MOUSE MOVEMENT", M_Bind_NoVert,     'v'  },
     { M_SWTC, "ARCH-VILE JUMP (PRESS)",  M_Bind_VileBomb,   'a'  },
     { M_SWTC, "ARCH-VILE FLY (HOLD)",    M_Bind_VileFly,    'a'  },
-    { M_SKIP, "",                        0,                 '\0' },  // VISPLANES MAX VALUE
+    { M_SKIP, "", 0, '\0' },
     { M_SWTC, "CLEAR MAX",               M_Bind_ClearMAX,   'c'  },
     { M_SWTC, "MOVE TO MAX ",            M_Bind_MoveToMAX,  'm'  },
-    { M_SKIP, "",                        0,                 '\0' },  // CHEAT SHORTCUTS
+    { M_SKIP, "", 0, '\0' },
     { M_SWTC, "IDDQD",                   M_Bind_IDDQD,      'i'  },
     { M_SWTC, "IDKFA",                   M_Bind_IDKFA,      'i'  },
     { M_SWTC, "IDFA",                    M_Bind_IDFA,       'i'  },
     { M_SWTC, "IDCLIP",                  M_Bind_IDCLIP,     'i'  },
     { M_SWTC, "IDDT",                    M_Bind_IDDT,       'i'  },
     { M_SWTC, "MDK",                     M_Bind_MDK,        'm'  },
-    { M_SKIP, "",                        0,                 '\0' },
-    { M_SKIP, "",                        0,                 '\0' }
 };
 
 static menu_t CRLDef_Keybinds_3 =
 {
-    m_crl_end,
+    14,
     &CRLDef_Controls,
     CRLMenu_Keybinds_3,
     M_DrawCRL_Keybinds_3,
@@ -2296,27 +2230,21 @@ static void M_DrawCRL_Keybinds_3 (void)
 
 static menuitem_t CRLMenu_Keybinds_4[]=
 {
-    { M_SWTC, "WEAPON 1",        M_Bind_Weapon1,    'w'  },
-    { M_SWTC, "WEAPON 2",        M_Bind_Weapon2,    'w'  },
-    { M_SWTC, "WEAPON 3",        M_Bind_Weapon3,    'w'  },
-    { M_SWTC, "WEAPON 4",        M_Bind_Weapon4,    'w'  },
-    { M_SWTC, "WEAPON 5",        M_Bind_Weapon5,    'w'  },
-    { M_SWTC, "WEAPON 6",        M_Bind_Weapon6,    'w'  },
-    { M_SWTC, "WEAPON 7",        M_Bind_Weapon7,    'w'  },
-    { M_SWTC, "WEAPON 8",        M_Bind_Weapon8,    'w'  },
-    { M_SWTC, "PREVIOUS WEAPON", M_Bind_PrevWeapon, 'p'  },
-    { M_SWTC, "NEXT WEAPON",     M_Bind_NextWeapon, 'n'  },
-    { M_SKIP, "",                0,                 '\0' },
-    { M_SKIP, "",                0,                 '\0' },
-    { M_SKIP, "",                0,                 '\0' },
-    { M_SKIP, "",                0,                 '\0' },
-    { M_SKIP, "",                0,                 '\0' },
-    { M_SKIP, "",                0,                 '\0' }
+    { M_SWTC, "WEAPON 1",        M_Bind_Weapon1,    'w' },
+    { M_SWTC, "WEAPON 2",        M_Bind_Weapon2,    'w' },
+    { M_SWTC, "WEAPON 3",        M_Bind_Weapon3,    'w' },
+    { M_SWTC, "WEAPON 4",        M_Bind_Weapon4,    'w' },
+    { M_SWTC, "WEAPON 5",        M_Bind_Weapon5,    'w' },
+    { M_SWTC, "WEAPON 6",        M_Bind_Weapon6,    'w' },
+    { M_SWTC, "WEAPON 7",        M_Bind_Weapon7,    'w' },
+    { M_SWTC, "WEAPON 8",        M_Bind_Weapon8,    'w' },
+    { M_SWTC, "PREVIOUS WEAPON", M_Bind_PrevWeapon, 'p' },
+    { M_SWTC, "NEXT WEAPON",     M_Bind_NextWeapon, 'n' },
 };
 
 static menu_t CRLDef_Keybinds_4 =
 {
-    m_crl_end,
+    10,
     &CRLDef_Controls,
     CRLMenu_Keybinds_4,
     M_DrawCRL_Keybinds_4,
@@ -2404,27 +2332,22 @@ static void M_Bind_NextWeapon (int choice)
 
 static menuitem_t CRLMenu_Keybinds_5[]=
 {
-    { M_SWTC, "TOGGLE MAP",             M_Bind_ToggleMap,    't'  },
-    { M_SWTC, "ZOOM IN",                M_Bind_ZoomIn,       'z'  },
-    { M_SWTC, "ZOOM OUT",               M_Bind_ZoomOut,      'z'  },
-    { M_SWTC, "MAXIMUM ZOOM OUT",       M_Bind_MaxZoom,      'm'  },
-    { M_SWTC, "FOLLOW MODE",            M_Bind_FollowMode,   'f'  },
-    { M_SWTC, "ROTATE MODE",            M_Bind_RotateMode,   'r'  },
-    { M_SWTC, "OVERLAY MODE",           M_Bind_OverlayMode,  'o'  },
-    { M_SWTC, "SOUND PROPAGATION MODE", M_Bind_SndPropMode,  's'  },
-    { M_SWTC, "TOGGLE GRID",            M_Bind_ToggleGrid,   't'  },
-    { M_SWTC, "MARK LOCATION",          M_Bind_AddMark,      'm'  },
-    { M_SWTC, "CLEAR ALL MARKS",        M_Bind_ClearMarks,   'c'  },
-    { M_SKIP, "",                       0,                   '\0' },
-    { M_SKIP, "",                       0,                   '\0' },
-    { M_SKIP, "",                       0,                   '\0' },
-    { M_SKIP, "",                       0,                   '\0' },
-    { M_SKIP, "",                       0,                   '\0' }
+    { M_SWTC, "TOGGLE MAP",             M_Bind_ToggleMap,    't' },
+    { M_SWTC, "ZOOM IN",                M_Bind_ZoomIn,       'z' },
+    { M_SWTC, "ZOOM OUT",               M_Bind_ZoomOut,      'z' },
+    { M_SWTC, "MAXIMUM ZOOM OUT",       M_Bind_MaxZoom,      'm' },
+    { M_SWTC, "FOLLOW MODE",            M_Bind_FollowMode,   'f' },
+    { M_SWTC, "ROTATE MODE",            M_Bind_RotateMode,   'r' },
+    { M_SWTC, "OVERLAY MODE",           M_Bind_OverlayMode,  'o' },
+    { M_SWTC, "SOUND PROPAGATION MODE", M_Bind_SndPropMode,  's' },
+    { M_SWTC, "TOGGLE GRID",            M_Bind_ToggleGrid,   't' },
+    { M_SWTC, "MARK LOCATION",          M_Bind_AddMark,      'm' },
+    { M_SWTC, "CLEAR ALL MARKS",        M_Bind_ClearMarks,   'c' },
 };
 
 static menu_t CRLDef_Keybinds_5 =
 {
-    m_crl_end,
+    11,
     &CRLDef_Controls,
     CRLMenu_Keybinds_5,
     M_DrawCRL_Keybinds_5,
@@ -2518,27 +2441,23 @@ static void M_Bind_ClearMarks (int choice)
 
 static menuitem_t CRLMenu_Keybinds_6[]=
 {
-    { M_SWTC, "HELP SCREEN",      M_Bind_HelpScreen,      'h'  },
-    { M_SWTC, "SAVE GAME",        M_Bind_SaveGame,        's'  },
-    { M_SWTC, "LOAD GAME",        M_Bind_LoadGame,        'l'  },
-    { M_SWTC, "SOUND VOLUME",     M_Bind_SoundVolume,     's'  },
-    { M_SWTC, "TOGGLE DETAIL",    M_Bind_ToggleDetail,    't'  },
-    { M_SWTC, "QUICK SAVE",       M_Bind_QuickSave,       'q'  },
-    { M_SWTC, "END GAME",         M_Bind_EndGame,         'e'  },
-    { M_SWTC, "TOGGLE MESSAGES",  M_Bind_ToggleMessages,  't'  },
-    { M_SWTC, "QUICK LOAD",       M_Bind_QuickLoad,       'q'  },
-    { M_SWTC, "QUIT GAME",        M_Bind_QuitGame,        'q'  },
-    { M_SWTC, "TOGGLE GAMMA",     M_Bind_ToggleGamma,     't'  },
-    { M_SWTC, "MULTIPLAYER SPY",  M_Bind_MultiplayerSpy,  'm'  },
-    { M_SKIP, "",                 0,                      '\0' },
-    { M_SKIP, "",                 0,                      '\0' },
-    { M_SKIP, "",                 0,                      '\0' },
-    { M_SKIP, "",                 0,                      '\0' }
+    { M_SWTC, "HELP SCREEN",      M_Bind_HelpScreen,      'h' },
+    { M_SWTC, "SAVE GAME",        M_Bind_SaveGame,        's' },
+    { M_SWTC, "LOAD GAME",        M_Bind_LoadGame,        'l' },
+    { M_SWTC, "SOUND VOLUME",     M_Bind_SoundVolume,     's' },
+    { M_SWTC, "TOGGLE DETAIL",    M_Bind_ToggleDetail,    't' },
+    { M_SWTC, "QUICK SAVE",       M_Bind_QuickSave,       'q' },
+    { M_SWTC, "END GAME",         M_Bind_EndGame,         'e' },
+    { M_SWTC, "TOGGLE MESSAGES",  M_Bind_ToggleMessages,  't' },
+    { M_SWTC, "QUICK LOAD",       M_Bind_QuickLoad,       'q' },
+    { M_SWTC, "QUIT GAME",        M_Bind_QuitGame,        'q' },
+    { M_SWTC, "TOGGLE GAMMA",     M_Bind_ToggleGamma,     't' },
+    { M_SWTC, "MULTIPLAYER SPY",  M_Bind_MultiplayerSpy,  'm' },
 };
 
 static menu_t CRLDef_Keybinds_6 =
 {
-    m_crl_end,
+    12,
     &CRLDef_Controls,
     CRLMenu_Keybinds_6,
     M_DrawCRL_Keybinds_6,
@@ -2650,15 +2569,11 @@ static menuitem_t CRLMenu_Keybinds_7[]=
     { M_SWTC, "- TO PLAYER 4",          M_Bind_ToPlayer4,       '4'  },
     { M_SKIP, "",                       0,                      '\0' },
     { M_SWTC, "RESET BINDINGS TO DEFAULT", M_Bind_Reset,        'r'  },
-    { M_SKIP, "",                       0,                      '\0' },
-    { M_SKIP, "",                       0,                      '\0' },
-    { M_SKIP, "",                       0,                      '\0' },
-    { M_SKIP, "",                       0,                      '\0' }
 };
 
 static menu_t CRLDef_Keybinds_7 =
 {
-    m_crl_end,
+    12,
     &CRLDef_Controls,
     CRLMenu_Keybinds_7,
     M_DrawCRL_Keybinds_7,
@@ -2765,27 +2680,23 @@ static void M_Bind_Reset (int choice)
 
 static menuitem_t CRLMenu_MouseBinds[]=
 {
-    { M_SWTC, "FIRE/ATTACK",    M_Bind_M_FireAttack,    'f' },
-    { M_SWTC, "MOVE FORWARD",   M_Bind_M_MoveForward,   'm' },
-    { M_SWTC, "SPEED ON",       M_Bind_M_SpeedOn,       's' },
-    { M_SWTC, "STRAFE ON",      M_Bind_M_StrafeOn,      's' },
-    { M_SWTC, "MOVE BACKWARD",  M_Bind_M_MoveBackward,  'm' },
-    { M_SWTC, "USE",            M_Bind_M_Use,           'u' },
-    { M_SWTC, "STRAFE LEFT",    M_Bind_M_StrafeLeft,    's' },
-    { M_SWTC, "STRAFE RIGHT",   M_Bind_M_StrafeRight,   's' },
-    { M_SWTC, "PREV WEAPON",    M_Bind_M_PrevWeapon,    'p' },
-    { M_SWTC, "NEXT WEAPON",    M_Bind_M_NextWeapon,    'n' },
-    { M_SKIP, "",               0,                      '\0'},
+    { M_SWTC, "FIRE/ATTACK",    M_Bind_M_FireAttack,       'f' },
+    { M_SWTC, "MOVE FORWARD",   M_Bind_M_MoveForward,      'm' },
+    { M_SWTC, "SPEED ON",       M_Bind_M_SpeedOn,          's' },
+    { M_SWTC, "STRAFE ON",      M_Bind_M_StrafeOn,         's' },
+    { M_SWTC, "MOVE BACKWARD",  M_Bind_M_MoveBackward,     'm' },
+    { M_SWTC, "USE",            M_Bind_M_Use,              'u' },
+    { M_SWTC, "STRAFE LEFT",    M_Bind_M_StrafeLeft,       's' },
+    { M_SWTC, "STRAFE RIGHT",   M_Bind_M_StrafeRight,      's' },
+    { M_SWTC, "PREV WEAPON",    M_Bind_M_PrevWeapon,       'p' },
+    { M_SWTC, "NEXT WEAPON",    M_Bind_M_NextWeapon,       'n' },
+    { M_SKIP, "", 0, '\0' },
     { M_SWTC, "RESET BINDINGS TO DEFAULT", M_Bind_M_Reset, 'r' },
-    { M_SKIP, "",               0,                      '\0'},
-    { M_SKIP, "",               0,                      '\0'},
-    { M_SKIP, "",               0,                      '\0'},
-    { M_SKIP, "",               0,                      '\0'}
 };
 
 static menu_t CRLDef_MouseBinds =
 {
-    m_crl_end,
+    12,
     &CRLDef_Controls,
     CRLMenu_MouseBinds,
     M_DrawCRL_MouseBinds,
@@ -2899,27 +2810,26 @@ static void M_Bind_M_Reset (int choice)
 
 static menuitem_t CRLMenu_Widgets[]=
 {
-    { M_LFRT, "RENDER COUNTERS",        M_CRL_Widget_Render,     'r'},
-    { M_LFRT, "MAX OVERFLOW STYLE",     M_CRL_Widget_MAX,        'r'},
-    { M_LFRT, "PLAYSTATE COUNTERS",     M_CRL_Widget_Playstate,  'r'},
-    { M_LFRT, "KIS STATS/FRAGS",        M_CRL_Widget_KIS,        'k'},
-    { M_LFRT, "LEVEL/DM TIMER",         M_CRL_Widget_Time,       'l'},
-    { M_LFRT, "PLAYER COORDS",          M_CRL_Widget_Coords,     'p'},
-    { M_LFRT, "POWERUP TIMERS",         M_CRL_Widget_Powerups,   'p'},
-    { M_LFRT, "TARGET'S HEALTH",        M_CRL_Widget_Health,     't'},
+    { M_LFRT, "RENDER COUNTERS",        M_CRL_Widget_Render,     'r' },
+    { M_LFRT, "MAX OVERFLOW STYLE",     M_CRL_Widget_MAX,        'r' },
+    { M_LFRT, "PLAYSTATE COUNTERS",     M_CRL_Widget_Playstate,  'r' },
+    { M_LFRT, "KIS STATS/FRAGS",        M_CRL_Widget_KIS,        'k' },
+    { M_LFRT, "LEVEL/DM TIMER",         M_CRL_Widget_Time,       'l' },
+    { M_LFRT, "PLAYER COORDS",          M_CRL_Widget_Coords,     'p' },
+    { M_LFRT, "POWERUP TIMERS",         M_CRL_Widget_Powerups,   'p' },
+    { M_LFRT, "TARGET'S HEALTH",        M_CRL_Widget_Health,     't' },
     { M_SKIP, "", 0, '\0'},
-    { M_LFRT, "ROTATE MODE",            M_CRL_Automap_Rotate,    'r'},
-    { M_LFRT, "OVERLAY MODE",           M_CRL_Automap_Overlay,   'o'},
-    { M_LFRT, "OVERLAY SHADING LEVEL",  M_CRL_Automap_Shading,   'o'},
-    { M_LFRT, "DRAWING MODE",           M_CRL_Automap_Drawing,   'd'},
-    { M_LFRT, "MARK SECRET SECTORS",    M_CRL_Automap_Secrets,   'm'},
-    { M_LFRT, "SOUND PROPAGATION MODE", M_CRL_Automap_SndProp,   's'},
-    { M_SKIP, "", 0, '\0'}
+    { M_LFRT, "ROTATE MODE",            M_CRL_Automap_Rotate,    'r' },
+    { M_LFRT, "OVERLAY MODE",           M_CRL_Automap_Overlay,   'o' },
+    { M_LFRT, "OVERLAY SHADING LEVEL",  M_CRL_Automap_Shading,   'o' },
+    { M_LFRT, "DRAWING MODE",           M_CRL_Automap_Drawing,   'd' },
+    { M_LFRT, "MARK SECRET SECTORS",    M_CRL_Automap_Secrets,   'm' },
+    { M_LFRT, "SOUND PROPAGATION MODE", M_CRL_Automap_SndProp,   's' },
 };
 
 static menu_t CRLDef_Widgets =
 {
-    m_crl_end,
+    15,
     &CRLDef_Main,
     CRLMenu_Widgets,
     M_DrawCRL_Widgets,
@@ -3110,26 +3020,22 @@ static void M_CRL_Automap_SndProp (int choice)
 
 static menuitem_t CRLMenu_Gameplay[]=
 {
-    { M_LFRT, "DEFAULT SKILL LEVEL",      M_CRL_DefaulSkill,      'd'},
-    { M_LFRT, "PISTOL START GAME MODE",   M_CRL_PistolStart,      'p'},
-    { M_LFRT, "COLORED STATUS BAR",       M_CRL_ColoredSTBar,     'c'},
-    { M_LFRT, "REPORT REVEALED SECRETS",  M_CRL_RevealedSecrets,  'r'},
-    { M_LFRT, "RESTORE MONSTER TARGETS",  M_CRL_RestoreTargets,   'r'},
+    { M_LFRT, "DEFAULT SKILL LEVEL",      M_CRL_DefaulSkill,      'd' },
+    { M_LFRT, "PISTOL START GAME MODE",   M_CRL_PistolStart,      'p' },
+    { M_LFRT, "COLORED STATUS BAR",       M_CRL_ColoredSTBar,     'c' },
+    { M_LFRT, "REPORT REVEALED SECRETS",  M_CRL_RevealedSecrets,  'r' },
+    { M_LFRT, "RESTORE MONSTER TARGETS",  M_CRL_RestoreTargets,   'r' },
     { M_LFRT, "ON DEATH ACTION",          M_CRL_OnDeathAction,    'o' },
     { M_SKIP, "", 0, '\0'},
-    { M_LFRT, "SHOW DEMO TIMER",          M_CRL_DemoTimer,        's'},
-    { M_LFRT, "TIMER DIRECTION",          M_CRL_TimerDirection,   't'},
-    { M_LFRT, "SHOW PROGRESS BAR",        M_CRL_ProgressBar,      's'},
-    { M_LFRT, "PLAY INTERNAL DEMOS",      M_CRL_InternalDemos,    'p'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'}
+    { M_LFRT, "SHOW DEMO TIMER",          M_CRL_DemoTimer,        's' },
+    { M_LFRT, "TIMER DIRECTION",          M_CRL_TimerDirection,   't' },
+    { M_LFRT, "SHOW PROGRESS BAR",        M_CRL_ProgressBar,      's' },
+    { M_LFRT, "PLAY INTERNAL DEMOS",      M_CRL_InternalDemos,    'p' },
 };
 
 static menu_t CRLDef_Gameplay =
 {
-    m_crl_end,
+    11,
     &CRLDef_Main,
     CRLMenu_Gameplay,
     M_DrawCRL_Gameplay,
@@ -3274,26 +3180,13 @@ static void M_CRL_InternalDemos (int choice)
 
 static menuitem_t CRLMenu_Limits[]=
 {
-    { M_LFRT, "SAVE GAME LIMIT WARNING",    M_CRL_SaveSizeWarning, 's'},
-    { M_LFRT, "RENDER LIMITS LEVEL",        M_CRL_Limits,          'r'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'}
+    { M_LFRT, "SAVE GAME LIMIT WARNING",    M_CRL_SaveSizeWarning, 's' },
+    { M_LFRT, "RENDER LIMITS LEVEL",        M_CRL_Limits,          'r' },
 };
 
 static menu_t CRLDef_Limits =
 {
-    m_crl_end,
+    2,
     &CRLDef_Main,
     CRLMenu_Limits,
     M_DrawCRL_Limits,

@@ -567,37 +567,34 @@ void CRL_ReportPosition (fixed_t x, fixed_t y, fixed_t z, angle_t angle)
 
 void CRL_ImpulseCamera (fixed_t fwm, fixed_t swm, angle_t at)
 {
+    // [JN/PN] Precalculate values:
+    const fixed_t fwm_val = fwm * 32768;
+    const fixed_t swm_val = swm * 32768;
+
     // Rotate camera first
     CRL_camera_ang += at << FRACBITS;
 
     // Forward movement
     at = CRL_camera_ang >> ANGLETOFINESHIFT;
-    CRL_camera_x += FixedMul(fwm * 32768, finecosine[at]); 
-    CRL_camera_y += FixedMul(fwm * 32768, finesine[at]);
+    CRL_camera_x += FixedMul(fwm_val, finecosine[at]); 
+    CRL_camera_y += FixedMul(fwm_val, finesine[at]);
 
     // Sideways movement
     at = (CRL_camera_ang - ANG90) >> ANGLETOFINESHIFT;
-    CRL_camera_x += FixedMul(swm * 32768, finecosine[at]); 
-    CRL_camera_y += FixedMul(swm * 32768, finesine[at]);
+    CRL_camera_x += FixedMul(swm_val, finecosine[at]); 
+    CRL_camera_y += FixedMul(swm_val, finesine[at]);
 }
 
 // -----------------------------------------------------------------------------
 // CRL_ImpulseCameraVert
-//  [JN] Impulses the camera up/down.
+//  [JN/PN] Impulses the camera up/down.
 //  @param direction: true = up, false = down.
 //  @param intensity: 32 of 64 map unit, depending on player run mode.
 // -----------------------------------------------------------------------------
 
 void CRL_ImpulseCameraVert (boolean direction, fixed_t intensity)
 {
-    if (direction)
-    {
-        CRL_camera_z += FRACUNIT*intensity;
-    }
-    else
-    {
-        CRL_camera_z -= FRACUNIT*intensity;
-    }
+    CRL_camera_z += (direction ? 1 : -1) * FRACUNIT * intensity;
 }
 
 
