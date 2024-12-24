@@ -542,6 +542,11 @@ boolean D_GrabMouseCallback(void)
     if (menuactive || paused)
         return false;
 
+    // [JN] Always grab the mouse on non-level game states.
+    if ((gamestate == GS_INTERMISSION || gamestate == GS_FINALE)
+    && (!demoplayback && !advancedemo))
+        return true;
+
     // only grab mouse when playing levels (but not demos)
 
     return (gamestate == GS_LEVEL) && !demoplayback && !advancedemo;

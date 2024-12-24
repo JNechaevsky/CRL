@@ -3320,6 +3320,33 @@ void MN_Ticker(void)
     }
 }
 
+static void M_ID_MenuMouseControl (void)
+{
+    if (!menu_mouse_allow || KbdIsBinding || MouseIsBinding)
+    {
+        // [JN] Skip hovering if the cursor is disabled/hidden or a binding is active.
+        return;
+    }
+    else
+    {
+        // [JN] Which line height should be used?
+        const int line_height = (CurrentMenu->FontType == SmallFont) ?
+                                 ID_MENU_LINEHEIGHT_SMALL : ITEM_HEIGHT;
+        // [PN] Check if the cursor is hovering over a menu item
+        for (int i = 0; i < CurrentMenu->itemCount; i++)
+        {
+            if (menu_mouse_x >= (CurrentMenu->x)
+            &&  menu_mouse_x <= (SCREENWIDTH- CurrentMenu->x)
+            &&  menu_mouse_y >= (CurrentMenu->y + i * line_height)
+            &&  menu_mouse_y <= (CurrentMenu->y + (i + 1) * line_height)
+            &&  CurrentMenu->items[i].type != ITT_EMPTY)
+            {
+                CurrentItPos = i; // [PN] Highlight the current menu item
+            }
+        }
+    }
+}
+
 //---------------------------------------------------------------------------
 //
 // PROC MN_Drawer
@@ -3358,9 +3385,14 @@ void MN_Drawer(void)
 
     if (MenuActive == false)
     {
+        // [JN] Disallow cursor if menu is not active.
+        menu_mouse_allow = false;
+
         if (askforquit)
         {
             message = DEH_String(QuitEndMsg[typeofask - 1]);
+            // [JN] Allow cursor while active type of asking.
+            menu_mouse_allow = true;
 
             // [JN] Keep backgound filling while asking for 
             // reset and inform about Y or N pressing.
@@ -3441,6 +3473,9 @@ void MN_Drawer(void)
                         W_CacheLumpName(selName, PU_CACHE), selName);
         }
     }
+
+    // [JN] Call the menu control routine for mouse input.
+    M_ID_MenuMouseControl();
 }
 
 //---------------------------------------------------------------------------
@@ -3635,6 +3670,12 @@ static void DrawFileSlots(Menu_t * menu)
                        cr[CR_MENU_BRIGHT2] : M_Small_Line_Glow(CurrentMenu->items[i].tics));
         }
         y += ITEM_HEIGHT;
+    }
+
+    // [JN] Forcefully hide the mouse cursor while typing.
+    if (FileMenuKeySteal)
+    {
+        menu_mouse_allow = false;
     }
 }
 
@@ -4077,6 +4118,77 @@ static void MN_ReturnToMenu (void)
 //
 //---------------------------------------------------------------------------
 
+static boolean MN_ID_TypeOfAsk (void)
+{
+    switch (typeofask)
+    {
+        case 1:
+            G_CheckDemoStatus();
+            I_Quit();
+            break;
+
+        case 2:
+            players[consoleplayer].messageTics = 0;
+            //set the msg to be cleared
+            players[consoleplayer].message = NULL;
+            paused = false;
+            I_SetPalette(W_CacheLumpName ("PLAYPAL", PU_CACHE));
+            D_StartTitle();     // go to intro/demo mode.
+            break;
+
+        case 3:
+            CT_SetMessage(&players[consoleplayer],
+                         "QUICKSAVING....", false, NULL);
+            FileMenuKeySteal = true;
+            SCSaveGame(quicksave - 1);
+            break;
+
+        case 4:
+            CT_SetMessage(&players[consoleplayer],
+                         "QUICKLOADING....", false, NULL);
+            SCLoadGame(quickload - 1);
+            break;
+
+        case 5:
+            SCDeleteGame(CurrentItPos);
+            MN_ReturnToMenu();
+            break;
+
+        case 6: // [JN] Reset keybinds.
+            M_ResetBinds();
+            if (!netgame && !demoplayback)
+            {
+                paused = true;
+            }
+            MN_ReturnToMenu();
+            break;
+
+        case 7: // [JN] Reset mouse binds.
+            M_ResetMouseBinds();
+            if (!netgame && !demoplayback)
+            {
+                paused = true;
+            }
+            MN_ReturnToMenu();
+            break;
+/*
+        case 8: // [JN] Setting reset.
+            M_ID_ApplyReset();
+            if (!netgame && !demoplayback)
+            {
+                paused = true;
+            }
+            MN_ReturnToMenu();
+*/
+        default:
+            break;
+    }
+
+    askforquit = false;
+    typeofask = 0;
+    return true;
+}
+
 boolean MN_Responder(event_t * event)
 {
     int charTyped;
@@ -4141,6 +4253,10 @@ boolean MN_Responder(event_t * event)
     }
     else
     {
+        // [JN] Shows the mouse cursor when moved.
+        if (event->data2 || event->data3)
+        menu_mouse_allow = true;
+
         // [JN] Allow menu control by mouse.
         if (event->type == ev_mouse && mousewait < I_GetTime()
         && !event->data2 && !event->data3) // [JN] Do not consider movement as pressing.
@@ -4175,18 +4291,37 @@ boolean MN_Responder(event_t * event)
                 M_DoMouseBind(btnToBind, SDL_mouseButton);
                 btnToBind = 0;
                 MouseIsBinding = false;
-                mousewait = I_GetTime() + 15;
+                mousewait = I_GetTime() + 5;
                 return true;
             }
 
             if (event->data1 & 1)
             {
+                if (!MenuActive && !usergame)
+                {
+                    // [JN] Open the main menu if the game is not active.
+                    MN_ActivateMenu();
+                }
+                else
+                {
                 key = key_menu_forward;
-                mousewait = I_GetTime() + 5;
+                mousewait = I_GetTime() + 1;
+                }
+
+                if (typeofask)
+                {
+                    MN_ID_TypeOfAsk();
+                }
             }
 
             if (event->data1 & 2)
             {
+                if (!MenuActive && !usergame)
+                {
+                    // [JN] Open the main menu if the game is not active.
+                    MN_ActivateMenu();
+                }
+                else
                 if (FileMenuKeySteal)
                 {
                     key = KEY_ESCAPE;
@@ -4196,21 +4331,52 @@ boolean MN_Responder(event_t * event)
                 {
                     key = key_menu_back;
                 }
-                mousewait = I_GetTime() + 5;
+
+                // [JN] Properly return to active menu.
+                if (askforquit)
+                {
+                    askforquit = false;
+                    typeofask = 0;
+                    MenuActive = true;
+                    if (!netgame && !demoplayback)
+                    {
+                        paused = true;
+                    }
+                }
+                mousewait = I_GetTime() + 1;
             }
 
-            // [crispy] scroll menus with mouse wheel
-            // [JN] Buttons hardcoded to wheel so we won't mix it up with inventory scrolling.
-            if (/*mousebprevweapon >= 0 &&*/ event->data1 & (1 << 4/*mousebprevweapon*/))
+            // [JN] Scrolls through menu item values or navigates between pages.
+            if (event->data1 & (1 << 4) && MenuActive)
             {
-                key = key_menu_down;
-                mousewait = I_GetTime() + 1;
+                if (CurrentMenu->items[CurrentItPos].type == ITT_LRFUNC)
+                {
+                    // Scroll menu item backward
+                    CurrentMenu->items[CurrentItPos].func(LEFT_DIR);
+                    S_StartSound(NULL, sfx_keyup);
+                }
+                else
+                if (CurrentMenu->ScrollAR && !FileMenuKeySteal && !KbdIsBinding)
+                {
+                    M_ScrollPages(1);
+                }
+                mousewait = I_GetTime();
             }
             else
-            if (/*mousebnextweapon >= 0 &&*/ event->data1 & (1 << 3/*mousebnextweapon*/))
+            if (event->data1 & (1 << 3) && MenuActive)
             {
-                key = key_menu_up;
-                mousewait = I_GetTime() + 1;
+                if (CurrentMenu->items[CurrentItPos].type == ITT_LRFUNC)
+                {
+                    // Scroll menu item forward
+                    CurrentMenu->items[CurrentItPos].func(RIGHT_DIR);
+                    S_StartSound(NULL, sfx_keyup);
+                }
+                else
+                if (CurrentMenu->ScrollAR && !FileMenuKeySteal && !KbdIsBinding)
+                {
+                    M_ScrollPages(0);
+                }
+                mousewait = I_GetTime();
             }
         }
         else
@@ -4219,6 +4385,8 @@ boolean MN_Responder(event_t * event)
             {
                 key = event->data1;
                 charTyped = event->data2;
+                // [JN] Hide mouse cursor by pressing a key.
+                menu_mouse_allow = false;
             }
         }
     }
@@ -4310,67 +4478,7 @@ boolean MN_Responder(event_t * event)
         // [JN] Allow to exclusevely confirm quit game by pressing F10 again.
         || (key == key_menu_quit && typeofask == 1))
         {
-            switch (typeofask)
-            {
-                case 1:
-                    G_CheckDemoStatus();
-                    I_Quit();
-                    return false;
-
-                case 2:
-                    players[consoleplayer].messageTics = 0;
-                    //set the msg to be cleared
-                    players[consoleplayer].message = NULL;
-                    paused = false;
-                    I_SetPalette(W_CacheLumpName
-                                 ("PLAYPAL", PU_CACHE));
-                    D_StartTitle();     // go to intro/demo mode.
-                    break;
-
-                case 3:
-                    CT_SetMessage(&players[consoleplayer],
-                                  "QUICKSAVING....", false, NULL);
-                    FileMenuKeySteal = true;
-                    SCSaveGame(quicksave - 1);
-                    break;
-
-                case 4:
-                    CT_SetMessage(&players[consoleplayer],
-                                  "QUICKLOADING....", false, NULL);
-                    SCLoadGame(quickload - 1);
-                    break;
-
-                case 5:
-                    SCDeleteGame(CurrentItPos);
-                    MN_ReturnToMenu();
-                    break;
-
-                case 6: // [JN] Reset keybinds.
-                    M_ResetBinds();
-                    if (!netgame && !demoplayback)
-                    {
-                        paused = true;
-                    }
-                    MN_ReturnToMenu();
-                    break;
-
-                case 7: // [JN] Reset mouse binds.
-                    M_ResetMouseBinds();
-                    if (!netgame && !demoplayback)
-                    {
-                        paused = true;
-                    }
-                    MN_ReturnToMenu();
-                    break;
-
-                default:
-                    break;
-            }
-
-            askforquit = false;
-            typeofask = 0;
-
-            return true;
+            MN_ID_TypeOfAsk();
         }
         else
         if (key == key_menu_abort || key == KEY_ESCAPE
@@ -4386,6 +4494,7 @@ boolean MN_Responder(event_t * event)
                 MenuActive = true;
                 askforquit = false;
                 typeofask = 0;
+                return true;
             }
             else
             {
@@ -4917,6 +5026,8 @@ void MN_ActivateMenu(void)
     }
     S_StartSound(NULL, sfx_dorcls);
     slottextloaded = false;     //reload the slot text, when needed
+    // [JN] Show cursor on opening menu.
+    menu_mouse_allow = true;
 }
 
 //---------------------------------------------------------------------------
@@ -4947,6 +5058,8 @@ void MN_DeactivateMenu(void)
     {
         S_StartSound(NULL, sfx_dorcls);
     }
+    // [JN] Hide cursor on closing menu.
+    menu_mouse_allow = false;
 }
 
 //---------------------------------------------------------------------------

@@ -112,6 +112,11 @@ extern unsigned int joywait;
 
 extern int usemouse;
 
+extern int menu_mouse_x;
+extern int menu_mouse_y;
+extern boolean menu_mouse_allow;
+extern void I_ReInitCursorPosition (void);
+
 extern void I_ToggleVsync (void);
 extern void I_TogglePixelScaling (void);
 
