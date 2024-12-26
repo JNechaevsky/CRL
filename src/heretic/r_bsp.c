@@ -284,7 +284,7 @@ void R_AddLine(seg_t * line, subsector_t* __sub)
         tspan -= 2 * clipangle;
         if (tspan >= span)
             return;             // totally off the left edge
-        angle2 = -clipangle;
+        angle2 = 0 - clipangle;
     }
 
 //
@@ -414,7 +414,7 @@ boolean R_CheckBBox(fixed_t * bspcoord)
         tspan -= 2 * clipangle;
         if (tspan >= span)
             return false;       // totally off the left edge
-        angle2 = -clipangle;
+        angle2 = 0 - clipangle;
     }
 
 

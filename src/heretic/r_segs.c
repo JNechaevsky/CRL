@@ -657,7 +657,7 @@ void R_StoreWallRange(int start, int stop, seg_t* __line, subsector_t* __sub)
     {
         offsetangle = rw_normalangle - rw_angle1;
         if (offsetangle > ANG180)
-            offsetangle = -offsetangle;
+            offsetangle = 0-offsetangle;
         if (offsetangle > ANG90)
             offsetangle = ANG90;
         sineval = finesine[offsetangle >> ANGLETOFINESHIFT];
