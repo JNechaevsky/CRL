@@ -83,6 +83,25 @@ void CRL_MoveTo_Camera (void)
 //  [JN] Colorizes counter strings and values respectively.
 // -----------------------------------------------------------------------------
 
+// [JN] Enum for widget strings and values.
+enum
+{
+    widget_kis_str,
+    widget_kills,
+    widget_items,
+    widget_secret,
+    widget_plyr1,
+    widget_plyr2,
+    widget_plyr3,
+    widget_plyr4,
+    widget_time_str,
+    widget_time_val,
+    widget_render_str,
+    widget_render_val,
+    widget_coords_str,
+    widget_coords_val,
+} widgetcolor_t;
+
 static byte *CRL_StatColor_Str (const int val1, const int val2)
 {
     return
@@ -105,6 +124,122 @@ static byte *CRL_PowerupColor (const int val1, const int val2)
         val1 > val2/2 ? cr[CR_GREEN]  :
         val1 > val2/4 ? cr[CR_YELLOW] :
                         cr[CR_RED]    ;
+}
+
+static byte *CRL_KISColor (const int i)
+{
+    static byte *player_colors[4];
+    static int   plyr_indices[] = {widget_plyr1, widget_plyr2, widget_plyr3, widget_plyr4};
+
+    player_colors[0] = cr[CR_GREEN];
+    player_colors[1] = cr[CR_GRAY];
+    player_colors[2] = cr[CR_BROWN];
+    player_colors[3] = cr[CR_RED];
+
+    switch (i)
+    {
+        case widget_kis_str:
+        case widget_time_str:
+        case widget_render_str:
+        case widget_coords_str:
+            return cr[CR_GRAY];
+        
+        case widget_kills:
+            return
+                CRLWidgets.totalkills == 0 ? cr[CR_GREEN] :
+                CRLWidgets.kills == 0 ? cr[CR_RED] :
+                CRLWidgets.kills < CRLWidgets.totalkills ? cr[CR_YELLOW] : cr[CR_GREEN];
+        case widget_items:
+            return
+                CRLWidgets.totalitems == 0 ? cr[CR_GREEN] :
+                CRLWidgets.items == 0 ? cr[CR_RED] :
+                CRLWidgets.items < CRLWidgets.totalitems ? cr[CR_YELLOW] : cr[CR_GREEN];
+        case widget_secret:
+            return
+                CRLWidgets.totalsecrets == 0 ? cr[CR_GREEN] :
+                CRLWidgets.secrets == 0 ? cr[CR_RED] :
+                CRLWidgets.secrets < CRLWidgets.totalsecrets ? cr[CR_YELLOW] : cr[CR_GREEN];
+
+        case widget_time_val:
+            return cr[CR_LIGHTGRAY];
+
+        case widget_render_val:
+        case widget_coords_val:
+            return cr[CR_GREEN];
+
+        default:
+            for (int j = 0; j < 4; j++)
+            {
+                if (i == plyr_indices[j])
+                {
+                    return player_colors[j];
+                }
+            }
+    }
+
+    return NULL;
+}
+
+// [JN/PN] Enum for widget type values.
+enum
+{
+    widget_kis_kills,
+    widget_kis_items,
+    widget_kis_secrets,
+} widget_kis_count_t;
+
+// [PN] Function for safe division to prevent division by zero.
+// Returns the percentage or 0 if the total is zero.
+static int safe_percent (int value, int total)
+{
+    return (total == 0) ? 0 : (value * 100) / total;
+}
+
+// [PN/JN] Main function to format KIS counts based on format and widget type.
+static void CRL_WidgetKISCount (char *buffer, size_t buffer_size, const int i)
+{
+    int value = 0, total = 0;
+    
+    // [PN] Set values for kills, items, or secrets based on widget type
+    switch (i)
+    {
+        case widget_kis_kills:
+            value = CRLWidgets.kills;
+            total = CRLWidgets.totalkills;
+            break;
+        
+        case widget_kis_items:
+            value = CRLWidgets.items;
+            total = CRLWidgets.totalitems;
+            break;
+        
+        case widget_kis_secrets:
+            value = CRLWidgets.secrets;
+            total = CRLWidgets.totalsecrets;
+            break;
+        
+        default:
+            // [PN] Default case for unsupported widget type
+            snprintf(buffer, buffer_size, "N/A");
+            return;
+    }
+
+    // [PN] Format based on crl_widget_kis_format
+    switch (crl_widget_kis_format)
+    {
+        case 1: // Remaining
+            snprintf(buffer, buffer_size, "%d ", total - value);
+            break;
+
+        case 2: // Percent
+            snprintf(buffer, buffer_size, "%d%% ", 
+                     safe_percent(value, total));
+            break;
+
+        default: // Ratio
+            snprintf(buffer, buffer_size, "%d/%d ", value, total);
+            break;
+    }
 }
 
 // -----------------------------------------------------------------------------
@@ -417,42 +552,32 @@ void CRL_StatDrawer (void)
 
             // Kills:
             sprintf(str1, "K ");
-            M_WriteText(0, 159 - yy, str1, cr[CR_GRAY]);
-            
-            sprintf(str2, "%d/%d ", CRLWidgets.kills, CRLWidgets.totalkills);
-            M_WriteText(0 + M_StringWidth(str1), 159 - yy, str2,
-                        CRLWidgets.totalkills == 0 ? cr[CR_GREEN] :
-                        CRLWidgets.kills == 0 ? cr[CR_RED] :
-                        CRLWidgets.kills < CRLWidgets.totalkills ? cr[CR_YELLOW] : cr[CR_GREEN]);
+            M_WriteText(0, 159 - yy, str1, CRL_KISColor(widget_kis_str));
+            CRL_WidgetKISCount(str2, sizeof(str2), widget_kis_kills);
+            M_WriteText(0 + M_StringWidth(str1), 159 - yy, str2, CRL_KISColor(widget_kills));
 
             // Items:
             sprintf(str3, "I ");
-            M_WriteText(M_StringWidth(str1) + M_StringWidth(str2), 159 - yy, str3, cr[CR_GRAY]);
-            
-            sprintf(str4, "%d/%d ", CRLWidgets.items, CRLWidgets.totalitems);
+            M_WriteText(M_StringWidth(str1) + 
+                        M_StringWidth(str2), 159 - yy, str3, CRL_KISColor(widget_kis_str));
+            CRL_WidgetKISCount(str4, sizeof(str4), widget_kis_items);
             M_WriteText(M_StringWidth(str1) +
                         M_StringWidth(str2) +
-                        M_StringWidth(str3), 159 - yy, str4,
-                        CRLWidgets.totalitems == 0 ? cr[CR_GREEN] :
-                        CRLWidgets.items == 0 ? cr[CR_RED] :
-                        CRLWidgets.items < CRLWidgets.totalitems ? cr[CR_YELLOW] : cr[CR_GREEN]);
+                        M_StringWidth(str3), 159 - yy, str4, CRL_KISColor(widget_items));
 
             // Secret:
             sprintf(str5, "S ");
             M_WriteText(M_StringWidth(str1) +
                         M_StringWidth(str2) +
                         M_StringWidth(str3) +
-                        M_StringWidth(str4), 159 - yy, str5, cr[CR_GRAY]);
+                        M_StringWidth(str4), 159 - yy, str5, CRL_KISColor(widget_kis_str));
 
-            sprintf(str6, "%d/%d ", CRLWidgets.secrets, CRLWidgets.totalsecrets);
+            CRL_WidgetKISCount(str6, sizeof(str6), widget_kis_secrets);
             M_WriteText(M_StringWidth(str1) +
                         M_StringWidth(str2) + 
                         M_StringWidth(str3) +
                         M_StringWidth(str4) +
-                        M_StringWidth(str5), 159 - yy, str6,
-                        CRLWidgets.totalsecrets == 0 ? cr[CR_GREEN] :
-                        CRLWidgets.secrets == 0 ? cr[CR_RED] :
-                        CRLWidgets.secrets < CRLWidgets.totalsecrets ? cr[CR_YELLOW] : cr[CR_GREEN]);
+                        M_StringWidth(str5), 159 - yy, str6, CRL_KISColor(widget_secret));
         }
         else
         {
@@ -465,10 +590,10 @@ void CRL_StatDrawer (void)
             if (playeringame[0])
             {
                 sprintf(str1, "G ");
-                M_WriteText(0, 159 - yy, str1, cr[CR_GREEN]);
+                M_WriteText(0, 159 - yy, str1, CRL_KISColor(widget_plyr1));
 
                 sprintf(str2, "%d ", CRLWidgets.frags_g);
-                M_WriteText(M_StringWidth(str1), 159 - yy, str2, cr[CR_GREEN]);
+                M_WriteText(M_StringWidth(str1), 159 - yy, str2, CRL_KISColor(widget_plyr1));
             }
             // Indigo
             if (playeringame[1])
@@ -476,13 +601,13 @@ void CRL_StatDrawer (void)
                 sprintf(str3, "I ");
                 M_WriteText(M_StringWidth(str1) +
                             M_StringWidth(str2),
-                            159 - yy, str3, cr[CR_GRAY]);
+                            159 - yy, str3, CRL_KISColor(widget_plyr2));
 
                 sprintf(str4, "%d ", CRLWidgets.frags_i);
                 M_WriteText(M_StringWidth(str1) +
                             M_StringWidth(str2) +
                             M_StringWidth(str3),
-                            159 - yy, str4, cr[CR_GRAY]);
+                            159 - yy, str4, CRL_KISColor(widget_plyr2));
             }
             // Brown
             if (playeringame[2])
@@ -492,7 +617,7 @@ void CRL_StatDrawer (void)
                             M_StringWidth(str2) +
                             M_StringWidth(str3) +
                             M_StringWidth(str4),
-                            159 - yy, str5, cr[CR_BROWN]);
+                            159 - yy, str5, CRL_KISColor(widget_plyr3));
 
                 sprintf(str6, "%d ", CRLWidgets.frags_b);
                 M_WriteText(M_StringWidth(str1) +
@@ -500,7 +625,7 @@ void CRL_StatDrawer (void)
                             M_StringWidth(str3) +
                             M_StringWidth(str4) +
                             M_StringWidth(str5),
-                            159 - yy, str6, cr[CR_BROWN]);
+                            159 - yy, str6, CRL_KISColor(widget_plyr3));
             }
             // Red
             if (playeringame[3])
@@ -512,7 +637,7 @@ void CRL_StatDrawer (void)
                             M_StringWidth(str4) +
                             M_StringWidth(str5) +
                             M_StringWidth(str6),
-                            159 - yy, str7, cr[CR_RED]);
+                            159 - yy, str7, CRL_KISColor(widget_plyr4));
 
                 sprintf(str8, "%d ", CRLWidgets.frags_r);
                 M_WriteText(M_StringWidth(str1) +
@@ -522,7 +647,7 @@ void CRL_StatDrawer (void)
                             M_StringWidth(str5) +
                             M_StringWidth(str6) +
                             M_StringWidth(str7),
-                            159 - yy, str8, cr[CR_RED]);
+                            159 - yy, str8, CRL_KISColor(widget_plyr4));
             }
         }
         
