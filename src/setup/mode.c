@@ -176,7 +176,7 @@ static void OpenGameSelectDialog(GameSelectCallback callback)
             ++num_games;
         }
 
-        free(iwads);
+        free((void *)iwads);
     }
 
     TXT_AddWidget(window, TXT_NewStrut(0, 1));
