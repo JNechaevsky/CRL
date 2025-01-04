@@ -2,7 +2,7 @@
 // Copyright(C) 2005-2014 Simon Howard
 // Copyright(C) 2014 Fabian Greffrath
 // Copyright(C) 2011-2017 RestlessRodent
-// Copyright(C) 2018-2024 Julia Nechaevskaya
+// Copyright(C) 2018-2025 Julia Nechaevskaya
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License

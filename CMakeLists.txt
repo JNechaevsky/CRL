@@ -16,7 +16,7 @@ set(PACKAGE_STRING "${PROJECT_NAME} ${PACKAGE_VERSION}")
 set(PACKAGE_BUGREPORT "julia.nechaevskaya@live.com")
 
 string(REGEX REPLACE " Doom$" "" PACKAGE_SHORTNAME "${PACKAGE_NAME}")
-set(PACKAGE_COPYRIGHT "Copyright (C) 2011-2017 RestlessRodent, 2018-2024 Julia Nechaevskaya")
+set(PACKAGE_COPYRIGHT "Copyright (C) 2011-2017 RestlessRodent, 2018-2025 Julia Nechaevskaya")
 set(PACKAGE_LICENSE "GNU GPL (version 2)")
 
 # Any settings that should apply to all targets in this directory and all
