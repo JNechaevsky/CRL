@@ -1,6 +1,8 @@
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 cmake_minimum_required(VERSION 3.15)
+cmake_policy(SET CMP0069 NEW)
+cmake_policy(SET CMP0091 NEW)
 project("CRL" VERSION 2.0.0 LANGUAGES C)
 
 # Autotools variables
@@ -43,10 +45,6 @@ endif()
 # Enable LTO if available.  Hovewer, CMake does not appear to support
 # LTO properly for MinGW GCC which results in much longer linking time.
 # Consider only enabling it when making a release.
-if(POLICY CMP0069)
-    cmake_policy(SET CMP0069 NEW)
-endif()
-
 include(CheckIPOSupported)
 check_ipo_supported(RESULT HAVE_LTO)
 
