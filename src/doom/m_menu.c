@@ -159,6 +159,8 @@ typedef struct menu_s
 #define M_SKIP -1,0  // Skippable, cursor can't get here.
 #define M_SWTC  1,0  // On/off type or entering function.
 #define M_LFRT  2,0  // Multichoice function.
+#define M_SLD1  3,0  // Slider 1st line.
+#define M_SLD2  4,0  // Slider 2st line.
 
 // [JN] Small cursor timer for glowing effect.
 static short   cursor_tics = 0;
@@ -352,9 +354,9 @@ static menuitem_t OptionsMenu[]=
     { M_SWTC, "M_MESSG",  M_ChangeMessages,    'm' },
     { M_SWTC, "M_DETAIL", M_ChangeDetail,      'g' },
     { M_LFRT, "M_SCRNSZ", M_SizeDisplay,       's' },
-    { M_SKIP, "",0,'\0'},
+    { M_SLD1, "",0,'\0'},
     { M_LFRT, "M_MSENS",  M_ChangeSensitivity, 'm' },
-    { M_SKIP, "",0,'\0'},
+    { M_SLD1, "",0,'\0'},
     { M_SWTC, "M_SVOL",   M_Sound,             's' }
 };
 
@@ -433,9 +435,9 @@ enum
 static menuitem_t SoundMenu[]=
 {
     { M_LFRT, "M_SFXVOL", M_SfxVol,   's' },
-    { M_SKIP,"",0,'\0'},
+    { M_SLD1,"",0,'\0'},
     { M_LFRT, "M_MUSVOL", M_MusicVol, 'm' },
-    { M_SKIP,"",0,'\0'}
+    { M_SLD1,"",0,'\0'}
 };
 
 static menu_t SoundDef =
@@ -1416,8 +1418,8 @@ static void M_CRL_Colorblind (int choice)
 static menuitem_t CRLMenu_Display[]=
 {
     { M_LFRT, "GAMMA-CORRECTION",        M_CRL_Gamma,           'g'},
-    { M_SKIP, "", 0, '\0'},                                     
-    { M_SKIP, "", 0, '\0'},                                     
+    { M_SLD1, "", 0, '\0'},                                     
+    { M_SLD2, "", 0, '\0'},                                     
     { M_LFRT, "MENU BACKGROUND SHADING", M_CRL_MenuBgShading,   'm'},
     { M_LFRT, "EXTRA LEVEL BRIGHTNESS",  M_CRL_LevelBrightness, 'e'},
     { M_SKIP, "", 0, '\0'},                                     
@@ -1522,11 +1524,11 @@ static void M_CRL_TextShadows (int choice)
 static menuitem_t CRLMenu_Sound[]=
 {
     { M_LFRT, "SFX VOLUME",            M_SfxVol,           's'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'},
+    { M_SLD1, "", 0, '\0'},
+    { M_SLD2, "", 0, '\0'},
     { M_LFRT, "MUSIC VOLUME",          M_MusicVol,         'm'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'},
+    { M_SLD1, "", 0, '\0'},
+    { M_SLD2, "", 0, '\0'},
     { M_SKIP, "", 0, '\0'},
     { M_LFRT, "SFX PLAYBACK",          M_CRL_SFXSystem,    's'},
     { M_LFRT, "MUSIC PLAYBACK",        M_CRL_MusicSystem,  'm'},
@@ -1776,14 +1778,14 @@ static menuitem_t CRLMenu_Controls[]=
     { M_SWTC, "MOUSE BINDINGS",               M_ChooseCRL_MouseBinds,      'm'},
     { M_SKIP, "", 0, '\0'},
     { M_LFRT, "SENSIVITY",                    M_CRL_Controls_Sensivity,    's'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'},
+    { M_SLD1, "", 0, '\0'},
+    { M_SLD2, "", 0, '\0'},
     { M_LFRT, "ACCELERATION",                 M_CRL_Controls_Acceleration, 'a'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'},
+    { M_SLD1, "", 0, '\0'},
+    { M_SLD2, "", 0, '\0'},
     { M_LFRT, "ACCELERATION THRESHOLD",       M_CRL_Controls_Threshold,    'a'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'},
+    { M_SLD1, "", 0, '\0'},
+    { M_SLD2, "", 0, '\0'},
     { M_LFRT, "VERTICAL MOUSE MOVEMENT",      M_CRL_Controls_NoVert,       'v'},
     { M_LFRT, "DOUBLE CLICK ACTS AS \"USE\"", M_CRL_Controls_DblClck,      'd'},
 };
@@ -4044,6 +4046,13 @@ M_DrawThermo
     const char	*m_thermr = DEH_String("M_THERMR");
     const char	*m_thermo = DEH_String("M_THERMO");
 
+    // [JN] Highlight active slider and gem.
+    // Not in vanilla options menu, though.
+    if (itemPos == itemOn && currentMenu != &OptionsDef)
+    {
+        dp_translation = cr[CR_MENU_BRIGHT2];
+    }
+
     xx = x;
     V_DrawShadowedPatch(xx, y, W_CacheLumpName(m_therml, PU_CACHE), m_therml);
     xx += 8;
@@ -4061,6 +4070,8 @@ M_DrawThermo
     }
 
     V_DrawPatch((x + 8) + thermDot * 8, y, W_CacheLumpName(m_thermo, PU_CACHE), m_thermo);
+
+    dp_translation = NULL;
 }
 
 static void
@@ -5070,7 +5081,9 @@ boolean M_Responder (event_t* ev)
 		itemOn = 0;
 	    else itemOn++;
 	    S_StartSound(NULL,sfx_pstop);
-	} while(currentMenu->menuitems[itemOn].status==-1);
+	} while(currentMenu->menuitems[itemOn].status == -1 ||
+			currentMenu->menuitems[itemOn].status ==  3 || // [JN] Skip sliders
+			currentMenu->menuitems[itemOn].status ==  4);
 
 	return true;
     }
@@ -5084,7 +5097,9 @@ boolean M_Responder (event_t* ev)
 		itemOn = currentMenu->numitems-1;
 	    else itemOn--;
 	    S_StartSound(NULL,sfx_pstop);
-	} while(currentMenu->menuitems[itemOn].status==-1);
+	} while(currentMenu->menuitems[itemOn].status == -1 ||
+			currentMenu->menuitems[itemOn].status ==  3 || // [JN] Skip sliders
+			currentMenu->menuitems[itemOn].status ==  4);
 
 	return true;
     }
@@ -5294,7 +5309,14 @@ static void M_ID_MenuMouseControl (void)
             &&  menu_mouse_y <= (currentMenu->y + (i + 1) * line_height)
             &&  currentMenu->menuitems[i].status != -1)
             {
-                itemOn = i; // [PN] Highlight the current menu item
+                // [PN] Highlight the current menu item
+                itemOn = i;
+
+                // [JN] Move menu cursor higher when hovering slider lines.
+                if (currentMenu->menuitems[itemOn].status == 3)
+                    itemOn -= 1;
+                if (currentMenu->menuitems[itemOn].status == 4)
+                    itemOn -= 2;
             }
         }
     }

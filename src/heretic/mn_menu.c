@@ -59,6 +59,8 @@ typedef enum
     ITT_EFUNC,
     ITT_LRFUNC,
     ITT_SETMENU,
+    ITT_SLDR1,      // Slider 1st line.
+    ITT_SLDR2,      // Slider 2st line.
     ITT_INERT
 } ItemType_t;
 
@@ -321,9 +323,9 @@ static Menu_t SkillMenu = {
 
 static MenuItem_t OptionsItems[] = {
     {ITT_EFUNC, "END GAME", SCEndGame, 0, MENU_NONE},
-    {ITT_EFUNC, "MESSAGES : ", SCMessages, 0, MENU_NONE},
+    {ITT_LRFUNC, "MESSAGES : ", SCMessages, 0, MENU_NONE},
     {ITT_LRFUNC, "MOUSE SENSITIVITY", SCMouseSensi, 0, MENU_NONE},
-    {ITT_EMPTY, NULL, NULL, 0, MENU_NONE},
+    {ITT_SLDR1, NULL, NULL, 0, MENU_NONE},
     {ITT_SETMENU, "MORE...", NULL, 0, MENU_OPTIONS2}
 };
 
@@ -338,11 +340,11 @@ static Menu_t OptionsMenu = {
 
 static MenuItem_t Options2Items[] = {
     { ITT_LRFUNC, "SFX VOLUME",   SCSfxVolume,   0, MENU_NONE },
-    { ITT_EMPTY,  NULL,           NULL,          0, MENU_NONE },
+    { ITT_SLDR1,  NULL,           NULL,          0, MENU_NONE },
     { ITT_LRFUNC, "MUSIC VOLUME", SCMusicVolume, 0, MENU_NONE },
-    { ITT_EMPTY,  NULL,           NULL,          0, MENU_NONE },
+    { ITT_SLDR1,  NULL,           NULL,          0, MENU_NONE },
     { ITT_LRFUNC, "SCREEN SIZE",  SCScreenSize,  0, MENU_NONE },
-    { ITT_EMPTY,  NULL,           NULL,          0, MENU_NONE },
+    { ITT_SLDR1,  NULL,           NULL,          0, MENU_NONE },
 };
 
 static Menu_t Options2Menu = {
@@ -1228,8 +1230,8 @@ static void CRL_Colorblind (int option)
 
 static MenuItem_t CRLDisplayItems[] = {
     { ITT_LRFUNC, "GAMMA-CORRECTION",        CRL_Gamma,           0, MENU_NONE },
-    { ITT_EMPTY,  NULL,                      NULL,                0, MENU_NONE },
-    { ITT_EMPTY,  NULL,                      NULL,                0, MENU_NONE },
+    { ITT_SLDR1,  NULL,                      NULL,                0, MENU_NONE },
+    { ITT_SLDR2,  NULL,                      NULL,                0, MENU_NONE },
     { ITT_LRFUNC, "MENU BACKGROUND SHADING", CRL_MenuBgShading,   0, MENU_NONE },
     { ITT_LRFUNC, "EXTRA LEVEL BRIGHTNESS",  CRL_LevelBrightness, 0, MENU_NONE },
     { ITT_EMPTY,  NULL,                      NULL,                0, MENU_NONE },
@@ -1325,11 +1327,11 @@ static void CRL_TextShadows (int option)
 
 static MenuItem_t CRLSoundItems[] = {
     { ITT_LRFUNC, "SFX VOLUME",           SCSfxVolume,        MENU_NONE },
-    { ITT_EMPTY,  NULL,                   NULL,            0, MENU_NONE },
-    { ITT_EMPTY,  NULL,                   NULL,            0, MENU_NONE },
+    { ITT_SLDR1,  NULL,                   NULL,            0, MENU_NONE },
+    { ITT_SLDR2,  NULL,                   NULL,            0, MENU_NONE },
     { ITT_LRFUNC, "MUSIC VOLUME",         SCMusicVolume,      MENU_NONE },
-    { ITT_EMPTY,  NULL,                   NULL,            0, MENU_NONE },
-    { ITT_EMPTY,  NULL,                   NULL,            0, MENU_NONE },
+    { ITT_SLDR1,  NULL,                   NULL,            0, MENU_NONE },
+    { ITT_SLDR2,  NULL,                   NULL,            0, MENU_NONE },
     { ITT_EMPTY,  NULL,                   NULL,            0, MENU_NONE },
     { ITT_LRFUNC, "MUSIC PLAYBACK",       CRL_MusicSystem, 0, MENU_NONE },
     { ITT_LRFUNC, "SOUNDS EFFECTS MODE",  CRL_SFXMode,     0, MENU_NONE },
@@ -1494,14 +1496,14 @@ static MenuItem_t CRLControlsItems[] = {
     {ITT_SETMENU, "MOUSE BINDINGS",          NULL,                      0, MENU_CRLMOUSEBINDS},
     {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
     {ITT_LRFUNC,  "SENSIVITY",               SCMouseSensi,              0, MENU_NONE},
-    {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
-    {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
+    {ITT_SLDR1,   NULL,                      NULL,                      0, MENU_NONE},
+    {ITT_SLDR2,   NULL,                      NULL,                      0, MENU_NONE},
     {ITT_LRFUNC,  "ACCELERATION",            CRL_Controls_Acceleration, 0, MENU_NONE},
-    {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
-    {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
+    {ITT_SLDR1,   NULL,                      NULL,                      0, MENU_NONE},
+    {ITT_SLDR2,   NULL,                      NULL,                      0, MENU_NONE},
     {ITT_LRFUNC,  "ACCELERATION THRESHOLD",  CRL_Controls_Threshold,    0, MENU_NONE},
-    {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
-    {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
+    {ITT_SLDR1,   NULL,                      NULL,                      0, MENU_NONE},
+    {ITT_SLDR2,   NULL,                      NULL,                      0, MENU_NONE},
     {ITT_LRFUNC,  "MOUSE LOOK",              CRL_Controls_MLook,        0, MENU_NONE},
     {ITT_LRFUNC,  "VERTICAL MOUSE MOVEMENT", CRL_Controls_NoVert,       0, MENU_NONE}
 };
@@ -3341,7 +3343,14 @@ static void M_ID_MenuMouseControl (void)
             &&  menu_mouse_y <= (CurrentMenu->y + (i + 1) * line_height)
             &&  CurrentMenu->items[i].type != ITT_EMPTY)
             {
-                CurrentItPos = i; // [PN] Highlight the current menu item
+                // [PN] Highlight the current menu item
+                CurrentItPos = i;
+
+                // [JN] Move menu cursor higher when hovering slider lines.
+                if (CurrentMenu->items[i].type == ITT_SLDR1)
+                    CurrentItPos -= 1;
+                if (CurrentMenu->items[i].type == ITT_SLDR2)
+                    CurrentItPos -= 2;
             }
         }
     }
