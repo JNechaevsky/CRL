@@ -33,12 +33,11 @@ add_compile_options("/wd4018" # Signed/unsigned mismatch
                     )
 else()
     add_compile_options("-Wall"
-                        "-Wdeclaration-after-statement"
                         "-Wredundant-decls"
-                        # "-Wpedantic"
+                        "-Wformat-security"
+                        "-Wno-ignored-qualifiers"
+                        "-Wpedantic"
                         # "-Wextra"
-                        # "-Wno-ignored-qualifiers"
-                        # "-Wno-strict-prototypes"
                         )
 endif()
 
