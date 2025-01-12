@@ -159,8 +159,7 @@ typedef struct menu_s
 #define M_SKIP -1,0  // Skippable, cursor can't get here.
 #define M_SWTC  1,0  // On/off type or entering function.
 #define M_LFRT  2,0  // Multichoice function.
-#define M_SLD1  3,0  // Slider 1st line.
-#define M_SLD2  4,0  // Slider 2st line.
+#define M_SLDR  3,0  // Slider line.
 
 // [JN] Small cursor timer for glowing effect.
 static short   cursor_tics = 0;
@@ -227,6 +226,7 @@ static int  M_StringHeight(const char *string);
 static void M_StartMessage(const char *string,void (*routine)(int),boolean input);
 static void M_ClearMenus (void);
 
+static void M_ID_HandleSliderMouseControl (int x, int y, int width, void *value, boolean is_float, float min, float max);
 
 // =============================================================================
 // DOOM MENU
@@ -351,12 +351,12 @@ enum
 static menuitem_t OptionsMenu[]=
 {
     { M_SWTC, "M_ENDGAM", M_EndGame,           'e' },
-    { M_SWTC, "M_MESSG",  M_ChangeMessages,    'm' },
-    { M_SWTC, "M_DETAIL", M_ChangeDetail,      'g' },
-    { M_LFRT, "M_SCRNSZ", M_SizeDisplay,       's' },
-    { M_SLD1, "",0,'\0'},
-    { M_LFRT, "M_MSENS",  M_ChangeSensitivity, 'm' },
-    { M_SLD1, "",0,'\0'},
+    { M_LFRT, "M_MESSG",  M_ChangeMessages,    'm' },
+    { M_LFRT, "M_DETAIL", M_ChangeDetail,      'g' },
+    { M_SLDR, "M_SCRNSZ", M_SizeDisplay,       's' },
+    { M_SKIP, "",0,'\0'},
+    { M_SLDR, "M_MSENS",  M_ChangeSensitivity, 'm' },
+    { M_SKIP, "",0,'\0'},
     { M_SWTC, "M_SVOL",   M_Sound,             's' }
 };
 
@@ -434,10 +434,10 @@ enum
 
 static menuitem_t SoundMenu[]=
 {
-    { M_LFRT, "M_SFXVOL", M_SfxVol,   's' },
-    { M_SLD1,"",0,'\0'},
-    { M_LFRT, "M_MUSVOL", M_MusicVol, 'm' },
-    { M_SLD1,"",0,'\0'}
+    { M_SLDR, "M_SFXVOL", M_SfxVol,   's' },
+    { M_SKIP,"",0,'\0'},
+    { M_SLDR, "M_MUSVOL", M_MusicVol, 'm' },
+    { M_SKIP,"",0,'\0'}
 };
 
 static menu_t SoundDef =
@@ -1029,7 +1029,8 @@ static byte *M_Cursor_Glow (const int tics)
 static int M_INT_Slider (int val, int min, int max, int direction, boolean capped)
 {
     // [PN] Adjust the slider value based on direction and handle min/max limits
-    val += (direction == 0) ? -1 : 1;
+    val += (direction == -1) ?  0 :     // [JN] Routine "-1" just reintializes value.
+           (direction ==  0) ? -1 : 1;  // Otherwise, move either left "0" or right "1".
 
     if (val < min)
         val = capped ? min : max;
@@ -1044,7 +1045,8 @@ static float M_FLOAT_Slider (float val, float min, float max, float step,
                              int direction, boolean capped)
 {
     // [PN] Adjust value based on direction
-    val += (direction == 0) ? -step : step;
+    val += (direction == -1) ? 0 :            // [JN] Routine "-1" just reintializes value.
+           (direction ==  0) ? -step : step;  // Otherwise, move either left "0" or right "1".
 
     // [PN] Handle min/max limits
     if (val < min)
@@ -1417,9 +1419,9 @@ static void M_CRL_Colorblind (int choice)
 
 static menuitem_t CRLMenu_Display[]=
 {
-    { M_LFRT, "GAMMA-CORRECTION",        M_CRL_Gamma,           'g'},
-    { M_SLD1, "", 0, '\0'},                                     
-    { M_SLD2, "", 0, '\0'},                                     
+    { M_SLDR, "GAMMA-CORRECTION",        M_CRL_Gamma,           'g'},
+    { M_SKIP, "", 0, '\0'},                                     
+    { M_SKIP, "", 0, '\0'},                                     
     { M_LFRT, "MENU BACKGROUND SHADING", M_CRL_MenuBgShading,   'm'},
     { M_LFRT, "EXTRA LEVEL BRIGHTNESS",  M_CRL_LevelBrightness, 'e'},
     { M_SKIP, "", 0, '\0'},                                     
@@ -1453,6 +1455,7 @@ static void M_DrawCRL_Display (void)
 
     // Gamma-correction slider and num
     M_DrawThermo(46, 35, 15, crl_gamma, 0);
+    M_ID_HandleSliderMouseControl(52, 36, 124, &crl_gamma, false, 0, 15);
     M_WriteText (184, 38, gammalvls[crl_gamma][1],
                            M_Item_Glow(0, GLOW_UNCOLORED));
 
@@ -1523,12 +1526,12 @@ static void M_CRL_TextShadows (int choice)
 
 static menuitem_t CRLMenu_Sound[]=
 {
-    { M_LFRT, "SFX VOLUME",            M_SfxVol,           's'},
-    { M_SLD1, "", 0, '\0'},
-    { M_SLD2, "", 0, '\0'},
-    { M_LFRT, "MUSIC VOLUME",          M_MusicVol,         'm'},
-    { M_SLD1, "", 0, '\0'},
-    { M_SLD2, "", 0, '\0'},
+    { M_SLDR, "SFX VOLUME",            M_SfxVol,           's'},
+    { M_SKIP, "", 0, '\0'},
+    { M_SKIP, "", 0, '\0'},
+    { M_SLDR, "MUSIC VOLUME",          M_MusicVol,         'm'},
+    { M_SKIP, "", 0, '\0'},
+    { M_SKIP, "", 0, '\0'},
     { M_SKIP, "", 0, '\0'},
     { M_LFRT, "SFX PLAYBACK",          M_CRL_SFXSystem,    's'},
     { M_LFRT, "MUSIC PLAYBACK",        M_CRL_MusicSystem,  'm'},
@@ -1560,10 +1563,12 @@ static void M_DrawCRL_Sound (void)
     M_WriteTextCentered(7, "VOLUME", cr[CR_YELLOW]);
 
     M_DrawThermo(46, 26, 16, sfxVolume, 0);
+    M_ID_HandleSliderMouseControl(52, 26, 132, &sfxVolume, false, 0, 15);
     sprintf(str,"%d", sfxVolume);
     M_WriteText (192, 29, str, M_Item_Glow(0, GLOW_UNCOLORED));
 
     M_DrawThermo(46, 53, 16, musicVolume, 3);
+    M_ID_HandleSliderMouseControl(52, 53, 132, &musicVolume, false, 0, 15);
     sprintf(str,"%d", musicVolume);
     M_WriteText (192, 56, str, M_Item_Glow(3, GLOW_UNCOLORED));
 
@@ -1777,15 +1782,15 @@ static menuitem_t CRLMenu_Controls[]=
     { M_SWTC, "KEYBOARD BINDINGS",            M_Choose_CRL_Keybinds,       'k'},
     { M_SWTC, "MOUSE BINDINGS",               M_ChooseCRL_MouseBinds,      'm'},
     { M_SKIP, "", 0, '\0'},
-    { M_LFRT, "SENSIVITY",                    M_CRL_Controls_Sensivity,    's'},
-    { M_SLD1, "", 0, '\0'},
-    { M_SLD2, "", 0, '\0'},
-    { M_LFRT, "ACCELERATION",                 M_CRL_Controls_Acceleration, 'a'},
-    { M_SLD1, "", 0, '\0'},
-    { M_SLD2, "", 0, '\0'},
-    { M_LFRT, "ACCELERATION THRESHOLD",       M_CRL_Controls_Threshold,    'a'},
-    { M_SLD1, "", 0, '\0'},
-    { M_SLD2, "", 0, '\0'},
+    { M_SLDR, "SENSIVITY",                    M_CRL_Controls_Sensivity,    's'},
+    { M_SKIP, "", 0, '\0'},
+    { M_SKIP, "", 0, '\0'},
+    { M_SLDR, "ACCELERATION",                 M_CRL_Controls_Acceleration, 'a'},
+    { M_SKIP, "", 0, '\0'},
+    { M_SKIP, "", 0, '\0'},
+    { M_SLDR, "ACCELERATION THRESHOLD",       M_CRL_Controls_Threshold,    'a'},
+    { M_SKIP, "", 0, '\0'},
+    { M_SKIP, "", 0, '\0'},
     { M_LFRT, "VERTICAL MOUSE MOVEMENT",      M_CRL_Controls_NoVert,       'v'},
     { M_LFRT, "DOUBLE CLICK ACTS AS \"USE\"", M_CRL_Controls_DblClck,      'd'},
 };
@@ -1814,16 +1819,19 @@ static void M_DrawCRL_Controls (void)
     
     M_WriteTextCentered(34, "MOUSE CONFIGURATION", cr[CR_YELLOW]);
 
-    M_DrawThermo(46, 54, 10, mouseSensitivity, 3);
+    M_DrawThermo(46, 54, 15, mouseSensitivity, 3);
+    M_ID_HandleSliderMouseControl(52, 54, 124, &mouseSensitivity, false, 0, 14);
     sprintf(str,"%d", mouseSensitivity);
-    M_WriteText (144, 57, str, M_Item_Glow(3, mouseSensitivity > 9 ? GLOW_GREEN :
-                                              mouseSensitivity < 1 ? GLOW_DARKRED : GLOW_UNCOLORED));
+    M_WriteText (184, 57, str, M_Item_Glow(3, mouseSensitivity == 255 ? GLOW_YELLOW :
+                                              mouseSensitivity > 14 ? GLOW_GREEN : GLOW_UNCOLORED));
 
-    M_DrawThermo(46, 80, 12, (mouse_acceleration * 3) - 3, 6);
+    M_DrawThermo(46, 81, 8, (mouse_acceleration * 1.8f) - 2, 6);
+    M_ID_HandleSliderMouseControl(52, 81, 100, &mouse_acceleration, true, 0, 9);
     sprintf(str,"%.1f", mouse_acceleration);
-    M_WriteText (160, 83, str, M_Item_Glow(6, GLOW_UNCOLORED));
+    M_WriteText (128, 83, str, M_Item_Glow(6, GLOW_UNCOLORED));
 
-    M_DrawThermo(46, 107, 15, mouse_threshold / 2, 9);
+    M_DrawThermo(46, 108, 15, mouse_threshold / 2.2f, 9);
+    M_ID_HandleSliderMouseControl(52, 108, 124, &mouse_threshold, false, 0, 32);
     sprintf(str,"%d", mouse_threshold);
     M_WriteText (184, 110, str, M_Item_Glow(9, mouse_threshold == 0 ? GLOW_DARKRED : GLOW_UNCOLORED));
 
@@ -3672,10 +3680,12 @@ static void M_DrawSound(void)
     V_DrawShadowedPatch(60, 38, W_CacheLumpName(m_svol, PU_CACHE), m_svol);
 
     M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (sfx_vol + 1), 16, sfxVolume, 0);
+    M_ID_HandleSliderMouseControl(86, 80, 132, &sfxVolume, false, 0, 15);
     sprintf(str,"%d", sfxVolume);
     M_WriteText (226, 83, str, M_Item_Glow(0, sfxVolume ? GLOW_UNCOLORED : GLOW_DARKRED));
 
     M_DrawThermo(SoundDef.x, SoundDef.y + LINEHEIGHT * (music_vol + 1), 16, musicVolume, 2);
+    M_ID_HandleSliderMouseControl(86, 112, 132, &musicVolume, false, 0, 15);
     sprintf(str,"%d", musicVolume);
     M_WriteText (226, 115, str, M_Item_Glow(2, musicVolume ? GLOW_UNCOLORED : GLOW_DARKRED));
 }
@@ -3815,9 +3825,11 @@ static void M_DrawOptions(void)
 
     M_DrawThermo(OptionsDef.x, OptionsDef.y + LINEHEIGHT * (mousesens + 1),
 		 10, mouseSensitivity, 5);
+    M_ID_HandleSliderMouseControl(66, 133, 84, &mouseSensitivity, false, 0, 9);
 
     M_DrawThermo(OptionsDef.x,OptionsDef.y+LINEHEIGHT*(scrnsize+1),
-		 9,crl_screen_size-3, 3);
+		 9,(crl_screen_size-3), 3);
+    M_ID_HandleSliderMouseControl(66, 101, 76, &crl_screen_size, false, 0, 13);
 }
 
 static void M_Options(int choice)
@@ -4609,10 +4621,12 @@ boolean M_Responder (event_t* ev)
     {
 	// [JN] Shows the mouse cursor when moved.
 	if (ev->data2 || ev->data3)
+	{
 	menu_mouse_allow = true;
+	menu_mouse_allow_click = false;
+	}
 
-	if (ev->type == ev_mouse && mousewait < I_GetTime()
-	&& !ev->data2 && !ev->data3) // [JN] Do not consider movement as pressing.
+	if (ev->type == ev_mouse && mousewait < I_GetTime())
 	{
 	    // [crispy] novert disables controlling the menus with the mouse
 	    // [JN] Not needed, as menu is fully controllable by mouse wheel and buttons.
@@ -4666,6 +4680,14 @@ boolean M_Responder (event_t* ev)
 
 	    if (ev->data1&1)
 	    {
+		if (menuactive && currentMenu->menuitems[itemOn].status == 3)
+		{
+		// [JN] Allow repetitive on sliders to move it while mouse movement.
+		menu_mouse_allow_click = true;            
+		}
+		else
+		if (!ev->data2 && !ev->data3) // [JN] Do not consider movement as pressing.
+		{
 		if (messageToPrint && messageNeedsInput)
 		{
 		key = key_menu_confirm;  // [JN] Confirm by left mouse button.
@@ -4676,8 +4698,10 @@ boolean M_Responder (event_t* ev)
 		}
 		mousewait = I_GetTime() + 5;
 	    }
+	    }
 			
-	    if (ev->data1&2)
+	    if (ev->data1&2
+	    && !ev->data2 && !ev->data3)  // [JN] Do not consider movement as pressing.
 	    {
 		if (!menuactive && !usergame)
 		{
@@ -4705,7 +4729,7 @@ boolean M_Responder (event_t* ev)
 	    // [JN] Scrolls through menu item values or navigates between pages.
 	    if (ev->data1 & (1 << 4) && menuactive)
 	    {
-			if (currentMenu->menuitems[itemOn].status == 2)
+			if (currentMenu->menuitems[itemOn].status > 1)
 			{
 				// Scroll menu item backward
 				currentMenu->menuitems[itemOn].routine(0);
@@ -4721,7 +4745,7 @@ boolean M_Responder (event_t* ev)
 	    else
 	    if (ev->data1 & (1 << 3) && menuactive)
 	    {
-			if (currentMenu->menuitems[itemOn].status == 2)
+			if (currentMenu->menuitems[itemOn].status > 1)
 			{
 				// Scroll menu item forward
 				currentMenu->menuitems[itemOn].routine(1);
@@ -5081,9 +5105,7 @@ boolean M_Responder (event_t* ev)
 		itemOn = 0;
 	    else itemOn++;
 	    S_StartSound(NULL,sfx_pstop);
-	} while(currentMenu->menuitems[itemOn].status == -1 ||
-			currentMenu->menuitems[itemOn].status ==  3 || // [JN] Skip sliders
-			currentMenu->menuitems[itemOn].status ==  4);
+	} while(currentMenu->menuitems[itemOn].status == -1);
 
 	return true;
     }
@@ -5097,9 +5119,7 @@ boolean M_Responder (event_t* ev)
 		itemOn = currentMenu->numitems-1;
 	    else itemOn--;
 	    S_StartSound(NULL,sfx_pstop);
-	} while(currentMenu->menuitems[itemOn].status == -1 ||
-			currentMenu->menuitems[itemOn].status ==  3 || // [JN] Skip sliders
-			currentMenu->menuitems[itemOn].status ==  4);
+	} while(currentMenu->menuitems[itemOn].status == -1);
 
 	return true;
     }
@@ -5113,7 +5133,7 @@ boolean M_Responder (event_t* ev)
         // Slide slider left
 
 	if (currentMenu->menuitems[itemOn].routine &&
-	    currentMenu->menuitems[itemOn].status == 2)
+	    currentMenu->menuitems[itemOn].status > 1)
 	{
 	    S_StartSound(NULL,sfx_stnmov);
 	    currentMenu->menuitems[itemOn].routine(0);
@@ -5130,7 +5150,7 @@ boolean M_Responder (event_t* ev)
         // Slide slider right
 
 	if (currentMenu->menuitems[itemOn].routine &&
-	    currentMenu->menuitems[itemOn].status == 2)
+	    currentMenu->menuitems[itemOn].status > 1)
 	{
 	    S_StartSound(NULL,sfx_stnmov);
 	    currentMenu->menuitems[itemOn].routine(1);
@@ -5303,22 +5323,46 @@ static void M_ID_MenuMouseControl (void)
         // [PN] Check if the cursor is hovering over a menu item
         for (int i = 0; i < currentMenu->numitems; i++)
         {
+            // [JN] Slider takes three lines.
+            const int line_item = currentMenu->menuitems[i].status == 3 ? 3 : 1;
+
             if (menu_mouse_x >= (currentMenu->x)
             &&  menu_mouse_x <= (SCREENWIDTH - currentMenu->x)
             &&  menu_mouse_y >= (currentMenu->y + i * line_height)
-            &&  menu_mouse_y <= (currentMenu->y + (i + 1) * line_height)
+            &&  menu_mouse_y <= (currentMenu->y + (i + line_item) * line_height)
             &&  currentMenu->menuitems[i].status != -1)
             {
                 // [PN] Highlight the current menu item
                 itemOn = i;
-
-                // [JN] Move menu cursor higher when hovering slider lines.
-                if (currentMenu->menuitems[itemOn].status == 3)
-                    itemOn -= 1;
-                if (currentMenu->menuitems[itemOn].status == 4)
-                    itemOn -= 2;
             }
         }
+    }
+}
+
+static void M_ID_HandleSliderMouseControl (int x, int y, int width, void *value, boolean is_float, float min, float max)
+{
+    if (!menu_mouse_allow_click)
+        return;
+    
+    // [PN] Check cursor position and item status
+    if (menu_mouse_x < x || menu_mouse_x > x + width
+    ||  menu_mouse_y < y || menu_mouse_y > y + LINEHEIGHT
+    ||  currentMenu->menuitems[itemOn].status != 3)
+        return;
+
+    {
+    // [PN] Calculate and update slider value
+    const float normalized = (float)(menu_mouse_x - x + 5) / width;
+    const float newValue = min + normalized * (max - min);
+    if (is_float)
+        *((float *)value) = newValue;
+    else
+        *((int *)value) = (int)newValue;
+    // [JN/PN] Call related routine and reset mouse click allowance
+    currentMenu->menuitems[itemOn].routine(-1);
+    menu_mouse_allow_click = false;
+    // Play sound
+    S_StartSound(NULL, sfx_stnmov);
     }
 }
 
