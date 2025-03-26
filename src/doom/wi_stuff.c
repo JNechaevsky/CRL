@@ -660,16 +660,6 @@ void WI_drawAnimatedBack(void)
     if (wbs->epsd > 2)
 	return;
 
-    for (i=0 ; i<NUMANIMS[wbs->epsd] ; i++)
-    {
-	a = &anims[wbs->epsd][i];
-
-	// [JN] Construct proper patch name for possible error handling:
-	sprintf(name, "WIA%d%.2d%.2d", wbs->epsd, i, a->ctr);
-	if (a->ctr >= 0)
-	    V_DrawPatch(a->loc.x, a->loc.y, a->p[a->ctr], name);
-    }
-
     // [crispy] show Fortress of Mystery if it has been completed
     if (wbs->epsd == 1 && wbs->didsecret)
     {
@@ -678,6 +668,16 @@ void WI_drawAnimatedBack(void)
 	// [JN] Construct proper patch name for possible error handling:
 	sprintf(name, "WIA%d%.2d%.2d", wbs->epsd, i, a->ctr);
 	V_DrawPatch(a->loc.x, a->loc.y, a->p[a->nanims - 1], name);
+    }
+
+    for (i=0 ; i<NUMANIMS[wbs->epsd] ; i++)
+    {
+	a = &anims[wbs->epsd][i];
+
+	// [JN] Construct proper patch name for possible error handling:
+	sprintf(name, "WIA%d%.2d%.2d", wbs->epsd, i, a->ctr);
+	if (a->ctr >= 0)
+	    V_DrawPatch(a->loc.x, a->loc.y, a->p[a->ctr], name);
     }
 }
 
