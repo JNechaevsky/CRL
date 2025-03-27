@@ -666,7 +666,7 @@ void WI_drawAnimatedBack(void)
 	a = &anims[wbs->epsd][7];
 
 	// [JN] Construct proper patch name for possible error handling:
-	sprintf(name, "WIA%d%.2d%.2d", wbs->epsd, i, a->ctr);
+	sprintf(name, "WIA10702");
 	V_DrawPatch(a->loc.x, a->loc.y, a->p[a->nanims - 1], name);
     }
 
