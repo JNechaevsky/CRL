@@ -83,11 +83,11 @@ void SV_OpenRead(char *filename)
 
 //==========================================================================
 //
-// SV_Close
+// SV_WriteSaveGameEOF
 //
 //==========================================================================
 
-void SV_Close(char *fileName)
+void SV_WriteSaveGameEOF(void)
 {
     SV_WriteByte(SAVE_GAME_TERMINATOR);
 
@@ -98,8 +98,21 @@ void SV_Close(char *fileName)
         // [JN] CRL - print a warnings instead of quit with an error.
         CRL_SetMessageCritical("SV[CLOSE:", "SAVEGAME OVERFLOW (VANILLA CRASHES HERE)", MESSAGETICS);
     }
+}
 
-    fclose(SaveGameFP);
+//==========================================================================
+//
+// SV_Close
+//
+//==========================================================================
+
+void SV_Close(void)
+{
+    if (SaveGameFP)
+    {
+        fclose(SaveGameFP);
+        SaveGameFP = NULL;
+    }
 }
 
 //==========================================================================

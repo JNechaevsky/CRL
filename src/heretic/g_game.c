@@ -2272,6 +2272,8 @@ void G_DoLoadGame(void)
         I_Error("Bad savegame");
     }
 
+    SV_Close();
+
     // [JN] Restore monster targets.
     P_RestoreTargets ();
 }
@@ -2886,7 +2888,8 @@ void G_DoSaveGame(void)
     P_ArchiveWorld();
     P_ArchiveThinkers();
     P_ArchiveSpecials();
-    SV_Close(filename);
+    SV_WriteSaveGameEOF();
+    SV_Close();
 
     gameaction = ga_nothing;
     savedescription[0] = 0;
