@@ -57,7 +57,8 @@ typedef enum
 {
     ITT_EMPTY,
     ITT_EFUNC,
-    ITT_LRFUNC,
+    ITT_LRFUNC1,    // Multichoice function: increase by wheel up, decrease by wheel down
+    ITT_LRFUNC2,    // Multichoice function: decrease by wheel up, increase by wheel down
     ITT_SETMENU,
     ITT_SLDR,       // Slider line.
     ITT_INERT
@@ -175,7 +176,7 @@ static int FontABaseLump;
 static int FontBBaseLump;
 static int SkullBaseLump;
 static Menu_t *CurrentMenu;
-static int CurrentItPos;
+static int CurrentItPos;    // -1 = no selection
 static int MenuEpisode;
 static int MenuTime;
 
@@ -323,7 +324,7 @@ static Menu_t SkillMenu = {
 
 static MenuItem_t OptionsItems[] = {
     {ITT_EFUNC, "END GAME", SCEndGame, 0, MENU_NONE},
-    {ITT_LRFUNC, "MESSAGES : ", SCMessages, 0, MENU_NONE},
+    {ITT_LRFUNC1, "MESSAGES : ", SCMessages, 0, MENU_NONE},
     {ITT_SLDR, "MOUSE SENSITIVITY", SCMouseSensi, 0, MENU_NONE},
     {ITT_EMPTY, NULL, NULL, 0, MENU_NONE},
     {ITT_SETMENU, "MORE...", NULL, 0, MENU_OPTIONS2}
@@ -699,6 +700,14 @@ static void M_Reset_Line_Glow (void)
     {
         CurrentMenu->items[i].tics = 0;
     }
+
+    // [JN] If menu is controlled by mouse, reset "last on" position
+    // so this item won't blink upon reentering to the current menu.
+    if (menu_mouse_allow)
+    {
+        CurrentMenu->oldItPos = -1;
+        CurrentItPos = -1;
+    }
 }
 
 #define GLOW_UNCOLORED  0
@@ -911,11 +920,11 @@ static char *const DefSkillName[5] =
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLMainItems[] = {
-    {ITT_LRFUNC,  "SPECTATOR MODE",       CRL_Spectating, 0, MENU_NONE},
-    {ITT_LRFUNC,  "FREEZE MODE",          CRL_Freeze,     0, MENU_NONE},
-    {ITT_LRFUNC,  "BUDDHA MODE",          CRL_Buddha,     0, MENU_NONE},
-    {ITT_LRFUNC,  "NO TARGET MODE",       CRL_NoTarget,   0, MENU_NONE},
-    {ITT_LRFUNC,  "NO MOMENTUM MODE",     CRL_NoMomentum, 0, MENU_NONE},
+    {ITT_LRFUNC1, "SPECTATOR MODE",       CRL_Spectating, 0, MENU_NONE},
+    {ITT_LRFUNC1, "FREEZE MODE",          CRL_Freeze,     0, MENU_NONE},
+    {ITT_LRFUNC1, "BUDDHA MODE",          CRL_Buddha,     0, MENU_NONE},
+    {ITT_LRFUNC1, "NO TARGET MODE",       CRL_NoTarget,   0, MENU_NONE},
+    {ITT_LRFUNC1, "NO MOMENTUM MODE",     CRL_NoMomentum, 0, MENU_NONE},
     {ITT_EMPTY,   NULL,                   NULL,           0, MENU_NONE},
     {ITT_SETMENU, "VIDEO OPTIONS",        NULL,           0, MENU_CRLVIDEO},
     {ITT_SETMENU, "DISPLAY OPTIONS",      NULL,           0, MENU_CRLDISPLAY},
@@ -1026,17 +1035,17 @@ static void CRL_NoMomentum (int choice)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLVideoItems[] = {
-    { ITT_LRFUNC, "UNCAPPED FRAMERATE",  CRL_UncappedFPS,   0, MENU_NONE },
-    { ITT_LRFUNC, "FRAMERATE LIMIT",     CRL_LimitFPS,      0, MENU_NONE },
-    { ITT_LRFUNC, "ENABLE VSYNC",        CRL_VSync,         0, MENU_NONE },
-    { ITT_LRFUNC, "SHOW FPS COUNTER",    CRL_ShowFPS,       0, MENU_NONE },
-    { ITT_LRFUNC, "PIXEL SCALING",       CRL_PixelScaling,  0, MENU_NONE },
-    { ITT_LRFUNC, "VISPLANES DRAWING",   CRL_VisplanesDraw, 0, MENU_NONE },
-    { ITT_LRFUNC, "HOM EFFECT",          CRL_HOMDraw,       0, MENU_NONE },
-    { ITT_EMPTY,  NULL,                  NULL,              0, MENU_NONE },
-    { ITT_LRFUNC, "GRAPHICAL STARTUP",   CRL_GfxStartup,    0, MENU_NONE },
-    { ITT_LRFUNC, "SHOW ENDTEXT SCREEN", CRL_EndText,       0, MENU_NONE },
-    { ITT_LRFUNC, "COLORBLIND",          CRL_Colorblind,    0, MENU_NONE },
+    { ITT_LRFUNC1, "UNCAPPED FRAMERATE",  CRL_UncappedFPS,   0, MENU_NONE },
+    { ITT_LRFUNC1, "FRAMERATE LIMIT",     CRL_LimitFPS,      0, MENU_NONE },
+    { ITT_LRFUNC2, "ENABLE VSYNC",        CRL_VSync,         0, MENU_NONE },
+    { ITT_LRFUNC2, "SHOW FPS COUNTER",    CRL_ShowFPS,       0, MENU_NONE },
+    { ITT_LRFUNC2, "PIXEL SCALING",       CRL_PixelScaling,  0, MENU_NONE },
+    { ITT_LRFUNC2, "VISPLANES DRAWING",   CRL_VisplanesDraw, 0, MENU_NONE },
+    { ITT_LRFUNC1, "HOM EFFECT",          CRL_HOMDraw,       0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                  NULL,              0, MENU_NONE },
+    { ITT_LRFUNC2, "GRAPHICAL STARTUP",   CRL_GfxStartup,    0, MENU_NONE },
+    { ITT_LRFUNC2, "SHOW ENDTEXT SCREEN", CRL_EndText,       0, MENU_NONE },
+    { ITT_LRFUNC2, "COLORBLIND",          CRL_Colorblind,    0, MENU_NONE },
 };
 
 static Menu_t CRLVideo = {
@@ -1219,15 +1228,15 @@ static void CRL_Colorblind (int option)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLDisplayItems[] = {
-    { ITT_SLDR,   "GAMMA-CORRECTION",        CRL_Gamma,           0, MENU_NONE },
-    { ITT_EMPTY,  NULL,                      NULL,                0, MENU_NONE },
-    { ITT_EMPTY,  NULL,                      NULL,                0, MENU_NONE },
-    { ITT_LRFUNC, "MENU BACKGROUND SHADING", CRL_MenuBgShading,   0, MENU_NONE },
-    { ITT_LRFUNC, "EXTRA LEVEL BRIGHTNESS",  CRL_LevelBrightness, 0, MENU_NONE },
-    { ITT_EMPTY,  NULL,                      NULL,                0, MENU_NONE },
-    { ITT_LRFUNC, "MESSAGES ENABLED",        SCMessages,          0, MENU_NONE },
-    { ITT_LRFUNC, "CRITICAL MESSAGE",        CRL_MsgCritical,     0, MENU_NONE },
-    { ITT_LRFUNC, "TEXT CAST SHADOWS",       CRL_TextShadows,     0, MENU_NONE },
+    { ITT_SLDR,    "GAMMA-CORRECTION",        CRL_Gamma,           0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                      NULL,                0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                      NULL,                0, MENU_NONE },
+    { ITT_LRFUNC1, "MENU BACKGROUND SHADING", CRL_MenuBgShading,   0, MENU_NONE },
+    { ITT_LRFUNC1, "EXTRA LEVEL BRIGHTNESS",  CRL_LevelBrightness, 0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                      NULL,                0, MENU_NONE },
+    { ITT_LRFUNC1, "MESSAGES ENABLED",        SCMessages,          0, MENU_NONE },
+    { ITT_LRFUNC2, "CRITICAL MESSAGE",        CRL_MsgCritical,     0, MENU_NONE },
+    { ITT_LRFUNC1, "TEXT CAST SHADOWS",       CRL_TextShadows,     0, MENU_NONE },
 };
 
 static Menu_t CRLDisplay = {
@@ -1317,17 +1326,17 @@ static void CRL_TextShadows (int option)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLSoundItems[] = {
-    { ITT_SLDR,   "SFX VOLUME",           SCSfxVolume,        MENU_NONE },
-    { ITT_EMPTY,  NULL,                   NULL,            0, MENU_NONE },
-    { ITT_EMPTY,  NULL,                   NULL,            0, MENU_NONE },
-    { ITT_SLDR,   "MUSIC VOLUME",         SCMusicVolume,      MENU_NONE },
-    { ITT_EMPTY,  NULL,                   NULL,            0, MENU_NONE },
-    { ITT_EMPTY,  NULL,                   NULL,            0, MENU_NONE },
-    { ITT_EMPTY,  NULL,                   NULL,            0, MENU_NONE },
-    { ITT_LRFUNC, "MUSIC PLAYBACK",       CRL_MusicSystem, 0, MENU_NONE },
-    { ITT_LRFUNC, "SOUNDS EFFECTS MODE",  CRL_SFXMode,     0, MENU_NONE },
-    { ITT_LRFUNC, "PITCH-SHIFTED SOUNDS", CRL_PitchShift,  0, MENU_NONE },
-    { ITT_LRFUNC, "NUMBER OF SFX TO MIX", CRL_SFXChannels, 0, MENU_NONE },
+    { ITT_SLDR,    "SFX VOLUME",           SCSfxVolume,        MENU_NONE },
+    { ITT_EMPTY,   NULL,                   NULL,            0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                   NULL,            0, MENU_NONE },
+    { ITT_SLDR,    "MUSIC VOLUME",         SCMusicVolume,      MENU_NONE },
+    { ITT_EMPTY,   NULL,                   NULL,            0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                   NULL,            0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                   NULL,            0, MENU_NONE },
+    { ITT_LRFUNC2, "MUSIC PLAYBACK",       CRL_MusicSystem, 0, MENU_NONE },
+    { ITT_LRFUNC1, "SOUNDS EFFECTS MODE",  CRL_SFXMode,     0, MENU_NONE },
+    { ITT_LRFUNC2, "PITCH-SHIFTED SOUNDS", CRL_PitchShift,  0, MENU_NONE },
+    { ITT_LRFUNC1, "NUMBER OF SFX TO MIX", CRL_SFXChannels, 0, MENU_NONE },
 };
 
 static Menu_t CRLSound = {
@@ -1497,8 +1506,8 @@ static MenuItem_t CRLControlsItems[] = {
     {ITT_SLDR,    "ACCELERATION THRESHOLD",  CRL_Controls_Threshold,    0, MENU_NONE},
     {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
     {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
-    {ITT_LRFUNC,  "MOUSE LOOK",              CRL_Controls_MLook,        0, MENU_NONE},
-    {ITT_LRFUNC,  "VERTICAL MOUSE MOVEMENT", CRL_Controls_NoVert,       0, MENU_NONE}
+    {ITT_LRFUNC1, "MOUSE LOOK",              CRL_Controls_MLook,        0, MENU_NONE},
+    {ITT_LRFUNC1, "VERTICAL MOUSE MOVEMENT", CRL_Controls_NoVert,       0, MENU_NONE}
 };
 
 static Menu_t CRLControls = {
@@ -2627,19 +2636,19 @@ static void M_Bind_M_Reset (int option)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLWidgetsItems[] = {
-    { ITT_LRFUNC, "RENDER COUNTERS",     CRL_Widget_Render,    0, MENU_NONE },
-    { ITT_LRFUNC, "MAX OVERFLOW STYLE",  CRL_Widget_MAX,       0, MENU_NONE },
-    { ITT_LRFUNC, "PLAYSTATE COUNTERS",  CRL_Widget_Playstate, 0, MENU_NONE },
-    { ITT_LRFUNC, "KIS STATS",           CRL_Widget_KIS,       0, MENU_NONE },
-    { ITT_LRFUNC, "LEVEL TIME",          CRL_Widget_Time,      0, MENU_NONE },
-    { ITT_LRFUNC, "PLAYER COORDS",       CRL_Widget_Coords,    0, MENU_NONE },
-    { ITT_LRFUNC, "POWERUP TIMERS",      CRL_Widget_Powerups,  0, MENU_NONE },
-    { ITT_LRFUNC, "TARGET'S HEALTH",     CRL_Widget_Health,    0, MENU_NONE },
-    { ITT_EMPTY,  NULL,                  NULL,                 0, MENU_NONE },
-    { ITT_LRFUNC, "MARK SECRET SECTORS", CRL_Automap_Secrets,  0, MENU_NONE },
-    { ITT_EMPTY,  NULL,                  NULL,                 0, MENU_NONE },
-    { ITT_EMPTY,  NULL,                  NULL,                 0, MENU_NONE },
-    { ITT_EMPTY,  NULL,                  NULL,                 0, MENU_NONE },
+    { ITT_LRFUNC2, "RENDER COUNTERS",     CRL_Widget_Render,    0, MENU_NONE },
+    { ITT_LRFUNC2, "MAX OVERFLOW STYLE",  CRL_Widget_MAX,       0, MENU_NONE },
+    { ITT_LRFUNC2, "PLAYSTATE COUNTERS",  CRL_Widget_Playstate, 0, MENU_NONE },
+    { ITT_LRFUNC2, "KIS STATS",           CRL_Widget_KIS,       0, MENU_NONE },
+    { ITT_LRFUNC2, "LEVEL TIME",          CRL_Widget_Time,      0, MENU_NONE },
+    { ITT_LRFUNC2, "PLAYER COORDS",       CRL_Widget_Coords,    0, MENU_NONE },
+    { ITT_LRFUNC2, "POWERUP TIMERS",      CRL_Widget_Powerups,  0, MENU_NONE },
+    { ITT_LRFUNC2, "TARGET'S HEALTH",     CRL_Widget_Health,    0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                  NULL,                 0, MENU_NONE },
+    { ITT_LRFUNC2, "MARK SECRET SECTORS", CRL_Automap_Secrets,  0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                  NULL,                 0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                  NULL,                 0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                  NULL,                 0, MENU_NONE },
 };
 
 static Menu_t CRLWidgetsMap = {
@@ -2767,15 +2776,15 @@ static void CRL_Automap_Secrets (int option)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLGameplayItems[] = {
-    {ITT_LRFUNC, "DEFAULT SKILL LEVEL",     CRL_DefaulSkill,    0, MENU_NONE},
-    {ITT_LRFUNC, "WAND START GAME MODE",    CRL_PistolStart,    0, MENU_NONE},
-    {ITT_LRFUNC, "COLORED STATUS BAR",      CRL_ColoredSBar,    0, MENU_NONE},
-    {ITT_LRFUNC, "RESTORE MONSTER TARGETS", CRL_RestoreTargets, 0, MENU_NONE},
+    {ITT_LRFUNC2, "DEFAULT SKILL LEVEL",     CRL_DefaulSkill,    0, MENU_NONE},
+    {ITT_LRFUNC2, "WAND START GAME MODE",    CRL_PistolStart,    0, MENU_NONE},
+    {ITT_LRFUNC2, "COLORED STATUS BAR",      CRL_ColoredSBar,    0, MENU_NONE},
+    {ITT_LRFUNC2, "RESTORE MONSTER TARGETS", CRL_RestoreTargets, 0, MENU_NONE},
     {ITT_EMPTY,  NULL,                      NULL,               0, MENU_NONE},
-    {ITT_LRFUNC, "SHOW DEMO TIMER",         CRL_DemoTimer,      0, MENU_NONE},
-    {ITT_LRFUNC, "TIMER DIRECTION",         CRL_TimerDirection, 0, MENU_NONE},
-    {ITT_LRFUNC, "SHOW PROGRESS BAR",       CRL_ProgressBar,    0, MENU_NONE},
-    {ITT_LRFUNC, "PLAY INTERNAL DEMOS",     CRL_InternalDemos,  0, MENU_NONE}
+    {ITT_LRFUNC2, "SHOW DEMO TIMER",         CRL_DemoTimer,      0, MENU_NONE},
+    {ITT_LRFUNC1, "TIMER DIRECTION",         CRL_TimerDirection, 0, MENU_NONE},
+    {ITT_LRFUNC2, "SHOW PROGRESS BAR",       CRL_ProgressBar,    0, MENU_NONE},
+    {ITT_LRFUNC2, "PLAY INTERNAL DEMOS",     CRL_InternalDemos,  0, MENU_NONE}
 };
 
 static Menu_t CRLGameplay = {
@@ -2888,8 +2897,8 @@ static void CRL_InternalDemos (int option)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLLimitsItems[] = {
-    {ITT_LRFUNC, "SAVE GAME LIMIT WARNING",    CRL_SaveSizeWarning, 0, MENU_NONE},
-    {ITT_LRFUNC, "RENDER LIMITS LEVEL",        CRL_Limits,          0, MENU_NONE}
+    {ITT_LRFUNC1, "SAVE GAME LIMIT WARNING",    CRL_SaveSizeWarning, 0, MENU_NONE},
+    {ITT_LRFUNC1, "RENDER LIMITS LEVEL",        CRL_Limits,          0, MENU_NONE}
 };
 
 static Menu_t CRLLimits = {
@@ -3330,6 +3339,10 @@ static void M_ID_MenuMouseControl (void)
         // [JN] Which line height should be used?
         const int line_height = (CurrentMenu->FontType == SmallFont) ?
                                  ID_MENU_LINEHEIGHT_SMALL : ITEM_HEIGHT;
+
+        // [JN] Reset current menu item, it will be set in a cycle below.
+        CurrentItPos = -1;
+
         // [PN] Check if the cursor is hovering over a menu item
         for (int i = 0; i < CurrentMenu->itemCount; i++)
         {
@@ -3490,17 +3503,20 @@ void MN_Drawer(void)
             item++;
         }
         
-        if (CurrentMenu->FontType == SmallFont)
+        if (CurrentItPos != -1)
         {
-            y = CurrentMenu->y + (CurrentItPos * ID_MENU_LINEHEIGHT_SMALL);
-            MN_DrTextA("*", x - ID_MENU_CURSOR_OFFSET, y, M_Cursor_Glow(cursor_tics));
-        }
-        else
-        {
-            y = CurrentMenu->y + (CurrentItPos * ITEM_HEIGHT) + SELECTOR_YOFFSET;
-            selName = DEH_String(MenuTime & 16 ? "M_SLCTR1" : "M_SLCTR2");
-            V_DrawShadowedPatchRavenOptional(x + SELECTOR_XOFFSET, y,
-                        W_CacheLumpName(selName, PU_CACHE), selName);
+            if (CurrentMenu->FontType == SmallFont)
+            {
+                y = CurrentMenu->y + (CurrentItPos * ID_MENU_LINEHEIGHT_SMALL);
+                MN_DrTextA("*", x - ID_MENU_CURSOR_OFFSET, y, M_Cursor_Glow(cursor_tics));
+            }
+            else
+            {
+                y = CurrentMenu->y + (CurrentItPos * ITEM_HEIGHT) + SELECTOR_YOFFSET;
+                selName = DEH_String(MenuTime & 16 ? "M_SLCTR1" : "M_SLCTR2");
+                V_DrawShadowedPatchRavenOptional(x + SELECTOR_XOFFSET, y,
+                            W_CacheLumpName(selName, PU_CACHE), selName);
+            }
         }
     }
 
@@ -4393,13 +4409,14 @@ boolean MN_Responder(event_t * event)
             }
 
             // [JN] Scrolls through menu item values or navigates between pages.
-            if (event->data1 & (1 << 4) && MenuActive)
+            if (event->data1 & (1 << 4) && MenuActive)  // Wheel down
             {
-                if (CurrentMenu->items[CurrentItPos].type == ITT_LRFUNC
+                if (CurrentMenu->items[CurrentItPos].type == ITT_LRFUNC1
+                ||  CurrentMenu->items[CurrentItPos].type == ITT_LRFUNC2
                 ||  CurrentMenu->items[CurrentItPos].type == ITT_SLDR)
                 {
-                    // Scroll menu item backward
-                    CurrentMenu->items[CurrentItPos].func(LEFT_DIR);
+                    // Scroll menu item backward normally, or forward for ITT_LRFUNC2
+                    CurrentMenu->items[CurrentItPos].func(CurrentMenu->items[CurrentItPos].type != ITT_LRFUNC2 ? LEFT_DIR : RIGHT_DIR);
                     S_StartSound(NULL, sfx_keyup);
                 }
                 else
@@ -4410,13 +4427,14 @@ boolean MN_Responder(event_t * event)
                 mousewait = I_GetTime();
             }
             else
-            if (event->data1 & (1 << 3) && MenuActive)
+            if (event->data1 & (1 << 3) && MenuActive)  // Wheel up
             {
-                if (CurrentMenu->items[CurrentItPos].type == ITT_LRFUNC
+                if (CurrentMenu->items[CurrentItPos].type == ITT_LRFUNC1
+                ||  CurrentMenu->items[CurrentItPos].type == ITT_LRFUNC2
                 ||  CurrentMenu->items[CurrentItPos].type == ITT_SLDR)
                 {
-                    // Scroll menu item forward
-                    CurrentMenu->items[CurrentItPos].func(RIGHT_DIR);
+                    // Scroll menu item forward normally, or backward for ITT_LRFUNC2
+                    CurrentMenu->items[CurrentItPos].func(CurrentMenu->items[CurrentItPos].type != ITT_LRFUNC2 ? RIGHT_DIR : LEFT_DIR);
                     S_StartSound(NULL, sfx_keyup);
                 }
                 else
@@ -4806,6 +4824,13 @@ boolean MN_Responder(event_t * event)
         }
         else if (key == key_menu_up)         // Previous menu item
         {
+            // [JN] Current menu item was hidden while mouse controls,
+            // so move cursor to last one menu item by pressing "up" key.
+            if (CurrentItPos == -1)
+            {
+                CurrentItPos = CurrentMenu->itemCount;
+            }
+
             do
             {
                 if (CurrentItPos == 0)
@@ -4821,9 +4846,32 @@ boolean MN_Responder(event_t * event)
             S_StartSound(NULL, sfx_switch);
             return (true);
         }
+        else if (key == key_menu_activate)     // Toggle menu
+        {
+            MN_DeactivateMenu();
+            return (true);
+        }
+        else if (key == key_menu_back)         // Go back to previous menu
+        {
+            S_StartSound(NULL, sfx_switch);
+            if (CurrentMenu->prevMenu == MENU_NONE)
+            {
+                MN_DeactivateMenu();
+            }
+            else
+            {
+                SetMenu(CurrentMenu->prevMenu);
+            }
+            return (true);
+        }
+        else if (CurrentItPos == -1)
+        {
+            // [JN] If no menu item is selected, then do not proceed with routines!
+            return true;
+        }
         else if (key == key_menu_left)       // Slider left
         {
-            if ((item->type == ITT_LRFUNC || item->type == ITT_SLDR) && item->func != NULL)
+            if ((item->type == ITT_LRFUNC1 || item->type == ITT_LRFUNC2 || item->type == ITT_SLDR) && item->func != NULL)
             {
                 item->func(LEFT_DIR);
                 S_StartSound(NULL, sfx_keyup);
@@ -4837,7 +4885,7 @@ boolean MN_Responder(event_t * event)
         }
         else if (key == key_menu_right)      // Slider right
         {
-            if ((item->type == ITT_LRFUNC || item->type == ITT_SLDR) && item->func != NULL)
+            if ((item->type == ITT_LRFUNC1 || item->type == ITT_LRFUNC2 || item->type == ITT_SLDR) && item->func != NULL)
             {
                 item->func(RIGHT_DIR);
                 S_StartSound(NULL, sfx_keyup);
@@ -4880,7 +4928,7 @@ boolean MN_Responder(event_t * event)
             else if (item->func != NULL)
             {
                 CurrentMenu->oldItPos = CurrentItPos;
-                if (item->type == ITT_LRFUNC)
+                if (item->type == ITT_LRFUNC1 || item->type == ITT_LRFUNC2)
                 {
                     item->func(RIGHT_DIR);
                 }
@@ -4890,24 +4938,6 @@ boolean MN_Responder(event_t * event)
                 }
             }
             S_StartSound(NULL, sfx_dorcls);
-            return (true);
-        }
-        else if (key == key_menu_activate)     // Toggle menu
-        {
-            MN_DeactivateMenu();
-            return (true);
-        }
-        else if (key == key_menu_back)         // Go back to previous menu
-        {
-            S_StartSound(NULL, sfx_switch);
-            if (CurrentMenu->prevMenu == MENU_NONE)
-            {
-                MN_DeactivateMenu();
-            }
-            else
-            {
-                SetMenu(CurrentMenu->prevMenu);
-            }
             return (true);
         }
         // [crispy] delete a savegame
