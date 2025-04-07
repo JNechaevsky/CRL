@@ -792,9 +792,12 @@ static void M_Choose_CRL_Keybinds (int choice)
     M_SetupNextMenu(KeybindsMenus[Keybinds_Cur]);
 }
 
-// Utility function for scrolling pages by arrows / PG keys.
+// [JN/PN] Utility function for scrolling pages by arrows / PG keys.
 static void M_ScrollPages (boolean direction)
 {
+    // "sfx_pstop" sound will be played only if menu will be changed.
+    menu_t *nextMenu = NULL;
+
     // Remember cursor position.
     currentMenu->lastOn = itemOn;
 
@@ -823,16 +826,20 @@ static void M_ScrollPages (boolean direction)
     }
 
     // Keyboard bindings:
-    else if (currentMenu == &CRLDef_Keybinds_1) M_SetupNextMenu(direction ? &CRLDef_Keybinds_2 : &CRLDef_Keybinds_7);
-    else if (currentMenu == &CRLDef_Keybinds_2) M_SetupNextMenu(direction ? &CRLDef_Keybinds_3 : &CRLDef_Keybinds_1);
-    else if (currentMenu == &CRLDef_Keybinds_3) M_SetupNextMenu(direction ? &CRLDef_Keybinds_4 : &CRLDef_Keybinds_2);
-    else if (currentMenu == &CRLDef_Keybinds_4) M_SetupNextMenu(direction ? &CRLDef_Keybinds_5 : &CRLDef_Keybinds_3);
-    else if (currentMenu == &CRLDef_Keybinds_5) M_SetupNextMenu(direction ? &CRLDef_Keybinds_6 : &CRLDef_Keybinds_4);
-    else if (currentMenu == &CRLDef_Keybinds_6) M_SetupNextMenu(direction ? &CRLDef_Keybinds_7 : &CRLDef_Keybinds_5);
-    else if (currentMenu == &CRLDef_Keybinds_7) M_SetupNextMenu(direction ? &CRLDef_Keybinds_1 : &CRLDef_Keybinds_6);
+    else if (currentMenu == &CRLDef_Keybinds_1) nextMenu = (direction ? &CRLDef_Keybinds_2 : &CRLDef_Keybinds_7);
+    else if (currentMenu == &CRLDef_Keybinds_2) nextMenu = (direction ? &CRLDef_Keybinds_3 : &CRLDef_Keybinds_1);
+    else if (currentMenu == &CRLDef_Keybinds_3) nextMenu = (direction ? &CRLDef_Keybinds_4 : &CRLDef_Keybinds_2);
+    else if (currentMenu == &CRLDef_Keybinds_4) nextMenu = (direction ? &CRLDef_Keybinds_5 : &CRLDef_Keybinds_3);
+    else if (currentMenu == &CRLDef_Keybinds_5) nextMenu = (direction ? &CRLDef_Keybinds_6 : &CRLDef_Keybinds_4);
+    else if (currentMenu == &CRLDef_Keybinds_6) nextMenu = (direction ? &CRLDef_Keybinds_7 : &CRLDef_Keybinds_5);
+    else if (currentMenu == &CRLDef_Keybinds_7) nextMenu = (direction ? &CRLDef_Keybinds_1 : &CRLDef_Keybinds_6);
 
-    // Play sound.
-    S_StartSound(NULL, sfx_pstop);
+    // If a new menu was set up, play the navigation sound.
+    if (nextMenu)
+    {
+        M_SetupNextMenu(nextMenu);
+        S_StartSound(NULL, sfx_pstop);
+    }
 }
 
 // -----------------------------------------------------------------------------
@@ -5178,9 +5185,10 @@ boolean M_Responder (event_t* ev)
     else if (key == key_menu_left)
     {
         // [JN] Go to previous-left menu by pressing Left Arrow.
-        if (currentMenu->ScrollAR)
+        if (currentMenu->ScrollAR || itemOn == -1)
         {
             M_ScrollPages(false);
+            return true;
         }
         // Slide slider left
 
@@ -5195,9 +5203,10 @@ boolean M_Responder (event_t* ev)
     else if (key == key_menu_right)
     {
         // [JN] Go to next-right menu by pressing Right Arrow.
-        if (currentMenu->ScrollAR)
+        if (currentMenu->ScrollAR || itemOn == -1)
         {
             M_ScrollPages(true);
+            return true;
         }
         // Slide slider right
 
@@ -5209,7 +5218,7 @@ boolean M_Responder (event_t* ev)
         }
         return true;
     }
-    else if (key == key_menu_forward)
+    else if (key == key_menu_forward && itemOn != -1)
     {
         // Activate menu item
 

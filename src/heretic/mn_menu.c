@@ -614,9 +614,12 @@ static void CRL_Choose_Keybinds (int choice)
     SetMenu(Keybinds_Cur);
 }
 
-// Utility function for scrolling pages by arrows / PG keys.
+// [JN/PN] Utility function for scrolling pages by arrows / PG keys.
 static void M_ScrollPages (boolean direction)
 {
+    // "sfx_switch" sound will be played only if menu will be changed.
+    int nextMenu = 0;
+
     // Save/Load menu:
     if (CurrentMenu == &LoadMenu || CurrentMenu == &SaveMenu)
     {
@@ -637,18 +640,22 @@ static void M_ScrollPages (boolean direction)
     }
 
     // Keyboard bindings:
-    else if (CurrentMenu == &CRLKbdBinds1) SetMenu(direction ? MENU_CRLKBDBINDS2 : MENU_CRLKBDBINDS9);
-    else if (CurrentMenu == &CRLKbdBinds2) SetMenu(direction ? MENU_CRLKBDBINDS3 : MENU_CRLKBDBINDS1);
-    else if (CurrentMenu == &CRLKbdBinds3) SetMenu(direction ? MENU_CRLKBDBINDS4 : MENU_CRLKBDBINDS2);
-    else if (CurrentMenu == &CRLKbdBinds4) SetMenu(direction ? MENU_CRLKBDBINDS5 : MENU_CRLKBDBINDS3);
-    else if (CurrentMenu == &CRLKbdBinds5) SetMenu(direction ? MENU_CRLKBDBINDS6 : MENU_CRLKBDBINDS4);
-    else if (CurrentMenu == &CRLKbdBinds6) SetMenu(direction ? MENU_CRLKBDBINDS7 : MENU_CRLKBDBINDS5);
-    else if (CurrentMenu == &CRLKbdBinds7) SetMenu(direction ? MENU_CRLKBDBINDS8 : MENU_CRLKBDBINDS6);
-    else if (CurrentMenu == &CRLKbdBinds8) SetMenu(direction ? MENU_CRLKBDBINDS1 : MENU_CRLKBDBINDS7);
-    else if (CurrentMenu == &CRLKbdBinds9) SetMenu(direction ? MENU_CRLKBDBINDS1 : MENU_CRLKBDBINDS8);
+    else if (CurrentMenu == &CRLKbdBinds1) nextMenu = (direction ? MENU_CRLKBDBINDS2 : MENU_CRLKBDBINDS9);
+    else if (CurrentMenu == &CRLKbdBinds2) nextMenu = (direction ? MENU_CRLKBDBINDS3 : MENU_CRLKBDBINDS1);
+    else if (CurrentMenu == &CRLKbdBinds3) nextMenu = (direction ? MENU_CRLKBDBINDS4 : MENU_CRLKBDBINDS2);
+    else if (CurrentMenu == &CRLKbdBinds4) nextMenu = (direction ? MENU_CRLKBDBINDS5 : MENU_CRLKBDBINDS3);
+    else if (CurrentMenu == &CRLKbdBinds5) nextMenu = (direction ? MENU_CRLKBDBINDS6 : MENU_CRLKBDBINDS4);
+    else if (CurrentMenu == &CRLKbdBinds6) nextMenu = (direction ? MENU_CRLKBDBINDS7 : MENU_CRLKBDBINDS5);
+    else if (CurrentMenu == &CRLKbdBinds7) nextMenu = (direction ? MENU_CRLKBDBINDS8 : MENU_CRLKBDBINDS6);
+    else if (CurrentMenu == &CRLKbdBinds8) nextMenu = (direction ? MENU_CRLKBDBINDS1 : MENU_CRLKBDBINDS7);
+    else if (CurrentMenu == &CRLKbdBinds9) nextMenu = (direction ? MENU_CRLKBDBINDS1 : MENU_CRLKBDBINDS8);
 
-    // Play sound.
-    S_StartSound(NULL, sfx_switch);
+    // If a new menu was set up, play the navigation sound.
+    if (nextMenu)
+    {
+        SetMenu(nextMenu);
+        S_StartSound(NULL, sfx_switch);
+    }
 }
 // -----------------------------------------------------------------------------
 
@@ -4866,11 +4873,6 @@ boolean MN_Responder(event_t * event)
             }
             return (true);
         }
-        else if (CurrentItPos == -1)
-        {
-            // [JN] If no menu item is selected, then do not proceed with routines!
-            return true;
-        }
         else if (key == key_menu_left)       // Slider left
         {
             if ((item->type == ITT_LRFUNC1 || item->type == ITT_LRFUNC2 || item->type == ITT_SLDR) && item->func != NULL)
@@ -4879,7 +4881,7 @@ boolean MN_Responder(event_t * event)
                 S_StartSound(NULL, sfx_keyup);
             }
             // [JN] Go to previous-left menu by pressing Left Arrow.
-            if (CurrentMenu->ScrollAR)
+            if (CurrentMenu->ScrollAR || CurrentItPos == -1)
             {
                 M_ScrollPages(false);
             }
@@ -4893,7 +4895,7 @@ boolean MN_Responder(event_t * event)
                 S_StartSound(NULL, sfx_keyup);
             }
             // [JN] Go to next-right menu by pressing Right Arrow.
-            if (CurrentMenu->ScrollAR)
+            if (CurrentMenu->ScrollAR || CurrentItPos == -1)
             {
                 M_ScrollPages(true);
             }
@@ -4917,7 +4919,7 @@ boolean MN_Responder(event_t * event)
             }
             return (true);
         }
-        else if (key == key_menu_forward)    // Activate item (enter)
+        else if (key == key_menu_forward && CurrentItPos != -1)    // Activate item (enter)
         {
             if (item->type == ITT_SETMENU)
             {
