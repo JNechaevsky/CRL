@@ -3014,6 +3014,8 @@ static Menu_t *Menus[] = {
 void MN_Init(void)
 {
     InitFonts();
+    // [JN] Initialize to prevent crashing on pressing "back".
+    CurrentMenu = &MainMenu;
     MenuActive = false;
     SkullBaseLump = W_GetNumForName(DEH_String("M_SKL00"));
 
@@ -4376,7 +4378,8 @@ boolean MN_Responder(event_t * event)
                 }
                 }
 
-                if (typeofask)
+                if (typeofask
+                && !event->data2 && !event->data3) // [JN] Do not consider movement as pressing.
                 {
                     MN_ID_TypeOfAsk();
                 }
