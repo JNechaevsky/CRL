@@ -163,6 +163,8 @@ static void DrawLoadMenu(void);
 static void DrawSaveMenu(void);
 static void DrawSlider(Menu_t * menu, int item, int width, int slot, boolean bigspacing, int itemPos);
 void MN_LoadSlotText(void);
+
+static void M_ID_MenuMouseControl (void);
 static void M_ID_HandleSliderMouseControl (int x, int y, int width, void *value, boolean is_float, float min, float max);
 
 // Public Data
@@ -713,7 +715,6 @@ static void M_Reset_Line_Glow (void)
     if (menu_mouse_allow)
     {
         CurrentMenu->oldItPos = -1;
-        CurrentItPos = -1;
     }
 }
 
@@ -5105,6 +5106,8 @@ void MN_ActivateMenu(void)
     CurrentMenu = &MainMenu;
     M_Reset_Line_Glow();
     CurrentItPos = CurrentMenu->oldItPos;
+    // [JN] Update mouse cursor position.
+    M_ID_MenuMouseControl();
     if (!netgame && !demoplayback)
     {
         paused = true;
@@ -5176,6 +5179,8 @@ static void SetMenu(MenuType_t menu)
     CurrentMenu = Menus[menu];
     M_Reset_Line_Glow();
     CurrentItPos = CurrentMenu->oldItPos;
+    // [JN] Update mouse cursor position.
+    M_ID_MenuMouseControl();
 }
 
 //---------------------------------------------------------------------------
