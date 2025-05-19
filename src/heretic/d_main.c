@@ -993,8 +993,8 @@ void D_DoomMain(void)
     // Start a game immediately, warping to level ExMy.
     //
 
-    p = M_CheckParmWithArgs("-warp", 2);
-    if (p && p < myargc - 2)
+    p = M_CheckParmWithArgs("-warp", 1);
+    if (p)
     {
         startepisode = myargv[p + 1][0] - '0';
         // [crispy] only if second argument is not another option
