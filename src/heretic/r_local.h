@@ -126,6 +126,7 @@ typedef struct line_s
     sector_t *frontsector, *backsector;
     int validcount;             // if == validcount, already checked
     void *specialdata;          // thinker_t for reversable actions
+    int sndprop_tics;           // [JN] CRL - Line timer of sound propagation mode﻿ for automap.
 } line_t;
 
 

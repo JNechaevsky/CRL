@@ -161,6 +161,7 @@ static byte antialias[NUMALIAS][8] = {
 
 // [JN] Make wall colors of secret sectors palette-independent.
 static int secretwallcolors;
+static int sndpropwallcolors;
 
 /*
 static byte *aliasmax[NUMALIAS] = {
@@ -410,8 +411,12 @@ void AM_initVariables(void)
     // [JN] Defince secret color only once.
     if (!colors_set)
     {
-        secretwallcolors = V_GetPaletteIndex(W_CacheLumpName("PLAYPAL", PU_CACHE),
-                                                                     184, 0, 184);
+        unsigned char *playpal = W_CacheLumpName("PLAYPAL", PU_STATIC);
+
+        secretwallcolors = V_GetPaletteIndex(playpal, 184, 0, 184);
+        sndpropwallcolors = V_GetPaletteIndex(playpal, 64, 224, 64);
+        W_ReleaseLumpName("PLAYPAL");
+
         colors_set = true;
     }
 
@@ -644,6 +649,24 @@ boolean AM_Responder(event_t * ev)
             plr->message = AMSTR_MARKSCLEARED;
         }
         */
+        else if (key == key_crl_map_sndprop)
+        {
+            // [JN] CRL - Sound propagation mode
+            crl_automap_sndprop = !crl_automap_sndprop;
+            if (crl_automap_sndprop)
+            {
+                // [JN] Reset propagation timers before toggling on.
+                for (int i = 0 ; i < numlines ; i++)
+                {
+                    lines[i].sndprop_tics = 0;
+                }
+                CT_SetMessage(plr, CRL_AUTOMAPSNDPROP_ON, false, NULL);
+            }
+            else
+            {
+                CT_SetMessage(plr, CRL_AUTOMAPSNDPROP_OFF, false, NULL);
+            }
+        }
         else
         {
             rc = false;
@@ -1294,6 +1317,14 @@ void AM_drawWalls(void)
         l.a.y = lines[i].v1->y;
         l.b.x = lines[i].v2->x;
         l.b.y = lines[i].v2->y;
+
+        // [JN] CRL - Sound propagation mode﻿ for automap.
+        if (crl_automap_sndprop && lines[i].sndprop_tics)
+        {
+            AM_drawMline(&l, sndpropwallcolors);
+            continue;
+        }
+
         if (ravmap_cheating || (lines[i].flags & ML_MAPPED))
         {
             if ((lines[i].flags & LINE_NEVERSEE) && !ravmap_cheating)

@@ -502,6 +502,7 @@ static void M_Bind_MaxZoom (int option);
 static void M_Bind_FollowMode (int option);
 // static void M_Bind_RotateMode (int option);
 // static void M_Bind_OverlayMode (int option);
+static void M_Bind_SndPropMode (int option);
 static void M_Bind_ToggleGrid (int option);
 
 static void DrawCRLKbd8 (void);
@@ -555,6 +556,7 @@ static void CRL_Widget_Coords (int option);
 static void CRL_Widget_Powerups (int option);
 static void CRL_Widget_Health (int option);
 static void CRL_Automap_Secrets (int option);
+static void CRL_Automap_SndProp (int option);
 
 static void DrawCRLGameplay (void);
 static void CRL_DefaulSkill (int option);
@@ -2226,20 +2228,21 @@ static void M_Bind_Morph (int option)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLKbsBinds7Items[] = {
-    {ITT_EFUNC, "TOGGLE MAP",       M_Bind_ToggleMap,   0, MENU_NONE},
-    {ITT_EFUNC, "ZOOM IN",          M_Bind_ZoomIn,      0, MENU_NONE},
-    {ITT_EFUNC, "ZOOM OUT",         M_Bind_ZoomOut,     0, MENU_NONE},
-    {ITT_EFUNC, "MAXIMUM ZOOM OUT", M_Bind_MaxZoom,     0, MENU_NONE},
-    {ITT_EFUNC, "FOLLOW MODE",      M_Bind_FollowMode,  0, MENU_NONE},
-//  {ITT_EFUNC, "ROTATE MODE",      M_Bind_RotateMode,  0, MENU_NONE},
-//  {ITT_EFUNC, "OVERLAY MODE",     M_Bind_OverlayMode, 0, MENU_NONE},
-    {ITT_EFUNC, "TOGGLE GRID",      M_Bind_ToggleGrid,  0, MENU_NONE}
+    {ITT_EFUNC, "TOGGLE MAP",             M_Bind_ToggleMap,   0, MENU_NONE},
+    {ITT_EFUNC, "ZOOM IN",                M_Bind_ZoomIn,      0, MENU_NONE},
+    {ITT_EFUNC, "ZOOM OUT",               M_Bind_ZoomOut,     0, MENU_NONE},
+    {ITT_EFUNC, "MAXIMUM ZOOM OUT",       M_Bind_MaxZoom,     0, MENU_NONE},
+    {ITT_EFUNC, "FOLLOW MODE",            M_Bind_FollowMode,  0, MENU_NONE},
+//  {ITT_EFUNC, "ROTATE MODE",            M_Bind_RotateMode,  0, MENU_NONE},
+//  {ITT_EFUNC, "OVERLAY MODE",           M_Bind_OverlayMode, 0, MENU_NONE},
+    {ITT_EFUNC, "SOUND PROPAGATION MODE", M_Bind_SndPropMode, 0, MENU_NONE},
+    {ITT_EFUNC, "TOGGLE GRID",            M_Bind_ToggleGrid,  0, MENU_NONE}
 };
 
 static Menu_t CRLKbdBinds7 = {
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     DrawCRLKbd7,
-    6, CRLKbsBinds7Items,
+    7, CRLKbsBinds7Items,
     0,
     SmallFont, true, true,
     MENU_CRLCONTROLS
@@ -2260,7 +2263,8 @@ static void DrawCRLKbd7 (void)
     M_DrawBindKey(4, 60, key_map_follow);
 //  M_DrawBindKey(5, 80, key_crl_map_rotate);
 //  M_DrawBindKey(6, 90, key_crl_map_overlay);
-    M_DrawBindKey(5, 70, key_map_grid);
+    M_DrawBindKey(5, 70, key_crl_map_sndprop);
+    M_DrawBindKey(6, 80, key_map_grid);
 
     M_DrawBindFooter("7", true);
 }
@@ -2302,9 +2306,14 @@ static void M_Bind_OverlayMode (int option)
 }
 */
 
+static void M_Bind_SndPropMode (int option)
+{
+    M_StartBind(705);  // key_crl_map_sndprop
+}
+
 static void M_Bind_ToggleGrid (int option)
 {
-    M_StartBind(705);  // key_map_grid
+    M_StartBind(706);  // key_map_grid
 }
 
 // -----------------------------------------------------------------------------
@@ -2644,19 +2653,17 @@ static void M_Bind_M_Reset (int option)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLWidgetsItems[] = {
-    { ITT_LRFUNC2, "RENDER COUNTERS",     CRL_Widget_Render,    0, MENU_NONE },
-    { ITT_LRFUNC2, "MAX OVERFLOW STYLE",  CRL_Widget_MAX,       0, MENU_NONE },
-    { ITT_LRFUNC2, "PLAYSTATE COUNTERS",  CRL_Widget_Playstate, 0, MENU_NONE },
-    { ITT_LRFUNC2, "KIS STATS",           CRL_Widget_KIS,       0, MENU_NONE },
-    { ITT_LRFUNC2, "LEVEL TIME",          CRL_Widget_Time,      0, MENU_NONE },
-    { ITT_LRFUNC2, "PLAYER COORDS",       CRL_Widget_Coords,    0, MENU_NONE },
-    { ITT_LRFUNC2, "POWERUP TIMERS",      CRL_Widget_Powerups,  0, MENU_NONE },
-    { ITT_LRFUNC2, "TARGET'S HEALTH",     CRL_Widget_Health,    0, MENU_NONE },
-    { ITT_EMPTY,   NULL,                  NULL,                 0, MENU_NONE },
-    { ITT_LRFUNC2, "MARK SECRET SECTORS", CRL_Automap_Secrets,  0, MENU_NONE },
-    { ITT_EMPTY,   NULL,                  NULL,                 0, MENU_NONE },
-    { ITT_EMPTY,   NULL,                  NULL,                 0, MENU_NONE },
-    { ITT_EMPTY,   NULL,                  NULL,                 0, MENU_NONE },
+    { ITT_LRFUNC2, "RENDER COUNTERS",        CRL_Widget_Render,    0, MENU_NONE },
+    { ITT_LRFUNC2, "MAX OVERFLOW STYLE",     CRL_Widget_MAX,       0, MENU_NONE },
+    { ITT_LRFUNC2, "PLAYSTATE COUNTERS",     CRL_Widget_Playstate, 0, MENU_NONE },
+    { ITT_LRFUNC2, "KIS STATS",              CRL_Widget_KIS,       0, MENU_NONE },
+    { ITT_LRFUNC2, "LEVEL TIME",             CRL_Widget_Time,      0, MENU_NONE },
+    { ITT_LRFUNC2, "PLAYER COORDS",          CRL_Widget_Coords,    0, MENU_NONE },
+    { ITT_LRFUNC2, "POWERUP TIMERS",         CRL_Widget_Powerups,  0, MENU_NONE },
+    { ITT_LRFUNC2, "TARGET'S HEALTH",        CRL_Widget_Health,    0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                     NULL,                 0, MENU_NONE },
+    { ITT_LRFUNC2, "MARK SECRET SECTORS",    CRL_Automap_Secrets,  0, MENU_NONE },
+    { ITT_LRFUNC2, "SOUND PROPAGATION MODE", CRL_Automap_SndProp,  0, MENU_NONE },
 };
 
 static Menu_t CRLWidgetsMap = {
@@ -2728,10 +2735,15 @@ static void DrawCRLWidgets (void)
 
     MN_DrTextACentered("AUTOMAP", 100, cr[CR_YELLOW]);
 
-    // Level time
+    // Mark secret sectors
     sprintf(str, crl_automap_secrets ? "ON" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 110,
                M_Item_Glow(9, crl_automap_secrets ? GLOW_GREEN : GLOW_RED));
+
+    // Sound propagation mode
+    sprintf(str, crl_automap_sndprop ? "ON" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 120,
+               M_Item_Glow(10, crl_automap_sndprop ? GLOW_GREEN : GLOW_RED));
 }
 
 static void CRL_Widget_Render (int option)
@@ -2777,6 +2789,11 @@ static void CRL_Widget_Health (int option)
 static void CRL_Automap_Secrets (int option)
 {
     crl_automap_secrets ^= 1;
+}
+
+static void CRL_Automap_SndProp (int option)
+{
+    crl_automap_sndprop ^= 1;
 }
 
 // -----------------------------------------------------------------------------
@@ -5365,6 +5382,7 @@ static void M_CheckBind (int key)
     if (key_map_follow == key)       key_map_follow       = 0;
 //  if (key_crl_map_rotate == key)   key_crl_map_rotate   = 0;
 //  if (key_crl_map_overlay == key)  key_crl_map_overlay  = 0;
+    if (key_crl_map_sndprop == key)  key_crl_map_sndprop  = 0;
     if (key_map_grid == key)         key_map_grid         = 0;
 
     // Page 8
@@ -5486,7 +5504,8 @@ static void M_DoBind (int keynum, int key)
         case 704:  key_map_follow = key;        break;
 //      case 705:  key_crl_map_rotate = key;    break;
 //      case 706:  key_crl_map_overlay = key;   break;
-        case 705:  key_map_grid = key;          break;
+        case 705:  key_crl_map_sndprop = key;   break;
+        case 706:  key_map_grid = key;          break;
         }
 
         // Page 8
@@ -5640,7 +5659,8 @@ static void M_ClearBind (int CurrentItPos)
             case 4:   key_map_follow = 0;       break;
 //          case 5:   key_crl_map_rotate = 0;   break;
 //          case 6:   key_crl_map_overlay = 0;  break;
-            case 5:   key_map_grid = 0;         break;
+            case 5:   key_crl_map_sndprop = 0;  break;
+            case 6:   key_map_grid = 0;         break;
         }
     }
     if (CurrentMenu == &CRLKbdBinds8)
@@ -5768,6 +5788,7 @@ static void M_ResetBinds (void)
     key_map_follow = 'f';
     key_crl_map_rotate = 'r';
     key_crl_map_overlay = 'o';
+    key_crl_map_sndprop = 'p';
     key_map_grid = 'g';
 
     // Page 8
