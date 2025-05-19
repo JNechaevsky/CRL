@@ -997,7 +997,16 @@ void D_DoomMain(void)
     if (p && p < myargc - 2)
     {
         startepisode = myargv[p + 1][0] - '0';
-        startmap = myargv[p + 2][0] - '0';
+        // [crispy] only if second argument is not another option
+        if (p + 2 < myargc && myargv[p+2][0] != '-')
+        {
+            startmap = myargv[p + 2][0] - '0';
+        }
+        else
+        {
+            // [crispy] allow second digit without space in between for Heretic
+            startmap = myargv[p + 1][1] - '0';
+        }
         autostart = true;
     }
 
