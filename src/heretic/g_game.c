@@ -506,6 +506,16 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
         lspeed = 2;
     }
 
+    // [JN] Toggle vertical mouse movement.
+    if (gamekeydown[key_crl_novert])
+    {
+        novert ^= 1;
+        CT_SetMessage(&players[consoleplayer], novert ?
+                       CRL_NOVERT_ON : CRL_NOVERT_OFF, false, NULL);
+        S_StartSound(NULL, sfx_chat);
+        gamekeydown[key_crl_novert] = false;
+    }
+
 //
 // let movement keys cancel each other out
 //
