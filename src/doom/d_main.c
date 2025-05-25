@@ -138,7 +138,6 @@ int show_endoom = 0;       // [JN] Disabled by default
 int show_diskicon = 1;
 int detailLevel = 0;       // Blocky mode, has default, 0 = high, 1 = normal
 int showMessages = 1;      // Show messages has default, 0 = off, 1 = on
-int mouseSensitivity = 5;
 
 // [JN] DOS-specific option: now replaced with "crl_screen_size", which is 
 // using extended range and because of this can't be used in DOS version.
