@@ -588,7 +588,7 @@ static void M_CRL_PitchShift (int choice);
 
 static void M_ChooseCRL_Controls (int choice);
 static void M_DrawCRL_Controls (void);
-static void M_CRL_Controls_Sensivity (int choice);
+static void M_CRL_Controls_Sensitivity (int choice);
 static void M_CRL_Controls_Acceleration (int choice);
 static void M_CRL_Controls_Threshold (int choice);
 static void M_CRL_Controls_NoVert (int choice);
@@ -1806,7 +1806,7 @@ static menuitem_t CRLMenu_Controls[]=
     { M_SWTC, "KEYBOARD BINDINGS",            M_Choose_CRL_Keybinds,       'k'},
     { M_SWTC, "MOUSE BINDINGS",               M_ChooseCRL_MouseBinds,      'm'},
     { M_SKIP, "", 0, '\0'},
-    { M_SLDR, "SENSIVITY",                    M_CRL_Controls_Sensivity,    's'},
+    { M_SLDR, "SENSITIVITY",                  M_CRL_Controls_Sensitivity,  's'},
     { M_SKIP, "", 0, '\0'},
     { M_SKIP, "", 0, '\0'},
     { M_SLDR, "ACCELERATION",                 M_CRL_Controls_Acceleration, 'a'},
@@ -1870,7 +1870,7 @@ static void M_DrawCRL_Controls (void)
                  M_Item_Glow(13, dclick_use ? GLOW_GREEN : GLOW_DARKRED));
 }
 
-static void M_CRL_Controls_Sensivity (int choice)
+static void M_CRL_Controls_Sensitivity (int choice)
 {
     // [crispy] extended range
     mouseSensitivity = M_INT_Slider(mouseSensitivity, 0, 255, choice, true);

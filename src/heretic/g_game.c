@@ -117,8 +117,6 @@ int displayplayer;              // view being displayed
 int levelstarttic;              // gametic at level start
 int totalkills, totalitems, totalsecret;        // for intermission
 
-int mouseSensitivity = 5;
-
 char demoname[32];
 boolean demorecording;
 boolean longtics;               // specify high resolution turning in demos
@@ -359,10 +357,10 @@ static double CalcMouseAngle(int mousex)
 
 static double CalcMouseVert(int mousey)
 {
-    if (!mouseSensitivity)
+    if (!mouse_sensitivity_y)
         return 0.0;
 
-    return (I_AccelerateMouseY(mousey) * (mouseSensitivity + 5) * 2 / 10);
+    return (I_AccelerateMouseY(mousey) * (mouse_sensitivity_y + 5) * 2 / 10);
 }
 
 /*

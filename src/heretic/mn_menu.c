@@ -414,6 +414,7 @@ static void CRL_PitchShift (int option);
 static void CRL_SFXChannels (int option);
 
 static void DrawCRLControls (void);
+static void CRL_Controls_Sensivity_y(int option);
 static void CRL_Controls_Acceleration (int option);
 static void CRL_Controls_Threshold (int option);
 static void CRL_Controls_MLook (int option);
@@ -1507,7 +1508,10 @@ static MenuItem_t CRLControlsItems[] = {
     {ITT_EFUNC,   "KEYBOARD BINDINGS",       CRL_Choose_Keybinds,       0, MENU_NONE},
     {ITT_SETMENU, "MOUSE BINDINGS",          NULL,                      0, MENU_CRLMOUSEBINDS},
     {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
-    {ITT_SLDR,    "SENSIVITY",               SCMouseSensi,              0, MENU_NONE},
+    {ITT_SLDR,    "HORIZONTAL SENSITIVITY",  SCMouseSensi,              0, MENU_NONE},
+    {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
+    {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
+    {ITT_SLDR,    "VERTICAL SENSITIVITY",    CRL_Controls_Sensivity_y,  0, MENU_NONE},
     {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
     {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
     {ITT_SLDR,    "ACCELERATION",            CRL_Controls_Acceleration, 0, MENU_NONE},
@@ -1523,7 +1527,7 @@ static MenuItem_t CRLControlsItems[] = {
 static Menu_t CRLControls = {
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     DrawCRLControls,
-    14, CRLControlsItems,
+    17, CRLControlsItems,
     0,
     SmallFont, false, false,
     MENU_CRLMAIN
@@ -1545,25 +1549,37 @@ static void DrawCRLControls (void)
     MN_DrTextA(str, 227, 65, M_Item_Glow(3, mouseSensitivity == 255 ? GLOW_YELLOW :
                                             mouseSensitivity  >  15 ? GLOW_GREEN : GLOW_LIGHTGRAY));
 
-    DrawSlider(&CRLControls, 7, 7, (mouse_acceleration * 1.8f) - 2, false, 6);
-    M_ID_HandleSliderMouseControl(66, 90, 60, &mouse_acceleration, true, 0, 6);
-    sprintf(str,"%.1f", mouse_acceleration);
-    MN_DrTextA(str, 155, 95, M_Item_Glow(6, GLOW_LIGHTGRAY));
+    DrawSlider(&CRLControls, 7, 16, mouse_sensitivity_y, false, 6);
+    M_ID_HandleSliderMouseControl(66, 90, 132, &mouse_sensitivity_y, false, 0, 15);
+    sprintf(str,"%d", mouse_sensitivity_y);
+    MN_DrTextA(str, 227, 95, M_Item_Glow(6, mouse_sensitivity_y == 255 ? GLOW_YELLOW :
+                                            mouse_sensitivity_y  >  15 ? GLOW_GREEN : GLOW_LIGHTGRAY));
 
-    DrawSlider(&CRLControls, 10, 15, mouse_threshold / 2.2f, false, 9);
-    M_ID_HandleSliderMouseControl(66, 120, 124, &mouse_threshold, false, 0, 32);
+    DrawSlider(&CRLControls, 10, 7, (mouse_acceleration * 1.8f) - 2, false, 9);
+    M_ID_HandleSliderMouseControl(66, 120, 60, &mouse_acceleration, true, 0, 6);
+    sprintf(str,"%.1f", mouse_acceleration);
+    MN_DrTextA(str, 155, 125, M_Item_Glow(9, GLOW_LIGHTGRAY));
+
+    DrawSlider(&CRLControls, 13, 15, mouse_threshold / 2.2f, false, 12);
+    M_ID_HandleSliderMouseControl(66, 150, 124, &mouse_threshold, false, 0, 32);
     sprintf(str,"%d", mouse_threshold);
-    MN_DrTextA(str, 219, 125, M_Item_Glow(9, GLOW_LIGHTGRAY));
+    MN_DrTextA(str, 219, 155, M_Item_Glow(12, GLOW_LIGHTGRAY));
 
     // Mouse look
     sprintf(str, crl_mouselook ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 140,
-               M_Item_Glow(12, crl_mouselook ? GLOW_GREEN : GLOW_RED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 170,
+               M_Item_Glow(15, crl_mouselook ? GLOW_GREEN : GLOW_RED));
 
     // Vertical mouse movement
     sprintf(str, novert ? "OFF" : "ON");
-    MN_DrTextA(str, M_ItemRightAlign(str), 150,
-               M_Item_Glow(13, novert ? GLOW_RED : GLOW_GREEN));
+    MN_DrTextA(str, M_ItemRightAlign(str), 180,
+               M_Item_Glow(16, novert ? GLOW_RED : GLOW_GREEN));
+}
+
+static void CRL_Controls_Sensivity_y (int choice)
+{
+    // [crispy] extended range
+    mouse_sensitivity_y = M_INT_Slider(mouse_sensitivity_y, 0, 255, choice, true);
 }
 
 static void CRL_Controls_Acceleration (int option)

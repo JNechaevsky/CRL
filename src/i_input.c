@@ -88,6 +88,10 @@ static boolean text_input_enabled = true;
 // Bit mask of mouse button state.
 static unsigned int mouse_button_state = 0;
 
+// [JN] Default mouse sensitivity.
+int mouseSensitivity = 5;
+int mouse_sensitivity_y = 5; // [crispy]
+
 // Disallow mouse and joystick movement to cause forward/backward
 // motion.  Specified with the '-novert' command line parameter.
 // This is an int to allow saving to config file
