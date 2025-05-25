@@ -474,6 +474,10 @@ typedef struct player_s
     int messageTics;            // counter for showing messages
     byte *messageColor;
 
+    // [JN] Hint centered messages.
+    const char *messageCentered;	
+    int messageCenteredTics;
+
     // [JN] CRL - target's health.
     const char*	targetsname;
     int         targetsheath;

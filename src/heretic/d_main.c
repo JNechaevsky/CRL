@@ -153,6 +153,25 @@ static void DrawMessage (void)
 }
 
 // -----------------------------------------------------------------------------
+// CRL_DrawMessageCentered
+// [JN] Draws message on the screen.
+// -----------------------------------------------------------------------------
+
+static void CRL_DrawMessageCentered (void)
+{
+    player_t *player = &players[displayplayer];
+
+    if (player->messageCenteredTics <= 0 || !player->messageCentered)
+    {
+        return;  // No message
+    }
+
+    // Always centered and colored yellow.
+    MN_DrTextACentered(player->messageCentered,
+                       crl_revealed_secrets == 1 ? 10 : 60, cr[CR_YELLOW]);
+}
+
+// -----------------------------------------------------------------------------
 // CRL_DrawMessageCritical
 // [JN] Draws critical message on the second and third lines of the screen.
 // -----------------------------------------------------------------------------
@@ -296,6 +315,10 @@ void D_Display(void)
             V_DrawShadowedPatchRavenOptional(160, 70, W_CacheLumpName(DEH_String("PAUSED"), PU_CACHE), "PAUSED");
         }
     }
+
+    // [JN] Handle centered player messages.
+    CRL_DrawMessageCentered();
+
     // Menu drawing
     MN_Drawer();
 

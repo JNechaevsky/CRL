@@ -27,6 +27,7 @@
 #include "p_local.h"
 #include "s_sound.h"
 #include "v_video.h"
+#include "ct_chat.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
@@ -898,6 +899,12 @@ void P_PlayerInSpecialSector(player_t * player)
             break;
         case 9:                // SecretArea
             player->secretcount++;
+            // [JN] "A secret is revelaed!" message.
+            if (crl_revealed_secrets)
+            {
+                CT_SetMessageCentered(player, DEH_String(CRL_SECRET_FOUND));
+                S_StartSound(NULL, sfx_chat);
+            }
             sector->special = 0;
             break;
         case 11:               // Exit_SuperDamage (DOOM E1M8 finale)

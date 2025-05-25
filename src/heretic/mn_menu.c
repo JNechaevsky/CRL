@@ -365,6 +365,7 @@ static Menu_t Options2Menu = {
 
 #define CRL_MENU_TOPOFFSET     (20)
 #define CRL_MENU_LEFTOFFSET    (48)
+#define CRL_MENU_LEFTOFFSET_BIG    (32)
 #define CRL_MENU_RIGHTOFFSET   (SCREENWIDTH - CRL_MENU_LEFTOFFSET)
 #define CRL_MENU_LEFTOFFSET_SML    (72)
 #define CRL_MENU_RIGHTOFFSET_SML   (SCREENWIDTH - CRL_MENU_LEFTOFFSET_SML)
@@ -563,6 +564,7 @@ static void DrawCRLGameplay (void);
 static void CRL_DefaulSkill (int option);
 static void CRL_PistolStart (int option);
 static void CRL_ColoredSBar (int option);
+static void CRL_RevealedSecrets (int option);
 static void CRL_RestoreTargets (int option);
 static void CRL_OnDeathAction (int option);
 static void CRL_DemoTimer (int option);
@@ -2821,6 +2823,7 @@ static MenuItem_t CRLGameplayItems[] = {
     {ITT_LRFUNC2, "DEFAULT SKILL LEVEL",     CRL_DefaulSkill,    0, MENU_NONE},
     {ITT_LRFUNC2, "WAND START GAME MODE",    CRL_PistolStart,    0, MENU_NONE},
     {ITT_LRFUNC2, "COLORED STATUS BAR",      CRL_ColoredSBar,    0, MENU_NONE},
+    {ITT_LRFUNC2, "REPORT REVEALED SECRETS", CRL_RevealedSecrets, 0, MENU_NONE },
     {ITT_LRFUNC2, "RESTORE MONSTER TARGETS", CRL_RestoreTargets, 0, MENU_NONE},
     {ITT_LRFUNC2, "ON DEATH ACTION",         CRL_OnDeathAction,  0, MENU_NONE },
     {ITT_EMPTY,  NULL,                      NULL,               0, MENU_NONE},
@@ -2831,9 +2834,9 @@ static MenuItem_t CRLGameplayItems[] = {
 };
 
 static Menu_t CRLGameplay = {
-    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    CRL_MENU_LEFTOFFSET_BIG, CRL_MENU_TOPOFFSET,
     DrawCRLGameplay,
-    10, CRLGameplayItems,
+    11, CRLGameplayItems,
     0,
     SmallFont, false, false,
     MENU_CRLMAIN
@@ -2860,40 +2863,46 @@ static void DrawCRLGameplay (void)
     MN_DrTextA(str, M_ItemRightAlign(str), 40,
                M_Item_Glow(2, crl_colored_stbar? GLOW_GREEN : GLOW_RED));
 
+    // Report revealed secrets
+    sprintf(str, crl_revealed_secrets == 1 ? "TOP" :
+                 crl_revealed_secrets == 2 ? "CENTERED" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 50,
+               M_Item_Glow(3, crl_revealed_secrets ? GLOW_GREEN : GLOW_RED));
+
     // Restore monster targets
     sprintf(str, crl_restore_targets ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 50,
-               M_Item_Glow(3, crl_restore_targets? GLOW_GREEN : GLOW_RED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 60,
+               M_Item_Glow(4, crl_restore_targets? GLOW_GREEN : GLOW_RED));
 
     // On death action
     sprintf(str, crl_death_use_action == 1 ? "LAST SAVE" :
                  crl_death_use_action == 2 ? "NOTHING" : "DEFAULT");
-    MN_DrTextA(str, M_ItemRightAlign(str), 60,
-               M_Item_Glow(4, crl_death_use_action ? GLOW_GREEN : GLOW_RED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 70,
+               M_Item_Glow(5, crl_death_use_action ? GLOW_GREEN : GLOW_RED));
 
-    MN_DrTextACentered("DEMOS", 70, cr[CR_YELLOW]);
+    MN_DrTextACentered("DEMOS", 80, cr[CR_YELLOW]);
 
     // Show Demo timer
     sprintf(str, crl_demo_timer == 1 ? "PLAYBACK" : 
                  crl_demo_timer == 2 ? "RECORDING" : 
                  crl_demo_timer == 3 ? "ALWAYS" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 80,
-               M_Item_Glow(6, crl_demo_timer ? GLOW_GREEN : GLOW_RED));
-
-    // Timer direction
-    sprintf(str, crl_demo_timerdir ? "BACKWARD" : "FORWARD");
     MN_DrTextA(str, M_ItemRightAlign(str), 90,
                M_Item_Glow(7, crl_demo_timer ? GLOW_GREEN : GLOW_RED));
 
+    // Timer direction
+    sprintf(str, crl_demo_timerdir ? "BACKWARD" : "FORWARD");
+    MN_DrTextA(str, M_ItemRightAlign(str), 100,
+               M_Item_Glow(8, crl_demo_timer ? GLOW_GREEN : GLOW_RED));
+
     // Show progress bar
     sprintf(str, crl_demo_bar ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 100,
-               M_Item_Glow(8, crl_demo_bar? GLOW_GREEN : GLOW_RED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 110,
+               M_Item_Glow(9, crl_demo_bar? GLOW_GREEN : GLOW_RED));
 
     // Play internal demos
     sprintf(str, crl_internal_demos ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 110,
-               M_Item_Glow(9, crl_internal_demos? GLOW_GREEN : GLOW_RED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 120,
+               M_Item_Glow(10, crl_internal_demos? GLOW_GREEN : GLOW_RED));
 }
 
 static void CRL_DefaulSkill (int option)
@@ -2910,6 +2919,11 @@ static void CRL_PistolStart (int option)
 static void CRL_ColoredSBar (int option)
 {
     crl_colored_stbar ^= 1;
+}
+
+static void CRL_RevealedSecrets (int choice)
+{
+    crl_revealed_secrets = M_INT_Slider(crl_revealed_secrets, 0, 2, choice, false);
 }
 
 static void CRL_RestoreTargets (int option)
