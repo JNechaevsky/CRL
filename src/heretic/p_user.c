@@ -411,6 +411,10 @@ void P_DeathThink(player_t * player)
 
     if (player->cmd.buttons & BT_USE)
     {
+        // [JN] "On death action", mostly taken from Crispy Doom and Woof.
+        if (demorecording || demoplayback || netgame || crl_death_use_action == 0)
+        {
+        // Default (reload the level from scratch)
         if (player == &players[consoleplayer])
         {
             I_SetPalette(W_CacheLumpName(DEH_String("PLAYPAL"), PU_CACHE));
@@ -423,6 +427,34 @@ void P_DeathThink(player_t * player)
         // Let the mobj know the player has entered the reborn state.  Some
         // mobjs need to know when it's ok to remove themselves.
         player->mo->special2.i = 666;
+        G_ClearSavename();
+        }
+        else
+        {
+            if (crl_death_use_action == 1)
+            {
+                // Load last save
+                if (*savename)
+                {
+                    gameaction = ga_loadgame;
+                }
+                else
+                {
+                    I_SetPalette(W_CacheLumpName(DEH_String("PLAYPAL"), PU_CACHE));
+                    inv_ptr = 0;
+                    curpos = 0;
+                    newtorch = 0;
+                    newtorchdelta = 0;
+                    player->playerstate = PST_REBORN;
+                    player->mo->special2.i = 666;
+                }
+            }
+            else
+            if (crl_death_use_action == 2)
+            {
+                // Nothing, i.e. no-op, disallow reborn action
+            }
+        }
     }
 }
 
