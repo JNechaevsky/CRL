@@ -1580,14 +1580,7 @@ static void SetVideoMode(void)
 
     // [JN] Workaround for SDL 2.0.14+ alt-tab bug
 #if defined(_WIN32)
-    {
-        SDL_version ver;
-        SDL_GetVersion(&ver);
-        if (ver.major == 2 && ver.minor == 0 && (ver.patch == 14 || ver.patch == 16))
-        {
-           SDL_SetHintWithPriority(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "1", SDL_HINT_OVERRIDE);
-        }
-    }
+    SDL_SetHintWithPriority(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "1", SDL_HINT_OVERRIDE);
 #endif
 
     // Initially create the upscaled texture for rendering to screen
