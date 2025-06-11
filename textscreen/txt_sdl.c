@@ -333,7 +333,7 @@ void TXT_Shutdown(void)
     screendata = NULL;
     SDL_FreeSurface(screenbuffer);
     screenbuffer = NULL;
-    SDL_DestroyRenderer(renderer);Add commentMore actions
+    SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(TXT_SDLWindow);
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
