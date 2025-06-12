@@ -822,9 +822,6 @@ void P_SpawnPlayer (mapthing_t* mthing)
     // [JN] CRL - disallow airborne controls.
     CRL_aircontrol = false;
 
-    // [crispy] interpolate weapon bobbing
-    pspr_interp = false;
-
     // setup gun psprite
     P_SetupPsprites (p);
     

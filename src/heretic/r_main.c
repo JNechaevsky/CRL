@@ -640,8 +640,6 @@ void R_ExecuteSetViewSize(void)
         }
     }
 
-    pspr_interp = false; // [crispy] interpolate weapon bobbing
-
 //
 // draw the border
 //

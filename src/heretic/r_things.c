@@ -680,8 +680,6 @@ void R_AddSprites(sector_t * sec)
 ========================
 */
 
-boolean pspr_interp = true; // interpolate weapon bobbing
-
 int PSpriteSY[NUMWEAPONS] = {
     0,                          // staff
     5 * FRACUNIT,               // goldwand
@@ -725,10 +723,23 @@ void R_DrawPSprite(pspdef_t * psp)
     lump = sprframe->lump[0];
     flip = (boolean) sprframe->flip[0];
 
+    fixed_t sx2, sy2;
+
+    if (crl_uncapped_fps && oldleveltime < realleveltime)
+    {
+        sx2 = LerpFixed(psp->oldsx2, psp->sx2);
+        sy2 = LerpFixed(psp->oldsy2, psp->sy2);
+    }
+    else
+    {
+        sx2 = psp->sx2;
+        sy2 = psp->sy2;
+    }
+
 //
 // calculate edges of the shape
 //
-    tx = psp->sx - 160 * FRACUNIT;
+    tx = sx2 - 160 * FRACUNIT;
 
     tx -= spriteoffset[lump];
     if (viewangleoffset)
@@ -757,7 +768,7 @@ void R_DrawPSprite(pspdef_t * psp)
     vis->psprite = true;
     vis->footclip = 0;
     vis->texturemid =
-        (BASEYCENTER << FRACBITS) + FRACUNIT / 2 - (psp->sy -
+        (BASEYCENTER << FRACBITS) + FRACUNIT / 2 - (sy2 -
                                                     spritetopoffset[lump]);
     if (viewheight == SCREENHEIGHT)
     {
@@ -801,41 +812,6 @@ void R_DrawPSprite(pspdef_t * psp)
     {
         // local light
         vis->colormap = spritelights[MAXLIGHTSCALE - 1];
-    }
-
-    // [crispy] interpolate weapon bobbing
-    if (crl_uncapped_fps)
-    {
-        static int     oldx1, x1_saved;
-        static fixed_t oldtexturemid, texturemid_saved;
-        static int     oldlump = -1;
-        static int     oldgametic = -1;
-
-        if (oldgametic < gametic)
-        {
-            oldx1 = x1_saved;
-            oldtexturemid = texturemid_saved;
-            oldgametic = gametic;
-        }
-
-        x1_saved = vis->x1;
-        texturemid_saved = vis->texturemid;
-
-        if (lump == oldlump && pspr_interp)
-        {
-            int deltax = vis->x2 - vis->x1;
-            vis->x1 = LerpFixed(oldx1, vis->x1);
-            vis->x2 = vis->x1 + deltax;
-            vis->x2 = vis->x2 >= viewwidth ? viewwidth - 1 : vis->x2;
-            vis->texturemid = LerpFixed(oldtexturemid, vis->texturemid);
-        }
-        else
-        {
-            oldx1 = vis->x1;
-            oldtexturemid = vis->texturemid;
-            oldlump = lump;
-            pspr_interp = true;
-        }
     }
 
     R_DrawVisSprite(vis, vis->x1, vis->x2);

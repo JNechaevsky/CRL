@@ -310,6 +310,10 @@ typedef struct pspdef_s
     state_t *state;             // a NULL state means not active
     int tics;
     fixed_t sx, sy;
+    // [JN] A11Y - Weapon bobbing.
+    // Variable used only for rendering to avoid desyncs.
+    fixed_t sx2, sy2;
+    fixed_t oldsx2, oldsy2;
 } pspdef_t;
 
 typedef enum

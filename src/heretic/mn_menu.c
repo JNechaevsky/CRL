@@ -1161,8 +1161,6 @@ static void DrawCRLVideo (void)
 static void CRL_UncappedFPS (int option)
 {
     crl_uncapped_fps ^= 1;
-    // [JN] Skip weapon bobbing interpolation for next frame.
-    pspr_interp = false;
 }
 
 static void CRL_LimitFPS (int option)

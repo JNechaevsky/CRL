@@ -1234,7 +1234,6 @@ boolean G_Responder (event_t* ev)
         crl_spectating ^= 1;
         CRL_SetMessage(plr, crl_spectating ?
                        CRL_SPECTATOR_ON : CRL_SPECTATOR_OFF, false, NULL);
-        pspr_interp = false;
     }        
 
     // [JN] CRL - Toggle freeze mode.

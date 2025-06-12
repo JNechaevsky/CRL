@@ -1086,7 +1086,6 @@ void P_SpawnPlayer(mapthing_t * mthing)
     p->extralight = 0;
     p->fixedcolormap = 0;
     p->viewheight = VIEWHEIGHT;
-    pspr_interp = false;  // [crispy] interpolate weapon bobbing
 
     // [JN] CRL - reset frame-independent limit counters.
     CRL_plats_counter = 0;

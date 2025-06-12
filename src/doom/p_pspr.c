@@ -253,7 +253,25 @@ void P_DropWeapon (player_t* player)
 		  weaponinfo[player->readyweapon].downstate);
 }
 
+// -----------------------------------------------------------------------------
+// P_ApplyBobbing
+// [JN] Bob the weapon based on movement speed.
+// [PN] Precompute finecosine and finesine for efficiency.
+// -----------------------------------------------------------------------------
 
+static inline void P_ApplyBobbing (int *sx, int *sy, boolean bob_y, fixed_t bob)
+{
+    const int angle = (128 * realleveltime) & FINEMASK;
+    const int cos_value = finecosine[angle];
+
+    *sx = FRACUNIT + FixedMul(bob, cos_value);
+    
+    if (bob_y)
+    {
+        const int sin_value = finesine[angle & (FINEANGLES/2 - 1)];
+        *sy = WEAPONTOP + FixedMul(bob, sin_value);
+    }
+}
 
 //
 // A_WeaponReady
@@ -268,7 +286,6 @@ A_WeaponReady
   pspdef_t*	psp )
 {	
     statenum_t	newstate;
-    int		angle;
     
     // get out of attack state
     if (player->mo->state == &states[S_PLAY_ATK1]
@@ -311,10 +328,7 @@ A_WeaponReady
 	player->attackdown = false;
     
     // bob the weapon based on movement speed
-    angle = (128*realleveltime)&FINEMASK;
-    psp->sx = FRACUNIT + FixedMul (player->bob, finecosine[angle]);
-    angle &= FINEANGLES/2-1;
-    psp->sy = WEAPONTOP + FixedMul (player->bob, finesine[angle]);
+    P_ApplyBobbing(&psp->sx, &psp->sy, true, player->bob);
 }
 
 
@@ -881,6 +895,10 @@ void P_MovePsprites (player_t* player)
     pspdef_t*	psp;
 	
     psp = &player->psprites[0];
+
+    psp[ps_weapon].oldsx2 = psp[ps_weapon].sx2;
+    psp[ps_weapon].oldsy2 = psp[ps_weapon].sy2;
+
     for (i=0 ; i<NUMPSPRITES ; i++, psp++)
     {
 	// a null state means not active
@@ -900,6 +918,30 @@ void P_MovePsprites (player_t* player)
     
     player->psprites[ps_flash].sx = player->psprites[ps_weapon].sx;
     player->psprites[ps_flash].sy = player->psprites[ps_weapon].sy;
+
+    // [JN] Apply weapon bobbing interpolation.
+    // Based on the implementation by Fabian Greffrath from the Woof source port.
+    psp = &player->psprites[ps_weapon];
+    psp->sx2 = psp->sx;
+    psp->sy2 = psp->sy;
+
+    if (psp->state)
+    {
+        const int state = player->psprites[ps_weapon].state - states;       // [crispy]
+        const weaponinfo_t *const winfo = &weaponinfo[player->readyweapon]; // [crispy]
+        const boolean movingState = (state != winfo->downstate && state != winfo->upstate);
+
+        if (movingState && !player->attackdown)
+        {
+            // Apply full bobbing only if not raising/lowering and not attacking.
+            P_ApplyBobbing(&psp->sx2, &psp->sy2, true, player->bob);
+        }
+    }
+
+    player->psprites[ps_flash].sx2 = player->psprites[ps_weapon].sx2;
+    player->psprites[ps_flash].sy2 = player->psprites[ps_weapon].sy2;
+    player->psprites[ps_flash].oldsx2 = player->psprites[ps_weapon].oldsx2;
+    player->psprites[ps_flash].oldsy2 = player->psprites[ps_weapon].oldsy2;
 }
 
 
