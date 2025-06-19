@@ -228,16 +228,16 @@ static void CRL_WidgetKISCount (char *buffer, size_t buffer_size, const int i)
     switch (crl_widget_kis_format)
     {
         case 1: // Remaining
-            snprintf(buffer, buffer_size, "%d ", total - value);
+            snprintf(buffer, buffer_size, "%d", total - value);
             break;
 
         case 2: // Percent
-            snprintf(buffer, buffer_size, "%d%% ", 
+            snprintf(buffer, buffer_size, "%d%%", 
                      safe_percent(value, total));
             break;
 
         default: // Ratio
-            snprintf(buffer, buffer_size, "%d/%d ", value, total);
+            snprintf(buffer, buffer_size, "%d/%d", value, total);
             break;
     }
 }
@@ -557,7 +557,7 @@ void CRL_StatDrawer (void)
             M_WriteText(0 + M_StringWidth(str1), 159 - yy, str2, CRL_KISColor(widget_kills));
 
             // Items:
-            sprintf(str3, "I ");
+            sprintf(str3, " I ");
             M_WriteText(M_StringWidth(str1) + 
                         M_StringWidth(str2), 159 - yy, str3, CRL_KISColor(widget_kis_str));
             CRL_WidgetKISCount(str4, sizeof(str4), widget_kis_items);
@@ -566,7 +566,7 @@ void CRL_StatDrawer (void)
                         M_StringWidth(str3), 159 - yy, str4, CRL_KISColor(widget_items));
 
             // Secret:
-            sprintf(str5, "S ");
+            sprintf(str5, " S ");
             M_WriteText(M_StringWidth(str1) +
                         M_StringWidth(str2) +
                         M_StringWidth(str3) +

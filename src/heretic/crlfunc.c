@@ -381,17 +381,17 @@ void CRL_StatDrawer (void)
         // Kills:
         M_snprintf(str1, 8, "K ");
         MN_DrTextA(str1, 0, 135, cr[CR_GRAY]);
-        M_snprintf(str2, 16, "%d/%d ", CRLWidgets.kills, CRLWidgets.totalkills);
+        M_snprintf(str2, 16, "%d/%d", CRLWidgets.kills, CRLWidgets.totalkills);
         MN_DrTextA(str2, MN_TextAWidth(str1), 135,
                          CRLWidgets.totalkills == 0 ? cr[CR_GREEN] :
                          CRLWidgets.kills == 0 ? cr[CR_RED] :
                          CRLWidgets.kills < CRLWidgets.totalkills ? cr[CR_YELLOW] : cr[CR_GREEN]);
 
         // Items:
-        M_snprintf(str3, 8, "I ");
+        M_snprintf(str3, 8, " I ");
         MN_DrTextA(str3, MN_TextAWidth(str1) +
                          MN_TextAWidth(str2), 135, cr[CR_GRAY]);
-        M_snprintf(str4, 16, "%d/%d ", CRLWidgets.items, CRLWidgets.totalitems);
+        M_snprintf(str4, 16, "%d/%d", CRLWidgets.items, CRLWidgets.totalitems);
         MN_DrTextA(str4, MN_TextAWidth(str1) +
                          MN_TextAWidth(str2) +
                          MN_TextAWidth(str3), 135,
@@ -400,12 +400,12 @@ void CRL_StatDrawer (void)
                          CRLWidgets.items < CRLWidgets.totalitems ? cr[CR_YELLOW] : cr[CR_GREEN]);
 
         // Secrets:
-        M_snprintf(str5, 8, "S ");
+        M_snprintf(str5, 8, " S ");
         MN_DrTextA(str5, MN_TextAWidth(str1) +
                          MN_TextAWidth(str2) +
                          MN_TextAWidth(str3) +
                          MN_TextAWidth(str4), 135, cr[CR_GRAY]);
-        M_snprintf(str6, 16, "%d/%d ", CRLWidgets.secrets, CRLWidgets.totalsecrets);
+        M_snprintf(str6, 16, "%d/%d", CRLWidgets.secrets, CRLWidgets.totalsecrets);
         MN_DrTextA(str6, MN_TextAWidth(str1) +
                          MN_TextAWidth(str2) +
                          MN_TextAWidth(str3) +
