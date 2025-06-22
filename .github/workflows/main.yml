@@ -119,6 +119,22 @@ jobs:
             -D CMAKE_C_FLAGS_RELEASE="-O3 -march=x86-64-v2 -mtune=generic -flto -fno-math-errno -fomit-frame-pointer -funroll-loops -DNDEBUG"
           cmake --build build_linux --config Release
 
+      # Delete the old cache on hit to emulate a cache update.
+      - name: Delete old cache
+        continue-on-error: true
+        run: gh cache delete --repo ${{ github.repository }} ${{ env.CACHE_KEY }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CACHE_KEY: vcpkg-binary-cache-linux-${{ hashFiles('vcpkg.json') }}
+
+      - name: Save new cache
+        uses: actions/cache/save@v4
+        env:
+          CACHE_KEY: vcpkg-binary-cache-linux-${{ hashFiles('vcpkg.json') }}
+        with:
+          path: vcpkg_cache
+          key: ${{ env.CACHE_KEY }}
+
       - name: Add desktop file and icon
         run: |
           mkdir -p appdir/usr/share/applications
