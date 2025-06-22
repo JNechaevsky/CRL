@@ -76,7 +76,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        game: [doom]
+        game: [doom, heretic]
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -85,9 +85,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: vcpkg_cache
-          key: vcpkg-binary-cache-linux-${{ hashFiles('vcpkg.json') }}
+          key: vcpkg-linux-${{ hashFiles('vcpkg.json') }}
           restore-keys: |
-            vcpkg-binary-cache-linux-
+            vcpkg-linux-
 
       - name: Install dependencies
         run: |
@@ -127,12 +127,12 @@ jobs:
         run: gh cache delete --repo ${{ github.repository }} ${{ env.CACHE_KEY }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CACHE_KEY: vcpkg-binary-cache-linux-${{ hashFiles('vcpkg.json') }}
+          CACHE_KEY: vcpkg-linux-${{ hashFiles('vcpkg.json') }}
 
       - name: Save new cache
         uses: actions/cache/save@v4
         env:
-          CACHE_KEY: vcpkg-binary-cache-linux-${{ hashFiles('vcpkg.json') }}
+          CACHE_KEY: vcpkg-linux-${{ hashFiles('vcpkg.json') }}
         with:
           path: vcpkg_cache
           key: ${{ env.CACHE_KEY }}
