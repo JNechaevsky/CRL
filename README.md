@@ -26,4 +26,3 @@ CRL Heretic, version 1.0 (released: June 12, 2023):
 
 Previous versions can be found on [Releases](https://github.com/JNechaevsky/CRL/releases) page.<br>
 Old versions of original Chocorenderlimits can be found on [Historical](https://github.com/JNechaevsky/CRL/releases/tag/Historical) page.
-
