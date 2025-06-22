@@ -4,81 +4,91 @@ on:
   push:
     branches:
       - main
+      - cache
   pull_request:
     branches:
       - main
+      - cache
 
 env:
   VCPKG_BINARY_SOURCES: "clear;files,C:\\Users\\runneradmin\\AppData\\Local\\vcpkg\\archives,readwrite"
 
 jobs:
-  build-windows:
-    runs-on: windows-latest
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Cache vcpkg installed packages and archive
-        uses: actions/cache@v4
-        with:
-          path: C:\Users\runneradmin\AppData\Local\vcpkg\archives
-          key: vcpkg-windows-${{ hashFiles('vcpkg.json') }}
-
-      - name: Prepare vcpkg
-        shell: bash
-        run: |
-          if [ ! -f "vcpkg/bootstrap-vcpkg.bat" ]; then
-            rm -rf vcpkg
-            git clone https://github.com/microsoft/vcpkg.git
-          fi
-          ./vcpkg/bootstrap-vcpkg.bat
-
-      - name: Install dependencies and configure CMake
-        run: |
-          .\vcpkg\vcpkg.exe install `
-            --triplet x64-windows-static-release `
-            --overlay-triplets=cmake/triplets
-          cmake -B build_vs_64 -S . -DCMAKE_BUILD_TYPE=Release `
-                -DENABLE_LTO=ON `
-                -DVCPKG_TARGET_TRIPLET="x64-windows-static-release" `
-                -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded `
-                -DCMAKE_C_FLAGS_RELEASE="/MT /O2 /Ob2 /DNDEBUG /GL /Oy" `
-                -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake
-
-      - name: Build
-        run: cmake --build build_vs_64 --config Release --parallel
-
-      # Delete the old cache on hit to emulate a cache update.
-      - name: Delete old cache
-        continue-on-error: true
-        run: gh cache delete --repo ${{ github.repository }} ${{ env.CACHE_KEY }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CACHE_KEY: vcpkg-windows-${{ hashFiles('vcpkg.json') }}
-
-      - name: Save new cache
-        uses: actions/cache/save@v4
-        env:
-          CACHE_KEY: vcpkg-windows-${{ hashFiles('vcpkg.json') }}
-        with:
-          path: C:\Users\runneradmin\AppData\Local\vcpkg\archives
-          key: ${{ env.CACHE_KEY }}
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: crl-dev-win64
-          path: build_vs_64/src/Release/*.exe
-          retention-days: 90
+#  build-windows:
+#    runs-on: windows-latest
+#    steps:
+#      - name: Check out repository
+#        uses: actions/checkout@v4
+#
+#      - name: Cache vcpkg installed packages and archive
+#        uses: actions/cache@v4
+#        with:
+#          path: C:\Users\runneradmin\AppData\Local\vcpkg\archives
+#          key: vcpkg-windows-${{ hashFiles('vcpkg.json') }}
+#
+#      - name: Prepare vcpkg
+#        shell: bash
+#        run: |
+#          if [ ! -f "vcpkg/bootstrap-vcpkg.bat" ]; then
+#            rm -rf vcpkg
+#            git clone https://github.com/microsoft/vcpkg.git
+#          fi
+#          ./vcpkg/bootstrap-vcpkg.bat
+#
+#      - name: Install dependencies and configure CMake
+#        run: |
+#          .\vcpkg\vcpkg.exe install `
+#            --triplet x64-windows-static-release `
+#            --overlay-triplets=cmake/triplets
+#          cmake -B build_vs_64 -S . -DCMAKE_BUILD_TYPE=Release `
+#                -DENABLE_LTO=ON `
+#                -DVCPKG_TARGET_TRIPLET="x64-windows-static-release" `
+#                -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded `
+#                -DCMAKE_C_FLAGS_RELEASE="/MT /O2 /Ob2 /DNDEBUG /GL /Oy" `
+#                -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake
+#
+#      - name: Build
+#        run: cmake --build build_vs_64 --config Release --parallel
+#
+#      # Delete the old cache on hit to emulate a cache update.
+#      - name: Delete old cache
+#        continue-on-error: true
+#        run: gh cache delete --repo ${{ github.repository }} ${{ env.CACHE_KEY }}
+#        env:
+#          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#          CACHE_KEY: vcpkg-windows-${{ hashFiles('vcpkg.json') }}
+#
+#      - name: Save new cache
+#        uses: actions/cache/save@v4
+#        env:
+#          CACHE_KEY: vcpkg-windows-${{ hashFiles('vcpkg.json') }}
+#        with:
+#          path: C:\Users\runneradmin\AppData\Local\vcpkg\archives
+#          key: ${{ env.CACHE_KEY }}
+#
+#      - name: Upload artifact
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: crl-dev-win64
+#          path: build_vs_64/src/Release/*.exe
+#          retention-days: 90
 
   build-linux:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        game: [doom, heretic]
+        game: [doom]
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+
+      - name: Restore vcpkg binary cache
+        uses: actions/cache@v4
+        with:
+          path: vcpkg_cache
+          key: vcpkg-binary-cache-linux-${{ hashFiles('vcpkg.json') }}
+          restore-keys: |
+            vcpkg-binary-cache-linux-
 
       - name: Install dependencies
         run: |
@@ -88,6 +98,18 @@ jobs:
             libsamplerate0-dev \
             libx11-dev libxext-dev libxrender-dev libxrandr-dev \
             libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev
+
+      - name: Clone vcpkg
+        run: git clone https://github.com/microsoft/vcpkg.git
+
+      - name: Bootstrap vcpkg
+        run: ./bootstrap-vcpkg.sh
+        working-directory: ./vcpkg
+
+      - name: Install vcpkg dependencies
+        run: ./vcpkg/vcpkg install --binarysource="files,${{ github.workspace }}/vcpkg_cache,readwrite"
+        env:
+          VCPKG_BINARY_SOURCES: "clear;files,${{ github.workspace }}/vcpkg_cache,readwrite"
 
       - name: Install linuxdeploy and plugin
         run: |
