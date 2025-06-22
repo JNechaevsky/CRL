@@ -118,6 +118,8 @@ jobs:
             -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake \
             -D CMAKE_C_FLAGS_RELEASE="-O3 -march=x86-64-v2 -mtune=generic -flto -fno-math-errno -fomit-frame-pointer -funroll-loops -DNDEBUG"
           cmake --build build_linux --config Release
+        env:
+          VCPKG_BINARY_SOURCES: clear;files,${{ github.workspace }}/vcpkg_cache,readwrite
 
       # Delete the old cache on hit to emulate a cache update.
       - name: Delete old cache
