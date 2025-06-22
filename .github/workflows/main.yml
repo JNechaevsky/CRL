@@ -14,64 +14,64 @@ env:
   VCPKG_BINARY_SOURCES: "clear;files,C:\\Users\\runneradmin\\AppData\\Local\\vcpkg\\archives,readwrite"
 
 jobs:
-#  build-windows:
-#    runs-on: windows-latest
-#    steps:
-#      - name: Check out repository
-#        uses: actions/checkout@v4
-#
-#      - name: Cache vcpkg installed packages and archive
-#        uses: actions/cache@v4
-#        with:
-#          path: C:\Users\runneradmin\AppData\Local\vcpkg\archives
-#          key: vcpkg-windows-${{ hashFiles('vcpkg.json') }}
-#
-#      - name: Prepare vcpkg
-#        shell: bash
-#        run: |
-#          if [ ! -f "vcpkg/bootstrap-vcpkg.bat" ]; then
-#            rm -rf vcpkg
-#            git clone https://github.com/microsoft/vcpkg.git
-#          fi
-#          ./vcpkg/bootstrap-vcpkg.bat
-#
-#      - name: Install dependencies and configure CMake
-#        run: |
-#          .\vcpkg\vcpkg.exe install `
-#            --triplet x64-windows-static-release `
-#            --overlay-triplets=cmake/triplets
-#          cmake -B build_vs_64 -S . -DCMAKE_BUILD_TYPE=Release `
-#                -DENABLE_LTO=ON `
-#                -DVCPKG_TARGET_TRIPLET="x64-windows-static-release" `
-#                -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded `
-#                -DCMAKE_C_FLAGS_RELEASE="/MT /O2 /Ob2 /DNDEBUG /GL /Oy" `
-#                -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake
-#
-#      - name: Build
-#        run: cmake --build build_vs_64 --config Release --parallel
-#
-#      # Delete the old cache on hit to emulate a cache update.
-#      - name: Delete old cache
-#        continue-on-error: true
-#        run: gh cache delete --repo ${{ github.repository }} ${{ env.CACHE_KEY }}
-#        env:
-#          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#          CACHE_KEY: vcpkg-windows-${{ hashFiles('vcpkg.json') }}
-#
-#      - name: Save new cache
-#        uses: actions/cache/save@v4
-#        env:
-#          CACHE_KEY: vcpkg-windows-${{ hashFiles('vcpkg.json') }}
-#        with:
-#          path: C:\Users\runneradmin\AppData\Local\vcpkg\archives
-#          key: ${{ env.CACHE_KEY }}
-#
-#      - name: Upload artifact
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: crl-dev-win64
-#          path: build_vs_64/src/Release/*.exe
-#          retention-days: 90
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Cache vcpkg installed packages and archive
+        uses: actions/cache@v4
+        with:
+          path: C:\Users\runneradmin\AppData\Local\vcpkg\archives
+          key: vcpkg-windows-${{ hashFiles('vcpkg.json') }}
+
+      - name: Prepare vcpkg
+        shell: bash
+        run: |
+          if [ ! -f "vcpkg/bootstrap-vcpkg.bat" ]; then
+            rm -rf vcpkg
+            git clone https://github.com/microsoft/vcpkg.git
+          fi
+          ./vcpkg/bootstrap-vcpkg.bat
+
+      - name: Install dependencies and configure CMake
+        run: |
+          .\vcpkg\vcpkg.exe install `
+            --triplet x64-windows-static-release `
+            --overlay-triplets=cmake/triplets
+          cmake -B build_vs_64 -S . -DCMAKE_BUILD_TYPE=Release `
+                -DENABLE_LTO=ON `
+                -DVCPKG_TARGET_TRIPLET="x64-windows-static-release" `
+                -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded `
+                -DCMAKE_C_FLAGS_RELEASE="/MT /O2 /Ob2 /DNDEBUG /GL /Oy" `
+                -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake
+
+      - name: Build
+        run: cmake --build build_vs_64 --config Release --parallel
+
+      # Delete the old cache on hit to emulate a cache update.
+      - name: Delete old cache
+        continue-on-error: true
+        run: gh cache delete --repo ${{ github.repository }} ${{ env.CACHE_KEY }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CACHE_KEY: vcpkg-windows-${{ hashFiles('vcpkg.json') }}
+
+      - name: Save new cache
+        uses: actions/cache/save@v4
+        env:
+          CACHE_KEY: vcpkg-windows-${{ hashFiles('vcpkg.json') }}
+        with:
+          path: C:\Users\runneradmin\AppData\Local\vcpkg\archives
+          key: ${{ env.CACHE_KEY }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: crl-dev-win64
+          path: build_vs_64/src/Release/*.exe
+          retention-days: 90
 
   build-linux:
     runs-on: ubuntu-22.04
