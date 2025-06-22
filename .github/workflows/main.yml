@@ -93,11 +93,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake g++ fuse patchelf \
-            libsdl2-dev libsdl2-mixer-dev libsdl2-net-dev \
-            libsamplerate0-dev \
-            libx11-dev libxext-dev libxrender-dev libxrandr-dev \
-            libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev
+          sudo apt-get install -y cmake g++ pkg-config git
 
       - name: Clone vcpkg
         run: git clone https://github.com/microsoft/vcpkg.git
