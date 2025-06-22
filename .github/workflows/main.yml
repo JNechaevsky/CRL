@@ -13,8 +13,8 @@ on:
 jobs:
   build-windows:
     runs-on: windows-latest
-  env:
-    VCPKG_BINARY_SOURCES: "clear;files,C:\\Users\\runneradmin\\AppData\\Local\\vcpkg\\archives,readwrite"
+    env:
+      VCPKG_BINARY_SOURCES: "clear;files,C:\\Users\\runneradmin\\AppData\\Local\\vcpkg\\archives,readwrite"
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
