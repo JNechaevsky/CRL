@@ -80,9 +80,6 @@ jobs:
 
   build-linux:
     runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        game: [doom, heretic]
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -143,29 +140,46 @@ jobs:
           path: vcpkg_cache
           key: ${{ env.CACHE_KEY }}
 
-      - name: Add desktop file and icon
+      - name: Prepare AppDir for Doom
         run: |
-          mkdir -p appdir/usr/share/applications
-          cp data/${{ matrix.game }}.desktop appdir/usr/share/applications/crl-${{ matrix.game }}.desktop
-          mkdir -p appdir/usr/share/icons/hicolor/128x128/apps
-          cp data/${{ matrix.game }}.png appdir/usr/share/icons/hicolor/128x128/apps/crl-${{ matrix.game }}.png
-
-      - name: Add executable to AppDir
+          mkdir -p appdir-doom/usr/bin
+          cp build_linux/src/crl-doom appdir-doom/usr/bin/
+          mkdir -p appdir-doom/usr/share/applications
+          cp data/doom.desktop appdir-doom/usr/share/applications/crl-doom.desktop
+          mkdir -p appdir-doom/usr/share/icons/hicolor/128x128/apps
+          cp data/doom.png appdir-doom/usr/share/icons/hicolor/128x128/apps/crl-doom.png
+      
+      - name: Package Doom as AppImage
         run: |
-          mkdir -p appdir/usr/bin
-          cp build_linux/src/crl-${{ matrix.game }} appdir/usr/bin/
-
-      - name: Package as AppImage
+          ./linuxdeploy-x86_64.AppImage --appdir=appdir-doom --output appimage
+      
+      - name: Prepare AppDir for Heretic
         run: |
-          ./linuxdeploy-x86_64.AppImage --appdir=appdir --output appimage
+          mkdir -p appdir-heretic/usr/bin
+          cp build_linux/src/crl-heretic appdir-heretic/usr/bin/
+          mkdir -p appdir-heretic/usr/share/applications
+          cp data/heretic.desktop appdir-heretic/usr/share/applications/crl-heretic.desktop
+          mkdir -p appdir-heretic/usr/share/icons/hicolor/128x128/apps
+          cp data/heretic.png appdir-heretic/usr/share/icons/hicolor/128x128/apps/crl-heretic.png
+      
+      - name: Package Heretic as AppImage
+        run: |
+          ./linuxdeploy-x86_64.AppImage --appdir=appdir-heretic --output appimage
 
       - name: Clean up unnecessary files
         run: |
           rm -f linuxdeploy*.AppImage
 
-      - name: Upload AppImage
+      - name: Upload Doom AppImage
         uses: actions/upload-artifact@v4
         with:
-          name: crl-${{ matrix.game }}-dev-linux64
-          path: "**/*.AppImage"
+          name: crl-doom-dev-linux64
+          path: crl-doom-x86_64.AppImage
+          retention-days: 90
+      
+      - name: Upload Heretic AppImage
+        uses: actions/upload-artifact@v4
+        with:
+          name: crl-heretic-dev-linux64
+          path: crl-heretic-x86_64.AppImage
           retention-days: 90
