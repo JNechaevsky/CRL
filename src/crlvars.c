@@ -55,6 +55,7 @@ int crl_widget_render = 1;
 int crl_widget_maxvp = 0;
 int crl_widget_kis = 0;
 int crl_widget_kis_format = 0;
+int crl_widget_kis_items = 0;
 int crl_widget_time = 0;
 int crl_widget_powerups = 0;
 int crl_widget_health = 0;
@@ -125,6 +126,7 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_widget_maxvp",               &crl_widget_maxvp);
     M_BindIntVariable("crl_widget_kis",                 &crl_widget_kis);
     M_BindIntVariable("crl_widget_kis_format",          &crl_widget_kis_format);
+    M_BindIntVariable("crl_widget_kis_items",           &crl_widget_kis_items);
     M_BindIntVariable("crl_widget_time",                &crl_widget_time);
     M_BindIntVariable("crl_widget_powerups",            &crl_widget_powerups);
     M_BindIntVariable("crl_widget_health",              &crl_widget_health);

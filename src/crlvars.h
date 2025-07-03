@@ -55,6 +55,7 @@ extern int crl_widget_render;
 extern int crl_widget_maxvp;
 extern int crl_widget_kis;
 extern int crl_widget_kis_format;
+extern int crl_widget_kis_items;
 extern int crl_widget_time;
 extern int crl_widget_powerups;
 extern int crl_widget_health;
