@@ -703,7 +703,6 @@ static void M_Bind_M_Reset (int choice);
 
 static void M_ChooseCRL_Widgets (int choice);
 static void M_DrawCRL_Widgets (void);
-
 static void M_CRL_Widget_Render (int choice);
 static void M_CRL_Widget_MAX (int choice);
 static void M_CRL_Widget_Playstate (int choice);
@@ -713,6 +712,9 @@ static void M_CRL_Widget_Coords (int choice);
 static void M_CRL_Widget_Time (int choice);
 static void M_CRL_Widget_Powerups (int choice);
 static void M_CRL_Widget_Health (int choice);
+
+static void M_ChooseCRL_Automap (int choice);
+static void M_DrawCRL_Automap (void);
 static void M_CRL_Automap_Rotate (int choice);
 static void M_CRL_Automap_Overlay (int choice);
 static void M_CRL_Automap_Shading (int choice);
@@ -1122,7 +1124,8 @@ static menuitem_t CRLMenu_Main[]=
     { M_SWTC, "DISPLAY OPTIONS",      M_ChooseCRL_Display,  'd'},
     { M_SWTC, "SOUND OPTIONS",        M_ChooseCRL_Sound,    's'},
     { M_SWTC, "CONTROL SETTINGS",     M_ChooseCRL_Controls, 'c'},
-    { M_SWTC, "WIDGETS AND AUTOMAP",  M_ChooseCRL_Widgets,  'w'},
+    { M_SWTC, "WIDGETS SETTINGS",     M_ChooseCRL_Widgets,  'w'},
+    { M_SWTC, "AUTOMAP SETTINGS",     M_ChooseCRL_Automap,  'a'},
     { M_SWTC, "GAMEPLAY FEATURES",    M_ChooseCRL_Gameplay, 'g'},
     { M_SWTC, "STATIC ENGINE LIMITS", M_ChooseCRL_Limits,   's'},
     { M_SWTC, "VANILLA OPTIONS MENU", M_Options,            'v'},
@@ -1130,7 +1133,7 @@ static menuitem_t CRLMenu_Main[]=
 
 static menu_t CRLDef_Main =
 {
-    14,
+    15,
     &MainDef,
     CRLMenu_Main,
     M_DrawCRL_Main,
@@ -2838,32 +2841,25 @@ static void M_Bind_M_Reset (int choice)
 }
 
 // -----------------------------------------------------------------------------
-// Widgets and Automap
+// Widgets settings
 // -----------------------------------------------------------------------------
 
 static menuitem_t CRLMenu_Widgets[]=
 {
-    { M_MUL2, "RENDER COUNTERS",        M_CRL_Widget_Render,     'r' },
-    { M_MUL2, "MAX OVERFLOW STYLE",     M_CRL_Widget_MAX,        'm' },
-    { M_MUL2, "PLAYSTATE COUNTERS",     M_CRL_Widget_Playstate,  'p' },
-    { M_MUL2, "KIS STATS/FRAGS",        M_CRL_Widget_KIS,        'k' },
-    { M_MUL2, "- STATS FORMAT",         M_CRL_Widget_KIS_Format, 's' },
-    { M_MUL2, "LEVEL/DM TIMER",         M_CRL_Widget_Time,       'l' },
-    { M_MUL2, "PLAYER COORDS",          M_CRL_Widget_Coords,     'p' },
-    { M_MUL2, "POWERUP TIMERS",         M_CRL_Widget_Powerups,   'p' },
-    { M_MUL2, "TARGET'S HEALTH",        M_CRL_Widget_Health,     't' },
-    { M_SKIP, "", 0, '\0'},
-    { M_MUL2, "ROTATE MODE",            M_CRL_Automap_Rotate,    'r' },
-    { M_MUL2, "OVERLAY MODE",           M_CRL_Automap_Overlay,   'o' },
-    { M_MUL2, "OVERLAY SHADING LEVEL",  M_CRL_Automap_Shading,   'o' },
-    { M_MUL2, "DRAWING MODE",           M_CRL_Automap_Drawing,   'd' },
-    { M_MUL2, "MARK SECRET SECTORS",    M_CRL_Automap_Secrets,   'm' },
-    { M_MUL2, "SOUND PROPAGATION MODE", M_CRL_Automap_SndProp,   's' },
+    { M_MUL2, "RENDER COUNTERS",    M_CRL_Widget_Render,     'r' },
+    { M_MUL2, "MAX OVERFLOW STYLE", M_CRL_Widget_MAX,        'm' },
+    { M_MUL2, "PLAYSTATE COUNTERS", M_CRL_Widget_Playstate,  'p' },
+    { M_MUL2, "KIS STATS/FRAGS",    M_CRL_Widget_KIS,        'k' },
+    { M_MUL2, "- STATS FORMAT",     M_CRL_Widget_KIS_Format, 's' },
+    { M_MUL2, "LEVEL/DM TIMER",     M_CRL_Widget_Time,       'l' },
+    { M_MUL2, "PLAYER COORDS",      M_CRL_Widget_Coords,     'p' },
+    { M_MUL2, "POWERUP TIMERS",     M_CRL_Widget_Powerups,   'p' },
+    { M_MUL2, "TARGET'S HEALTH",    M_CRL_Widget_Health,     't' },
 };
 
 static menu_t CRLDef_Widgets =
 {
-    16,
+    9,
     &CRLDef_Main,
     CRLMenu_Widgets,
     M_DrawCRL_Widgets,
@@ -2942,46 +2938,10 @@ static void M_DrawCRL_Widgets (void)
                  M_Item_Glow(8, crl_widget_health ? GLOW_GREEN : GLOW_DARKRED));
 
     // Print informatime message if extended HUD is off.
-    if (itemOn < 9 && !crl_extended_hud)
+    if (!crl_extended_hud)
     {
         M_WriteTextCentered(160, "HIDDEN WHILE EXTENDED HUD IS OFF", cr[CR_GRAY]);
     }
-
-    M_WriteTextCentered(97, "AUTOMAP", cr[CR_YELLOW]);
-
-    // Rotate mode
-    sprintf(str, crl_automap_rotate ? "ON" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 106, str,
-                 M_Item_Glow(10, crl_automap_rotate ? GLOW_GREEN : GLOW_DARKRED));
-
-    // Overlay mode
-    sprintf(str, crl_automap_overlay ? "ON" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 115, str,
-                 M_Item_Glow(11, crl_automap_overlay ? GLOW_GREEN : GLOW_DARKRED));
-
-    // Overlay shading level
-    sprintf(str,"%d", crl_automap_shading);
-    M_WriteText (M_ItemRightAlign(str), 124, str,
-                 M_Item_Glow(12, !crl_automap_overlay ? GLOW_DARKRED :
-                                  crl_automap_shading ==  0 ? GLOW_RED :
-                                  crl_automap_shading == 12 ? GLOW_YELLOW : GLOW_GREEN));
-
-    // Drawing mode
-    sprintf(str, crl_automap_mode == 1 ? "FLOOR VISPLANES" :
-                 crl_automap_mode == 2 ? "CEILING VISPLANES" : "NORMAL");
-    M_WriteText (M_ItemRightAlign(str), 133, str,
-                 M_Item_Glow(13, crl_automap_mode ? GLOW_GREEN : GLOW_DARKRED));
-
-    // Mark secret sectors
-    sprintf(str, crl_automap_secrets == 1 ? "REVEALED" :
-                 crl_automap_secrets == 2 ? "ALWAYS" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 142, str,
-                 M_Item_Glow(14, crl_automap_secrets ? GLOW_GREEN : GLOW_DARKRED));
-
-    // Sound propagation mode
-    sprintf(str, crl_automap_sndprop ? "ON" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 151, str,
-                 M_Item_Glow(15, crl_automap_sndprop ? GLOW_GREEN : GLOW_DARKRED));
 }
 
 static void M_CRL_Widget_Render (int choice)
@@ -3057,6 +3017,77 @@ static void M_CRL_Automap_Secrets (int choice)
 static void M_CRL_Automap_SndProp (int choice)
 {
     crl_automap_sndprop ^= 1;
+}
+
+// -----------------------------------------------------------------------------
+// Automap settings
+// -----------------------------------------------------------------------------
+
+static menuitem_t CRLMenu_Automap[]=
+{
+    { M_MUL2, "ROTATE MODE",            M_CRL_Automap_Rotate,    'r' },
+    { M_MUL2, "OVERLAY MODE",           M_CRL_Automap_Overlay,   'o' },
+    { M_MUL2, "OVERLAY SHADING LEVEL",  M_CRL_Automap_Shading,   'o' },
+    { M_MUL2, "DRAWING MODE",           M_CRL_Automap_Drawing,   'd' },
+    { M_MUL2, "MARK SECRET SECTORS",    M_CRL_Automap_Secrets,   'm' },
+    { M_MUL2, "SOUND PROPAGATION MODE", M_CRL_Automap_SndProp,   's' },
+};
+
+static menu_t CRLDef_Automap =
+{
+    6,
+    &CRLDef_Main,
+    CRLMenu_Automap,
+    M_DrawCRL_Automap,
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    0,
+    true, false, false,
+};
+
+static void M_ChooseCRL_Automap (int choice)
+{
+    M_SetupNextMenu (&CRLDef_Automap);
+}
+
+static void M_DrawCRL_Automap (void)
+{
+    char str[32];
+
+    M_WriteTextCentered(7, "AUTOMAP", cr[CR_YELLOW]);
+
+    // Rotate mode
+    sprintf(str, crl_automap_rotate ? "ON" : "OFF");
+    M_WriteText (M_ItemRightAlign(str), 16, str,
+                 M_Item_Glow(0, crl_automap_rotate ? GLOW_GREEN : GLOW_DARKRED));
+
+    // Overlay mode
+    sprintf(str, crl_automap_overlay ? "ON" : "OFF");
+    M_WriteText (M_ItemRightAlign(str), 25, str,
+                 M_Item_Glow(1, crl_automap_overlay ? GLOW_GREEN : GLOW_DARKRED));
+
+    // Overlay shading level
+    sprintf(str,"%d", crl_automap_shading);
+    M_WriteText (M_ItemRightAlign(str), 34, str,
+                 M_Item_Glow(2, !crl_automap_overlay ? GLOW_DARKRED :
+                                 crl_automap_shading ==  0 ? GLOW_RED :
+                                 crl_automap_shading == 12 ? GLOW_YELLOW : GLOW_GREEN));
+
+    // Drawing mode
+    sprintf(str, crl_automap_mode == 1 ? "FLOOR VISPLANES" :
+                 crl_automap_mode == 2 ? "CEILING VISPLANES" : "NORMAL");
+    M_WriteText (M_ItemRightAlign(str), 43, str,
+                 M_Item_Glow(3, crl_automap_mode ? GLOW_GREEN : GLOW_DARKRED));
+
+    // Mark secret sectors
+    sprintf(str, crl_automap_secrets == 1 ? "REVEALED" :
+                 crl_automap_secrets == 2 ? "ALWAYS" : "OFF");
+    M_WriteText (M_ItemRightAlign(str), 52, str,
+                 M_Item_Glow(4, crl_automap_secrets ? GLOW_GREEN : GLOW_DARKRED));
+
+    // Sound propagation mode
+    sprintf(str, crl_automap_sndprop ? "ON" : "OFF");
+    M_WriteText (M_ItemRightAlign(str), 61, str,
+                 M_Item_Glow(5, crl_automap_sndprop ? GLOW_GREEN : GLOW_DARKRED));
 }
 
 // -----------------------------------------------------------------------------
