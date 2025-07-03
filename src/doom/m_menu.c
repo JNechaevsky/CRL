@@ -4766,6 +4766,11 @@ boolean M_Responder (event_t* ev)
                 else
                 if (!ev->data2 && !ev->data3) // [JN] Do not consider movement as pressing.
                 {
+                    if (!menuactive && !usergame && !demorecording)
+                    {
+                        M_StartControlPanel();  // [JN] Open the main menu if the game is not active.
+                    }
+                    else
                     if (messageToPrint && messageNeedsInput)
                     {
                         key = key_menu_confirm;  // [JN] Confirm by left mouse button.
@@ -4781,7 +4786,7 @@ boolean M_Responder (event_t* ev)
             if (ev->data1 & 2
             && !ev->data2 && !ev->data3)  // [JN] Do not consider movement as pressing.
             {
-                if (!menuactive && !usergame)
+                if (!menuactive && !usergame && !demorecording)
                 {
                     M_StartControlPanel();  // [JN] Open the main menu if the game is not active.
                 }
