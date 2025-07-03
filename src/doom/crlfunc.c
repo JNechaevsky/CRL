@@ -17,6 +17,7 @@
 
 
 #include <stdio.h>
+#include <math.h>
 
 #include "i_timer.h"
 #include "v_trans.h"
@@ -100,6 +101,8 @@ enum
     widget_render_val,
     widget_coords_str,
     widget_coords_val,
+    widget_speed_str,
+    widget_speed_val,
 } widgetcolor_t;
 
 static byte *CRL_StatColor_Str (const int val1, const int val2)
@@ -126,7 +129,7 @@ static byte *CRL_PowerupColor (const int val1, const int val2)
                         cr[CR_RED]    ;
 }
 
-static byte *CRL_KISColor (const int i)
+static byte *CRL_WidgetColor (const int i)
 {
     static byte *player_colors[4];
     static int   plyr_indices[] = {widget_plyr1, widget_plyr2, widget_plyr3, widget_plyr4};
@@ -142,6 +145,7 @@ static byte *CRL_KISColor (const int i)
         case widget_time_str:
         case widget_render_str:
         case widget_coords_str:
+        case widget_speed_str:
             return cr[CR_GRAY];
         
         case widget_kills:
@@ -165,6 +169,7 @@ static byte *CRL_KISColor (const int i)
 
         case widget_render_val:
         case widget_coords_val:
+        case widget_speed_val:
             return cr[CR_GREEN];
 
         default:
@@ -552,20 +557,20 @@ void CRL_StatDrawer (void)
 
             // Kills:
             sprintf(str1, "K ");
-            M_WriteText(0, 159 - yy, str1, CRL_KISColor(widget_kis_str));
+            M_WriteText(0, 159 - yy, str1, CRL_WidgetColor(widget_kis_str));
             CRL_WidgetKISCount(str2, sizeof(str2), widget_kis_kills);
-            M_WriteText(0 + M_StringWidth(str1), 159 - yy, str2, CRL_KISColor(widget_kills));
+            M_WriteText(0 + M_StringWidth(str1), 159 - yy, str2, CRL_WidgetColor(widget_kills));
 
             // Items:
             if (crl_widget_kis_items)
             {
             sprintf(str3, " I ");
             M_WriteText(M_StringWidth(str1) + 
-                        M_StringWidth(str2), 159 - yy, str3, CRL_KISColor(widget_kis_str));
+                        M_StringWidth(str2), 159 - yy, str3, CRL_WidgetColor(widget_kis_str));
             CRL_WidgetKISCount(str4, sizeof(str4), widget_kis_items);
             M_WriteText(M_StringWidth(str1) +
                         M_StringWidth(str2) +
-                        M_StringWidth(str3), 159 - yy, str4, CRL_KISColor(widget_items));
+                        M_StringWidth(str3), 159 - yy, str4, CRL_WidgetColor(widget_items));
             }
             else
             {
@@ -578,14 +583,14 @@ void CRL_StatDrawer (void)
             M_WriteText(M_StringWidth(str1) +
                         M_StringWidth(str2) +
                         M_StringWidth(str3) +
-                        M_StringWidth(str4), 159 - yy, str5, CRL_KISColor(widget_kis_str));
+                        M_StringWidth(str4), 159 - yy, str5, CRL_WidgetColor(widget_kis_str));
 
             CRL_WidgetKISCount(str6, sizeof(str6), widget_kis_secrets);
             M_WriteText(M_StringWidth(str1) +
                         M_StringWidth(str2) + 
                         M_StringWidth(str3) +
                         M_StringWidth(str4) +
-                        M_StringWidth(str5), 159 - yy, str6, CRL_KISColor(widget_secret));
+                        M_StringWidth(str5), 159 - yy, str6, CRL_WidgetColor(widget_secret));
         }
         else
         {
@@ -598,10 +603,10 @@ void CRL_StatDrawer (void)
             if (playeringame[0])
             {
                 sprintf(str1, "G ");
-                M_WriteText(0, 159 - yy, str1, CRL_KISColor(widget_plyr1));
+                M_WriteText(0, 159 - yy, str1, CRL_WidgetColor(widget_plyr1));
 
                 sprintf(str2, "%d ", CRLWidgets.frags_g);
-                M_WriteText(M_StringWidth(str1), 159 - yy, str2, CRL_KISColor(widget_plyr1));
+                M_WriteText(M_StringWidth(str1), 159 - yy, str2, CRL_WidgetColor(widget_plyr1));
             }
             // Indigo
             if (playeringame[1])
@@ -609,13 +614,13 @@ void CRL_StatDrawer (void)
                 sprintf(str3, "I ");
                 M_WriteText(M_StringWidth(str1) +
                             M_StringWidth(str2),
-                            159 - yy, str3, CRL_KISColor(widget_plyr2));
+                            159 - yy, str3, CRL_WidgetColor(widget_plyr2));
 
                 sprintf(str4, "%d ", CRLWidgets.frags_i);
                 M_WriteText(M_StringWidth(str1) +
                             M_StringWidth(str2) +
                             M_StringWidth(str3),
-                            159 - yy, str4, CRL_KISColor(widget_plyr2));
+                            159 - yy, str4, CRL_WidgetColor(widget_plyr2));
             }
             // Brown
             if (playeringame[2])
@@ -625,7 +630,7 @@ void CRL_StatDrawer (void)
                             M_StringWidth(str2) +
                             M_StringWidth(str3) +
                             M_StringWidth(str4),
-                            159 - yy, str5, CRL_KISColor(widget_plyr3));
+                            159 - yy, str5, CRL_WidgetColor(widget_plyr3));
 
                 sprintf(str6, "%d ", CRLWidgets.frags_b);
                 M_WriteText(M_StringWidth(str1) +
@@ -633,7 +638,7 @@ void CRL_StatDrawer (void)
                             M_StringWidth(str3) +
                             M_StringWidth(str4) +
                             M_StringWidth(str5),
-                            159 - yy, str6, CRL_KISColor(widget_plyr3));
+                            159 - yy, str6, CRL_WidgetColor(widget_plyr3));
             }
             // Red
             if (playeringame[3])
@@ -645,7 +650,7 @@ void CRL_StatDrawer (void)
                             M_StringWidth(str4) +
                             M_StringWidth(str5) +
                             M_StringWidth(str6),
-                            159 - yy, str7, CRL_KISColor(widget_plyr4));
+                            159 - yy, str7, CRL_WidgetColor(widget_plyr4));
 
                 sprintf(str8, "%d ", CRLWidgets.frags_r);
                 M_WriteText(M_StringWidth(str1) +
@@ -655,7 +660,7 @@ void CRL_StatDrawer (void)
                             M_StringWidth(str5) +
                             M_StringWidth(str6) +
                             M_StringWidth(str7),
-                            159 - yy, str8, CRL_KISColor(widget_plyr4));
+                            159 - yy, str8, CRL_WidgetColor(widget_plyr4));
             }
         }
         
@@ -821,6 +826,7 @@ void CRL_DrawTargetsHealth (void)
         return;  // No tics or target is dead, nothing to display.
     }
 
+    const int yy = crl_widget_speed ? 9 : 0;
     sprintf(str, "%d/%d", player->targetsheath, player->targetsmaxheath);
     color = CRL_HealthColor(player->targetsheath, player->targetsmaxheath);
 
@@ -834,11 +840,43 @@ void CRL_DrawTargetsHealth (void)
             M_WriteTextCentered(18, str, color);
             break;
         case 3:  // Bottom
-            M_WriteTextCentered(152, str, color);
+            M_WriteTextCentered(152 - yy, str, color);
             break;
         case 4:  // Bottom + name
-            M_WriteTextCentered(144, player->targetsname, color);
-            M_WriteTextCentered(152, str, color);
+            M_WriteTextCentered(144 - yy, player->targetsname, color);
+            M_WriteTextCentered(152 - yy, str, color);
             break;
     }
+}
+
+// -----------------------------------------------------------------------------
+// CRL_DrawPlayerSpeed
+//  [PN/JN] Draws player movement speed in map untits per second format.
+//  Based on the implementation by ceski from the Woof source port.
+// -----------------------------------------------------------------------------
+
+void CRL_DrawPlayerSpeed (void)
+{
+    static char str[8];
+    static char val[16];
+    static double speed = 0;
+    const player_t *player = &players[displayplayer];
+
+    // Calculate speed only every game tic, not every frame.
+    if (oldgametic < gametic)
+    {
+        const double dx = (double)(player->mo->x - player->mo->oldx) / FRACUNIT;
+        const double dy = (double)(player->mo->y - player->mo->oldy) / FRACUNIT;
+        const double dz = (double)(player->mo->z - player->mo->oldz) / FRACUNIT;
+        speed = sqrt(dx * dx + dy * dy + dz * dz) * TICRATE;
+    }
+
+    M_snprintf(str, sizeof(str), "SPD:");
+    M_snprintf(val, sizeof(val), " %.0f", speed);
+
+    const int x_val = (SCREENWIDTH / 2);
+    const int x_str = x_val - M_StringWidth(str);
+
+    M_WriteText(x_str, 151, str, CRL_WidgetColor(widget_speed_str));
+    M_WriteText(x_val, 151, val, CRL_WidgetColor(widget_speed_val));
 }

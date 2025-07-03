@@ -362,6 +362,12 @@ static void D_Display (void)
             {
                 CRL_DrawTargetsHealth();
             }
+
+            // [PN] Player speed widget.
+            if (crl_widget_speed)
+            {
+                CRL_DrawPlayerSpeed();
+            }
         }
 
         // [JN] Main status bar drawing function.

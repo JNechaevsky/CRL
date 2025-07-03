@@ -444,7 +444,6 @@ static default_t	doom_defaults_list[] =
 
     // Widgets
     CONFIG_VARIABLE_INT(crl_extended_hud),
-    CONFIG_VARIABLE_INT(crl_widget_coords),
     CONFIG_VARIABLE_INT(crl_widget_playstate),
     CONFIG_VARIABLE_INT(crl_widget_render),
     CONFIG_VARIABLE_INT(crl_widget_maxvp),
@@ -452,6 +451,8 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(crl_widget_kis_format),
     CONFIG_VARIABLE_INT(crl_widget_kis_items),
     CONFIG_VARIABLE_INT(crl_widget_time),
+    CONFIG_VARIABLE_INT(crl_widget_coords),
+    CONFIG_VARIABLE_INT(crl_widget_speed),
     CONFIG_VARIABLE_INT(crl_widget_powerups),
     CONFIG_VARIABLE_INT(crl_widget_health),
 

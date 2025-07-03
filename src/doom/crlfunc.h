@@ -30,6 +30,7 @@ extern void CRL_DemoBar (void);
 extern int  defdemotics, deftotaldemotics;
 
 extern void CRL_DrawTargetsHealth (void);
+extern void CRL_DrawPlayerSpeed (void);
 
 // Power-up counters:
 extern int CRL_invul_counter;
