@@ -41,7 +41,6 @@ extern int crl_msg_critical;
 extern int crl_screen_size;
 extern int crl_screenwipe;
 extern int crl_text_shadows;
-extern int crl_colorblind;
 
 // Game modes
 extern int crl_spectating;
@@ -85,6 +84,9 @@ extern int crl_demo_timer;
 extern int crl_demo_timerdir;
 extern int crl_demo_bar;
 extern int crl_internal_demos;
+
+// Miscellaneous
+extern int crl_colorblind;
 
 // Static limits
 extern int crl_vanilla_limits;

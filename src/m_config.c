@@ -440,7 +440,6 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(crl_screen_size),
     CONFIG_VARIABLE_INT(crl_screenwipe),
     CONFIG_VARIABLE_INT(crl_text_shadows),
-    CONFIG_VARIABLE_INT(crl_colorblind),
 
     // Widgets
     CONFIG_VARIABLE_INT(crl_extended_hud),
@@ -480,6 +479,9 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(crl_demo_timerdir),
     CONFIG_VARIABLE_INT(crl_demo_bar),
     CONFIG_VARIABLE_INT(crl_internal_demos),
+
+    // Miscellaneous
+    CONFIG_VARIABLE_INT(crl_colorblind),
 
     // Static limits
     CONFIG_VARIABLE_INT(crl_vanilla_limits),

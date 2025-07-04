@@ -41,7 +41,6 @@ int crl_msg_critical = 1;
 int crl_screen_size = 10;
 int crl_screenwipe = 0;
 int crl_text_shadows = 0;
-int crl_colorblind = 0;
 
 // Game modes
 int crl_spectating = 0;
@@ -54,7 +53,7 @@ int crl_widget_render = 1;
 int crl_widget_maxvp = 0;
 int crl_widget_kis = 0;
 int crl_widget_kis_format = 0;
-int crl_widget_kis_items = 0;
+int crl_widget_kis_items = 1;
 int crl_widget_time = 0;
 int crl_widget_coords = 0;
 int crl_widget_speed = 0;
@@ -85,6 +84,9 @@ int crl_demo_timer = 0;
 int crl_demo_timerdir = 0;
 int crl_demo_bar = 0;
 int crl_internal_demos = 1;
+
+// Miscellaneous
+int crl_colorblind = 0;
 
 // Static limits
 int crl_vanilla_limits = 1;
@@ -117,7 +119,6 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_screen_size",                &crl_screen_size);
     M_BindIntVariable("crl_screenwipe",                 &crl_screenwipe);
     M_BindIntVariable("crl_text_shadows",               &crl_text_shadows);
-    M_BindIntVariable("crl_colorblind",                 &crl_colorblind);
 
     // Widgets
     M_BindIntVariable("crl_extended_hud",               &crl_extended_hud);
@@ -157,6 +158,9 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_demo_timerdir",              &crl_demo_timerdir);
     M_BindIntVariable("crl_demo_bar",                   &crl_demo_bar);
     M_BindIntVariable("crl_internal_demos",             &crl_internal_demos);
+
+    // Miscellaneous
+    M_BindIntVariable("crl_colorblind",                 &crl_colorblind);
 
     // Static limits
     M_BindIntVariable("crl_vanilla_limits",             &crl_vanilla_limits);

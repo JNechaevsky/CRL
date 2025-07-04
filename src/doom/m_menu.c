@@ -568,7 +568,6 @@ static void M_CRL_VisplanesDraw (int choice);
 static void M_CRL_HOMDraw (int choice);
 static void M_CRL_ScreenWipe (int choice);
 static void M_CRL_ShowENDOOM (int choice);
-static void M_CRL_Colorblind (int choice);
 
 static void M_ChooseCRL_Display (int choice);
 static void M_DrawCRL_Display (void);
@@ -736,6 +735,10 @@ static void M_CRL_DemoTimer (int choice);
 static void M_CRL_TimerDirection (int choice);
 static void M_CRL_ProgressBar (int choice);
 static void M_CRL_InternalDemos (int choice);
+
+static void M_ChooseCRL_Misc (int choice);
+static void M_DrawCRL_Misc (void);
+static void M_CRL_Colorblind (int choice);
 
 static void M_ChooseCRL_Limits (int choice);
 static void M_DrawCRL_Limits (void);
@@ -1129,13 +1132,14 @@ static menuitem_t CRLMenu_Main[]=
     { M_SWTC, "WIDGETS SETTINGS",     M_ChooseCRL_Widgets,  'w'},
     { M_SWTC, "AUTOMAP SETTINGS",     M_ChooseCRL_Automap,  'a'},
     { M_SWTC, "GAMEPLAY FEATURES",    M_ChooseCRL_Gameplay, 'g'},
+    { M_SWTC, "MISC FEATURES",        M_ChooseCRL_Misc,     'm'},
     { M_SWTC, "STATIC ENGINE LIMITS", M_ChooseCRL_Limits,   's'},
     { M_SWTC, "VANILLA OPTIONS MENU", M_Options,            'v'},
 };
 
 static menu_t CRLDef_Main =
 {
-    15,
+    16,
     &MainDef,
     CRLMenu_Main,
     M_DrawCRL_Main,
@@ -1253,12 +1257,11 @@ static menuitem_t CRLMenu_Video[]=
     { M_SKIP, "", 0, '\0'},                              
     { M_MUL2, "SCREEN WIPE EFFECT", M_CRL_ScreenWipe,    's' },
     { M_MUL2, "SHOW ENDOOM SCREEN", M_CRL_ShowENDOOM,    's' },
-    { M_MUL2, "COLORBLIND",         M_CRL_Colorblind,    'c' },
 };
 
 static menu_t CRLDef_Video =
 {
-    11,
+    10,
     &CRLDef_Main,
     CRLMenu_Video,
     M_DrawCRL_Video,
@@ -1275,10 +1278,6 @@ static void M_ChooseCRL_Video (int choice)
 static void M_DrawCRL_Video (void)
 {
     char str[32];
-    const char *colorblind_name[] = {
-        "NONE","PROTANOPIA","PROTANOMALY","DEUTERANOPIA","DEUTERANOMALY",
-        "TRITANOPIA","TRITANOMALY","ACHROMATOPSIA","ACHROMATOMALY"
-    };
 
     M_WriteTextCentered(7, "VIDEO OPTIONS", cr[CR_YELLOW]);
 
@@ -1342,22 +1341,6 @@ static void M_DrawCRL_Video (void)
                  show_endoom == 2 ? "PWAD ONLY" : "NEVER");
     M_WriteText (M_ItemRightAlign(str), 97, str, 
                  M_Item_Glow(9, show_endoom == 1 ? GLOW_DARKRED : GLOW_GREEN));
-
-    // Colorblind
-    sprintf(str, "%s", colorblind_name[crl_colorblind]);
-    M_WriteText (M_ItemRightAlign(str), 106, str,
-                 M_Item_Glow(10, crl_colorblind ? GLOW_GREEN : GLOW_DARKRED));
-
-    // [PN] Added explanations for colorblind filters
-    if (itemOn == 10 && crl_colorblind)
-    {
-        const char *colorblind_hint[] = {
-            "","RED-BLIND","RED-WEAK","GREEN-BLIND","GREEN-WEAK",
-            "BLUE-BLIND","BLUE-WEAK","MONOCHROMACY","BLUE CONE MONOCHROMACY"
-        };
-
-        M_WriteTextCentered(160, colorblind_hint[crl_colorblind], cr[CR_WHITE]);
-    }
 }
 
 static void M_CRL_UncappedFPS (int choice)
@@ -1430,13 +1413,6 @@ static void M_CRL_ScreenWipe (int choice)
 static void M_CRL_ShowENDOOM (int choice)
 {
     show_endoom = M_INT_Slider(show_endoom, 0, 2, choice, false);
-}
-
-static void M_CRL_Colorblind (int choice)
-{
-    crl_colorblind = M_INT_Slider(crl_colorblind, 0, 8, choice, false);
-
-    I_SetPalette ((byte *)W_CacheLumpName(DEH_String("PLAYPAL"), PU_CACHE) + st_palette * 768);
 }
 
 // -----------------------------------------------------------------------------
@@ -3272,6 +3248,79 @@ static void M_CRL_ProgressBar (int choice)
 static void M_CRL_InternalDemos (int choice)
 {
     crl_internal_demos ^= 1;
+}
+
+// -----------------------------------------------------------------------------
+// Miscellaneous features
+// -----------------------------------------------------------------------------
+
+static menuitem_t CRLMenu_Misc[]=
+{
+    { M_MUL1, "INVULNERABILITY EFFECT", NULL, 'i' },
+    { M_MUL2, "PALETTE FLASH EFFECTS",  NULL, 'p' },
+    { M_MUL1, "MOVEMENT BOBBING",       NULL, 'm' },
+    { M_MUL1, "WEAPON BOBBING",         NULL, 'w' },
+    { M_MUL2, "COLORBLIND FILTER",      M_CRL_Colorblind, 'c' },
+    { M_SKIP, "", 0, '\0' },
+    { M_MUL2, "AUTOLOAD WAD FILES",     NULL, 'a' },
+    { M_MUL2, "AUTOLOAD DEH FILES",     NULL, 'a' },
+    { M_SKIP, "", 0, '\0' },
+    { M_MUL2, "HIGHLIGHTING EFFECT",    NULL, 'h' },
+    { M_MUL1, "ESC KEY BEHAVIOUR",      NULL, 'e' },
+};
+
+static menu_t CRLDef_Misc =
+{
+    11,
+    &CRLDef_Main,
+    CRLMenu_Misc,
+    M_DrawCRL_Misc,
+    CRL_MENU_LEFTOFFSET_BIG, CRL_MENU_TOPOFFSET,
+    0,
+    true, false, false,
+};
+
+static void M_ChooseCRL_Misc (int choice)
+{
+    M_SetupNextMenu (&CRLDef_Misc);
+}
+
+static void M_DrawCRL_Misc (void)
+{
+    char str[32];
+    const char *colorblind_name[] = {
+        "NONE","PROTANOPIA","PROTANOMALY","DEUTERANOPIA","DEUTERANOMALY",
+        "TRITANOPIA","TRITANOMALY","ACHROMATOPSIA","ACHROMATOMALY"
+    };
+
+    M_WriteTextCentered(7, "ACCESSIBILITY", cr[CR_YELLOW]);
+
+    // Colorblind
+    sprintf(str, "%s", colorblind_name[crl_colorblind]);
+    M_WriteText (M_ItemRightAlign(str), 52, str,
+                 M_Item_Glow(4, crl_colorblind ? GLOW_GREEN : GLOW_DARKRED));
+
+    M_WriteTextCentered(61, "AUTOLOAD", cr[CR_YELLOW]);
+
+    M_WriteTextCentered(88, "MENU SETTINGS", cr[CR_YELLOW]);
+
+    // [PN] Added explanations for colorblind filters
+    if (itemOn == 4 && crl_colorblind)
+    {
+        const char *colorblind_hint[] = {
+            "","RED-BLIND","RED-WEAK","GREEN-BLIND","GREEN-WEAK",
+            "BLUE-BLIND","BLUE-WEAK","MONOCHROMACY","BLUE CONE MONOCHROMACY"
+        };
+
+        M_WriteTextCentered(160, colorblind_hint[crl_colorblind], cr[CR_WHITE]);
+    }
+}
+
+static void M_CRL_Colorblind (int choice)
+{
+    crl_colorblind = M_INT_Slider(crl_colorblind, 0, 8, choice, false);
+
+    I_SetPalette ((byte *)W_CacheLumpName(DEH_String("PLAYPAL"), PU_CACHE) + st_palette * 768);
 }
 
 // -----------------------------------------------------------------------------
