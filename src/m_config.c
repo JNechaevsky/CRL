@@ -481,6 +481,8 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(crl_internal_demos),
 
     // Miscellaneous
+    CONFIG_VARIABLE_INT(crl_a11y_move_bob),
+    CONFIG_VARIABLE_INT(crl_a11y_weapon_bob),
     CONFIG_VARIABLE_INT(crl_colorblind),
     CONFIG_VARIABLE_INT(crl_autoload_wad),
     CONFIG_VARIABLE_INT(crl_autoload_deh),

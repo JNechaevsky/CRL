@@ -937,7 +937,7 @@ void P_MovePsprites (player_t* player)
         if (movingState && !player->attackdown)
         {
             // Apply full bobbing only if not raising/lowering and not attacking.
-            P_ApplyBobbing(&psp->sx2, &psp->sy2, true, player->bob);
+            P_ApplyBobbing(&psp->sx2, &psp->sy2, true, player->r_bob);
         }
     }
 

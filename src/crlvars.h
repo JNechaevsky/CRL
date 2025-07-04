@@ -86,6 +86,8 @@ extern int crl_demo_bar;
 extern int crl_internal_demos;
 
 // Miscellaneous
+extern int crl_a11y_move_bob;
+extern int crl_a11y_weapon_bob;
 extern int crl_colorblind;
 extern int crl_autoload_wad;
 extern int crl_autoload_deh;

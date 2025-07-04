@@ -738,6 +738,8 @@ static void M_CRL_InternalDemos (int choice);
 
 static void M_ChooseCRL_Misc (int choice);
 static void M_DrawCRL_Misc (void);
+static void M_CRL_MoveBob (int choice);
+static void M_CRL_WeaponBob (int choice);
 static void M_CRL_Colorblind (int choice);
 static void M_CRL_AutoloadWAD (int choice);
 static void M_CRL_AutoloadDEH (int choice);
@@ -3260,8 +3262,8 @@ static menuitem_t CRLMenu_Misc[]=
 {
     { M_MUL1, "INVULNERABILITY EFFECT", NULL, 'i' },
     { M_MUL2, "PALETTE FLASH EFFECTS",  NULL, 'p' },
-    { M_MUL1, "MOVEMENT BOBBING",       NULL, 'm' },
-    { M_MUL1, "WEAPON BOBBING",         NULL, 'w' },
+    { M_MUL1, "MOVEMENT BOBBING",       M_CRL_MoveBob,    'm' },
+    { M_MUL1, "WEAPON BOBBING",         M_CRL_WeaponBob,  'w' },
     { M_MUL2, "COLORBLIND FILTER",      M_CRL_Colorblind, 'c' },
     { M_SKIP, "", 0, '\0' },
     { M_MUL2, "AUTOLOAD WAD FILES",     M_CRL_AutoloadWAD, 'a' },
@@ -3290,12 +3292,28 @@ static void M_ChooseCRL_Misc (int choice)
 static void M_DrawCRL_Misc (void)
 {
     char str[32];
+    const char *bobpercent[] = {
+        "OFF","5%","10%","15%","20%","25%","30%","35%","40%","45%","50%",
+        "55%","60%","65%","70%","75%","80%","85%","90%","95%","100%"
+    };
     const char *colorblind_name[] = {
         "NONE","PROTANOPIA","PROTANOMALY","DEUTERANOPIA","DEUTERANOMALY",
         "TRITANOPIA","TRITANOMALY","ACHROMATOPSIA","ACHROMATOMALY"
     };
 
     M_WriteTextCentered(7, "ACCESSIBILITY", cr[CR_YELLOW]);
+
+    // Movement bobbing
+    sprintf(str, "%s", bobpercent[crl_a11y_move_bob]);
+    M_WriteText (M_ItemRightAlign(str), 34, str,
+                 M_Item_Glow(2, crl_a11y_move_bob == 20 ? GLOW_DARKRED :
+                                crl_a11y_move_bob ==  0 ? GLOW_RED : GLOW_YELLOW));
+
+    // Weapon bobbing
+    sprintf(str, "%s", bobpercent[crl_a11y_weapon_bob]);
+    M_WriteText (M_ItemRightAlign(str), 43, str,
+                 M_Item_Glow(3, crl_a11y_weapon_bob == 20 ? GLOW_DARKRED :
+                                crl_a11y_weapon_bob ==  0 ? GLOW_RED : GLOW_YELLOW));
 
     // Colorblind
     sprintf(str, "%s", colorblind_name[crl_colorblind]);
@@ -3330,6 +3348,16 @@ static void M_DrawCRL_Misc (void)
 
         M_WriteTextCentered(160, colorblind_hint[crl_colorblind], cr[CR_WHITE]);
     }
+}
+
+static void M_CRL_MoveBob (int choice)
+{
+    crl_a11y_move_bob = M_INT_Slider(crl_a11y_move_bob, 0, 20, choice, true);
+}
+
+static void M_CRL_WeaponBob (int choice)
+{
+    crl_a11y_weapon_bob = M_INT_Slider(crl_a11y_weapon_bob, 0, 20, choice, true);
 }
 
 static void M_CRL_Colorblind (int choice)
