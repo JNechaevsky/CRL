@@ -87,6 +87,8 @@ extern int crl_internal_demos;
 
 // Miscellaneous
 extern int crl_colorblind;
+extern int crl_autoload_wad;
+extern int crl_autoload_deh;
 
 // Static limits
 extern int crl_vanilla_limits;

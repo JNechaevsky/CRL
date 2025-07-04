@@ -1488,6 +1488,8 @@ static void G_CheckDemoStatusAtExit (void)
     G_CheckDemoStatus();
 }
 
+static const char *const loadparms[] = {"-file", "-merge", NULL}; // [crispy]
+
 //
 // D_DoomMain
 //
@@ -1843,7 +1845,8 @@ void D_DoomMain (void)
     //
     // Disable auto-loading of .wad and .deh files.
     //
-    if (!M_ParmExists("-noautoload") && gamemode != shareware)
+    if (!M_ParmExists("-noautoload") && gamemode != shareware
+    && crl_autoload_wad)  // [JN] Allow autoload per both IWAD and PWAD.
     {
         char *autoload_dir;
 
@@ -1883,6 +1886,32 @@ void D_DoomMain (void)
 
     // Debug:
 //    W_PrintDirectory();
+
+    // [crispy] add wad files from autoload PWAD directories
+
+    if (!M_ParmExists("-noautoload") && gamemode != shareware
+    && crl_autoload_wad == 2)  // [JN] Allow autoload per PWAD only.
+    {
+        int i;
+
+        for (i = 0; loadparms[i]; i++)
+        {
+            int p;
+            p = M_CheckParmWithArgs(loadparms[i], 1);
+            if (p)
+            {
+                while (++p != myargc && myargv[p][0] != '-')
+                {
+                    char *autoload_dir;
+                    if ((autoload_dir = M_GetAutoloadDir(M_BaseName(myargv[p]))))
+                    {
+                        W_AutoLoadWADs(autoload_dir);
+                        free(autoload_dir);
+                    }
+                }
+            }
+        }
+    }
 
     //!
     // @arg <demo>
@@ -1977,6 +2006,32 @@ void D_DoomMain (void)
         }
 
         printf("  loaded %i DEHACKED lumps from PWAD files.\n", loaded);
+    }
+
+    // [crispy] process .deh files from PWADs autoload directories
+
+    if (!M_ParmExists("-noautoload") && gamemode != shareware
+    && crl_autoload_deh == 2)  // [JN] Allow autoload per PWAD only.
+    {
+        int i;
+
+        for (i = 0; loadparms[i]; i++)
+        {
+            int p;
+            p = M_CheckParmWithArgs(loadparms[i], 1);
+            if (p)
+            {
+                while (++p != myargc && myargv[p][0] != '-')
+                {
+                    char *autoload_dir;
+                    if ((autoload_dir = M_GetAutoloadDir(M_BaseName(myargv[p]))))
+                    {
+                        DEH_AutoLoadPatches(autoload_dir);
+                        free(autoload_dir);
+                    }
+                }
+            }
+        }
     }
 
     // Set the gamedescription string. This is only possible now that

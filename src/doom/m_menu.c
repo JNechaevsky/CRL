@@ -739,6 +739,8 @@ static void M_CRL_InternalDemos (int choice);
 static void M_ChooseCRL_Misc (int choice);
 static void M_DrawCRL_Misc (void);
 static void M_CRL_Colorblind (int choice);
+static void M_CRL_AutoloadWAD (int choice);
+static void M_CRL_AutoloadDEH (int choice);
 
 static void M_ChooseCRL_Limits (int choice);
 static void M_DrawCRL_Limits (void);
@@ -3262,8 +3264,8 @@ static menuitem_t CRLMenu_Misc[]=
     { M_MUL1, "WEAPON BOBBING",         NULL, 'w' },
     { M_MUL2, "COLORBLIND FILTER",      M_CRL_Colorblind, 'c' },
     { M_SKIP, "", 0, '\0' },
-    { M_MUL2, "AUTOLOAD WAD FILES",     NULL, 'a' },
-    { M_MUL2, "AUTOLOAD DEH FILES",     NULL, 'a' },
+    { M_MUL2, "AUTOLOAD WAD FILES",     M_CRL_AutoloadWAD, 'a' },
+    { M_MUL2, "AUTOLOAD DEH FILES",     M_CRL_AutoloadDEH, 'a' },
     { M_SKIP, "", 0, '\0' },
     { M_MUL2, "HIGHLIGHTING EFFECT",    NULL, 'h' },
     { M_MUL1, "ESC KEY BEHAVIOUR",      NULL, 'e' },
@@ -3302,6 +3304,20 @@ static void M_DrawCRL_Misc (void)
 
     M_WriteTextCentered(61, "AUTOLOAD", cr[CR_YELLOW]);
 
+    // Autoload WAD files
+    sprintf(str, crl_autoload_wad == 1 ? "IWAD ONLY" :
+                 crl_autoload_wad == 2 ? "IWAD AND PWAD" : "OFF");
+    M_WriteText (M_ItemRightAlign(str), 70, str,
+                 M_Item_Glow(6, crl_autoload_wad == 1 ? GLOW_YELLOW :
+                                crl_autoload_wad == 2 ? GLOW_GREEN : GLOW_DARKRED));
+
+    // Autoload WAD files
+    sprintf(str, crl_autoload_deh == 1 ? "IWAD ONLY" :
+                 crl_autoload_deh == 2 ? "IWAD AND PWAD" : "OFF");
+    M_WriteText (M_ItemRightAlign(str), 79, str,
+                 M_Item_Glow(7, crl_autoload_deh == 1 ? GLOW_YELLOW :
+                                crl_autoload_deh == 2 ? GLOW_GREEN : GLOW_DARKRED));
+
     M_WriteTextCentered(88, "MENU SETTINGS", cr[CR_YELLOW]);
 
     // [PN] Added explanations for colorblind filters
@@ -3319,8 +3335,17 @@ static void M_DrawCRL_Misc (void)
 static void M_CRL_Colorblind (int choice)
 {
     crl_colorblind = M_INT_Slider(crl_colorblind, 0, 8, choice, false);
-
     I_SetPalette ((byte *)W_CacheLumpName(DEH_String("PLAYPAL"), PU_CACHE) + st_palette * 768);
+}
+
+static void M_CRL_AutoloadWAD (int choice)
+{
+    crl_autoload_wad = M_INT_Slider(crl_autoload_wad, 0, 2, choice, false);
+}
+
+static void M_CRL_AutoloadDEH (int choice)
+{
+    crl_autoload_deh = M_INT_Slider(crl_autoload_deh, 0, 2, choice, false);
 }
 
 // -----------------------------------------------------------------------------

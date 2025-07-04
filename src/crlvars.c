@@ -87,6 +87,8 @@ int crl_internal_demos = 1;
 
 // Miscellaneous
 int crl_colorblind = 0;
+int crl_autoload_wad = 1;
+int crl_autoload_deh = 1;
 
 // Static limits
 int crl_vanilla_limits = 1;
@@ -161,6 +163,8 @@ void CRL_BindVariables (void)
 
     // Miscellaneous
     M_BindIntVariable("crl_colorblind",                 &crl_colorblind);
+    M_BindIntVariable("crl_autoload_wad",               &crl_autoload_wad);
+    M_BindIntVariable("crl_autoload_deh",               &crl_autoload_deh);
 
     // Static limits
     M_BindIntVariable("crl_vanilla_limits",             &crl_vanilla_limits);
