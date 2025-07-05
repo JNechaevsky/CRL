@@ -421,6 +421,7 @@ extern fixed_t *spriteoffset;
 extern fixed_t *spritetopoffset;
 
 extern lighttable_t *colormaps;
+extern byte grayscale_colormap[256];
 
 extern int viewwidth;
 extern int scaledviewwidth;

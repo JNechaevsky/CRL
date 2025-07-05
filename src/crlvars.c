@@ -86,6 +86,7 @@ int crl_demo_bar = 0;
 int crl_internal_demos = 1;
 
 // Miscellaneous
+int crl_a11y_invul = 0;
 int crl_a11y_move_bob = 20;
 int crl_a11y_weapon_bob = 20;
 int crl_colorblind = 0;
@@ -164,6 +165,7 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_internal_demos",             &crl_internal_demos);
 
     // Miscellaneous
+    M_BindIntVariable("crl_a11y_invul",                 &crl_a11y_invul);
     M_BindIntVariable("crl_a11y_move_bob",              &crl_a11y_move_bob);
     M_BindIntVariable("crl_a11y_weapon_bob",            &crl_a11y_weapon_bob);
     M_BindIntVariable("crl_colorblind",                 &crl_colorblind);

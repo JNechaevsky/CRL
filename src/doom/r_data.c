@@ -32,6 +32,7 @@
 #include "v_video.h"
 
 #include "crlcore.h"
+#include "crlvars.h"
 
 
 //
@@ -157,6 +158,7 @@ fixed_t*	spriteoffset;
 fixed_t*	spritetopoffset;
 
 lighttable_t	*colormaps;
+byte	grayscale_colormap[256];
 
 
 //
@@ -692,6 +694,68 @@ void R_InitColormaps (void)
 }
 
 // -----------------------------------------------------------------------------
+// R_InitGrayscaleColormap
+//  [PN] Builds a grayscale translation colormap by mapping each PLAYPAL color
+//  to its closest gray color in the palette, using gamma-corrected
+//  average intensity across RGB channels. Used for grayscale invul effect.
+// -----------------------------------------------------------------------------
+
+static void R_InitGrayscaleColormap (void)
+{
+    byte *doompal = W_CacheLumpName("PLAYPAL", PU_STATIC);
+
+    // Phase 1: collect grayish colors from the palette
+    uint8_t gray_idx[256];
+    uint8_t gray_val[256];
+    int     gray_cnt = 0;
+
+    for (int i = 0; i < 256; ++i)
+    {
+        const int r = doompal[i*3+0];
+        const int g = doompal[i*3+1];
+        const int b = doompal[i*3+2];
+
+        // Allow ±2 threshold to detect almost-gray tones
+        if (abs(r-g) <= 2 && abs(g-b) <= 2)
+        {
+            gray_idx[gray_cnt] = (uint8_t)i;
+            gray_val[gray_cnt] = (uint8_t)r; // r ≈ g ≈ b
+            ++gray_cnt;
+        }
+    }
+
+    // Phase 2: map each color to closest gray
+    for (int i = 0; i < 256; ++i)
+    {
+        const int r = doompal[i*3+0];
+        const int g = doompal[i*3+1];
+        const int b = doompal[i*3+2];
+
+        // Equal weights to balance all color contributions equally
+        int gray = (r + g + b + 1) / 3;
+        gray = gammatable[crl_gamma][gray];
+
+        int best      = 0;
+        int best_diff = INT_MAX;
+
+        for (int k = 0; k < gray_cnt; ++k)
+        {
+            // Using Manhattan distance reduced to single-channel diff because r ≈ g ≈ b
+            int diff = abs(gray_val[k] - gray);
+            if (diff < best_diff)
+            {
+                best_diff = diff;
+                best      = gray_idx[k];
+                if (diff == 0) break;  // Exact match, stop early
+            }
+        }
+        grayscale_colormap[i] = best;
+    }
+
+    W_ReleaseLumpName("PLAYPAL");
+}
+
+// -----------------------------------------------------------------------------
 // [crispy] initialize translucency filter map
 // based in parts on the implementation from boom202s/R_DATA.C:676-787
 // -----------------------------------------------------------------------------
@@ -755,6 +819,7 @@ void R_InitData (void)
     R_InitSpriteLumps ();
     printf (".");
     R_InitColormaps ();
+    R_InitGrayscaleColormap ();
     
     R_InitTintMap ();
 }

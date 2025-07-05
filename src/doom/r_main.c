@@ -858,6 +858,7 @@ void R_SetupFrame (player_t* player)
     if (player->fixedcolormap)
     {
 	fixedcolormap =
+	    crl_a11y_invul ? grayscale_colormap : // [PN] A11Y - Invulnerability effect
 	    colormaps
 	    + player->fixedcolormap*256;
 	
