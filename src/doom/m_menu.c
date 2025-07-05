@@ -3358,7 +3358,33 @@ static void M_DrawCRL_Misc (void)
             "BLUE-BLIND","BLUE-WEAK","MONOCHROMACY","BLUE CONE MONOCHROMACY"
         };
 
-        M_WriteTextCentered(160, colorblind_hint[crl_colorblind], cr[CR_WHITE]);
+        M_WriteTextCentered(151, colorblind_hint[crl_colorblind], cr[CR_WHITE]);
+    }
+    // [PN] Added explanations for autoload variables
+    if (itemOn == 6 || itemOn == 7)
+    {
+        const char *off = "AUTOLOAD IS DISABLED";
+        const char *first_line = "AUTOLOAD AND FOLDER CREATION";
+        const char *second_line1 = "ONLY ALLOWED FOR IWAD FILES";
+        const char *second_line2 = "ALLOWED FOR BOTH IWAD AND PWAD FILES";
+        const int   autoload_option = (itemOn == 6) ? crl_autoload_wad : crl_autoload_deh;
+
+        switch (autoload_option)
+        {
+            case 1:
+                M_WriteTextCentered(142, first_line, cr[CR_GRAY]);
+                M_WriteTextCentered(151, second_line1, cr[CR_GRAY]);
+                break;
+
+            case 2:
+                M_WriteTextCentered(142, first_line, cr[CR_GRAY]);
+                M_WriteTextCentered(151, second_line2, cr[CR_GRAY]);
+                break;
+
+            default:
+                M_WriteTextCentered(151, off, cr[CR_GRAY]);
+                break;            
+        }
     }
 }
 
