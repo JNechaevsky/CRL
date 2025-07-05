@@ -1058,29 +1058,29 @@ void I_SetPalette (byte *doompalette)
 }
 
 // Given an RGB value, find the closest matching palette index.
+// [PN] Refactored for performance
 
 int I_GetPaletteIndex(int r, int g, int b)
 {
-    int best, best_diff, diff;
-    int i;
+    int best = 0;
+    int best_diff = INT_MAX;
 
-    best = 0; best_diff = INT_MAX;
-
-    for (i = 0; i < 256; ++i)
+    for (int i = 0; i < 256; ++i)
     {
-        diff = (r - palette[i].r) * (r - palette[i].r)
-             + (g - palette[i].g) * (g - palette[i].g)
-             + (b - palette[i].b) * (b - palette[i].b);
+        const int dr = (int)r - (int)palette[i].r;
+        const int dg = (int)g - (int)palette[i].g;
+        const int db = (int)b - (int)palette[i].b;
+
+        // [PN] Euclidean distance in RGB space
+        const int diff = dr * dr + dg * dg + db * db;
 
         if (diff < best_diff)
         {
             best = i;
             best_diff = diff;
-        }
 
-        if (diff == 0)
-        {
-            break;
+            if (diff == 0)
+                break; // [PN] Early exit for exact match
         }
     }
 
