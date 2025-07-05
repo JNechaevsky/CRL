@@ -744,6 +744,7 @@ static void M_CRL_WeaponBob (int choice);
 static void M_CRL_Colorblind (int choice);
 static void M_CRL_AutoloadWAD (int choice);
 static void M_CRL_AutoloadDEH (int choice);
+static void M_CRL_MenuEscKey (int choice);
 
 static void M_ChooseCRL_Limits (int choice);
 static void M_DrawCRL_Limits (void);
@@ -3271,7 +3272,7 @@ static menuitem_t CRLMenu_Misc[]=
     { M_MUL2, "AUTOLOAD DEH FILES",     M_CRL_AutoloadDEH, 'a' },
     { M_SKIP, "", 0, '\0' },
     { M_MUL2, "HIGHLIGHTING EFFECT",    NULL, 'h' },
-    { M_MUL1, "ESC KEY BEHAVIOUR",      NULL, 'e' },
+    { M_MUL1, "ESC KEY BEHAVIOUR",      M_CRL_MenuEscKey, 'e' },
 };
 
 static menu_t CRLDef_Misc =
@@ -3344,6 +3345,11 @@ static void M_DrawCRL_Misc (void)
 
     M_WriteTextCentered(88, "MENU SETTINGS", cr[CR_YELLOW]);
 
+    // ESC key behaviour
+    sprintf(str, crl_menu_esc_key ? "GO BACK" : "CLOSE MENU" );
+    M_WriteText (M_ItemRightAlign(str), 106, str,
+                 M_Item_Glow(10, crl_menu_esc_key ? GLOW_GREEN : GLOW_DARKRED));
+
     // [PN] Added explanations for colorblind filters
     if (itemOn == 4 && crl_colorblind)
     {
@@ -3385,6 +3391,11 @@ static void M_CRL_AutoloadWAD (int choice)
 static void M_CRL_AutoloadDEH (int choice)
 {
     crl_autoload_deh = M_INT_Slider(crl_autoload_deh, 0, 2, choice, false);
+}
+
+static void M_CRL_MenuEscKey (int choice)
+{
+    crl_menu_esc_key ^= 1;
 }
 
 // -----------------------------------------------------------------------------
@@ -5324,15 +5335,32 @@ boolean M_Responder (event_t* ev)
     }
     else if (key == key_menu_activate)
     {
-        // Deactivate menu
-
-        currentMenu->lastOn = itemOn;
-        M_ClearMenus();
-        S_StartSound(NULL, sfx_swtchx);
+        // [JN] If ESC key behaviour is set to "go back":
+        if (crl_menu_esc_key)
+        {
+            if (currentMenu == &MainDef || currentMenu == &SoundDef
+            ||  currentMenu == &LoadDef || currentMenu == &SaveDef)
+            {
+                goto crl_close_menu;  // [JN] Close menu imideatelly.
+            }
+            else
+            {
+                goto crl_prev_menu;   // [JN] Go to previous menu.
+            }
+        }
+        else
+        {
+            crl_close_menu:
+            // Deactivate menu
+            currentMenu->lastOn = itemOn;
+            M_ClearMenus();
+            S_StartSound(NULL, sfx_swtchx);
+        }
         return true;
     }
     else if (key == key_menu_back)
     {
+        crl_prev_menu:
         // Go back to previous menu
 
         currentMenu->lastOn = itemOn;
