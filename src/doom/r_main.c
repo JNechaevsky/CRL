@@ -857,10 +857,16 @@ void R_SetupFrame (player_t* player)
 	
     if (player->fixedcolormap)
     {
-	fixedcolormap =
-	    crl_a11y_invul ? grayscale_colormap : // [PN] A11Y - Invulnerability effect
-	    colormaps
-	    + player->fixedcolormap*256;
+    // [PN] A11Y - Invulnerability grayscaled effect
+    if (crl_a11y_invul 
+    && (player->powers[pw_invulnerability] > (4 * 32) || (player->powers[pw_invulnerability] & 8)))
+    {
+        fixedcolormap = grayscale_colormap;
+    }
+    else
+    {
+        fixedcolormap = colormaps + player->fixedcolormap * 256;
+    }
 	
 	walllights = scalelightfixed;
 
