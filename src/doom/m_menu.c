@@ -746,6 +746,7 @@ static void M_CRL_AutoloadWAD (int choice);
 static void M_CRL_AutoloadDEH (int choice);
 static void M_CRL_Hightlight (int choice);
 static void M_CRL_MenuEscKey (int choice);
+static void M_CRL_ConfirmQuit (int choice);
 
 static void M_ChooseCRL_Limits (int choice);
 static void M_DrawCRL_Limits (void);
@@ -3339,11 +3340,12 @@ static menuitem_t CRLMenu_Misc[]=
     { M_SKIP, "", 0, '\0' },
     { M_MUL2, "HIGHLIGHTING EFFECT",    M_CRL_Hightlight,  'h' },
     { M_MUL1, "ESC KEY BEHAVIOUR",      M_CRL_MenuEscKey,  'e' },
+    { M_MUL1, "QUIT CONFIRMATION",      M_CRL_ConfirmQuit, 'q' },
 };
 
 static menu_t CRLDef_Misc =
 {
-    11,
+    12,
     &CRLDef_Main,
     CRLMenu_Misc,
     M_DrawCRL_Misc,
@@ -3423,6 +3425,11 @@ static void M_DrawCRL_Misc (void)
     M_WriteText (M_ItemRightAlign(str), 106, str,
                  M_Item_Glow(10, crl_menu_esc_key ? GLOW_GREEN : GLOW_DARKRED));
 
+    // Quit confirmation
+    sprintf(str, crl_confirm_quit ? "ON" : "OFF" );
+    M_WriteText (M_ItemRightAlign(str), 115, str,
+                 M_Item_Glow(11, crl_confirm_quit ? GLOW_DARKRED : GLOW_GREEN));
+
     // [PN] Added explanations for colorblind filters
     if (itemOn == 4 && crl_colorblind)
     {
@@ -3500,6 +3507,11 @@ static void M_CRL_Hightlight (int choice)
 static void M_CRL_MenuEscKey (int choice)
 {
     crl_menu_esc_key ^= 1;
+}
+
+static void M_CRL_ConfirmQuit (int choice)
+{
+    crl_confirm_quit ^= 1;
 }
 
 // -----------------------------------------------------------------------------
@@ -4819,6 +4831,16 @@ boolean M_Responder (event_t* ev)
         }
 
         return false;
+    }
+
+    // [JN] CRL - optionally don’t ask for quit confirmation.
+    if (!crl_confirm_quit)
+    {
+        if (ev->type == ev_quit || (ev->type == ev_keydown && ev->data1 == key_menu_quit))
+        {
+            I_Quit();
+            return true;
+        }
     }
 
     // "close" button pressed on window?

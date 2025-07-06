@@ -94,6 +94,7 @@ int crl_autoload_wad = 1;
 int crl_autoload_deh = 1;
 int crl_menu_highlight = 2;
 int crl_menu_esc_key = 0;
+int crl_confirm_quit = 1;
 
 // Static limits
 int crl_vanilla_limits = 1;
@@ -175,6 +176,7 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_autoload_deh",               &crl_autoload_deh);
     M_BindIntVariable("crl_menu_highlight",             &crl_menu_highlight);
     M_BindIntVariable("crl_menu_esc_key",               &crl_menu_esc_key);
+    M_BindIntVariable("crl_confirm_quit",               &crl_confirm_quit);
 
     // Static limits
     M_BindIntVariable("crl_vanilla_limits",             &crl_vanilla_limits);
