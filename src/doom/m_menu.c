@@ -744,6 +744,7 @@ static void M_CRL_WeaponBob (int choice);
 static void M_CRL_Colorblind (int choice);
 static void M_CRL_AutoloadWAD (int choice);
 static void M_CRL_AutoloadDEH (int choice);
+static void M_CRL_Hightlight (int choice);
 static void M_CRL_MenuEscKey (int choice);
 
 static void M_ChooseCRL_Limits (int choice);
@@ -891,23 +892,41 @@ static void M_FillBackground (void)
 
 static byte *M_Small_Line_Glow (const int tics)
 {
-    return
-        tics == 5 ? cr[CR_MENU_BRIGHT5] :
-        tics == 4 ? cr[CR_MENU_BRIGHT4] :
-        tics == 3 ? cr[CR_MENU_BRIGHT3] :
-        tics == 2 ? cr[CR_MENU_BRIGHT2] :
-        tics == 1 ? cr[CR_MENU_BRIGHT1] : NULL;
+    switch (crl_menu_highlight)
+    {
+        case 1:
+            return
+            tics == 5 ? cr[CR_MENU_BRIGHT5] : NULL;
+
+        case 2:
+            return
+            tics == 5 ? cr[CR_MENU_BRIGHT5] :
+            tics == 4 ? cr[CR_MENU_BRIGHT4] :
+            tics == 3 ? cr[CR_MENU_BRIGHT3] :
+            tics == 2 ? cr[CR_MENU_BRIGHT2] :
+            tics == 1 ? cr[CR_MENU_BRIGHT1] : NULL;
+    }
+
+    return NULL;
 }
 
-/*
 static byte *M_Big_Line_Glow (const int tics)
 {
-    return
-        tics == 5 ? cr[CR_MENU_BRIGHT3] :
-        tics >= 3 ? cr[CR_MENU_BRIGHT2] :
-        tics >= 1 ? cr[CR_MENU_BRIGHT1] : NULL;
+    switch (crl_menu_highlight)
+    {
+        case 1: 
+            return
+            tics == 5 ? cr[CR_MENU_BRIGHT3] : NULL;
+
+        case 2:
+            return
+            tics == 5 ? cr[CR_MENU_BRIGHT3] :
+            tics >= 3 ? cr[CR_MENU_BRIGHT2] :
+            tics >= 1 ? cr[CR_MENU_BRIGHT1] : NULL;
+    }
+    
+    return NULL;
 }
-*/
 
 static void M_Reset_Line_Glow (void)
 {
@@ -940,6 +959,21 @@ static void M_Reset_Line_Glow (void)
 
 static byte *M_Item_Glow (const int itemSetOn, const int color)
 {
+    if (!crl_menu_highlight)
+    {
+        return
+            color == GLOW_RED       ? cr[CR_RED] :
+            color == GLOW_DARKRED   ? cr[CR_DARKRED] :
+            color == GLOW_GREEN     ? cr[CR_GREEN] :
+            color == GLOW_YELLOW    ? cr[CR_YELLOW] :
+            color == GLOW_ORANGE    ? cr[CR_ORANGE] :
+            color == GLOW_LIGHTGRAY ? cr[CR_LIGHTGRAY] :
+            color == GLOW_BLUE      ? cr[CR_BLUE2] :
+            color == GLOW_OLIVE     ? cr[CR_OLIVE] :
+            color == GLOW_DARKGREEN ? cr[CR_DARKGREEN] :
+                                      NULL; // color == GLOW_UNCOLORED
+    }
+
     if (itemOn == itemSetOn)
     {
         return
@@ -1052,6 +1086,9 @@ static byte *M_Item_Glow (const int itemSetOn, const int color)
 
 static byte *M_Cursor_Glow (const int tics)
 {
+    if (!crl_menu_highlight)
+    return whichSkull ? NULL : cr[CR_MENU_DARK4];
+
     return
         tics ==  8 || tics ==   7 ? cr[CR_MENU_BRIGHT4] :
         tics ==  6 || tics ==   5 ? cr[CR_MENU_BRIGHT3] :
@@ -1061,6 +1098,35 @@ static byte *M_Cursor_Glow (const int tics)
         tics == -3 || tics ==  -4 ? cr[CR_MENU_DARK2]   :
         tics == -5 || tics ==  -6 ? cr[CR_MENU_DARK3]   :
         tics == -7 || tics ==  -8 ? cr[CR_MENU_DARK4]   : NULL;
+}
+
+enum
+{
+    saveload_border,
+    saveload_slider,
+    saveload_text,
+    saveload_cursor,
+};
+
+static byte *M_SaveLoad_Glow (int itemSetOn, int tics, int type)
+{
+    if (!crl_menu_highlight)
+    return NULL;
+
+    switch (type)
+    {
+        case saveload_border:
+        case saveload_slider:
+            return itemSetOn ? cr[CR_MENU_BRIGHT2] : NULL;
+
+        case saveload_text:
+            return itemSetOn ? cr[CR_MENU_BRIGHT5] : M_Small_Line_Glow(tics);
+
+        case saveload_cursor:
+            return cr[CR_MENU_BRIGHT5];
+    }
+
+    return NULL;
 }
 
 static int M_INT_Slider (int val, int min, int max, int direction, boolean capped)
@@ -3262,17 +3328,17 @@ static void M_CRL_InternalDemos (int choice)
 
 static menuitem_t CRLMenu_Misc[]=
 {
-    { M_MUL1, "INVULNERABILITY EFFECT", M_CRL_Invul,      'i' },
-    { M_MUL2, "PALETTE FLASH EFFECTS",  NULL, 'p' },
-    { M_MUL1, "MOVEMENT BOBBING",       M_CRL_MoveBob,    'm' },
-    { M_MUL1, "WEAPON BOBBING",         M_CRL_WeaponBob,  'w' },
-    { M_MUL2, "COLORBLIND FILTER",      M_CRL_Colorblind, 'c' },
+    { M_MUL1, "INVULNERABILITY EFFECT", M_CRL_Invul,       'i' },
+    { M_MUL2, "PALETTE FLASH EFFECTS",  NULL,              'p' },
+    { M_MUL1, "MOVEMENT BOBBING",       M_CRL_MoveBob,     'm' },
+    { M_MUL1, "WEAPON BOBBING",         M_CRL_WeaponBob,   'w' },
+    { M_MUL2, "COLORBLIND FILTER",      M_CRL_Colorblind,  'c' },
     { M_SKIP, "", 0, '\0' },
     { M_MUL2, "AUTOLOAD WAD FILES",     M_CRL_AutoloadWAD, 'a' },
     { M_MUL2, "AUTOLOAD DEH FILES",     M_CRL_AutoloadDEH, 'a' },
     { M_SKIP, "", 0, '\0' },
-    { M_MUL2, "HIGHLIGHTING EFFECT",    NULL, 'h' },
-    { M_MUL1, "ESC KEY BEHAVIOUR",      M_CRL_MenuEscKey, 'e' },
+    { M_MUL2, "HIGHLIGHTING EFFECT",    M_CRL_Hightlight,  'h' },
+    { M_MUL1, "ESC KEY BEHAVIOUR",      M_CRL_MenuEscKey,  'e' },
 };
 
 static menu_t CRLDef_Misc =
@@ -3344,6 +3410,13 @@ static void M_DrawCRL_Misc (void)
                                 crl_autoload_deh == 2 ? GLOW_GREEN : GLOW_DARKRED));
 
     M_WriteTextCentered(88, "MENU SETTINGS", cr[CR_YELLOW]);
+
+    // Highlighting effect
+    sprintf(str, crl_menu_highlight == 1 ? "STATIC" :
+                 crl_menu_highlight == 2 ? "ANIMATED" : "OFF");
+    M_WriteText (M_ItemRightAlign(str), 97, str,
+                 M_Item_Glow(9, crl_menu_highlight == 1 ? GLOW_YELLOW :
+                                crl_menu_highlight == 2 ? GLOW_GREEN : GLOW_DARKRED));
 
     // ESC key behaviour
     sprintf(str, crl_menu_esc_key ? "GO BACK" : "CLOSE MENU" );
@@ -3417,6 +3490,11 @@ static void M_CRL_AutoloadWAD (int choice)
 static void M_CRL_AutoloadDEH (int choice)
 {
     crl_autoload_deh = M_INT_Slider(crl_autoload_deh, 0, 2, choice, false);
+}
+
+static void M_CRL_Hightlight (int choice)
+{
+    crl_menu_highlight = M_INT_Slider(crl_menu_highlight, 0, 2, choice, false);
 }
 
 static void M_CRL_MenuEscKey (int choice)
@@ -3591,9 +3669,11 @@ static void M_DrawLoad(void)
 
     for (i = 0;i < load_end; i++)
     {
+	// [JN] Highlight selected item (itemOn == i) or apply fading effect.
+	dp_translation = M_SaveLoad_Glow(itemOn == i, 0, saveload_border);
 	M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i+7);
-	M_WriteText(LoadDef.x,LoadDef.y+LINEHEIGHT*i,savegamestrings[i], itemOn == i ?
-	            cr[CR_MENU_BRIGHT5] : M_Small_Line_Glow(currentMenu->menuitems[i].tics));
+	M_WriteText(LoadDef.x,LoadDef.y+LINEHEIGHT*i,savegamestrings[i],
+	            M_SaveLoad_Glow(itemOn == i, currentMenu->menuitems[i].tics, saveload_text));
     }
 
     M_DrawSaveLoadBottomLine();
@@ -3669,15 +3749,18 @@ static void M_DrawSave(void)
     V_DrawShadowedPatch(72, 7, W_CacheLumpName(m_saveg, PU_CACHE), m_saveg);
     for (i = 0;i < load_end; i++)
     {
+	// [JN] Highlight selected item (itemOn == i) or apply fading effect.
+	dp_translation = M_SaveLoad_Glow(itemOn == i, 0, saveload_border);
 	M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i+7);
-	M_WriteText(LoadDef.x,LoadDef.y+LINEHEIGHT*i,savegamestrings[i], itemOn == i ?
-	            cr[CR_MENU_BRIGHT5] : M_Small_Line_Glow(currentMenu->menuitems[i].tics));
+	M_WriteText(LoadDef.x,LoadDef.y+LINEHEIGHT*i,savegamestrings[i],
+	            M_SaveLoad_Glow(itemOn == i, currentMenu->menuitems[i].tics, saveload_text));
     }
 	
     if (saveStringEnter)
     {
 	i = M_StringWidth(savegamestrings[saveSlot]);
-	M_WriteText(LoadDef.x + i,LoadDef.y+LINEHEIGHT*saveSlot,"_", cr[CR_MENU_BRIGHT5]);
+	// [JN] Highlight "_" cursor, line is always active while typing.
+	M_WriteText(LoadDef.x + i,LoadDef.y+LINEHEIGHT*saveSlot,"_", M_SaveLoad_Glow(0, 0, saveload_cursor));
 	// [JN] Forcefully hide the mouse cursor while typing.
 	menu_mouse_allow = false;
     }
@@ -4285,11 +4368,7 @@ M_DrawThermo
     const char	*m_thermo = DEH_String("M_THERMO");
 
     // [JN] Highlight active slider and gem.
-    // Not in vanilla options menu, though.
-    if (itemPos == itemOn && currentMenu != &OptionsDef)
-    {
-        dp_translation = cr[CR_MENU_BRIGHT2];
-    }
+    dp_translation = M_SaveLoad_Glow(itemPos == itemOn, 0, saveload_slider);
 
     xx = x;
     V_DrawShadowedPatch(xx, y, W_CacheLumpName(m_therml, PU_CACHE), m_therml);
@@ -4308,7 +4387,6 @@ M_DrawThermo
     }
 
     V_DrawPatch((x + 8) + thermDot * 8, y, W_CacheLumpName(m_thermo, PU_CACHE), m_thermo);
-
     dp_translation = NULL;
 }
 
@@ -5781,7 +5859,9 @@ void M_Drawer (void)
 
             if (name[0])
             {
+                dp_translation = M_Big_Line_Glow(currentMenu->menuitems[i].tics);
                 V_DrawShadowedPatch(x, y, W_CacheLumpName(name, PU_CACHE), name);
+                dp_translation = NULL;
             }
             y += LINEHEIGHT;
         }
@@ -5843,18 +5923,23 @@ void M_Ticker (void)
     }
 
     // [JN] Menu item fading effect:
-
+    // Keep menu item bright or decrease tics for fading effect.
     for (int i = 0 ; i < currentMenu->numitems ; i++)
     {
-        if (itemOn == i)
+        if (crl_menu_highlight == 1)
         {
-            // Keep menu item bright
-            currentMenu->menuitems[i].tics = 5;
+            currentMenu->menuitems[i].tics =
+                (itemOn == i) ? 5 : 0;
+        }
+        else
+        if (crl_menu_highlight == 2)
+        {
+            currentMenu->menuitems[i].tics = (itemOn == i) ? 5 :
+                (currentMenu->menuitems[i].tics > 0 ? currentMenu->menuitems[i].tics - 1 : 0);
         }
         else
         {
-            // Decrease tics for glowing effect
-            currentMenu->menuitems[i].tics--;
+            currentMenu->menuitems[i].tics = 0;
         }
     }
 
