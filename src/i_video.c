@@ -811,7 +811,6 @@ void I_FinishUpdate (void)
 {
     static int lasttic;
     int tics;
-    int i;
 
     if (!initialized)
         return;
@@ -861,7 +860,7 @@ void I_FinishUpdate (void)
 
     if (display_fps_dots)
     {
-	i = I_GetTime();
+	int i = I_GetTime();
 	tics = i - lasttic;
 	lasttic = i;
 	if (tics > 20) tics = 20;
@@ -873,22 +872,22 @@ void I_FinishUpdate (void)
     }
 
 	// [crispy] [AM] Real FPS counter
+	if (crl_showfps)
 	{
 		static int lastmili;
 		static int fpscount;
-		int mili;
 
 		fpscount++;
 
-		i = SDL_GetTicks();
-		mili = i - lastmili;
+		const uint32_t ui = SDL_GetTicks();
+		const int mili = ui - lastmili;
 
 		// Update FPS counter every 1/4th of second
 		if (mili >= 250)
 		{
 			CRL_fps = (fpscount * 1000) / mili;
 			fpscount = 0;
-			lastmili = i;
+			lastmili = ui;
 		}
 	}
 
