@@ -479,9 +479,9 @@ extern divline_t trace;
 extern boolean P_SetMobjState (mobj_t *mobj, statenum_t state);
 extern mobj_t *P_SpawnMissile (mobj_t *source, mobj_t *dest, mobjtype_t type);
 extern mobj_t *P_SpawnMobj (fixed_t x, fixed_t y, fixed_t z, mobjtype_t type);
-extern mobj_t *P_SubstNullMobj (mobj_t *th);
+extern mobj_t *P_SubstNullMobj (mobj_t *mobj);
 extern void    P_MobjThinker (mobj_t *mobj);
-extern void    P_RemoveMobj (mobj_t *th);
+extern void    P_RemoveMobj (mobj_t *mobj);
 extern void    P_SpawnBlood (fixed_t x, fixed_t y, fixed_t z, int damage);
 extern void    P_SpawnMapThing (mapthing_t *mthing);
 extern void    P_SpawnPlayer (const mapthing_t *mthing);
@@ -551,8 +551,8 @@ extern plat_t *activeplats[MAXPLATS];
 // P_PSPR
 // -----------------------------------------------------------------------------
 
-extern void P_SetupPsprites (player_t *curplayer);
-extern void P_MovePsprites (player_t *curplayer);
+extern void P_SetupPsprites (player_t *player);
+extern void P_MovePsprites (player_t *player);
 extern void P_DropWeapon (player_t *player);
 
 extern void A_Light0 (player_t *player, pspdef_t *psp);
