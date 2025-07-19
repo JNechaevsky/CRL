@@ -132,7 +132,7 @@ static byte *CRL_PowerupColor (const int val1, const int val2)
 static byte *CRL_WidgetColor (const int i)
 {
     static byte *player_colors[4];
-    static int   plyr_indices[] = {widget_plyr1, widget_plyr2, widget_plyr3, widget_plyr4};
+    static const int plyr_indices[] = {widget_plyr1, widget_plyr2, widget_plyr3, widget_plyr4};
 
     player_colors[0] = cr[CR_GREEN];
     player_colors[1] = cr[CR_GRAY];
@@ -372,7 +372,7 @@ void CRL_StatDrawer (void)
 
     if (crl_widget_playstate)
     {
-        int yy = 0;
+        int yy1 = 0;
 
         // Icon of Sin spitter targets (32 max)
         if ((crl_widget_playstate == 1 
@@ -389,7 +389,7 @@ void CRL_StatDrawer (void)
         // counter is active to better line up with menu lines.
         if (!CRL_brain_counter)
         {
-            yy -= 5;
+            yy1 -= 5;
         }
 
         // Buttons (16 max)
@@ -398,9 +398,9 @@ void CRL_StatDrawer (void)
         {
             char btn[32];
 
-            M_WriteText(0, 66+yy, "BTN:", CRL_StatColor_Str(CRL_buttons_counter, 16));
+            M_WriteText(0, 66+yy1, "BTN:", CRL_StatColor_Str(CRL_buttons_counter, 16));
             M_snprintf(btn, 16, "%d/16", CRL_buttons_counter);
-            M_WriteText(32, 66+yy, btn, CRL_StatColor_Val(CRL_buttons_counter, 16));
+            M_WriteText(32, 66+yy1, btn, CRL_StatColor_Val(CRL_buttons_counter, 16));
         }
 
         // Plats (30 max)
@@ -409,9 +409,9 @@ void CRL_StatDrawer (void)
         {
             char plt[32];
 
-            M_WriteText(0, 75+yy, "PLT:", CRL_StatColor_Str(CRL_plats_counter, CRL_MaxPlats));
+            M_WriteText(0, 75+yy1, "PLT:", CRL_StatColor_Str(CRL_plats_counter, CRL_MaxPlats));
             M_snprintf(plt, 16, "%d/%d", CRL_plats_counter, CRL_MaxPlats);
-            M_WriteText(32, 75+yy, plt, CRL_StatColor_Val(CRL_plats_counter, CRL_MaxPlats));
+            M_WriteText(32, 75+yy1, plt, CRL_StatColor_Val(CRL_plats_counter, CRL_MaxPlats));
         }
 
         // Animated lines (64 max)
@@ -420,9 +420,9 @@ void CRL_StatDrawer (void)
         {
             char ani[32];
 
-            M_WriteText(0, 84+yy, "ANI:", CRL_StatColor_Str(CRL_lineanims_counter, CRL_MaxAnims));
+            M_WriteText(0, 84+yy1, "ANI:", CRL_StatColor_Str(CRL_lineanims_counter, CRL_MaxAnims));
             M_snprintf(ani, 16, "%d/%d", CRL_lineanims_counter, CRL_MaxAnims);
-            M_WriteText(32, 84+yy, ani, CRL_StatColor_Val(CRL_lineanims_counter, CRL_MaxAnims));
+            M_WriteText(32, 84+yy1, ani, CRL_StatColor_Val(CRL_lineanims_counter, CRL_MaxAnims));
         }
     }
 
@@ -544,7 +544,7 @@ void CRL_StatDrawer (void)
     if (crl_widget_kis == 1
     || (crl_widget_kis == 2 && automapactive))
     {
-        const int yy = automapactive ? 8 : -1;
+        const int yy4 = automapactive ? 8 : -1;
 
         // Apply translucency while Save/Load menu is active.
         dp_translucent = savemenuactive;
@@ -557,20 +557,20 @@ void CRL_StatDrawer (void)
 
             // Kills:
             sprintf(str1, "K ");
-            M_WriteText(0, 159 - yy, str1, CRL_WidgetColor(widget_kis_str));
+            M_WriteText(0, 159 - yy4, str1, CRL_WidgetColor(widget_kis_str));
             CRL_WidgetKISCount(str2, sizeof(str2), widget_kis_kills);
-            M_WriteText(0 + M_StringWidth(str1), 159 - yy, str2, CRL_WidgetColor(widget_kills));
+            M_WriteText(0 + M_StringWidth(str1), 159 - yy4, str2, CRL_WidgetColor(widget_kills));
 
             // Items:
             if (crl_widget_kis_items)
             {
             sprintf(str3, " I ");
             M_WriteText(M_StringWidth(str1) + 
-                        M_StringWidth(str2), 159 - yy, str3, CRL_WidgetColor(widget_kis_str));
+                        M_StringWidth(str2), 159 - yy4, str3, CRL_WidgetColor(widget_kis_str));
             CRL_WidgetKISCount(str4, sizeof(str4), widget_kis_items);
             M_WriteText(M_StringWidth(str1) +
                         M_StringWidth(str2) +
-                        M_StringWidth(str3), 159 - yy, str4, CRL_WidgetColor(widget_items));
+                        M_StringWidth(str3), 159 - yy4, str4, CRL_WidgetColor(widget_items));
             }
             else
             {
@@ -583,14 +583,14 @@ void CRL_StatDrawer (void)
             M_WriteText(M_StringWidth(str1) +
                         M_StringWidth(str2) +
                         M_StringWidth(str3) +
-                        M_StringWidth(str4), 159 - yy, str5, CRL_WidgetColor(widget_kis_str));
+                        M_StringWidth(str4), 159 - yy4, str5, CRL_WidgetColor(widget_kis_str));
 
             CRL_WidgetKISCount(str6, sizeof(str6), widget_kis_secrets);
             M_WriteText(M_StringWidth(str1) +
                         M_StringWidth(str2) + 
                         M_StringWidth(str3) +
                         M_StringWidth(str4) +
-                        M_StringWidth(str5), 159 - yy, str6, CRL_WidgetColor(widget_secret));
+                        M_StringWidth(str5), 159 - yy4, str6, CRL_WidgetColor(widget_secret));
         }
         else
         {
@@ -603,10 +603,10 @@ void CRL_StatDrawer (void)
             if (playeringame[0])
             {
                 sprintf(str1, "G ");
-                M_WriteText(0, 159 - yy, str1, CRL_WidgetColor(widget_plyr1));
+                M_WriteText(0, 159 - yy4, str1, CRL_WidgetColor(widget_plyr1));
 
                 sprintf(str2, "%d ", CRLWidgets.frags_g);
-                M_WriteText(M_StringWidth(str1), 159 - yy, str2, CRL_WidgetColor(widget_plyr1));
+                M_WriteText(M_StringWidth(str1), 159 - yy4, str2, CRL_WidgetColor(widget_plyr1));
             }
             // Indigo
             if (playeringame[1])
@@ -614,13 +614,13 @@ void CRL_StatDrawer (void)
                 sprintf(str3, "I ");
                 M_WriteText(M_StringWidth(str1) +
                             M_StringWidth(str2),
-                            159 - yy, str3, CRL_WidgetColor(widget_plyr2));
+                            159 - yy4, str3, CRL_WidgetColor(widget_plyr2));
 
                 sprintf(str4, "%d ", CRLWidgets.frags_i);
                 M_WriteText(M_StringWidth(str1) +
                             M_StringWidth(str2) +
                             M_StringWidth(str3),
-                            159 - yy, str4, CRL_WidgetColor(widget_plyr2));
+                            159 - yy4, str4, CRL_WidgetColor(widget_plyr2));
             }
             // Brown
             if (playeringame[2])
@@ -630,7 +630,7 @@ void CRL_StatDrawer (void)
                             M_StringWidth(str2) +
                             M_StringWidth(str3) +
                             M_StringWidth(str4),
-                            159 - yy, str5, CRL_WidgetColor(widget_plyr3));
+                            159 - yy4, str5, CRL_WidgetColor(widget_plyr3));
 
                 sprintf(str6, "%d ", CRLWidgets.frags_b);
                 M_WriteText(M_StringWidth(str1) +
@@ -638,7 +638,7 @@ void CRL_StatDrawer (void)
                             M_StringWidth(str3) +
                             M_StringWidth(str4) +
                             M_StringWidth(str5),
-                            159 - yy, str6, CRL_WidgetColor(widget_plyr3));
+                            159 - yy4, str6, CRL_WidgetColor(widget_plyr3));
             }
             // Red
             if (playeringame[3])
@@ -650,7 +650,7 @@ void CRL_StatDrawer (void)
                             M_StringWidth(str4) +
                             M_StringWidth(str5) +
                             M_StringWidth(str6),
-                            159 - yy, str7, CRL_WidgetColor(widget_plyr4));
+                            159 - yy4, str7, CRL_WidgetColor(widget_plyr4));
 
                 sprintf(str8, "%d ", CRLWidgets.frags_r);
                 M_WriteText(M_StringWidth(str1) +
@@ -660,7 +660,7 @@ void CRL_StatDrawer (void)
                             M_StringWidth(str5) +
                             M_StringWidth(str6) +
                             M_StringWidth(str7),
-                            159 - yy, str8, CRL_WidgetColor(widget_plyr4));
+                            159 - yy4, str8, CRL_WidgetColor(widget_plyr4));
             }
         }
         
@@ -818,7 +818,7 @@ static byte *CRL_HealthColor (const int val1, const int val2)
 void CRL_DrawTargetsHealth (void)
 {
     char str[16];
-    player_t *player = &players[displayplayer];
+    const player_t *const player = &players[displayplayer];
     byte *color;
 
     if (player->targetsheathTics <= 0 || !player->targetsheath)

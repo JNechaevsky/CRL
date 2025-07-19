@@ -153,7 +153,7 @@ void T_MoveCeiling (ceiling_t* ceiling)
 //
 int
 EV_DoCeiling
-( line_t*	line,
+( const line_t*	line,
   ceiling_e	type )
 {
     int		secnum;
@@ -250,7 +250,7 @@ void P_AddActiveCeiling(ceiling_t* c)
 //
 // Remove a ceiling's thinker
 //
-void P_RemoveActiveCeiling(ceiling_t* c)
+void P_RemoveActiveCeiling(const ceiling_t* c)
 {
     int		i;
 	
@@ -271,7 +271,7 @@ void P_RemoveActiveCeiling(ceiling_t* c)
 //
 // Restart a ceiling that's in-stasis
 //
-void P_ActivateInStasisCeiling(line_t* line)
+void P_ActivateInStasisCeiling(const line_t* line)
 {
     int		i;
 	
@@ -294,7 +294,7 @@ void P_ActivateInStasisCeiling(line_t* line)
 // EV_CeilingCrushStop
 // Stop a ceiling from crushing!
 //
-int	EV_CeilingCrushStop(line_t	*line)
+int	EV_CeilingCrushStop(const line_t	*line)
 {
     int		i;
     int		rtn;

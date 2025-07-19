@@ -91,16 +91,18 @@ void P_RemoveThinker (thinker_t* thinker)
 // P_AllocateThinker
 // Allocates memory and adds a new thinker at the end of the list.
 //
+/*
 void P_AllocateThinker (thinker_t*	thinker)
 {
 }
+*/
 
 
 
 //
 // P_RunThinkers
 //
-void P_RunThinkers (void)
+static void P_RunThinkers (void)
 {
     thinker_t *currentthinker, *nextthinker;
 
@@ -110,7 +112,7 @@ void P_RunThinkers (void)
     // [JN] CRL - do not run other than player thinkers in freeze mode.
     if (crl_freeze)
     {
-        mobj_t *mo = (mobj_t *)currentthinker;
+        const mobj_t *mo = (mobj_t *)currentthinker;
 
         if (mo->type != MT_PLAYER || currentthinker->function.acp1 != (actionf_p1) P_MobjThinker)
         {

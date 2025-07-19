@@ -54,7 +54,7 @@ int	clipammo[NUMAMMO] = {10, 4, 20, 1};
 // Returns false if the ammo can't be picked up at all
 //
 
-boolean
+static boolean
 P_GiveAmmo
 ( player_t*	player,
   ammotype_t	ammo,
@@ -148,7 +148,7 @@ P_GiveAmmo
 // P_GiveWeapon
 // The weapon name may have a MF_DROPPED flag ored in.
 //
-boolean
+static boolean
 P_GiveWeapon
 ( player_t*	player,
   weapontype_t	weapon,
@@ -209,7 +209,7 @@ P_GiveWeapon
 // P_GiveBody
 // Returns false if the body isn't needed at all
 //
-boolean
+static boolean
 P_GiveBody
 ( player_t*	player,
   int		num )
@@ -232,7 +232,7 @@ P_GiveBody
 // Returns false if the armor is worse
 // than the current armor.
 //
-boolean
+static boolean
 P_GiveArmor
 ( player_t*	player,
   int		armortype )
@@ -254,7 +254,7 @@ P_GiveArmor
 //
 // P_GiveCard
 //
-void
+static void
 P_GiveCard
 ( player_t*	player,
   card_t	card )
@@ -664,7 +664,7 @@ P_TouchSpecialThing
 //
 // KillMobj
 //
-void
+static void
 P_KillMobj
 ( mobj_t*	source,
   mobj_t*	target )

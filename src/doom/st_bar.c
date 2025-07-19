@@ -902,7 +902,7 @@ void CRL_ReloadPalette (void)
 // ST_doPaletteStuff
 // -----------------------------------------------------------------------------
 
-void ST_doPaletteStuff (void)
+static void ST_doPaletteStuff (void)
 {
     int palette;
     int bzc;
@@ -1564,12 +1564,12 @@ static void ST_loadCallback(const char *lumpname, patch_t **variable)
     *variable = W_CacheLumpName(lumpname, PU_STATIC);
 }
 
-void ST_loadGraphics(void)
+static void ST_loadGraphics(void)
 {
     ST_loadUnloadGraphics(ST_loadCallback);
 }
 
-void ST_loadData(void)
+static void ST_loadData(void)
 {
     lu_palette = W_GetNumForName (DEH_String("PLAYPAL"));
     ST_loadGraphics();
@@ -1581,7 +1581,7 @@ static void ST_unloadCallback(const char *lumpname, patch_t **variable)
     *variable = NULL;
 }
 
-void ST_unloadGraphics(void)
+static void ST_unloadGraphics(void)
 {
     ST_loadUnloadGraphics(ST_unloadCallback);
 }

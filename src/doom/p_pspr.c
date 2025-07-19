@@ -39,7 +39,7 @@
 //
 // P_SetPsprite
 //
-void
+static void
 P_SetPsprite
 ( player_t*	player,
   int		position,
@@ -90,6 +90,7 @@ P_SetPsprite
 //
 // P_CalcSwing
 //	
+/*
 fixed_t		swingx;
 fixed_t		swingy;
 
@@ -110,6 +111,7 @@ void P_CalcSwing (player_t*	player)
     angle = (FINEANGLES/70*realleveltime+FINEANGLES/2)&FINEMASK;
     swingy = -FixedMul ( swingx, finesine[angle]);
 }
+*/
 
 
 
@@ -119,7 +121,7 @@ void P_CalcSwing (player_t*	player)
 // from the bottom of the screen.
 // Uses player
 //
-void P_BringUpWeapon (player_t* player)
+static void P_BringUpWeapon (player_t* player)
 {
     statenum_t	newstate;
 	
@@ -145,7 +147,7 @@ void P_BringUpWeapon (player_t* player)
 // Returns true if there is enough ammo to shoot.
 // If not, selects the next weapon to use.
 //
-boolean P_CheckAmmo (player_t* player)
+static boolean P_CheckAmmo (player_t* player)
 {
     ammotype_t		ammo;
     int			count;
@@ -230,7 +232,7 @@ boolean P_CheckAmmo (player_t* player)
 //
 // P_FireWeapon.
 //
-void P_FireWeapon (player_t* player)
+static void P_FireWeapon (player_t* player)
 {
     statenum_t	newstate;
 	
@@ -617,7 +619,7 @@ A_FirePlasma
 fixed_t		bulletslope;
 
 
-void P_BulletSlope (mobj_t*	mo)
+static void P_BulletSlope (mobj_t*	mo)
 {
     angle_t	an;
     
@@ -641,7 +643,7 @@ void P_BulletSlope (mobj_t*	mo)
 //
 // P_GunShot
 //
-void
+static void
 P_GunShot
 ( mobj_t*	mo,
   boolean	accurate )
@@ -776,7 +778,7 @@ A_CloseShotgun2
 void
 A_FireCGun
 ( player_t*	player,
-  pspdef_t*	psp ) 
+  const pspdef_t*	psp ) 
 {
     S_StartSound (player->mo, sfx_pistol);
 

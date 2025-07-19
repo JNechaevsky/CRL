@@ -4165,8 +4165,6 @@ static void M_Options(int choice)
 //
 static void M_ChangeMessages(int choice)
 {
-    // warning: unused parameter `int choice'
-    choice = 0;
     showMessages = 1 - showMessages;
 	
 	CRL_SetMessage(&players[consoleplayer],
@@ -4197,7 +4195,6 @@ static void M_EndGameResponse(int key)
 
 static void M_EndGame(int choice)
 {
-    choice = 0;
     if (!usergame)
     {
 	S_StartSound(NULL,sfx_oof);
@@ -4221,19 +4218,16 @@ static void M_EndGame(int choice)
 //
 static void M_ReadThis(int choice)
 {
-    choice = 0;
     M_SetupNextMenu(&ReadDef1);
 }
 
 static void M_ReadThis2(int choice)
 {
-    choice = 0;
     M_SetupNextMenu(&ReadDef2);
 }
 
 static void M_FinishReadThis(int choice)
 {
-    choice = 0;
     M_SetupNextMenu(&MainDef);
 }
 
@@ -4337,7 +4331,6 @@ static void M_ChangeSensitivity(int choice)
 
 static void M_ChangeDetail(int choice)
 {
-    choice = 0;
     detailLevel = 1 - detailLevel;
 
     R_SetViewSize (crl_screen_size, detailLevel);
@@ -4553,9 +4546,9 @@ void M_WriteTextCentered (const int y, const char *string, byte *table)
             break;
         }
 
-        c = c - HU_FONTSTART;
+        c = toupper(c) - HU_FONTSTART;
 
-        if (c < 0 || c> HU_FONTSIZE)
+        if (c < 0 || c>= HU_FONTSIZE)
         {
             continue;
         }

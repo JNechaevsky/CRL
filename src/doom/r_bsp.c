@@ -91,7 +91,7 @@ cliprange_t	solidsegs[MAXSEGS];
 //  e.g. single sided LineDefs (middle texture)
 //  that entirely block the view.
 // 
-void
+static void
 R_ClipSolidWallSegment
 ( int			first,
   int			last, seg_t* __line, subsector_t* __sub)
@@ -184,12 +184,12 @@ R_ClipSolidWallSegment
 // Does handle windows,
 //  e.g. LineDefs with upper and lower texture.
 //
-void
+static void
 R_ClipPassWallSegment
 ( int	first,
   int	last , seg_t* __line, subsector_t* __sub)
 {
-    cliprange_t*	start;
+    const cliprange_t*	start;
 
     // Find the first range that touches the range
     //  (adjacent pixels are touching).
@@ -243,7 +243,7 @@ void R_ClearClipSegs (void)
 }
 
 // [AM] Interpolate the passed sector, if prudent.
-void R_MaybeInterpolateSector(sector_t* sector)
+static void R_MaybeInterpolateSector(sector_t* sector)
 {
     if (crl_uncapped_fps &&
         // Only if we moved the sector last tic.
@@ -275,7 +275,7 @@ void R_MaybeInterpolateSector(sector_t* sector)
 // Clips the given segment
 // and adds any visible pieces to the line list.
 //
-void R_AddLine (seg_t*	line, subsector_t* __sub)
+static void R_AddLine (seg_t*	line, subsector_t* __sub)
 {
     int			x1;
     int			x2;
@@ -386,7 +386,7 @@ void R_AddLine (seg_t*	line, subsector_t* __sub)
 // Returns true
 //  if some part of the bbox might be visible.
 //
-int	checkcoord[12][4] =
+static const int	checkcoord[12][4] =
 {
     {3,0,2,1},
     {3,0,2,0},
@@ -402,7 +402,7 @@ int	checkcoord[12][4] =
 };
 
 
-boolean R_CheckBBox (fixed_t*	bspcoord)
+static boolean R_CheckBBox (const fixed_t*	bspcoord)
 {
     int			boxx;
     int			boxy;
@@ -418,7 +418,7 @@ boolean R_CheckBBox (fixed_t*	bspcoord)
     angle_t		span;
     angle_t		tspan;
     
-    cliprange_t*	start;
+    const cliprange_t*	start;
 
     int			sx1;
     int			sx2;
@@ -518,7 +518,7 @@ boolean R_CheckBBox (fixed_t*	bspcoord)
 // Add sprites of things in sector.
 // Draw one or more line segments.
 //
-void R_Subsector (int num)
+static void R_Subsector (int num)
 {
     int			count;
     seg_t*		line;
@@ -589,7 +589,7 @@ void R_Subsector (int num)
 // Just call with BSP root.
 void R_RenderBSPNode (int bspnum)
 {
-    node_t*	bsp;
+    const node_t*	bsp;
     int		side;
 
     // Found a subsector?

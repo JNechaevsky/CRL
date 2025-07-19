@@ -154,7 +154,7 @@ int
 P_PointOnDivlineSide
 ( fixed_t	x,
   fixed_t	y,
-  divline_t*	line )
+  const divline_t*	line )
 {
     fixed_t	dx;
     fixed_t	dy;
@@ -290,10 +290,10 @@ fixed_t openrange;
 fixed_t	lowfloor;
 
 
-void P_LineOpening (line_t* linedef)
+void P_LineOpening (const line_t* linedef)
 {
-    sector_t*	front;
-    sector_t*	back;
+    const sector_t*	front;
+    const sector_t*	back;
 	
     if (linedef->sidenum[1] == -1)
     {
@@ -541,7 +541,7 @@ intercept_t*	intercept_p;
 divline_t 	trace;
 boolean 	earlyout;
 
-static void InterceptsOverrun(int num_intercepts, intercept_t *intercept);
+static void InterceptsOverrun(int num_intercepts, const intercept_t *const intercept);
 
 // -----------------------------------------------------------------------------
 // [crispy] remove INTERCEPTS limit
@@ -570,7 +570,7 @@ static void check_intercept (void)
 // are on opposite sides of the trace.
 // Returns true if earlyout and a solid line hit.
 //
-boolean
+static boolean
 PIT_AddLineIntercepts (line_t* ld)
 {
     int			s1;
@@ -654,7 +654,7 @@ PIT_AddLineIntercepts (line_t* ld)
 //
 // PIT_AddThingIntercepts
 //
-boolean PIT_AddThingIntercepts (mobj_t* thing)
+static boolean PIT_AddThingIntercepts (mobj_t* thing)
 {
     fixed_t		x1;
     fixed_t		y1;
@@ -749,7 +749,7 @@ boolean PIT_AddThingIntercepts (mobj_t* thing)
 // Returns true if the traverser function returns true
 // for all lines.
 // 
-boolean
+static boolean
 P_TraverseIntercepts
 ( traverser_t	func,
   fixed_t	maxfrac )
@@ -894,7 +894,7 @@ static void InterceptsMemoryOverrun(int location, int value)
 
 // Emulate overruns of the intercepts[] array.
 
-static void InterceptsOverrun(int num_intercepts, intercept_t *intercept)
+static void InterceptsOverrun(int num_intercepts, const intercept_t *const intercept)
 {
     int location;
 

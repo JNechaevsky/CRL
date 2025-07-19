@@ -111,7 +111,7 @@ void GAME_IdentifySeg(void* __what, CRLSegData_t* __info)
 void GAME_IdentifySubSector(void* __what, CRLSubData_t* __info)
 {
 	int i;
-	subsector_t* s = (subsector_t*)__what;
+	const subsector_t* s = (subsector_t*)__what;
 	
 	// Set
 	__info->id = s - subsectors;
@@ -281,7 +281,7 @@ R_RenderMaskedSegRange
 #define HEIGHTBITS		12
 #define HEIGHTUNIT		(1<<HEIGHTBITS)
 
-void R_RenderSegLoop (void)
+static void R_RenderSegLoop (void)
 {
     angle_t		angle;
     unsigned		index;
@@ -507,8 +507,8 @@ R_StoreWallRange
         if (need > maxopenings)
         {
             drawseg_t *ds;                //jff 8/9/98 needed for fix from ZDoom
-            int *oldopenings = openings; // dropoff overflow
-            int *oldlast = lastopening; // dropoff overflow
+            const int *const oldopenings = openings; // dropoff overflow
+            const int *const oldlast = lastopening; // dropoff overflow
 
             do
             {

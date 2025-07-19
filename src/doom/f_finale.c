@@ -108,10 +108,10 @@ static textscreen_t textscreens[] =
 const char *finaletext;
 const char *finaleflat;
 
-void	F_StartCast (void);
-void	F_CastTicker (void);
-boolean F_CastResponder (event_t *ev);
-void	F_CastDrawer (void);
+static void	F_StartCast (void);
+static void	F_CastTicker (void);
+static boolean F_CastResponder (const event_t *ev);
+static void	F_CastDrawer (void);
 
 //
 // F_StartFinale
@@ -180,7 +180,7 @@ void F_StartFinale (void)
 
 
 
-boolean F_Responder (event_t *event)
+boolean F_Responder (const event_t *event)
 {
     if (finalestage == F_STAGE_CAST)
 	return F_CastResponder (event);
@@ -354,9 +354,9 @@ void F_Ticker (void)
 // F_TextWrite
 //
 
-void F_TextWrite (void)
+static void F_TextWrite (void)
 {
-    byte*	src;
+    const byte*	src;
     pixel_t*	dest;
     
     int		x,y,w;
@@ -470,7 +470,7 @@ boolean		castattacking;
 //
 // F_StartCast
 //
-void F_StartCast (void)
+static void F_StartCast (void)
 {
     wipegamestate = -1;		// force a screen wipe
     castnum = 0;
@@ -488,7 +488,7 @@ void F_StartCast (void)
 //
 // F_CastTicker
 //
-void F_CastTicker (void)
+static void F_CastTicker (void)
 {
     int		st;
     int		sfx;
@@ -595,7 +595,7 @@ void F_CastTicker (void)
 // F_CastResponder
 //
 
-boolean F_CastResponder (event_t* ev)
+static boolean F_CastResponder (const event_t* ev)
 {
     if (ev->type != ev_keydown)
 	return false;
@@ -620,7 +620,7 @@ boolean F_CastResponder (event_t* ev)
 // F_CastDrawer
 //
 
-void F_CastDrawer (void)
+static void F_CastDrawer (void)
 {
     spritedef_t*	sprdef;
     spriteframe_t*	sprframe;
@@ -653,14 +653,14 @@ void F_CastDrawer (void)
 //
 // F_DrawPatchCol
 //
-void
+static void
 F_DrawPatchCol
 ( int		x,
   patch_t*	patch,
   int		col )
 {
     column_t*	column;
-    byte*	source;
+    const byte*	source;
     pixel_t*	dest;
     pixel_t*	desttop;
     int		count;
@@ -688,7 +688,7 @@ F_DrawPatchCol
 //
 // F_BunnyScroll
 //
-void F_BunnyScroll (void)
+static void F_BunnyScroll (void)
 {
     signed int  scrolled;
     int		x;

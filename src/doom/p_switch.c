@@ -134,7 +134,7 @@ void P_InitSwitchList(void)
 //
 // Start a button counting down till it turns off.
 //
-void
+static void
 P_StartButton
 ( line_t*	line,
   bwhere_e	w,

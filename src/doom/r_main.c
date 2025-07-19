@@ -134,7 +134,7 @@ int
 R_PointOnSide
 ( fixed_t	x,
   fixed_t	y,
-  node_t*	node )
+  const node_t*	node )
 {
     fixed_t	dx;
     fixed_t	dy;
@@ -466,7 +466,7 @@ fixed_t R_ScaleFromGlobalAngle (angle_t visangle)
 //
 // R_InitTextureMapping
 //
-void R_InitTextureMapping (void)
+static void R_InitTextureMapping (void)
 {
     int			i;
     int			x;
@@ -536,24 +536,24 @@ void R_InitTextureMapping (void)
 //
 #define DISTMAP		2
 
-void R_InitLightTables (void)
+static void R_InitLightTables (void)
 {
     int		i;
     int		j;
     int		level;
-    int		startmap; 	
+    int		start_map; 	
     int		scale;
     
     // Calculate the light levels to use
     //  for each level / distance combination.
     for (i=0 ; i< LIGHTLEVELS ; i++)
     {
-	startmap = ((LIGHTLEVELS-1-i)*2)*NUMCOLORMAPS/LIGHTLEVELS;
+	start_map = ((LIGHTLEVELS-1-i)*2)*NUMCOLORMAPS/LIGHTLEVELS;
 	for (j=0 ; j<MAXLIGHTZ ; j++)
 	{
 	    scale = FixedDiv ((SCREENWIDTH/2*FRACUNIT), (j+1)<<LIGHTZSHIFT);
 	    scale >>= LIGHTSCALESHIFT;
-	    level = startmap - scale/DISTMAP;
+	    level = start_map - scale/DISTMAP;
 	    
 	    if (level < 0)
 		level = 0;
@@ -613,7 +613,7 @@ void R_ExecuteSetViewSize (void)
     int		i;
     int		j;
     int		level;
-    int		startmap; 	
+    int		start_map; 	
 
     setsizeneeded = false;
 
@@ -682,10 +682,10 @@ void R_ExecuteSetViewSize (void)
     //  for each level / scale combination.
     for (i=0 ; i< LIGHTLEVELS ; i++)
     {
-	startmap = ((LIGHTLEVELS-1-i)*2)*NUMCOLORMAPS/LIGHTLEVELS;
+	start_map = ((LIGHTLEVELS-1-i)*2)*NUMCOLORMAPS/LIGHTLEVELS;
 	for (j=0 ; j<MAXLIGHTSCALE ; j++)
 	{
-	    level = startmap - j*SCREENWIDTH/(viewwidth<<detailshift)/DISTMAP;
+	    level = start_map - j*SCREENWIDTH/(viewwidth<<detailshift)/DISTMAP;
 	    
 	    if (level < 0)
 		level = 0;
@@ -778,7 +778,7 @@ static inline boolean CheckLocalView(const player_t *player)
 //
 // R_SetupFrame
 //
-void R_SetupFrame (player_t* player)
+static void R_SetupFrame (player_t* player)
 {		
     int		i;
     

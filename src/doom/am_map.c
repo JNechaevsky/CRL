@@ -618,7 +618,7 @@ void AM_Stop (void)
 // AM_Start
 // -----------------------------------------------------------------------------
 
-void AM_Start (void)
+static void AM_Start (void)
 {
     static int lastlevel = -1, lastepisode = -1;
 
@@ -669,7 +669,7 @@ static void AM_maxOutWindowScale (void)
 // Handle events (user inputs) in automap mode.
 // -----------------------------------------------------------------------------
 
-boolean AM_Responder (event_t *ev)
+boolean AM_Responder (const event_t *ev)
 {
     int         rc;
     static int  bigstate=0;
@@ -1278,14 +1278,14 @@ static void AM_drawFline (fline_t *fl, int color)
     int ay;
     int d;
 
-    static int yuck = 0;
-
     // For debugging only
     if (fl->a.x < 0 || fl->a.x >= f_w
     ||  fl->a.y < 0 || fl->a.y >= f_h
     ||  fl->b.x < 0 || fl->b.x >= f_w
     ||  fl->b.y < 0 || fl->b.y >= f_h)
     {
+        static int yuck = 0;
+
         DEH_fprintf(stderr, "yuck %d \r", yuck++);
         return;
     }
@@ -1674,7 +1674,7 @@ static void AM_drawLineCharacter (mline_t *lineguy, int lineguylines,
 static void AM_drawPlayers (void)
 {
     int       i;
-    int       their_colors[] = { GREENS, GRAYS, BROWNS, REDS };
+    const int       their_colors[] = { GREENS, GRAYS, BROWNS, REDS };
     int       their_color = -1;
     int       color;
     mpoint_t  pt;
@@ -1913,7 +1913,6 @@ static void AM_drawSpectator (void)
             }
 
             t = t->snext;
-            continue;
         }
     }
 }

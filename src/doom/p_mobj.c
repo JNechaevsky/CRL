@@ -89,7 +89,7 @@ P_SetMobjState
 //
 // P_ExplodeMissile  
 //
-void P_ExplodeMissile (mobj_t* mo)
+static void P_ExplodeMissile (mobj_t* mo)
 {
     mo->momx = mo->momy = mo->momz = 0;
 
@@ -113,7 +113,7 @@ void P_ExplodeMissile (mobj_t* mo)
 #define STOPSPEED		0x1000
 #define FRICTION		0xe800
 
-void P_XYMovement (mobj_t* mo) 
+static void P_XYMovement (mobj_t* mo) 
 { 	
     fixed_t 	ptryx;
     fixed_t	ptryy;
@@ -253,7 +253,7 @@ void P_XYMovement (mobj_t* mo)
 //
 // P_ZMovement
 //
-void P_ZMovement (mobj_t* mo)
+static void P_ZMovement (mobj_t* mo)
 {
     fixed_t	dist;
     fixed_t	delta;
@@ -397,7 +397,7 @@ void P_ZMovement (mobj_t* mo)
 //
 // P_NightmareRespawn
 //
-void
+static void
 P_NightmareRespawn (mobj_t* mobj)
 {
     fixed_t		x;
@@ -405,7 +405,7 @@ P_NightmareRespawn (mobj_t* mobj)
     fixed_t		z; 
     subsector_t*	ss; 
     mobj_t*		mo;
-    mapthing_t*		mthing;
+    const mapthing_t*		mthing;
 		
     x = mobj->spawnpoint.x << FRACBITS; 
     y = mobj->spawnpoint.y << FRACBITS; 
@@ -691,7 +691,7 @@ void P_RespawnSpecials (void)
     
     subsector_t*	ss; 
     mobj_t*		mo;
-    mapthing_t*		mthing;
+    const mapthing_t*		mthing;
     
     int			i;
 
@@ -746,7 +746,7 @@ void P_RespawnSpecials (void)
 // Most of the player structure stays unchanged
 //  between levels.
 //
-void P_SpawnPlayer (mapthing_t* mthing)
+void P_SpawnPlayer (const mapthing_t* mthing)
 {
     player_t*		p;
     fixed_t		x;
@@ -1034,7 +1034,7 @@ P_SpawnBlood
 // Moves the missile forward a bit
 //  and possibly explodes it right there.
 //
-void P_CheckMissileSpawn (mobj_t* th)
+static void P_CheckMissileSpawn (mobj_t* th)
 {
     th->tics -= P_Random()&3;
     if (th->tics < 1)

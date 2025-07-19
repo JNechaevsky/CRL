@@ -239,7 +239,7 @@ static void P_LevelNameInit (void)
 //
 // P_LoadVertexes
 //
-void P_LoadVertexes (int lump)
+static void P_LoadVertexes (int lump)
 {
     byte*		data;
     int			i;
@@ -274,7 +274,7 @@ void P_LoadVertexes (int lump)
 //
 // GetSectorAtNullAddress
 //
-sector_t* GetSectorAtNullAddress(void)
+static sector_t* GetSectorAtNullAddress(void)
 {
     static boolean null_sector_is_initialized = false;
     static sector_t null_sector;
@@ -293,14 +293,14 @@ sector_t* GetSectorAtNullAddress(void)
 //
 // P_LoadSegs
 //
-void P_LoadSegs (int lump)
+static void P_LoadSegs (int lump)
 {
     byte*		data;
     int			i;
     mapseg_t*		ml;
     seg_t*		li;
     line_t*		ldef;
-    int			linedef;
+    int			line_def;
     int			side;
     int                 sidenum;
 	
@@ -318,8 +318,8 @@ void P_LoadSegs (int lump)
 
 	li->angle = (SHORT(ml->angle))<<FRACBITS;
 	li->offset = (SHORT(ml->offset))<<FRACBITS;
-	linedef = SHORT(ml->linedef);
-	ldef = &lines[linedef];
+	line_def = SHORT(ml->linedef);
+	ldef = &lines[line_def];
 	li->linedef = ldef;
 	side = SHORT(ml->side);
 
@@ -327,7 +327,7 @@ void P_LoadSegs (int lump)
         if ((unsigned)ldef->sidenum[side] >= (unsigned)numsides)
         {
             I_Error("P_LoadSegs: linedef %d for seg %d references a non-existent sidedef %d",
-                    linedef, i, (unsigned)ldef->sidenum[side]);
+                    line_def, i, (unsigned)ldef->sidenum[side]);
         }
 
 	li->sidedef = &sides[ldef->sidenum[side]];
@@ -365,7 +365,7 @@ void P_LoadSegs (int lump)
 //
 // P_LoadSubsectors
 //
-void P_LoadSubsectors (int lump)
+static void P_LoadSubsectors (int lump)
 {
     byte*		data;
     int			i;
@@ -394,7 +394,7 @@ void P_LoadSubsectors (int lump)
 //
 // P_LoadSectors
 //
-void P_LoadSectors (int lump)
+static void P_LoadSectors (int lump)
 {
     byte*		data;
     int			i;
@@ -450,7 +450,7 @@ void P_LoadSectors (int lump)
 //
 // P_LoadNodes
 //
-void P_LoadNodes (int lump)
+static void P_LoadNodes (int lump)
 {
     byte*	data;
     int		i;
@@ -487,7 +487,7 @@ void P_LoadNodes (int lump)
 //
 // P_LoadThings
 //
-void P_LoadThings (int lump)
+static void P_LoadThings (int lump)
 {
     byte               *data;
     int			i;
@@ -565,14 +565,14 @@ void P_LoadThings (int lump)
 // P_LoadLineDefs
 // Also counts secret lines for intermissions.
 //
-void P_LoadLineDefs (int lump)
+static void P_LoadLineDefs (int lump)
 {
     byte*		data;
     int			i;
     maplinedef_t*	mld;
     line_t*		ld;
-    vertex_t*		v1;
-    vertex_t*		v2;
+    const vertex_t*		v1;
+    const vertex_t*		v2;
 	
     numlines = W_LumpLength (lump) / sizeof(maplinedef_t);
     lines = Z_Malloc (numlines*sizeof(line_t),PU_LEVEL,0);	
@@ -705,7 +705,7 @@ void P_LoadLineDefs (int lump)
 //
 // P_LoadSideDefs
 //
-void P_LoadSideDefs (int lump)
+static void P_LoadSideDefs (int lump)
 {
     byte*		data;
     int			i;
@@ -738,7 +738,7 @@ void P_LoadSideDefs (int lump)
 //
 // P_LoadBlockMap
 //
-void P_LoadBlockMap (int lump)
+static void P_LoadBlockMap (int lump)
 {
     int i;
     int count;
@@ -779,7 +779,7 @@ void P_LoadBlockMap (int lump)
 // Builds sector line lists and subsector sector numbers.
 // Finds block bounding boxes for sectors.
 //
-void P_GroupLines (void)
+static void P_GroupLines (void)
 {
     line_t**		linebuffer;
     int			i;
@@ -997,7 +997,7 @@ static void P_LoadReject(int lumpnum)
 
 static void P_CheckMapFormat (int lumpnum)
 {
-    byte *nodes = NULL;
+    const byte *nodes_frmt = NULL;
     int b;
 
     if ((b = lumpnum+ML_BLOCKMAP+1) < numlumps
@@ -1007,23 +1007,23 @@ static void P_CheckMapFormat (int lumpnum)
     }
 
     if (!((b = lumpnum+ML_NODES) < numlumps
-    && (nodes = W_CacheLumpNum(b, PU_CACHE))
+    && (nodes_frmt = W_CacheLumpNum(b, PU_CACHE))
     && W_LumpLength(b) > 0))
     {
         printf("(no nodes on map) ");
     }
     else
-    if (!memcmp(nodes, "XNOD", 4))
+    if (!memcmp(nodes_frmt, "XNOD", 4))
     {
         I_Error ("ZDBSP nodes are not supported.");
     }
     else
-    if (!memcmp(nodes, "ZNOD", 4))
+    if (!memcmp(nodes_frmt, "ZNOD", 4))
     {
         I_Error ("ZDBSP nodes are not supported.");
     }
 
-    if (nodes)
+    if (nodes_frmt)
     {
         W_ReleaseLumpNum(b);
     }

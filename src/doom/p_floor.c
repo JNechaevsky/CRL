@@ -368,7 +368,7 @@ EV_DoFloor
 	  case raiseToTexture:
 	  {
 	      int	minsize = INT_MAX;
-	      side_t*	side;
+	      const side_t*	side;
 				
 	      floor->direction = 1;
 	      floor->sector = sec;
@@ -447,7 +447,7 @@ EV_DoFloor
 //
 int
 EV_BuildStairs
-( line_t*	line,
+( const line_t*	line,
   stair_e	type )
 {
     int			secnum;

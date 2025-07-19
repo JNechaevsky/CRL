@@ -1706,7 +1706,7 @@ void G_InitPlayer (int player)
 // G_PlayerFinishLevel
 // Can when a player completes a level.
 //
-void G_PlayerFinishLevel (int player) 
+static void G_PlayerFinishLevel (int player) 
 { 
     player_t*	p; 
 	 
@@ -1797,10 +1797,10 @@ void G_PlayerReborn (int player)
 // because something is occupying it 
 //
  
-boolean
+static boolean
 G_CheckSpot
 ( int		playernum,
-  mapthing_t*	mthing ) 
+  const mapthing_t*	mthing ) 
 { 
     fixed_t		x;
     fixed_t		y; 
@@ -3235,12 +3235,12 @@ void G_DoPlayDemo (void)
 
     // [crispy] demo progress bar
     {
-	int i, numplayersingame = 0;
+	int j, numplayersingame = 0;
 	byte *demo_ptr = demo_p;
 
-	for (i = 0; i < MAXPLAYERS; i++)
+	for (j = 0; j < MAXPLAYERS; j++)
 	{
-	    if (playeringame[i])
+	    if (playeringame[j])
 	    {
 		numplayersingame++;
 	    }

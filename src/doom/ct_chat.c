@@ -160,9 +160,6 @@ static const boolean ValidChatChar (const char c)
 
 boolean CT_Responder (event_t *ev)
 {
-    int sendto;
-    const char *macro;
-
     // [PN] Ignore if not in netgame mode.
     if (!netgame)
     {
@@ -190,6 +187,7 @@ boolean CT_Responder (event_t *ev)
     // [PN] Handle chat activation keys when chat mode is off.
     if (!chatmodeon)
     {
+        int sendto;
         // [PN] Map keys to players or broadcast.
         static const int key_to_player[] = {
             CT_PLR_GREEN, CT_PLR_INDIGO, CT_PLR_BROWN, CT_PLR_RED
@@ -229,6 +227,8 @@ boolean CT_Responder (event_t *ev)
         // [PN] Handle macros triggered by ALT + number keys.
         if (altdown && ev->data1 >= '0' && ev->data1 <= '9')
         {
+            const char *macro;
+
             if (ev->data1 == '0') ev->data1 = '9' + 1; // [PN] Macro 0 comes after macro 9.
             macro = chat_macros[ev->data1 - '1'];
 
@@ -468,7 +468,7 @@ static void CT_AddChar (const int player, const char c)
     else
     {
         // [PN] Printable characters require fetching the font patch for width.
-        patch_t *patch = W_CacheLumpNum(ChatFontBaseLump + c - 33, PU_STATIC);
+        const patch_t *const patch = W_CacheLumpNum(ChatFontBaseLump + c - 33, PU_STATIC);
         msglen[player] += patch->width;
     }
 }
@@ -481,7 +481,6 @@ static void CT_AddChar (const int player, const char c)
 
 static void CT_BackSpace (const int player)
 {
-    patch_t *patch;
     char c;
 
     // [PN] If the message is empty, there's nothing to backspace.
@@ -503,7 +502,7 @@ static void CT_BackSpace (const int player)
     else
     {
         // [PN] Printable characters require fetching the font patch for width.
-        patch = W_CacheLumpNum(ChatFontBaseLump + c - 33, PU_STATIC);
+        const patch_t *patch = W_CacheLumpNum(ChatFontBaseLump + c - 33, PU_STATIC);
         msglen[player] -= patch->width;
     }
 

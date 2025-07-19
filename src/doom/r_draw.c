@@ -722,7 +722,7 @@ R_InitBuffer
 //
 void R_FillBackScreen (void) 
 { 
-    byte*	src;
+    const byte*	src;
     pixel_t*	dest;
     int		x;
     int		y; 

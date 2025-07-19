@@ -174,7 +174,7 @@ void T_VerticalDoor (vldoor_t* door)
 
 int
 EV_DoLockedDoor
-( line_t*	line,
+( const line_t*	line,
   vldoor_e	type,
   mobj_t*	thing )
 {
@@ -225,7 +225,7 @@ EV_DoLockedDoor
 
 int
 EV_DoDoor
-( line_t*	line,
+( const line_t*	line,
   vldoor_e	type )
 {
     int		secnum,rtn;

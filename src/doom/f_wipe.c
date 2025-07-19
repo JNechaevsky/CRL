@@ -46,11 +46,11 @@ static void wipe_shittyColMajorXform (dpixel_t *array)
     const int width = SCREENWIDTH/2;
     dpixel_t *dest = (dpixel_t*) Z_Malloc(width*SCREENHEIGHT*sizeof(*dest), PU_STATIC, 0);
 
-    for (int y = 0 ; y < SCREENHEIGHT ; y++)
+    for (int scr_y = 0 ; scr_y < SCREENHEIGHT ; scr_y++)
     {
-        for (int x = 0 ; x < width ; x++)
+        for (int scr_x = 0 ; scr_x < width ; scr_x++)
         {
-            dest[x*SCREENHEIGHT+y] = array[y*width+x];
+            dest[scr_x*SCREENHEIGHT+scr_y] = array[scr_y*width+scr_x];
         }
     }
 
@@ -107,7 +107,7 @@ static int wipe_doMelt (int ticks)
     int idx;
     const int width = SCREENWIDTH/2;
 
-    dpixel_t *s;
+    const dpixel_t *s;
     dpixel_t *d;
     boolean	done = true;
 

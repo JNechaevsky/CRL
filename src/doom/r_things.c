@@ -49,6 +49,7 @@
 
 
 
+/*
 typedef struct
 {
     int		x1;
@@ -59,6 +60,7 @@ typedef struct
     int		bottomclip;
 
 } maskdraw_t;
+*/
 
 
 
@@ -100,7 +102,7 @@ const char	*spritename;
 // R_InstallSpriteLump
 // Local function for R_InitSprites.
 //
-void
+static void
 R_InstallSpriteLump
 ( int		lump,
   unsigned	frame,
@@ -305,9 +307,9 @@ void R_ClearSprites (void)
 //
 // R_NewVisSprite
 //
-vissprite_t	overflowsprite;
+static vissprite_t	overflowsprite;
 
-vissprite_t* R_NewVisSprite (void)
+static vissprite_t* R_NewVisSprite (void)
 {
     if (vissprite_p == &vissprites[crl_vanilla_limits ? MAXVISSPRITES : MAXREALVISSPRITES])
 	return &overflowsprite;
@@ -375,7 +377,7 @@ void R_DrawMaskedColumn (column_t* column)
 // R_DrawVisSprite
 //  mfloorclip and mceilingclip should also be set.
 //
-void
+static void
 R_DrawVisSprite
 ( vissprite_t*		vis,
   int			x1,
@@ -431,7 +433,7 @@ R_DrawVisSprite
 // Generates a vissprite for a thing
 //  if it might be visible.
 //
-void R_ProjectSprite (mobj_t* thing)
+static void R_ProjectSprite (mobj_t* thing)
 {
     fixed_t		tr_x;
     fixed_t		tr_y;
@@ -658,7 +660,7 @@ void R_AddSprites (sector_t* sec)
 // R_DrawPSprite
 //
 
-void R_DrawPSprite (pspdef_t* psp)
+static void R_DrawPSprite (pspdef_t* psp)
 {
     fixed_t		tx;
     int			x1;
@@ -771,7 +773,7 @@ void R_DrawPSprite (pspdef_t* psp)
 //
 // R_DrawPlayerSprites
 //
-void R_DrawPlayerSprites (void)
+static void R_DrawPlayerSprites (void)
 {
     int		i;
     int		lightnum;
@@ -872,7 +874,7 @@ void R_SortVisSprites (void)
 //
 // R_DrawSprite
 //
-void R_DrawSprite (vissprite_t* spr)
+static void R_DrawSprite (vissprite_t* spr)
 {
     drawseg_t*		ds;
     int			clipbot[SCREENWIDTH];  // [JN] 32-bit integer math

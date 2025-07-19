@@ -299,7 +299,7 @@ void S_Start(void)
     }
     else
     {
-        int spmus[]=
+        const int spmus[]=
         {
             // Song - Who? - Where?
 
@@ -327,7 +327,7 @@ void S_Start(void)
     S_ChangeMusic(mnum, true);
 }
 
-void S_StopSound(mobj_t *origin)
+void S_StopSound(const mobj_t *origin)
 {
     int cnum;
 
@@ -633,7 +633,7 @@ void S_UpdateSounds(mobj_t *listener)
     int                cnum;
     int                volume;
     int                sep;
-    sfxinfo_t*        sfx;
+    const sfxinfo_t*        sfx;
     channel_t*        c;
 
     I_UpdateSound();

@@ -92,7 +92,7 @@ int		numspechit;
 //
 // PIT_StompThing
 //
-boolean PIT_StompThing (mobj_t* thing)
+static boolean PIT_StompThing (mobj_t* thing)
 {
     fixed_t	blockdist;
 		
@@ -199,13 +199,13 @@ P_TeleportMove
 // MOVEMENT ITERATOR FUNCTIONS
 //
 
-static void SpechitOverrun(line_t *ld);
+static void SpechitOverrun(const line_t *ld);
 
 //
 // PIT_CheckLine
 // Adjusts tmfloorz and tmceilingz as lines are contacted
 //
-boolean PIT_CheckLine (line_t* ld)
+static boolean PIT_CheckLine (line_t* ld)
 {
     if (tmbbox[BOXRIGHT] <= ld->bbox[BOXLEFT]
 	|| tmbbox[BOXLEFT] >= ld->bbox[BOXRIGHT]
@@ -309,7 +309,7 @@ static char *CRL_GetMobjName (mobjtype_t type)
 //
 // PIT_CheckThing
 //
-boolean PIT_CheckThing (mobj_t* thing)
+static boolean PIT_CheckThing (mobj_t* thing)
 {
     fixed_t		blockdist;
     boolean		solid;
@@ -591,7 +591,7 @@ P_TryMove
 // the z will be set to the lowest value
 // and false will be returned.
 //
-boolean P_ThingHeightClip (mobj_t* thing)
+static boolean P_ThingHeightClip (mobj_t* thing)
 {
     boolean		onfloor;
 	
@@ -645,7 +645,7 @@ fixed_t		tmymove;
 // Adjusts the xmove / ymove
 // so that the next move will slide along the wall.
 //
-void P_HitSlideLine (line_t* ld)
+static void P_HitSlideLine (line_t* ld)
 {
     int			side;
 
@@ -697,7 +697,7 @@ void P_HitSlideLine (line_t* ld)
 //
 // PTR_SlideTraverse
 //
-boolean PTR_SlideTraverse (intercept_t* in)
+static boolean PTR_SlideTraverse (intercept_t* in)
 {
     line_t*	li;
 	
@@ -875,10 +875,10 @@ fixed_t		aimslope;
 // PTR_AimTraverse
 // Sets linetaget and aimslope when a target is aimed at.
 //
-boolean
+static boolean
 PTR_AimTraverse (intercept_t* in)
 {
-    line_t*		li;
+    const line_t*		li;
     mobj_t*		th;
     fixed_t		slope;
     fixed_t		thingtopslope;
@@ -988,7 +988,7 @@ PTR_AimTraverse (intercept_t* in)
 //
 // PTR_ShootTraverse
 //
-boolean PTR_ShootTraverse (intercept_t* in)
+static boolean PTR_ShootTraverse (intercept_t* in)
 {
     fixed_t		x;
     fixed_t		y;
@@ -1206,7 +1206,7 @@ P_LineAttack
 //
 mobj_t*		usething;
 
-boolean	PTR_UseTraverse (intercept_t* in)
+static boolean	PTR_UseTraverse (intercept_t* in)
 {
     int		side;
 	
@@ -1275,7 +1275,7 @@ int		bombdamage;
 // "bombsource" is the creature
 // that caused the explosion at "bombspot".
 //
-boolean PIT_RadiusAttack (mobj_t* thing)
+static boolean PIT_RadiusAttack (mobj_t* thing)
 {
     fixed_t	dx;
     fixed_t	dy;
@@ -1368,7 +1368,7 @@ boolean		nofit;
 //
 // PIT_ChangeSector
 //
-boolean PIT_ChangeSector (mobj_t*	thing)
+static boolean PIT_ChangeSector (mobj_t*	thing)
 {
     mobj_t*	mo;
 	
@@ -1434,7 +1434,7 @@ boolean PIT_ChangeSector (mobj_t*	thing)
 //
 boolean
 P_ChangeSector
-( sector_t*	sector,
+( const sector_t*	sector,
   boolean	crunch )
 {
     int		x;
@@ -1456,7 +1456,7 @@ P_ChangeSector
 // of the spechit array.  This is by Andrey Budko (e6y) and comes from his
 // PrBoom plus port.  A big thanks to Andrey for this.
 
-static void SpechitOverrun(line_t *ld)
+static void SpechitOverrun(const line_t *const ld)
 {
     static unsigned int baseaddr = 0;
     unsigned int addr;

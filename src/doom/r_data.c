@@ -180,7 +180,7 @@ byte	grayscale_colormap[256];
 // Clip and draw a column
 //  from a patch into a cached post.
 //
-void
+static void
 R_DrawColumnInCache
 ( column_t*	patch,
   byte*		cache,
@@ -189,7 +189,7 @@ R_DrawColumnInCache
 {
     int		count;
     int		position;
-    byte*	source;
+    const byte*	source;
 
     while (patch->topdelta != 0xff)
     {
@@ -221,7 +221,7 @@ R_DrawColumnInCache
 //  the composite texture is created from the patches,
 //  and each column is cached.
 //
-void R_GenerateComposite (int texnum)
+static void R_GenerateComposite (int texnum)
 {
     byte*		block;
     texture_t*		texture;
@@ -232,7 +232,7 @@ void R_GenerateComposite (int texnum)
     int			x2;
     int			i;
     column_t*		patchcol;
-    short*		collump;
+    const short*		collump;
     unsigned short*	colofs;
 	
     texture = textures[texnum];
@@ -287,7 +287,7 @@ void R_GenerateComposite (int texnum)
 //
 // R_GenerateLookup
 //
-void R_GenerateLookup (int texnum)
+static void R_GenerateLookup (int texnum)
 {
     texture_t*		texture;
     byte*		patchcount;	// patchcount[texture->width]
@@ -448,7 +448,7 @@ static void GenerateTextureHashTable(void)
 // Initializes the texture list
 //  with the textures from the world map.
 //
-void R_InitTextures (void)
+static void R_InitTextures (void)
 {
     maptexture_t*	mtexture;
     texture_t*		texture;
@@ -601,7 +601,7 @@ void R_InitTextures (void)
 //
 // R_InitFlats
 //
-void R_InitFlats (void)
+static void R_InitFlats (void)
 {
     int		i;
 	
@@ -623,7 +623,7 @@ void R_InitFlats (void)
 //  so the sprite does not need to be cached completely
 //  just for having the header info ready during rendering.
 //
-void R_InitSpriteLumps (void)
+static void R_InitSpriteLumps (void)
 {
     int		i;
     patch_t	*patch;
@@ -653,7 +653,7 @@ void R_InitSpriteLumps (void)
 //
 // R_InitColormaps
 //
-void R_InitColormaps (void)
+static void R_InitColormaps (void)
 {
     int	lump;
 
@@ -702,7 +702,7 @@ void R_InitColormaps (void)
 
 static void R_InitGrayscaleColormap (void)
 {
-    byte *doompal = W_CacheLumpName("PLAYPAL", PU_STATIC);
+    const byte *const doompal = W_CacheLumpName("PLAYPAL", PU_STATIC);
 
     // Phase 1: collect grayish colors from the palette
     uint8_t gray_idx[256];
@@ -773,7 +773,9 @@ static void R_InitTintMap (void)
     tintmap = Z_Malloc(256*256, PU_STATIC, 0);
 
     {
-        byte *fg, *bg, blend[3];
+        const byte *fg;
+        const byte *bg;
+        byte blend[3];
         byte *tm = tintmap;
         int i, j;
 

@@ -225,7 +225,7 @@ static void saveg_read_mapthing_t(mapthing_t *str)
     str->options = saveg_read16();
 }
 
-static void saveg_write_mapthing_t(mapthing_t *str)
+static void saveg_write_mapthing_t(const mapthing_t *str)
 {
     // short x;
     saveg_write16(str->x);
@@ -593,7 +593,7 @@ static void saveg_read_pspdef_t(pspdef_t *str)
     str->sy2 = str->oldsy2 = str->sy;
 }
 
-static void saveg_write_pspdef_t(pspdef_t *str)
+static void saveg_write_pspdef_t(const pspdef_t *str)
 {
     // state_t* state;
     if (str->state)
@@ -1468,7 +1468,7 @@ void P_ArchiveWorld (void)
     int			j;
     sector_t*		sec;
     line_t*		li;
-    side_t*		si;
+    const side_t*		si;
     
     // do sectors
     for (i=0, sec = sectors ; i<numsectors ; i++,sec++)

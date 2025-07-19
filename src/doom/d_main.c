@@ -189,7 +189,7 @@ static void CRL_DrawMessage (void)
 
 static void CRL_DrawMessageCentered (void)
 {
-    player_t *player = &players[displayplayer];
+    const player_t *player = &players[displayplayer];
 
     if (player->messageCenteredTics <= 0 || !player->messageCentered)
     {
@@ -470,7 +470,7 @@ static void EnableLoadingDisk(void)
 // Add configuration file variable bindings.
 //
 
-void D_BindVariables(void)
+static void D_BindVariables(void)
 {
     int i;
 
@@ -528,7 +528,7 @@ void D_BindVariables(void)
 // Called to determine whether to grab the mouse pointer
 //
 
-boolean D_GrabMouseCallback(void)
+static boolean D_GrabMouseCallback(void)
 {
     // Drone players don't need mouse focus
 
@@ -891,7 +891,7 @@ static void SetMissionForPackName(const char *pack_name)
 // Find out what version of Doom is playing.
 //
 
-void D_IdentifyVersion(void)
+static void D_IdentifyVersion(void)
 {
     // gamemission is set up by the D_FindIWAD function.  But if 
     // we specify '-iwad', we have to identify using 
@@ -1037,7 +1037,7 @@ char            title[128];
 
 static boolean D_AddFile(char *filename)
 {
-    wad_file_t *handle;
+    const wad_file_t *handle;
 
     printf("  adding %s\n", filename);
     handle = W_AddFile(filename);
@@ -1070,7 +1070,7 @@ static const char *copyright_banners[] =
 
 // Prints a message only if it has been modified by dehacked.
 
-void PrintDehackedBanners(void)
+static void PrintDehackedBanners(void)
 {
     size_t i;
 
@@ -1163,7 +1163,7 @@ static int G_GetNamedComplevel (const char *arg)
 
 static void InitGameVersion(void)
 {
-    byte *demolump;
+    const byte *demolump;
     char demolumpname[6];
     int demoversion;
     int p;
@@ -1337,7 +1337,7 @@ static void InitGameVersion(void)
     }
 }
 
-void PrintGameVersion(void)
+static void PrintGameVersion(void)
 {
     int i;
 
@@ -1380,7 +1380,7 @@ static void D_Endoom(void)
     }
 }
 
-boolean IsFrenchIWAD(void)
+static boolean IsFrenchIWAD(void)
 {
     return (gamemission == doom2 && W_CheckNumForName("M_RDTHIS") < 0
           && W_CheckNumForName("M_EPISOD") < 0 && W_CheckNumForName("M_EPI1") < 0
@@ -1896,14 +1896,14 @@ void D_DoomMain (void)
 
         for (i = 0; loadparms[i]; i++)
         {
-            int p;
-            p = M_CheckParmWithArgs(loadparms[i], 1);
-            if (p)
+            int prm;
+            prm = M_CheckParmWithArgs(loadparms[i], 1);
+            if (prm)
             {
-                while (++p != myargc && myargv[p][0] != '-')
+                while (++prm != myargc && myargv[prm][0] != '-')
                 {
                     char *autoload_dir;
-                    if ((autoload_dir = M_GetAutoloadDir(M_BaseName(myargv[p]))))
+                    if ((autoload_dir = M_GetAutoloadDir(M_BaseName(myargv[prm]))))
                     {
                         W_AutoLoadWADs(autoload_dir);
                         free(autoload_dir);
@@ -2017,14 +2017,14 @@ void D_DoomMain (void)
 
         for (i = 0; loadparms[i]; i++)
         {
-            int p;
-            p = M_CheckParmWithArgs(loadparms[i], 1);
-            if (p)
+            int prm;
+            prm = M_CheckParmWithArgs(loadparms[i], 1);
+            if (prm)
             {
-                while (++p != myargc && myargv[p][0] != '-')
+                while (++prm != myargc && myargv[prm][0] != '-')
                 {
                     char *autoload_dir;
-                    if ((autoload_dir = M_GetAutoloadDir(M_BaseName(myargv[p]))))
+                    if ((autoload_dir = M_GetAutoloadDir(M_BaseName(myargv[prm]))))
                     {
                         DEH_AutoLoadPatches(autoload_dir);
                         free(autoload_dir);
