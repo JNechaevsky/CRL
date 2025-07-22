@@ -17,12 +17,12 @@ CRL is maintained by [Julia Nechaevskaya](https://jnechaevsky.github.io/author.h
 ## Download
 
 CRL Doom, version 1.9 (released: September 21, 2024):
-* Windows (64-bit): [crl-1.9-win64.zip](https://github.com/JNechaevsky/CRL/releases/download/crl-1.9/crl-1.9-win64.zip)
-* Windows (32-bit): [crl-1.9-win32.zip](https://github.com/JNechaevsky/CRL/releases/download/crl-1.9/crl-1.9-win32.zip)
+* &nbsp;<img src="https://jnechaevsky.github.io/img/icon_win64.png" width="16" height="16" />&nbsp;&nbsp;Windows (64-bit): [crl-1.9-win64.zip](https://github.com/JNechaevsky/CRL/releases/download/crl-1.9/crl-1.9-win64.zip)
+* &nbsp;<img src="https://jnechaevsky.github.io/img/icon_win32.png" width="16" height="16" />&nbsp;&nbsp;Windows (32-bit): [crl-1.9-win32.zip](https://github.com/JNechaevsky/CRL/releases/download/crl-1.9/crl-1.9-win32.zip)
 
 CRL Heretic, version 1.0 (released: June 12, 2023):
-* Windows (64-bit): [crl-heretic-1.0-win64.zip](https://github.com/JNechaevsky/CRL/releases/download/crl-hr-1.0/crl-heretic-1.0-win64.zip)
-* Windows (32-bit): [crl-heretic-1.0-win32.zip](https://github.com/JNechaevsky/CRL/releases/download/crl-hr-1.0/crl-heretic-1.0-win32.zip)
+* &nbsp;<img src="https://jnechaevsky.github.io/img/icon_win64.png" width="16" height="16" />&nbsp;&nbsp;Windows (64-bit): [crl-heretic-1.0-win64.zip](https://github.com/JNechaevsky/CRL/releases/download/crl-hr-1.0/crl-heretic-1.0-win64.zip)
+* &nbsp;<img src="https://jnechaevsky.github.io/img/icon_win32.png" width="16" height="16" />&nbsp;&nbsp;Windows (32-bit): [crl-heretic-1.0-win32.zip](https://github.com/JNechaevsky/CRL/releases/download/crl-hr-1.0/crl-heretic-1.0-win32.zip)
 
 Previous versions can be found on [Releases](https://github.com/JNechaevsky/CRL/releases) page.<br>
 Old versions of original Chocorenderlimits can be found on [Historical](https://github.com/JNechaevsky/CRL/releases/tag/Historical) page.
