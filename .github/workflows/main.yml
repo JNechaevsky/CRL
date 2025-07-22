@@ -76,7 +76,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: crl-dev-win64
+          name: crl-win64
           path: build_vs_64/src/Release/*.exe
           retention-days: 90
 
@@ -118,12 +118,12 @@ jobs:
         run: |
           mkdir upload
           copy build_vs_32/src/Release/*.exe upload
-          copy win32/dlls-vc-win-32/*.dll upload
+          copy win32/dlls-vc-win32/*.dll upload
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: crl-dev-win32
+          name: crl-win32
           path: upload/*
           retention-days: 90
 
@@ -216,16 +216,14 @@ jobs:
         run: |
           rm -f linuxdeploy*.AppImage
 
-      - name: Upload Doom AppImage
-        uses: actions/upload-artifact@v4
-        with:
-          name: crl-doom-dev-linux64
-          path: crl-doom-x86_64.AppImage
-          retention-days: 90
+      - name: Bundle AppImages
+        run: |
+          mkdir bundled_appimages
+          cp crl-*-x86_64.AppImage bundled_appimages/
       
-      - name: Upload Heretic AppImage
+      - name: Upload all AppImages bundle
         uses: actions/upload-artifact@v4
         with:
-          name: crl-heretic-dev-linux64
-          path: crl-heretic-x86_64.AppImage
+          name: crl-linux64
+          path: bundled_appimages/*
           retention-days: 90
