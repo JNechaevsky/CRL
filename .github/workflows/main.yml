@@ -95,7 +95,6 @@ jobs:
             --add Microsoft.VisualStudio.Component.WinXP
             --add Microsoft.VisualStudio.Component.VC.v141.x86.x64
             --includeRecommended --includeOptional" -y
-        timeout-minutes: 20
 
       - name: Configure CMake (XP target)
         shell: cmd
@@ -124,8 +123,9 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: windows-xp-binaries
+          name: crl-dev-win32
           path: upload/*
+          retention-days: 90
 
   linux_64bit:
     name: Linux AppImage (64-bit)
