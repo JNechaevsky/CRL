@@ -383,7 +383,7 @@ static void UpdateMouseButtonState(unsigned int button, boolean on)
     D_PostEvent(&event);
 }
 
-static void MapMouseWheelToButtons(SDL_MouseWheelEvent *wheel)
+static void MapMouseWheelToButtons(const SDL_MouseWheelEvent *wheel)
 {
     // SDL2 distinguishes button events from mouse wheel events.
     // We want to treat the mouse wheel as two buttons, as per
@@ -612,6 +612,7 @@ void I_ReadMouseUncapped(void)
         newfastmouse = true;
     }
 }
+
 // Bind all variables controlling input options.
 void I_BindInputVariables(void)
 {

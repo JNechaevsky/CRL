@@ -276,7 +276,7 @@ static void D_Disconnected(void)
 // available.
 //
 
-void D_ReceiveTic(ticcmd_t *ticcmds, boolean *players_mask)
+void D_ReceiveTic(const ticcmd_t *ticcmds, const boolean *players_mask)
 {
     int i;
 
@@ -681,6 +681,7 @@ static void SinglePlayerClear(ticcmd_set_t *set)
         }
     }
 }
+
 
 //
 // TryRunTics
