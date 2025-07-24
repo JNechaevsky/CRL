@@ -921,25 +921,40 @@ static void ST_doPaletteStuff (void)
 
     if (cnt)
     {
-        palette = (cnt+7)>>3;
+        // [JN] A11Y - Palette flash effects.
+        // For A11Y, fix missing first pain palette index for smoother effect.
+        // [PN] Simplified pain palette logic and reduced redundancy.
 
-        if (palette >= NUMREDPALS)
-        {
-            palette = NUMREDPALS-1;
-        }
+        const int offset     = (cnt + 7) >> 3;
+        const int maxOffset  = NUMREDPALS - (crl_a11y_pal_flash ? 0 : 1);
+        const int startIndex = STARTREDPALS + (crl_a11y_pal_flash ? -1 : 0);
 
-        palette += STARTREDPALS;
+        // [PN] Select offset, clamped to allowed range
+        palette = startIndex + (offset < NUMREDPALS ? offset : maxOffset);
+
+        // [PN] Aadditional limits for flash mode
+        if      (crl_a11y_pal_flash == 1 && palette > 5) palette = 5;
+        else if (crl_a11y_pal_flash == 2 && palette > 2) palette = 2;
+        else if (crl_a11y_pal_flash == 3)                palette = 0;
+
     }
     else if (plyr->bonuscount)
     {
-        palette = (plyr->bonuscount+7)>>3;
+        // [JN] A11Y - Palette flash effects.
+        // For A11Y, fix missing first bonus palette index for smoother effect.
+        // [PN] Simplified bonus palette logic and reduced redundancy.
 
-        if (palette >= NUMBONUSPALS)
-        {
-            palette = NUMBONUSPALS-1;
-        }
+        const int offset     = (plyr->bonuscount + 7) >> 3;
+        const int maxOffset  = NUMBONUSPALS - (crl_a11y_pal_flash ? 0 : 1);
+        const int startIndex = STARTBONUSPALS + (crl_a11y_pal_flash ? -1 : 0);
 
-        palette += STARTBONUSPALS;
+        // [PN] Select offset, clamped to allowed range
+        palette = startIndex + (offset < NUMBONUSPALS ? offset : maxOffset);
+
+        // [PN] Aadditional limits for flash mode
+        if      (crl_a11y_pal_flash == 1 && palette > 11) palette = 11;
+        else if (crl_a11y_pal_flash == 2 && palette >  9) palette =  9;
+        else if (crl_a11y_pal_flash == 3)                 palette =  0;
     }
     else if (plyr->powers[pw_ironfeet] > 4*32 || plyr->powers[pw_ironfeet] & 8)
     {

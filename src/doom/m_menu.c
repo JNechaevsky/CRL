@@ -739,6 +739,7 @@ static void M_CRL_InternalDemos (int choice);
 static void M_ChooseCRL_Misc (int choice);
 static void M_DrawCRL_Misc (void);
 static void M_CRL_Invul (int choice);
+static void M_CRL_PalFlash (int choice);
 static void M_CRL_MoveBob (int choice);
 static void M_CRL_WeaponBob (int choice);
 static void M_CRL_Colorblind (int choice);
@@ -3324,7 +3325,7 @@ static void M_CRL_InternalDemos (int choice)
 static menuitem_t CRLMenu_Misc[]=
 {
     { M_MUL1, "INVULNERABILITY EFFECT", M_CRL_Invul,       'i' },
-    { M_MUL2, "PALETTE FLASH EFFECTS",  NULL,              'p' },
+    { M_MUL2, "PALETTE FLASH EFFECTS",  M_CRL_PalFlash,    'p' },
     { M_MUL1, "MOVEMENT BOBBING",       M_CRL_MoveBob,     'm' },
     { M_MUL1, "WEAPON BOBBING",         M_CRL_WeaponBob,   'w' },
     { M_MUL2, "COLORBLIND FILTER",      M_CRL_Colorblind,  'c' },
@@ -3372,6 +3373,15 @@ static void M_DrawCRL_Misc (void)
     M_WriteText (M_ItemRightAlign(str), 16, str,
                  M_Item_Glow(0, crl_a11y_invul ? GLOW_GREEN : GLOW_DARKRED));
 
+    // Palette flash effects
+    sprintf(str, crl_a11y_pal_flash == 1 ? "HALVED" :
+                 crl_a11y_pal_flash == 2 ? "QUARTERED" :
+                 crl_a11y_pal_flash == 3 ? "OFF" : "DEFAULT");
+    M_WriteText (M_ItemRightAlign(str), 25, str,
+                 M_Item_Glow(1, crl_a11y_pal_flash == 1 ? GLOW_YELLOW :
+                                crl_a11y_pal_flash == 2 ? GLOW_ORANGE :
+                                crl_a11y_pal_flash == 3 ? GLOW_RED : GLOW_DARKRED));
+                 
     // Movement bobbing
     sprintf(str, "%s", bobpercent[crl_a11y_move_bob]);
     M_WriteText (M_ItemRightAlign(str), 34, str,
@@ -3465,6 +3475,12 @@ static void M_DrawCRL_Misc (void)
 static void M_CRL_Invul (int choice)
 {
     crl_a11y_invul ^= 1;
+}
+
+static void M_CRL_PalFlash (int choice)
+{
+    crl_a11y_pal_flash = M_INT_Slider(crl_a11y_pal_flash, 0, 3, choice, false);
+    CRL_ReloadPalette();
 }
 
 static void M_CRL_MoveBob (int choice)
