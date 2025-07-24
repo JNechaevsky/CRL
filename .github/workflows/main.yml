@@ -23,8 +23,6 @@ jobs:
   windows_64bit:
     name: Windows (64-bit)
     runs-on: windows-latest
-    env:
-      CACHE_KEY: vcpkg-windows-${{ hashFiles('vcpkg.json') }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -65,9 +63,12 @@ jobs:
         run: gh cache delete --repo ${{ github.repository }} ${{ env.CACHE_KEY }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CACHE_KEY: vcpkg-windows-${{ hashFiles('vcpkg.json') }}
 
       - name: Save new cache
         uses: actions/cache/save@v4
+        env:
+          CACHE_KEY: vcpkg-windows-${{ hashFiles('vcpkg.json') }}
         with:
           path: ${{ github.workspace }}/vcpkg_cache
           key: ${{ env.CACHE_KEY }}
@@ -129,8 +130,6 @@ jobs:
   linux_64bit:
     name: Linux AppImage (64-bit)
     runs-on: ubuntu-22.04
-    env:
-      CACHE_KEY: vcpkg-linux-${{ hashFiles('vcpkg.json') }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -177,9 +176,12 @@ jobs:
         run: gh cache delete --repo ${{ github.repository }} ${{ env.CACHE_KEY }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CACHE_KEY: vcpkg-linux-${{ hashFiles('vcpkg.json') }}
 
       - name: Save new cache
         uses: actions/cache/save@v4
+        env:
+          CACHE_KEY: vcpkg-linux-${{ hashFiles('vcpkg.json') }}
         with:
           path: ${{ github.workspace }}/vcpkg_cache
           key: ${{ env.CACHE_KEY }}
