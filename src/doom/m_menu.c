@@ -882,13 +882,7 @@ static void M_FillBackground (void)
     const byte *src = W_CacheLumpName("FLOOR4_8", PU_CACHE);
     pixel_t *dest = I_VideoBuffer;
 
-    for (int y = 0 ; y < SCREENHEIGHT; y++)
-    {
-        for (int x = 0; x < SCREENWIDTH; x++)
-        {
-            *dest++ = src[((y & 63) << 6) + (x & 63)];
-        }
-    }
+    V_FillFlat(0, SCREENHEIGHT, 0, SCREENWIDTH, src, dest);
 }
 
 static byte *M_Small_Line_Glow (const int tics)

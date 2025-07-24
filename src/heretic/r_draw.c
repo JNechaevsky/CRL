@@ -403,19 +403,9 @@ void R_DrawViewBorder(void)
     }
     dest = I_VideoBuffer;
 
-    for (y = 0; y < SCREENHEIGHT - SBARHEIGHT; y++)
-    {
-        for (x = 0; x < SCREENWIDTH / 64; x++)
-        {
-            memcpy(dest, src + ((y & 63) << 6), 64);
-            dest += 64;
-        }
-        if (SCREENWIDTH & 63)
-        {
-            memcpy(dest, src + ((y & 63) << 6), SCREENWIDTH & 63);
-            dest += (SCREENWIDTH & 63);
-        }
-    }
+    // [crispy] Unified flat filling function
+    V_FillFlat(0, SCREENHEIGHT - SBARHEIGHT, 0, SCREENWIDTH, src, dest);
+
     for (x = viewwindowx; x < viewwindowx + viewwidth; x += 16)
     {
         V_DrawPatch(x, viewwindowy - 4,

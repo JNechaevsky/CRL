@@ -361,7 +361,7 @@ static void F_TextWrite (void)
     const byte*	src;
     pixel_t*	dest;
     
-    int		x,y,w;
+    int		w;
     signed int	count;
     const char *ch;
     int		c;
@@ -372,21 +372,10 @@ static void F_TextWrite (void)
     // erase the entire screen to a tiled background
     src = W_CacheLumpName ( finaleflat , PU_CACHE);
     dest = I_VideoBuffer;
-	
-    for (y=0 ; y<SCREENHEIGHT ; y++)
-    {
-	for (x=0 ; x<SCREENWIDTH/64 ; x++)
-	{
-	    memcpy (dest, src+((y&63)<<6), 64);
-	    dest += 64;
-	}
-	if (SCREENWIDTH&63)
-	{
-	    memcpy (dest, src+((y&63)<<6), SCREENWIDTH&63);
-	    dest += (SCREENWIDTH&63);
-	}
-    }
 
+    // [crispy] use unified flat filling function
+    V_FillFlat(0, SCREENHEIGHT, 0, SCREENWIDTH, src, dest);
+	
     V_MarkRect (0, 0, SCREENWIDTH, SCREENHEIGHT);
     
     // draw some of the text onto the screen
