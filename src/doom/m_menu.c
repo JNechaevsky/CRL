@@ -4146,13 +4146,17 @@ static void M_DrawOptions(void)
 
     V_DrawShadowedPatch(108, 15, W_CacheLumpName(m_optttl, PU_CACHE), m_optttl);
 	
+    dp_translation = M_Big_Line_Glow(currentMenu->menuitems[2].tics);
     V_DrawShadowedPatch(OptionsDef.x + 175, OptionsDef.y + LINEHEIGHT * detail,
 		        W_CacheLumpName(DEH_String(detailNames[detailLevel]), PU_CACHE),
                                 DEH_String(detailNames[detailLevel]));
+    dp_translation = NULL;
 
+    dp_translation = M_Big_Line_Glow(currentMenu->menuitems[1].tics);
     V_DrawShadowedPatch(OptionsDef.x + 120, OptionsDef.y + LINEHEIGHT * messages,
                 W_CacheLumpName(DEH_String(msgNames[showMessages]), PU_CACHE),
                                 DEH_String(msgNames[showMessages]));
+    dp_translation = NULL;
 
     M_DrawThermo(OptionsDef.x, OptionsDef.y + LINEHEIGHT * (mousesens + 1),
 		 10, mouseSensitivity, 5);
