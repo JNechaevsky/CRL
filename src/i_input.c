@@ -121,7 +121,7 @@ int mouse_y_invert = 0;
 int runcentering = 1; // [crispy]
 
 // Translates the SDL key to a value of the type found in doomkeys.h
-static int TranslateKey(SDL_Keysym *sym)
+static int TranslateKey(const SDL_Keysym *sym)
 {
     int scancode = sym->scancode;
 
@@ -156,7 +156,7 @@ static int TranslateKey(SDL_Keysym *sym)
 // Get the localized version of the key press. This takes into account the
 // keyboard layout, but does not apply any changes due to modifiers, (eg.
 // shift-, alt-, etc.)
-static int GetLocalizedKey(SDL_Keysym *sym)
+static int GetLocalizedKey(const SDL_Keysym *const sym)
 {
     // When using Vanilla mapping, we just base everything off the scancode
     // and always pretend the user is using a US layout keyboard.
@@ -178,7 +178,7 @@ static int GetLocalizedKey(SDL_Keysym *sym)
 }
 
 // Get the equivalent ASCII (Unicode?) character for a keypress.
-static int GetTypedChar(SDL_Keysym *sym)
+static int GetTypedChar(const SDL_Keysym *const sym)
 {
     // We only return typed characters when entering text, after
     // I_StartTextInput() has been called. Otherwise we return nothing.
@@ -383,7 +383,7 @@ static void UpdateMouseButtonState(unsigned int button, boolean on)
     D_PostEvent(&event);
 }
 
-static void MapMouseWheelToButtons(SDL_MouseWheelEvent *wheel)
+static void MapMouseWheelToButtons(const SDL_MouseWheelEvent *wheel)
 {
     // SDL2 distinguishes button events from mouse wheel events.
     // We want to treat the mouse wheel as two buttons, as per
@@ -612,6 +612,7 @@ void I_ReadMouseUncapped(void)
         newfastmouse = true;
     }
 }
+
 // Bind all variables controlling input options.
 void I_BindInputVariables(void)
 {

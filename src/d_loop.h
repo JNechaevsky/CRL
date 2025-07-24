@@ -24,6 +24,7 @@
 #include "net_defs.h"
 #include "m_fixed.h"
 
+
 // Callback function invoked while waiting for the netgame to start.
 // The callback is invoked when new players are ready. The callback
 // should return true, or return false to abort startup.
@@ -89,7 +90,7 @@ boolean D_NonVanillaRecord(boolean conditional, const char *feature);
 boolean D_NonVanillaPlayback(boolean conditional, int lumpnum,
                              const char *feature);
 
-void D_ReceiveTic(ticcmd_t *ticcmds, boolean *playeringame);
+void D_ReceiveTic(const ticcmd_t *ticcmds, const boolean *players_mask);
 
 
 extern fixed_t offsetms;

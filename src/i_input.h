@@ -29,8 +29,6 @@
 
 #define MAX_MOUSE_BUTTONS 8
 
-extern int SDL_mouseButton;
-
 extern int mouse_sensitivity;
 extern int mouse_sensitivity_y; // [crispy]
 extern float mouse_acceleration;
@@ -39,6 +37,7 @@ extern float mouse_acceleration_y; // [crispy]
 extern int mouse_threshold_y; // [crispy]
 extern int mouse_y_invert; // [crispy]
 //extern int novert; // [crispy]
+extern int SDL_mouseButton; // [JN] Catch mouse button number to provide into mouse binding menu.
 extern int runcentering; // [crispy]
 
 // [crispy]

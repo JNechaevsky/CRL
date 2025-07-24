@@ -433,7 +433,7 @@ unsigned int NET_ExpandTicNum(unsigned int relative, unsigned int b)
 // Check that game settings are valid
 
 boolean NET_ValidGameSettings(GameMode_t mode, GameMission_t mission,
-                              net_gamesettings_t *settings)
+                              const net_gamesettings_t *settings)
 {
     if (settings->ticdup <= 0)
         return false;
@@ -497,7 +497,7 @@ void NET_Log(const char *fmt, ...)
     fprintf(net_debug, "\n");
 }
 
-void NET_LogPacket(net_packet_t *packet)
+void NET_LogPacket(const net_packet_t *packet)
 {
     int i, bytes;
 

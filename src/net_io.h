@@ -57,7 +57,7 @@ void NET_ReleaseAddress(net_addr_t *addr);
 // Resolve a string representation of an address. If successful, a net_addr_t
 // pointer is received with an implicit reference that must be freed by the
 // caller when it is no longer needed.
-net_addr_t *NET_ResolveAddress(net_context_t *context, const char *address);
+net_addr_t *NET_ResolveAddress(net_context_t *context, const char *addr);
 
 #endif  /* #ifndef NET_IO_H */
 

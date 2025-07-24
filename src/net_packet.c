@@ -49,7 +49,7 @@ net_packet_t *NET_NewPacket(int initial_size)
 
 // duplicates an existing packet
 
-net_packet_t *NET_PacketDup(net_packet_t *packet)
+net_packet_t *NET_PacketDup(const net_packet_t *packet)
 {
     net_packet_t *newpacket;
 
@@ -89,7 +89,7 @@ boolean NET_ReadInt8(net_packet_t *packet, unsigned int *data)
 
 boolean NET_ReadInt16(net_packet_t *packet, unsigned int *data)
 {
-    byte *p;
+    const byte *p;
 
     if (packet->pos + 2 > packet->len)
         return false;
@@ -107,7 +107,7 @@ boolean NET_ReadInt16(net_packet_t *packet, unsigned int *data)
 
 boolean NET_ReadInt32(net_packet_t *packet, unsigned int *data)
 {
-    byte *p;
+    const byte *p;
 
     if (packet->pos + 4 > packet->len)
         return false;

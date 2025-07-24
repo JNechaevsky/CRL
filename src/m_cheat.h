@@ -57,7 +57,7 @@ cht_CheckCheat
 
 void
 cht_GetParam
-( cheatseq_t*		cht,
+( const cheatseq_t*		cht,
   char*			buffer );
 
 

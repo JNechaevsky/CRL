@@ -382,7 +382,7 @@ static void AdjustWindowSize(void)
     }
 }
 
-static void HandleWindowEvent(SDL_WindowEvent *event)
+static void HandleWindowEvent(const SDL_WindowEvent *event)
 {
     int i;
 
@@ -479,7 +479,7 @@ static int HandleWindowResize (void* data, SDL_Event *event)
     return 0;
 }
 
-static boolean ToggleFullScreenKeyShortcut(SDL_Keysym *sym)
+static boolean ToggleFullScreenKeyShortcut(const SDL_Keysym *sym)
 {
     Uint16 flags = (KMOD_LALT | KMOD_RALT);
 #if defined(__MACOSX__)
@@ -1008,7 +1008,7 @@ static const double colorblind_matrix[][3][3] = {
 //
 // I_SetPalette
 //
-void I_SetPalette (byte *doompalette)
+void I_SetPalette (const byte *doompalette)
 {
     int i;
 
@@ -1330,7 +1330,7 @@ void I_GraphicsCheckCommandLine(void)
 
 void I_CheckIsScreensaver(void)
 {
-    char *env;
+    const char *env;
 
     env = getenv("XSCREENSAVER_WINDOW");
 
@@ -1409,12 +1409,9 @@ static void SetVideoMode(void)
             h = fullscreen_height;
             window_flags |= SDL_WINDOW_FULLSCREEN;
         }
-    }
 
-    // in fullscreen mode, the window "position" still matters, because
-    // we use it to control which display we run fullscreen on.
-    if (fullscreen)
-    {
+        // in fullscreen mode, the window "position" still matters, because
+        // we use it to control which display we run fullscreen on.
         CenterWindow(&x, &y, w, h);
     }
 
@@ -1604,8 +1601,8 @@ static void SetVideoMode(void)
 void I_InitGraphics(void)
 {
     SDL_Event dummy;
-    byte *doompal;
-    char *env;
+    const byte *doompal;
+    const char *env;
 
     // Pass through the XSCREENSAVER_WINDOW environment variable to 
     // SDL_WINDOWID, to embed the SDL window into the Xscreensaver

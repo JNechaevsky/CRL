@@ -20,6 +20,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "SDL_mixer.h"
+
 #include "config.h"
 #include "doomtype.h"
 
@@ -28,13 +30,6 @@
 #include "i_video.h"
 #include "m_argv.h"
 #include "m_config.h"
-
-#ifndef DISABLE_SDL2MIXER
-
-#include "SDL_mixer.h"
-
-#endif  // DISABLE_SDL2MIXER
-
 
 // Sound sample rate to use for digital output (Hz)
 
@@ -161,7 +156,6 @@ static void InitSfxModule(GameMission_t mission)
 static void InitMusicModule(void)
 {
     int i;
-
     music_module = NULL;
 
     for (i=0; music_modules[i] != NULL; ++i)
@@ -378,6 +372,15 @@ void I_SetMusicVolume(int volume)
     if (music_module != NULL)
     {
         music_module->SetMusicVolume(volume);
+
+#ifndef DISABLE_SDL2MIXER
+        // [crispy] always broadcast volume changes to SDL. This also covers
+        // the musicpack module.
+        if (music_module != &music_sdl_module)
+        {
+            music_sdl_module.SetMusicVolume(volume);
+        }
+#endif
     }
 }
 

@@ -1575,22 +1575,6 @@ static void ST_loadData(void)
     ST_loadGraphics();
 }
 
-static void ST_unloadCallback(const char *lumpname, patch_t **variable)
-{
-    W_ReleaseLumpName(lumpname);
-    *variable = NULL;
-}
-
-static void ST_unloadGraphics(void)
-{
-    ST_loadUnloadGraphics(ST_unloadCallback);
-}
-
-void ST_unloadData(void)
-{
-    ST_unloadGraphics();
-}
-
 void ST_Start (void)
 {
     CRL_ReloadPalette();

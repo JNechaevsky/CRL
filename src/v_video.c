@@ -136,8 +136,8 @@ void V_DrawPatch(int x, int y, patch_t *patch, const char *name)
     column_t *column;
     pixel_t *desttop;
     pixel_t *dest;
-    byte *source;
-    byte *sourcetrans;
+    const byte *source;
+    const byte *sourcetrans;
     int w;
 
     y -= SHORT(patch->topoffset);
@@ -209,7 +209,7 @@ void V_DrawPatchFlipped(int x, int y, patch_t *patch)
     column_t *column; 
     pixel_t *desttop;
     pixel_t *dest;
-    byte *source; 
+    const byte *source; 
     int w; 
  
     y -= SHORT(patch->topoffset); 
@@ -265,7 +265,8 @@ void V_DrawPatchFlipped(int x, int y, patch_t *patch)
 void V_DrawShadowedPatch (int x, int y, const patch_t *patch, const char *name)
 {
     int       count, col, w;
-    byte     *source, *sourcetrans;
+    const byte *source;
+    const byte *sourcetrans;
     pixel_t  *desttop, *dest, *dest2;
     column_t *column;
 
@@ -339,7 +340,8 @@ void V_DrawShadowedPatchRaven(int x, int y, patch_t *patch)
     int count, col;
     column_t *column;
     pixel_t *desttop, *dest;
-    byte *source, *sourcetrans;
+    const byte *source;
+    const byte *sourcetrans;
     pixel_t *desttop2, *dest2;
     int w;
 
@@ -400,7 +402,8 @@ void V_DrawShadowedPatchRaven(int x, int y, patch_t *patch)
 void V_DrawShadowedPatchRavenOptional (int x, int y, const patch_t *patch, const char *name)
 {
     int       count, col, w;
-    byte     *source, *sourcetrans;
+    const byte *source;
+    const byte *sourcetrans;
     pixel_t  *desttop, *dest, *dest2;
     column_t *column;
 
@@ -467,7 +470,7 @@ void V_DrawTLPatch(int x, int y, patch_t * patch)
     int count, col;
     column_t *column;
     pixel_t *desttop, *dest;
-    byte *source;
+    const byte *source;
     int w;
 
     y -= SHORT(patch->topoffset);
@@ -512,7 +515,7 @@ void V_DrawTLPatch(int x, int y, patch_t * patch)
 // to the screen)
 //
  
-void V_DrawRawScreen (byte *raw)
+void V_DrawRawScreen (const byte *raw)
 {
     memcpy(dest_screen, raw, SCREENWIDTH * SCREENHEIGHT);
 }
@@ -652,7 +655,7 @@ void V_RestoreBuffer(void)
 // WritePNGfile
 //
 
-void WritePNGfile (char *filename)
+static void WritePNGfile (const char *filename)
 {
     byte *data;
     int width, height;
@@ -682,11 +685,11 @@ void WritePNGfile (char *filename)
 // V_ScreenShot
 //
 
-void V_ScreenShot(char *format)
+void V_ScreenShot(const char *format)
 {
     int i;
     char lbmname[16]; // haleyjd 20110213: BUG FIX - 12 is too small!
-    char *file;
+    const char *file;
     
     // find a file name to save it to
 

@@ -307,7 +307,7 @@ void NET_CL_LaunchGame(void)
     NET_Conn_NewReliable(&client_connection, NET_PACKET_TYPE_LAUNCH);
 }
 
-void NET_CL_StartGame(net_gamesettings_t *settings)
+void NET_CL_StartGame(const net_gamesettings_t *settings)
 {
     net_packet_t *packet;
 
@@ -394,7 +394,7 @@ static void NET_CL_SendTics(int start, int end)
 
 // Add a new ticcmd to the send queue
 
-void NET_CL_SendTiccmd(ticcmd_t *ticcmd, int maketic)
+void NET_CL_SendTiccmd(const ticcmd_t *ticcmd, int maketic)
 {
     net_ticdiff_t diff;
     net_server_send_t *sendobj;
@@ -432,7 +432,7 @@ void NET_CL_SendTiccmd(ticcmd_t *ticcmd, int maketic)
 static void NET_CL_ParseSYN(net_packet_t *packet)
 {
     net_protocol_t protocol;
-    char *server_version;
+    const char *server_version;
 
     NET_Log("client: processing SYN response");
 
@@ -482,7 +482,7 @@ static void SetRejectReason(const char *s)
 
 static void NET_CL_ParseReject(net_packet_t *packet)
 {
-    char *msg;
+    const char *msg;
 
     msg = NET_ReadSafeString(packet);
     if (msg == NULL)
@@ -659,7 +659,7 @@ static void NET_CL_CheckResends(void)
 
     for (i=0; i<BACKUPTICS; ++i)
     {
-        net_server_recv_t *recvobj;
+        const net_server_recv_t *recvobj;
         boolean need_resend;
 
         recvobj = &recvwindow[i];
@@ -916,7 +916,7 @@ static void NET_CL_ParseResendRequest(net_packet_t *packet)
 
 static void NET_CL_ParseConsoleMessage(net_packet_t *packet)
 {
-    char *msg;
+    const char *msg;
 
     msg = NET_ReadSafeString(packet);
 

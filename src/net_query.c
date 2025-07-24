@@ -309,7 +309,7 @@ static void NET_Query_ParseResponse(net_addr_t *addr, net_packet_t *packet,
 
     if (target == NULL)
     {
-        query_target_t *broadcast_target;
+        const query_target_t *broadcast_target;
 
         broadcast_target = GetTargetForAddr(NULL, false);
 
@@ -352,7 +352,7 @@ static void NET_Query_ParseMasterResponse(net_addr_t *master_addr,
 {
     unsigned int packet_type;
     query_target_t *target;
-    char *addr_str;
+    const char *addr_str;
     net_addr_t *addr;
 
     // Read the header.  We are only interested in query responses.
@@ -396,7 +396,7 @@ static void NET_Query_ParsePacket(net_addr_t *addr, net_packet_t *packet,
                                   net_query_callback_t callback,
                                   void *user_data)
 {
-    query_target_t *target;
+    const query_target_t *target;
 
     // This might be the master server responding.
 
@@ -885,7 +885,7 @@ net_addr_t *NET_FindLANServer(void)
 // Block until a packet of the given type is received from the given
 // address.
 
-static net_packet_t *BlockForPacket(net_addr_t *addr, unsigned int packet_type,
+static net_packet_t *BlockForPacket(const net_addr_t *addr, unsigned int packet_type,
                                     unsigned int timeout_ms)
 {
     net_packet_t *packet;
@@ -927,7 +927,7 @@ boolean NET_StartSecureDemo(prng_seed_t seed)
 {
     net_packet_t *request, *response;
     net_addr_t *master_addr;
-    char *signature;
+    const char *signature;
     boolean result;
 
     NET_Query_Init();

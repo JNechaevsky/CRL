@@ -465,7 +465,7 @@ void *W_CacheLumpName(const char *name, int tag)
 // complicated ...
 //
 
-void W_ReleaseLumpNum(lumpindex_t lumpnum)
+void W_ReleaseLumpNum(const lumpindex_t lumpnum)
 {
     lumpinfo_t *lump;
 

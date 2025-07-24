@@ -57,7 +57,7 @@ void V_DrawShadowedPatch(int x, int y, const patch_t *patch, const char *name);
 void V_DrawShadowedPatchRaven(int x, int y, patch_t *patch);
 void V_DrawShadowedPatchRavenOptional(int x, int y, const patch_t *patch, const char *name);
 void V_DrawTLPatch(int x, int y, patch_t *patch);
-void V_DrawRawScreen(byte *raw);
+void V_DrawRawScreen(const byte *raw);
 
 // Draw a linear block of pixels into the view buffer.
 
@@ -84,7 +84,7 @@ void V_RestoreBuffer(void);
 // format described in the string passed to the function, eg.
 // "DOOM%02i.pcx"
 
-void V_ScreenShot(char *format);
+void V_ScreenShot(const char *format);
 
 // Load the lookup table for translucency calculations from the TINTTAB
 // lump.

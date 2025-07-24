@@ -25,6 +25,7 @@
 #include <ctype.h>
 
 #include "SDL.h"
+#include "SDL_mixer.h"
 
 #include "config.h"
 #include "doomtype.h"
@@ -54,7 +55,7 @@ static char *temp_timidity_cfg = NULL;
 // is needed to inject a "dir" command so that the patches are read
 // relative to the actual config file.
 
-static boolean WriteWrapperTimidityConfig(char *write_path)
+static boolean WriteWrapperTimidityConfig(const char *write_path)
 {
     char *path;
     FILE *fstream;
@@ -127,8 +128,6 @@ void I_InitTimidityConfig(void)
 
 #ifndef DISABLE_SDL2MIXER
 
-#include "SDL_mixer.h"
-
 
 #define MAXMIDLENGTH (96 * 1024)
 
@@ -180,6 +179,11 @@ static boolean SDLIsInitialized(void)
     return Mix_QuerySpec(&freq, &format, &channels) != 0;
 }
 
+#ifdef _WIN32
+// putenv requires a non-const string whose lifetime is the whole program
+static char sdl_mixer_disable_nativemidi[] = "SDL_MIXER_DISABLE_NATIVEMIDI=1";
+#endif
+
 // Initialize music subsystem
 static boolean I_SDL_InitMusic(void)
 {
@@ -210,6 +214,12 @@ static boolean I_SDL_InitMusic(void)
             music_initialized = true;
         }
     }
+
+    #ifdef _WIN32
+    // Never let SDL Mixer use native midi on Windows. Avoids SDL Mixer bug
+    // where music volume affects global application volume.
+    putenv(sdl_mixer_disable_nativemidi);
+    #endif
 
     // Initialize SDL_Mixer for MIDI music playback
     Mix_Init(MIX_INIT_MID);
@@ -340,7 +350,7 @@ static void I_SDL_UnRegisterSong(void *handle)
 
 // Determine whether memory block is a .mid file 
 
-static boolean IsMid(byte *mem, int len)
+static boolean IsMid(const byte *mem, int len)
 {
     return len > 4 && !memcmp(mem, "MThd", 4);
 }

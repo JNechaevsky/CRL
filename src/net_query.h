@@ -32,7 +32,7 @@ extern int NET_StartMasterQuery(void);
 
 extern void NET_LANQuery(void);
 extern void NET_MasterQuery(void);
-extern void NET_QueryAddress(const char *addr);
+extern void NET_QueryAddress(const char *addr_str);
 extern net_addr_t *NET_FindLANServer(void);
 
 extern int NET_Query_Poll(net_query_callback_t callback, void *user_data);

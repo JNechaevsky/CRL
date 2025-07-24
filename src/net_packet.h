@@ -23,7 +23,7 @@
 #include "net_defs.h"
 
 net_packet_t *NET_NewPacket(int initial_size);
-net_packet_t *NET_PacketDup(net_packet_t *packet);
+net_packet_t *NET_PacketDup(const net_packet_t *packet);
 void NET_FreePacket(net_packet_t *packet);
 
 boolean NET_ReadInt8(net_packet_t *packet, unsigned int *data);

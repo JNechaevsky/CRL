@@ -68,7 +68,7 @@ static void NET_SDL_InitAddrTable(void)
     memset(addr_table, 0, sizeof(addrpair_t *) * addr_table_size);
 }
 
-static boolean AddressesEqual(IPaddress *a, IPaddress *b)
+static boolean AddressesEqual(const IPaddress *a, const IPaddress *b)
 {
     return a->host == b->host
         && a->port == b->port;
@@ -77,7 +77,7 @@ static boolean AddressesEqual(IPaddress *a, IPaddress *b)
 // Finds an address by searching the table.  If the address is not found,
 // it is added to the table.
 
-static net_addr_t *NET_SDL_FindAddress(IPaddress *addr)
+static net_addr_t *NET_SDL_FindAddress(const IPaddress *addr)
 {
     addrpair_t *new_entry;
     int empty_entry = -1;
@@ -338,7 +338,7 @@ net_addr_t *NET_SDL_ResolveAddress(const char *address)
     char *addr_hostname;
     int addr_port;
     int result;
-    char *colon;
+    const char *colon;
 
     colon = strchr(address, ':');
 
