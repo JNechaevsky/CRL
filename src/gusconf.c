@@ -226,7 +226,7 @@ static char *ReadDMXConfig(void)
     return data;
 }
 
-static boolean WriteTimidityConfig(char *path, gus_config_t *config)
+static boolean WriteTimidityConfig(const char *path, const gus_config_t *config)
 {
     FILE *fstream;
     unsigned int i;
@@ -273,7 +273,7 @@ static boolean WriteTimidityConfig(char *path, gus_config_t *config)
     return true;
 }
 
-boolean GUS_WriteConfig(char *path)
+boolean GUS_WriteConfig(const char *path)
 {
     boolean result;
     char *dmxconf;

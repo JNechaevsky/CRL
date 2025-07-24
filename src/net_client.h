@@ -29,8 +29,8 @@ void NET_CL_Disconnect(void);
 void NET_CL_Run(void);
 void NET_CL_Init(void);
 void NET_CL_LaunchGame(void);
-void NET_CL_StartGame(net_gamesettings_t *settings);
-void NET_CL_SendTiccmd(ticcmd_t *ticcmd, int maketic);
+void NET_CL_StartGame(const net_gamesettings_t *settings);
+void NET_CL_SendTiccmd(const ticcmd_t *ticcmd, int maketic);
 boolean NET_CL_GetSettings(net_gamesettings_t *_settings);
 void NET_Init(void);
 

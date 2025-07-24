@@ -56,10 +56,10 @@ typedef enum
 //#include "f_finale.h"
 
 // Stage of animation:
-finalestage_t finalestage;
+static finalestage_t finalestage;
 
-unsigned int finalecount;
-unsigned int finaleendcount;
+static unsigned int finalecount;
+static unsigned int finaleendcount;
 
 // [JN] Do screen wipe only once after text skipping.
 static boolean finale_wipe_done;
@@ -105,13 +105,13 @@ static textscreen_t textscreens[] =
     { pack_plut, 1, 31, "RROCK19",   P6TEXT},
 };
 
-const char *finaletext;
-const char *finaleflat;
+static const char *finaletext;
+static const char *finaleflat;
 
-static void	F_StartCast (void);
-static void	F_CastTicker (void);
+static void F_StartCast (void);
+static void F_CastTicker (void);
+static void F_CastDrawer (void);
 static boolean F_CastResponder (const event_t *ev);
-static void	F_CastDrawer (void);
 
 //
 // F_StartFinale
@@ -223,15 +223,16 @@ void F_Ticker (void)
                 continue;
 
                 // [JN] Double-skip by pressing "attack" button.
+                const boolean old_attackdown = players[i].attackdown;
+
                 if (players[i].cmd.buttons & BT_ATTACK && !menuactive)
                 {
-                    if (!players[i].attackdown)
+                    if (!old_attackdown)
                     {
                         if (finalecount >= finaleendcount)
                         break;
     
                         finalecount += finaleendcount;
-                        players[i].attackdown = true;
                     }
                     players[i].attackdown = true;
                 }
@@ -241,15 +242,16 @@ void F_Ticker (void)
                 }
     
                 // [JN] Double-skip by pressing "use" button.
+                const boolean old_usedown = players[i].usedown;
+
                 if (players[i].cmd.buttons & BT_USE && !menuactive)
                 {
-                    if (!players[i].usedown)
+                    if (!old_usedown)
                     {
                         if (finalecount >= finaleendcount)
                         break;
     
                         finalecount += finaleendcount;
-                        players[i].usedown = true;
                     }
                     players[i].usedown = true;
                 }
@@ -408,7 +410,7 @@ static void F_TextWrite (void)
 	}
 		
 	c = toupper(c) - HU_FONTSTART;
-	if (c < 0 || c> HU_FONTSIZE)
+	if (c < 0 || c >= HU_FONTSIZE)
 	{
 	    cx += 4;
 	    continue;
@@ -595,7 +597,7 @@ static void F_CastTicker (void)
 // F_CastResponder
 //
 
-static boolean F_CastResponder (const event_t* ev)
+static boolean F_CastResponder (const event_t *ev)
 {
     if (ev->type != ev_keydown)
 	return false;

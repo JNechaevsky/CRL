@@ -702,7 +702,7 @@ static opl_channel_data_t *TrackChannelForEvent(const opl_track_data_t *track,
 
 // Get the frequency that we should be using for a voice.
 
-static void KeyOffEvent(opl_track_data_t *track, midi_event_t *event)
+static void KeyOffEvent(const opl_track_data_t *track, midi_event_t *event)
 {
     const opl_channel_data_t *channel;
     int i;
@@ -970,7 +970,7 @@ static void VoiceKeyOn(opl_channel_data_t *channel,
     UpdateVoiceFrequency(voice);
 }
 
-static void KeyOnEvent(opl_track_data_t *track, midi_event_t *event)
+static void KeyOnEvent(const opl_track_data_t *track, midi_event_t *event)
 {
     genmidi_instr_t *instrument;
     opl_channel_data_t *channel;
@@ -1084,7 +1084,7 @@ static void KeyOnEvent(opl_track_data_t *track, midi_event_t *event)
     }
 }
 
-static void ProgramChangeEvent(opl_track_data_t *track, midi_event_t *event)
+static void ProgramChangeEvent(const opl_track_data_t *track, midi_event_t *event)
 {
     opl_channel_data_t *channel;
     int instrument;
@@ -1190,7 +1190,7 @@ static void AllNotesOff(const opl_channel_data_t *channel, unsigned int param)
     }
 }
 
-static void ControllerEvent(opl_track_data_t *track, midi_event_t *event)
+static void ControllerEvent(const opl_track_data_t *track, midi_event_t *event)
 {
     opl_channel_data_t *channel;
     unsigned int controller;
@@ -1231,7 +1231,7 @@ static void ControllerEvent(opl_track_data_t *track, midi_event_t *event)
 
 // Process a pitch bend event.
 
-static void PitchBendEvent(opl_track_data_t *track, midi_event_t *event)
+static void PitchBendEvent(const opl_track_data_t *track, midi_event_t *event)
 {
     opl_channel_data_t *channel;
     int i;
@@ -1619,7 +1619,7 @@ static void I_OPL_UnRegisterSong(void *handle)
 
 // Determine whether memory block is a .mid file
 
-static boolean IsMid(byte *mem, int len)
+static boolean IsMid(const byte *mem, int len)
 {
     return len > 4 && !memcmp(mem, "MThd", 4);
 }

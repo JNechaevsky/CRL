@@ -98,11 +98,11 @@ net_packet_t *NET_Conn_NewReliable(net_connection_t *conn, int packet_type);
 // Other miscellaneous common functions
 unsigned int NET_ExpandTicNum(unsigned int relative, unsigned int b);
 boolean NET_ValidGameSettings(GameMode_t mode, GameMission_t mission,
-                              net_gamesettings_t *settings);
+                              const net_gamesettings_t *settings);
 
 void NET_OpenLog(void);
 void NET_Log(const char *fmt, ...);
-void NET_LogPacket(net_packet_t *packet);
+void NET_LogPacket(const net_packet_t *packet);
 
 #endif /* #ifndef NET_COMMON_H */
 

@@ -69,7 +69,7 @@ static void *test_malloc(size_t size)
     return result + 1;
 }
 
-void test_free(void *data)
+static void test_free(void *data)
 {
     int *i;
 

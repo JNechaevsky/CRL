@@ -1700,7 +1700,7 @@ static void I_WIN_ResumeSong(void)
 
 // Determine whether memory block is a .mid file 
 
-static boolean IsMid(byte *mem, int len)
+static boolean IsMid(const byte *mem, int len)
 {
     return len > 4 && !memcmp(mem, "MThd", 4);
 }

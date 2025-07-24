@@ -306,7 +306,7 @@ void CRL_MarkPixelP (void** __surface, void* __what, void* __drawp)
 //  @return Plane color
 // -----------------------------------------------------------------------------
 
-static int CRL_ColorizeThisPlane (CRLPlaneData_t *__pl)
+static int CRL_ColorizeThisPlane (const CRLPlaneData_t *__pl)
 {
     // Initial color
     int id = 0;

@@ -62,7 +62,7 @@ boolean NET_ReadConnectData(net_packet_t *packet, net_connect_data_t *data)
         && NET_ReadInt8(packet, (unsigned int *) &data->player_class);
 }
 
-void NET_WriteSettings(net_packet_t *packet, net_gamesettings_t *settings)
+void NET_WriteSettings(net_packet_t *packet, const net_gamesettings_t *settings)
 {
     int i;
 
@@ -158,7 +158,7 @@ boolean NET_ReadQueryData(net_packet_t *packet, net_querydata_t *query)
     return query->description != NULL;
 }
 
-void NET_WriteQueryData(net_packet_t *packet, net_querydata_t *query)
+void NET_WriteQueryData(net_packet_t *packet, const net_querydata_t *query)
 {
     NET_WriteString(packet, query->version);
     NET_WriteInt8(packet, query->server_state);
@@ -173,7 +173,7 @@ void NET_WriteQueryData(net_packet_t *packet, net_querydata_t *query)
     NET_WriteProtocolList(packet);
 }
 
-void NET_WriteTiccmdDiff(net_packet_t *packet, net_ticdiff_t *diff,
+void NET_WriteTiccmdDiff(net_packet_t *packet, const net_ticdiff_t *diff,
                          boolean lowres_turn)
 {
     // Header
@@ -304,7 +304,7 @@ boolean NET_ReadTiccmdDiff(net_packet_t *packet, net_ticdiff_t *diff,
     return true;
 }
 
-void NET_TiccmdDiff(ticcmd_t *tic1, ticcmd_t *tic2, net_ticdiff_t *diff)
+void NET_TiccmdDiff(const ticcmd_t *tic1, const ticcmd_t *tic2, net_ticdiff_t *diff)
 {
     diff->diff = 0;
     diff->cmd = *tic2;
@@ -484,7 +484,7 @@ void NET_WriteWaitData(net_packet_t *packet, net_waitdata_t *data)
 boolean NET_ReadWaitData(net_packet_t *packet, net_waitdata_t *data)
 {
     int i;
-    char *s;
+    const char *s;
 
     if (!NET_ReadInt8(packet, (unsigned int *) &data->num_players)
      || !NET_ReadInt8(packet, (unsigned int *) &data->num_drones)
@@ -540,7 +540,7 @@ static boolean NET_ReadBlob(net_packet_t *packet, uint8_t *buf, size_t len)
     return true;
 }
 
-static void NET_WriteBlob(net_packet_t *packet, uint8_t *buf, size_t len)
+static void NET_WriteBlob(net_packet_t *packet, const uint8_t *buf, size_t len)
 {
     int i;
 
@@ -555,7 +555,7 @@ boolean NET_ReadSHA1Sum(net_packet_t *packet, sha1_digest_t digest)
     return NET_ReadBlob(packet, digest, sizeof(sha1_digest_t));
 }
 
-void NET_WriteSHA1Sum(net_packet_t *packet, sha1_digest_t digest)
+void NET_WriteSHA1Sum(net_packet_t *packet, const sha1_digest_t digest)
 {
     NET_WriteBlob(packet, digest, sizeof(sha1_digest_t));
 }

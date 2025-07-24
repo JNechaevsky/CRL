@@ -18,22 +18,18 @@
 
 #include <ctype.h> // toupper
 
-#include "doomdef.h"
 #include "doomstat.h"
 #include "doomkeys.h"
 #include "d_englsh.h"
-#include "d_event.h"
 #include "deh_str.h"
 #include "i_input.h"
 #include "m_controls.h"
 #include "m_misc.h"
 #include "p_local.h"
 #include "s_sound.h"
-#include "v_patch.h"
 #include "v_video.h"
 #include "w_wad.h"
 #include "z_zone.h"
-#include "sounds.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
@@ -188,6 +184,7 @@ boolean CT_Responder (event_t *ev)
     if (!chatmodeon)
     {
         int sendto;
+
         // [PN] Map keys to players or broadcast.
         static const int key_to_player[] = {
             CT_PLR_GREEN, CT_PLR_INDIGO, CT_PLR_BROWN, CT_PLR_RED
@@ -481,8 +478,6 @@ static void CT_AddChar (const int player, const char c)
 
 static void CT_BackSpace (const int player)
 {
-    char c;
-
     // [PN] If the message is empty, there's nothing to backspace.
     if (msgptr[player] == 0)
     {
@@ -491,7 +486,7 @@ static void CT_BackSpace (const int player)
 
     // [PN] Move the message pointer back and fetch the last character.
     msgptr[player]--;
-    c = chat_msg[player][msgptr[player]];
+    const char c = chat_msg[player][msgptr[player]];
 
     // [PN] Adjust the message length based on the character type.
     if (c < 33)
@@ -502,7 +497,7 @@ static void CT_BackSpace (const int player)
     else
     {
         // [PN] Printable characters require fetching the font patch for width.
-        const patch_t *patch = W_CacheLumpNum(ChatFontBaseLump + c - 33, PU_STATIC);
+        const patch_t *const patch = W_CacheLumpNum(ChatFontBaseLump + c - 33, PU_STATIC);
         msglen[player] -= patch->width;
     }
 
