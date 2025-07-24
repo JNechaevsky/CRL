@@ -169,7 +169,7 @@ static void LoadResponseFile(int argv_index, const char *filename)
 
         if (infile[k] == '\"')
         {
-            char *argstart;
+            const char *argstart;
             // Skip the first character(")
             ++k;
 
@@ -202,7 +202,7 @@ static void LoadResponseFile(int argv_index, const char *filename)
         }
         else
         {
-            char *argstart;
+            const char *argstart;
             // Read in the next argument until a space is reached
 
             argstart = &infile[k];
@@ -310,7 +310,9 @@ void M_FindResponseFile(void)
     }
 }
 
-#if defined(_WIN32)
+// [FG] compose a proper command line from loose file paths passed as arguments
+// to allow for loading WADs and DEHACKED patches by drag-and-drop
+
 enum
 {
     FILETYPE_UNKNOWN = 0x0,
@@ -324,7 +326,7 @@ static boolean FileIsDemoLump(const char *filename)
 {
     FILE *handle;
     int count, ver;
-    byte buf[12], *p = buf;
+    byte buf[32], *p = buf;
 
     handle = M_fopen(filename, "rb");
 
@@ -475,8 +477,13 @@ void M_AddLooseFiles(void)
         if (strlen(arg) < 3 ||
             arg[0] == '-' ||
             arg[0] == '@' ||
+#if defined (_WIN32)
             ((!isalpha(arg[0]) || arg[1] != ':' || arg[2] != '\\') &&
-            (arg[0] != '\\' || arg[1] != '\\')))
+            (arg[0] != '\\' || arg[1] != '\\'))
+#else
+            (arg[0] != '/' && arg[0] != '.')
+#endif
+          )
         {
             free(arguments);
             return;
@@ -537,7 +544,6 @@ void M_AddLooseFiles(void)
     free(myargv);
     myargv = newargv;
 }
-#endif
 
 // Return the name of the executable used to start the program:
 

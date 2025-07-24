@@ -20,6 +20,7 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <locale.h> // [crispy] setlocale
 #include <SDL.h>
 
@@ -35,8 +36,6 @@
 #include "i_system.h"
 #include "m_argv.h"
 #include "m_misc.h"
-
-#include "crlcore.h"
 
 
 //
@@ -72,19 +71,22 @@ int main(int argc, char **argv)
         SetConsoleTitle("CRL Console");
 
         // Head text outputs.
-        freopen("CONIN$", "r",stdin); 
-        freopen("CONOUT$","w",stdout); 
-        freopen("CONOUT$","w",stderr); 
+        if (!freopen("CONIN$", "r", stdin))
+            fprintf(stderr, "Failed to redirect stdin\n");
+        if (!freopen("CONOUT$", "w", stdout))
+            fprintf(stderr, "Failed to redirect stdout\n");
+        if (!freopen("CONOUT$", "w", stderr))
+            fprintf(stderr, "Failed to redirect stderr\n");
 
         // Set a proper codepage.
         SetConsoleOutputCP(CP_UTF8);
         SetConsoleCP(CP_UTF8);
     }
+#endif
 
-    // compose a proper command line from loose file paths passed as arguments
+    // [FG] compose a proper command line from loose file paths passed as arguments
     // to allow for loading WADs and DEHACKED patches by drag-and-drop
     M_AddLooseFiles();
-#endif
 
     M_FindResponseFile();
     M_SetExeDir();
