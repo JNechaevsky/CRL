@@ -26,6 +26,7 @@
 #include <string.h>
 #include <assert.h>
 #include "SDL.h"
+#include "SDL_mixer.h"
 
 #ifdef HAVE_LIBSAMPLERATE
 #include <samplerate.h>
@@ -43,6 +44,9 @@
 #include "doomtype.h"
 
 
+// [crispy] values 3 and higher might reproduce DOOM.EXE more accurately,
+// but 1 is closer to "use_libsamplerate = 0" which is the default in Choco
+// and causes only a short delay at startup
 int use_libsamplerate = 1;
 
 // Scale factor used when converting libsamplerate floating point numbers
@@ -55,8 +59,6 @@ float libsamplerate_scale = 0.65f;
 
 
 #ifndef DISABLE_SDL2MIXER
-
-#include "SDL_mixer.h"
 
 
 #define LOW_PASS_FILTER
@@ -283,7 +285,7 @@ static void UnlockAllocatedSound(allocated_sound_t *snd)
 // Search through the list of allocated sounds and return the one that matches
 // the supplied sfxinfo entry and pitch level.
 
-static allocated_sound_t * GetAllocatedSoundBySfxInfoAndPitch(sfxinfo_t *sfxinfo, int pitch)
+static allocated_sound_t * GetAllocatedSoundBySfxInfoAndPitch(const sfxinfo_t *sfxinfo, int pitch)
 {
     allocated_sound_t * p = allocated_sounds_head;
 
@@ -554,7 +556,7 @@ static boolean ConvertibleRatio(int freq1, int freq2)
 
 // Debug code to dump resampled sound effects to WAV files for analysis.
 
-static void WriteWAV(char *filename, byte *data,
+static void WriteWAV(const char *filename, const byte *data,
                      uint32_t length, int samplerate)
 {
     FILE *wav;
@@ -884,7 +886,7 @@ static int I_SDL_GetSfxLumpNum(sfxinfo_t *sfx)
 
     GetSfxLumpName(sfx, namebuf, sizeof(namebuf));
 
-    // [crispy] make missing sounds non-fatal
+     // [crispy] make missing sounds non-fatal
     return W_CheckNumForName(namebuf);
 }
 

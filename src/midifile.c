@@ -92,7 +92,7 @@ struct midi_file_s
 
 // Check the header of a chunk:
 
-static boolean CheckChunkHeader(chunk_header_t *chunk,
+static boolean CheckChunkHeader(const chunk_header_t *chunk,
                                 const char *expected_id)
 {
     boolean result;
@@ -674,7 +674,7 @@ void MIDI_FreeFile(midi_file_t *file)
     free(file);
 }
 
-midi_file_t *MIDI_LoadFile(char *filename)
+midi_file_t *MIDI_LoadFile(const char *filename)
 {
     midi_file_t *file;
     FILE *stream;
@@ -727,7 +727,7 @@ midi_file_t *MIDI_LoadFile(char *filename)
 
 // Get the number of tracks in a MIDI file.
 
-unsigned int MIDI_NumTracks(midi_file_t *file)
+unsigned int MIDI_NumTracks(const midi_file_t *file)
 {
     return file->num_tracks;
 }
@@ -853,9 +853,9 @@ static char *MIDI_EventTypeToString(midi_event_type_t event_type)
     }
 }
 
-void PrintTrack(midi_track_t *track)
+static void PrintTrack(midi_track_t *track)
 {
-    midi_event_t *event;
+    const midi_event_t *event;
     unsigned int i;
 
     for (i=0; i<track->num_events; ++i)

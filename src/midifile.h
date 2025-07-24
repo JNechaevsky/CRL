@@ -194,7 +194,7 @@ boolean MIDI_CheckFile(void *data, int len);
 
 // Load a MIDI file.
 
-midi_file_t *MIDI_LoadFile(char *filename);
+midi_file_t *MIDI_LoadFile(const char *filename);
 
 // Free a MIDI file.
 
@@ -206,11 +206,11 @@ unsigned int MIDI_GetFileTimeDivision(midi_file_t *file);
 
 // Get the number of tracks in a MIDI file.
 
-unsigned int MIDI_NumTracks(midi_file_t *file);
+unsigned int MIDI_NumTracks(const midi_file_t *file);
 
 // Start iterating over the events in a track.
 
-midi_track_iter_t *MIDI_IterateTrack(midi_file_t *file, unsigned int track_num);
+midi_track_iter_t *MIDI_IterateTrack(midi_file_t *file, unsigned int track);
 
 // Free an iterator.
 
