@@ -25,6 +25,9 @@ extern int snd_MaxVolume;
 extern int snd_MusicVolume;
 extern int snd_Channels;
 
+extern int mus_song;
+extern boolean mus_force_replay;
+
 void S_Start(void);
 void S_StartSound(void *origin, int sound_id);
 void S_StartSoundAtVolume(void *origin, int sound_id, int volume);
@@ -37,5 +40,6 @@ void S_Init(void);
 void S_GetChannelInfo(SoundInfo_t * s);
 void S_SetMaxVolume(void);
 void S_SetMusicVolume(void);
+void S_ShutDown(void);
 
 #endif

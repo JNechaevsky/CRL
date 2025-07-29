@@ -26,6 +26,7 @@
 #include "deh_str.h"
 #include "doomdef.h"
 #include "doomkeys.h"
+#include "gusconf.h"
 #include "i_input.h"
 #include "i_system.h"
 #include "i_swap.h"
@@ -1406,10 +1407,12 @@ static void DrawCRLSound (void)
                M_Item_Glow(10, snd_Channels == 8 ? GLOW_GREEN :
                                snd_Channels == 1 ? GLOW_RED : GLOW_DARKGREEN));
 
-    // Inform that music system is not hot-swappable. :(
     if (CurrentItPos == 7)
     {
-        MN_DrTextACentered("CHANGE WILL REQUIRE RESTART OF THE PROGRAM", 140, cr[CR_GRAY]);
+        if (snd_musicdevice == 5 && strcmp(gus_patch_path, "") == 0)
+        {
+            MN_DrTextACentered("\"GUS[PATCH[PATH\" VARIABLE IS NOT SET", 140, cr[CR_GRAY]);
+        }
     }
 }
 
@@ -1482,6 +1485,26 @@ static void CRL_MusicSystem (int option)
                 break;
             }
     }
+
+    // [PN] Hot-swap music system
+    S_ShutDown();
+    I_InitSound(heretic);
+    I_InitMusic();
+    S_SetMusicVolume();
+
+    // [JN] Enforce music replay while changing music system.
+    mus_force_replay = true;
+
+    if (mus_song != -1)
+    {
+        S_StartSong(mus_song, true);
+    }
+    else
+    {
+        S_StartSong((gameepisode - 1) * 9 + gamemap - 1, true);
+    }
+
+    mus_force_replay = false;
 }
 
 static void CRL_SFXMode (int option)
