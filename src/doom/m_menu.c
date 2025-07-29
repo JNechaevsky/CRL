@@ -3095,7 +3095,7 @@ static menuitem_t CRLMenu_Automap[]=
 {
     { M_MUL2, "ROTATE MODE",            M_CRL_Automap_Rotate,    'r' },
     { M_MUL2, "OVERLAY MODE",           M_CRL_Automap_Overlay,   'o' },
-    { M_MUL2, "OVERLAY SHADING LEVEL",  M_CRL_Automap_Shading,   'o' },
+    { M_MUL1, "OVERLAY SHADING LEVEL",  M_CRL_Automap_Shading,   'o' },
     { M_MUL2, "DRAWING MODE",           M_CRL_Automap_Drawing,   'd' },
     { M_MUL2, "MARK SECRET SECTORS",    M_CRL_Automap_Secrets,   'm' },
     { M_MUL2, "SOUND PROPAGATION MODE", M_CRL_Automap_SndProp,   's' },
