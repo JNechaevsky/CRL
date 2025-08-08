@@ -720,7 +720,7 @@ static void M_DrawCRL_Automap (void);
 static void M_CRL_Automap_Rotate (int choice);
 static void M_CRL_Automap_Overlay (int choice);
 static void M_CRL_Automap_Shading (int choice);
-static void M_ID_Automap_Pan (int choice);
+static void M_CRL_Automap_Pan (int choice);
 static void M_CRL_Automap_Drawing (int choice);
 static void M_CRL_Automap_Secrets (int choice);
 static void M_CRL_Automap_SndProp (int choice);
