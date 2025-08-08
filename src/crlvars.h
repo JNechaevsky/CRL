@@ -69,6 +69,7 @@ extern int crl_automap_secrets;
 extern int crl_automap_rotate;
 extern int crl_automap_overlay;
 extern int crl_automap_shading;
+extern int crl_automap_mouse_pan;
 extern int crl_automap_sndprop;
 
 // Gameplay features

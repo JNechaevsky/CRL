@@ -69,6 +69,7 @@ int crl_automap_secrets = 0;
 int crl_automap_rotate = 0;
 int crl_automap_overlay = 0;
 int crl_automap_shading = 0;
+int crl_automap_mouse_pan = 0;
 int crl_automap_sndprop = 0;
 
 // Gameplay features
@@ -152,6 +153,7 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_automap_rotate",             &crl_automap_rotate);
     M_BindIntVariable("crl_automap_overlay",            &crl_automap_overlay);
     M_BindIntVariable("crl_automap_shading",            &crl_automap_shading);
+    M_BindIntVariable("crl_automap_mouse_pan",          &crl_automap_mouse_pan);
     M_BindIntVariable("crl_automap_sndprop",            &crl_automap_sndprop);
 
     // Gameplay features

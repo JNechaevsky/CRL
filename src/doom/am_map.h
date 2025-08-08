@@ -29,6 +29,7 @@
 #define AM_MSGENTERED (AM_MSGHEADER | ('e'<<8))
 #define AM_MSGEXITED (AM_MSGHEADER | ('x'<<8))
 
+extern int followplayer;
 extern int iddt_cheating;
 
 extern void AM_Init (void);

@@ -226,6 +226,7 @@ int key_crl_notarget = 0;
 int key_crl_nomomentum = 0;
 int key_crl_map_rotate = 'r';
 int key_crl_map_overlay = 'o';
+int key_crl_map_mousepan = 0;
 int key_crl_map_sndprop = 'p';
 
 int key_crl_autorun = KEY_CAPSLOCK; // [crispy]
@@ -406,6 +407,7 @@ void M_BindMenuControls(void)
     M_BindIntVariable("key_crl_nomomentum",   &key_crl_nomomentum);
     M_BindIntVariable("key_crl_map_rotate",   &key_crl_map_rotate);
     M_BindIntVariable("key_crl_map_overlay",  &key_crl_map_overlay);
+    M_BindIntVariable("key_crl_map_mousepan", &key_crl_map_mousepan);
     M_BindIntVariable("key_crl_map_sndprop",  &key_crl_map_sndprop);
     M_BindIntVariable("key_crl_autorun",      &key_crl_autorun); // [crispy]
     M_BindIntVariable("key_crl_novert",       &key_crl_novert);

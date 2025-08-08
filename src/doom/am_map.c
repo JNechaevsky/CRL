@@ -264,7 +264,10 @@ static patch_t *marknums[10]; // numbers used for marking by the automap
 static mpoint_t markpoints[AM_NUMMARKPOINTS]; // where the points are
 static int markpointnum = 0; // next point to be assigned
 
-static int followplayer = 1; // specifies whether to follow the player around
+int followplayer = 1; // specifies whether to follow the player around
+// [PN] Accumulated automap pan delta from mouse movement
+static int mouse_pan_x = 0;
+static int mouse_pan_y = 0;
 
 static boolean stopped = true;
 
@@ -487,6 +490,56 @@ static void AM_changeWindowLoc (void)
         m_y = min_y - m_h/2;
     }
 
+    m_x2 = m_x + m_w;
+    m_y2 = m_y + m_h;
+}
+
+// -----------------------------------------------------------------------------
+// AM_MousePanning
+//  [PN] Moves the map window by using the mouse.
+// -----------------------------------------------------------------------------
+
+static void AM_MousePanning (void)
+{
+    static fixed_t prev_frac = 0;
+
+    // Compute frame delta
+    fixed_t delta = (crl_uncapped_fps && realleveltime > oldleveltime)
+                  ? (fractionaltic - prev_frac + FRACUNIT) & (FRACUNIT - 1)
+                  : FRACUNIT;
+
+    prev_frac = fractionaltic;
+
+    // Interpolated movement step
+    int64_t step_x = FixedMul(mouse_pan_x, delta);
+    int64_t step_y = FixedMul(mouse_pan_y, delta);
+
+    // Save original unrotated values
+    const int64_t original_x = step_x;
+    const int64_t original_y = step_y;
+
+    if (!(step_x | step_y))
+        return;
+
+    const int32_t center_x = m_x + (m_w >> 1) + FTOM(step_x);
+    const int32_t center_y = m_y + (m_h >> 1) + FTOM(step_y);
+
+    // Clamp to map bounds
+    if (center_x > max_x) step_x -= MTOF(center_x - max_x);
+    else if (center_x < min_x) step_x += MTOF(min_x - center_x);
+
+    if (center_y > max_y) step_y -= MTOF(center_y - max_y);
+    else if (center_y < min_y) step_y += MTOF(min_y - center_y);
+
+    // Apply pan
+    m_x += FTOM(step_x);
+    m_y += FTOM(step_y);
+
+    // Remove applied portion from accumulator
+    mouse_pan_x -= original_x;
+    mouse_pan_y -= original_y;
+
+    // Update extents
     m_x2 = m_x + m_w;
     m_y2 = m_y + m_h;
 }
@@ -755,6 +808,30 @@ boolean AM_Responder (const event_t *ev)
             mousewheelzoom = true;
             rc = true;
         }
+        else // [PN] Move the map window by using the mouse
+        if (!followplayer && crl_automap_mouse_pan && (ev->data2 || ev->data3))
+        {
+            int dx = ev->data2;
+            int dy = ev->data3;
+
+            // Rotate pan direction if automap is in rotate mode
+            if (crl_automap_rotate)
+            {
+                int64_t incx = dx;
+                int64_t incy = dy;
+                AM_rotate(&incx, &incy, 0 - mapangle);
+                dx = (int)incx;
+                dy = (int)incy;
+            }
+
+            // Accumulate mouse movement into pan buffer,
+            // scaled by resolution and sensitivity.
+            // The >> 5 keeps movement smooth across wide FPS ranges and DPI setups.
+            mouse_pan_x += (dx * mouseSensitivity) >> 5;
+            mouse_pan_y += (dy * mouseSensitivity) >> 5;
+
+            rc = true;
+        }
     }
     else if (ev->type == ev_keydown)
     {
@@ -884,6 +961,14 @@ boolean AM_Responder (const event_t *ev)
                 // [JN] Redraw status bar background.
                 st_fullupdate = true;
             }
+        }
+        else if (key == key_crl_map_mousepan)
+        {
+            // [PN] Mouse panning mode.
+            crl_automap_mouse_pan = !crl_automap_mouse_pan;
+            CRL_SetMessage(plr, DEH_String(crl_automap_mouse_pan ?
+                           CRL_AUTOMAPMOUSEPAN_ON : CRL_AUTOMAPMOUSEPAN_OFF), false, NULL);
+
         }
         else if (key == key_crl_map_sndprop)
         {
@@ -2043,10 +2128,16 @@ void AM_Drawer (void)
     }
 
     // Change X and Y location.
-    // [JN] Moved from AM_Ticker for paning interpolation.
+    // [JN] Moved from AM_Ticker for panning interpolation.
     if (m_paninc.x || m_paninc.y)
     {
         AM_changeWindowLoc();
+    }
+
+    // [PN] Moves the map window by using the mouse.
+    if (mouse_pan_x != 0 || mouse_pan_y != 0)
+    {
+        AM_MousePanning();
     }
 
     // [crispy] required for AM_rotatePoint()
