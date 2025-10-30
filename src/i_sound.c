@@ -61,6 +61,9 @@ int snd_sfxdevice = SNDDEVICE_SB;
 static const sound_module_t *sound_module;
 static const music_module_t *music_module;
 
+// If true, the music pack module was successfully initialized.
+static boolean music_packs_active = false;
+
 // This is either equal to music_module or &music_pack_module,
 // depending on whether the current track is substituted.
 static const music_module_t *active_music_module;
@@ -182,6 +185,15 @@ static void InitMusicModule(void)
             if (music_modules[i]->Init())
             {
                 music_module = music_modules[i];
+
+            #ifndef DISABLE_SDL2MIXER
+                // [crispy] Always initialize SDL music module.
+                if (music_module != &music_sdl_module)
+                {
+                    music_sdl_module.Init();
+                }
+            #endif
+
                 return;
             }
         }
@@ -196,7 +208,7 @@ static void InitMusicModule(void)
 
 void I_InitSound(GameMission_t mission)
 {
-    boolean nosound, nosfx, nomusic;
+    boolean nosound, nosfx, nomusic, nomusicpacks;
 
     //!
     // @vanilla
@@ -222,6 +234,16 @@ void I_InitSound(GameMission_t mission)
 
     nomusic = M_CheckParm("-nomusic") > 0;
 
+    //!
+    //
+    // Disable substitution music packs.
+    //
+
+    nomusicpacks = M_ParmExists("-nomusicpacks");
+
+    // Auto configure the music pack directory.
+    M_SetMusicPackDir();
+
     // Initialize the sound and music subsystems.
 
     if (!nosound && !screensaver_mode)
@@ -245,7 +267,20 @@ void I_InitSound(GameMission_t mission)
         if (!nomusic)
         {
             InitMusicModule();
+            active_music_module = music_module;
         }
+
+        // We may also have substitute MIDIs we can load.
+        if (!nomusicpacks && music_module != NULL)
+        {
+            music_packs_active = music_pack_module.Init();
+        }
+    }
+    // [crispy] print the SDL audio backend
+    {
+	const char *driver_name = SDL_GetCurrentAudioDriver();
+
+	fprintf(stderr, "I_InitSound: SDL audio driver is %s\n", driver_name ? driver_name : "none");
     }
 }
 
@@ -255,6 +290,20 @@ void I_ShutdownSound(void)
     {
         sound_module->Shutdown();
     }
+
+    if (music_packs_active)
+    {
+        music_pack_module.Shutdown();
+    }
+
+#ifndef DISABLE_SDL2MIXER
+    music_sdl_module.Shutdown();
+
+    if (music_module == &music_sdl_module)
+    {
+        return;
+    }
+#endif
 
     if (music_module != NULL)
     {
@@ -400,8 +449,49 @@ void I_ResumeSong(void)
     }
 }
 
+// Determine whether memory block is a .mid file
+
+boolean IsMid(const byte *mem, int len)
+{
+    return len > 4 && !memcmp(mem, "MThd", 4);
+}
+
+// Determine whether memory block is a .mus file
+
+boolean IsMus(const byte *mem, int len)
+{
+    return len > 4 && !memcmp(mem, "MUS\x1a", 4);
+}
+
 void *I_RegisterSong(void *data, int len)
 {
+    // If the music pack module is active, check to see if there is a
+    // valid substitution for this track. If there is, we set the
+    // active_music_module pointer to the music pack module for the
+    // duration of this particular track.
+    if (music_packs_active)
+    {
+        void *handle;
+
+        handle = music_pack_module.RegisterSong(data, len);
+        if (handle != NULL)
+        {
+            active_music_module = &music_pack_module;
+            return handle;
+        }
+    }
+
+
+    if (!IsMid(data, len) && !IsMus(data, len))
+    {
+#ifndef DISABLE_SDL2MIXER
+        active_music_module = &music_sdl_module;
+        return active_music_module->RegisterSong(data, len);
+#else
+        return NULL;
+#endif
+    }
+
     // No substitution for this track, so use the main module.
     active_music_module = music_module;
     if (active_music_module != NULL)
@@ -466,6 +556,7 @@ void I_BindSoundVariables(void)
     M_BindIntVariable("opl_io_port",             &opl_io_port);
     M_BindIntVariable("snd_pitchshift",          &snd_pitchshift);
 
+    M_BindStringVariable("music_pack_path",      &music_pack_path);
     M_BindStringVariable("timidity_cfg_path",    &timidity_cfg_path);
     M_BindStringVariable("gus_patch_path",       &gus_patch_path);
     M_BindIntVariable("gus_ram_kb",              &gus_ram_kb);

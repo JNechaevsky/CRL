@@ -28,6 +28,7 @@ void M_LoadDefaults(void);
 void M_SaveDefaults(void);
 void M_SaveDefaultsAlternate(const char *main);
 void M_SetConfigDir(const char *dir);
+void M_SetMusicPackDir(void);
 void M_BindIntVariable(const char *name, int *location);
 void M_BindFloatVariable(const char *name, float *location);
 void M_BindStringVariable(const char *name, char **location);

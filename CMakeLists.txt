@@ -49,7 +49,7 @@ endif()
 include(CheckIPOSupported)
 check_ipo_supported(RESULT HAVE_LTO)
 
-include(CMakeDependentOption) # Note: replace first OFF to ON to enable.
+include(CMakeDependentOption) # Note: replace first ON to OFF to disable.
 cmake_dependent_option(ENABLE_LTO "Use link-time optimization" ON "HAVE_LTO" OFF)
 
 if(ENABLE_LTO)
@@ -101,10 +101,10 @@ endif()
 add_subdirectory("miniz")
 
 # Check for FluidSynth.
-# find_package(FluidSynth)
-# if(FluidSynth_FOUND)
-#     set(HAVE_FLUIDSYNTH TRUE)
-# endif()
+find_package(FluidSynth)
+if(FluidSynth_FOUND)
+    set(HAVE_FLUIDSYNTH TRUE)
+endif()
 
 find_package(m)
 
