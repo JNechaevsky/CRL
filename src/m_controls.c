@@ -244,6 +244,7 @@ int key_crl_idclip = 0;
 int key_crl_iddt = 0;
 int key_crl_mdk = 0;
 
+int key_crl_prevlevel = 0; // [PN]
 int key_crl_nextlevel = 0; // [crispy]
 int key_crl_reloadlevel = 0; // [crispy]
 int key_crl_demospeed = 0; // [crispy]
@@ -424,6 +425,7 @@ void M_BindMenuControls(void)
     M_BindIntVariable("key_crl_iddt",         &key_crl_iddt);
     M_BindIntVariable("key_crl_mdk",          &key_crl_mdk);
 
+    M_BindIntVariable("key_crl_prevlevel",   &key_crl_prevlevel); // [PN]
     M_BindIntVariable("key_crl_nextlevel",   &key_crl_nextlevel); // [crispy]
     M_BindIntVariable("key_crl_reloadlevel", &key_crl_reloadlevel); // [crispy]
     M_BindIntVariable("key_crl_demospeed",   &key_crl_demospeed); // [crispy]

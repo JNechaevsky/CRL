@@ -624,6 +624,7 @@ static void M_Bind_NomomentumMode (int choice);
 static void M_DrawCRL_Keybinds_3 (void);
 static void M_Bind_AlwaysRun (int choice);
 static void M_Bind_NoVert (int choice);
+static void M_Bind_PrevLevel (int choice);
 static void M_Bind_VileBomb (int choice);
 static void M_Bind_VileFly (int choice);
 static void M_Bind_ClearMAX (int choice);
@@ -2064,6 +2065,7 @@ static void M_Bind_Use (int choice)
 static menuitem_t CRLMenu_Keybinds_2[]=
 {
     { M_SWTC, "MAIN CRL MENU",             M_Bind_CRLmenu,        'm' },
+    { M_SWTC, "GO TO PREVIOUS LEVEL",      M_Bind_PrevLevel,      'g' },
     { M_SWTC, "RESTART LEVEL/DEMO",        M_Bind_RestartLevel,   'r' },
     { M_SWTC, "GO TO NEXT LEVEL",          M_Bind_NextLevel,      'g' },
     { M_SWTC, "DEMO FAST-FORWARD",         M_Bind_FastForward,    'd' },
@@ -2100,21 +2102,22 @@ static void M_DrawCRL_Keybinds_2 (void)
     M_WriteTextCentered(7, "CRL CONTROLS", cr[CR_YELLOW]);
 
     M_DrawBindKey(0, 16, key_crl_menu);
-    M_DrawBindKey(1, 25, key_crl_reloadlevel);
-    M_DrawBindKey(2, 34, key_crl_nextlevel);
-    M_DrawBindKey(3, 43, key_crl_demospeed);
-    M_DrawBindKey(4, 52, key_crl_extendedhud);
+    M_DrawBindKey(1, 25, key_crl_prevlevel);
+    M_DrawBindKey(2, 34, key_crl_reloadlevel);
+    M_DrawBindKey(3, 43, key_crl_nextlevel);
+    M_DrawBindKey(4, 52, key_crl_demospeed);
+    M_DrawBindKey(5, 61, key_crl_extendedhud);
 
-    M_WriteTextCentered(61, "GAME MODES", cr[CR_YELLOW]);
+    M_WriteTextCentered(70, "GAME MODES", cr[CR_YELLOW]);
 
-    M_DrawBindKey(6, 70, key_crl_spectator);
-    M_DrawBindKey(7, 79, key_crl_cameraup);
-    M_DrawBindKey(8, 88, key_crl_cameradown);
-    M_DrawBindKey(9, 97, key_crl_cameramoveto);
-    M_DrawBindKey(10, 106, key_crl_freeze);
-    M_DrawBindKey(11, 115, key_crl_buddha);
-    M_DrawBindKey(12, 124, key_crl_notarget);
-    M_DrawBindKey(13, 133, key_crl_nomomentum);
+    M_DrawBindKey(7, 79, key_crl_spectator);
+    M_DrawBindKey(8, 88, key_crl_cameraup);
+    M_DrawBindKey(9, 97, key_crl_cameradown);
+    M_DrawBindKey(10, 106, key_crl_cameramoveto);
+    M_DrawBindKey(11, 115, key_crl_freeze);
+    M_DrawBindKey(12, 124, key_crl_buddha);
+    M_DrawBindKey(13, 133, key_crl_notarget);
+    M_DrawBindKey(14, 142, key_crl_nomomentum);
 
     M_DrawBindFooter("2", true);
 }
@@ -2124,64 +2127,69 @@ static void M_Bind_CRLmenu (int choice)
     M_StartBind(200);  // key_crl_menu
 }
 
+static void M_Bind_PrevLevel (int choice)
+{
+    M_StartBind(201);  // key_crl_prevlevel
+}
+
 static void M_Bind_RestartLevel (int choice)
 {
-    M_StartBind(201);  // key_crl_reloadlevel
+    M_StartBind(202);  // key_crl_reloadlevel
 }
 
 static void M_Bind_NextLevel (int choice)
 {
-    M_StartBind(202);  // key_crl_nextlevel
+    M_StartBind(203);  // key_crl_nextlevel
 }
 
 static void M_Bind_FastForward (int choice)
 {
-    M_StartBind(203);  // key_crl_demospeed
+    M_StartBind(204);  // key_crl_demospeed
 }
 
 static void M_Bind_ExtendedHUD (int choice)
 {
-    M_StartBind(204);  // key_crl_extendedhud
+    M_StartBind(205);  // key_crl_extendedhud
 }
 
 static void M_Bind_SpectatorMode (int choice)
 {
-    M_StartBind(205);  // key_crl_spectator
+    M_StartBind(206);  // key_crl_spectator
 }
 
 static void M_Bind_CameraUp (int choice)
 {
-    M_StartBind(206);  // key_crl_cameraup
+    M_StartBind(207);  // key_crl_cameraup
 }
 
 static void M_Bind_CameraDown (int choice)
 {
-    M_StartBind(207);  // key_crl_cameradown
+    M_StartBind(208);  // key_crl_cameradown
 }
 
 static void M_Bind_CameraMoveTo (int choice)
 {
-    M_StartBind(208);  // key_crl_cameramoveto
+    M_StartBind(209);  // key_crl_cameramoveto
 }
 
 static void M_Bind_FreezeMode (int choice)
 {
-    M_StartBind(209);  // key_crl_freeze
+    M_StartBind(210);  // key_crl_freeze
 }
 
 static void M_Bind_BuddhaMode (int choice)
 {
-    M_StartBind(210);  // key_crl_buddha
+    M_StartBind(211);  // key_crl_buddha
 }
 
 static void M_Bind_NotargetMode (int choice)
 {
-    M_StartBind(211);  // key_crl_notarget
+    M_StartBind(212);  // key_crl_notarget
 }
 
 static void M_Bind_NomomentumMode (int choice)
 {
-    M_StartBind(212);  // key_crl_nomomentum
+    M_StartBind(213);  // key_crl_nomomentum
 }
 
 // -----------------------------------------------------------------------------
@@ -4728,7 +4736,7 @@ static int G_ReloadLevel (void)
 {
     int result = false;
 
-    if (gamestate != GS_DEMOSCREEN)
+    if (gamestate == GS_LEVEL || gamestate == GS_INTERMISSION)
     {
         // [crispy] restart demos from the map they were started
         if (demorecording)
@@ -4742,23 +4750,115 @@ static int G_ReloadLevel (void)
     return result;
 }
 
-static int G_GotoNextLevel (void)
-{
-    byte doom_next[4][9] = {
+static byte doom_next[6][9] = {
     {12, 13, 19, 15, 16, 17, 18, 21, 14},
     {22, 23, 24, 25, 29, 27, 28, 31, 26},
     {32, 33, 34, 35, 36, 39, 38, 41, 37},
-    {42, 49, 44, 45, 46, 47, 48, 51, 43}
-    //{52, 53, 54, 55, 56, 59, 58, 11, 57},
-    };
+    {42, 49, 44, 45, 46, 47, 48, 51, 43},
+    {52, 53, 54, 55, 56, 59, 58, 11, 57},
+    {62, 63, 69, 65, 66, 67, 68, 11, 64},
+};
 
-    byte doom2_next[33] = {
+static byte doom2_next[33] = {
      2,  3,  4,  5,  6,  7,  8,  9, 10, 11,
     12, 13, 14, 15, 31, 17, 18, 19, 20, 21,
     22, 23, 24, 25, 26, 27, 28, 29, 30, 1,
     32, 16, 3
-    };
+};
 
+// -----------------------------------------------------------------------------
+// G_GotoPrevLevel
+//  [PN] Mirror of G_GotoNextLevel: warp to the level that would have led here.
+//  Works for both Doom 1 (episode-based) and Doom II (map-based).
+//  Keeps the same adjustments for shareware/registered/Sigil/Chex/Hacx.
+// -----------------------------------------------------------------------------
+static int G_GotoPrevLevel (void)
+{
+    int changed = false;
+
+    if (gamestate == GS_LEVEL || gamestate == GS_INTERMISSION)
+    {
+        // Commercial (Doom II / Final Doom / HACX) uses a flat MAP01..MAP32 layout.
+        if (gamemode == commercial)
+        {
+            // Apply the same runtime tweaks as in G_GotoNextLevel.
+            if (W_CheckNumForName("map31") < 0)
+            {
+                doom2_next[14] = 16;   // MAP15 secret → MAP16 if MAP31 missing
+            }
+            if (gamemission == pack_hacx)
+            {
+                doom2_next[30] = 16;   // HACX MAP31 forced → MAP16
+                doom2_next[20] = 1;    // HACX MAP21 forced → MAP01
+            }
+
+            // Find the index i such that doom2_next[i] == current map.
+            // That i+1 is the map we came from.
+            int prev = gamemap;
+            for (int i = 0; i < 33; ++i)
+            {
+                if (doom2_next[i] == gamemap)
+                {
+                    prev = i + 1;      // tables are 0-based, maps are 1-based
+                    break;
+                }
+            }
+
+            G_DeferedInitNew(gameskill, gameepisode, prev);
+        }
+        else
+        {
+            // Non-commercial (Doom 1 style with episodes)
+            if (gamemode == shareware)
+            {
+                doom_next[0][7] = 11;  // E1M8 secret → E1M1 in shareware
+            }
+            if (gamemode == registered)
+            {
+                doom_next[2][7] = 11;  // E3M8 secret → E1M1 in registered
+            }
+
+            // Handle Sigil episode presence/absence.
+            doom_next[3][7] = 11;  // no Sigil → E4M8 secret → E1M1
+
+            // Chex Quest adjustments.
+            if (gameversion == exe_chex)
+            {
+                doom_next[0][2] = 14;  // E1M3 → E1M4
+                doom_next[0][4] = 11;  // E1M5 → E1M1
+            }
+
+            // Encode current map as E*10+M (e.g. E2M3 → 23).
+            const int cur  = gameepisode * 10 + gamemap;
+            int       prev = cur;
+
+            // Search doom_next[e][m] == cur, then (e,m) is the predecessor.
+            for (int e = 0; e < 6; ++e)
+            {
+                for (int m = 0; m < 9; ++m)
+                {
+                    if (doom_next[e][m] == cur)
+                    {
+                        prev = (e + 1) * 10 + (m + 1);
+                        e = 6;          // break both loops
+                        break;
+                    }
+                }
+            }
+
+            const int prev_ep  = prev / 10;
+            const int prev_map = prev % 10;
+            G_DeferedInitNew(gameskill, prev_ep, prev_map);
+        }
+
+        changed = true;
+    }
+
+    return changed;
+}
+
+static int G_GotoNextLevel (void)
+{
     int changed = false;
 
     if (gamemode == commercial)
@@ -4787,10 +4887,7 @@ static int G_GotoNextLevel (void)
             doom_next[2][7] = 11;
         }
         
-        // if (!crispy->haved1e5)
-        {
-            doom_next[3][7] = 11;
-        }
+        doom_next[3][7] = 11;
 
         if (gameversion == exe_chex)
         {
@@ -4799,7 +4896,7 @@ static int G_GotoNextLevel (void)
         }
     }
 
-    if (gamestate != GS_DEMOSCREEN)
+    if (gamestate == GS_LEVEL || gamestate == GS_INTERMISSION)
     {
         int epsd, map;
 
@@ -4810,8 +4907,10 @@ static int G_GotoNextLevel (void)
         }
         else
         {
-            epsd = doom_next[gameepisode-1][gamemap-1] / 10;
-            map = doom_next[gameepisode-1][gamemap-1] % 10;
+            const int level = doom_next[gameepisode - 1][gamemap - 1];
+
+            epsd = level / 10;
+            map = level % 10;
         }
 
         G_DeferedInitNew(gameskill, epsd, map);
@@ -5383,6 +5482,12 @@ boolean M_Responder (event_t* ev)
         {
             S_StartSound(NULL, sfx_swtchn);
             M_QuitDOOM(0);
+            return true;
+        }
+        // [PN] Go to previous level.
+        else if ((singleplayer) && key != 0 && key == key_crl_prevlevel)
+        {
+            if (G_GotoPrevLevel())
             return true;
         }
         // [crispy] those two can be considered as shortcuts for the IDCLEV cheat
@@ -6178,6 +6283,7 @@ static void M_CheckBind (int key)
     if (key_use == key)              key_use              = 0;
     // Page 2
     if (key_crl_menu == key)         key_crl_menu         = 0;
+    if (key_crl_prevlevel == key)    key_crl_prevlevel    = 0;
     if (key_crl_reloadlevel == key)  key_crl_reloadlevel  = 0;
     if (key_crl_nextlevel == key)    key_crl_nextlevel    = 0;
     if (key_crl_demospeed == key)    key_crl_demospeed    = 0;
@@ -6284,18 +6390,19 @@ static void M_DoBind (int keynum, int key)
         case 110:  key_use = key;               break;
         // Page 2  
         case 200:  key_crl_menu = key;          break;
-        case 201:  key_crl_reloadlevel = key;   break;
-        case 202:  key_crl_nextlevel = key;     break;
-        case 203:  key_crl_demospeed = key;     break;
-        case 204:  key_crl_extendedhud = key;   break;
-        case 205:  key_crl_spectator = key;     break;
-        case 206:  key_crl_cameraup = key;      break;
-        case 207:  key_crl_cameradown = key;    break;
-        case 208:  key_crl_cameramoveto = key;  break;
-        case 209:  key_crl_freeze = key;        break;
-        case 210:  key_crl_buddha = key;        break;
-        case 211:  key_crl_notarget = key;      break;
-        case 212:  key_crl_nomomentum = key;    break;
+        case 201:  key_crl_prevlevel = key;     break;
+        case 202:  key_crl_reloadlevel = key;   break;
+        case 203:  key_crl_nextlevel = key;     break;
+        case 204:  key_crl_demospeed = key;     break;
+        case 205:  key_crl_extendedhud = key;   break;
+        case 206:  key_crl_spectator = key;     break;
+        case 207:  key_crl_cameraup = key;      break;
+        case 208:  key_crl_cameradown = key;    break;
+        case 209:  key_crl_cameramoveto = key;  break;
+        case 210:  key_crl_freeze = key;        break;
+        case 211:  key_crl_buddha = key;        break;
+        case 212:  key_crl_notarget = key;      break;
+        case 213:  key_crl_nomomentum = key;    break;
         // Page 3  
         case 300:  key_crl_autorun = key;       break;
         case 301:  key_crl_novert = key;        break;
@@ -6390,18 +6497,19 @@ static void M_ClearBind (int itemOn)
         {
             case 0:   key_crl_menu = 0;         break;
             case 1:   key_crl_reloadlevel = 0;  break;
-            case 2:   key_crl_nextlevel = 0;    break;
-            case 3:   key_crl_demospeed = 0;    break;
-            case 4:   key_crl_extendedhud = 0;  break;
+            case 2:   key_crl_reloadlevel = 0;  break;
+            case 3:   key_crl_nextlevel = 0;    break;
+            case 4:   key_crl_demospeed = 0;    break;
+            case 5:   key_crl_extendedhud = 0;  break;
             // Game modes title
-            case 6:   key_crl_spectator = 0;    break;
-            case 7:   key_crl_cameraup = 0;     break;
-            case 8:   key_crl_cameradown = 0;   break;
-            case 9:   key_crl_cameramoveto = 0; break;
-            case 10:  key_crl_freeze = 0;       break;
-            case 11:  key_crl_buddha = 0;       break;
-            case 12:  key_crl_notarget = 0;     break;
-            case 13:  key_crl_nomomentum = 0;   break;
+            case 7:   key_crl_spectator = 0;    break;
+            case 8:   key_crl_cameraup = 0;     break;
+            case 9:   key_crl_cameradown = 0;   break;
+            case 10:  key_crl_cameramoveto = 0; break;
+            case 11:  key_crl_freeze = 0;       break;
+            case 12:  key_crl_buddha = 0;       break;
+            case 13:  key_crl_notarget = 0;     break;
+            case 14:  key_crl_nomomentum = 0;   break;
         }
     }
     if (currentMenu == &CRLDef_Keybinds_3)
@@ -6515,6 +6623,7 @@ static void M_ResetBinds (void)
     key_use = ' ';
     // Page 2
     key_crl_menu = '`';
+    key_crl_prevlevel = 0;
     key_crl_reloadlevel = 0;
     key_crl_nextlevel = 0;
     key_crl_demospeed = 0;
