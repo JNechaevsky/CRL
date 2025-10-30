@@ -1444,12 +1444,11 @@ static void LoadIwadDeh(void)
                     "chex.exe correctly.  It can be found in your nearest\n"
                     "/idgames repository mirror at:\n\n"
                     "   themes/chex/chexdeh.zip");
-        }
-
-        if (!DEH_LoadFile(chex_deh))
+        } else if (!DEH_LoadFile(chex_deh))
         {
             I_Error("Failed to load chex.deh needed for emulating chex.exe.");
         }
+        free(chex_deh);
     }
 
     if (IsFrenchIWAD())
@@ -1479,13 +1478,12 @@ static void LoadIwadDeh(void)
                     "emulate French doom2.exe correctly.  It can be found in\n"
                     "your nearest /idgames repository mirror at:\n\n"
                     "   utils/exe_edit/patches/french.zip");
-        }
-
-        if (!DEH_LoadFile(french_deh))
+        } else if (!DEH_LoadFile(french_deh))
         {
             I_Error("Failed to load french.deh needed for emulating French\n"
                     "doom2.exe.");
         }
+        free(french_deh);
     }
 }
 

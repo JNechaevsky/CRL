@@ -1354,7 +1354,7 @@ static void SetSDLVideoDriver(void)
 
         env_string = M_StringJoin("SDL_VIDEODRIVER=", video_driver, NULL);
         putenv(env_string);
-        free(env_string);
+        // env_string deliberately not freed; see putenv manpage
     }
 }
 
@@ -1621,7 +1621,8 @@ void I_InitGraphics(void)
         sscanf(env, "0x%x", &winid);
         M_snprintf(winenv, sizeof(winenv), "SDL_WINDOWID=%u", winid);
 
-        putenv(winenv);
+        putenv(M_StringDuplicate(winenv));
+		// putenv parameter deliberately duplicated; see putenv manpage
     }
 
     SetSDLVideoDriver();

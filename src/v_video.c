@@ -689,7 +689,7 @@ void V_ScreenShot(const char *format)
 {
     int i;
     char lbmname[16]; // haleyjd 20110213: BUG FIX - 12 is too small!
-    const char *file;
+    char *file;
     
     // find a file name to save it to
 
@@ -703,6 +703,7 @@ void V_ScreenShot(const char *format)
         {
             break;      // file doesn't exist
         }
+        free(file);
     }
 
     if (i == 10000)
@@ -711,6 +712,7 @@ void V_ScreenShot(const char *format)
     }
 
     WritePNGfile(file);
+	free(file);
 }
 
 #define MOUSE_SPEED_BOX_WIDTH  120
