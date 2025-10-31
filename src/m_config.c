@@ -75,6 +75,7 @@ typedef enum
     DEFAULT_STRING,
     DEFAULT_FLOAT,
     DEFAULT_KEY,
+    DEFAULT_COMMENT,   // [PN] synthetic entry: emits a comment line on save
 } default_type_t;
 
 typedef struct
@@ -128,6 +129,10 @@ typedef struct
     CONFIG_VARIABLE_GENERIC(name, DEFAULT_FLOAT)
 #define CONFIG_VARIABLE_STRING(name) \
     CONFIG_VARIABLE_GENERIC(name, DEFAULT_STRING)
+// [PN] Emits a comment (or blank line) to the config file when saving.
+// Use: CONFIG_VARIABLE_COMMENT("Section title") or CONFIG_VARIABLE_COMMENT("")
+#define CONFIG_VARIABLE_COMMENT(text) \
+    { (text), {NULL}, DEFAULT_COMMENT, 0, 0, true }
 
 //! @begin_config_file default
 
@@ -204,20 +209,45 @@ static default_t	doom_defaults_list[] =
 
     // [JN] CRL-specific config variables:
 
+    CONFIG_VARIABLE_COMMENT(""),
+    CONFIG_VARIABLE_COMMENT("Multiplayer"),
+    CONFIG_VARIABLE_STRING(player_name),
+    CONFIG_VARIABLE_COMMENT(""),
+
+    //
+    // Autoload
+    //
+
+    CONFIG_VARIABLE_COMMENT("Autoload"),
     CONFIG_VARIABLE_STRING(autoload_path),
     CONFIG_VARIABLE_STRING(music_pack_path),
     CONFIG_VARIABLE_STRING(savegames_path),
     CONFIG_VARIABLE_STRING(screenshots_path),
+    CONFIG_VARIABLE_COMMENT(""),
 
+    //
+    // Autoload-related (Miscellaneous options)
+    //
+    
+    CONFIG_VARIABLE_COMMENT("Autoload-related"),
+    CONFIG_VARIABLE_INT(crl_autoload_wad),
+    CONFIG_VARIABLE_INT(crl_autoload_deh),
+    CONFIG_VARIABLE_COMMENT(""),
+
+    //
+    // Render
+    //
+
+    CONFIG_VARIABLE_COMMENT("Renderer"),
+    CONFIG_VARIABLE_INT(crl_startup_delay),
+    CONFIG_VARIABLE_INT(crl_resize_delay),
     CONFIG_VARIABLE_STRING(video_driver),
     CONFIG_VARIABLE_STRING(screen_scale_api),
-    CONFIG_VARIABLE_STRING(window_position),
     CONFIG_VARIABLE_INT(fullscreen),
     CONFIG_VARIABLE_INT(window_position_x),
     CONFIG_VARIABLE_INT(window_position_y),
     CONFIG_VARIABLE_INT(video_display),
     CONFIG_VARIABLE_INT(aspect_ratio_correct),
-    CONFIG_VARIABLE_INT(smooth_scaling),
     CONFIG_VARIABLE_INT(integer_scaling),
     CONFIG_VARIABLE_INT(vga_porch_flash),
     CONFIG_VARIABLE_INT(window_width),
@@ -226,19 +256,46 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(fullscreen_height),
     CONFIG_VARIABLE_INT(force_software_renderer),
     CONFIG_VARIABLE_INT(max_scaling_buffer_pixels),
-    CONFIG_VARIABLE_INT(graphical_startup),
+    CONFIG_VARIABLE_COMMENT(""),
+
+    // Video options
+    CONFIG_VARIABLE_COMMENT("Video options"),
+    CONFIG_VARIABLE_INT(crl_uncapped_fps),
+    CONFIG_VARIABLE_INT(crl_fpslimit),
+    CONFIG_VARIABLE_INT(crl_vsync),
+    CONFIG_VARIABLE_INT(crl_showfps),
+    CONFIG_VARIABLE_INT(smooth_scaling),
+    CONFIG_VARIABLE_INT(crl_visplanes_drawing),
+    CONFIG_VARIABLE_INT(crl_hom_effect),
+    CONFIG_VARIABLE_INT(crl_screenwipe),
     CONFIG_VARIABLE_INT(show_endoom),
     CONFIG_VARIABLE_INT(show_diskicon),
-    CONFIG_VARIABLE_INT(snd_samplerate),
-    CONFIG_VARIABLE_INT(snd_cachesize),
-    CONFIG_VARIABLE_INT(snd_maxslicetime_ms),
-    CONFIG_VARIABLE_INT(snd_pitchshift),
+    CONFIG_VARIABLE_INT(graphical_startup),
+
+    // Display options
+    CONFIG_VARIABLE_COMMENT("Display options"),
+    CONFIG_VARIABLE_INT(crl_screen_size),
+    CONFIG_VARIABLE_INT(crl_gamma),
+    CONFIG_VARIABLE_INT(crl_menu_shading),
+    CONFIG_VARIABLE_INT(crl_level_brightness),
+    CONFIG_VARIABLE_COMMENT(""),
+
+    // Messages
+    CONFIG_VARIABLE_COMMENT("Messages"),
+    CONFIG_VARIABLE_INT(crl_msg_critical),
+    CONFIG_VARIABLE_INT(crl_text_shadows),
+    CONFIG_VARIABLE_COMMENT(""),
+
+    //
+    // Sound and Music
+    //
+
+    CONFIG_VARIABLE_COMMENT("Sound and Music"),
     CONFIG_VARIABLE_STRING(snd_musiccmd),
     CONFIG_VARIABLE_STRING(snd_dmxoption),
     CONFIG_VARIABLE_INT_HEX(opl_io_port),
-    CONFIG_VARIABLE_INT(use_libsamplerate),
-    CONFIG_VARIABLE_FLOAT(libsamplerate_scale),
-
+    CONFIG_VARIABLE_INT(crl_monosfx),
+    CONFIG_VARIABLE_INT(snd_pitchshift),
 #ifdef HAVE_FLUIDSYNTH
     CONFIG_VARIABLE_INT(fsynth_chorus_active),
     CONFIG_VARIABLE_FLOAT(fsynth_chorus_depth),
@@ -255,74 +312,27 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_FLOAT(fsynth_gain),
     CONFIG_VARIABLE_STRING(fsynth_sf_path),
 #endif // HAVE_FLUIDSYNTH
-
     CONFIG_VARIABLE_STRING(timidity_cfg_path),
     CONFIG_VARIABLE_STRING(gus_patch_path),
     CONFIG_VARIABLE_INT(gus_ram_kb),
-
 #ifdef _WIN32
     CONFIG_VARIABLE_STRING(winmm_midi_device),
     CONFIG_VARIABLE_INT(winmm_complevel),
     CONFIG_VARIABLE_INT(winmm_reset_type),
     CONFIG_VARIABLE_INT(winmm_reset_delay),
 #endif
-    CONFIG_VARIABLE_INT(vanilla_savegame_limit),
-    CONFIG_VARIABLE_INT(vanilla_keyboard_mapping),
-    CONFIG_VARIABLE_STRING(player_name),
-    CONFIG_VARIABLE_INT(grabmouse),
-    CONFIG_VARIABLE_INT(novert),
-    CONFIG_VARIABLE_INT(mouse_sensitivity_y),
-    CONFIG_VARIABLE_FLOAT(mouse_acceleration),
-    CONFIG_VARIABLE_INT(mouse_threshold),
-    CONFIG_VARIABLE_INT(mouseb_speed),
-    CONFIG_VARIABLE_INT(mouseb_strafeleft),
-    CONFIG_VARIABLE_INT(mouseb_straferight),
-    CONFIG_VARIABLE_INT(mouseb_use),
-    CONFIG_VARIABLE_INT(mouseb_backward),
-    CONFIG_VARIABLE_INT(mouseb_prevweapon),
-    CONFIG_VARIABLE_INT(mouseb_nextweapon),
-    CONFIG_VARIABLE_INT(mouseb_invleft),
-    CONFIG_VARIABLE_INT(mouseb_invright),
-    CONFIG_VARIABLE_INT(mouseb_useartifact),
-    CONFIG_VARIABLE_INT(dclick_use),
-    CONFIG_VARIABLE_STRING(joystick_guid),
-    CONFIG_VARIABLE_INT(joystick_index),
-    CONFIG_VARIABLE_INT(use_analog),
-    CONFIG_VARIABLE_INT(joystick_x_axis),
-    CONFIG_VARIABLE_INT(joystick_x_invert),
-    CONFIG_VARIABLE_INT(joystick_turn_sensitivity),
-    CONFIG_VARIABLE_INT(joystick_y_axis),
-    CONFIG_VARIABLE_INT(joystick_y_invert),
-    CONFIG_VARIABLE_INT(joystick_strafe_axis),
-    CONFIG_VARIABLE_INT(joystick_strafe_invert),
-    CONFIG_VARIABLE_INT(joystick_move_sensitivity),
-    CONFIG_VARIABLE_INT(joystick_look_axis),
-    CONFIG_VARIABLE_INT(joystick_look_invert),
-    CONFIG_VARIABLE_INT(joystick_look_sensitivity),
-    CONFIG_VARIABLE_INT(joystick_physical_button0),
-    CONFIG_VARIABLE_INT(joystick_physical_button1),
-    CONFIG_VARIABLE_INT(joystick_physical_button2),
-    CONFIG_VARIABLE_INT(joystick_physical_button3),
-    CONFIG_VARIABLE_INT(joystick_physical_button4),
-    CONFIG_VARIABLE_INT(joystick_physical_button5),
-    CONFIG_VARIABLE_INT(joystick_physical_button6),
-    CONFIG_VARIABLE_INT(joystick_physical_button7),
-    CONFIG_VARIABLE_INT(joystick_physical_button8),
-    CONFIG_VARIABLE_INT(joystick_physical_button9),
-    CONFIG_VARIABLE_INT(joystick_physical_button10),
-    CONFIG_VARIABLE_INT(use_gamepad),
-    CONFIG_VARIABLE_INT(gamepad_type),
-    CONFIG_VARIABLE_INT(joystick_x_dead_zone),
-    CONFIG_VARIABLE_INT(joystick_y_dead_zone),
-    CONFIG_VARIABLE_INT(joystick_strafe_dead_zone),
-    CONFIG_VARIABLE_INT(joystick_look_dead_zone),
-    CONFIG_VARIABLE_INT(joyb_strafeleft),
-    CONFIG_VARIABLE_INT(joyb_straferight),
-    CONFIG_VARIABLE_INT(joyb_menu_activate),
-    CONFIG_VARIABLE_INT(joyb_toggle_automap),
-    CONFIG_VARIABLE_INT(joyb_prevweapon),
-    CONFIG_VARIABLE_INT(joyb_nextweapon),
+    CONFIG_VARIABLE_INT(use_libsamplerate),
+    CONFIG_VARIABLE_FLOAT(libsamplerate_scale),   
+    CONFIG_VARIABLE_INT(snd_samplerate),
+    CONFIG_VARIABLE_INT(snd_cachesize),
+    CONFIG_VARIABLE_INT(snd_maxslicetime_ms),
+    CONFIG_VARIABLE_COMMENT(""),
 
+    //
+    // Keyboard controls
+    //
+
+    CONFIG_VARIABLE_COMMENT("Keyboard controls"),
     CONFIG_VARIABLE_KEY(key_pause),
     CONFIG_VARIABLE_KEY(key_menu_activate),
     CONFIG_VARIABLE_KEY(key_menu_up),
@@ -427,24 +437,79 @@ static default_t	doom_defaults_list[] =
 
     CONFIG_VARIABLE_KEY(key_crl_mlook),
 
-    // System and video
-    CONFIG_VARIABLE_INT(crl_startup_delay),
-    CONFIG_VARIABLE_INT(crl_resize_delay),
-    CONFIG_VARIABLE_INT(crl_uncapped_fps),
-    CONFIG_VARIABLE_INT(crl_fpslimit),
-    CONFIG_VARIABLE_INT(crl_vsync),
-    CONFIG_VARIABLE_INT(crl_showfps),
-    CONFIG_VARIABLE_INT(crl_visplanes_drawing),
-    CONFIG_VARIABLE_INT(crl_hom_effect),
-    CONFIG_VARIABLE_INT(crl_gamma),
-    CONFIG_VARIABLE_INT(crl_menu_shading),
-    CONFIG_VARIABLE_INT(crl_level_brightness),
-    CONFIG_VARIABLE_INT(crl_msg_critical),
-    CONFIG_VARIABLE_INT(crl_screen_size),
-    CONFIG_VARIABLE_INT(crl_screenwipe),
-    CONFIG_VARIABLE_INT(crl_text_shadows),
+    CONFIG_VARIABLE_INT(vanilla_keyboard_mapping),
+    CONFIG_VARIABLE_COMMENT(""),
+
+    //
+    // Mouse controls
+    //
+
+    CONFIG_VARIABLE_COMMENT("Mouse controls"),
+    CONFIG_VARIABLE_INT(grabmouse),
+    CONFIG_VARIABLE_INT(novert),
+    CONFIG_VARIABLE_INT(mouse_sensitivity_y),
+    CONFIG_VARIABLE_FLOAT(mouse_acceleration),
+    CONFIG_VARIABLE_INT(mouse_threshold),
+    CONFIG_VARIABLE_INT(crl_mouselook),
+    CONFIG_VARIABLE_INT(mouseb_speed),
+    CONFIG_VARIABLE_INT(mouseb_strafeleft),
+    CONFIG_VARIABLE_INT(mouseb_straferight),
+    CONFIG_VARIABLE_INT(mouseb_use),
+    CONFIG_VARIABLE_INT(mouseb_backward),
+    CONFIG_VARIABLE_INT(mouseb_prevweapon),
+    CONFIG_VARIABLE_INT(mouseb_nextweapon),
+    CONFIG_VARIABLE_INT(mouseb_invleft),
+    CONFIG_VARIABLE_INT(mouseb_invright),
+    CONFIG_VARIABLE_INT(mouseb_useartifact),
+    CONFIG_VARIABLE_INT(dclick_use),
+    CONFIG_VARIABLE_COMMENT(""),
+
+    //
+    // Joystick controls
+    //
+
+    CONFIG_VARIABLE_COMMENT("Joystick controls"),
+    CONFIG_VARIABLE_STRING(joystick_guid),
+    CONFIG_VARIABLE_INT(joystick_index),
+    CONFIG_VARIABLE_INT(use_analog),
+    CONFIG_VARIABLE_INT(joystick_x_axis),
+    CONFIG_VARIABLE_INT(joystick_x_invert),
+    CONFIG_VARIABLE_INT(joystick_turn_sensitivity),
+    CONFIG_VARIABLE_INT(joystick_y_axis),
+    CONFIG_VARIABLE_INT(joystick_y_invert),
+    CONFIG_VARIABLE_INT(joystick_strafe_axis),
+    CONFIG_VARIABLE_INT(joystick_strafe_invert),
+    CONFIG_VARIABLE_INT(joystick_move_sensitivity),
+    CONFIG_VARIABLE_INT(joystick_look_axis),
+    CONFIG_VARIABLE_INT(joystick_look_invert),
+    CONFIG_VARIABLE_INT(joystick_look_sensitivity),
+    CONFIG_VARIABLE_INT(joystick_physical_button0),
+    CONFIG_VARIABLE_INT(joystick_physical_button1),
+    CONFIG_VARIABLE_INT(joystick_physical_button2),
+    CONFIG_VARIABLE_INT(joystick_physical_button3),
+    CONFIG_VARIABLE_INT(joystick_physical_button4),
+    CONFIG_VARIABLE_INT(joystick_physical_button5),
+    CONFIG_VARIABLE_INT(joystick_physical_button6),
+    CONFIG_VARIABLE_INT(joystick_physical_button7),
+    CONFIG_VARIABLE_INT(joystick_physical_button8),
+    CONFIG_VARIABLE_INT(joystick_physical_button9),
+    CONFIG_VARIABLE_INT(joystick_physical_button10),
+    CONFIG_VARIABLE_INT(use_gamepad),
+    CONFIG_VARIABLE_INT(gamepad_type),
+    CONFIG_VARIABLE_INT(joystick_x_dead_zone),
+    CONFIG_VARIABLE_INT(joystick_y_dead_zone),
+    CONFIG_VARIABLE_INT(joystick_strafe_dead_zone),
+    CONFIG_VARIABLE_INT(joystick_look_dead_zone),
+    CONFIG_VARIABLE_INT(joyb_strafeleft),
+    CONFIG_VARIABLE_INT(joyb_straferight),
+    CONFIG_VARIABLE_INT(joyb_menu_activate),
+    CONFIG_VARIABLE_INT(joyb_toggle_automap),
+    CONFIG_VARIABLE_INT(joyb_prevweapon),
+    CONFIG_VARIABLE_INT(joyb_nextweapon),
+    CONFIG_VARIABLE_COMMENT(""),
 
     // Widgets
+    CONFIG_VARIABLE_COMMENT("Widgets"),
     CONFIG_VARIABLE_INT(crl_extended_hud),
     CONFIG_VARIABLE_INT(crl_widget_playstate),
     CONFIG_VARIABLE_INT(crl_widget_render),
@@ -457,11 +522,10 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(crl_widget_speed),
     CONFIG_VARIABLE_INT(crl_widget_powerups),
     CONFIG_VARIABLE_INT(crl_widget_health),
-
-    // Sound
-    CONFIG_VARIABLE_INT(crl_monosfx),
+    CONFIG_VARIABLE_COMMENT(""),
 
     // Automap
+    CONFIG_VARIABLE_COMMENT("Automap"),
     CONFIG_VARIABLE_INT(crl_automap_mode),
     CONFIG_VARIABLE_INT(crl_automap_secrets),
     CONFIG_VARIABLE_INT(crl_automap_rotate),
@@ -469,8 +533,14 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(crl_automap_shading),
     CONFIG_VARIABLE_INT(crl_automap_mouse_pan),
     CONFIG_VARIABLE_INT(crl_automap_sndprop),
+    CONFIG_VARIABLE_COMMENT(""),
 
-    // Gameplay features
+    //
+    // Gameplay Features
+    //
+
+    // Gameplay
+    CONFIG_VARIABLE_COMMENT("Gameplay Features"),
     CONFIG_VARIABLE_INT(crl_default_skill),
     CONFIG_VARIABLE_INT(crl_pistol_start),
     CONFIG_VARIABLE_INT(crl_colored_stbar),
@@ -490,17 +560,17 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(crl_a11y_move_bob),
     CONFIG_VARIABLE_INT(crl_a11y_weapon_bob),
     CONFIG_VARIABLE_INT(crl_colorblind),
-    CONFIG_VARIABLE_INT(crl_autoload_wad),
-    CONFIG_VARIABLE_INT(crl_autoload_deh),
     CONFIG_VARIABLE_INT(crl_menu_highlight),
     CONFIG_VARIABLE_INT(crl_menu_esc_key),
     CONFIG_VARIABLE_INT(crl_confirm_quit),
+    CONFIG_VARIABLE_COMMENT(""),
 
     // Static limits
-    CONFIG_VARIABLE_INT(crl_vanilla_limits),
 
-    // Mouse look
-    CONFIG_VARIABLE_INT(crl_mouselook),
+    CONFIG_VARIABLE_COMMENT("Static engine limits"),
+    CONFIG_VARIABLE_INT(vanilla_savegame_limit),
+    CONFIG_VARIABLE_INT(crl_vanilla_limits),
+    CONFIG_VARIABLE_COMMENT(""),
 };
 
 static default_collection_t doom_defaults =
@@ -573,6 +643,23 @@ static void SaveDefaultCollection(default_collection_t *collection)
     for (i=0 ; i<collection->numdefaults ; i++)
     {
         int chars_written;
+
+        // [PN] Write comment entries as-is and skip normal formatting.
+        if (defaults[i].type == DEFAULT_COMMENT)
+        {
+            const char *c = defaults[i].name ? defaults[i].name : "";
+            if (c[0] == '\0')
+            {
+                // blank separator line
+                fprintf(f, "\n");
+            }
+            else
+            {
+                // section/comment line
+                fprintf(f, "# %s\n", c);
+            }
+            continue;
+        }
 
         // Ignore unbound variables
 
@@ -652,6 +739,10 @@ static void SaveDefaultCollection(default_collection_t *collection)
 
             case DEFAULT_STRING:
 	        fprintf(f,"\"%s\"", *defaults[i].location.s);
+                break;
+
+            case DEFAULT_COMMENT:
+                // [PN] Already emitted above; keep this case to silence -Wswitch.
                 break;
         }
 
@@ -748,6 +839,10 @@ static void SetVariable(default_t *def, const char *value)
             *def->location.f = (float) atof(str);
             free(str);
         }
+            break;
+
+        case DEFAULT_COMMENT:
+            // [PN] Comment entries are not real variables; nothing to set.
             break;
     }
 }
