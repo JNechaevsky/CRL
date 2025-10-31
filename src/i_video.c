@@ -309,53 +309,7 @@ void I_ShutdownGraphics(void)
     }
 }
 
-void I_RenderReadPixels (byte **data, int *w, int *h)
-{
-    SDL_Rect rect;
-    SDL_PixelFormat *format;
-    int temp;
-    uint32_t png_format;
-    byte *pixels;
 
-    // [crispy] adjust cropping rectangle if necessary
-    rect.x = rect.y = 0;
-    SDL_GetRendererOutputSize(renderer, &rect.w, &rect.h);
-    if (aspect_ratio_correct)
-    {
-        if (rect.w * actualheight > rect.h * SCREENWIDTH)
-        {
-            temp = rect.w;
-            rect.w = rect.h * SCREENWIDTH / actualheight;
-            rect.x = (temp - rect.w) / 2;
-        }
-        else
-        if (rect.h * SCREENWIDTH > rect.w * actualheight)
-        {
-            temp = rect.h;
-            rect.h = rect.w * actualheight / SCREENWIDTH;
-            rect.y = (temp - rect.h) / 2;
-        }
-    }
-
-    // [crispy] native PNG pixel format
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-    png_format = SDL_PIXELFORMAT_ABGR8888;
-#else
-    png_format = SDL_PIXELFORMAT_RGBA8888;
-#endif
-    format = SDL_AllocFormat(png_format);
-    temp = rect.w * format->BytesPerPixel; // [crispy] pitch
-
-    // [crispy] allocate memory for screenshot image
-    pixels = malloc(rect.h * temp);
-    SDL_RenderReadPixels(renderer, &rect, format->format, pixels, temp);
-
-    *data = pixels;
-    *w = rect.w;
-    *h = rect.h;
-
-    SDL_FreeFormat(format);
-}
 
 //
 // I_StartFrame
@@ -370,15 +324,37 @@ void I_StartFrame (void)
 // ratio consistent with the aspect_ratio_correct variable.
 static void AdjustWindowSize(void)
 {
-    if (window_width * actualheight <= window_height * SCREENWIDTH)
+    if (aspect_ratio_correct || integer_scaling)
     {
-        // We round up window_height if the ratio is not exact; this leaves
-        // the result stable.
-        window_height = (window_width * actualheight + SCREENWIDTH - 1) / SCREENWIDTH;
-    }
-    else
-    {
-        window_width = window_height * SCREENWIDTH / actualheight;
+        static int old_v_w, old_v_h;
+
+        if (old_v_w > 0 && old_v_h > 0)
+        {
+          int rendered_height;
+
+          // rendered height does not necessarily match window height
+          if (window_height * old_v_w > window_width * old_v_h)
+            rendered_height = (window_width * old_v_h + old_v_w - 1) / old_v_w;
+          else
+            rendered_height = window_height;
+
+          window_width = rendered_height * SCREENWIDTH / actualheight;
+        }
+
+        old_v_w = SCREENWIDTH;
+        old_v_h = actualheight;
+#if 0
+        if (window_width * actualheight <= window_height * SCREENWIDTH)
+        {
+            // We round up window_height if the ratio is not exact; this leaves
+            // the result stable.
+            window_height = (window_width * actualheight + SCREENWIDTH - 1) / SCREENWIDTH;
+        }
+        else
+        {
+            window_width = window_height * SCREENWIDTH / actualheight;
+        }
+#endif
     }
 }
 
@@ -519,6 +495,62 @@ static void I_ToggleFullScreen(void)
     }
 }
 
+// -----------------------------------------------------------------------------
+// I_WindowToGameCursorPosition
+//  [PN] Converts window-space cursor coordinates (obtained from SDL_GetMouseState)
+//  into normalized in-game coordinates (SCREENWIDTH x SCREENHEIGHT), taking
+//  into account the actual renderer output size and any letterboxing or
+//  pillarboxing caused by aspect ratio correction.
+// -----------------------------------------------------------------------------
+
+static void I_WindowToGameCursorPosition(int win_x, int win_y, int *game_x, int *game_y)
+{
+    int out_w, out_h;
+    SDL_GetRendererOutputSize(renderer, &out_w, &out_h);
+
+    SDL_Rect dst = {0, 0, out_w, out_h};
+
+    // Apply letterboxing/pillarboxing if aspect ratio correction is active
+    if (aspect_ratio_correct)
+    {
+        if (out_w * actualheight > out_h * SCREENWIDTH)
+        {
+            int tempw = out_w;
+            dst.w = out_h * SCREENWIDTH / actualheight;
+            dst.x = (tempw - dst.w) / 2;
+        }
+        else if (out_h * SCREENWIDTH > out_w * actualheight)
+        {
+            int temph = out_h;
+            dst.h = out_w * actualheight / SCREENWIDTH;
+            dst.y = (temph - dst.h) / 2;
+        }
+    }
+
+    // Clamp cursor to the visible render area
+    if (win_x < dst.x) win_x = dst.x;
+    if (win_x >= dst.x + dst.w) win_x = dst.x + dst.w - 1;
+    if (win_y < dst.y) win_y = dst.y;
+    if (win_y >= dst.y + dst.h) win_y = dst.y + dst.h - 1;
+
+    const int relx = win_x - dst.x;
+    const int rely = win_y - dst.y;
+
+    // Convert to game-space coordinates
+    *game_x = relx * SCREENWIDTH  / dst.w;
+    *game_y = rely * SCREENHEIGHT / dst.h;
+}
+
+// [JN] Reinitialize mouse cursor position on changing rendering resoluton
+void I_ReInitCursorPosition (void)
+{
+    int wx, wy;
+    SDL_GetMouseState(&wx, &wy);
+    I_WindowToGameCursorPosition(wx, wy, &menu_mouse_x, &menu_mouse_y);
+
+    SDL_GetMouseState(&menu_mouse_x_sdl, &menu_mouse_y_sdl);
+}
+
 void I_GetEvent(void)
 {
     SDL_Event sdlevent;
@@ -545,8 +577,18 @@ void I_GetEvent(void)
                 if (menu_mouse_allow && window_focused)
                 {
                     // [PN] Get mouse coordinates for menu control
-                    menu_mouse_x = sdlevent.motion.x;
-                    menu_mouse_y = (int)(sdlevent.motion.y / 1.2); // Aspect ratio correction
+                    if (aspect_ratio_correct == 0)
+                    {
+                        // [PN] Free resize: map window coords → game coords
+                        I_WindowToGameCursorPosition(sdlevent.motion.x, sdlevent.motion.y,
+                                                     &menu_mouse_x, &menu_mouse_y);
+                    }
+                    else
+                    {
+                        const float div_factor = (aspect_ratio_correct == 1) ? 1.2f : 1.0f;
+                        menu_mouse_x = sdlevent.motion.x;
+                        menu_mouse_y = (int)(sdlevent.motion.y / div_factor);
+                    }
                     // [JN] Get mouse coordinates for SDL control
                     SDL_GetMouseState(&menu_mouse_x_sdl, &menu_mouse_y_sdl);
                 }
@@ -1643,7 +1685,7 @@ void I_InitGraphics(void)
         fullscreen = true;
     }
 
-    if (aspect_ratio_correct)
+    if (aspect_ratio_correct == 1)
     {
         actualheight = SCREENHEIGHT_4_3;
     }
@@ -1708,6 +1750,54 @@ void I_InitGraphics(void)
 void I_ToggleVsync (void)
 {
     SDL_RenderSetVSync(renderer, crl_vsync);
+}
+
+void I_RenderReadPixels (byte **data, int *w, int *h)
+{
+    SDL_Rect rect;
+    SDL_PixelFormat *format;
+    int temp;
+    uint32_t png_format;
+    byte *pixels;
+
+    // [crispy] adjust cropping rectangle if necessary
+    rect.x = rect.y = 0;
+    SDL_GetRendererOutputSize(renderer, &rect.w, &rect.h);
+    if (aspect_ratio_correct)
+    {
+        if (rect.w * actualheight > rect.h * SCREENWIDTH)
+        {
+            temp = rect.w;
+            rect.w = rect.h * SCREENWIDTH / actualheight;
+            rect.x = (temp - rect.w) / 2;
+        }
+        else
+        if (rect.h * SCREENWIDTH > rect.w * actualheight)
+        {
+            temp = rect.h;
+            rect.h = rect.w * actualheight / SCREENWIDTH;
+            rect.y = (temp - rect.h) / 2;
+        }
+    }
+
+    // [crispy] native PNG pixel format
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+    png_format = SDL_PIXELFORMAT_ABGR8888;
+#else
+    png_format = SDL_PIXELFORMAT_RGBA8888;
+#endif
+    format = SDL_AllocFormat(png_format);
+    temp = rect.w * format->BytesPerPixel; // [crispy] pitch
+
+    // [crispy] allocate memory for screenshot image
+    pixels = malloc(rect.h * temp);
+    SDL_RenderReadPixels(renderer, &rect, format->format, pixels, temp);
+
+    *data = pixels;
+    *w = rect.w;
+    *h = rect.h;
+
+    SDL_FreeFormat(format);
 }
 
 // -----------------------------------------------------------------------------
