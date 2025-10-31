@@ -182,6 +182,7 @@ int key_menu_endgame   = KEY_F7;
 int key_menu_messages  = KEY_F8;
 int key_menu_qload     = KEY_F9;
 int key_menu_quit      = KEY_F10;
+int key_menu_gammad    = 0;
 int key_menu_gamma     = KEY_F11;
 
 int key_menu_incscreen = KEY_EQUALS;
@@ -387,6 +388,7 @@ void M_BindMenuControls(void)
     M_BindIntVariable("key_menu_messages",  &key_menu_messages);
     M_BindIntVariable("key_menu_qload",     &key_menu_qload);
     M_BindIntVariable("key_menu_quit",      &key_menu_quit);
+    M_BindIntVariable("key_menu_gammad",    &key_menu_gammad);
     M_BindIntVariable("key_menu_gamma",     &key_menu_gamma);
 
     M_BindIntVariable("key_menu_incscreen", &key_menu_incscreen);

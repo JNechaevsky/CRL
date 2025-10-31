@@ -673,7 +673,8 @@ static void M_Bind_EndGame (int choice);
 static void M_Bind_ToggleMessages (int choice);
 static void M_Bind_QuickLoad (int choice);
 static void M_Bind_QuitGame (int choice);
-static void M_Bind_ToggleGamma (int choice);
+static void M_Bind_DecreaseGamma (int choice);
+static void M_Bind_IncreaseGamma (int choice);
 static void M_Bind_MultiplayerSpy (int choice);
 
 static void M_DrawCRL_Keybinds_7 (void);
@@ -2550,13 +2551,14 @@ static menuitem_t CRLMenu_Keybinds_6[]=
     { M_SWTC, "TOGGLE MESSAGES",  M_Bind_ToggleMessages,  't' },
     { M_SWTC, "QUICK LOAD",       M_Bind_QuickLoad,       'q' },
     { M_SWTC, "QUIT GAME",        M_Bind_QuitGame,        'q' },
-    { M_SWTC, "TOGGLE GAMMA",     M_Bind_ToggleGamma,     't' },
+    { M_SWTC, "DECREASE GAMMA",   M_Bind_DecreaseGamma,   'd' },
+    { M_SWTC, "INCREASE GAMMA",   M_Bind_IncreaseGamma,   'i' },
     { M_SWTC, "MULTIPLAYER SPY",  M_Bind_MultiplayerSpy,  'm' },
 };
 
 static menu_t CRLDef_Keybinds_6 =
 {
-    12,
+    13,
     &CRLDef_Controls,
     CRLMenu_Keybinds_6,
     M_DrawCRL_Keybinds_6,
@@ -2584,8 +2586,9 @@ static void M_DrawCRL_Keybinds_6 (void)
     M_DrawBindKey(7, 79, key_menu_messages);
     M_DrawBindKey(8, 88, key_menu_qload);
     M_DrawBindKey(9, 97, key_menu_quit);
-    M_DrawBindKey(10, 106, key_menu_gamma);
-    M_DrawBindKey(11, 115, key_spy);
+    M_DrawBindKey(10, 106, key_menu_gammad);
+    M_DrawBindKey(11, 115, key_menu_gamma);
+    M_DrawBindKey(12, 124, key_spy);
 
     M_DrawBindFooter("6", true);
 }
@@ -2640,14 +2643,19 @@ static void M_Bind_QuitGame (int choice)
     M_StartBind(609);  // key_menu_quit
 }
 
-static void M_Bind_ToggleGamma (int choice)
+static void M_Bind_DecreaseGamma (int choice)
 {
-    M_StartBind(610);  // key_menu_gamma
+    M_StartBind(610);  // key_menu_gammad
+}
+
+static void M_Bind_IncreaseGamma (int choice)
+{
+    M_StartBind(611);  // key_menu_gamma
 }
 
 static void M_Bind_MultiplayerSpy (int choice)
 {
-    M_StartBind(611);  // key_spy
+    M_StartBind(612);  // key_spy
 }
 
 // -----------------------------------------------------------------------------
@@ -5527,9 +5535,11 @@ boolean M_Responder (event_t* ev)
     }
 
     // [JN] Allow to change gamma while active menu.
-    if (key == key_menu_gamma)    // gamma toggle
+    if (key == key_menu_gamma || key == key_menu_gammad)    // gamma toggle
     {
-        crl_gamma = M_INT_Slider(crl_gamma, 0, 14, 1 /*right*/, false);
+        const int dir = (key == key_menu_gamma) ? 1 /*right*/ : 0 /*left*/;
+
+        crl_gamma = M_INT_Slider(crl_gamma, 0, 14, dir, false);
         CRL_SetMessage(&players[consoleplayer], DEH_String(gammalvls[crl_gamma][0]), false, NULL);
         CRL_ReloadPalette();
         return true;
@@ -6348,6 +6358,7 @@ static void M_CheckBind (int key)
     if (key_menu_messages == key)    key_menu_messages    = 0;
     if (key_menu_qload == key)       key_menu_qload       = 0;
     if (key_menu_quit == key)        key_menu_quit        = 0;
+    if (key_menu_gammad == key)      key_menu_gammad      = 0;
     if (key_menu_gamma == key)       key_menu_gamma       = 0;
     if (key_spy == key)              key_spy              = 0;
     // Page 7
@@ -6451,8 +6462,9 @@ static void M_DoBind (int keynum, int key)
         case 607:  key_menu_messages = key;     break;
         case 608:  key_menu_qload = key;        break;
         case 609:  key_menu_quit = key;         break;
-        case 610:  key_menu_gamma = key;        break;
-        case 611:  key_spy = key;               break;
+        case 610:  key_menu_gammad = key;       break;
+        case 611:  key_menu_gamma = key;        break;
+        case 612:  key_spy = key;               break;
         // Page 7
         case 700:  key_pause = key;             break;
         case 701:  key_menu_screenshot = key;   break;
@@ -6580,8 +6592,9 @@ static void M_ClearBind (int itemOn)
             case 7:   key_menu_messages = 0;    break;
             case 8:   key_menu_qload = 0;       break;
             case 9:   key_menu_quit = 0;        break;
-            case 10:  key_menu_gamma = 0;       break;
-            case 11:  key_spy = 0;              break;
+            case 10:  key_menu_gammad = 0;      break;
+            case 11:  key_menu_gamma = 0;       break;
+            case 12:  key_spy = 0;              break;
         }
     }
     if (currentMenu == &CRLDef_Keybinds_7)
@@ -6683,6 +6696,7 @@ static void M_ResetBinds (void)
     key_menu_messages = KEY_F8;
     key_menu_qload = KEY_F9;
     key_menu_quit = KEY_F10;
+    key_menu_gammad = 0;
     key_menu_gamma = KEY_F11;
     key_spy = KEY_F12;
     // Page 7

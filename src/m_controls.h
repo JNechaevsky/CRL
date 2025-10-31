@@ -131,6 +131,7 @@ extern int key_menu_endgame;
 extern int key_menu_messages;
 extern int key_menu_qload;
 extern int key_menu_quit;
+extern int key_menu_gammad;
 extern int key_menu_gamma;
 
 extern int key_menu_incscreen;
