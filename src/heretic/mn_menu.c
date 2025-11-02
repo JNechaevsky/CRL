@@ -124,7 +124,7 @@ typedef struct
     int x;
     int y;
     void (*drawFunc) (void);
-    int itemCount;
+    int itemCount;      // [PN] Automatic count via ITEMCOUNT() macro below
     MenuItem_t *items;
     int oldItPos;
     int FontType;       // [JN] 0 = no font, 1 = small font, 2 = big font
@@ -132,6 +132,8 @@ typedef struct
     boolean ScrollPG;   // [JN] Menu can be scrolled by PGUP/PGDN keys
     MenuType_t prevMenu;
 } Menu_t;
+
+#define ITEMCOUNT(items) (sizeof(items) / sizeof((items)[0]))
 
 // Private Functions
 
@@ -230,7 +232,7 @@ static MenuItem_t MainItems[] = {
 static Menu_t MainMenu = {
     110, 56,
     DrawMainMenu,
-    5, MainItems,
+    ITEMCOUNT(MainItems), MainItems,
     0,
     BigFont, false, false,
     MENU_NONE
@@ -261,7 +263,7 @@ static MenuItem_t FilesItems[] = {
 static Menu_t FilesMenu = {
     110, 60,
     DrawFilesMenu,
-    2, FilesItems,
+    ITEMCOUNT(FilesItems), FilesItems,
     0,
     BigFont, false, false,
     MENU_MAIN
@@ -319,7 +321,7 @@ static MenuItem_t SkillItems[] = {
 static Menu_t SkillMenu = {
     38, 30,
     DrawSkillMenu,
-    5, SkillItems,
+    ITEMCOUNT(SkillItems), SkillItems,
     2,
     BigFont, false, false,
     MENU_EPISODE
@@ -336,7 +338,7 @@ static MenuItem_t OptionsItems[] = {
 static Menu_t OptionsMenu = {
     88, 30,
     DrawOptionsMenu,
-    5, OptionsItems,
+    ITEMCOUNT(OptionsItems), OptionsItems,
     0,
     BigFont, false, false,
     MENU_CRLMAIN
@@ -354,7 +356,7 @@ static MenuItem_t Options2Items[] = {
 static Menu_t Options2Menu = {
     72, 20,
     DrawOptions2Menu,
-    6, Options2Items,
+    ITEMCOUNT(Options2Items), Options2Items,
     0,
     BigFont, false, false,
     MENU_OPTIONS
@@ -955,7 +957,7 @@ static MenuItem_t CRLMainItems[] = {
 static Menu_t CRLMain = {
     CRL_MENU_LEFTOFFSET_SML, CRL_MENU_TOPOFFSET,
     DrawCRLMain,
-    14, CRLMainItems,
+    ITEMCOUNT(CRLMainItems), CRLMainItems,
     0,
     SmallFont, false, false,
     MENU_MAIN
@@ -1067,7 +1069,7 @@ static MenuItem_t CRLVideoItems[] = {
 static Menu_t CRLVideo = {
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     DrawCRLVideo,
-    11, CRLVideoItems,
+    ITEMCOUNT(CRLVideoItems), CRLVideoItems,
     0,
     SmallFont, false, false,
     MENU_CRLMAIN
@@ -1256,7 +1258,7 @@ static MenuItem_t CRLDisplayItems[] = {
 static Menu_t CRLDisplay = {
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET + 10,
     DrawCRLDisplay,
-    9, CRLDisplayItems,
+    ITEMCOUNT(CRLDisplayItems), CRLDisplayItems,
     0,
     SmallFont, false, false,
     MENU_CRLMAIN
@@ -1356,7 +1358,7 @@ static MenuItem_t CRLSoundItems[] = {
 static Menu_t CRLSound = {
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     DrawCRLSound,
-    11, CRLSoundItems,
+    ITEMCOUNT(CRLSoundItems), CRLSoundItems,
     0,
     SmallFont, false, false,
     MENU_CRLMAIN
@@ -1552,7 +1554,7 @@ static MenuItem_t CRLControlsItems[] = {
 static Menu_t CRLControls = {
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     DrawCRLControls,
-    17, CRLControlsItems,
+    ITEMCOUNT(CRLControlsItems), CRLControlsItems,
     0,
     SmallFont, false, false,
     MENU_CRLMAIN
@@ -1653,7 +1655,7 @@ static MenuItem_t CRLKbsBinds1Items[] = {
 static Menu_t CRLKbdBinds1 = {
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     DrawCRLKbd1,
-    12, CRLKbsBinds1Items,
+    ITEMCOUNT(CRLKbsBinds1Items), CRLKbsBinds1Items,
     0,
     SmallFont, true, true,
     MENU_CRLCONTROLS
@@ -1761,7 +1763,7 @@ static MenuItem_t CRLKbsBinds2Items[] = {
 static Menu_t CRLKbdBinds2 = {
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     DrawCRLKbd2,
-    11, CRLKbsBinds2Items,
+    ITEMCOUNT(CRLKbsBinds2Items), CRLKbsBinds2Items,
     0,
     SmallFont, true, true,
     MENU_CRLCONTROLS
@@ -1863,7 +1865,7 @@ static MenuItem_t CRLKbsBinds3Items[] = {
 static Menu_t CRLKbdBinds3 = {
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     DrawCRLKbd3,
-    14, CRLKbsBinds3Items,
+    ITEMCOUNT(CRLKbsBinds3Items), CRLKbsBinds3Items,
     0,
     SmallFont, true, true,
     MENU_CRLCONTROLS
@@ -1985,7 +1987,7 @@ static MenuItem_t CRLKbsBinds4Items[] = {
 static Menu_t CRLKbdBinds4 = {
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     DrawCRLKbd4,
-    13, CRLKbsBinds4Items,
+    ITEMCOUNT(CRLKbsBinds4Items), CRLKbsBinds4Items,
     0,
     SmallFont, true, true,
     MENU_CRLCONTROLS
@@ -2095,7 +2097,7 @@ static MenuItem_t CRLKbsBinds5Items[] = {
 static Menu_t CRLKbdBinds5 = {
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     DrawCRLKbd5,
-    10, CRLKbsBinds5Items,
+    ITEMCOUNT(CRLKbsBinds5Items), CRLKbsBinds5Items,
     0,
     SmallFont, true, true,
     MENU_CRLCONTROLS
@@ -2193,7 +2195,7 @@ static MenuItem_t CRLKbsBinds6Items[] = {
 static Menu_t CRLKbdBinds6 = {
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     DrawCRLKbd6,
-    10, CRLKbsBinds6Items,
+    ITEMCOUNT(CRLKbsBinds6Items), CRLKbsBinds6Items,
     0,
     SmallFont, true, true,
     MENU_CRLCONTROLS
@@ -2290,7 +2292,7 @@ static MenuItem_t CRLKbsBinds7Items[] = {
 static Menu_t CRLKbdBinds7 = {
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     DrawCRLKbd7,
-    7, CRLKbsBinds7Items,
+    ITEMCOUNT(CRLKbsBinds7Items), CRLKbsBinds7Items,
     0,
     SmallFont, true, true,
     MENU_CRLCONTROLS
@@ -2385,7 +2387,7 @@ static MenuItem_t CRLKbsBinds8Items[] = {
 static Menu_t CRLKbdBinds8 = {
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     DrawCRLKbd8,
-    11, CRLKbsBinds8Items,
+    ITEMCOUNT(CRLKbsBinds8Items), CRLKbsBinds8Items,
     0,
     SmallFont, true, true,
     MENU_CRLCONTROLS
@@ -2490,7 +2492,7 @@ static MenuItem_t CRLKbsBinds9Items[] = {
 static Menu_t CRLKbdBinds9 = {
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     DrawCRLKbd9,
-    11, CRLKbsBinds9Items,
+    ITEMCOUNT(CRLKbsBinds9Items), CRLKbsBinds9Items,
     0,
     SmallFont, true, true,
     MENU_CRLCONTROLS
@@ -2593,7 +2595,7 @@ static MenuItem_t CRLMouseItems[] = {
 static Menu_t CRLMouseBinds = {
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     DrawCRLMouse,
-    15, CRLMouseItems,
+    ITEMCOUNT(CRLMouseItems), CRLMouseItems,
     0,
     SmallFont, false, false,
     MENU_CRLCONTROLS
@@ -2717,7 +2719,7 @@ static MenuItem_t CRLWidgetsItems[] = {
 static Menu_t CRLWidgetsMap = {
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     DrawCRLWidgets,
-    11, CRLWidgetsItems,
+    ITEMCOUNT(CRLWidgetsItems), CRLWidgetsItems,
     0,
     SmallFont, false, false,
     MENU_CRLMAIN
@@ -2865,7 +2867,7 @@ static MenuItem_t CRLGameplayItems[] = {
 static Menu_t CRLGameplay = {
     CRL_MENU_LEFTOFFSET_BIG, CRL_MENU_TOPOFFSET,
     DrawCRLGameplay,
-    11, CRLGameplayItems,
+    ITEMCOUNT(CRLGameplayItems), CRLGameplayItems,
     0,
     SmallFont, false, false,
     MENU_CRLMAIN
@@ -3001,7 +3003,7 @@ static MenuItem_t CRLLimitsItems[] = {
 static Menu_t CRLLimits = {
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     DrawCRLLimits,
-    2, CRLLimitsItems,
+    ITEMCOUNT(CRLLimitsItems), CRLLimitsItems,
     0,
     SmallFont, false, false,
     MENU_CRLMAIN

@@ -142,7 +142,7 @@ typedef struct
 
 typedef struct menu_s
 {
-    short		numitems;	// # of menu items
+    short		numitems;	// # of menu items ([PN] Automatic count via ITEMCOUNT() macro below)
     struct menu_s*	prevMenu;	// previous menu
     menuitem_t*		menuitems;	// menu items
     void		(*routine)(void);	// draw routine
@@ -153,6 +153,8 @@ typedef struct menu_s
     boolean		ScrollAR;	// [JN] Menu can be scrolled by arrow keys
     boolean		ScrollPG;	// [JN] Menu can be scrolled by PGUP/PGDN keys
 } menu_t;
+
+#define ITEMCOUNT(items) (sizeof(items) / sizeof((items)[0]))
 
 // [JN] For currentMenu->menuitems[itemOn].statuses:
 #define STS_SKIP -1
@@ -266,7 +268,7 @@ static menuitem_t MainMenu[]=
 
 static menu_t MainDef =
 {
-    main_end,
+    ITEMCOUNT(MainMenu),
     NULL,
     MainMenu,
     M_DrawMainMenu,
@@ -332,7 +334,7 @@ static menuitem_t NewGameMenu[]=
 
 static menu_t NewDef =
 {
-    newg_end,		// # of menu items
+    ITEMCOUNT(NewGameMenu),		// # of menu items
     &EpiDef,		// previous menu
     NewGameMenu,	// menuitem_t ->
     M_DrawNewGame,	// drawing routine ->
@@ -372,7 +374,7 @@ static menuitem_t OptionsMenu[]=
 
 static menu_t OptionsDef =
 {
-    opt_end,
+    ITEMCOUNT(OptionsMenu),
     &CRLDef_Main,
     OptionsMenu,
     M_DrawOptions,
@@ -398,7 +400,7 @@ static menuitem_t ReadMenu1[] =
 
 static menu_t ReadDef1 =
 {
-    read1_end,
+    ITEMCOUNT(ReadMenu1),
     &MainDef,
     ReadMenu1,
     M_DrawReadThis1,
@@ -420,7 +422,7 @@ static menuitem_t ReadMenu2[]=
 
 static menu_t ReadDef2 =
 {
-    read2_end,
+    ITEMCOUNT(ReadMenu2),
     &ReadDef1,
     ReadMenu2,
     M_DrawReadThis2,
@@ -452,7 +454,7 @@ static menuitem_t SoundMenu[]=
 
 static menu_t SoundDef =
 {
-    sound_end,
+    ITEMCOUNT(SoundMenu),
     &CRLDef_Main,
     SoundMenu,
     M_DrawSound,
@@ -492,7 +494,7 @@ static menuitem_t LoadMenu[]=
 
 static menu_t LoadDef =
 {
-    load_end,
+    ITEMCOUNT(LoadMenu),
     &MainDef,
     LoadMenu,
     M_DrawLoad,
@@ -519,7 +521,7 @@ static menuitem_t SaveMenu[]=
 
 static menu_t SaveDef =
 {
-    load_end,
+    ITEMCOUNT(SaveMenu),
     &MainDef,
     SaveMenu,
     M_DrawSave,
@@ -1211,7 +1213,7 @@ static menuitem_t CRLMenu_Main[]=
 
 static menu_t CRLDef_Main =
 {
-    16,
+    ITEMCOUNT(CRLMenu_Main),
     &MainDef,
     CRLMenu_Main,
     M_DrawCRL_Main,
@@ -1333,7 +1335,7 @@ static menuitem_t CRLMenu_Video[]=
 
 static menu_t CRLDef_Video =
 {
-    10,
+    ITEMCOUNT(CRLMenu_Video),
     &CRLDef_Main,
     CRLMenu_Video,
     M_DrawCRL_Video,
@@ -1506,7 +1508,7 @@ static menuitem_t CRLMenu_Display[]=
 
 static menu_t CRLDef_Display =
 {
-    9,
+    ITEMCOUNT(CRLMenu_Display),
     &CRLDef_Main,
     CRLMenu_Display,
     M_DrawCRL_Display,
@@ -1616,7 +1618,7 @@ static menuitem_t CRLMenu_Sound[]=
 
 static menu_t CRLDef_Sound =
 {
-    12,
+    ITEMCOUNT(CRLMenu_Sound),
     &CRLDef_Main,
     CRLMenu_Sound,
     M_DrawCRL_Sound,
@@ -1871,7 +1873,7 @@ static menuitem_t CRLMenu_Controls[]=
 
 static menu_t CRLDef_Controls =
 {
-    14,
+    ITEMCOUNT(CRLMenu_Controls),
     &CRLDef_Main,
     CRLMenu_Controls,
     M_DrawCRL_Controls,
@@ -1968,7 +1970,7 @@ static menuitem_t CRLMenu_Keybinds_1[]=
 
 static menu_t CRLDef_Keybinds_1 =
 {
-    12,
+    ITEMCOUNT(CRLMenu_Keybinds_1),
     &CRLDef_Controls,
     CRLMenu_Keybinds_1,
     M_DrawCRL_Keybinds_1,
@@ -2084,7 +2086,7 @@ static menuitem_t CRLMenu_Keybinds_2[]=
 
 static menu_t CRLDef_Keybinds_2 =
 {
-    14,
+    ITEMCOUNT(CRLMenu_Keybinds_2),
     &CRLDef_Controls,
     CRLMenu_Keybinds_2,
     M_DrawCRL_Keybinds_2,
@@ -2217,7 +2219,7 @@ static menuitem_t CRLMenu_Keybinds_3[]=
 
 static menu_t CRLDef_Keybinds_3 =
 {
-    14,
+    ITEMCOUNT(CRLMenu_Keybinds_3),
     &CRLDef_Controls,
     CRLMenu_Keybinds_3,
     M_DrawCRL_Keybinds_3,
@@ -2337,7 +2339,7 @@ static menuitem_t CRLMenu_Keybinds_4[]=
 
 static menu_t CRLDef_Keybinds_4 =
 {
-    10,
+    ITEMCOUNT(CRLMenu_Keybinds_4),
     &CRLDef_Controls,
     CRLMenu_Keybinds_4,
     M_DrawCRL_Keybinds_4,
@@ -2441,7 +2443,7 @@ static menuitem_t CRLMenu_Keybinds_5[]=
 
 static menu_t CRLDef_Keybinds_5 =
 {
-    12,
+    ITEMCOUNT(CRLMenu_Keybinds_5),
     &CRLDef_Controls,
     CRLMenu_Keybinds_5,
     M_DrawCRL_Keybinds_5,
@@ -2558,7 +2560,7 @@ static menuitem_t CRLMenu_Keybinds_6[]=
 
 static menu_t CRLDef_Keybinds_6 =
 {
-    13,
+    ITEMCOUNT(CRLMenu_Keybinds_6),
     &CRLDef_Controls,
     CRLMenu_Keybinds_6,
     M_DrawCRL_Keybinds_6,
@@ -2680,7 +2682,7 @@ static menuitem_t CRLMenu_Keybinds_7[]=
 
 static menu_t CRLDef_Keybinds_7 =
 {
-    12,
+    ITEMCOUNT(CRLMenu_Keybinds_7),
     &CRLDef_Controls,
     CRLMenu_Keybinds_7,
     M_DrawCRL_Keybinds_7,
@@ -2803,7 +2805,7 @@ static menuitem_t CRLMenu_MouseBinds[]=
 
 static menu_t CRLDef_MouseBinds =
 {
-    12,
+    ITEMCOUNT(CRLMenu_MouseBinds),
     &CRLDef_Controls,
     CRLMenu_MouseBinds,
     M_DrawCRL_MouseBinds,
@@ -2932,7 +2934,7 @@ static menuitem_t CRLMenu_Widgets[]=
 
 static menu_t CRLDef_Widgets =
 {
-    11,
+    ITEMCOUNT(CRLMenu_Widgets),
     &CRLDef_Main,
     CRLMenu_Widgets,
     M_DrawCRL_Widgets,
@@ -3134,7 +3136,7 @@ static menuitem_t CRLMenu_Automap[]=
 
 static menu_t CRLDef_Automap =
 {
-    7,
+    ITEMCOUNT(CRLMenu_Automap),
     &CRLDef_Main,
     CRLMenu_Automap,
     M_DrawCRL_Automap,
@@ -3215,7 +3217,7 @@ static menuitem_t CRLMenu_Gameplay[]=
 
 static menu_t CRLDef_Gameplay =
 {
-    11,
+    ITEMCOUNT(CRLMenu_Gameplay),
     &CRLDef_Main,
     CRLMenu_Gameplay,
     M_DrawCRL_Gameplay,
@@ -3376,7 +3378,7 @@ static menuitem_t CRLMenu_Misc[]=
 
 static menu_t CRLDef_Misc =
 {
-    12,
+    ITEMCOUNT(CRLMenu_Misc),
     &CRLDef_Main,
     CRLMenu_Misc,
     M_DrawCRL_Misc,
@@ -3572,7 +3574,7 @@ static menuitem_t CRLMenu_Limits[]=
 
 static menu_t CRLDef_Limits =
 {
-    2,
+    ITEMCOUNT(CRLMenu_Limits),
     &CRLDef_Main,
     CRLMenu_Limits,
     M_DrawCRL_Limits,
