@@ -16,23 +16,31 @@
 // GNU General Public License for more details.
 //
 
-#ifndef __M_CONTROLS_H__
-#define __M_CONTROLS_H__
+
+#pragma once
+
+
+//
+// Keyboard controls
+//
+
+// Movement
  
-extern int key_right;
-extern int key_left;
+extern int key_up, key_up2;
+extern int key_down, key_down2;
+extern int key_right, key_right2;
+extern int key_left, key_left2;
+extern int key_strafeleft, key_strafeleft2;
+extern int key_straferight, key_straferight2;
+extern int key_speed, key_speed2;
+extern int key_strafe, key_strafe2;
+extern int key_jump, key_jump2; // Hexen
+extern int key_180turn, key_180turn2;
 
-extern int key_up;
-extern int key_down;
-extern int key_strafeleft;
-extern int key_straferight;
-extern int key_fire;
-extern int key_use;
-extern int key_strafe;
-extern int key_180turn;
-extern int key_speed;
+// Action
 
-extern int key_jump;
+extern int key_fire, key_fire2;
+extern int key_use, key_use2;
 
 extern int key_flyup;
 extern int key_flydown;
@@ -230,6 +238,3 @@ void M_BindMenuControls(void);
 void M_BindChatControls(unsigned int num_players);
 
 void M_ApplyPlatformDefaults(void);
-
-#endif /* #ifndef __M_CONTROLS_H__ */
-

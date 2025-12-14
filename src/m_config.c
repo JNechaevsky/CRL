@@ -133,6 +133,14 @@ typedef struct
 // Use: CONFIG_VARIABLE_COMMENT("Section title") or CONFIG_VARIABLE_COMMENT("")
 #define CONFIG_VARIABLE_COMMENT(text) \
     { (text), {NULL}, DEFAULT_COMMENT, 0, 0, true }
+// [JN] Consolidated shortcut-macros for normal and alt binding.
+#define CONFIG_VARIABLE_KEYBIND(name1, name2) \
+    CONFIG_VARIABLE_GENERIC(name1, DEFAULT_KEY), \
+    CONFIG_VARIABLE_GENERIC(name2, DEFAULT_KEY)
+// [PN] Consolidated shortcut-macros for normal and alt mouse binding.
+#define CONFIG_VARIABLE_MOUSEBIND(name1, name2) \
+    CONFIG_VARIABLE_GENERIC(name1, DEFAULT_INT), \
+    CONFIG_VARIABLE_GENERIC(name2, DEFAULT_INT)
 
 //! @begin_config_file default
 
@@ -175,7 +183,6 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_KEY(key_fire),
     CONFIG_VARIABLE_KEY(key_use),
     CONFIG_VARIABLE_KEY(key_strafe),
-    CONFIG_VARIABLE_KEY(key_180turn),
     CONFIG_VARIABLE_KEY(key_speed),
     CONFIG_VARIABLE_INT(use_mouse),
     CONFIG_VARIABLE_INT(mouseb_fire),
@@ -332,7 +339,22 @@ static default_t	doom_defaults_list[] =
     // Keyboard controls
     //
 
+    // Movement
     CONFIG_VARIABLE_COMMENT("Keyboard controls"),
+    CONFIG_VARIABLE_KEY(key_up2),
+    CONFIG_VARIABLE_KEY(key_down2),
+    CONFIG_VARIABLE_KEY(key_left2),
+    CONFIG_VARIABLE_KEY(key_right2),
+    CONFIG_VARIABLE_KEY(key_strafeleft2),
+    CONFIG_VARIABLE_KEY(key_straferight2),
+    CONFIG_VARIABLE_KEY(key_speed2),
+    CONFIG_VARIABLE_KEY(key_strafe2),
+    CONFIG_VARIABLE_KEYBIND(key_180turn, key_180turn2),
+
+    // Action
+    CONFIG_VARIABLE_KEY(key_fire2),
+    CONFIG_VARIABLE_KEY(key_use2),
+
     CONFIG_VARIABLE_KEY(key_pause),
     CONFIG_VARIABLE_KEY(key_menu_activate),
     CONFIG_VARIABLE_KEY(key_menu_up),
@@ -1042,6 +1064,14 @@ void M_BindStringVariable(const char *name, char **location)
 
     variable->location.s = location;
     variable->bound = true;
+}
+
+// [JN] Consolidated shortcut-function for normal and alt binding.
+
+void M_BindIntVariableKeybind(const char *name1, int *location1, const char *name2, int *location2)
+{
+    M_BindIntVariable(name1, location1);
+    M_BindIntVariable(name2, location2);
 }
 
 // Set the value of a particular variable; an API function for other

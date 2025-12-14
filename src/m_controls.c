@@ -28,18 +28,22 @@
 // Keyboard controls
 //
 
-int key_right = KEY_RIGHTARROW;
-int key_left = KEY_LEFTARROW;
+// Movement
 
-int key_up = 'w';
-int key_down = 's'; 
-int key_strafeleft = 'a';
-int key_straferight = 'd';
-int key_fire = KEY_RCTRL;
-int key_use = ' ';
-int key_strafe = KEY_RALT;
-int key_180turn = 0; // [crispy]
-int key_speed = KEY_RSHIFT; 
+int key_up          = 'w';            int key_up2          = 0;
+int key_down        = 's';            int key_down2        = 0;
+int key_right       = KEY_RIGHTARROW; int key_right2       = 0;
+int key_left        = KEY_LEFTARROW;  int key_left2        = 0;
+int key_strafeleft  = 'a';            int key_strafeleft2  = 0;
+int key_straferight = 'd';            int key_straferight2 = 0;
+int key_speed       = KEY_RSHIFT;     int key_speed2       = 0;
+int key_strafe      = KEY_RALT;       int key_strafe2      = 0;
+int key_180turn     = 0;              int key_180turn2     = 0; // [crispy]  
+
+// Action
+
+int key_fire        = KEY_RCTRL; int key_fire2 = 0;
+int key_use         = ' ';       int key_use2  = 0;
 
 // 
 // Heretic keyboard controls
@@ -261,17 +265,26 @@ int key_crl_mlook = 0; // [crispy]
 
 void M_BindBaseControls(void)
 {
-    M_BindIntVariable("key_right",          &key_right);
-    M_BindIntVariable("key_left",           &key_left);
-    M_BindIntVariable("key_up",             &key_up);
-    M_BindIntVariable("key_down",           &key_down);
-    M_BindIntVariable("key_strafeleft",     &key_strafeleft);
-    M_BindIntVariable("key_straferight",    &key_straferight);
-    M_BindIntVariable("key_fire",           &key_fire);
-    M_BindIntVariable("key_use",            &key_use);
-    M_BindIntVariable("key_strafe",         &key_strafe);
-    M_BindIntVariable("key_180turn",        &key_180turn);
-    M_BindIntVariable("key_speed",          &key_speed);
+    //
+    // Keyboard controls
+    //
+
+    // Movement
+    M_BindIntVariableKeybind("key_up",          &key_up,          "key_up2",          &key_up2);
+    M_BindIntVariableKeybind("key_down",        &key_down,        "key_down2",        &key_down2);
+    M_BindIntVariableKeybind("key_left",        &key_left,        "key_left2",        &key_left2);
+    M_BindIntVariableKeybind("key_right",       &key_right,       "key_right2",       &key_right2);
+    M_BindIntVariableKeybind("key_strafeleft",  &key_strafeleft,  "key_strafeleft2",  &key_strafeleft2);
+    M_BindIntVariableKeybind("key_straferight", &key_straferight, "key_straferight2", &key_straferight2);
+    M_BindIntVariableKeybind("key_speed",       &key_speed,       "key_speed2",       &key_speed2);
+    M_BindIntVariableKeybind("key_strafe",      &key_strafe,      "key_strafe2",      &key_strafe2);
+    M_BindIntVariableKeybind("key_180turn",     &key_180turn,     "key_180turn2",     &key_180turn2);
+
+    // Action
+
+    M_BindIntVariableKeybind("key_fire", &key_fire, "key_fire2", &key_fire2);
+    M_BindIntVariableKeybind("key_use",  &key_use,  "key_use2",  &key_use2);
+
 
     M_BindIntVariable("mouseb_fire",        &mousebfire);
     M_BindIntVariable("mouseb_strafe",      &mousebstrafe);
