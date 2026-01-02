@@ -2824,7 +2824,7 @@ static void M_DrawCRL_MouseBinds (void)
     M_DrawBindButton(1, 25, mousebforward, mousebforward2);
     M_DrawBindButton(2, 34, mousebspeed, mousebspeed2);
     M_DrawBindButton(3, 43, mousebstrafe, mousebstrafe2);
-    M_DrawBindButton(4, 52, mousebbackward, mousebbackward);
+    M_DrawBindButton(4, 52, mousebbackward, mousebbackward2);
     M_DrawBindButton(5, 61, mousebuse, mousebuse2);
     M_DrawBindButton(6, 70, mousebstrafeleft, mousebstrafeleft2);
     M_DrawBindButton(7, 79, mousebstraferight, mousebstraferight2);
