@@ -310,7 +310,7 @@ boolean ST_Responder (event_t *ev)
             }
 
             // 'dqd' cheat for toggleable god mode
-            if (cht_CheckCheatSP(&cheat_god, ev->data2) || ev->data1 == key_crl_iddqd)
+            if (cht_CheckCheatSP(&cheat_god, ev->data2) || ev->data1 == key_crl_iddqd || ev->data1 == key_crl_iddqd2)
             {
                 // [crispy] dead players are first respawned at the current position
                 mapthing_t mt = {0};
@@ -348,7 +348,7 @@ boolean ST_Responder (event_t *ev)
                 plyr->cheatTics = 1;
             }
             // 'fa' cheat for killer fucking arsenal
-            else if (cht_CheckCheatSP(&cheat_ammonokey, ev->data2) || ev->data1 == key_crl_idfa)
+            else if (cht_CheckCheatSP(&cheat_ammonokey, ev->data2) || ev->data1 == key_crl_idfa || ev->data1 == key_crl_idfa2)
             {
                 plyr->armorpoints = deh_idfa_armor;
                 plyr->armortype = deh_idfa_armor_class;
@@ -369,7 +369,7 @@ boolean ST_Responder (event_t *ev)
                 CRL_SetMessage(plyr, DEH_String(STSTR_FAADDED), false, NULL);
             }
             // 'kfa' cheat for key full ammo
-            else if (cht_CheckCheatSP(&cheat_ammo, ev->data2) || ev->data1 == key_crl_idkfa)
+            else if (cht_CheckCheatSP(&cheat_ammo, ev->data2) || ev->data1 == key_crl_idkfa || ev->data1 == key_crl_idkfa2)
             {
                 plyr->armorpoints = deh_idkfa_armor;
                 plyr->armortype = deh_idkfa_armor_class;
@@ -455,7 +455,8 @@ boolean ST_Responder (event_t *ev)
             else 
             if (cht_CheckCheatSP(&cheat_noclip, ev->data2)
             || (cht_CheckCheatSP(&cheat_commercial_noclip, ev->data2))
-            || ev->data1 == key_crl_idclip)
+            || ev->data1 == key_crl_idclip
+            || ev->data1 == key_crl_idclip2)
             {	
                 plyr->cheats ^= CF_NOCLIP;
 
@@ -523,7 +524,8 @@ boolean ST_Responder (event_t *ev)
             // [JN] IDDT cheating, moved from am_map.c
             else if (((!deathmatch || gameversion <= exe_doom_1_8)
             && cht_CheckCheat(&cheat_amap, ev->data2))
-            || ev->data1 == key_crl_iddt)
+            || ev->data1 == key_crl_iddt
+            || ev->data1 == key_crl_iddt2)
             {
                 iddt_cheating = (iddt_cheating + 1) % 3;
                 plyr->cheatTics = 1;

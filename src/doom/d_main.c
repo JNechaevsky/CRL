@@ -480,17 +480,12 @@ static void D_BindVariables(void)
 {
     int i;
 
-    M_ApplyPlatformDefaults();
-
     I_BindInputVariables();
     I_BindVideoVariables();
     I_BindJoystickVariables();
     I_BindSoundVariables();
 
-    M_BindBaseControls();
-    M_BindWeaponControls();
-    M_BindMapControls();
-    M_BindMenuControls();
+    M_BindControls();
     M_BindChatControls(MAXPLAYERS);
 
     key_multi_msgplayer[0] = HUSTR_KEYGREEN;
