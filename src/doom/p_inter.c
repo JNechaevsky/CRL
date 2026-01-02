@@ -30,6 +30,7 @@
 #include "s_sound.h"
 
 #include "crlcore.h"
+#include "crlvars.h"
 
 
 #define BONUSADD	6
@@ -175,7 +176,7 @@ P_GiveWeapon
 	player->pendingweapon = weapon;
 
 	if (player == &players[displayplayer])
-	    S_StartSound (NULL, sfx_wpnup);
+	    S_StartSound (crl_spectating ? player : NULL, sfx_wpnup);
 	return false;
     }
 	
@@ -657,7 +658,7 @@ P_TouchSpecialThing
     P_RemoveMobj (special);
     player->bonuscount += BONUSADD;
     if (player == &players[displayplayer])
-	S_StartSound (NULL, sound);
+	S_StartSound (crl_spectating ? player : NULL, sound);
 }
 
 

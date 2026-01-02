@@ -1064,7 +1064,10 @@ void ST_Ticker (void)
     }
 
     // Do red-/gold-shifts from damage/items
-    ST_doPaletteStuff();
+    if (!crl_spectating)
+    {
+        ST_doPaletteStuff();
+    }
 }
 
 // -----------------------------------------------------------------------------

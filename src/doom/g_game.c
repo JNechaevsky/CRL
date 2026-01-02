@@ -1249,6 +1249,8 @@ boolean G_Responder (event_t* ev)
         crl_spectating ^= 1;
         CRL_SetMessage(plr, crl_spectating ?
                        CRL_SPECTATOR_ON : CRL_SPECTATOR_OFF, false, NULL);
+        if (crl_spectating)
+            I_SetPalette(W_CacheLumpName(DEH_String("PLAYPAL"), PU_CACHE));
     }        
 
     // [JN] CRL - Toggle freeze mode.
