@@ -142,6 +142,7 @@ typedef struct
     CONFIG_VARIABLE_GENERIC(name1, DEFAULT_INT), \
     CONFIG_VARIABLE_GENERIC(name2, DEFAULT_INT)
 
+
 //! @begin_config_file default
 
 static default_t	doom_defaults_list[] =
@@ -213,13 +214,9 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_STRING(chatmacro7),
     CONFIG_VARIABLE_STRING(chatmacro8),
     CONFIG_VARIABLE_STRING(chatmacro9),
+    CONFIG_VARIABLE_COMMENT(""),
 
     // [JN] CRL-specific config variables:
-
-    CONFIG_VARIABLE_COMMENT(""),
-    CONFIG_VARIABLE_COMMENT("Multiplayer"),
-    CONFIG_VARIABLE_STRING(player_name),
-    CONFIG_VARIABLE_COMMENT(""),
 
     //
     // Autoload
@@ -235,7 +232,7 @@ static default_t	doom_defaults_list[] =
     //
     // Autoload-related (Miscellaneous options)
     //
-    
+
     CONFIG_VARIABLE_COMMENT("Autoload-related"),
     CONFIG_VARIABLE_INT(crl_autoload_wad),
     CONFIG_VARIABLE_INT(crl_autoload_deh),
@@ -329,7 +326,7 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(winmm_reset_delay),
 #endif
     CONFIG_VARIABLE_INT(use_libsamplerate),
-    CONFIG_VARIABLE_FLOAT(libsamplerate_scale),   
+    CONFIG_VARIABLE_FLOAT(libsamplerate_scale),
     CONFIG_VARIABLE_INT(snd_samplerate),
     CONFIG_VARIABLE_INT(snd_cachesize),
     CONFIG_VARIABLE_INT(snd_maxslicetime_ms),
@@ -355,7 +352,115 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_KEY(key_fire2),
     CONFIG_VARIABLE_KEY(key_use2),
 
-    CONFIG_VARIABLE_KEY(key_pause),
+    // CRL Controls
+    CONFIG_VARIABLE_KEYBIND(key_crl_menu, key_crl_menu2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_prevlevel, key_crl_prevlevel2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_reloadlevel, key_crl_reloadlevel2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_nextlevel, key_crl_nextlevel2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_demospeed, key_crl_demospeed2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_extendedhud, key_crl_extendedhud2),
+
+    // Game modes
+    CONFIG_VARIABLE_KEYBIND(key_crl_spectator, key_crl_spectator2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_cameraup, key_crl_cameraup2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_cameradown, key_crl_cameradown2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_cameramoveto, key_crl_cameramoveto2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_freeze, key_crl_freeze2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_buddha, key_crl_buddha2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_notarget, key_crl_notarget2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_nomomentum, key_crl_nomomentum2),
+
+    // Advanced movement
+    CONFIG_VARIABLE_KEYBIND(key_crl_autorun, key_crl_autorun2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_mlook, key_crl_mlook2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_novert, key_crl_novert2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_vilebomb, key_crl_vilebomb2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_vilefly, key_crl_vilefly2),
+
+    // Visplanes MAX value
+    CONFIG_VARIABLE_KEYBIND(key_crl_clearmax, key_crl_clearmax2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_movetomax, key_crl_movetomax2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_limits, key_crl_limits2),
+
+    // Cheat shortcuts
+    CONFIG_VARIABLE_KEYBIND(key_crl_iddqd, key_crl_iddqd2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_idkfa, key_crl_idkfa2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_idfa, key_crl_idfa2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_idclip, key_crl_idclip2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_iddt, key_crl_iddt2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_mdk, key_crl_mdk2),
+
+    // Weapons
+    CONFIG_VARIABLE_KEYBIND(key_weapon1, key_weapon1_2),
+    CONFIG_VARIABLE_KEYBIND(key_weapon2, key_weapon2_2),
+    CONFIG_VARIABLE_KEYBIND(key_weapon3, key_weapon3_2),
+    CONFIG_VARIABLE_KEYBIND(key_weapon4, key_weapon4_2),
+    CONFIG_VARIABLE_KEYBIND(key_weapon5, key_weapon5_2),
+    CONFIG_VARIABLE_KEYBIND(key_weapon6, key_weapon6_2),
+    CONFIG_VARIABLE_KEYBIND(key_weapon7, key_weapon7_2),
+    CONFIG_VARIABLE_KEYBIND(key_weapon8, key_weapon8_2),
+    CONFIG_VARIABLE_KEYBIND(key_prevweapon, key_prevweapon2),
+    CONFIG_VARIABLE_KEYBIND(key_nextweapon, key_nextweapon2),
+
+    // Artifacts
+    CONFIG_VARIABLE_KEYBIND(key_arti_quartz, key_arti_quartz2),
+    CONFIG_VARIABLE_KEYBIND(key_arti_urn, key_arti_urn2),
+    CONFIG_VARIABLE_KEYBIND(key_arti_bomb, key_arti_bomb2),
+    CONFIG_VARIABLE_KEYBIND(key_arti_tome, key_arti_tome2),
+    CONFIG_VARIABLE_KEYBIND(key_arti_ring, key_arti_ring2),
+    CONFIG_VARIABLE_KEYBIND(key_arti_chaosdevice, key_arti_chaosdevice2),
+    CONFIG_VARIABLE_KEYBIND(key_arti_shadowsphere, key_arti_shadowsphere2),
+    CONFIG_VARIABLE_KEYBIND(key_arti_wings, key_arti_wings2),
+    CONFIG_VARIABLE_KEYBIND(key_arti_torch, key_arti_torch2),
+    CONFIG_VARIABLE_KEYBIND(key_arti_morph, key_arti_morph2),
+
+    // Automap
+    CONFIG_VARIABLE_KEYBIND(key_map_toggle, key_map_toggle2),
+    CONFIG_VARIABLE_KEYBIND(key_map_zoomin, key_map_zoomin2),
+    CONFIG_VARIABLE_KEYBIND(key_map_zoomout, key_map_zoomout2),
+    CONFIG_VARIABLE_KEYBIND(key_map_maxzoom, key_map_maxzoom2),
+    CONFIG_VARIABLE_KEYBIND(key_map_follow, key_map_follow2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_map_rotate, key_crl_map_rotate2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_map_overlay, key_crl_map_overlay2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_map_mousepan, key_crl_map_mousepan2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_map_sndprop, key_crl_map_sndprop2),
+    CONFIG_VARIABLE_KEYBIND(key_map_grid, key_map_grid2),
+    CONFIG_VARIABLE_KEYBIND(key_map_mark, key_map_mark2),
+    CONFIG_VARIABLE_KEYBIND(key_map_clearmark, key_map_clearmark2),
+    CONFIG_VARIABLE_KEYBIND(key_map_north, key_map_north2),
+    CONFIG_VARIABLE_KEYBIND(key_map_south, key_map_south2),
+    CONFIG_VARIABLE_KEYBIND(key_map_east, key_map_east2),
+    CONFIG_VARIABLE_KEYBIND(key_map_west, key_map_west2),
+
+    // Function keys
+    CONFIG_VARIABLE_KEYBIND(key_menu_help, key_menu_help2),
+    CONFIG_VARIABLE_KEYBIND(key_menu_save, key_menu_save2),
+    CONFIG_VARIABLE_KEYBIND(key_menu_load, key_menu_load2),
+    CONFIG_VARIABLE_KEYBIND(key_menu_volume, key_menu_volume2),
+    CONFIG_VARIABLE_KEYBIND(key_menu_detail, key_menu_detail2),
+    CONFIG_VARIABLE_KEYBIND(key_menu_qsave, key_menu_qsave2),
+    CONFIG_VARIABLE_KEYBIND(key_menu_endgame, key_menu_endgame2),
+    CONFIG_VARIABLE_KEYBIND(key_menu_messages, key_menu_messages2),
+    CONFIG_VARIABLE_KEYBIND(key_menu_qload, key_menu_qload2),
+    CONFIG_VARIABLE_KEYBIND(key_menu_quit, key_menu_quit2),
+    CONFIG_VARIABLE_KEYBIND(key_menu_gammad, key_menu_gammad2),
+    CONFIG_VARIABLE_KEYBIND(key_menu_gamma, key_menu_gamma2),
+    CONFIG_VARIABLE_KEYBIND(key_spy, key_spy2),
+
+    // Shortcut keys
+    CONFIG_VARIABLE_KEYBIND(key_pause, key_pause2),
+    CONFIG_VARIABLE_KEYBIND(key_menu_screenshot, key_menu_screenshot2),
+    CONFIG_VARIABLE_KEYBIND(key_message_refresh, key_message_refresh2),
+    CONFIG_VARIABLE_KEYBIND(key_demo_quit, key_demo_quit2),
+
+    // Multiplayer
+    CONFIG_VARIABLE_KEYBIND(key_multi_msg, key_multi_msg2),
+    CONFIG_VARIABLE_KEYBIND(key_multi_msgplayer1, key_multi_msgplayer1_2),
+    CONFIG_VARIABLE_KEYBIND(key_multi_msgplayer2, key_multi_msgplayer2_2),
+    CONFIG_VARIABLE_KEYBIND(key_multi_msgplayer3, key_multi_msgplayer3_2),
+    CONFIG_VARIABLE_KEYBIND(key_multi_msgplayer4, key_multi_msgplayer4_2),
+
+    // Special menu keys, not available for rebinding
     CONFIG_VARIABLE_KEY(key_menu_activate),
     CONFIG_VARIABLE_KEY(key_menu_up),
     CONFIG_VARIABLE_KEY(key_menu_down),
@@ -365,102 +470,15 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_KEY(key_menu_forward),
     CONFIG_VARIABLE_KEY(key_menu_confirm),
     CONFIG_VARIABLE_KEY(key_menu_abort),
-    CONFIG_VARIABLE_KEY(key_menu_help),
-    CONFIG_VARIABLE_KEY(key_menu_save),
-    CONFIG_VARIABLE_KEY(key_menu_load),
-    CONFIG_VARIABLE_KEY(key_menu_volume),
-    CONFIG_VARIABLE_KEY(key_menu_detail),
-    CONFIG_VARIABLE_KEY(key_menu_qsave),
-    CONFIG_VARIABLE_KEY(key_menu_endgame),
-    CONFIG_VARIABLE_KEY(key_menu_messages),
-    CONFIG_VARIABLE_KEY(key_menu_qload),
-    CONFIG_VARIABLE_KEY(key_menu_quit),
-    CONFIG_VARIABLE_KEY(key_menu_gammad),
-    CONFIG_VARIABLE_KEY(key_menu_gamma),
-    CONFIG_VARIABLE_KEY(key_spy),
     CONFIG_VARIABLE_KEY(key_menu_incscreen),
     CONFIG_VARIABLE_KEY(key_menu_decscreen),
-    CONFIG_VARIABLE_KEY(key_menu_screenshot),
     CONFIG_VARIABLE_KEY(key_menu_del),
-    CONFIG_VARIABLE_KEY(key_map_toggle),
-    CONFIG_VARIABLE_KEY(key_map_north),
-    CONFIG_VARIABLE_KEY(key_map_south),
-    CONFIG_VARIABLE_KEY(key_map_east),
-    CONFIG_VARIABLE_KEY(key_map_west),
-    CONFIG_VARIABLE_KEY(key_map_zoomin),
-    CONFIG_VARIABLE_KEY(key_map_zoomout),
-    CONFIG_VARIABLE_KEY(key_map_maxzoom),
-    CONFIG_VARIABLE_KEY(key_map_follow),
-    CONFIG_VARIABLE_KEY(key_map_grid),
-    CONFIG_VARIABLE_KEY(key_map_mark),
-    CONFIG_VARIABLE_KEY(key_map_clearmark),
-    CONFIG_VARIABLE_KEY(key_weapon1),
-    CONFIG_VARIABLE_KEY(key_weapon2),
-    CONFIG_VARIABLE_KEY(key_weapon3),
-    CONFIG_VARIABLE_KEY(key_weapon4),
-    CONFIG_VARIABLE_KEY(key_weapon5),
-    CONFIG_VARIABLE_KEY(key_weapon6),
-    CONFIG_VARIABLE_KEY(key_weapon7),
-    CONFIG_VARIABLE_KEY(key_weapon8),
-    CONFIG_VARIABLE_KEY(key_prevweapon),
-    CONFIG_VARIABLE_KEY(key_nextweapon),
-    
-    CONFIG_VARIABLE_KEY(key_arti_quartz),
-    CONFIG_VARIABLE_KEY(key_arti_urn),
-    CONFIG_VARIABLE_KEY(key_arti_bomb),
-    CONFIG_VARIABLE_KEY(key_arti_tome),
-    CONFIG_VARIABLE_KEY(key_arti_ring),
-    CONFIG_VARIABLE_KEY(key_arti_chaosdevice),
-    CONFIG_VARIABLE_KEY(key_arti_shadowsphere),
-    CONFIG_VARIABLE_KEY(key_arti_wings),
-    CONFIG_VARIABLE_KEY(key_arti_torch),
-    CONFIG_VARIABLE_KEY(key_arti_morph),
-    
-    CONFIG_VARIABLE_KEY(key_message_refresh),
-    CONFIG_VARIABLE_KEY(key_demo_quit),
-    CONFIG_VARIABLE_KEY(key_multi_msg),
-    CONFIG_VARIABLE_KEY(key_multi_msgplayer1),
-    CONFIG_VARIABLE_KEY(key_multi_msgplayer2),
-    CONFIG_VARIABLE_KEY(key_multi_msgplayer3),
-    CONFIG_VARIABLE_KEY(key_multi_msgplayer4),
-
-    CONFIG_VARIABLE_KEY(key_crl_menu),
-    CONFIG_VARIABLE_KEY(key_crl_spectator),
-    CONFIG_VARIABLE_KEY(key_crl_cameraup),
-    CONFIG_VARIABLE_KEY(key_crl_cameradown),
-    CONFIG_VARIABLE_KEY(key_crl_cameramoveto),
-    CONFIG_VARIABLE_KEY(key_crl_freeze),
-    CONFIG_VARIABLE_KEY(key_crl_buddha),
-    CONFIG_VARIABLE_KEY(key_crl_notarget),
-    CONFIG_VARIABLE_KEY(key_crl_nomomentum),
-    CONFIG_VARIABLE_KEY(key_crl_map_rotate),
-    CONFIG_VARIABLE_KEY(key_crl_map_overlay),
-    CONFIG_VARIABLE_KEY(key_crl_map_mousepan),
-    CONFIG_VARIABLE_KEY(key_crl_map_sndprop),
-    CONFIG_VARIABLE_KEY(key_crl_autorun),
-    CONFIG_VARIABLE_KEY(key_crl_novert),
-    CONFIG_VARIABLE_KEY(key_crl_vilebomb),
-    CONFIG_VARIABLE_KEY(key_crl_vilefly),
-    CONFIG_VARIABLE_KEY(key_crl_clearmax),
-    CONFIG_VARIABLE_KEY(key_crl_movetomax),
-    
-    CONFIG_VARIABLE_KEY(key_crl_iddqd),
-    CONFIG_VARIABLE_KEY(key_crl_idkfa),
-    CONFIG_VARIABLE_KEY(key_crl_idfa),
-    CONFIG_VARIABLE_KEY(key_crl_idclip),
-    CONFIG_VARIABLE_KEY(key_crl_iddt),
-    CONFIG_VARIABLE_KEY(key_crl_mdk),
-    
-    CONFIG_VARIABLE_KEY(key_crl_prevlevel),
-    CONFIG_VARIABLE_KEY(key_crl_nextlevel),
-    CONFIG_VARIABLE_KEY(key_crl_reloadlevel),
-    CONFIG_VARIABLE_KEY(key_crl_demospeed),
-    CONFIG_VARIABLE_KEY(key_crl_extendedhud),
     CONFIG_VARIABLE_KEY(key_crl_limits),
-
-    CONFIG_VARIABLE_KEY(key_crl_mlook),
-
     CONFIG_VARIABLE_INT(vanilla_keyboard_mapping),
+    CONFIG_VARIABLE_COMMENT(""),
+
+    CONFIG_VARIABLE_COMMENT("Multiplayer"),
+    CONFIG_VARIABLE_STRING(player_name),
     CONFIG_VARIABLE_COMMENT(""),
 
     //
@@ -474,16 +492,21 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_FLOAT(mouse_acceleration),
     CONFIG_VARIABLE_INT(mouse_threshold),
     CONFIG_VARIABLE_INT(crl_mouselook),
-    CONFIG_VARIABLE_INT(mouseb_speed),
-    CONFIG_VARIABLE_INT(mouseb_strafeleft),
-    CONFIG_VARIABLE_INT(mouseb_straferight),
-    CONFIG_VARIABLE_INT(mouseb_use),
-    CONFIG_VARIABLE_INT(mouseb_backward),
-    CONFIG_VARIABLE_INT(mouseb_prevweapon),
-    CONFIG_VARIABLE_INT(mouseb_nextweapon),
-    CONFIG_VARIABLE_INT(mouseb_invleft),
-    CONFIG_VARIABLE_INT(mouseb_invright),
-    CONFIG_VARIABLE_INT(mouseb_useartifact),
+    CONFIG_VARIABLE_INT(mouseb_fire2),
+    CONFIG_VARIABLE_INT(mouseb_forward2),
+    CONFIG_VARIABLE_INT(mouseb_strafe2),
+    CONFIG_VARIABLE_MOUSEBIND(mouseb_speed, mouseb_speed2),
+    CONFIG_VARIABLE_MOUSEBIND(mouseb_strafeleft, mouseb_strafeleft2),
+    CONFIG_VARIABLE_MOUSEBIND(mouseb_straferight, mouseb_straferight2),
+    CONFIG_VARIABLE_MOUSEBIND(mouseb_use, mouseb_use2),
+    CONFIG_VARIABLE_MOUSEBIND(mouseb_backward, mouseb_backward2),
+    CONFIG_VARIABLE_MOUSEBIND(mouseb_prevweapon, mouseb_prevweapon2),
+    CONFIG_VARIABLE_MOUSEBIND(mouseb_nextweapon, mouseb_nextweapon2),
+
+    // Heretic & Hexen: Inventory
+    CONFIG_VARIABLE_MOUSEBIND(mouseb_invleft, mouseb_invleft2),
+    CONFIG_VARIABLE_MOUSEBIND(mouseb_invright, mouseb_invright2),
+    CONFIG_VARIABLE_MOUSEBIND(mouseb_useartifact, mouseb_useartifact2),
     CONFIG_VARIABLE_INT(dclick_use),
     CONFIG_VARIABLE_COMMENT(""),
 
@@ -492,6 +515,8 @@ static default_t	doom_defaults_list[] =
     //
 
     CONFIG_VARIABLE_COMMENT("Joystick controls"),
+    CONFIG_VARIABLE_INT(use_gamepad),
+    CONFIG_VARIABLE_INT(gamepad_type),
     CONFIG_VARIABLE_STRING(joystick_guid),
     CONFIG_VARIABLE_INT(joystick_index),
     CONFIG_VARIABLE_INT(use_analog),
@@ -506,6 +531,10 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(joystick_look_axis),
     CONFIG_VARIABLE_INT(joystick_look_invert),
     CONFIG_VARIABLE_INT(joystick_look_sensitivity),
+    CONFIG_VARIABLE_INT(joystick_x_dead_zone),
+    CONFIG_VARIABLE_INT(joystick_y_dead_zone),
+    CONFIG_VARIABLE_INT(joystick_strafe_dead_zone),
+    CONFIG_VARIABLE_INT(joystick_look_dead_zone),    
     CONFIG_VARIABLE_INT(joystick_physical_button0),
     CONFIG_VARIABLE_INT(joystick_physical_button1),
     CONFIG_VARIABLE_INT(joystick_physical_button2),
@@ -517,18 +546,12 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(joystick_physical_button8),
     CONFIG_VARIABLE_INT(joystick_physical_button9),
     CONFIG_VARIABLE_INT(joystick_physical_button10),
-    CONFIG_VARIABLE_INT(use_gamepad),
-    CONFIG_VARIABLE_INT(gamepad_type),
-    CONFIG_VARIABLE_INT(joystick_x_dead_zone),
-    CONFIG_VARIABLE_INT(joystick_y_dead_zone),
-    CONFIG_VARIABLE_INT(joystick_strafe_dead_zone),
-    CONFIG_VARIABLE_INT(joystick_look_dead_zone),
     CONFIG_VARIABLE_INT(joyb_strafeleft),
     CONFIG_VARIABLE_INT(joyb_straferight),
-    CONFIG_VARIABLE_INT(joyb_menu_activate),
-    CONFIG_VARIABLE_INT(joyb_toggle_automap),
     CONFIG_VARIABLE_INT(joyb_prevweapon),
     CONFIG_VARIABLE_INT(joyb_nextweapon),
+    CONFIG_VARIABLE_INT(joyb_menu_activate),
+    CONFIG_VARIABLE_INT(joyb_toggle_automap),
     CONFIG_VARIABLE_COMMENT(""),
 
     // Widgets
@@ -593,7 +616,6 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_COMMENT("Static engine limits"),
     CONFIG_VARIABLE_INT(vanilla_savegame_limit),
     CONFIG_VARIABLE_INT(crl_vanilla_limits),
-    CONFIG_VARIABLE_COMMENT(""),
 };
 
 static default_collection_t doom_defaults =

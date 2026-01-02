@@ -758,7 +758,7 @@ boolean AM_Responder (const event_t *ev)
 
     if (!automapactive)
     {
-        if (ev->type == ev_keydown && ev->data1 == key_map_toggle)
+        if (ev->type == ev_keydown && (ev->data1 == key_map_toggle || ev->data1 == key_map_toggle2))
         {
             AM_Start ();
             if (!crl_automap_overlay)
@@ -864,24 +864,24 @@ boolean AM_Responder (const event_t *ev)
                 rc = false;
             }
         }
-        else if (key == key_map_zoomout)  // zoom out
+        else if (key == key_map_zoomout || key == key_map_zoomout2)  // zoom out
         {
             mtof_zoommul = m_zoomout;
             ftom_zoommul = m_zoomin;
             curr_mtof_zoommul = mtof_zoommul;
         }
-        else if (key == key_map_zoomin)   // zoom in
+        else if (key == key_map_zoomin || key == key_map_zoomin2)   // zoom in
         {
             mtof_zoommul = m_zoomin;
             ftom_zoommul = m_zoomout;
             curr_mtof_zoommul = mtof_zoommul;
         }
-        else if (key == key_map_toggle)
+        else if (key == key_map_toggle || key == key_map_toggle2)
         {
             bigstate = 0;
             AM_Stop ();
         }
-        else if (key == key_map_maxzoom)
+        else if (key == key_map_maxzoom || key == key_map_maxzoom2)
         {
             bigstate = !bigstate;
 
@@ -895,14 +895,14 @@ boolean AM_Responder (const event_t *ev)
                 AM_restoreScaleAndLoc();
             }
         }
-        else if (key == key_map_follow)
+        else if (key == key_map_follow || key == key_map_follow2)
         {
             followplayer = !followplayer;
 
             CRL_SetMessage(plr, DEH_String(followplayer ?
                            AMSTR_FOLLOWON : AMSTR_FOLLOWOFF), false, NULL);
         }
-        else if (key == key_map_grid)
+        else if (key == key_map_grid || key == key_map_grid2)
         {
             grid = !grid;
 
@@ -910,26 +910,26 @@ boolean AM_Responder (const event_t *ev)
                            AMSTR_GRIDON : AMSTR_GRIDOFF), false, NULL);
 
         }
-        else if (key == key_map_mark)
+        else if (key == key_map_mark || key == key_map_mark2)
         {
             M_snprintf(buffer, sizeof(buffer), "%s %d",
                        DEH_String(AMSTR_MARKEDSPOT), markpointnum);
             CRL_SetMessage(plr, buffer, false, NULL);
             AM_addMark();
         }
-        else if (key == key_map_clearmark)
+        else if (key == key_map_clearmark || key == key_map_clearmark2)
         {
             AM_clearMarks();
             CRL_SetMessage(plr, DEH_String(AMSTR_MARKSCLEARED), false, NULL);
         }
-        else if (key == key_crl_map_rotate)
+        else if (key == key_crl_map_rotate || key == key_crl_map_rotate2)
         {
             // [JN] CRL - Automap rotate mode
             crl_automap_rotate = !crl_automap_rotate;
             CRL_SetMessage(plr, DEH_String(crl_automap_rotate ?
                            CRL_AUTOMAPROTATE_ON : CRL_AUTOMAPROTATE_OFF), false, NULL);
         }
-        else if (key == key_crl_map_overlay)
+        else if (key == key_crl_map_overlay || key == key_crl_map_overlay2)
         {
             // [JN] CRL - Automap overlay mode
             crl_automap_overlay = !crl_automap_overlay;
@@ -944,7 +944,7 @@ boolean AM_Responder (const event_t *ev)
                 st_fullupdate = true;
             }
         }
-        else if (key == key_crl_map_mousepan)
+        else if (key == key_crl_map_mousepan || key == key_crl_map_mousepan2)
         {
             // [PN] Mouse panning mode.
             crl_automap_mouse_pan = !crl_automap_mouse_pan;
@@ -952,7 +952,7 @@ boolean AM_Responder (const event_t *ev)
                            CRL_AUTOMAPMOUSEPAN_ON : CRL_AUTOMAPMOUSEPAN_OFF), false, NULL);
 
         }
-        else if (key == key_crl_map_sndprop)
+        else if (key == key_crl_map_sndprop || key == key_crl_map_sndprop2)
         {
             // [JN] CRL - Sound propagation mode
             crl_automap_sndprop = !crl_automap_sndprop;
@@ -1008,7 +1008,7 @@ boolean AM_Responder (const event_t *ev)
                 m_paninc.y = 0;
             }
         }
-        else if (key == key_map_zoomout || key == key_map_zoomin)
+        else if (key == key_map_zoomout || key == key_map_zoomin || key == key_map_zoomout2 || key == key_map_zoomin2)
         {
             mtof_zoommul = FRACUNIT;
             ftom_zoommul = FRACUNIT;

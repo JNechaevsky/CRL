@@ -202,7 +202,7 @@ static void P_XYMovement (mobj_t* mo)
     
     // [JN] CRL - limit/supress momentum while airborne to
     // avoid having too high speed boost.
-    if (CRL_aircontrol)
+    if (player && CRL_aircontrol)
     {
         mo->momx *= 0.925;
         mo->momy *= 0.925;
