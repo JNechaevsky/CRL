@@ -807,25 +807,19 @@ void D_BindVariables(void)
 {
     int i;
 
-    M_ApplyPlatformDefaults();
-
     I_BindInputVariables();
     I_BindVideoVariables();
     I_BindJoystickVariables();
     I_BindSoundVariables();
 
-    M_BindBaseControls();
+    M_BindControls();
     M_BindHereticControls();
-    M_BindWeaponControls();
     M_BindChatControls(MAXPLAYERS);
 
     key_multi_msgplayer[0] = CT_KEY_GREEN;
     key_multi_msgplayer[1] = CT_KEY_YELLOW;
     key_multi_msgplayer[2] = CT_KEY_RED;
     key_multi_msgplayer[3] = CT_KEY_BLUE;
-
-    M_BindMenuControls();
-    M_BindMapControls();
 
     NET_BindVariables();
 
