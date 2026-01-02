@@ -79,6 +79,8 @@ void CRL_MoveTo_Camera (void)
 //
 // =============================================================================
 
+char ID_Level_Time[64];
+
 // -----------------------------------------------------------------------------
 // CRL_StatColor_Str, CRL_StatColor_Val
 //  [JN] Colorizes counter strings and values respectively.
@@ -252,6 +254,31 @@ static void CRL_WidgetKISCount (char *buffer, size_t buffer_size, const int i)
             snprintf(buffer, buffer_size, "%d/%d", value, total);
             break;
         }
+    }
+}
+
+// [JN] Format time string for the level/total time widget.
+void ID_FormatWidgetTime (char *buf, size_t bufsize, int ticks, int mode)
+{
+    const int hours   = ticks / (3600 * TICRATE);
+    const int mins    = (ticks / (60 * TICRATE)) % 60;
+    const int sec     = (ticks / TICRATE) % 60;
+    const int csec    = ((ticks % TICRATE) * 100 + TICRATE / 2) / TICRATE;
+    const int show_cs = (mode == 3 || mode == 4);
+
+    if (hours)
+    {
+        if (show_cs)
+            M_snprintf(buf, bufsize, "%02i:%02i:%02i.%02i", hours, mins, sec, csec);
+        else
+            M_snprintf(buf, bufsize, "%02i:%02i:%02i", hours, mins, sec);
+    }
+    else
+    {
+        if (show_cs)
+            M_snprintf(buf, bufsize, "%02i:%02i.%02i", mins, sec, csec);
+        else
+            M_snprintf(buf, bufsize, "%02i:%02i", mins, sec);
     }
 }
 
@@ -528,12 +555,10 @@ void CRL_StatDrawer (void)
     }
 
     // Level / DeathMatch timer
-    if (crl_widget_time == 1
-    || (crl_widget_time == 2 && automapactive))
+    if ( crl_widget_time == 1 || crl_widget_time == 3
+    || ((crl_widget_time == 2 || crl_widget_time == 4) && automapactive))
     {
-        const int time = (deathmatch && levelTimer ? levelTimeCount : leveltime) / TICRATE;
         char stra[8];
-        char strb[16];
         const int yy3 = automapactive ? 0 : 9;
 
         // Apply translucency while Save/Load menu is active.
@@ -541,9 +566,7 @@ void CRL_StatDrawer (void)
 
         sprintf(stra, "TIME ");
         M_WriteText(0, 151 - yy2 + yy3, stra, cr[CR_GRAY]);
- 
-        sprintf(strb, "%02d:%02d:%02d", time/3600, (time%3600)/60, time%60);
-        M_WriteText(0 + M_StringWidth(stra), 151 - yy2 + yy3, strb, cr[CR_LIGHTGRAY]);
+        M_WriteText(0 + M_StringWidth(stra), 151 - yy2 + yy3, ID_Level_Time, cr[CR_LIGHTGRAY]);
 
         dp_translucent = false;
     }

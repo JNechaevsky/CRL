@@ -1649,10 +1649,6 @@ void G_Ticker (void)
     oldgamestate = gamestate;
     oldleveltime = realleveltime;
     
-    // [JN] Reduce message tics independently from framerate and game states.
-    // Tics can't go negative.
-    MSG_Ticker();
-
     // [crispy] no pause at intermission screen during demo playback 
     // to avoid desyncs (from prboom-plus)
     if ((paused & 2 || (!demoplayback && menuactive && !netgame)) 
@@ -1698,6 +1694,21 @@ void G_Ticker (void)
 	D_PageTicker (); 
 	break;
     }        
+
+    // [JN] Reduce message tics independently from framerate and game states.
+    // Tics can't go negative.
+    MSG_Ticker();
+
+    //
+    // [JN] Query time for time-related widgets:
+    //
+    
+    // Level / DeathMatch timer
+    if (crl_widget_time)
+    {
+        const int time = (deathmatch && levelTimer ? levelTimeCount : leveltime);
+        ID_FormatWidgetTime(ID_Level_Time, sizeof(ID_Level_Time), time, crl_widget_time);
+    }
 } 
  
  

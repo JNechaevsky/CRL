@@ -2990,9 +2990,11 @@ static void M_DrawCRL_Widgets (void)
     M_WriteText (M_ItemRightAlign(str), 61, str,
                  M_Item_Glow(5, crl_widget_kis_items ? GLOW_GREEN : GLOW_DARKRED));
 
-    // Level time
-    sprintf(str, crl_widget_time == 1 ? "ON" : 
-                 crl_widget_time == 2 ? "AUTOMAP" : "OFF");
+    // Level/DM timer
+    sprintf(str, crl_widget_time == 1 ? "ALWAYS / NO CS"  :
+                 crl_widget_time == 2 ? "AUTOMAP / NO CS" :
+                 crl_widget_time == 3 ? "ALWAYS / CS"     :
+                 crl_widget_time == 4 ? "AUTOMAP / CS"    : "OFF");
     M_WriteText (M_ItemRightAlign(str), 70, str,
                  M_Item_Glow(6, crl_widget_time ? GLOW_GREEN : GLOW_DARKRED));
 
@@ -3069,7 +3071,7 @@ static void M_CRL_Widget_Speed (int choice)
 
 static void M_CRL_Widget_Time (int choice)
 {
-    crl_widget_time = M_INT_Slider(crl_widget_time, 0, 2, choice, false);
+    crl_widget_time = M_INT_Slider(crl_widget_time, 0, 4, choice, false);
 }
 
 static void M_CRL_Widget_Powerups (int choice)

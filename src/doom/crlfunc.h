@@ -18,6 +18,10 @@
 
 #pragma once
 
+extern char ID_Level_Time[64];
+
+extern void ID_FormatWidgetTime (char *buf, size_t bufsize, int ticks, int mode);
+
 extern void CRL_MoveTo_Camera (void);
 
 extern void CRL_Clear_MAX (void);
