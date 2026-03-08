@@ -1333,46 +1333,15 @@ void I_GraphicsCheckCommandLine(void)
     //!
     // @category video
     //
-    // Don't scale up the screen. Implies -window.
+    // Don't scale up the screen with -1, or double up
+    // the screen to 2x...6x its normal size. Implies -window.
     //
-
-    if (M_CheckParm("-1")) 
-    {
-        SetScaleFactor(1);
-    }
-
-    //!
-    // @category video
-    //
-    // Double up the screen to 2x its normal size. Implies -window.
-    //
-
-    if (M_CheckParm("-2")) 
-    {
-        SetScaleFactor(2);
-    }
-
-    //!
-    // @category video
-    //
-    // Double up the screen to 3x its normal size. Implies -window.
-    //
-
-    if (M_CheckParm("-3")) 
-    {
-        SetScaleFactor(3);
-    }
-
-    //!
-    // @category video
-    //
-    // Double up the screen to 4x its normal size. Implies -window.
-    //
-
-    if (M_CheckParm("-4")) 
-    {
-        SetScaleFactor(4);
-    }
+         if (M_CheckParm("-1")) SetScaleFactor(1);
+    else if (M_CheckParm("-2")) SetScaleFactor(2);
+    else if (M_CheckParm("-3")) SetScaleFactor(3);
+    else if (M_CheckParm("-4")) SetScaleFactor(4);
+    else if (M_CheckParm("-5")) SetScaleFactor(5);
+    else if (M_CheckParm("-6")) SetScaleFactor(6);
 }
 
 // Check if we have been invoked as a screensaver by xscreensaver.
