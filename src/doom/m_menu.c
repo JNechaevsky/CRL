@@ -4410,9 +4410,32 @@ static void M_ChangeDetail(int choice)
 
 static void M_SizeDisplay(int choice)
 {
-    crl_screen_size = M_INT_Slider(crl_screen_size, 3, 13, choice, true);
+    // [PN] Simplified logic for adjusting screen size
+    if (choice == 0 && crl_screen_size > 3)
+    {    
+        crl_screen_size--;
+    }
+    else
+    if (choice == 1 && crl_screen_size < 13)
+    {
+        crl_screen_size++;
+    }
+    else
+    if (choice == -1)
+    {
+        // Handled by mouse, just update the screen.
+        R_SetViewSize(crl_screen_size, detailLevel);
+        return;
+    }
+    else
+    {
+        // [JN] No size change, no need to do anything
+        return;
+    }
 
-    R_SetViewSize (crl_screen_size, detailLevel);
+    // [PN] Update view size after adjustment and play sound
+    R_SetViewSize(crl_screen_size, detailLevel);
+    S_StartSound(NULL, sfx_stnmov);
 }
 
 
@@ -5424,7 +5447,6 @@ boolean M_Responder (event_t* ev)
             if (automapactive)
                 return false;
             M_SizeDisplay(0);
-            S_StartSound(NULL, sfx_stnmov);
             return true;
         }
         else if (key == key_menu_incscreen) // Screen size up
@@ -5432,7 +5454,6 @@ boolean M_Responder (event_t* ev)
             if (automapactive)
                 return false;
             M_SizeDisplay(1);
-            S_StartSound(NULL, sfx_stnmov);
             return true;
         }
         else if (key == key_menu_help || key == key_menu_help2)     // Help key
