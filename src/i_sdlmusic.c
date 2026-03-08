@@ -350,13 +350,8 @@ static void I_SDL_UnRegisterSong(void *handle)
     }
 }
 
-// Determine whether memory block is a .mid file 
-
-static boolean IsMid(const byte *mem, int len)
-{
-    return len > 4 && !memcmp(mem, "MThd", 4);
-}
-
+// [PN] No longer used in function below
+/*
 static boolean ConvertMus(byte *musdata, int len, const char *filename)
 {
     MEMFILE *instream;
@@ -382,57 +377,85 @@ static boolean ConvertMus(byte *musdata, int len, const char *filename)
 
     return result;
 }
+*/
+
+// -----------------------------------------------------------------------------
+// I_SDL_RegisterSong
+// [PN] Registers a music for playback without writing temporary files to disk.
+// 
+// Depending on the format of the input data, the function:
+// - Converts MUS data to MIDI in memory if necessary.
+// - Directly loads other music formats from memory.
+// 
+// This implementation avoids the use of temporary disk files, using SDL_RWops
+// to create memory streams instead. The memory stream is automatically freed
+// after loading the music.
+// -----------------------------------------------------------------------------
 
 static void *I_SDL_RegisterSong(void *data, int len)
 {
-    char *filename;
-    Mix_Music *music;
+    Mix_Music *music = NULL;
+    SDL_RWops *rw = NULL;
 
     if (!music_initialized)
     {
         return NULL;
     }
 
-    // MUS files begin with "MUS"
-    // Reject anything which doesnt have this signature
-
-    filename = M_TempFile("doom.mid");
-
-    if (IsMid(data, len) && len < MAXMIDLENGTH)
+    // [PN] Check if the data is a MUS file (MUS files start with "MUS")
+    if (IsMus(data, len))
     {
-        M_WriteFile(filename, data, len);
-        // [JN] CRL - Check if MIDI file is valid.
-        MIDI_CheckFile(data, len);
+        MEMFILE *instream = mem_fopen_read(data, len);
+        MEMFILE *outstream = mem_fopen_write();
+        void *outbuf;
+        size_t outbuf_len;
+
+        if (instream && outstream)
+        {
+            const int result = mus2mid(instream, outstream);
+            if (result == 0)
+            {
+                // [PN] Retrieve converted data from memory stream
+                mem_get_buf(outstream, &outbuf, &outbuf_len);
+                rw = SDL_RWFromConstMem(outbuf, (int)outbuf_len);
+                if (rw == NULL)
+                {
+                    fprintf(stderr, "Error creating SDL_RWops: %s\n", SDL_GetError());
+                }
+            }
+            else
+            {
+                fprintf(stderr, "Error converting MUS to MIDI.\n");
+            }
+
+            // [PN] Close memory streams
+            mem_fclose(instream);
+            mem_fclose(outstream);
+        }
+        else
+        {
+            fprintf(stderr, "Error opening memory streams for MUS conversion.\n");
+        }
     }
     else
     {
-	// Assume a MUS file and try to convert
-
-        ConvertMus(data, len, filename);
+        // [PN] If not MUS, use the data directly
+        rw = SDL_RWFromConstMem(data, len);
+        if (rw == NULL)
+        {
+            fprintf(stderr, "Error creating SDL_RWops: %s\n", SDL_GetError());
+        }
     }
 
-    // Load the MIDI. In an ideal world we'd be using Mix_LoadMUS_RW()
-    // by now, but Mix_SetMusicCMD() only works with Mix_LoadMUS(), so
-    // we have to generate a temporary file.
-
-    music = Mix_LoadMUS(filename);
-    if (music == NULL)
+    if (rw)
     {
-        // Failed to load
-        fprintf(stderr, "Error loading midi: %s\n", Mix_GetError());
+        // [PN] Load the music from memory stream
+        music = Mix_LoadMUS_RW(rw, 1); // Automatically frees rw after loading
+        if (music == NULL)
+        {
+            fprintf(stderr, "Error loading music: %s\n", Mix_GetError());
+        }
     }
-
-    // Remove the temporary MIDI file; however, when using an external
-    // MIDI program we can't delete the file. Otherwise, the program
-    // won't find the file to play. This means we leave a mess on
-    // disk :(
-
-    if (strlen(snd_musiccmd) == 0)
-    {
-        M_remove(filename);
-    }
-
-    free(filename);
 
     return music;
 }
