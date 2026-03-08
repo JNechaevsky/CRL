@@ -26,6 +26,8 @@ CRL Heretic, version 1.0 (released: June 12, 2023):
 * &nbsp;<img src="https://jnechaevsky.github.io/assets/img/icon_win64.png" width="16" height="16" />&nbsp;&nbsp;[Windows (64-bit)](https://github.com/JNechaevsky/CRL/releases/download/crl-hr-1.0/crl-heretic-1.0-win64.zip)
 * &nbsp;<img src="https://jnechaevsky.github.io/assets/img/icon_win32.png" width="16" height="16" />&nbsp;&nbsp;[Windows (32-bit)](https://github.com/JNechaevsky/CRL/releases/download/crl-hr-1.0/crl-heretic-1.0-win32.zip)
 
+<img src="https://jnechaevsky.github.io/assets/img/icon_nightly.png" width="16" height="16" />&nbsp;&nbsp;You can also download regular [Nightly Builds](https://github.com/JNechaevsky/CRL/releases/tag/nightly/).
+
 Previous versions can be found on [Releases](https://github.com/JNechaevsky/CRL/releases) page.<br>
 Old versions of original Chocorenderlimits can be found on [Historical](https://github.com/JNechaevsky/CRL/releases/tag/Historical) page.
 
