@@ -175,18 +175,18 @@ jobs:
         run: |
           ./linuxdeploy-x86_64.AppImage --appdir=appdir-doom --output appimage
       
-      - name: Prepare AppDir for Heretic
-        run: |
-          mkdir -p appdir-heretic/usr/bin
-          cp build_linux/src/crl-heretic appdir-heretic/usr/bin/
-          mkdir -p appdir-heretic/usr/share/applications
-          cp data/heretic.desktop appdir-heretic/usr/share/applications/crl-heretic.desktop
-          mkdir -p appdir-heretic/usr/share/icons/hicolor/128x128/apps
-          cp data/heretic.png appdir-heretic/usr/share/icons/hicolor/128x128/apps/crl-heretic.png
-      
-      - name: Package Heretic as AppImage
-        run: |
-          ./linuxdeploy-x86_64.AppImage --appdir=appdir-heretic --output appimage
+#     - name: Prepare AppDir for Heretic
+#       run: |
+#         mkdir -p appdir-heretic/usr/bin
+#         cp build_linux/src/crl-heretic appdir-heretic/usr/bin/
+#         mkdir -p appdir-heretic/usr/share/applications
+#         cp data/heretic.desktop appdir-heretic/usr/share/applications/crl-heretic.desktop
+#         mkdir -p appdir-heretic/usr/share/icons/hicolor/128x128/apps
+#         cp data/heretic.png appdir-heretic/usr/share/icons/hicolor/128x128/apps/crl-heretic.png
+#     
+#     - name: Package Heretic as AppImage
+#       run: |
+#         ./linuxdeploy-x86_64.AppImage --appdir=appdir-heretic --output appimage
 
       - name: Clean up unnecessary files
         run: |
