@@ -196,6 +196,11 @@ boolean MIDI_CheckFile(void *data, int len);
 
 midi_file_t *MIDI_LoadFile(const char *filename);
 
+// Load a MIDI file from an in-memory buffer.
+// The input buffer is read during this call only.
+
+midi_file_t *MIDI_LoadFileFromData(const void *data, size_t data_len);
+
 // Free a MIDI file.
 
 void MIDI_FreeFile(midi_file_t *file);

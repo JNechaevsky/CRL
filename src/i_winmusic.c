@@ -1698,43 +1698,35 @@ static void I_WIN_ResumeSong(void)
     LeaveCriticalSection(&CriticalSection);
 }
 
-// Determine whether memory block is a .mid file 
-
-static boolean IsMid(const byte *mem, int len)
-{
-    return len > 4 && !memcmp(mem, "MThd", 4);
-}
-
-static boolean ConvertMus(byte *musdata, int len, const char *filename)
+static midi_file_t *LoadMus(byte *musdata, int len)
 {
     MEMFILE *instream;
     MEMFILE *outstream;
     void *outbuf;
     size_t outbuf_len;
-    int result;
+    midi_file_t *midi = NULL;
+    int mus2mid_result;
 
     instream = mem_fopen_read(musdata, len);
     outstream = mem_fopen_write();
 
-    result = mus2mid(instream, outstream);
+    mus2mid_result = mus2mid(instream, outstream);
 
-    if (result == 0)
+    if (mus2mid_result == 0)
     {
         mem_get_buf(outstream, &outbuf, &outbuf_len);
-
-        M_WriteFile(filename, outbuf, outbuf_len);
+        midi = MIDI_LoadFileFromData(outbuf, outbuf_len);
     }
 
     mem_fclose(instream);
     mem_fclose(outstream);
 
-    return result;
+    return midi;
 }
 
 static void *I_WIN_RegisterSong(void *data, int len)
 {
     unsigned int i;
-    char *filename;
     midi_file_t *file;
 
     MIDIPROPTIMEDIV prop_timediv;
@@ -1746,14 +1738,9 @@ static void *I_WIN_RegisterSong(void *data, int len)
         return NULL;
     }
 
-    // MUS files begin with "MUS"
-    // Reject anything which doesnt have this signature
-
-    filename = M_TempFile("doom.mid");
-
     if (IsMid(data, len))
     {
-        M_WriteFile(filename, data, len);
+        file = MIDI_LoadFileFromData(data, len);
         // [JN] CRL - Check if MIDI file is valid.
         MIDI_CheckFile(data, len);
     }
@@ -1761,13 +1748,8 @@ static void *I_WIN_RegisterSong(void *data, int len)
     {
         // Assume a MUS file and try to convert
 
-        ConvertMus(data, len, filename);
+        file = LoadMus(data, len);
     }
-
-    file = MIDI_LoadFile(filename);
-
-    M_remove(filename);
-    free(filename);
 
     if (file == NULL)
     {

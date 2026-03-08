@@ -231,6 +231,9 @@ void I_PlaySong(void *handle, boolean looping);
 void I_StopSong(void);
 boolean I_MusicIsPlaying(void);
 
+boolean IsMid(const byte *mem, int len);
+boolean IsMus(const byte *mem, int len);
+
 extern int snd_sfxdevice;
 extern int snd_musicdevice;
 extern int snd_samplerate;
