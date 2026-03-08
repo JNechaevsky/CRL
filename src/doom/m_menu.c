@@ -6181,6 +6181,10 @@ static void M_SetupNextMenu(menu_t *menudef)
 //
 void M_Ticker (void)
 {
+    // [JN] Make KIS/time widgets translucent while in active Save/Load menu.
+    savemenuactive = (menuactive && !messageToPrint
+                  && (currentMenu == &SaveDef || currentMenu == &LoadDef));
+
     if (menuactive == false)
     {
         return;
@@ -6229,10 +6233,6 @@ void M_Ticker (void)
             currentMenu->menuitems[i].tics = 0;
         }
     }
-
-    // [JN] Make KIS/time widgets translucent while in active Save/Load menu.
-    savemenuactive = (menuactive && !messageToPrint
-                  && (currentMenu == &SaveDef || currentMenu == &LoadDef));
 }
 
 
