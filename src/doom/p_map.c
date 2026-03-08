@@ -199,7 +199,7 @@ P_TeleportMove
 // MOVEMENT ITERATOR FUNCTIONS
 //
 
-static void SpechitOverrun(const line_t *ld);
+static void SpechitOverrun(const line_t *const ld);
 
 //
 // PIT_CheckLine

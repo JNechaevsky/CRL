@@ -411,8 +411,8 @@ static int S_AdjustSoundParams(mobj_t *listener, mobj_t *source,
                                int *vol, int *sep)
 {
     fixed_t        approx_dist;
-    fixed_t        adx;
-    fixed_t        ady;
+    int64_t        adx;
+    int64_t        ady;
     angle_t        angle;
 
     int64_t        listener_x;
@@ -437,8 +437,8 @@ static int S_AdjustSoundParams(mobj_t *listener, mobj_t *source,
 
     // calculate the distance to sound origin
     //  and clip it if necessary
-    adx = abs(listener_x - source->x);
-    ady = abs(listener_y - source->y);
+    adx = llabs(listener_x - source->x);
+    ady = llabs(listener_y - source->y);
 
     // From _GG1_ p.428. Appox. eucledian distance fast.
     approx_dist = adx + ady - ((adx < ady ? adx : ady)>>1);
