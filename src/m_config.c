@@ -609,6 +609,7 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(crl_menu_highlight),
     CONFIG_VARIABLE_INT(crl_menu_esc_key),
     CONFIG_VARIABLE_INT(crl_confirm_quit),
+    CONFIG_VARIABLE_INT(crl_menu_cap_fps),
     CONFIG_VARIABLE_COMMENT(""),
 
     // Static limits

@@ -699,9 +699,8 @@ void TryRunTics (void)
 
     // [AM] If we've uncapped the framerate and there are no tics
     //      to run, return early instead of waiting around.
-    // [JN] CRL - Keep uncapped framerate while paused and Spectator mode.
     #define return_early (crl_uncapped_fps && counts == 0 && \
-                         ((paused && crl_spectating) || realleveltime > oldleveltime) && \
+                         (crl_menu_cap_fps ? realleveltime > oldleveltime : gametic) && \
                          screenvisible)
 
     // get real tics

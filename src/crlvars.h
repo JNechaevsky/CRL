@@ -97,6 +97,7 @@ extern int crl_autoload_deh;
 extern int crl_menu_highlight;
 extern int crl_menu_esc_key;
 extern int crl_confirm_quit;
+extern int crl_menu_cap_fps;
 
 // Static limits
 extern int crl_vanilla_limits;

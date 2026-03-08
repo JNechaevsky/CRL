@@ -754,6 +754,7 @@ static void M_CRL_AutoloadDEH (int choice);
 static void M_CRL_Hightlight (int choice);
 static void M_CRL_MenuEscKey (int choice);
 static void M_CRL_ConfirmQuit (int choice);
+static void M_CRL_MenuCapFps (int choice);
 
 static void M_ChooseCRL_Limits (int choice);
 static void M_DrawCRL_Limits (void);
@@ -3362,18 +3363,19 @@ static void M_CRL_InternalDemos (int choice)
 
 static menuitem_t CRLMenu_Misc[]=
 {
-    { M_MUL1, "INVULNERABILITY EFFECT", M_CRL_Invul,       'i' },
-    { M_MUL2, "PALETTE FLASH EFFECTS",  M_CRL_PalFlash,    'p' },
-    { M_MUL1, "MOVEMENT BOBBING",       M_CRL_MoveBob,     'm' },
-    { M_MUL1, "WEAPON BOBBING",         M_CRL_WeaponBob,   'w' },
-    { M_MUL2, "COLORBLIND FILTER",      M_CRL_Colorblind,  'c' },
+    { M_MUL1, "INVULNERABILITY EFFECT",    M_CRL_Invul,       'i' },
+    { M_MUL2, "PALETTE FLASH EFFECTS",     M_CRL_PalFlash,    'p' },
+    { M_MUL1, "MOVEMENT BOBBING",          M_CRL_MoveBob,     'm' },
+    { M_MUL1, "WEAPON BOBBING",            M_CRL_WeaponBob,   'w' },
+    { M_MUL2, "COLORBLIND FILTER",         M_CRL_Colorblind,  'c' },
     { M_SKIP, "", 0, '\0' },
-    { M_MUL2, "AUTOLOAD WAD FILES",     M_CRL_AutoloadWAD, 'a' },
-    { M_MUL2, "AUTOLOAD DEH FILES",     M_CRL_AutoloadDEH, 'a' },
+    { M_MUL2, "AUTOLOAD WAD FILES",        M_CRL_AutoloadWAD, 'a' },
+    { M_MUL2, "AUTOLOAD DEH FILES",        M_CRL_AutoloadDEH, 'a' },
     { M_SKIP, "", 0, '\0' },
-    { M_MUL2, "HIGHLIGHTING EFFECT",    M_CRL_Hightlight,  'h' },
-    { M_MUL1, "ESC KEY BEHAVIOUR",      M_CRL_MenuEscKey,  'e' },
-    { M_MUL1, "QUIT CONFIRMATION",      M_CRL_ConfirmQuit, 'q' },
+    { M_MUL2, "HIGHLIGHTING EFFECT",       M_CRL_Hightlight,  'h' },
+    { M_MUL1, "ESC KEY BEHAVIOUR",         M_CRL_MenuEscKey,  'e' },
+    { M_MUL1, "QUIT CONFIRMATION",         M_CRL_ConfirmQuit, 'q' },
+    { M_MUL1, "CAP FRAMERATE IN THE MENU", M_CRL_MenuCapFps,  'c' },
 };
 
 static menu_t CRLDef_Misc =
@@ -3472,6 +3474,11 @@ static void M_DrawCRL_Misc (void)
     M_WriteText (M_ItemRightAlign(str), 115, str,
                  M_Item_Glow(11, crl_confirm_quit ? GLOW_DARKRED : GLOW_GREEN));
 
+    // Cap framerate in the menu
+    sprintf(str, crl_menu_cap_fps ? "ON" : "OFF" );
+    M_WriteText (M_ItemRightAlign(str), 124, str,
+                 M_Item_Glow(12, crl_menu_cap_fps ? GLOW_GREEN : GLOW_DARKRED));
+
     // [PN] Added explanations for colorblind filters
     if (itemOn == 4 && crl_colorblind)
     {
@@ -3560,6 +3567,11 @@ static void M_CRL_MenuEscKey (int choice)
 static void M_CRL_ConfirmQuit (int choice)
 {
     crl_confirm_quit ^= 1;
+}
+
+static void M_CRL_MenuCapFps (int choice)
+{
+    crl_menu_cap_fps ^= 1;
 }
 
 // -----------------------------------------------------------------------------
