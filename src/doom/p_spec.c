@@ -1075,12 +1075,12 @@ void P_PlayerInSpecialSector (player_t* player)
 
 	    if (crl_revealed_secrets == 1)  // [JN] Top
 	    {
-	        CRL_SetMessage(player, DEH_String(CRL_SECRET_FOUND), true, cr[CR_YELLOW]);
+	        CRL_SetMessage(player, crl_revealed_secrets_msg, true, cr[CR_YELLOW]);
 	    }
 	    else
 	    if (crl_revealed_secrets == 2)  // [JN] Centered
 	    {
-	        CRL_SetMessageCentered(player, DEH_String(CRL_SECRET_FOUND));
+	        CRL_SetMessageCentered(player, crl_revealed_secrets_msg);
 	    }
 
 	    if (sfx_id != -1)

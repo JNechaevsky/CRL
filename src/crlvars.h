@@ -77,6 +77,7 @@ extern int crl_default_skill;
 extern int crl_pistol_start;
 extern int crl_colored_stbar;
 extern int crl_revealed_secrets;
+extern char *crl_revealed_secrets_msg;
 extern int crl_restore_targets;
 extern int crl_death_use_action;
 
