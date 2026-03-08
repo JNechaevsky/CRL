@@ -18,17 +18,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "config.h"
-
 #include "SDL.h"
+#include "SDL_mixer.h"
 
 #include "pcsound.h"
 #include "pcsound_internal.h"
 
 
 #ifndef DISABLE_SDL2MIXER
-
-#include "SDL_mixer.h"
 
 
 #define MAX_SOUND_SLICE_TIME 70 /* ms */
@@ -118,11 +115,11 @@ static void PCSound_Mix_Callback(int chan, void *stream, int len, void *udata)
 
             if ((frac % 2) == 0) 
             {
-                this_value = SQUARE_WAVE_AMP;
+                this_value = (SQUARE_WAVE_AMP * pcsound_volume) / 127;
             }
             else
             {
-                this_value = -SQUARE_WAVE_AMP;
+                this_value = (-SQUARE_WAVE_AMP * pcsound_volume) / 127;
             }
 
             ++phase_offset;
