@@ -57,6 +57,7 @@
 #include "w_wad.h"
 
 #include "p_local.h" 
+#include "g_rewind.h"
 
 #include "s_sound.h"
 
@@ -1187,6 +1188,14 @@ boolean G_Responder (event_t* ev)
 	return false; 
     } 
 
+    // [PN] CRL - Allow rewinding from level, intermission and finale states.
+    if (ev->type == ev_keydown
+     && (ev->data1 == key_crl_rewind || ev->data1 == key_crl_rewind2))
+    {
+        G_Rewind();
+        return true;
+    }
+
     if (gamestate == GS_LEVEL) 
     { 
 #if 0 
@@ -1553,6 +1562,9 @@ void G_Ticker (void)
             }
 	    gameaction = ga_nothing; 
 	    break; 
+	  case ga_rewind:
+	    G_LoadAutoKeyframe();
+	    break;
 	  case ga_nothing: 
 	    break; 
 	} 
@@ -1698,6 +1710,7 @@ void G_Ticker (void)
 	P_Ticker (); 
 	ST_Ticker (); 
 	AM_Ticker (); 
+	G_SaveAutoKeyframe ();
 	// [JN] Not really needed in single player game.
 	if (netgame)
 	{
@@ -2421,6 +2434,7 @@ void G_DoWorldDone (void)
 {        
     gamestate = GS_LEVEL; 
     gamemap = wminfo.next+1; 
+    G_ResetRewind(false);
     G_DoLoadLevel (); 
     gameaction = ga_nothing; 
 } 
@@ -2809,6 +2823,7 @@ G_InitNew
     totalleveltimes = 0;
     defdemotics = 0;
     demostarttic = gametic; // [crispy] fix revenant internal demo bug
+    G_ResetRewind(true);
 
     // Set the sky to use.
     //

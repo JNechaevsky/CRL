@@ -29,6 +29,7 @@
 #include "m_bbox.h"
 #include "m_misc.h"  // [JN] M_StringJoin()
 #include "g_game.h"
+#include "g_rewind.h"
 #include "i_system.h"
 #include "w_wad.h"
 #include "p_local.h"
@@ -1092,14 +1093,17 @@ P_SetupLevel
     realleveltime = 0;
     oldleveltime = 0;
 	
-    // [JN] Indicate the map we are loading.
-    if (gamemode == commercial)
+    if (!G_RewindIsRestoring())
     {
-        fprintf(stderr, "P_SetupLevel: MAP%02d, ", gamemap);
-    }
-    else
-    {
-        fprintf(stderr, "P_SetupLevel: E%dM%d, ", gameepisode, gamemap);
+        // [JN] Indicate the map we are loading.
+        if (gamemode == commercial)
+        {
+            fprintf(stderr, "P_SetupLevel: MAP%02d, ", gamemap);
+        }
+        else
+        {
+            fprintf(stderr, "P_SetupLevel: E%dM%d, ", gameepisode, gamemap);
+        }
     }
 
     // [JN] CRL - check for unsupported nodes.
@@ -1167,8 +1171,11 @@ P_SetupLevel
     // [JN] Force to disable spectator mode.
     crl_spectating = 0;
 
-    // [JN] Print amount of level loading time.
-    printf("loaded in %d ms.\n", SDL_GetTicks() - starttime);
+    if (!G_RewindIsRestoring())
+    {
+        // [JN] Print amount of level loading time.
+        printf("loaded in %d ms.\n", SDL_GetTicks() - starttime);
+    }
 
     //printf ("free memory: 0x%x\n", Z_FreeMemory());
 
@@ -1185,6 +1192,5 @@ void P_Init (void)
     P_InitPicAnims ();
     R_InitSprites (sprnames);
 }
-
 
 

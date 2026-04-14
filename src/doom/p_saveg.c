@@ -30,6 +30,7 @@
 #include "g_game.h"
 #include "m_misc.h"
 #include "m_menu.h"
+#include "memio.h"
 #include "am_map.h"
 #include "r_local.h"
 #include "v_savepreview.h"
@@ -41,6 +42,126 @@
 FILE *save_stream;
 int savegamelength;
 boolean savegame_error;
+
+static MEMFILE *save_memstream;
+
+static size_t saveg_fread(void *ptr, size_t size, size_t nmemb)
+{
+    if (save_memstream != NULL)
+    {
+        return mem_fread(ptr, size, nmemb, save_memstream);
+    }
+
+    return fread(ptr, size, nmemb, save_stream);
+}
+
+static size_t saveg_fwrite(const void *ptr, size_t size, size_t nmemb)
+{
+    if (save_memstream != NULL)
+    {
+        return mem_fwrite(ptr, size, nmemb, save_memstream);
+    }
+
+    return fwrite(ptr, size, nmemb, save_stream);
+}
+
+static long saveg_ftell(void)
+{
+    if (save_memstream != NULL)
+    {
+        return mem_ftell(save_memstream);
+    }
+
+    return ftell(save_stream);
+}
+
+static int saveg_fseek(long position, int whence)
+{
+    if (save_memstream != NULL)
+    {
+        mem_rel_t mem_whence;
+
+        switch (whence)
+        {
+            case SEEK_SET:
+                mem_whence = MEM_SEEK_SET;
+                break;
+
+            case SEEK_CUR:
+                mem_whence = MEM_SEEK_CUR;
+                break;
+
+            case SEEK_END:
+                mem_whence = MEM_SEEK_END;
+                break;
+
+            default:
+                return -1;
+        }
+
+        return mem_fseek(save_memstream, position, mem_whence);
+    }
+
+    return fseek(save_stream, position, whence);
+}
+
+void P_OpenMemorySaveGame(void)
+{
+    save_stream = NULL;
+    save_memstream = mem_fopen_write();
+    savegame_error = false;
+}
+
+boolean P_CloseMemorySaveGame(byte **data, size_t *len)
+{
+    void *buf;
+    size_t buflen;
+
+    *data = NULL;
+    *len = 0;
+
+    if (save_memstream == NULL)
+    {
+        return false;
+    }
+
+    mem_get_buf(save_memstream, &buf, &buflen);
+
+    if (!savegame_error && buflen > 0)
+    {
+        *data = malloc(buflen);
+        if (*data != NULL)
+        {
+            memcpy(*data, buf, buflen);
+            *len = buflen;
+        }
+        else
+        {
+            savegame_error = true;
+        }
+    }
+
+    mem_fclose(save_memstream);
+    save_memstream = NULL;
+
+    return !savegame_error && *data != NULL;
+}
+
+void P_OpenMemoryLoadGame(byte *data, size_t len)
+{
+    save_stream = NULL;
+    save_memstream = mem_fopen_read(data, len);
+    savegame_error = false;
+}
+
+void P_CloseMemoryLoadGame(void)
+{
+    if (save_memstream != NULL)
+    {
+        mem_fclose(save_memstream);
+        save_memstream = NULL;
+    }
+}
 
 // Get the filename of a temporary file to write the savegame to.  After
 // the file has been successfully saved, it will be renamed to the 
@@ -84,7 +205,7 @@ static byte saveg_read8(void)
 {
     byte result = -1;
 
-    if (fread(&result, 1, 1, save_stream) < 1)
+    if (saveg_fread(&result, 1, 1) < 1)
     {
         if (!savegame_error)
         {
@@ -103,7 +224,7 @@ static byte saveg_read8(void)
 
 static void saveg_write8(byte value)
 {
-    if (fwrite(&value, 1, 1, save_stream) < 1)
+    if (saveg_fwrite(&value, 1, 1) < 1)
     {
         if (!savegame_error)
         {
@@ -229,7 +350,7 @@ static void saveg_read_pad(void)
     int padding;
     int i;
 
-    pos = ftell(save_stream);
+    pos = saveg_ftell();
 
     padding = (4 - (pos & 3)) & 3;
 
@@ -245,7 +366,7 @@ static void saveg_write_pad(void)
     int padding;
     int i;
 
-    pos = ftell(save_stream);
+    pos = saveg_ftell();
 
     padding = (4 - (pos & 3)) & 3;
 
@@ -1547,8 +1668,17 @@ void P_ArchiveWorld (void)
     // do sectors
     for (i=0, sec = sectors ; i<numsectors ; i++,sec++)
     {
-	saveg_write16(sec->floorheight >> FRACBITS);
-	saveg_write16(sec->ceilingheight >> FRACBITS);
+        if (save_memstream != NULL)
+        {
+            saveg_write32(sec->floorheight);
+            saveg_write32(sec->ceilingheight);
+        }
+        else
+        {
+            saveg_write16(sec->floorheight >> FRACBITS);
+            saveg_write16(sec->ceilingheight >> FRACBITS);
+        }
+
 	saveg_write16(sec->floorpic);
 	saveg_write16(sec->ceilingpic);
 	saveg_write16(sec->lightlevel);
@@ -1570,8 +1700,17 @@ void P_ArchiveWorld (void)
 	    
 	    si = &sides[li->sidenum[j]];
 
-	    saveg_write16(si->textureoffset >> FRACBITS);
-	    saveg_write16(si->rowoffset >> FRACBITS);
+            if (save_memstream != NULL)
+            {
+                saveg_write32(si->textureoffset);
+                saveg_write32(si->rowoffset);
+            }
+            else
+            {
+                saveg_write16(si->textureoffset >> FRACBITS);
+                saveg_write16(si->rowoffset >> FRACBITS);
+            }
+
 	    saveg_write16(si->toptexture);
 	    saveg_write16(si->bottomtexture);
 	    saveg_write16(si->midtexture);	
@@ -1595,8 +1734,17 @@ void P_UnArchiveWorld (void)
     // do sectors
     for (i=0, sec = sectors ; i<numsectors ; i++,sec++)
     {
-	sec->floorheight = saveg_read16() << FRACBITS;
-	sec->ceilingheight = saveg_read16() << FRACBITS;
+        if (save_memstream != NULL)
+        {
+            sec->floorheight = saveg_read32();
+            sec->ceilingheight = saveg_read32();
+        }
+        else
+        {
+            sec->floorheight = saveg_read16() << FRACBITS;
+            sec->ceilingheight = saveg_read16() << FRACBITS;
+        }
+
 	sec->floorpic = saveg_read16();
 	sec->ceilingpic = saveg_read16();
 	sec->lightlevel = saveg_read16();
@@ -1617,8 +1765,17 @@ void P_UnArchiveWorld (void)
 	    if (li->sidenum[j] == -1)
 		continue;
 	    si = &sides[li->sidenum[j]];
-	    si->textureoffset = saveg_read16() << FRACBITS;
-	    si->rowoffset = saveg_read16() << FRACBITS;
+            if (save_memstream != NULL)
+            {
+                si->textureoffset = saveg_read32();
+                si->rowoffset = saveg_read32();
+            }
+            else
+            {
+                si->textureoffset = saveg_read16() << FRACBITS;
+                si->rowoffset = saveg_read16() << FRACBITS;
+            }
+
 	    si->toptexture = saveg_read16();
 	    si->bottomtexture = saveg_read16();
 	    si->midtexture = saveg_read16();
@@ -2167,9 +2324,9 @@ void P_UnArchiveOldSpecials (void)
 void P_UnArchiveAutomap (void)
 {
     byte magic[4];
-    long pos = ftell(save_stream);
+    long pos = saveg_ftell();
 
-    if (pos < 0 || fread(magic, 1, sizeof(magic), save_stream) != sizeof(magic))
+    if (pos < 0 || saveg_fread(magic, 1, sizeof(magic)) != sizeof(magic))
     {
         return;
     }
@@ -2179,13 +2336,13 @@ void P_UnArchiveAutomap (void)
      || magic[2] != AUTOMAP_SAVE_MAGIC_2
      || magic[3] != AUTOMAP_SAVE_MAGIC_3)
     {
-        fseek(save_stream, pos, SEEK_SET);
+        saveg_fseek(pos, SEEK_SET);
         return;
     }
 
     if (saveg_read8() != AUTOMAP_SAVE_VERSION)
     {
-        fseek(save_stream, pos, SEEK_SET);
+        saveg_fseek(pos, SEEK_SET);
         return;
     }
 
