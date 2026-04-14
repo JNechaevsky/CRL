@@ -558,6 +558,7 @@ static void M_CRL_Freeze (int choice);
 static void M_CRL_Buddha (int choice);
 static void M_CRL_NoTarget (int choice);
 static void M_CRL_NoMomentum (int choice);
+static void M_CRL_GameSpeed (int choice);
 
 static void M_ChooseCRL_Video (int choice);
 static void M_DrawCRL_Video (void);
@@ -614,6 +615,8 @@ static void M_Bind_RestartLevel (int choice);
 static void M_Bind_NextLevel (int choice);
 static void M_Bind_FastForward (int choice);
 static void M_Bind_ExtendedHUD (int choice);
+static void M_Bind_IncreaseGameSpeed (int choice);
+static void M_Bind_DecreaseGameSpeed (int choice);
 static void M_Bind_SpectatorMode (int choice);
 static void M_Bind_CameraUp (int choice);
 static void M_Bind_CameraDown (int choice);
@@ -1209,6 +1212,7 @@ static menuitem_t CRLMenu_Main[]=
     { M_MUL1, "BUDDHA MODE",          M_CRL_Buddha,         'f'},
     { M_MUL1, "NO TARGET MODE",       M_CRL_NoTarget,       'n'},
     { M_MUL1, "NO MOMENTUM MODE",     M_CRL_NoMomentum,     'n'},
+    { M_MUL1, "GAME SPEED",           M_CRL_GameSpeed,      'g'},
     { M_SKIP, "", 0, '\0'},
     { M_SWTC, "VIDEO OPTIONS",        M_ChooseCRL_Video,    'v'},
     { M_SWTC, "DISPLAY OPTIONS",      M_ChooseCRL_Display,  'd'},
@@ -1277,7 +1281,13 @@ static void M_DrawCRL_Main (void)
                  M_Item_Glow(4, !singleplayer ? GLOW_DARKRED :
                              player->cheats & CF_NOMOMENTUM ? GLOW_GREEN : GLOW_DARKRED));
 
-    M_WriteTextCentered(61, "SETTINGS", cr[CR_YELLOW]);
+    // Game speed
+    sprintf(str, netgame ? "N/A" : "%d%%", crl_game_speed);
+    M_WriteText (M_ItemRightAlign(str), 61, str,
+                 M_Item_Glow(5, netgame || crl_game_speed == 100 ? GLOW_DARKRED :
+                             crl_game_speed < 100 ? GLOW_YELLOW : GLOW_GREEN));
+
+    M_WriteTextCentered(70, "SETTINGS", cr[CR_YELLOW]);
 }
 
 static void M_CRL_Spectating (int choice)
@@ -1324,6 +1334,11 @@ static void M_CRL_NoMomentum (int choice)
     }
 
     player->cheats ^= CF_NOMOMENTUM;
+}
+
+static void M_CRL_GameSpeed (int choice)
+{
+    G_CRL_ChangeGameSpeed(choice == 0 ? -1 : 1, false);
 }
 
 // -----------------------------------------------------------------------------
@@ -2084,6 +2099,8 @@ static menuitem_t CRLMenu_Keybinds_2[]=
     { M_SWTC, "GO TO NEXT LEVEL",      M_Bind_NextLevel,      'g' },
     { M_SWTC, "DEMO FAST-FORWARD",     M_Bind_FastForward,    'd' },
     { M_SWTC, "TOGGLE EXTENDED HUD",   M_Bind_ExtendedHUD,    't' },
+    { M_SWTC, "INCREASE GAME SPEED",   M_Bind_IncreaseGameSpeed, 'i' },
+    { M_SWTC, "DECREASE GAME SPEED",   M_Bind_DecreaseGameSpeed, 'd' },
     { M_SKIP, "", 0, '\0' },
     { M_SWTC, "SPECTATOR MODE",        M_Bind_SpectatorMode,  's' },
     { M_SWTC, "- MOVE CAMERA UP",      M_Bind_CameraUp,       'm' },
@@ -2121,17 +2138,19 @@ static void M_DrawCRL_Keybinds_2 (void)
     M_DrawBindKey(3, 43, key_crl_nextlevel, key_crl_nextlevel2);
     M_DrawBindKey(4, 52, key_crl_demospeed, key_crl_demospeed2);
     M_DrawBindKey(5, 61, key_crl_extendedhud, key_crl_extendedhud2);
+    M_DrawBindKey(6, 70, key_crl_speed_up, key_crl_speed_up2);
+    M_DrawBindKey(7, 79, key_crl_speed_down, key_crl_speed_down2);
 
-    M_WriteTextCentered(70, "GAME MODES", cr[CR_YELLOW]);
+    M_WriteTextCentered(88, "GAME MODES", cr[CR_YELLOW]);
 
-    M_DrawBindKey(7, 79, key_crl_spectator, key_crl_spectator2);
-    M_DrawBindKey(8, 88, key_crl_cameraup, key_crl_cameraup2);
-    M_DrawBindKey(9, 97, key_crl_cameradown, key_crl_cameradown2);
-    M_DrawBindKey(10, 106, key_crl_cameramoveto, key_crl_cameramoveto2);
-    M_DrawBindKey(11, 115, key_crl_freeze, key_crl_freeze2);
-    M_DrawBindKey(12, 124, key_crl_buddha, key_crl_buddha2);
-    M_DrawBindKey(13, 133, key_crl_notarget, key_crl_notarget2);
-    M_DrawBindKey(14, 142, key_crl_nomomentum, key_crl_nomomentum2);
+    M_DrawBindKey(9, 97, key_crl_spectator, key_crl_spectator2);
+    M_DrawBindKey(10, 106, key_crl_cameraup, key_crl_cameraup2);
+    M_DrawBindKey(11, 115, key_crl_cameradown, key_crl_cameradown2);
+    M_DrawBindKey(12, 124, key_crl_cameramoveto, key_crl_cameramoveto2);
+    M_DrawBindKey(13, 133, key_crl_freeze, key_crl_freeze2);
+    M_DrawBindKey(14, 142, key_crl_buddha, key_crl_buddha2);
+    M_DrawBindKey(15, 151, key_crl_notarget, key_crl_notarget2);
+    M_DrawBindKey(16, 160, key_crl_nomomentum, key_crl_nomomentum2);
 
     M_DrawBindFooter("2", true);
 }
@@ -2164,6 +2183,16 @@ static void M_Bind_FastForward (int choice)
 static void M_Bind_ExtendedHUD (int choice)
 {
     M_StartBind(205);  // key_crl_extendedhud
+}
+
+static void M_Bind_IncreaseGameSpeed (int choice)
+{
+    M_StartBind(214);  // key_crl_speed_up
+}
+
+static void M_Bind_DecreaseGameSpeed (int choice)
+{
+    M_StartBind(215);  // key_crl_speed_down
 }
 
 static void M_Bind_SpectatorMode (int choice)
@@ -6531,14 +6560,16 @@ static const KeyBindEntry_t keybinds[] =
     KEYBIND_ENTRY(203, &CRLDef_Keybinds_2, 3,  key_crl_nextlevel,    key_crl_nextlevel2,    0,   0, KBS_GLOBAL),
     KEYBIND_ENTRY(204, &CRLDef_Keybinds_2, 4,  key_crl_demospeed,    key_crl_demospeed2,    0,   0, KBS_GLOBAL),
     KEYBIND_ENTRY(205, &CRLDef_Keybinds_2, 5,  key_crl_extendedhud,  key_crl_extendedhud2,  0,   0, KBS_GLOBAL),
-    KEYBIND_ENTRY(206, &CRLDef_Keybinds_2, 7,  key_crl_spectator,    key_crl_spectator2,    0,   0, KBS_GLOBAL),
-    KEYBIND_ENTRY(207, &CRLDef_Keybinds_2, 8,  key_crl_cameraup,     key_crl_cameraup2,     0,   0, KBS_GLOBAL),
-    KEYBIND_ENTRY(208, &CRLDef_Keybinds_2, 9,  key_crl_cameradown,   key_crl_cameradown2,   0,   0, KBS_GLOBAL),
-    KEYBIND_ENTRY(209, &CRLDef_Keybinds_2, 10, key_crl_cameramoveto, key_crl_cameramoveto2, 0,   0, KBS_GLOBAL),
-    KEYBIND_ENTRY(210, &CRLDef_Keybinds_2, 11, key_crl_freeze,       key_crl_freeze2,       0,   0, KBS_GLOBAL),
-    KEYBIND_ENTRY(211, &CRLDef_Keybinds_2, 12, key_crl_buddha,       key_crl_buddha2,       0,   0, KBS_GLOBAL),
-    KEYBIND_ENTRY(212, &CRLDef_Keybinds_2, 13, key_crl_notarget,     key_crl_notarget2,     0,   0, KBS_GLOBAL),
-    KEYBIND_ENTRY(213, &CRLDef_Keybinds_2, 14, key_crl_nomomentum,   key_crl_nomomentum2,   0,   0, KBS_GLOBAL),
+    KEYBIND_ENTRY(214, &CRLDef_Keybinds_2, 6,  key_crl_speed_up,     key_crl_speed_up2,     0,   0, KBS_GLOBAL),
+    KEYBIND_ENTRY(215, &CRLDef_Keybinds_2, 7,  key_crl_speed_down,   key_crl_speed_down2,   0,   0, KBS_GLOBAL),
+    KEYBIND_ENTRY(206, &CRLDef_Keybinds_2, 9,  key_crl_spectator,    key_crl_spectator2,    0,   0, KBS_GLOBAL),
+    KEYBIND_ENTRY(207, &CRLDef_Keybinds_2, 10, key_crl_cameraup,     key_crl_cameraup2,     0,   0, KBS_GLOBAL),
+    KEYBIND_ENTRY(208, &CRLDef_Keybinds_2, 11, key_crl_cameradown,   key_crl_cameradown2,   0,   0, KBS_GLOBAL),
+    KEYBIND_ENTRY(209, &CRLDef_Keybinds_2, 12, key_crl_cameramoveto, key_crl_cameramoveto2, 0,   0, KBS_GLOBAL),
+    KEYBIND_ENTRY(210, &CRLDef_Keybinds_2, 13, key_crl_freeze,       key_crl_freeze2,       0,   0, KBS_GLOBAL),
+    KEYBIND_ENTRY(211, &CRLDef_Keybinds_2, 14, key_crl_buddha,       key_crl_buddha2,       0,   0, KBS_GLOBAL),
+    KEYBIND_ENTRY(212, &CRLDef_Keybinds_2, 15, key_crl_notarget,     key_crl_notarget2,     0,   0, KBS_GLOBAL),
+    KEYBIND_ENTRY(213, &CRLDef_Keybinds_2, 16, key_crl_nomomentum,   key_crl_nomomentum2,   0,   0, KBS_GLOBAL),
 
     // Page 3
     KEYBIND_ENTRY(300, &CRLDef_Keybinds_3, 0,  key_crl_autorun,   key_crl_autorun2,   KEY_CAPSLOCK, 0, KBS_GLOBAL),

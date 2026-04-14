@@ -45,6 +45,7 @@ int crl_text_shadows = 0;
 // Game modes
 int crl_spectating = 0;
 int crl_freeze = 0;
+int crl_game_speed = 100;
 
 // Widgets
 int crl_extended_hud = 1;
@@ -131,6 +132,9 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_screen_size",                &crl_screen_size);
     M_BindIntVariable("crl_screenwipe",                 &crl_screenwipe);
     M_BindIntVariable("crl_text_shadows",               &crl_text_shadows);
+
+    // Game modes
+    M_BindIntVariable("crl_game_speed",                 &crl_game_speed);
 
     // Widgets
     M_BindIntVariable("crl_extended_hud",               &crl_extended_hud);

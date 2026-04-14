@@ -150,6 +150,39 @@ fixed_t         forwardmove[2] = {0x19, 0x32};
 fixed_t         sidemove[2] = {0x18, 0x28}; 
 fixed_t         angleturn[3] = {640, 1280, 320};    // + slow turn 
 
+// [PN] Clamp and apply the current game speed to the local game clock.
+void G_CRL_SetGameSpeed (int speed)
+{
+    crl_game_speed = BETWEEN(10, 1000, speed);
+    I_SetTimeScale(netgame ? 100 : crl_game_speed);
+}
+
+// [PN] Step game speed up or down and report the new value to the player.
+void G_CRL_ChangeGameSpeed (int direction, boolean show_message)
+{
+    static char msg[32];
+    const int old_speed = crl_game_speed;
+
+    if (netgame)
+    {
+        CRL_SetMessage(&players[consoleplayer], CRL_GAME_SPEED_NA_N, false, NULL);
+        return;
+    }
+
+    G_CRL_SetGameSpeed(crl_game_speed + direction * 10);
+
+    if (old_speed != crl_game_speed)
+    {
+        S_StartSound(NULL, sfx_stnmov);
+    }
+
+    if (!menuactive)
+    {
+        M_snprintf(msg, sizeof(msg), "GAME SPEED: %d%%", crl_game_speed);
+        CRL_SetMessage(&players[consoleplayer], msg, false, NULL);
+    }
+}
+
 typedef struct {
     int *primary;
     int *secondary;
@@ -1232,6 +1265,17 @@ boolean G_Responder (event_t* ev)
         // remainings of demo progress bar.
         st_fullupdate = true;
     }
+
+    // [PN] CRL - Adjust game speed.
+    if (ev->data1 == key_crl_speed_up || ev->data1 == key_crl_speed_up2)
+    {
+        G_CRL_ChangeGameSpeed(1, true);
+    }
+    if (ev->data1 == key_crl_speed_down || ev->data1 == key_crl_speed_down2)
+    {
+        G_CRL_ChangeGameSpeed(-1, true);
+    }
+
     // [JN] CRL - Toggle spectator mode.
     if (ev->data1 == key_crl_spectator || ev->data1 == key_crl_spectator2)
     {

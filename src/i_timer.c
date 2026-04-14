@@ -32,20 +32,33 @@
 
 static Uint32 basetime = 0;
 static uint64_t basecounter = 0; // [crispy]
+static uint64_t basecounter_scaled = 0; // [PN]
 static uint64_t basefreq = 0; // [crispy]
+static int time_scale = 100; // [PN]
+
+static uint64_t GetScaledPerfCounter(void)
+{
+    uint64_t counter;
+
+    if (basefreq == 0)
+        basefreq = SDL_GetPerformanceFrequency();
+
+    counter = SDL_GetPerformanceCounter() * (uint64_t)time_scale / 100;
+
+    if (basecounter_scaled == 0)
+        basecounter_scaled = counter;
+
+    return counter - basecounter_scaled;
+}
+
+static int I_GetTimeMSScaled(void)
+{
+    return (GetScaledPerfCounter() * 1000ull) / basefreq;
+}
 
 int  I_GetTime (void)
 {
-    Uint32 ticks;
-
-    ticks = SDL_GetTicks();
-
-    if (basetime == 0)
-        basetime = ticks;
-
-    ticks -= basetime;
-
-    return (ticks * TICRATE) / 1000;    
+    return (I_GetTimeMSScaled() * TICRATE) / 1000;
 }
 
 //
@@ -102,9 +115,24 @@ void I_InitTimer(void)
     basefreq = SDL_GetPerformanceFrequency(); // [crispy]
 }
 
+// [PN] Adjust the game clock while preserving its current elapsed value.
+void I_SetTimeScale(int scale)
+{
+    uint64_t counter;
+
+    if (scale < 10)
+        scale = 10;
+    else if (scale > 1000)
+        scale = 1000;
+
+    counter = GetScaledPerfCounter();
+    time_scale = scale;
+    basecounter_scaled += GetScaledPerfCounter() - counter;
+}
+
 // [crispy]
 
 fixed_t I_GetFracRealTime(void)
 {
-    return (int64_t)I_GetTimeMS() * TICRATE % 1000 * FRACUNIT / 1000;
+    return (int64_t)I_GetTimeMSScaled() * TICRATE % 1000 * FRACUNIT / 1000;
 }
