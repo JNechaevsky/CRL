@@ -47,6 +47,7 @@ set(GAME_SOURCE_FILES
     deh_str.c           deh_str.h
     gusconf.c           gusconf.h
     i_endoom.c          i_endoom.h
+    i_flmusic.c
     i_glob.c            i_glob.h
     i_input.c           i_input.h
     i_joystick.c        i_joystick.h
@@ -103,17 +104,11 @@ if(WIN32)
     list(APPEND GAME_SOURCE_FILES midifallback.c    midifallback.h)
     list(APPEND GAME_SOURCE_FILES w_file_win32.c)
     list(APPEND GAME_SOURCE_FILES
-        "../win32/win_opendir.c" "../win32/win_opendir.h")
+        "../lib/win32/win_opendir.c" "../lib/win32/win_opendir.h")
     list(APPEND GAME_INCLUDE_DIRS
-         "${PROJECT_SOURCE_DIR}/win32/")
+         "${PROJECT_SOURCE_DIR}/lib/win32/")
 elseif(POSIX)
     list(APPEND GAME_SOURCE_FILES w_file_posix.c)
-endif()
-
-# FluidSynth, if enabled as compile-time option:
-
-if(HAVE_FLUIDSYNTH)
-    list(APPEND GAME_SOURCE_FILES i_flmusic.c)
 endif()
 
 set(DEHACKED_SOURCE_FILES
