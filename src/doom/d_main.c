@@ -294,7 +294,11 @@ static void D_Display (void)
     
     // draw the view directly
     if (gamestate == GS_LEVEL && gametic)
+    {
 	R_RenderPlayerView (&players[displayplayer]);
+	// [PN] Capture clean world-only preview before automap/HUD/widgets/menu overlays.
+	P_UpdateSavePreviewCache();
+    }
 
     // clean up border stuff
     if (gamestate != oldgamestate && gamestate != GS_LEVEL)
@@ -2355,4 +2359,3 @@ void D_DoomMain (void)
 
     D_DoomLoop ();  // never returns
 }
-

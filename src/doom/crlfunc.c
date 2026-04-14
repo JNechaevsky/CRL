@@ -387,6 +387,9 @@ void CRL_StatDrawer (void)
         CRL_Get_MAX();
     }
 
+    // Apply translucency while Save/Load menu is active.
+    dp_translucent = savemenuactive;
+
     // Player coords
     if (crl_widget_coords == 1
     || (crl_widget_coords == 2 && automapactive))
@@ -561,14 +564,9 @@ void CRL_StatDrawer (void)
         char stra[8];
         const int yy3 = automapactive ? 0 : 9;
 
-        // Apply translucency while Save/Load menu is active.
-        dp_translucent = savemenuactive;
-
         sprintf(stra, "TIME ");
         M_WriteText(0, 151 - yy2 + yy3, stra, cr[CR_GRAY]);
         M_WriteText(0 + M_StringWidth(stra), 151 - yy2 + yy3, ID_Level_Time, cr[CR_LIGHTGRAY]);
-
-        dp_translucent = false;
     }
 
     // K/I/S stats
@@ -576,9 +574,6 @@ void CRL_StatDrawer (void)
     || (crl_widget_kis == 2 && automapactive))
     {
         const int yy4 = automapactive ? 8 : -1;
-
-        // Apply translucency while Save/Load menu is active.
-        dp_translucent = savemenuactive;
 
         if (!deathmatch)
         {
@@ -694,8 +689,6 @@ void CRL_StatDrawer (void)
                             159 - yy4, str8, CRL_WidgetColor(widget_plyr4));
             }
         }
-        
-        dp_translucent = false;
     }
 
     // Powerup timers.
@@ -737,6 +730,8 @@ void CRL_StatDrawer (void)
             M_WriteText(296, 133, amp, CRL_PowerupColor(CRL_amp_counter, 120));
         }
     }
+
+    dp_translucent = false;
 }
 
 // -----------------------------------------------------------------------------
@@ -857,6 +852,9 @@ void CRL_DrawTargetsHealth (void)
         return;  // No tics or target is dead, nothing to display.
     }
 
+    // Apply translucency while Save/Load menu is active.
+    dp_translucent = savemenuactive;
+
     const int yy = crl_widget_speed ? 9 : 0;
     sprintf(str, "%d/%d", player->targetsheath, player->targetsmaxheath);
     color = CRL_HealthColor(player->targetsheath, player->targetsmaxheath);
@@ -878,6 +876,8 @@ void CRL_DrawTargetsHealth (void)
             M_WriteTextCentered(152 - yy, str, color);
             break;
     }
+
+    dp_translucent = false;
 }
 
 // -----------------------------------------------------------------------------
@@ -892,6 +892,9 @@ void CRL_DrawPlayerSpeed (void)
     static char val[16];
     static double speed = 0;
     const player_t *player = &players[displayplayer];
+
+    // Apply translucency while Save/Load menu is active.
+    dp_translucent = savemenuactive;
 
     // Calculate speed only every game tic, not every frame.
     if (oldgametic < gametic)
@@ -910,4 +913,6 @@ void CRL_DrawPlayerSpeed (void)
 
     M_WriteText(x_str, 151, str, CRL_WidgetColor(widget_speed_str));
     M_WriteText(x_val, 151, val, CRL_WidgetColor(widget_speed_val));
+
+    dp_translucent = false;
 }
