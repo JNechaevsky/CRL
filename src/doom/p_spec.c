@@ -497,7 +497,7 @@ P_CrossSpecialLine
   mobj_t*	thing )
 {
     line_t*	line;
-    int		ok;
+    int		cross_ok;
 
     line = &lines[linenum];
     
@@ -531,7 +531,7 @@ P_CrossSpecialLine
 
     if (!thing->player)
     {
-	ok = 0;
+	cross_ok = 0;
 	switch(line->special)
 	{
 	  case 39:	// TELEPORT TRIGGER
@@ -541,10 +541,10 @@ P_CrossSpecialLine
 	  case 4:	// RAISE DOOR
 	  case 10:	// PLAT DOWN-WAIT-UP-STAY TRIGGER
 	  case 88:	// PLAT DOWN-WAIT-UP-STAY RETRIGGER
-	    ok = 1;
+	    cross_ok = 1;
 	    break;
 	}
-	if (!ok)
+	if (!cross_ok)
 	    return;
     }
 
@@ -974,20 +974,20 @@ P_ShootSpecialLine
 ( const mobj_t*	thing,
   line_t*	line )
 {
-    int		ok;
+    int		shoot_ok;
     
     //	Impacts that other things can activate.
     if (!thing->player)
     {
-	ok = 0;
+	shoot_ok = 0;
 	switch(line->special)
 	{
 	  case 46:
 	    // OPEN DOOR IMPACT
-	    ok = 1;
+	    shoot_ok = 1;
 	    break;
 	}
-	if (!ok)
+	if (!shoot_ok)
 	    return;
     }
 

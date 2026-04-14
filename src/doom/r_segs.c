@@ -293,8 +293,8 @@ static void R_RenderSegLoop (void)
     int			yh;
     int			mid;
     fixed_t		texturecolumn;
-    int			top;
-    int			bottom;
+    int			r_top;
+    int			r_bottom;
 
     for ( ; rw_x < rw_stopx ; rw_x++)
     {
@@ -307,16 +307,16 @@ static void R_RenderSegLoop (void)
 	
 	if (markceiling)
 	{
-	    top = ceilingclip[rw_x]+1;
-	    bottom = yl-1;
+	    r_top = ceilingclip[rw_x]+1;
+	    r_bottom = yl-1;
 
-	    if (bottom >= floorclip[rw_x])
-		bottom = floorclip[rw_x]-1;
+	    if (r_bottom >= floorclip[rw_x])
+		r_bottom = floorclip[rw_x]-1;
 
-	    if (top <= bottom)
+	    if (r_top <= r_bottom)
 	    {
-		ceilingplane->top[rw_x] = top;
-		ceilingplane->bottom[rw_x] = bottom;
+		ceilingplane->top[rw_x] = r_top;
+		ceilingplane->bottom[rw_x] = r_bottom;
 	    }
 	}
 		
@@ -327,14 +327,14 @@ static void R_RenderSegLoop (void)
 
 	if (markfloor)
 	{
-	    top = yh+1;
-	    bottom = floorclip[rw_x]-1;
-	    if (top <= ceilingclip[rw_x])
-		top = ceilingclip[rw_x]+1;
-	    if (top <= bottom)
+	    r_top = yh+1;
+	    r_bottom = floorclip[rw_x]-1;
+	    if (r_top <= ceilingclip[rw_x])
+		r_top = ceilingclip[rw_x]+1;
+	    if (r_top <= r_bottom)
 	    {
-		floorplane->top[rw_x] = top;
-		floorplane->bottom[rw_x] = bottom;
+		floorplane->top[rw_x] = r_top;
+		floorplane->bottom[rw_x] = r_bottom;
 	    }
 	}
 	
