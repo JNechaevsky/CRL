@@ -14,7 +14,7 @@
 // GNU General Public License for more details.
 //
 
-
+#include "crlvars.h"
 #include "m_config.h"  // [JN] M_BindIntVariable
 
 

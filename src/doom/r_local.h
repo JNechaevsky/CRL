@@ -719,6 +719,7 @@ extern visplane_t *R_CheckPlane (visplane_t *pl, int start, int stop,
 // -----------------------------------------------------------------------------
 
 extern void R_RenderMaskedSegRange (drawseg_t *ds, int x1, int x2);
+extern void R_StoreWallRange (int start, int stop, seg_t* __line, subsector_t* __sub);
 
 extern lighttable_t **walllights;
 

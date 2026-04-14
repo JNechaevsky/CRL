@@ -40,6 +40,7 @@
 #include "doomstat.h"
 #include "r_local.h"
 #include "p_local.h"
+#include "f_finale.h"
 
 #include "crlcore.h"
 

@@ -836,7 +836,7 @@ void TXT_GetKeyDescription(int key, char *buf, size_t buf_len)
 // Searches the desktop screen buffer to determine whether there are any
 // blinking characters.
 
-int TXT_ScreenHasBlinkingChars(void)
+static int TXT_ScreenHasBlinkingChars(void)
 {
     int x, y;
     unsigned char *p;
@@ -969,7 +969,7 @@ void TXT_StringConcat(char *dest, const char *src, size_t dest_len)
 
 // On Windows, vsnprintf() is _vsnprintf().
 #ifdef _WIN32
-#if _MSC_VER < 1400 /* not needed for Visual Studio 2008 */
+#if defined(_MSC_VER) && _MSC_VER < 1400 /* not needed for Visual Studio 2008 */
 #define vsnprintf _vsnprintf
 #endif
 #endif

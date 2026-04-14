@@ -24,6 +24,7 @@
 #include "i_video.h"
 #include "v_video.h"
 #include "m_random.h"
+#include "f_wipe.h"
 
 #include "crlvars.h"
 

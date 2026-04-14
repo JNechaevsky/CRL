@@ -39,6 +39,11 @@ else()
                         "-Wformat-security"
                         "-Wno-ignored-qualifiers"
                         "-Wpedantic"
+                        "-Wshadow"
+                        "-Wundef"
+                        "-Wpointer-arith"
+                        "-Wstrict-prototypes"
+                        "-Wmissing-prototypes"
                         # "-Wextra"
                         )
 endif()

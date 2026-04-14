@@ -757,13 +757,13 @@ static void
 WI_drawPercent
 ( int		x,
   int		y,
-  int		p )
+  int		pcnt )
 {
-    if (p < 0)
+    if (pcnt < 0)
 	return;
 
     V_DrawShadowedPatch(x, y, percent, DEH_String("WIPCNT"));
-    WI_drawNum(x, y, p, -1);
+    WI_drawNum(x, y, pcnt, -1);
 }
 
 

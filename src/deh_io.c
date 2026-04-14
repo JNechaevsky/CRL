@@ -145,7 +145,7 @@ void DEH_CloseFile(deh_context_t *context)
     Z_Free(context);
 }
 
-int DEH_GetCharFile(deh_context_t *context)
+static int DEH_GetCharFile(deh_context_t *context)
 {
     if (feof(context->stream))
     {
@@ -157,7 +157,7 @@ int DEH_GetCharFile(deh_context_t *context)
     return fgetc(context->stream);
 }
 
-int DEH_GetCharLump(deh_context_t *context)
+static int DEH_GetCharLump(deh_context_t *context)
 {
     int result;
 

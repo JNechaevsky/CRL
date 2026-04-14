@@ -250,10 +250,12 @@ wad_file_t *W_AddFile (const char *filename)
 //
 // W_NumLumps
 //
+/*
 int W_NumLumps (void)
 {
     return numlumps;
 }
+*/
 
 
 
@@ -651,6 +653,7 @@ boolean W_IsIWADLump(const lumpinfo_t *lump)
 }
 
 // [crispy] dump lump data into a new LMP file
+/*
 int W_LumpDump (const char *lumpname)
 {
     FILE *fp;
@@ -683,3 +686,4 @@ int W_LumpDump (const char *lumpname)
 
     return i;
 }
+*/

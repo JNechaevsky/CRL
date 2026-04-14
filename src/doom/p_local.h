@@ -454,7 +454,7 @@ extern fixed_t P_InterceptVector (divline_t* v2, divline_t* v1);
 extern int     P_BoxOnLineSide (fixed_t* tmbox, line_t* ld);
 extern int     P_PointOnDivlineSide (fixed_t x, fixed_t y, const divline_t* line);
 extern int     P_PointOnLineSide (fixed_t x, fixed_t y, line_t* line);
-extern void    P_LineOpening (const line_t* linedef);
+extern void    P_LineOpening (const line_t *const line_def);
 extern void    P_MakeDivline (line_t* li, divline_t* dl);
 extern void    P_SetThingPosition (mobj_t *thing);
 extern void    P_UnsetThingPosition (mobj_t *thing);

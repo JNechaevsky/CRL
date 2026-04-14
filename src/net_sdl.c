@@ -306,33 +306,33 @@ static boolean NET_SDL_RecvPacket(net_addr_t **addr, net_packet_t **packet)
     return true;
 }
 
-void NET_SDL_AddrToString(net_addr_t *addr, char *buffer, int buffer_len)
+static void NET_SDL_AddrToString(net_addr_t *addr, char *buffer, int buffer_len)
 {
     IPaddress *ip;
-    uint32_t host;
-    uint16_t port;
+    uint32_t net_host;
+    uint16_t net_port;
 
     ip = (IPaddress *) addr->handle;
-    host = SDLNet_Read32(&ip->host);
-    port = SDLNet_Read16(&ip->port);
+    net_host = SDLNet_Read32(&ip->host);
+    net_port = SDLNet_Read16(&ip->port);
 
     M_snprintf(buffer, buffer_len, "%i.%i.%i.%i",
-               (host >> 24) & 0xff, (host >> 16) & 0xff,
-               (host >> 8) & 0xff, host & 0xff);
+               (net_host >> 24) & 0xff, (net_host >> 16) & 0xff,
+               (net_host >> 8) & 0xff, net_host & 0xff);
 
     // If we are using the default port we just need to show the IP address,
     // but otherwise we need to include the port. This is important because
     // we use the string representation in the setup tool to provided an
     // address to connect to.
-    if (port != DEFAULT_PORT)
+    if (net_port != DEFAULT_PORT)
     {
         char portbuf[10];
-        M_snprintf(portbuf, sizeof(portbuf), ":%i", port);
+        M_snprintf(portbuf, sizeof(portbuf), ":%i", net_port);
         M_StringConcat(buffer, portbuf, buffer_len);
     }
 }
 
-net_addr_t *NET_SDL_ResolveAddress(const char *address)
+static net_addr_t *NET_SDL_ResolveAddress(const char *address)
 {
     IPaddress ip;
     char *addr_hostname;

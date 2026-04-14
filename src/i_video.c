@@ -541,17 +541,7 @@ static void I_WindowToGameCursorPosition(int win_x, int win_y, int *game_x, int 
     *game_y = rely * SCREENHEIGHT / dst.h;
 }
 
-// [JN] Reinitialize mouse cursor position on changing rendering resoluton
-void I_ReInitCursorPosition (void)
-{
-    int wx, wy;
-    SDL_GetMouseState(&wx, &wy);
-    I_WindowToGameCursorPosition(wx, wy, &menu_mouse_x, &menu_mouse_y);
-
-    SDL_GetMouseState(&menu_mouse_x_sdl, &menu_mouse_y_sdl);
-}
-
-void I_GetEvent(void)
+static void I_GetEvent(void)
 {
     SDL_Event sdlevent;
 

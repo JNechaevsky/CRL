@@ -55,15 +55,6 @@ boolean deh_apply_cheats = true;
 
 static char **deh_filenames;
 
-void AddDEHFileName(const char *filename)
-{
-    static int i;
-
-    deh_filenames = I_Realloc(deh_filenames, (i + 2) * sizeof(*deh_filenames));
-    deh_filenames[i++] = M_StringDuplicate(filename);
-    deh_filenames[i] = NULL;
-}
-
 char **DEH_GetFileNames(void)
 {
     return deh_filenames;

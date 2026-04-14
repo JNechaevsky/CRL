@@ -768,7 +768,7 @@ static int     keyToBind;
 static void    M_StartBind (int keynum);
 static void    M_CheckBind (int key);
 static void    M_DoBind (int keynum, int key);
-static void    M_ClearBind (int itemOn);
+static void    M_ClearBind (int item_On);
 static byte   *M_ColorizeBind (int itemSetOn, int key1, int key2);
 static void    M_ResetBinds (void);
 static void    M_DrawBindKey (int itemNum, int yPos, int key1, int key2);
@@ -781,7 +781,7 @@ static int     btnToBind;
 static void    M_StartMouseBind (int btn);
 static void    M_CheckMouseBind (int btn);
 static void    M_DoMouseBind (int btnnum, int btn);
-static void    M_ClearMouseBind (int itemOn);
+static void    M_ClearMouseBind (int item_On);
 static byte   *M_ColorizeMouseBind (int itemSetOn, int btn1, int btn2);
 static void    M_DrawBindButton (int itemNum, int yPos, int btn1, int btn2);
 static void    M_ResetMouseBinds (void);
@@ -5875,7 +5875,7 @@ void M_StartControlPanel (void)
 static void M_ID_MenuMouseControl (void)
 {
     // Skip if mouse control disabled or any binding is active
-    if (!menu_mouse_allow || KbdIsBinding || MouseIsBinding)
+    if (!menu_mouse_allow || KbdIsBinding || MouseIsBinding /*|| GamepadIsBinding*/)
         return;
 
     // Precompute scaled horizontal boundaries for the entire menu
@@ -5914,16 +5914,16 @@ static void M_ID_MenuMouseControl (void)
             continue;
 
         // Sliders occupy three lines, normal items one line
-        const int lines = (currentMenu->menuitems[i].status == STS_SLDR) ? slider_height : 1;
-        const int top = base_y + i * scaled_line_height;
-        const int bottom = top + lines * scaled_line_height;
+        const int mn_lines = (currentMenu->menuitems[i].status == STS_SLDR) ? slider_height : 1;
+        const int mn_top = base_y + i * scaled_line_height;
+        const int mn_bottom = mn_top + mn_lines * scaled_line_height;
 
         // If mouse is above current item, further items are even lower - stop scan
-        if (menu_mouse_y < top)
+        if (menu_mouse_y < mn_top)
             break;
 
         // Check vertical overlap
-        if (menu_mouse_y <= bottom)
+        if (menu_mouse_y <= mn_bottom)
         {
             itemOn = i;
             break; // Found the topmost item under cursor (items don't overlap vertically)
@@ -6684,14 +6684,14 @@ static void M_DoBind (int keynum, int key)
 
 // -----------------------------------------------------------------------------
 // M_ClearBind
-//  Clear key bind on the line where cursor is placed (itemOn).
+//  Clear key bind on the line where cursor is placed (item_On).
 // -----------------------------------------------------------------------------
 
-static void M_ClearBind (int itemOn)
+static void M_ClearBind (int item_On)
 {
     for (size_t i = 0; i < sizeof(keybinds) / sizeof(keybinds[0]); i++)
     {
-        if (keybinds[i].menu == currentMenu && keybinds[i].item == itemOn)
+        if (keybinds[i].menu == currentMenu && keybinds[i].item == item_On)
         {
             *keybinds[i].slot1 = 0;
             *keybinds[i].slot2 = 0;
@@ -6852,14 +6852,14 @@ static void M_DoMouseBind (int btnnum, int btn)
 
 // -----------------------------------------------------------------------------
 // M_ClearMouseBind
-//  Clear mouse bind on the line where cursor is placed (itemOn).
+//  Clear mouse bind on the line where cursor is placed (item_On).
 // -----------------------------------------------------------------------------
 
-static void M_ClearMouseBind (int itemOn)
+static void M_ClearMouseBind (int item_On)
 {
     for (size_t i = 0; i < sizeof(mousebinds) / sizeof(mousebinds[0]); i++)
     {
-        if (mousebinds[i].item == itemOn)
+        if (mousebinds[i].item == item_On)
         {
             *mousebinds[i].slot1 = -1;
             *mousebinds[i].slot2 = -1;

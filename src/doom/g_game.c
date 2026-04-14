@@ -245,17 +245,6 @@ static int      crl_camzspeed;
 // [crispy] store last cmd to track joins
 static ticcmd_t* last_cmd = NULL;
  
-int G_CmdChecksum (ticcmd_t* cmd) 
-{ 
-    size_t		i;
-    int		sum = 0; 
-	 
-    for (i=0 ; i< sizeof(*cmd)/4 - 1 ; i++) 
-	sum += ((int *)cmd)[i]; 
-		 
-    return sum; 
-} 
-
 static boolean WeaponSelectable(weapontype_t weapon)
 {
     // Can't select the super shotgun in Doom 1.
@@ -344,11 +333,11 @@ boolean speedkeydown (void)
 }
 
 // [crispy] for carrying rounding error
-static int CarryError(double value, const double *prevcarry, double *carry)
+static int CarryError(double value, const double *prev_carry, double *cur_carry)
 {
-    const double desired = value + *prevcarry;
+    const double desired = value + *prev_carry;
     const int actual = lround(desired);
-    *carry = desired - actual;
+    *cur_carry = desired - actual;
 
     return actual;
 }
@@ -379,12 +368,12 @@ static int CarryMouseSide(double side)
     return actual;
 }
 
-static double CalcMouseAngle(int mousex)
+static double CalcMouseAngle(int mouse_x)
 {
     if (!mouseSensitivity)
         return 0.0;
 
-    return (I_AccelerateMouse(mousex) * (mouseSensitivity + 5) * 8 / 10);
+    return (I_AccelerateMouse(mouse_x) * (mouseSensitivity + 5) * 8 / 10);
 }
 
 
@@ -1717,17 +1706,6 @@ void G_Ticker (void)
 // also see P_SpawnPlayer in P_Things
 //
 
-//
-// G_InitPlayer 
-// Called at the start.
-// Called by the game initialization functions.
-//
-void G_InitPlayer (int player) 
-{
-    // clear everything else to defaults
-    G_PlayerReborn (player); 
-}
- 
  
 
 //

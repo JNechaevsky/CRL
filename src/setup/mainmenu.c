@@ -12,6 +12,7 @@
 // GNU General Public License for more details.
 //
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,7 +25,7 @@
 #include "crlvars.h"
 
 
-void MainMenu(void)
+static void MainMenu(void)
 {
     txt_window_t *window;
 
@@ -44,6 +45,9 @@ void MainMenu(void)
 
 static void SetIcon(void)
 {
+// [PN] On Windows, let the system itself set the application icon.
+// This fixes incorrect icon display in Task Manager.
+#ifndef _WIN32
     SDL_Surface *surface;
 
     surface = SDL_CreateRGBSurfaceFrom((void *) setup_icon_data, setup_icon_w,
@@ -53,6 +57,7 @@ static void SetIcon(void)
 
     SDL_SetWindowIcon(TXT_SDLWindow, surface);
     SDL_FreeSurface(surface);
+#endif
 }
 
 static void SetWindowTitle(void)
@@ -81,14 +86,6 @@ static void InitTextscreen(void)
     SetWindowTitle();
 }
 
-// Restart the textscreen library.  Used when the video_driver variable
-// is changed.
-
-void RestartTextscreen(void)
-{
-    TXT_Shutdown();
-    InitTextscreen();
-}
 
 // 
 // Initialize and run the textscreen GUI.
@@ -104,7 +101,6 @@ static void RunGUI(void)
 static void MissionSet(void)
 {
     SetWindowTitle();
-
     MainMenu();
 }
 
