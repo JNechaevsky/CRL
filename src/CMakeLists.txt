@@ -25,7 +25,7 @@ set(DEDSERV_FILES
     net_dedicated.c     net_dedicated.h
     net_io.c            net_io.h
     net_packet.c        net_packet.h
-    net_sdl.c           net_sdl.h
+    net_netlib.c        net_netlib.h
     net_query.c         net_query.h
     net_server.c        net_server.h
     net_structrw.c      net_structrw.h
@@ -77,7 +77,7 @@ set(GAME_SOURCE_FILES
     net_packet.c        net_packet.h
     net_petname.c       net_petname.h
     net_query.c         net_query.h
-    net_sdl.c           net_sdl.h
+    net_netlib.c        net_netlib.h
     net_server.c        net_server.h
     net_structrw.c      net_structrw.h
     sha1.c              sha1.h
@@ -123,12 +123,9 @@ set(DEHACKED_SOURCE_FILES
 set(SOURCE_FILES ${COMMON_SOURCE_FILES} ${GAME_SOURCE_FILES})
 set(SOURCE_FILES_WITH_DEH ${SOURCE_FILES} ${DEHACKED_SOURCE_FILES})
 
-set(EXTRA_LIBS SDL2::SDL2main SDL2::SDL2 miniz::miniz textscreen pcsound opl)
+set(EXTRA_LIBS SDL2::SDL2main SDL2::SDL2 miniz::miniz textscreen pcsound opl netlib)
 if(ENABLE_SDL2_MIXER)
     list(APPEND EXTRA_LIBS SDL2_mixer::SDL2_mixer)
-endif()
-if(ENABLE_SDL2_NET)
-    list(APPEND EXTRA_LIBS SDL2_net::SDL2_net)
 endif()
 if(SampleRate_FOUND)
     list(APPEND EXTRA_LIBS SampleRate::samplerate)
@@ -185,7 +182,7 @@ set(SETUP_FILES
     net_io.c            net_io.h
     net_packet.c        net_packet.h
     net_petname.c       net_petname.h
-    net_sdl.c           net_sdl.h
+    net_netlib.c        net_netlib.h
     net_query.c         net_query.h
     net_structrw.c      net_structrw.h
     z_native.c          z_zone.h)
@@ -198,12 +195,9 @@ endif()
 
 target_include_directories("${PROGRAM_PREFIX}setup"
                            PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../")
-target_link_libraries("${PROGRAM_PREFIX}setup" SDL2::SDL2main SDL2::SDL2 setup textscreen)
+target_link_libraries("${PROGRAM_PREFIX}setup" SDL2::SDL2main SDL2::SDL2 setup textscreen netlib)
 if(ENABLE_SDL2_MIXER)
     target_link_libraries("${PROGRAM_PREFIX}setup" SDL2_mixer::SDL2_mixer)
-endif()
-if(ENABLE_SDL2_NET)
-    target_link_libraries("${PROGRAM_PREFIX}setup" SDL2_net::SDL2_net)
 endif()
 if(WIN32)
     target_link_libraries("${PROGRAM_PREFIX}setup" winmm)
