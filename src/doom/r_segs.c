@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include "i_system.h"
 #include "doomstat.h"
+#include "m_misc.h"
 #include "p_local.h"
 
 #include "crlcore.h"
@@ -125,8 +126,9 @@ void GAME_IdentifySubSector(void* __what, CRLSubData_t* __info)
 // -----------------------------------------------------------------------------
 
 static byte medusa_ptr[129];
+static char medusa_message[32];
 
-static boolean medusa_indicator (const byte *data, int texture)
+static boolean medusa_indicator (const byte *data, int texture, const line_t *const line)
 {
     byte *composite;
 
@@ -160,7 +162,9 @@ static boolean medusa_indicator (const byte *data, int texture)
 #else
         memset(medusa_ptr, leveltime, sizeof(medusa_ptr));
         dc_source = medusa_ptr;
-        CRL_SetMessageCritical("R_RenderMaskedSegRange:", "MEDUSA ERROR DETECTED", 2);
+        // [PN] Show linedef number where Medusa is happening.
+        M_snprintf(medusa_message, sizeof(medusa_message), "MEDUSA ERROR ON LINEDEF %d", (int)(line - lines));
+        CRL_SetMessageCritical("R_RenderMaskedSegRange:", medusa_message, 2);
 #endif
         colfunc();
 
@@ -256,7 +260,7 @@ R_RenderMaskedSegRange
 		(byte *)R_GetColumn(texnum,maskedtexturecol[dc_x]) -3);
 			
         // [JN] CRL - check if column possibly have a Medusa.
-        if(medusa_indicator((byte*) col + 3, texnum))
+        if(medusa_indicator((byte*) col + 3, texnum, curline->linedef))
         {
             R_DrawMaskedColumn (col);
         }
@@ -868,4 +872,3 @@ R_StoreWallRange
     }
     ds_p++;
 }
-
