@@ -521,24 +521,24 @@ WI_drawOnLnode
 {
 
     int		i;
-    int		left;
-    int		top;
-    int		right;
-    int		bottom;
+    int		wi_left;
+    int		wi_top;
+    int		wi_right;
+    int		wi_bottom;
     boolean	fits = false;
 
     i = 0;
     do
     {
-	left = lnodes[wbs->epsd][n].x - SHORT(c[i]->leftoffset);
-	top = lnodes[wbs->epsd][n].y - SHORT(c[i]->topoffset);
-	right = left + SHORT(c[i]->width);
-	bottom = top + SHORT(c[i]->height);
+	wi_left = lnodes[wbs->epsd][n].x - SHORT(c[i]->leftoffset);
+	wi_top = lnodes[wbs->epsd][n].y - SHORT(c[i]->topoffset);
+	wi_right = wi_left + SHORT(c[i]->width);
+	wi_bottom = wi_top + SHORT(c[i]->height);
 
-	if (left >= 0
-	    && right < SCREENWIDTH
-	    && top >= 0
-	    && bottom < SCREENHEIGHT)
+	if (wi_left >= 0
+	    && wi_right < SCREENWIDTH
+	    && wi_top >= 0
+	    && wi_bottom < SCREENHEIGHT)
 	{
 	    fits = true;
 	}
