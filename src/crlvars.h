@@ -47,6 +47,12 @@ extern int crl_spectating;
 extern int crl_freeze;
 extern int crl_game_speed;
 
+// Rewind
+extern int crl_rewind_auto;
+extern int crl_rewind_interval;
+extern int crl_rewind_depth;
+extern int crl_rewind_timeout;
+
 // Widgets
 extern int crl_extended_hud;
 extern int crl_widget_playstate;

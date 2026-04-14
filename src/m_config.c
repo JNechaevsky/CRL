@@ -361,6 +361,7 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_KEYBIND(key_crl_extendedhud, key_crl_extendedhud2),
     CONFIG_VARIABLE_KEYBIND(key_crl_speed_up, key_crl_speed_up2),
     CONFIG_VARIABLE_KEYBIND(key_crl_speed_down, key_crl_speed_down2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_rewind, key_crl_rewind2),
 
     // Game modes
     CONFIG_VARIABLE_KEYBIND(key_crl_spectator, key_crl_spectator2),
@@ -590,6 +591,10 @@ static default_t	doom_defaults_list[] =
     // Gameplay
     CONFIG_VARIABLE_COMMENT("Gameplay Features"),
     CONFIG_VARIABLE_INT(crl_game_speed),
+    CONFIG_VARIABLE_INT(crl_rewind_auto),
+    CONFIG_VARIABLE_INT(crl_rewind_interval),
+    CONFIG_VARIABLE_INT(crl_rewind_depth),
+    CONFIG_VARIABLE_INT(crl_rewind_timeout),
     CONFIG_VARIABLE_INT(crl_default_skill),
     CONFIG_VARIABLE_INT(crl_pistol_start),
     CONFIG_VARIABLE_INT(crl_colored_stbar),

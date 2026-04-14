@@ -82,6 +82,8 @@ int key_crl_demospeed   = 0;   int key_crl_demospeed2   = 0; // [crispy]
 int key_crl_extendedhud = 0;   int key_crl_extendedhud2 = 0;
 int key_crl_speed_up    = 0;   int key_crl_speed_up2    = 0; // [PN]
 int key_crl_speed_down  = 0;   int key_crl_speed_down2  = 0; // [PN]
+int key_crl_rewind      = 0;
+int key_crl_rewind2     = 0;
 int key_crl_limits      = 0;   int key_crl_limits2      = 0;
 
 // Game modes
@@ -312,6 +314,7 @@ void M_BindControls (void)
     M_BindIntVariableKeybind("key_crl_extendedhud", &key_crl_extendedhud, "key_crl_extendedhud2", &key_crl_extendedhud2);
     M_BindIntVariableKeybind("key_crl_speed_up",    &key_crl_speed_up,    "key_crl_speed_up2",    &key_crl_speed_up2);   // [PN]
     M_BindIntVariableKeybind("key_crl_speed_down",  &key_crl_speed_down,  "key_crl_speed_down2",  &key_crl_speed_down2); // [PN]
+    M_BindIntVariableKeybind("key_crl_rewind",      &key_crl_rewind,      "key_crl_rewind2",      &key_crl_rewind2);     // [PN]
 
     // Game modes
 
