@@ -30,6 +30,7 @@
 #include "g_game.h"
 #include "m_misc.h"
 #include "m_menu.h"
+#include "am_map.h"
 #include "r_local.h"
 #include "v_savepreview.h"
 
@@ -147,6 +148,34 @@ static void saveg_write32(int value)
     saveg_write8((value >> 8) & 0xff);
     saveg_write8((value >> 16) & 0xff);
     saveg_write8((value >> 24) & 0xff);
+}
+
+static int64_t saveg_read64(void)
+{
+    int64_t result;
+
+    result = saveg_read8();
+    result |= (int64_t)saveg_read8() << 8;
+    result |= (int64_t)saveg_read8() << 16;
+    result |= (int64_t)saveg_read8() << 24;
+    result |= (int64_t)saveg_read8() << 32;
+    result |= (int64_t)saveg_read8() << 40;
+    result |= (int64_t)saveg_read8() << 48;
+    result |= (int64_t)saveg_read8() << 56;
+
+    return result;
+}
+
+static void saveg_write64(int64_t value)
+{
+    saveg_write8(value & 0xff);
+    saveg_write8((value >> 8) & 0xff);
+    saveg_write8((value >> 16) & 0xff);
+    saveg_write8((value >> 24) & 0xff);
+    saveg_write8((value >> 32) & 0xff);
+    saveg_write8((value >> 40) & 0xff);
+    saveg_write8((value >> 48) & 0xff);
+    saveg_write8((value >> 56) & 0xff);
 }
 
 // -----------------------------------------------------------------------------
@@ -2051,6 +2080,42 @@ void P_ArchiveOldSpecials (void)
 }
 
 // -----------------------------------------------------------------------------
+// P_ArchiveAutomap
+// [PN] Archive automap state in a tagged post-EOF tail block.
+// -----------------------------------------------------------------------------
+
+#define AUTOMAP_SAVE_MAGIC_0 'C'
+#define AUTOMAP_SAVE_MAGIC_1 'R'
+#define AUTOMAP_SAVE_MAGIC_2 'A'
+#define AUTOMAP_SAVE_MAGIC_3 'M'
+#define AUTOMAP_SAVE_VERSION 1
+
+void P_ArchiveAutomap (void)
+{
+    saveg_write8(AUTOMAP_SAVE_MAGIC_0);
+    saveg_write8(AUTOMAP_SAVE_MAGIC_1);
+    saveg_write8(AUTOMAP_SAVE_MAGIC_2);
+    saveg_write8(AUTOMAP_SAVE_MAGIC_3);
+    saveg_write8(AUTOMAP_SAVE_VERSION);
+
+    saveg_write8(automapactive);
+    saveg_write32(followplayer);
+    saveg_write64(m_x);
+    saveg_write64(m_y);
+    saveg_write32(AM_UnArchiveScaleMtof());
+    saveg_write32(mapangle);
+
+    saveg_write32(markpointnum);
+    for (int i = 0; i < AM_NUMMARKPOINTS; ++i)
+    {
+        saveg_write64(markpoints[i].x);
+        saveg_write64(markpoints[i].y);
+    }
+
+    saveg_write32(grid);
+}
+
+// -----------------------------------------------------------------------------
 // P_ArchiveSavePreview
 // [PN] Archive savegame preview thumbnail at end of save file
 // using shared V_SavePreview footer format.
@@ -2092,4 +2157,61 @@ void P_UnArchiveOldSpecials (void)
         if (sec->oldspecial != 9)
             sec->oldspecial = 0;
     }
+}
+
+// -----------------------------------------------------------------------------
+// P_UnArchiveAutomap
+// [PN] Restore optional automap state from tagged post-EOF tail block.
+// -----------------------------------------------------------------------------
+
+void P_UnArchiveAutomap (void)
+{
+    byte magic[4];
+    long pos = ftell(save_stream);
+
+    if (pos < 0 || fread(magic, 1, sizeof(magic), save_stream) != sizeof(magic))
+    {
+        return;
+    }
+
+    if (magic[0] != AUTOMAP_SAVE_MAGIC_0
+     || magic[1] != AUTOMAP_SAVE_MAGIC_1
+     || magic[2] != AUTOMAP_SAVE_MAGIC_2
+     || magic[3] != AUTOMAP_SAVE_MAGIC_3)
+    {
+        fseek(save_stream, pos, SEEK_SET);
+        return;
+    }
+
+    if (saveg_read8() != AUTOMAP_SAVE_VERSION)
+    {
+        fseek(save_stream, pos, SEEK_SET);
+        return;
+    }
+
+    automapactive = saveg_read8();
+    if (automapactive)
+    {
+        AM_Start();
+    }
+
+    followplayer = saveg_read32();
+    m_x = saveg_read64();
+    m_y = saveg_read64();
+    AM_ArchiveScaleMtof(saveg_read32());
+    mapangle = saveg_read32();
+
+    markpointnum = saveg_read32();
+    if (markpointnum < 0 || markpointnum >= AM_NUMMARKPOINTS)
+    {
+        markpointnum = 0;
+    }
+
+    for (int i = 0; i < AM_NUMMARKPOINTS; ++i)
+    {
+        markpoints[i].x = saveg_read64();
+        markpoints[i].y = saveg_read64();
+    }
+
+    grid = saveg_read32();
 }

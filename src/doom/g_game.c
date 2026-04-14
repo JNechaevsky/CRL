@@ -2487,10 +2487,13 @@ void G_DoLoadGame (void)
 
     // [JN] Restore total level times.
     P_UnArchiveTotalTimes ();
-    // [JN] Restore monster targets.
-    P_RestoreTargets ();
     // [plums] Restore old sector specials.
     P_UnArchiveOldSpecials ();
+    // [PN] Restore optional automap state.
+    P_UnArchiveAutomap ();
+
+    // [JN] Restore monster targets.
+    P_RestoreTargets ();
 
     fclose(save_stream);
     
@@ -2578,14 +2581,6 @@ void G_DoSaveGame (void)
 
     P_WriteSaveGameEOF();
 
-    // [JN] Write total level times after EOF terminator
-    // to keep compatibility with vanilla save games.
-    P_ArchiveTotalTimes ();
-
-    // [plums] write old sector specials (for revealed secrets) at the end
-    // to keep save compatibility with previous versions
-    P_ArchiveOldSpecials ();
-
     // Enforce the same savegame size limit as in Vanilla Doom,
     // except if the vanilla_savegame_limit setting is turned off.
 
@@ -2599,7 +2594,18 @@ void G_DoSaveGame (void)
         CRL_SetMessageCritical("G_DoSaveGame:", message, MESSAGETICS);
     }
 
-    // [PN] Write savegame preview thumbnail after EOF and optional CRL tails.
+    // [JN] Write total level times after EOF terminator
+    // to keep compatibility with vanilla save games.
+    P_ArchiveTotalTimes ();
+
+    // [plums] write old sector specials (for revealed secrets) at the end
+    // to keep save compatibility with previous versions
+    P_ArchiveOldSpecials ();
+
+    // [PN] Write automap state after EOF and optional CRL tails.
+    P_ArchiveAutomap();
+
+    // [PN] Write savegame preview thumbnail after optional tail blocks.
     P_ArchiveSavePreview();
 
     // Finish up, close the savegame file.

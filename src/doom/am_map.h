@@ -23,6 +23,15 @@
 
 #include "d_event.h"
 #include "m_cheat.h"
+#include "m_fixed.h"
+#include "tables.h"
+
+#define AM_NUMMARKPOINTS 10
+
+typedef struct
+{
+    int64_t x, y;
+} mpoint_t;
 
 // Used by ST StatusBar stuff.
 #define AM_MSGHEADER (('a'<<24)+('m'<<16))
@@ -31,8 +40,15 @@
 
 extern int followplayer;
 extern int iddt_cheating;
+extern int grid;
+extern int64_t m_x, m_y;
+extern mpoint_t markpoints[AM_NUMMARKPOINTS];
+extern int markpointnum;
+extern angle_t mapangle;
 
 extern void AM_Init (void);
+extern fixed_t AM_UnArchiveScaleMtof (void);
+extern void AM_ArchiveScaleMtof (fixed_t scale);
 
 // Called by main loop.
 boolean AM_Responder (const event_t* ev);
@@ -47,6 +63,7 @@ void AM_Drawer (void);
 
 // Called to force the automap to quit
 // if the level is completed while it is up.
+void AM_Start (void);
 void AM_Stop (void);
 
 

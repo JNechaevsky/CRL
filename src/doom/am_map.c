@@ -80,9 +80,6 @@ static int secretwallcolors;
 static int foundsecretwallcolors;
 static int sndpropwallcolors;
 
-// drawing stuff
-#define AM_NUMMARKPOINTS 10
-
 // [JN] FRACTOMAPBITS: overflow-safe coordinate system.
 // Written by Andrey Budko (entryway), adapted from prboom-plus/src/am_map.*
 #define MAPBITS 12
@@ -155,11 +152,6 @@ typedef struct
 
 typedef struct
 {
-    int64_t x, y;
-} mpoint_t;
-
-typedef struct
-{
     mpoint_t a, b;
 } mline_t;
 
@@ -214,7 +206,7 @@ static mline_t thintriangle_guy[] = {
 boolean     automapactive = false;
 
 int iddt_cheating = 0;
-static int   grid = 0;
+int grid = 0;
 
 // location of window on screen
 static int  f_x;
@@ -229,7 +221,7 @@ static fixed_t  mtof_zoommul; // how far the window zooms in each tic (map coord
 static fixed_t  ftom_zoommul; // how far the window zooms in each tic (fb coords)
 static fixed_t  curr_mtof_zoommul; // [JN] Zooming interpolation.
 
-static int64_t  m_x, m_y;     // LL x,y where the window is on the map (map coords)
+int64_t  m_x, m_y;            // LL x,y where the window is on the map (map coords)
 static int64_t  m_x2, m_y2;   // UR x,y where the window is on the map (map coords)
 
 // width/height of window on map (map coords)
@@ -261,8 +253,8 @@ static fixed_t scale_ftom;
 static player_t *plr; // the player represented by an arrow
 
 static patch_t *marknums[10]; // numbers used for marking by the automap
-static mpoint_t markpoints[AM_NUMMARKPOINTS]; // where the points are
-static int markpointnum = 0; // next point to be assigned
+mpoint_t markpoints[AM_NUMMARKPOINTS]; // where the points are
+int markpointnum = 0; // next point to be assigned
 
 int followplayer = 1; // specifies whether to follow the player around
 // [PN] Accumulated automap pan delta from mouse movement
@@ -276,7 +268,7 @@ static boolean stopped = true;
 static void AM_rotate (int64_t *x, int64_t *y, angle_t a);
 static void AM_rotatePoint (mpoint_t *pt);
 static mpoint_t mapcenter;
-static angle_t mapangle;
+angle_t mapangle;
 
 
 // -----------------------------------------------------------------------------
@@ -294,6 +286,15 @@ void AM_Init (void)
     sndpropwallcolors = V_GetPaletteIndex(playpal, 64, 255, 64);
 
     W_ReleaseLumpName("PLAYPAL");
+
+    // [JN] Initialize mark patches.
+    char namebuf[9];
+
+    for (int i = 0 ; i < 10 ; i++)
+    {
+        DEH_snprintf(namebuf, 9, "AMMNUM%d", i);
+        marknums[i] = W_CacheLumpName(namebuf, PU_STATIC);
+    }
 }
 
 // -----------------------------------------------------------------------------
@@ -355,6 +356,30 @@ static void AM_restoreScaleAndLoc (void)
     // Change the scaling multipliers
     scale_mtof = FixedDiv(f_w<<FRACBITS, m_w);
     scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
+}
+
+// -----------------------------------------------------------------------------
+// AM_(Un)ArchiveScaleMtof
+//  [PN] Save/restore automap zoom level for savegames.
+// -----------------------------------------------------------------------------
+
+void AM_ArchiveScaleMtof (fixed_t scale)
+{
+    scale_mtof = scale;
+    scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
+
+    if (automapactive)
+    {
+        m_w = FTOM(f_w);
+        m_h = FTOM(f_h);
+        m_x2 = m_x + m_w;
+        m_y2 = m_y + m_h;
+    }
+}
+
+fixed_t AM_UnArchiveScaleMtof (void)
+{
+    return scale_mtof;
 }
 
 // -----------------------------------------------------------------------------
@@ -559,37 +584,6 @@ void AM_initVariables (void)
 }
 
 // -----------------------------------------------------------------------------
-// AM_loadPics
-// -----------------------------------------------------------------------------
-
-static void AM_loadPics (void)
-{
-    char namebuf[9];
-  
-    for (int i = 0 ; i < 10 ; i++)
-    {
-        DEH_snprintf(namebuf, 9, "AMMNUM%d", i);
-        marknums[i] = W_CacheLumpName(namebuf, PU_STATIC);
-    }
-
-}
-
-// -----------------------------------------------------------------------------
-// AM_unloadPics
-// -----------------------------------------------------------------------------
-
-static void AM_unloadPics (void)
-{
-    char namebuf[9];
-
-    for (int i = 0 ; i < 10 ; i++)
-    {
-        DEH_snprintf(namebuf, 9, "AMMNUM%d", i);
-        W_ReleaseLumpName(namebuf);
-    }
-}
-
-// -----------------------------------------------------------------------------
 // AM_clearMarks
 // -----------------------------------------------------------------------------
 
@@ -644,7 +638,6 @@ static void AM_LevelInit (void)
 
 void AM_Stop (void)
 {
-    AM_unloadPics();
     automapactive = false;
     stopped = true;
 }
@@ -653,7 +646,7 @@ void AM_Stop (void)
 // AM_Start
 // -----------------------------------------------------------------------------
 
-static void AM_Start (void)
+void AM_Start (void)
 {
     static int lastlevel = -1, lastepisode = -1;
 
@@ -672,7 +665,6 @@ static void AM_Start (void)
     }
 
     AM_initVariables();
-    AM_loadPics();
 }
 
 // -----------------------------------------------------------------------------
