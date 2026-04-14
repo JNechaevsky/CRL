@@ -120,10 +120,10 @@ void I_SetTimeScale(int scale)
 {
     uint64_t counter;
 
-    if (scale < 10)
-        scale = 10;
-    else if (scale > 1000)
-        scale = 1000;
+    if (scale < 3)
+        scale = 3;
+    else if (scale > 10000)
+        scale = 10000;
 
     counter = GetScaledPerfCounter();
     time_scale = scale;

@@ -304,10 +304,10 @@ void D_ReceiveTic(const ticcmd_t *ticcmds, const boolean *players_mask)
 
 void D_StartGameLoop(void)
 {
-    if (crl_game_speed < 10)
-        crl_game_speed = 10;
-    else if (crl_game_speed > 1000)
-        crl_game_speed = 1000;
+    if (crl_game_speed < 3)
+        crl_game_speed = 3;
+    else if (crl_game_speed > 10000)
+        crl_game_speed = 10000;
 
     I_SetTimeScale(net_client_connected ? 100 : crl_game_speed);
     lasttime = GetAdjustedTime() / ticdup;

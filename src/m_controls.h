@@ -70,6 +70,7 @@ extern int key_crl_demospeed, key_crl_demospeed2;     // [crispy]
 extern int key_crl_extendedhud, key_crl_extendedhud2;
 extern int key_crl_speed_up, key_crl_speed_up2;       // [PN]
 extern int key_crl_speed_down, key_crl_speed_down2;   // [PN]
+extern int key_crl_speed_reset, key_crl_speed_reset2; // [PN]
 extern int key_crl_rewind, key_crl_rewind2;           // [PN]
 extern int key_crl_limits, key_crl_limits2;
 

@@ -361,6 +361,7 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_KEYBIND(key_crl_extendedhud, key_crl_extendedhud2),
     CONFIG_VARIABLE_KEYBIND(key_crl_speed_up, key_crl_speed_up2),
     CONFIG_VARIABLE_KEYBIND(key_crl_speed_down, key_crl_speed_down2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_speed_reset, key_crl_speed_reset2),
     CONFIG_VARIABLE_KEYBIND(key_crl_rewind, key_crl_rewind2),
 
     // Game modes
