@@ -26,6 +26,7 @@
 #include "m_random.h"
 #include "f_wipe.h"
 
+#include "crlcore.h"
 #include "crlvars.h"
 
 
@@ -37,28 +38,8 @@ static pixel_t *wipe_scr_start;
 static pixel_t *wipe_scr_end;
 static pixel_t *wipe_scr;
 static int     *y;
-
-// -----------------------------------------------------------------------------
-// wipe_shittyColMajorXform
-// -----------------------------------------------------------------------------
-
-static void wipe_shittyColMajorXform (dpixel_t *array)
-{
-    const int width = SCREENWIDTH/2;
-    dpixel_t *dest = (dpixel_t*) Z_Malloc(width*SCREENHEIGHT*sizeof(*dest), PU_STATIC, 0);
-
-    for (int scr_y = 0 ; scr_y < SCREENHEIGHT ; scr_y++)
-    {
-        for (int scr_x = 0 ; scr_x < width ; scr_x++)
-        {
-            dest[scr_x*SCREENHEIGHT+scr_y] = array[scr_y*width+scr_x];
-        }
-    }
-
-    memcpy(array, dest, width*SCREENHEIGHT*sizeof(*dest));
-
-    Z_Free(dest);
-}
+static int     *y_prev;
+static int      wipe_columns;
 
 // -----------------------------------------------------------------------------
 // wipe_initMelt
@@ -67,19 +48,16 @@ static void wipe_shittyColMajorXform (dpixel_t *array)
 static void wipe_initMelt (void)
 {
     // copy start screen to main screen
-    memcpy(wipe_scr, wipe_scr_start, SCREENWIDTH*SCREENHEIGHT*sizeof(*wipe_scr));
-
-    // makes this wipe faster (in theory)
-    // to have stuff in column-major format
-    wipe_shittyColMajorXform((dpixel_t*)wipe_scr_start);
-    wipe_shittyColMajorXform((dpixel_t*)wipe_scr_end);
+    memcpy(wipe_scr, wipe_scr_start, SCREENAREA*sizeof(*wipe_scr));
 
     // setup initial column positions
     // (y<0 => not ready to scroll yet)
-    y = (int *) Z_Malloc(SCREENWIDTH*sizeof(int), PU_STATIC, 0);
+    wipe_columns = SCREENWIDTH / 2;
+    y = (int *) Z_Malloc(wipe_columns*sizeof(*y), PU_STATIC, 0);
+    y_prev = (int *) Z_Malloc(wipe_columns*sizeof(*y_prev), PU_STATIC, 0);
     y[0] = -(M_Random()%16);
 
-    for (int i = 1 ; i < SCREENWIDTH ; i++)
+    for (int i = 1 ; i < wipe_columns ; i++)
     {
         int r = (M_Random()%3) - 1;
 
@@ -95,6 +73,60 @@ static void wipe_initMelt (void)
             y[i] = -15;
         }
     }
+
+    memcpy(y_prev, y, wipe_columns*sizeof(*y_prev));
+}
+
+// -----------------------------------------------------------------------------
+// wipe_renderMelt
+// -----------------------------------------------------------------------------
+
+static void wipe_drawStartColumn (int x, int y_offset)
+{
+    const pixel_t *s = wipe_scr_start + x;
+    pixel_t *d = wipe_scr + x + y_offset * SCREENWIDTH;
+
+    for (int row = y_offset ; row < SCREENHEIGHT ; row++)
+    {
+        *d = *s;
+        d += SCREENWIDTH;
+        s += SCREENWIDTH;
+    }
+}
+
+static void wipe_renderMelt (void)
+{
+    const int column_width = SCREENWIDTH / wipe_columns;
+
+    memcpy(wipe_scr, wipe_scr_end, SCREENAREA*sizeof(*wipe_scr));
+
+    for (int col = 0 ; col < wipe_columns ; col++)
+    {
+        int currcol = col * column_width;
+        const int currcolend = (col == wipe_columns - 1) ? SCREENWIDTH : currcol + column_width;
+        int current = y[col];
+
+        if (crl_uncapped_fps)
+        {
+            const int delta = y[col] - y_prev[col];
+            current = y_prev[col] + (int)(delta * FIXED2DOUBLE(fractionaltic));
+        }
+
+        if (current >= SCREENHEIGHT)
+        {
+            continue;
+        }
+
+        if (current < 0)
+        {
+            current = 0;
+        }
+
+        for ( ; currcol < currcolend ; currcol++)
+        {
+            wipe_drawStartColumn(currcol, current);
+        }
+    }
 }
 
 // -----------------------------------------------------------------------------
@@ -103,61 +135,62 @@ static void wipe_initMelt (void)
 
 static int wipe_doMelt (int ticks)
 {
-    int j;
-    int dy;
-    int idx;
-    const int width = SCREENWIDTH/2;
-
-    const dpixel_t *s;
-    dpixel_t *d;
     boolean	done = true;
 
-    while (ticks--)
+    if (ticks > 0)
     {
-        for (int i = 0 ; i < width ; i++)
+        while (ticks--)
         {
-            if (y[i]<0)
+            done = true;
+            memcpy(y_prev, y, wipe_columns*sizeof(*y_prev));
+
+            for (int i = 0 ; i < wipe_columns ; i++)
             {
-                y[i]++; done = false;
-            }
-            else
-            if (y[i] < SCREENHEIGHT)
-            {
-                // [JN] Add support for "fast" wipe (crl_screenwipe == 2).
-                dy = (y[i] < 16) ? y[i]+1 : (8 * crl_screenwipe);
-
-                if (y[i]+dy >= SCREENHEIGHT)
+                if (y_prev[i]<0)
                 {
-                    dy = SCREENHEIGHT - y[i];
+                    y[i] = y_prev[i] + 1;
+                    done = false;
                 }
-
-                s = &((dpixel_t *)wipe_scr_end)[i*SCREENHEIGHT+y[i]];
-                d = &((dpixel_t *)wipe_scr)[y[i]*width+i];
-                idx = 0;
-
-                for (j = dy ; j ; j--)
+                else
+                if (y_prev[i] < SCREENHEIGHT)
                 {
-                    d[idx] = *(s++);
-                    idx += width;
+                    // [JN] Add support for "fast" wipe (crl_screenwipe == 2).
+                    int dy = (y_prev[i] < 16) ? y_prev[i]+1 : (8 * crl_screenwipe);
+                    int next = y_prev[i] + dy;
+
+                    if (next > SCREENHEIGHT)
+                    {
+                        next = SCREENHEIGHT;
+                    }
+
+                    y[i] = next;
+                    done = false;
                 }
-
-                y[i] += dy;
-                s = &((dpixel_t *)wipe_scr_start)[i*SCREENHEIGHT];
-                d = &((dpixel_t *)wipe_scr)[y[i]*width+i];
-                idx = 0;
-
-                for (j=SCREENHEIGHT-y[i];j;j--)
+                else
                 {
-                    d[idx] = *(s++);
-                    idx += width;
+                    y[i] = SCREENHEIGHT;
                 }
-
-                done = false;
             }
         }
     }
+    else
+    {
+        for (int i = 0 ; i < wipe_columns ; i++)
+        {
+            done = done && (y[i] >= SCREENHEIGHT);
+        }
+    }
 
-    return done;
+    if (done)
+    {
+        memcpy(y_prev, y, wipe_columns*sizeof(*y_prev));
+        memcpy(wipe_scr, wipe_scr_end, SCREENAREA*sizeof(*wipe_scr));
+        return true;
+    }
+
+    wipe_renderMelt();
+
+    return false;
 }
 
 // -----------------------------------------------------------------------------
@@ -167,6 +200,7 @@ static int wipe_doMelt (int ticks)
 static void wipe_exitMelt (void)
 {
     Z_Free(y);
+    Z_Free(y_prev);
     Z_Free(wipe_scr_start);
     Z_Free(wipe_scr_end);
 }
@@ -177,7 +211,7 @@ static void wipe_exitMelt (void)
 
 void wipe_StartScreen (void)
 {
-    wipe_scr_start = Z_Malloc(SCREENWIDTH * SCREENHEIGHT * sizeof(*wipe_scr_start), PU_STATIC, NULL);
+    wipe_scr_start = Z_Malloc(SCREENAREA * sizeof(*wipe_scr_start), PU_STATIC, NULL);
     I_ReadScreen(wipe_scr_start);
 }
 
@@ -187,7 +221,7 @@ void wipe_StartScreen (void)
 
 void wipe_EndScreen (void)
 {
-    wipe_scr_end = Z_Malloc(SCREENWIDTH * SCREENHEIGHT * sizeof(*wipe_scr_end), PU_STATIC, NULL);
+    wipe_scr_end = Z_Malloc(SCREENAREA * sizeof(*wipe_scr_end), PU_STATIC, NULL);
     I_ReadScreen(wipe_scr_end);
     V_DrawBlock(0, 0, SCREENWIDTH, SCREENHEIGHT, wipe_scr_start); // restore start scr.
 }
