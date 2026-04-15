@@ -173,7 +173,6 @@ static short mapystart = 0;     // y-value for the start of the map bitmap...use
 static short mapxstart = 0;     //x-value for the bitmap.
 
 //byte screens[][SCREENWIDTH*SCREENHEIGHT];
-//void V_MarkRect (int x, int y, int width, int height);
 
 // Functions
 
@@ -1611,5 +1610,4 @@ void AM_Drawer(void)
         MN_DrTextA(DEH_String(level_name), 20, 145, NULL);
     }
 //  I_Update();
-//  V_MarkRect(f_x, f_y, f_w, f_h);
 }

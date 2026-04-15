@@ -36,7 +36,6 @@
 #define CENTERY			(SCREENHEIGHT/2)
 
 
-extern int dirtybox[4];
 
 extern byte *tintmap;
 extern byte *tinttable;
@@ -62,8 +61,6 @@ void V_DrawRawScreen(const byte *raw);
 // Draw a linear block of pixels into the view buffer.
 
 void V_DrawBlock(int x, int y, int width, int height, pixel_t *src);
-
-void V_MarkRect(int x, int y, int width, int height);
 
 void V_DrawFilledBox(int x, int y, int w, int h, int c);
 void V_DrawHorizLine(int x, int y, int w, int c);

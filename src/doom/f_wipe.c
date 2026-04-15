@@ -243,9 +243,6 @@ int wipe_ScreenWipe (const int ticks)
         wipe_initMelt();
     }
 
-    // do a piece of wipe-in
-    V_MarkRect(0, 0, SCREENWIDTH, SCREENHEIGHT);
-
     // final stuff
     if ((*wipe_doMelt)(ticks))
     {

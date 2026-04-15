@@ -2211,6 +2211,4 @@ void AM_Drawer (void)
     AM_drawMarks();
 	
     AM_MapNameDrawer();
-
-    V_MarkRect(f_x, f_y, f_w, f_h);
 }

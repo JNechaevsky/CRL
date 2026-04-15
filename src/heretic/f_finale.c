@@ -169,7 +169,6 @@ void F_TextWrite(void)
     // [crispy] use unified flat filling function
     V_FillFlat(0, SCREENHEIGHT, 0, SCREENWIDTH, src, dest);
 
-//      V_MarkRect (0, 0, SCREENWIDTH, SCREENHEIGHT);
 
 //
 // draw some of the text onto the screen
@@ -346,8 +345,6 @@ void F_BunnyScroll(void)
 
     p1 = W_CacheLumpName("PFUB2", PU_LEVEL);
     p2 = W_CacheLumpName("PFUB1", PU_LEVEL);
-
-    V_MarkRect(0, 0, SCREENWIDTH, SCREENHEIGHT);
 
     scrolled = 320 - (finalecount - 230) / 2;
     if (scrolled > 320)
