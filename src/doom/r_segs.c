@@ -159,14 +159,20 @@ static boolean medusa_indicator (const byte *data, int texture, const line_t *co
 #if 0
         // [kg] this fixes the bug
         dc_source = data;
+        colfunc();
 #else
-        memset(medusa_ptr, leveltime, sizeof(medusa_ptr));
+        lighttable_t *old_colormap = dc_colormap;
+
+        // [PN] Colorize Medusa with common CRL_homcolor.
+        memset(medusa_ptr, CRL_homcolor, sizeof(medusa_ptr));
         dc_source = medusa_ptr;
+        dc_colormap = colormaps;
         // [PN] Show linedef number where Medusa is happening.
         M_snprintf(medusa_message, sizeof(medusa_message), "MEDUSA ERROR ON LINEDEF %d", (int)(line - lines));
         CRL_SetMessageCritical("R_RenderMaskedSegRange:", medusa_message, 2);
-#endif
         colfunc();
+        dc_colormap = old_colormap;
+#endif
 
         return 0;
     }
