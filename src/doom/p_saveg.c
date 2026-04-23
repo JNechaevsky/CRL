@@ -21,6 +21,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "dstrings.h"
 #include "deh_main.h"
 #include "i_system.h"
@@ -30,7 +31,6 @@
 #include "g_game.h"
 #include "m_misc.h"
 #include "m_menu.h"
-#include "memio.h"
 #include "am_map.h"
 #include "r_local.h"
 #include "v_savepreview.h"
@@ -43,13 +43,59 @@ FILE *save_stream;
 int savegamelength;
 boolean savegame_error;
 
-static MEMFILE *save_memstream;
+typedef enum
+{
+    SAVE_MEM_READ,
+    SAVE_MEM_WRITE
+} save_mem_mode_t;
+
+typedef struct
+{
+    byte *buf;
+    size_t buflen;
+    size_t capacity;
+    size_t position;
+    save_mem_mode_t mode;
+    boolean owns_buffer;
+} save_memstream_t;
+
+static save_memstream_t *save_memstream;
 
 static size_t saveg_fread(void *ptr, size_t size, size_t nmemb)
 {
     if (save_memstream != NULL)
     {
-        return mem_fread(ptr, size, nmemb, save_memstream);
+        size_t items;
+        size_t bytes;
+        size_t available;
+
+        if (save_memstream->mode != SAVE_MEM_READ || size == 0 || nmemb == 0)
+        {
+            return 0;
+        }
+
+        available = save_memstream->buflen - save_memstream->position;
+        items = nmemb;
+
+        if (items > available / size)
+        {
+            items = available / size;
+        }
+
+        bytes = items * size;
+
+        if (bytes > 0)
+        {
+            memcpy(ptr, save_memstream->buf + save_memstream->position, bytes);
+            save_memstream->position += bytes;
+        }
+
+        return items;
+    }
+
+    if (save_stream == NULL)
+    {
+        return 0;
     }
 
     return fread(ptr, size, nmemb, save_stream);
@@ -59,7 +105,69 @@ static size_t saveg_fwrite(const void *ptr, size_t size, size_t nmemb)
 {
     if (save_memstream != NULL)
     {
-        return mem_fwrite(ptr, size, nmemb, save_memstream);
+        size_t bytes;
+        size_t needed;
+
+        if (save_memstream->mode != SAVE_MEM_WRITE || size == 0 || nmemb == 0)
+        {
+            return 0;
+        }
+
+        if (nmemb > ((size_t)-1) / size)
+        {
+            return 0;
+        }
+
+        bytes = size * nmemb;
+
+        if (save_memstream->position > ((size_t)-1) - bytes)
+        {
+            return 0;
+        }
+
+        needed = save_memstream->position + bytes;
+
+        if (needed > save_memstream->capacity)
+        {
+            size_t new_capacity = save_memstream->capacity;
+            byte *new_buf;
+
+            while (new_capacity < needed)
+            {
+                if (new_capacity > ((size_t)-1) / 2)
+                {
+                    new_capacity = needed;
+                    break;
+                }
+
+                new_capacity *= 2;
+            }
+
+            new_buf = realloc(save_memstream->buf, new_capacity);
+
+            if (new_buf == NULL)
+            {
+                return 0;
+            }
+
+            save_memstream->buf = new_buf;
+            save_memstream->capacity = new_capacity;
+        }
+
+        memcpy(save_memstream->buf + save_memstream->position, ptr, bytes);
+        save_memstream->position += bytes;
+
+        if (save_memstream->position > save_memstream->buflen)
+        {
+            save_memstream->buflen = save_memstream->position;
+        }
+
+        return nmemb;
+    }
+
+    if (save_stream == NULL)
+    {
+        return 0;
     }
 
     return fwrite(ptr, size, nmemb, save_stream);
@@ -69,7 +177,12 @@ static long saveg_ftell(void)
 {
     if (save_memstream != NULL)
     {
-        return mem_ftell(save_memstream);
+        return (long) save_memstream->position;
+    }
+
+    if (save_stream == NULL)
+    {
+        return -1;
     }
 
     return ftell(save_stream);
@@ -79,27 +192,46 @@ static int saveg_fseek(long position, int whence)
 {
     if (save_memstream != NULL)
     {
-        mem_rel_t mem_whence;
+        size_t base;
+        long new_position;
 
         switch (whence)
         {
             case SEEK_SET:
-                mem_whence = MEM_SEEK_SET;
+                base = 0;
                 break;
 
             case SEEK_CUR:
-                mem_whence = MEM_SEEK_CUR;
+                base = save_memstream->position;
                 break;
 
             case SEEK_END:
-                mem_whence = MEM_SEEK_END;
+                base = save_memstream->buflen;
                 break;
 
             default:
                 return -1;
         }
 
-        return mem_fseek(save_memstream, position, mem_whence);
+        if (position < 0 && (size_t)(-position) > base)
+        {
+            return -1;
+        }
+
+        new_position = (long) base + position;
+
+        if (new_position < 0 || (size_t)new_position > save_memstream->buflen)
+        {
+            return -1;
+        }
+
+        save_memstream->position = (size_t)new_position;
+        return 0;
+    }
+
+    if (save_stream == NULL)
+    {
+        return -1;
     }
 
     return fseek(save_stream, position, whence);
@@ -108,40 +240,51 @@ static int saveg_fseek(long position, int whence)
 void P_OpenMemorySaveGame(void)
 {
     save_stream = NULL;
-    save_memstream = mem_fopen_write();
-    savegame_error = false;
+    save_memstream = calloc(1, sizeof(*save_memstream));
+
+    if (save_memstream != NULL)
+    {
+        save_memstream->capacity = 1024;
+        save_memstream->buf = malloc(save_memstream->capacity);
+
+        if (save_memstream->buf == NULL)
+        {
+            free(save_memstream);
+            save_memstream = NULL;
+        }
+        else
+        {
+            save_memstream->mode = SAVE_MEM_WRITE;
+            save_memstream->owns_buffer = true;
+        }
+    }
+
+    savegame_error = (save_memstream == NULL);
 }
 
 boolean P_CloseMemorySaveGame(byte **data, size_t *len)
 {
-    void *buf;
-    size_t buflen;
-
     *data = NULL;
     *len = 0;
 
-    if (save_memstream == NULL)
+    if (save_memstream == NULL || save_memstream->mode != SAVE_MEM_WRITE)
     {
         return false;
     }
 
-    mem_get_buf(save_memstream, &buf, &buflen);
-
-    if (!savegame_error && buflen > 0)
+    if (!savegame_error && save_memstream->buflen > 0)
     {
-        *data = malloc(buflen);
-        if (*data != NULL)
-        {
-            memcpy(*data, buf, buflen);
-            *len = buflen;
-        }
-        else
-        {
-            savegame_error = true;
-        }
+        *data = save_memstream->buf;
+        *len = save_memstream->buflen;
+        save_memstream->buf = NULL;
     }
 
-    mem_fclose(save_memstream);
+    if (save_memstream->owns_buffer && save_memstream->buf != NULL)
+    {
+        free(save_memstream->buf);
+    }
+
+    free(save_memstream);
     save_memstream = NULL;
 
     return !savegame_error && *data != NULL;
@@ -150,15 +293,31 @@ boolean P_CloseMemorySaveGame(byte **data, size_t *len)
 void P_OpenMemoryLoadGame(byte *data, size_t len)
 {
     save_stream = NULL;
-    save_memstream = mem_fopen_read(data, len);
-    savegame_error = false;
+    save_memstream = calloc(1, sizeof(*save_memstream));
+
+    if (save_memstream != NULL)
+    {
+        save_memstream->buf = data;
+        save_memstream->buflen = len;
+        save_memstream->capacity = len;
+        save_memstream->position = 0;
+        save_memstream->mode = SAVE_MEM_READ;
+        save_memstream->owns_buffer = false;
+    }
+
+    savegame_error = (save_memstream == NULL);
 }
 
 void P_CloseMemoryLoadGame(void)
 {
     if (save_memstream != NULL)
     {
-        mem_fclose(save_memstream);
+        if (save_memstream->owns_buffer && save_memstream->buf != NULL)
+        {
+            free(save_memstream->buf);
+        }
+
+        free(save_memstream);
         save_memstream = NULL;
     }
 }
