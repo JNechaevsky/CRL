@@ -173,6 +173,8 @@ jobs:
       
       - name: Package Doom as AppImage
         run: |
+          LDAI_OUTPUT=crl-doom-x86_64.AppImage \
+          LDAI_UPDATE_INFORMATION="gh-releases-zsync|JNechaevsky|CRL|latest|crl-doom-x86_64.AppImage.zsync" \
           ./linuxdeploy-x86_64.AppImage --appdir=appdir-doom --output appimage
       
 #     - name: Prepare AppDir for Heretic
@@ -195,7 +197,7 @@ jobs:
       - name: Bundle AppImages
         run: |
           mkdir bundled_appimages
-          cp crl-*-x86_64.AppImage bundled_appimages/
+          cp crl-*-x86_64.AppImage* bundled_appimages/
       
       - name: Upload all AppImages bundle
         uses: actions/upload-artifact@v7
@@ -236,10 +238,6 @@ jobs:
         run: |
           zip -j -r ./artifacts/crl-win32.zip ./artifacts/win32/*
 
-      - name: Archive Linux 64-bit artifacts
-        run: |
-          zip -j -r ./artifacts/crl-linux64.zip ./artifacts/linux64/*
-
       - name: Create/Update Nightly release with artifacts
         if: github.event_name != 'pull_request'
         uses: softprops/action-gh-release@v3
@@ -251,7 +249,8 @@ jobs:
           files: |
             ./artifacts/crl-win64.zip
             ./artifacts/crl-win32.zip
-            ./artifacts/crl-linux64.zip
+            ./artifacts/linux64/*.AppImage
+            ./artifacts/linux64/*.AppImage.zsync
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
