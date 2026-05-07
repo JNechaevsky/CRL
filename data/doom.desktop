@@ -1,6 +1,9 @@
 [Desktop Entry]
 Type=Application
 Name=crl-doom
-Exec=crl-doom
+Exec=crl-doom %F
 Icon=crl-doom
+TryExec=crl-doom
 Categories=Game;
+MimeType=application/x-doom-wad;
+StartupWMClass=crl-doom

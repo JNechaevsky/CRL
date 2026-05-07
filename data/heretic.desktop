@@ -1,6 +1,9 @@
 [Desktop Entry]
 Type=Application
 Name=crl-heretic
-Exec=crl-heretic
+Exec=crl-heretic %F
 Icon=crl-heretic
+TryExec=crl-heretic
 Categories=Game;
+MimeType=application/x-doom-wad;
+StartupWMClass=crl-heretic
