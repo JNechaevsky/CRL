@@ -1461,6 +1461,11 @@ void P_SpawnSpecials (void)
     sector_t*	sector;
     int		i;
 
+    // [JN] CRL - initialize playstate counters.
+    CRL_lineanims_counter = 0;
+    CRL_plats_counter = 0;
+    CRL_buttons_counter = 0;
+
     // See if -TIMER was specified.
 
     if (timelimit > 0 && deathmatch)

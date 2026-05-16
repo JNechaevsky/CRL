@@ -810,10 +810,6 @@ void P_SpawnPlayer (const mapthing_t* mthing)
     {
         p->mo->flags |= MF_NOCLIP;
     }
-    // [JN] CRL - reset frame-independent limit counters.
-    CRL_lineanims_counter = 0;
-    CRL_plats_counter = 0;
-    CRL_buttons_counter = 0;
     // [JN] CRL - reset powerup counters.
     CRL_invul_counter = 0;
     CRL_invis_counter = 0;
