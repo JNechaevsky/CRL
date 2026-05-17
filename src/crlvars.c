@@ -48,10 +48,10 @@ int crl_freeze = 0;
 int crl_game_speed = 100;
 
 // Rewind
-int crl_rewind_auto = 1;
+int crl_rewind_enable = 1;
 int crl_rewind_interval = 1;
 int crl_rewind_depth = 60;
-int crl_rewind_timeout = 0;
+int crl_rewind_timeout = 10;
 
 // Widgets
 int crl_extended_hud = 1;
@@ -143,7 +143,7 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_game_speed",                 &crl_game_speed);
 
     // Rewind
-    M_BindIntVariable("crl_rewind_auto",                &crl_rewind_auto);
+    M_BindIntVariable("crl_rewind_enable",              &crl_rewind_enable);
     M_BindIntVariable("crl_rewind_interval",            &crl_rewind_interval);
     M_BindIntVariable("crl_rewind_depth",               &crl_rewind_depth);
     M_BindIntVariable("crl_rewind_timeout",             &crl_rewind_timeout);

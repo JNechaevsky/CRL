@@ -48,7 +48,7 @@ extern int crl_freeze;
 extern int crl_game_speed;
 
 // Rewind
-extern int crl_rewind_auto;
+extern int crl_rewind_enable;
 extern int crl_rewind_interval;
 extern int crl_rewind_depth;
 extern int crl_rewind_timeout;

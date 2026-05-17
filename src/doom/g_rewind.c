@@ -497,7 +497,7 @@ void G_SaveAutoKeyframe(void)
     boolean save_full;
     const uint64_t start_time = I_GetTimeUS();
 
-    if (!crl_rewind_auto || disable_rewind || gamestate != GS_LEVEL
+    if (!crl_rewind_enable || disable_rewind || gamestate != GS_LEVEL
      || netgame || demoplayback || demorecording || menuactive || paused
      || rewind_restoring)
     {
