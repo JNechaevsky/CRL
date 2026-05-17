@@ -2751,6 +2751,7 @@ void G_DoNewGame (void)
     fastparm = false;
     nomonsters = false;
     consoleplayer = 0;
+    G_ResetRewind(true);
     G_InitNew (d_skill, d_episode, d_map); 
     gameaction = ga_nothing; 
 } 
@@ -2875,7 +2876,10 @@ G_InitNew
     totalleveltimes = 0;
     defdemotics = 0;
     demostarttic = gametic; // [crispy] fix revenant internal demo bug
-    G_ResetRewind(true);
+
+    // [PN] Savegame and rewind restores also pass through G_InitNew().
+    // Keep their keyframes unless the caller explicitly starts a new timeline.
+    G_ResetRewind(false);
 
     // Set the sky to use.
     //
@@ -3352,6 +3356,10 @@ void G_DoPlayDemo (void)
 
     // don't spend a lot of time in loadlevel 
     precache = false;
+
+    // [PN] Force to reset rewind key frames in demos.
+    G_ResetRewind(true);
+
     // [crispy] support playing demos from savegames
     if (startloadgame >= 0)
     {
