@@ -74,12 +74,12 @@ static int RewindIntervalTics(void)
 
 static int RewindDepth(void)
 {
-    return BETWEEN(10, 1000, crl_rewind_depth);
+    return BETWEEN(10, 600, crl_rewind_depth);
 }
 
 static int RewindTimeout(void)
 {
-    return BETWEEN(0, 1000, crl_rewind_timeout);
+    return BETWEEN(0, 25, crl_rewind_timeout);
 }
 
 static void ClearCommandHistory(void)
@@ -255,7 +255,6 @@ static keyframe_t *SaveFullKeyframe(void)
     keyframe->kind = KEYFRAME_FULL;
 
     P_OpenMemorySaveGame();
-
     P_WriteSaveGameHeader("REWIND");
     P_ArchivePlayers();
     P_ArchiveWorld();
@@ -341,7 +340,7 @@ static boolean LoadFullKeyframe(const keyframe_t *keyframe)
     if (!P_ReadSaveGameEOF())
     {
         P_CloseMemoryLoadGame();
-        I_Error("Bad rewind keyframe");
+        I_Error("Bad rewind key frame");
     }
 
     P_UnArchiveTotalTimes();
@@ -480,7 +479,7 @@ static void FreeKeyframeQueue(void)
 
 void G_Rewind(void)
 {
-    if (netgame || demoplayback || demorecording || !RewindAllowedGamestate())
+    if (!crl_rewind_enable || netgame || demoplayback || demorecording || !RewindAllowedGamestate())
     {
         CRL_SetMessage(&players[consoleplayer], "REWIND NOT AVAILABLE", false, NULL);
         return;
@@ -566,10 +565,10 @@ void G_SaveAutoKeyframe(void)
     {
         const uint64_t elapsed_us = I_GetTimeUS() - start_time;
 
-        if (elapsed_us > (uint64_t) timeout_ms * 1000)
+        if (elapsed_us > (uint64_t)timeout_ms * 1000)
         {
             disable_rewind = true;
-            CRL_SetMessage(&players[consoleplayer], "SLOW KEYFRAMING: REWIND DISABLED", false, NULL);
+            CRL_SetMessage(&players[consoleplayer], "SLOW KEY FRAMING: REWIND DISABLED", false, NULL);
         }
     }
 }
@@ -583,7 +582,7 @@ void G_LoadAutoKeyframe(void)
 
     if (RewindQueueIsEmpty())
     {
-        CRL_SetMessage(&players[consoleplayer], "NO REWIND KEYFRAMES", false, NULL);
+        CRL_SetMessage(&players[consoleplayer], "NO REWIND KEY FRAMES", false, NULL);
         return;
     }
 
@@ -598,7 +597,7 @@ void G_LoadAutoKeyframe(void)
         rewind_frames_since_full = REWIND_FULL_STRIDE - 1;
         rewind_save_cooldown_tics = interval_tics;
         ClearCommandHistory();
-        CRL_SetMessage(&players[consoleplayer], "Restored key frame", false, NULL);
+        CRL_SetMessage(&players[consoleplayer], "RESTORED KEY FRAME", false, NULL);
 
         if (RewindQueueIsEmpty())
         {

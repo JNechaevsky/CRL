@@ -51,6 +51,7 @@
 #include "p_local.h"
 #include "v_savepreview.h"
 #include "v_trans.h"
+#include "g_rewind.h"
 #include "st_bar.h"
 
 #include "crlcore.h"
@@ -772,8 +773,7 @@ static void M_CRL_TimerDirection (int choice);
 static void M_CRL_ProgressBar (int choice);
 static void M_CRL_InternalDemos (int choice);
 
-static void M_ChooseCRL_Misc (int choice);
-static void M_DrawCRL_Misc (void);
+static void M_DrawCRL_Misc_1 (void);
 static void M_CRL_Invul (int choice);
 static void M_CRL_PalFlash (int choice);
 static void M_CRL_MoveBob (int choice);
@@ -785,6 +785,14 @@ static void M_CRL_Hightlight (int choice);
 static void M_CRL_MenuEscKey (int choice);
 static void M_CRL_ConfirmQuit (int choice);
 static void M_CRL_MenuCapFps (int choice);
+
+static void M_DrawCRL_Misc_2 (void);
+static void M_CRL_Misc_RewindEnable (int choice);
+static void M_CRL_Misc_RewindInterwal (int choice);
+static void M_CRL_Misc_RewindDepth (int choice);
+static void M_CRL_Misc_RewindTimeout (int choice);
+
+static void M_ScrollMisc (int choice);
 
 static void M_ChooseCRL_Limits (int choice);
 static void M_DrawCRL_Limits (void);
@@ -824,6 +832,8 @@ static menu_t CRLDef_Keybinds_4;
 static menu_t CRLDef_Keybinds_5;
 static menu_t CRLDef_Keybinds_6;
 static menu_t CRLDef_Keybinds_7;
+static menu_t CRLDef_Misc_1;
+static menu_t CRLDef_Misc_2;
 
 // Remember last keybindings page.
 static int Keybinds_Cur;
@@ -842,6 +852,20 @@ static menu_t *KeybindsMenus[] =
 static void M_Choose_CRL_Keybinds (int choice)
 {
     M_SetupNextMenu(KeybindsMenus[Keybinds_Cur]);
+}
+
+// Remember last misc settings page.
+static int Misc_Cur;
+
+static menu_t *MiscMenus[] =
+{
+    &CRLDef_Misc_1,
+    &CRLDef_Misc_2,
+};
+
+static void M_ChooseCRL_Misc (int choice)
+{
+    M_SetupNextMenu(MiscMenus[Misc_Cur]);
 }
 
 // [JN/PN] Utility function for scrolling pages by arrows / PG keys.
@@ -885,6 +909,10 @@ static void M_ScrollPages (boolean direction)
     else if (currentMenu == &CRLDef_Keybinds_5) nextMenu = (direction ? &CRLDef_Keybinds_6 : &CRLDef_Keybinds_4);
     else if (currentMenu == &CRLDef_Keybinds_6) nextMenu = (direction ? &CRLDef_Keybinds_7 : &CRLDef_Keybinds_5);
     else if (currentMenu == &CRLDef_Keybinds_7) nextMenu = (direction ? &CRLDef_Keybinds_1 : &CRLDef_Keybinds_6);
+
+    // Misc features:
+    else if (currentMenu == &CRLDef_Misc_1) nextMenu = &CRLDef_Misc_2;
+    else if (currentMenu == &CRLDef_Misc_2) nextMenu = &CRLDef_Misc_1;
 
     // If a new menu was set up, play the navigation sound.
     if (nextMenu)
@@ -1205,6 +1233,19 @@ static float M_FLOAT_Slider (float val, float min, float max, float step,
         S_StartSound(NULL, sfx_stnmov);
 
     return val;
+}
+
+static void M_DrawScrollPages (int x, int y, int itemOnGlow, const char *pagenum)
+{
+    char str[32];
+
+    M_WriteText (x, y, "< SCROLL PAGES >",
+                 M_Item_Glow(14, GLOW_LIGHTGRAY));
+
+    M_snprintf(str, 32, "PAGE %s", pagenum);
+
+    M_WriteText (M_ItemRightAlign(str), y, str,
+                 M_Item_Glow(14, GLOW_LIGHTGRAY));
 }
 
 static int DefSkillColor (const int skill)
@@ -3447,7 +3488,7 @@ static void M_CRL_InternalDemos (int choice)
 // Miscellaneous features
 // -----------------------------------------------------------------------------
 
-static menuitem_t CRLMenu_Misc[]=
+static menuitem_t CRLMenu_Misc_1[]=
 {
     { M_MUL1, "INVULNERABILITY EFFECT",    M_CRL_Invul,       'i' },
     { M_MUL2, "PALETTE FLASH EFFECTS",     M_CRL_PalFlash,    'p' },
@@ -3462,25 +3503,22 @@ static menuitem_t CRLMenu_Misc[]=
     { M_MUL1, "ESC KEY BEHAVIOUR",         M_CRL_MenuEscKey,  'e' },
     { M_MUL1, "QUIT CONFIRMATION",         M_CRL_ConfirmQuit, 'q' },
     { M_MUL1, "CAP FRAMERATE IN THE MENU", M_CRL_MenuCapFps,  'c' },
+    { M_SKIP, "", 0, '\0' },
+    { M_MUL2, "", /* < SCROLL PAGES >*/    M_ScrollMisc,      's' },
 };
 
-static menu_t CRLDef_Misc =
+static menu_t CRLDef_Misc_1 =
 {
-    ITEMCOUNT(CRLMenu_Misc),
+    ITEMCOUNT(CRLMenu_Misc_1),
     &CRLDef_Main,
-    CRLMenu_Misc,
-    M_DrawCRL_Misc,
+    CRLMenu_Misc_1,
+    M_DrawCRL_Misc_1,
     CRL_MENU_LEFTOFFSET_BIG, CRL_MENU_TOPOFFSET,
     0,
-    true, false, false,
+    true, false, true,
 };
 
-static void M_ChooseCRL_Misc (int choice)
-{
-    M_SetupNextMenu (&CRLDef_Misc);
-}
-
-static void M_DrawCRL_Misc (void)
+static void M_DrawCRL_Misc_1 (void)
 {
     char str[32];
     const char *bobpercent[] = {
@@ -3491,6 +3529,8 @@ static void M_DrawCRL_Misc (void)
         "NONE","PROTANOPIA","PROTANOMALY","DEUTERANOPIA","DEUTERANOMALY",
         "TRITANOPIA","TRITANOMALY","ACHROMATOPSIA","ACHROMATOMALY"
     };
+
+    Misc_Cur = 0;
 
     M_WriteTextCentered(7, "ACCESSIBILITY", cr[CR_YELLOW]);
 
@@ -3601,6 +3641,11 @@ static void M_DrawCRL_Misc (void)
                 break;            
         }
     }
+    else
+    {
+        // < Scroll pages >
+        M_DrawScrollPages(CRL_MENU_LEFTOFFSET_BIG, 142, 15, "1/2");
+    }
 }
 
 static void M_CRL_Invul (int choice)
@@ -3658,6 +3703,109 @@ static void M_CRL_ConfirmQuit (int choice)
 static void M_CRL_MenuCapFps (int choice)
 {
     crl_menu_cap_fps ^= 1;
+}
+
+static menuitem_t CRLMenu_Misc_2[]=
+{
+    { M_MUL1, "ENABLE REWIND",   M_CRL_Misc_RewindEnable,   'e' },
+    { M_MUL1, "REWIND INTERWAL", M_CRL_Misc_RewindInterwal, 'r' },
+    { M_MUL1, "REWIND DEPTH",    M_CRL_Misc_RewindDepth,    'r' },
+    { M_MUL1, "REWIND TIMEOUT",  M_CRL_Misc_RewindTimeout,  'r' },
+    { M_SKIP, "", 0, '\0' },
+    { M_SKIP, "", 0, '\0' },
+    { M_SKIP, "", 0, '\0' },
+    { M_SKIP, "", 0, '\0' },
+    { M_SKIP, "", 0, '\0' },
+    { M_SKIP, "", 0, '\0' },
+    { M_SKIP, "", 0, '\0' },
+    { M_SKIP, "", 0, '\0' },
+    { M_SKIP, "", 0, '\0' },
+    { M_SKIP, "", 0, '\0' },
+    { M_MUL2, "", /* < SCROLL PAGES >*/     M_ScrollMisc,             's' },
+};
+
+static menu_t CRLDef_Misc_2 =
+{
+    ITEMCOUNT(CRLMenu_Misc_2),
+    &CRLDef_Main,
+    CRLMenu_Misc_2,
+    M_DrawCRL_Misc_2,
+    CRL_MENU_LEFTOFFSET_BIG, CRL_MENU_TOPOFFSET,
+    0,
+    true, false, true,
+};
+
+static void M_DrawCRL_Misc_2 (void)
+{
+    char str[32];
+
+    Misc_Cur = 1;
+
+    M_WriteTextCentered(9, "REWIND", cr[CR_YELLOW]);
+
+    // Enable rewind
+    sprintf(str, crl_rewind_enable ? "ON" : "OFF" );
+    M_WriteText (M_ItemRightAlign(str), 16, str,
+                 M_Item_Glow(0, crl_rewind_enable ? GLOW_GREEN : GLOW_DARKRED));
+
+
+    // Rewind interwal
+    sprintf(str, crl_rewind_interval == 1 ? "1 SECOND" : "%d SECONDS", crl_rewind_interval);
+    M_WriteText (M_ItemRightAlign(str), 25, str,
+                 M_Item_Glow(1, !crl_rewind_enable ? GLOW_DARKRED :
+                                 crl_rewind_interval == 600 ? GLOW_YELLOW : GLOW_GREEN));
+
+
+
+    // Rewind depth
+    sprintf(str, crl_rewind_depth == 1 ? "%d KEY FRAME" : "%d KEY FRAMES", crl_rewind_depth);
+    M_WriteText (M_ItemRightAlign(str), 34, str,
+                 M_Item_Glow(2, !crl_rewind_enable ? GLOW_DARKRED :
+                                 crl_rewind_depth == 600 ? GLOW_YELLOW : GLOW_GREEN));
+
+    // Rewind timeout
+    sprintf(str, crl_rewind_timeout == 0 ? "NO LIMIT" :
+                 crl_rewind_timeout == 1 ? "1 MILLISECOND" : "%d MILLISECONDS", crl_rewind_timeout);
+    M_WriteText (M_ItemRightAlign(str), 43, str,
+                 M_Item_Glow(3, !crl_rewind_enable ? GLOW_DARKRED :
+                                 crl_rewind_timeout == 25 ? GLOW_YELLOW : GLOW_GREEN));
+
+    // < Scroll pages >
+    M_DrawScrollPages(CRL_MENU_LEFTOFFSET_BIG, 142, 15, "2/2");
+}
+
+static void M_CRL_Misc_RewindEnable (int choice)
+{
+    crl_rewind_enable ^= 1;
+
+    // Clear key frames after disabling.
+    if (!crl_rewind_enable)
+    {
+        G_ResetRewind(true);
+    }
+}
+
+static void M_CRL_Misc_RewindInterwal (int choice)
+{
+    crl_rewind_interval = M_INT_Slider(crl_rewind_interval, 1, 600, choice, false);
+}
+
+static void M_CRL_Misc_RewindDepth (int choice)
+{
+    crl_rewind_depth = M_INT_Slider(crl_rewind_depth, 10, 600, choice, false);
+}
+
+static void M_CRL_Misc_RewindTimeout (int choice)
+{
+    crl_rewind_timeout = M_INT_Slider(crl_rewind_timeout, 0, 25, choice, false);
+}
+
+static void M_ScrollMisc (int choice)
+{
+         if (currentMenu == &CRLDef_Misc_1) { M_SetupNextMenu(&CRLDef_Misc_2); }
+    else if (currentMenu == &CRLDef_Misc_2) { M_SetupNextMenu(&CRLDef_Misc_1); }
+
+    itemOn = 14;
 }
 
 // -----------------------------------------------------------------------------
