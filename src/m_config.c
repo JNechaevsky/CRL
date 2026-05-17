@@ -592,7 +592,7 @@ static default_t	doom_defaults_list[] =
     // Gameplay
     CONFIG_VARIABLE_COMMENT("Gameplay Features"),
     CONFIG_VARIABLE_INT(crl_game_speed),
-    CONFIG_VARIABLE_INT(crl_rewind_auto),
+    CONFIG_VARIABLE_INT(crl_rewind_enable),
     CONFIG_VARIABLE_INT(crl_rewind_interval),
     CONFIG_VARIABLE_INT(crl_rewind_depth),
     CONFIG_VARIABLE_INT(crl_rewind_timeout),
