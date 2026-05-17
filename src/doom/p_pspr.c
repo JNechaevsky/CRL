@@ -934,9 +934,17 @@ void P_MovePsprites (player_t* player)
     {
         const int state = player->psprites[ps_weapon].state - states;       // [crispy]
         const weaponinfo_t *const winfo = &weaponinfo[player->readyweapon]; // [crispy]
-        const boolean movingState = (state != winfo->downstate && state != winfo->upstate);
+        // Don't apply bobbing during lowering and raising states
+        const boolean movingState = (psp->state->misc1 ||
+                                     psp->state->action.acp3 == (actionf_p3)A_Lower ||
+                                     psp->state->action.acp3 == (actionf_p3)A_Raise);
 
-        if (movingState && !player->attackdown)
+        if (movingState)
+        {
+            // no-op
+        }
+        else
+        if (!player->attackdown)
         {
             // Apply full bobbing only if not raising/lowering and not attacking.
             P_ApplyBobbing(&psp->sx2, &psp->sy2, true, player->r_bob);
