@@ -588,7 +588,7 @@ void CRL_StatDrawer (void)
             M_WriteText(0 + M_StringWidth(str1), 159 - yy4, str2, CRL_WidgetColor(widget_kills));
 
             // Items:
-            if (crl_widget_kis_items)
+            if (crl_widget_kis_items == 1 || (crl_widget_kis_items == 2 && automapactive))
             {
             sprintf(str3, " I ");
             M_WriteText(M_StringWidth(str1) + 

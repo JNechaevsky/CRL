@@ -3114,7 +3114,8 @@ static void M_DrawCRL_Widgets (void)
                  M_Item_Glow(4, crl_widget_kis_format ? GLOW_GREEN : GLOW_DARKRED));
 
     // Show items
-    sprintf(str, crl_widget_kis_items ? "ON" : "OFF");
+    sprintf(str, crl_widget_kis_items == 1 ? "ON" :
+                 crl_widget_kis_items == 2 ? "AUTOMAP" : "OFF");
     M_WriteText (M_ItemRightAlign(str), 61, str,
                  M_Item_Glow(5, crl_widget_kis_items ? GLOW_GREEN : GLOW_DARKRED));
 
@@ -3184,7 +3185,7 @@ static void M_CRL_Widget_KIS_Format (int choice)
 
 static void M_CRL_Widget_KIS_Items (int choice)
 {
-    crl_widget_kis_items ^= 1;
+    crl_widget_kis_items = M_INT_Slider(crl_widget_kis_items, 0, 2, choice, false);
 }
 
 static void M_CRL_Widget_Coords (int choice)
