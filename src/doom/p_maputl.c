@@ -24,6 +24,7 @@
 
 
 #include <stdlib.h>
+#include "i_system.h" // [crispy] I_Realloc()
 #include "m_bbox.h"
 #include "m_misc.h"
 #include "doomstat.h"
@@ -535,7 +536,7 @@ P_BlockThingsIterator
 //
 // INTERCEPT ROUTINES
 //
-intercept_t *intercepts; // [crispy] remove INTERCEPTS limit
+static intercept_t*	intercepts; // [crispy] remove INTERCEPTS limit
 intercept_t*	intercept_p;
 
 divline_t 	trace;
@@ -548,7 +549,7 @@ static void InterceptsOverrun(int num_intercepts, const intercept_t *const inter
 // taken from PrBoom+/src/p_maputl.c:422-433
 // -----------------------------------------------------------------------------
 
-static void check_intercept (void)
+static void check_intercept(void)
 {
 	static size_t num_intercepts;
 	const size_t offset = intercept_p - intercepts;
@@ -556,7 +557,7 @@ static void check_intercept (void)
 	if (offset >= num_intercepts)
 	{
 		num_intercepts = num_intercepts ? num_intercepts * 2 : MAXINTERCEPTS_ORIGINAL;
-		intercepts = realloc(intercepts, sizeof(*intercepts) * num_intercepts);
+		intercepts = I_Realloc(intercepts, sizeof(*intercepts) * num_intercepts);
 		intercept_p = intercepts + offset;
 	}
 }
