@@ -1167,7 +1167,7 @@ void AM_Ticker (void)
 
 static void AM_clearFB (void)
 {
-    memset(I_VideoBuffer, BACKGROUND, f_w*f_h*sizeof(*I_VideoBuffer));
+    memset(I_VideoBuffer, BACKGROUND, (size_t)f_w*f_h*sizeof(*I_VideoBuffer));
 }
 
 // -----------------------------------------------------------------------------

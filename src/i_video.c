@@ -1753,7 +1753,7 @@ void I_RenderReadPixels (byte **data, int *w, int *h)
     temp = rect.w * format->BytesPerPixel; // [crispy] pitch
 
     // [crispy] allocate memory for screenshot image
-    pixels = malloc(rect.h * temp);
+    pixels = malloc((size_t)rect.h * temp);
     SDL_RenderReadPixels(renderer, &rect, format->format, pixels, temp);
 
     *data = pixels;
