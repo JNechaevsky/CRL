@@ -207,7 +207,7 @@ jobs:
           retention-days: 3
 
   cppcheck:
-    name: Cppcheck 
+    name: Analyze (Cppcheck)
     runs-on: ubuntu-latest
 
     steps:
@@ -223,7 +223,7 @@ jobs:
           cppcheck --error-exitcode=1 -j2 -UTESTING -D__GNUC__ -Iopl -Isrc -Isrc/setup opl pcsound src textscreen
 
   cpp-linter:
-    name: Cpp-linter
+    name: Analyze (Cpp-linter)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -236,10 +236,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          style: file
+          style: ''      # Disable clang-format
           lines-changed-only: true
           files-changed-only: true
-          version: 16
           tidy-checks: >-
             boost-*
             ,bugprone-*
