@@ -1341,7 +1341,9 @@ boolean G_Responder (event_t* ev)
                        CRL_SPECTATOR_ON : CRL_SPECTATOR_OFF, false, NULL);
         if (crl_spectating)
             I_SetPalette(W_CacheLumpName(DEH_String("PLAYPAL"), PU_CACHE));
-    }        
+        else
+            CRL_ReloadPalette();
+    }
 
     // [JN] CRL - Toggle freeze mode.
     if (ev->data1 == key_crl_freeze || ev->data1 == key_crl_freeze2)
