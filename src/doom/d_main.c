@@ -129,6 +129,8 @@ boolean         main_loop_started = false;
 
 
 
+// wipegamestate can be set to -1 to force a wipe on the next draw
+gamestate_t wipegamestate = GS_DEMOSCREEN;
 
 // -----------------------------------------------------------------------------
 // [JN] Defaulted values
@@ -231,28 +233,24 @@ static void R_CleanShotHook (void)
     cleanshot_pending = false;
 }
 
-//
+// -----------------------------------------------------------------------------
 // D_Display
 //  draw current display, possibly wiping it from the previous
-//
-
-// wipegamestate can be set to -1 to force a wipe on the next draw
-gamestate_t     wipegamestate = GS_DEMOSCREEN;
+// -----------------------------------------------------------------------------
 
 static void D_Display (void)
 {
-    int      nowtime;
-    int      tics;
-    int      wipestart;
-    int      y;
-    boolean  done;
-    boolean  wipe;
-    static   gamestate_t oldgamestate = -1;
-
     if (nodrawers)
     {
         return;  // for comparative timing / profiling
     }
+
+    int      nowtime;
+    int      tics;
+    int      wipestart;
+    boolean  done;
+    boolean  wipe;
+    static   gamestate_t oldgamestate = -1;
 
     // [crispy] post-rendering function pointer to apply config changes
     // that affect rendering and that are better applied after the current
@@ -279,19 +277,21 @@ static void D_Display (void)
     // change the view size if needed
     if (setsizeneeded)
     {
-	R_ExecuteSetViewSize ();
-	oldgamestate = -1;                      // force background redraw
+        R_ExecuteSetViewSize();
+        oldgamestate = -1;  // force background redraw
     }
 
     // save the current screen if about to wipe
     // [JN] Make screen wipe optional, use external config variable.
     if (gamestate != wipegamestate && crl_screenwipe)
     {
-	wipe = true;
-	wipe_StartScreen();
+        wipe = true;
+        wipe_StartScreen();
     }
     else
-	wipe = false;
+    {
+        wipe = false;
+    }
 
     // [JN/PN] Schedule the actual screenshot for the next frame via post_rendering_hook,
     // so it captures this clean frame from the GPU back buffer.
@@ -301,166 +301,145 @@ static void D_Display (void)
     // do buffered drawing
     switch (gamestate)
     {
-      case GS_LEVEL:
-	    break;
+        case GS_LEVEL:
+            if (!gametic)
+            break;
 
-      case GS_INTERMISSION:
-	WI_Drawer ();
-	break;
+            // RestlessRodent -- Set surface
+            CRLSurface = I_VideoBuffer;
 
-      case GS_FINALE:
-	F_Drawer ();
-	break;
+            // draw the view directly
+            R_RenderPlayerView(&players[displayplayer]);
+            // [PN] Capture clean world-only preview before automap/HUD/widgets/menu overlays.
+            P_UpdateSavePreviewCache();
 
-      case GS_DEMOSCREEN:
-	D_PageDrawer ();
-	break;
-    }
-    
-    // RestlessRodent -- Set surface
-    CRLSurface = I_VideoBuffer;
-    
-    // draw the view directly
-    if (gamestate == GS_LEVEL && gametic)
-    {
-	R_RenderPlayerView (&players[displayplayer]);
-	// [PN] Capture clean world-only preview before automap/HUD/widgets/menu overlays.
-	P_UpdateSavePreviewCache();
+            // [JN] Fail-safe: return earlier if post rendering hook is still active.
+            if (post_rendering_hook && !cleanshot_pending)
+            return;
 
-	// [JN] Fail-safe: return earlier if post rendering hook is still active.
-	if (post_rendering_hook && !cleanshot_pending)
-	return;
+            // see if the border needs to be initially drawn
+            if (oldgamestate != GS_LEVEL)
+            R_FillBackScreen();  // draw the pattern into the back screen
+
+            // see if the border needs to be updated to the screen
+            if (scaledviewwidth != SCREENWIDTH)
+            R_DrawViewBorder();  // erase old menu stuff
+
+            // [PN] Skip all HUD overlays for clean screenshot.
+            if (!cleanshot_pending)
+            {
+                // [JN] CRL - Draw automap on top of player view and view border,
+                // and update while playing. This also needed for render counters update.
+                if (automapactive)
+                AM_Drawer();
+
+                // RestlessRodent -- draw visplanes if overlayed
+                CRL_DrawVisPlanes(1);
+
+                // [JN] Do not draw any CRL widgets if not in game level.
+                if (crl_extended_hud)
+                {
+                    // RestlessRodent -- CRL Stats
+                    CRL_StatDrawer();
+
+                    // [crispy] demo timer widget
+                    if (demoplayback && (crl_demo_timer == 1 || crl_demo_timer == 3))
+                    {
+                        CRL_DemoTimer(crl_demo_timerdir ? (deftotaldemotics - defdemotics) : defdemotics);
+                    }
+                    else if (demorecording && (crl_demo_timer == 2 || crl_demo_timer == 3))
+                    {
+                        CRL_DemoTimer(leveltime);
+                    }
+
+                    // [JN] Target's health widget.
+                    // Actual health values are gathered in G_Ticker.
+                    if (crl_widget_health)
+                    CRL_DrawTargetsHealth();
+
+                    // [PN] Player speed widget.
+                    if (crl_widget_speed)
+                    CRL_DrawPlayerSpeed();
+                }
+
+                // [JN] Main status bar drawing function.
+                if (crl_screen_size <= 12 || (automapactive && !crl_automap_overlay))
+                {
+                    // [JN] Only forcefully update/redraw on...
+                    const boolean st_forceredraw = 
+                                     (oldgametic < gametic  // Every game tic
+                                  ||  crl_screen_size > 10  // Crispy HUD (no solid status bar background)
+                                  ||  setsizeneeded         // Screen size changing
+                                  || (menuactive && crl_menu_shading)); // Menu shading while non-capped game mode
+
+                    ST_Drawer(st_forceredraw);
+                }
+
+                // [JN] Chat drawer
+                if (netgame && chatmodeon)
+                CT_Drawer();
+            }
+            break;
+
+        case GS_INTERMISSION:
+            WI_Drawer();
+            break;
+
+        case GS_FINALE:
+            F_Drawer();
+            break;
+
+        case GS_DEMOSCREEN:
+            D_PageDrawer();
+            break;
     }
 
     // clean up border stuff
     if (gamestate != oldgamestate && gamestate != GS_LEVEL)
-	CRL_ReloadPalette();
+    CRL_ReloadPalette();
 
-    // see if the border needs to be initially drawn
-    if (gamestate == GS_LEVEL && oldgamestate != GS_LEVEL)
-    {
-	R_FillBackScreen ();    // draw the pattern into the back screen
-    }
-
-    // see if the border needs to be updated to the screen
-    if (gamestate == GS_LEVEL && scaledviewwidth != SCREENWIDTH)
-    {
-	    R_DrawViewBorder ();    // erase old menu stuff
-	}
-
-    // [PN] Skip all HUD overlays for clean screenshot.
-    if (!cleanshot_pending)
-    {
-    // [JN] CRL - Draw automap on top of player view and view border,
-    // and update while playing. This also needed for render counters update.
-    if (automapactive)
-    {
-        AM_Drawer();
-    }
-
+    // Box showing current mouse speed
     if (testcontrols)
-    {
-        // Box showing current mouse speed
-
-        V_DrawMouseSpeedBox(testcontrols_mousespeed);
-    }
+    V_DrawMouseSpeedBox(testcontrols_mousespeed);
 
     oldgamestate = wipegamestate = gamestate;
-    
-    // draw pause pic
-    if (paused)
-    {
-        const char *m_pause = DEH_String("M_PAUSE");
 
-	if (automapactive)
-	    y = 4;
-	else
-	    y = viewwindowy+4;
-        V_DrawShadowedPatch(viewwindowx + (scaledviewwidth - 68) / 2, y,
-                          W_CacheLumpName (m_pause, PU_CACHE), m_pause);
-    }
-
-    // [JN] Do not draw any CRL widgets if not in game level.
-    if (gamestate == GS_LEVEL)
+    // [PN] Skip pause pic, messages and menu for clean screenshot.
+    if (!cleanshot_pending)
     {
-        // RestlessRodent -- draw visplanes if overlayed
-        CRL_DrawVisPlanes(1);
+        // draw pause pic
+        if (paused)
+        {
+            const char *const m_pause = DEH_String("M_PAUSE");
+            const int y = automapactive ? 4 : viewwindowy + 4;
+
+            V_DrawShadowedPatch(viewwindowx + (scaledviewwidth - 68) / 2, y,
+                              W_CacheLumpName(m_pause, PU_CACHE), m_pause);
+        }
 
         if (crl_extended_hud)
         {
-            // RestlessRodent -- CRL Stats
-            CRL_StatDrawer();
-
-            // [crispy] demo timer widget
-            if (demoplayback && (crl_demo_timer == 1 || crl_demo_timer == 3))
-            {
-                CRL_DemoTimer(crl_demo_timerdir ? (deftotaldemotics - defdemotics) : defdemotics);
-            }
-            else if (demorecording && (crl_demo_timer == 2 || crl_demo_timer == 3))
-            {
-                CRL_DemoTimer(leveltime);
-            }
-
-            // [JN] Target's health widget.
-            // Actual health values are gathered in G_Ticker.
-            if (crl_widget_health)
-            {
-                CRL_DrawTargetsHealth();
-            }
-
-            // [PN] Player speed widget.
-            if (crl_widget_speed)
-            {
-                CRL_DrawPlayerSpeed();
-            }
-        }
-
-        // [JN] Main status bar drawing function.
-        if (crl_screen_size <= 12 || (automapactive && !crl_automap_overlay))
-        {
-            // [JN] Only forcefully update/redraw on...
-            const boolean st_forceredraw = 
-                             (oldgametic < gametic  // Every game tic
-                          ||  crl_screen_size > 10  // Crispy HUD (no solid status bar background)
-                          ||  setsizeneeded         // Screen size changing
-                          || (menuactive && crl_menu_shading)); // Menu shading while non-capped game mode
-
-            ST_Drawer(st_forceredraw);
-        }
-
-        // [JN] Chat drawer
-        if (netgame && chatmodeon)
-        {
-            CT_Drawer();
-        }
-    }
-
-    if (crl_extended_hud)
-    {
-        // [crispy] demo progress bar
-        if (demoplayback && crl_demo_bar)
-        {
+            // [crispy] demo progress bar
+            if (demoplayback && crl_demo_bar)
             CRL_DemoBar();
-        }
 
-        // [JN] Draw FPS counter, except on finale/text screens.
-        if (crl_showfps && gamestate != GS_FINALE)
-        {
+            // [JN] Draw FPS counter, except on finale/text screens.
+            if (crl_showfps && gamestate != GS_FINALE)
             CRL_DrawFPS();
         }
+
+        // Handle player messages
+        CRL_DrawMessage();
+
+        // [JN] Handle centered player messages.
+        CRL_DrawMessageCentered();
+
+        // menu is drawn even on top of everything
+        M_Drawer();
     }
 
-    // Handle player messages
-    CRL_DrawMessage();
-
-    // [JN] Handle centered player messages.
-    CRL_DrawMessageCentered();
-
-    // menus go directly to the screen
-    M_Drawer ();          // menu is drawn even on top of everything
-    }
-
-    NetUpdate ();         // send out any new accumulation
+    // send out any new accumulation
+    NetUpdate();
 
     // [JN] Critical messages are drawn even higher than on top everything!
     CRL_DrawMessageCritical();
@@ -474,33 +453,24 @@ static void D_Display (void)
 
     // wipe update
     wipe_EndScreen();
-    wipestart = I_GetTime () - 1;
+    wipestart = I_GetTime() - 1;
 
     do
     {
-        if (crl_uncapped_fps && crl_screenwipe)
+        if (crl_screenwipe)
         {
-            nowtime = I_GetTime ();
+            nowtime = I_GetTime();
             tics = nowtime - wipestart;
 
             // [PN] Allow sub-tic melt rendering via fractionaltic interpolation.
             I_UpdateFracTic();
-        }
-        else
-        {
-            do
-            {
-                nowtime = I_GetTime ();
-                tics = nowtime - wipestart;
-                I_Sleep(1);
-            } while (tics <= 0);
         }
 
         wipestart = nowtime;
         done = wipe_ScreenWipe(tics);
         M_Drawer();        // menu is drawn even on top of wipes
         I_FinishUpdate();  // page flip or blit buffer
-        } while (!done);
+    } while (!done);
 }
 
 static void EnableLoadingDisk(void)

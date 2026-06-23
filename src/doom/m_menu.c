@@ -1465,7 +1465,7 @@ static void M_DrawCRL_Video (void)
     // Enable vsync
     sprintf(str, crl_vsync ? "ON" : "OFF");
     M_WriteText (M_ItemRightAlign(str), 34, str, 
-                 M_Item_Glow(2, crl_vsync ? GLOW_GREEN : GLOW_DARKRED));
+                 M_Item_Glow(2, crl_vsync ?  GLOW_DARKRED : GLOW_YELLOW));
 
     // Show FPS counter
     sprintf(str, crl_showfps ? "ON" : "OFF");
@@ -1503,13 +1503,15 @@ static void M_DrawCRL_Video (void)
     sprintf(str, crl_screenwipe == 1 ? "ON" :
                  crl_screenwipe == 2 ? "FAST" : "OFF");
     M_WriteText (M_ItemRightAlign(str), 88, str,
-                 M_Item_Glow(8, crl_screenwipe == 1 ? GLOW_DARKRED : GLOW_GREEN));
+                 M_Item_Glow(8, crl_screenwipe == 1 ? GLOW_DARKRED :
+                                crl_screenwipe == 2 ? GLOW_YELLOW : GLOW_GREEN));
 
     // Screen ENDOOM screen
     sprintf(str, show_endoom == 1 ? "ALWAYS" :
                  show_endoom == 2 ? "PWAD ONLY" : "NEVER");
     M_WriteText (M_ItemRightAlign(str), 97, str, 
-                 M_Item_Glow(9, show_endoom == 1 ? GLOW_DARKRED : GLOW_GREEN));
+                 M_Item_Glow(9, show_endoom == 1 ? GLOW_DARKRED :
+                                show_endoom == 2 ? GLOW_YELLOW : GLOW_GREEN));
 }
 
 static void M_CRL_UncappedFPS (int choice)
