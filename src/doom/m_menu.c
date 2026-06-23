@@ -713,6 +713,7 @@ static void M_Bind_MultiplayerSpy (int choice);
 static void M_DrawCRL_Keybinds_7 (void);
 static void M_Bind_Pause (int choice);
 static void M_Bind_SaveScreenshot (int choice);
+static void M_Bind_SaveCleanshot (int choice);
 static void M_Bind_LastMessage (int choice);
 static void M_Bind_FinishDemo (int choice);
 static void M_Bind_SendMessage (int choice);
@@ -2794,6 +2795,7 @@ static menuitem_t CRLMenu_Keybinds_7[]=
 {
     { M_SWTC, "PAUSE GAME",             M_Bind_Pause,           'p'  },
     { M_SWTC, "SAVE A SCREENSHOT",      M_Bind_SaveScreenshot,  's'  },
+    { M_SWTC, "SAVE A CLEAN SCREENSHOT", M_Bind_SaveCleanshot,  's'  },
     { M_SWTC, "DISPLAY LAST MESSAGE",   M_Bind_LastMessage,     'd'  },
     { M_SWTC, "FINISH DEMO RECORDING",  M_Bind_FinishDemo,      'f'  },
     { M_SKIP, "",                       0,                      '\0' },  // MULTIPLAYER
@@ -2828,18 +2830,19 @@ static void M_DrawCRL_Keybinds_7 (void)
 
     M_DrawBindKey(0, 16, key_pause, key_pause2);
     M_DrawBindKey(1, 25, key_menu_screenshot, key_menu_screenshot2);
-    M_DrawBindKey(2, 34, key_message_refresh, key_message_refresh2);
-    M_DrawBindKey(3, 43, key_demo_quit, key_demo_quit2);
+    M_DrawBindKey(2, 34, key_menu_cleanshot, key_menu_cleanshot2);
+    M_DrawBindKey(3, 43, key_message_refresh, key_message_refresh2);
+    M_DrawBindKey(4, 52, key_demo_quit, key_demo_quit2);
 
-    M_WriteTextCentered(52, "MULTIPLAYER", cr[CR_YELLOW]);
+    M_WriteTextCentered(61, "MULTIPLAYER", cr[CR_YELLOW]);
 
-    M_DrawBindKey(5, 61, key_multi_msg, key_multi_msg2);
-    M_DrawBindKey(6, 70, key_multi_msgplayer[0], key_multi_msgplayer2[0]);
-    M_DrawBindKey(7, 79, key_multi_msgplayer[1], key_multi_msgplayer2[1]);
-    M_DrawBindKey(8, 88, key_multi_msgplayer[2], key_multi_msgplayer2[2]);
-    M_DrawBindKey(9, 97, key_multi_msgplayer[3], key_multi_msgplayer2[3]);
+    M_DrawBindKey(6, 70, key_multi_msg, key_multi_msg2);
+    M_DrawBindKey(7, 79, key_multi_msgplayer[0], key_multi_msgplayer2[0]);
+    M_DrawBindKey(8, 88, key_multi_msgplayer[1], key_multi_msgplayer2[1]);
+    M_DrawBindKey(9, 97, key_multi_msgplayer[2], key_multi_msgplayer2[2]);
+    M_DrawBindKey(10, 106, key_multi_msgplayer[3], key_multi_msgplayer2[3]);
 
-    M_WriteTextCentered(106, "RESET", cr[CR_YELLOW]);
+    M_WriteTextCentered(115, "RESET", cr[CR_YELLOW]);
 
     M_DrawBindFooter("7", true);
 }
@@ -2854,39 +2857,44 @@ static void M_Bind_SaveScreenshot (int choice)
     M_StartBind(701);  // key_menu_screenshot
 }
 
+static void M_Bind_SaveCleanshot (int choice)
+{
+    M_StartBind(702);  // key_menu_cleanshot
+}
+
 static void M_Bind_LastMessage (int choice)
 {
-    M_StartBind(702);  // key_message_refresh
+    M_StartBind(703);  // key_message_refresh
 }
 
 static void M_Bind_FinishDemo (int choice)
 {
-    M_StartBind(703);  // key_demo_quit
+    M_StartBind(704);  // key_demo_quit
 }
 
 static void M_Bind_SendMessage (int choice)
 {
-    M_StartBind(704);  // key_multi_msg
+    M_StartBind(705);  // key_multi_msg
 }
 
 static void M_Bind_ToPlayer1 (int choice)
 {
-    M_StartBind(705);  // key_multi_msgplayer1
+    M_StartBind(706);  // key_multi_msgplayer1
 }
 
 static void M_Bind_ToPlayer2 (int choice)
 {
-    M_StartBind(706);  // key_multi_msgplayer2
+    M_StartBind(707);  // key_multi_msgplayer2
 }
 
 static void M_Bind_ToPlayer3 (int choice)
 {
-    M_StartBind(707);  // key_multi_msgplayer3
+    M_StartBind(708);  // key_multi_msgplayer3
 }
 
 static void M_Bind_ToPlayer4 (int choice)
 {
-    M_StartBind(708);  // key_multi_msgplayer4
+    M_StartBind(709);  // key_multi_msgplayer4
 }
 
 static void M_Bind_ResetResponse (int key)
@@ -5887,6 +5895,15 @@ boolean M_Responder (event_t* ev)
         return true;
     }
 
+    // [PN] Clean screenshot.
+    if (key != 0 && (key == key_menu_cleanshot || key == key_menu_cleanshot2))
+    {
+        R_SetViewSize(13, detailLevel);
+        S_StartSound(NULL, sfx_tink);
+        cleanshot_pending = true;
+        return true;
+    }
+
     // F-Keys
     if (!menuactive && !chatmodeon)
     {
@@ -7031,13 +7048,14 @@ static const KeyBindEntry_t keybinds[] =
     // Page 7
     KEYBIND_ENTRY(700, &CRLDef_Keybinds_7, 0, key_pause,              key_pause2,              KEY_PAUSE,  0, KBS_GLOBAL),
     KEYBIND_ENTRY(701, &CRLDef_Keybinds_7, 1, key_menu_screenshot,    key_menu_screenshot2,    KEY_PRTSCR, 0, KBS_GLOBAL),
-    KEYBIND_ENTRY(702, &CRLDef_Keybinds_7, 2, key_message_refresh,    key_message_refresh2,    KEY_ENTER,  0, KBS_GLOBAL),
-    KEYBIND_ENTRY(703, &CRLDef_Keybinds_7, 3, key_demo_quit,          key_demo_quit2,          'q',        0, KBS_GLOBAL),
-    KEYBIND_ENTRY(704, &CRLDef_Keybinds_7, 5, key_multi_msg,          key_multi_msg2,          't',        0, KBS_GLOBAL),
-    KEYBIND_ENTRY(705, &CRLDef_Keybinds_7, 6, key_multi_msgplayer[0], key_multi_msgplayer2[0], 'g',        0, KBS_SENDTO_ONLY),
-    KEYBIND_ENTRY(706, &CRLDef_Keybinds_7, 7, key_multi_msgplayer[1], key_multi_msgplayer2[1], 'i',        0, KBS_SENDTO_ONLY),
-    KEYBIND_ENTRY(707, &CRLDef_Keybinds_7, 8, key_multi_msgplayer[2], key_multi_msgplayer2[2], 'b',        0, KBS_SENDTO_ONLY),
-    KEYBIND_ENTRY(708, &CRLDef_Keybinds_7, 9, key_multi_msgplayer[3], key_multi_msgplayer2[3], 'r',        0, KBS_SENDTO_ONLY),
+    KEYBIND_ENTRY(702, &CRLDef_Keybinds_7, 2, key_menu_cleanshot,     key_menu_cleanshot2,     0,          0, KBS_GLOBAL),
+    KEYBIND_ENTRY(703, &CRLDef_Keybinds_7, 3, key_message_refresh,    key_message_refresh2,    KEY_ENTER,  0, KBS_GLOBAL),
+    KEYBIND_ENTRY(704, &CRLDef_Keybinds_7, 4, key_demo_quit,          key_demo_quit2,          'q',        0, KBS_GLOBAL),
+    KEYBIND_ENTRY(705, &CRLDef_Keybinds_7, 6, key_multi_msg,          key_multi_msg2,          't',        0, KBS_GLOBAL),
+    KEYBIND_ENTRY(706, &CRLDef_Keybinds_7, 7, key_multi_msgplayer[0], key_multi_msgplayer2[0], 'g',        0, KBS_SENDTO_ONLY),
+    KEYBIND_ENTRY(707, &CRLDef_Keybinds_7, 8, key_multi_msgplayer[1], key_multi_msgplayer2[1], 'i',        0, KBS_SENDTO_ONLY),
+    KEYBIND_ENTRY(708, &CRLDef_Keybinds_7, 9, key_multi_msgplayer[2], key_multi_msgplayer2[2], 'b',        0, KBS_SENDTO_ONLY),
+    KEYBIND_ENTRY(709, &CRLDef_Keybinds_7, 10, key_multi_msgplayer[3], key_multi_msgplayer2[3], 'r',        0, KBS_SENDTO_ONLY),
 };
 
 #undef KEYBIND_ENTRY

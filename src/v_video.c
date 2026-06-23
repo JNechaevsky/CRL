@@ -66,6 +66,8 @@ boolean dp_translucent = false;
 
 static pixel_t *dest_screen = NULL;
 
+// [PN] Clean screenshot schedule flag.
+boolean cleanshot_pending  = false;
 
 
 

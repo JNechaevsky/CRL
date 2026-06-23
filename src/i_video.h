@@ -39,6 +39,8 @@ void *I_GetSDLRenderer(void);
 
 typedef boolean (*grabmouse_callback_t)(void);
 
+extern void (*post_rendering_hook) (void); // [crispy]
+
 // Called by D_DoomMain,
 // determines the hardware configuration
 // and sets up the video mode

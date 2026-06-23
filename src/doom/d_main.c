@@ -217,6 +217,20 @@ static void CRL_DrawMessageCritical (void)
                                                          cr[CR_RED]);  // Static
 }
 
+// -----------------------------------------------------------------------------
+// R_CleanShotHook
+//  [PN] Clean screenshot hook: called at the start of the next D_Display
+//  via post_rendering_hook. By that time, the GPU back buffer holds the
+//  previous frame which we capture here.
+// -----------------------------------------------------------------------------
+
+static void R_CleanShotHook (void)
+{
+    V_ScreenShot("DOOM%02i.%s");
+    R_SetViewSize(crl_screen_size, detailLevel);
+    cleanshot_pending = false;
+}
+
 //
 // D_Display
 //  draw current display, possibly wiping it from the previous
@@ -238,6 +252,15 @@ static void D_Display (void)
     if (nodrawers)
     {
         return;  // for comparative timing / profiling
+    }
+
+    // [crispy] post-rendering function pointer to apply config changes
+    // that affect rendering and that are better applied after the current
+    // frame has finished rendering
+    if (post_rendering_hook)
+    {
+        post_rendering_hook();
+        post_rendering_hook = NULL;
     }
 
     if (crl_uncapped_fps)
@@ -270,6 +293,11 @@ static void D_Display (void)
     else
 	wipe = false;
 
+    // [JN/PN] Schedule the actual screenshot for the next frame via post_rendering_hook,
+    // so it captures this clean frame from the GPU back buffer.
+    if (cleanshot_pending)
+    post_rendering_hook = R_CleanShotHook;
+
     // do buffered drawing
     switch (gamestate)
     {
@@ -298,6 +326,10 @@ static void D_Display (void)
 	R_RenderPlayerView (&players[displayplayer]);
 	// [PN] Capture clean world-only preview before automap/HUD/widgets/menu overlays.
 	P_UpdateSavePreviewCache();
+
+	// [JN] Fail-safe: return earlier if post rendering hook is still active.
+	if (post_rendering_hook && !cleanshot_pending)
+	return;
     }
 
     // clean up border stuff
@@ -316,6 +348,9 @@ static void D_Display (void)
 	    R_DrawViewBorder ();    // erase old menu stuff
 	}
 
+    // [PN] Skip all HUD overlays for clean screenshot.
+    if (!cleanshot_pending)
+    {
     // [JN] CRL - Draw automap on top of player view and view border,
     // and update while playing. This also needed for render counters update.
     if (automapactive)
@@ -423,6 +458,8 @@ static void D_Display (void)
 
     // menus go directly to the screen
     M_Drawer ();          // menu is drawn even on top of everything
+    }
+
     NetUpdate ();         // send out any new accumulation
 
     // [JN] Critical messages are drawn even higher than on top everything!

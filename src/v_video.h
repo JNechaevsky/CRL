@@ -41,6 +41,7 @@ extern byte *tintmap;
 extern byte *tinttable;
 extern byte *dp_translation;
 extern boolean dp_translucent;
+extern boolean cleanshot_pending;
 
 
 // Draw a block from the specified source screen to the screen.

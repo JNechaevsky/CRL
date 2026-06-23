@@ -36,6 +36,7 @@
 #include "r_local.h"
 
 #include "doomstat.h"
+#include "v_video.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
@@ -780,7 +781,8 @@ static void R_DrawPlayerSprites (void)
     pspdef_t*	psp;
     
     // RestlessRodent -- Do not draw player gun sprite if spectating
-    if (crl_spectating)
+    // [PN] Skip weapon sprites for clean screenshot capture.
+    if (crl_spectating || cleanshot_pending)
     	return;
     
     // get light level
