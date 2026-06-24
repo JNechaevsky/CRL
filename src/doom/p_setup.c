@@ -587,7 +587,7 @@ static void P_LoadLineDefs (int lump)
 	ld->flags = SHORT(mld->flags);
 	ld->special = SHORT(mld->special);
 	// [crispy] warn about unknown linedef types
-	if ((unsigned short) ld->special > 141 && ld->special != 271 && ld->special != 272)
+	if (crl_unknown_linedefs && (unsigned short) ld->special > 141 && ld->special != 271 && ld->special != 272)
 	{
 	    char  badspec[8];
 	    char  badline[11];

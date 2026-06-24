@@ -107,7 +107,8 @@ extern int crl_menu_esc_key;
 extern int crl_confirm_quit;
 extern int crl_menu_cap_fps;
 
-// Static limits
+// Limits and Warnings
+extern int crl_unknown_linedefs;
 extern int crl_vanilla_limits;
 
 // Mouse look

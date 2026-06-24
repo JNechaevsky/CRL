@@ -108,6 +108,7 @@ int crl_confirm_quit = 1;
 int crl_menu_cap_fps = 0;
 
 // Static limits
+int crl_unknown_linedefs = 1;
 int crl_vanilla_limits = 1;
 
 // Mouse look
@@ -202,7 +203,8 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_confirm_quit",               &crl_confirm_quit);
     M_BindIntVariable("crl_menu_cap_fps",               &crl_menu_cap_fps);
 
-    // Static limits
+    // Limits and Warnings
+    M_BindIntVariable("crl_unknown_linedefs",           &crl_unknown_linedefs);
     M_BindIntVariable("crl_vanilla_limits",             &crl_vanilla_limits);
 
     // Mouse look

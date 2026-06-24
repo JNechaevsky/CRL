@@ -626,6 +626,7 @@ static default_t	doom_defaults_list[] =
     // Static limits
 
     CONFIG_VARIABLE_COMMENT("Static engine limits"),
+    CONFIG_VARIABLE_INT(crl_unknown_linedefs),
     CONFIG_VARIABLE_INT(vanilla_savegame_limit),
     CONFIG_VARIABLE_INT(crl_vanilla_limits),
 };

@@ -798,6 +798,7 @@ static void M_ScrollMisc (int choice);
 static void M_ChooseCRL_Limits (int choice);
 static void M_DrawCRL_Limits (void);
 static void M_CRL_Limits (int choice);
+static void M_CRL_UnknownLineWarning (int choice);
 static void M_CRL_SaveSizeWarning (int choice);
 
 // Keyboard binding prototypes
@@ -1291,7 +1292,7 @@ static menuitem_t CRLMenu_Main[]=
     { M_SWTC, "AUTOMAP SETTINGS",     M_ChooseCRL_Automap,  'a'},
     { M_SWTC, "GAMEPLAY FEATURES",    M_ChooseCRL_Gameplay, 'g'},
     { M_SWTC, "MISC FEATURES",        M_ChooseCRL_Misc,     'm'},
-    { M_SWTC, "STATIC ENGINE LIMITS", M_ChooseCRL_Limits,   's'},
+    { M_SWTC, "LIMITS AND WARNINGS",  M_ChooseCRL_Limits,   'l'},
     { M_SWTC, "VANILLA OPTIONS MENU", M_Options,            'v'},
 };
 
@@ -3825,8 +3826,10 @@ static void M_ScrollMisc (int choice)
 
 static menuitem_t CRLMenu_Limits[]=
 {
-    { M_MUL1, "SAVE GAME LIMIT WARNING",    M_CRL_SaveSizeWarning, 's' },
-    { M_MUL1, "RENDER LIMITS LEVEL",        M_CRL_Limits,          'r' },
+    { M_MUL1, "UNKNOWN LINE SPECIALS", M_CRL_UnknownLineWarning, 'u' },
+    { M_MUL1, "SAVE GAME SIZE LIMIT",  M_CRL_SaveSizeWarning,    's' },
+    { M_SKIP, "", 0, '\0' },
+    { M_MUL1, "RENDER LIMITS LEVEL",   M_CRL_Limits,             'r' },
 };
 
 static menu_t CRLDef_Limits =
@@ -3849,43 +3852,55 @@ static void M_DrawCRL_Limits (void)
 {
     char str[32];
 
-    M_WriteTextCentered(7, "STATIC ENGINE LIMITS", cr[CR_YELLOW]);
+    M_WriteTextCentered(7, "WARNINGS", cr[CR_YELLOW]);
 
-    // Savegame limit warning
-    sprintf(str, vanilla_savegame_limit ? "ON" : "OFF");
+    // Unknown line specials
+    sprintf(str, crl_unknown_linedefs ? "ON" : "OFF");
     M_WriteText (M_ItemRightAlign(str), 16, str,
-                 M_Item_Glow(0, vanilla_savegame_limit ? GLOW_GREEN : GLOW_DARKRED));
+                 M_Item_Glow(0, crl_unknown_linedefs ? GLOW_GREEN : GLOW_DARKRED));
+
+    // Save game size limit
+    sprintf(str, vanilla_savegame_limit ? "ON" : "OFF");
+    M_WriteText (M_ItemRightAlign(str), 25, str,
+                 M_Item_Glow(1, vanilla_savegame_limit ? GLOW_GREEN : GLOW_DARKRED));
+
+    M_WriteTextCentered(34, "ENGINE LIMITS", cr[CR_YELLOW]);
 
     // Level of the limits
     sprintf(str, crl_vanilla_limits ? "VANILLA" : "DOOM-PLUS");
-    M_WriteText (M_ItemRightAlign(str), 25, str,
-                 M_Item_Glow(1, crl_vanilla_limits ? GLOW_RED : GLOW_GREEN));
+    M_WriteText (M_ItemRightAlign(str), 43, str,
+                 M_Item_Glow(3, crl_vanilla_limits ? GLOW_RED : GLOW_GREEN));
 
-    M_WriteText (CRL_MENU_LEFTOFFSET_SML+16, 43, "MAXVISPLANES",  cr[CR_GRAY]);
-    M_WriteText (CRL_MENU_LEFTOFFSET_SML+16, 52, "MAXDRAWSEGS",   cr[CR_GRAY]);
-    M_WriteText (CRL_MENU_LEFTOFFSET_SML+16, 61, "MAXVISSPRITES", cr[CR_GRAY]);
-    M_WriteText (CRL_MENU_LEFTOFFSET_SML+16, 70, "MAXOPENINGS",   cr[CR_GRAY]);
-    M_WriteText (CRL_MENU_LEFTOFFSET_SML+16, 79, "MAXPLATS",      cr[CR_GRAY]);
-    M_WriteText (CRL_MENU_LEFTOFFSET_SML+16, 88, "MAXLINEANIMS",  cr[CR_GRAY]);
+    M_WriteText (CRL_MENU_LEFTOFFSET_SML+16, 52, "MAXVISPLANES",  cr[CR_GRAY]);
+    M_WriteText (CRL_MENU_LEFTOFFSET_SML+16, 61, "MAXDRAWSEGS",   cr[CR_GRAY]);
+    M_WriteText (CRL_MENU_LEFTOFFSET_SML+16, 70, "MAXVISSPRITES", cr[CR_GRAY]);
+    M_WriteText (CRL_MENU_LEFTOFFSET_SML+16, 79, "MAXOPENINGS",   cr[CR_GRAY]);
+    M_WriteText (CRL_MENU_LEFTOFFSET_SML+16, 88, "MAXPLATS",      cr[CR_GRAY]);
+    M_WriteText (CRL_MENU_LEFTOFFSET_SML+16, 97, "MAXLINEANIMS",  cr[CR_GRAY]);
 
     if (crl_vanilla_limits)
     {
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("128"),   43,   "128", cr[CR_RED]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("256"),   52,   "256", cr[CR_RED]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("128"),   61,   "128", cr[CR_RED]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("20480"), 70, "20480", cr[CR_RED]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("30"),    79,    "30", cr[CR_RED]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("64"),    88,    "64", cr[CR_RED]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("128"),   52,   "128", cr[CR_RED]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("256"),   61,   "256", cr[CR_RED]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("128"),   70,   "128", cr[CR_RED]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("20480"), 79, "20480", cr[CR_RED]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("30"),    88,    "30", cr[CR_RED]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("64"),    97,    "64", cr[CR_RED]);
     }
     else
     {
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("1024"),  43,  "1024", cr[CR_GREEN]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("2048"),  52,  "2048", cr[CR_GREEN]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("1024"),  61,  "1024", cr[CR_GREEN]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("65536"), 70, "65536", cr[CR_GREEN]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("7680"),  79,  "7680", cr[CR_GREEN]);
-        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("16384"), 88, "16384", cr[CR_GREEN]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("1024"),  52,  "1024", cr[CR_GREEN]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("2048"),  61,  "2048", cr[CR_GREEN]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("1024"),  70,  "1024", cr[CR_GREEN]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("65536"), 79, "65536", cr[CR_GREEN]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("7680"),  88,  "7680", cr[CR_GREEN]);
+        M_WriteText (CRL_MENU_RIGHTOFFSET_SML-16 - M_StringWidth("16384"), 97, "16384", cr[CR_GREEN]);
     }
+}
+
+static void M_CRL_UnknownLineWarning (int choice)
+{
+    crl_unknown_linedefs ^= 1;
 }
 
 static void M_CRL_SaveSizeWarning (int choice)
