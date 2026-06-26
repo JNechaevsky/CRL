@@ -345,7 +345,7 @@ static int OPL_SDL_Init(unsigned int port_base)
     }
 
     // Mix buffer: four bytes per sample (16 bits * 2 channels):
-    mix_buffer = malloc(mixing_freq * 4);
+    mix_buffer = calloc((size_t)mixing_freq, 4);
 
     // Create the emulator structure:
 
