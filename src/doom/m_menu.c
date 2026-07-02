@@ -3719,10 +3719,10 @@ static void M_CRL_MenuCapFps (int choice)
 
 static menuitem_t CRLMenu_Misc_2[]=
 {
-    { M_MUL1, "ENABLE REWIND",   M_CRL_Misc_RewindEnable,   'e' },
-    { M_MUL1, "REWIND INTERWAL", M_CRL_Misc_RewindInterwal, 'r' },
-    { M_MUL1, "REWIND DEPTH",    M_CRL_Misc_RewindDepth,    'r' },
-    { M_MUL1, "REWIND TIMEOUT",  M_CRL_Misc_RewindTimeout,  'r' },
+    { M_MUL1, "ENABLE REWIND",             M_CRL_Misc_RewindEnable,   'e' },
+    { M_MUL1, "REWIND INTERWAL (S)",       M_CRL_Misc_RewindInterwal, 'r' },
+    { M_MUL1, "REWIND DEPTH (KEY FRAMES)", M_CRL_Misc_RewindDepth,    'r' },
+    { M_MUL1, "REWIND TIMEOUT (MS)",       M_CRL_Misc_RewindTimeout,  'r' },
     { M_SKIP, "", 0, '\0' },
     { M_SKIP, "", 0, '\0' },
     { M_SKIP, "", 0, '\0' },
@@ -3761,23 +3761,20 @@ static void M_DrawCRL_Misc_2 (void)
                  M_Item_Glow(0, crl_rewind_enable ? GLOW_GREEN : GLOW_DARKRED));
 
 
-    // Rewind interwal
-    sprintf(str, crl_rewind_interval == 1 ? "1 SECOND" : "%d SECONDS", crl_rewind_interval);
+    // Rewind interwal (s)
+    sprintf(str, "%d", crl_rewind_interval);
     M_WriteText (M_ItemRightAlign(str), 25, str,
                  M_Item_Glow(1, !crl_rewind_enable ? GLOW_DARKRED :
                                  crl_rewind_interval == 600 ? GLOW_YELLOW : GLOW_GREEN));
 
-
-
-    // Rewind depth
-    sprintf(str, crl_rewind_depth == 1 ? "%d KEY FRAME" : "%d KEY FRAMES", crl_rewind_depth);
+    // Rewind depth (key frames)
+    sprintf(str, "%d", crl_rewind_depth);
     M_WriteText (M_ItemRightAlign(str), 34, str,
                  M_Item_Glow(2, !crl_rewind_enable ? GLOW_DARKRED :
                                  crl_rewind_depth == 600 ? GLOW_YELLOW : GLOW_GREEN));
 
-    // Rewind timeout
-    sprintf(str, crl_rewind_timeout == 0 ? "NO LIMIT" :
-                 crl_rewind_timeout == 1 ? "1 MILLISECOND" : "%d MILLISECONDS", crl_rewind_timeout);
+    // Rewind timeout (ms)
+    sprintf(str, crl_rewind_timeout == 0 ? "NO LIMIT" : "%d", crl_rewind_timeout);
     M_WriteText (M_ItemRightAlign(str), 43, str,
                  M_Item_Glow(3, !crl_rewind_enable ? GLOW_DARKRED :
                                  crl_rewind_timeout == 25 ? GLOW_YELLOW : GLOW_GREEN));
