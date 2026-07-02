@@ -6,6 +6,11 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 //
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
 
 #include <stdlib.h>
 #include <string.h>
@@ -18,6 +23,7 @@
 #include "i_timer.h"
 #include "m_menu.h"
 #include "p_local.h"
+#include "s_sound.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
@@ -58,6 +64,11 @@ static int rewind_cmd_history_head;
 static boolean RewindQueueIsEmpty(void)
 {
     return queue_top == NULL;
+}
+
+static void StopActiveSounds(void)
+{
+    S_StopAllSound();
 }
 
 static boolean RewindAllowedGamestate(void)
@@ -133,20 +144,25 @@ static void RecordCommand(const ticcmd_t *cmd)
 
 static void CopyRecentCommands(ticcmd_t *dest, const int count)
 {
-    int i;
-    int idx;
+    const int tail = rewind_cmd_history_head - count;
 
-    idx = rewind_cmd_history_head - count;
-
-    if (idx < 0)
+    if (tail >= 0)
     {
-        idx += rewind_cmd_history_size;
+        // [PN] Data is contiguous in memory.
+        memcpy(dest, &rewind_cmd_history[tail], count * sizeof(ticcmd_t));
     }
-
-    for (i = 0; i < count; ++i)
+    else
     {
-        dest[i] = rewind_cmd_history[idx];
-        idx = (idx + 1) % rewind_cmd_history_size;
+        // [PN] Buffer wrap-around.
+        const int first_chunk_size = -tail;
+        const int second_chunk_size = rewind_cmd_history_head;
+
+        memcpy(dest,
+               &rewind_cmd_history[rewind_cmd_history_size + tail],
+               first_chunk_size * sizeof(ticcmd_t));
+        memcpy(dest + first_chunk_size,
+               rewind_cmd_history,
+               second_chunk_size * sizeof(ticcmd_t));
     }
 }
 
@@ -157,7 +173,11 @@ static void FreeKeyframe(keyframe_t *keyframe)
         return;
     }
 
-    free(keyframe->data);
+    if (keyframe->kind == KEYFRAME_FULL)
+    {
+        free(keyframe->data);
+    }
+
     free(keyframe);
 }
 
@@ -245,7 +265,7 @@ static keyframe_t *PopKeyframe(void)
 
 static keyframe_t *SaveFullKeyframe(void)
 {
-    keyframe_t *keyframe = calloc(1, sizeof(*keyframe));
+    keyframe_t *const keyframe = calloc(1, sizeof(*keyframe));
 
     if (keyframe == NULL)
     {
@@ -272,20 +292,22 @@ static keyframe_t *SaveFullKeyframe(void)
     }
 
     keyframe->tic = gametic;
+
     return keyframe;
 }
 
 static keyframe_t *SaveDeltaKeyframe(const int interval_tics)
 {
-    keyframe_t *keyframe;
-    ticcmd_t *delta_cmds;
-
     if (rewind_cmd_history_count < interval_tics)
     {
         return NULL;
     }
 
-    keyframe = calloc(1, sizeof(*keyframe));
+    const size_t data_size = (size_t)interval_tics * sizeof(ticcmd_t);
+    const size_t total_size = sizeof(keyframe_t) + data_size;
+
+    // [PN] Single allocation: header + data in one contiguous block.
+    keyframe_t *const keyframe = calloc(1, total_size);
 
     if (keyframe == NULL)
     {
@@ -294,20 +316,16 @@ static keyframe_t *SaveDeltaKeyframe(const int interval_tics)
 
     keyframe->kind = KEYFRAME_DELTA;
     keyframe->delta_tics = interval_tics;
-    keyframe->size = (size_t)interval_tics * sizeof(ticcmd_t);
+    keyframe->size = data_size;
+    // [PN] Data buffer lives directly after the struct.
+    keyframe->data = (byte *)(keyframe + 1);
 
-    keyframe->data = malloc(keyframe->size);
-
-    if (keyframe->data == NULL)
-    {
-        FreeKeyframe(keyframe);
-        return NULL;
-    }
-
-    delta_cmds = (ticcmd_t *)keyframe->data;
+    // [PN] Copy delta commands directly into the tail-allocated buffer.
+    ticcmd_t *const delta_cmds = (ticcmd_t *)keyframe->data;
     CopyRecentCommands(delta_cmds, interval_tics);
 
     keyframe->tic = gametic;
+
     return keyframe;
 }
 
@@ -324,6 +342,8 @@ static boolean LoadFullKeyframe(const keyframe_t *keyframe)
     }
 
     savedleveltime = leveltime;
+
+    StopActiveSounds();
 
     rewind_restoring = true;
     G_InitNew(gameskill, gameepisode, gamemap);
@@ -354,6 +374,9 @@ static boolean LoadFullKeyframe(const keyframe_t *keyframe)
         R_ExecuteSetViewSize();
     }
 
+    // [PN] Ensure no stale one-shot SFX channels survive restore.
+    StopActiveSounds();
+
     R_FillBackScreen();
     gamestate = GS_LEVEL;
 
@@ -363,7 +386,6 @@ static boolean LoadFullKeyframe(const keyframe_t *keyframe)
 static boolean ReplayDeltaCommands(const ticcmd_t *cmds, const int count)
 {
     int i;
-    int j;
     const boolean old_menuactive = menuactive;
     const int old_paused = paused;
     const boolean old_rewind_restoring = rewind_restoring;
@@ -378,27 +400,20 @@ static boolean ReplayDeltaCommands(const ticcmd_t *cmds, const int count)
     menuactive = false;
     paused = 0;
 
+    // [JN] Save only consoleplayer's original command
+    const ticcmd_t old_console_cmd = players[consoleplayer].cmd;
+
     for (i = 0; i < count; ++i)
     {
-        for (j = 0; j < MAXPLAYERS; ++j)
-        {
-            if (!playeringame[j])
-            {
-                continue;
-            }
-
-            if (j == consoleplayer)
-            {
-                players[j].cmd = cmds[i];
-            }
-            else
-            {
-                memset(&players[j].cmd, 0, sizeof(players[j].cmd));
-            }
-        }
-
+        players[consoleplayer].cmd = cmds[i];
         P_Ticker();
     }
+
+    // [JN] Restore original command
+    players[consoleplayer].cmd = old_console_cmd;
+
+    // [PN] Delta replay can start many one-shot SFX in one frame; clear stacked channels.
+    StopActiveSounds();
 
     rewind_restoring = old_rewind_restoring;
     menuactive = old_menuactive;
@@ -429,6 +444,9 @@ static boolean LoadDeltaKeyframe(const keyframe_t *keyframe)
     {
         return false;
     }
+
+    // [PN] Replay should rebuild sound state from ticks, not stack on restored base.
+    StopActiveSounds();
 
     // [PN] Replay forward in time: FULL base -> newer deltas up to target keyframe.
     for (it = base->prev; it != NULL; it = it->prev)
