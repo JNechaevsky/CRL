@@ -95,11 +95,13 @@
 #define KEYN_8          (0x80+0x78)
 #define KEYN_9          (0x80+0x79)
 
-#define KEYP_DIVIDE     '/'
-#define KEYP_PLUS       '+'
-#define KEYP_MINUS      '-'
-#define KEYP_MULTIPLY   '*'
-#define KEYP_PERIOD     0
+// [PN] Distinct NumPad keys from the main (/ + - * .) keys
+#define KEYP_DIVIDE     (0x80+0x7a)
+#define KEYP_PLUS       (0x80+0x7b)
+#define KEYP_MINUS      (0x80+0x7c)
+#define KEYP_MULTIPLY   (0x80+0x7d)
+#define KEYP_PERIOD     (0x80+0x7e)
+
 #define KEYP_EQUALS     KEY_EQUALS
 #define KEYP_ENTER      KEY_ENTER
 
@@ -156,6 +158,9 @@
     { KEYN_4,         "NUM4" },     { KEYN_5,         "NUM5" },      \
     { KEYN_6,         "NUM6" },     { KEYN_7,         "NUM7" },      \
     { KEYN_8,         "NUM8" },     { KEYN_9,         "NUM9" },      \
+    { KEYP_DIVIDE,    "NUM/" },     { KEYP_MULTIPLY,  "NUM*" },      \
+    { KEYP_MINUS,     "NUM-" },     { KEYP_PLUS,      "NUM+" },      \
+    { KEYP_PERIOD,    "NUM." },                                      \
     { 'a', "A" },   { 'b', "B" },   { 'c', "C" },   { 'd', "D" },    \
     { 'e', "E" },   { 'f', "F" },   { 'g', "G" },   { 'h', "H" },    \
     { 'i', "I" },   { 'j', "J" },   { 'k', "K" },   { 'l', "L" },    \
@@ -198,6 +203,9 @@
     { KEYN_4,         "NUM4" },     { KEYN_5,         "NUM5" },      \
     { KEYN_6,         "NUM6" },     { KEYN_7,         "NUM7" },      \
     { KEYN_8,         "NUM8" },     { KEYN_9,         "NUM9" },      \
+    { KEYP_DIVIDE,    "NUM/" },     { KEYP_MULTIPLY,  "NUM*" },      \
+    { KEYP_MINUS,     "NUM-" },     { KEYP_PLUS,      "NUM+" },      \
+    { KEYP_PERIOD,    "NUM." },                                      \
     { 'a', "A" },   { 'b', "B" },   { 'c', "C" },   { 'd', "D" },    \
     { 'e', "E" },   { 'f', "F" },   { 'g', "G" },   { 'h', "H" },    \
     { 'i', "I" },   { 'j', "J" },   { 'k', "K" },   { 'l', "L" },    \
