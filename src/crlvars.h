@@ -22,6 +22,14 @@
 // [JN] CRL-specific config variables.
 // -----------------------------------------------------------------------------
 
+//
+// Screenshots
+//
+
+extern char *screenshots_format;
+extern int screenshots_png_compression;
+extern int screenshots_jpg_quality;
+
 // Compatibility
 extern int vanilla_savegame_limit;
 

@@ -22,6 +22,14 @@
 // [JN] CRL-specific config variables.
 // -----------------------------------------------------------------------------
 
+//
+// Screenshots
+//
+
+char *screenshots_format = "png";     // "png" or "jpg"
+int screenshots_png_compression = 6;  // 0 ... 10
+int screenshots_jpg_quality = 90;     // 1 ... 100
+
 // Compatibility
 int vanilla_savegame_limit = 1;
 
@@ -121,6 +129,14 @@ int crl_mouselook = 0;
 
 void CRL_BindVariables (void)
 {
+    //
+    // Screenshots
+    //
+
+    M_BindStringVariable("screenshots_format",          &screenshots_format);
+    M_BindIntVariable("screenshots_png_compression",    &screenshots_png_compression);
+    M_BindIntVariable("screenshots_jpg_quality",        &screenshots_jpg_quality);
+
     // Compatibility
     M_BindIntVariable("vanilla_savegame_limit",         &vanilla_savegame_limit);
 

@@ -95,6 +95,9 @@ endif()
 # Check for Miniz (replaces libpng).
 add_subdirectory("lib/miniz")
 
+# Check for stb_image_write (JPEG screenshots).
+add_subdirectory("lib/stb_image_write")
+
 # Check for FluidSynth.
 find_package(FluidSynth)
 if(FluidSynth_FOUND)
