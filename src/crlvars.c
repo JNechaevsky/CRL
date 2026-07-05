@@ -63,6 +63,7 @@ int crl_widget_kis_format = 0;
 int crl_widget_kis_items = 1;
 int crl_widget_time = 0;
 int crl_widget_coords = 0;
+int crl_widget_coordsfrac = 0;
 int crl_widget_speed = 0;
 int crl_widget_powerups = 0;
 int crl_widget_health = 0;
@@ -159,6 +160,7 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_widget_kis_items",           &crl_widget_kis_items);
     M_BindIntVariable("crl_widget_time",                &crl_widget_time);
     M_BindIntVariable("crl_widget_coords",              &crl_widget_coords);
+    M_BindIntVariable("crl_widget_coordsfrac",          &crl_widget_coordsfrac);
     M_BindIntVariable("crl_widget_speed",               &crl_widget_speed);
     M_BindIntVariable("crl_widget_powerups",            &crl_widget_powerups);
     M_BindIntVariable("crl_widget_health",              &crl_widget_health);

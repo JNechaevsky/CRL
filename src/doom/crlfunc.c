@@ -1,6 +1,7 @@
 //
 // Copyright(C) 1993-1996 Id Software, Inc.
 // Copyright(C) 2005-2014 Simon Howard
+// Copyright(C) 2022 Ryan Krafnick
 // Copyright(C) 2011-2017 RestlessRodent
 // Copyright(C) 2018-2025 Julia Nechaevskaya
 //
@@ -359,6 +360,45 @@ static byte *CRL_Colorize_MAX (int style)
 }
 
 // -----------------------------------------------------------------------------
+// CRL_FixedToString
+//  [PN] Formats fixed_t value as string with fractional part (up to 5 digits).
+// -----------------------------------------------------------------------------
+
+static void CRL_FixedToString (fixed_t value, char *const buf, size_t buf_size)
+{
+    const split_fixed_t val = SplitFixed(value);
+    
+    if (crl_widget_coordsfrac && val.frac)
+    {
+        const char *const sign = (val.negative && !val.base) ? "-" : "";
+        M_snprintf(buf, buf_size, "%s%d.%05d", sign, val.base, val.frac);
+    }
+    else
+    {
+        M_snprintf(buf, buf_size, "%d", val.base);
+    }
+}
+
+// -----------------------------------------------------------------------------
+// CRL_AngleToString
+//  [PN] Formats angle_t value as string with fractional part (up to 3 digits).
+// -----------------------------------------------------------------------------
+
+static void CRL_AngleToString (angle_t value, char *const buf, size_t buf_size)
+{
+    const split_angle_t val = SplitAngle(value);
+    
+    if (crl_widget_coordsfrac && val.frac)
+    {
+        M_snprintf(buf, buf_size, "%d.%03d", val.base, val.frac);
+    }
+    else
+    {
+        M_snprintf(buf, buf_size, "%d", val.base);
+    }
+}
+
+// -----------------------------------------------------------------------------
 // Draws CRL stats.
 //  [JN] Draw all the widgets and counters.
 // -----------------------------------------------------------------------------
@@ -397,14 +437,15 @@ void CRL_StatDrawer (void)
         char str[128];
 
         M_WriteText(0, 25, "X:", cr[CR_GRAY]);
-        M_WriteText(0, 34, "Y:", cr[CR_GRAY]);
-        M_WriteText(0, 43, "ANG:", cr[CR_GRAY]);
-
-        sprintf(str, "%d", CRLWidgets.x);
+        CRL_FixedToString(CRLWidgets.x, str, sizeof(str));
         M_WriteText(16, 25, str, cr[CR_GREEN]);
-        sprintf(str, "%d", CRLWidgets.y);
+
+        M_WriteText(0, 34, "Y:", cr[CR_GRAY]);
+        CRL_FixedToString(CRLWidgets.y, str, sizeof(str));
         M_WriteText(16, 34, str, cr[CR_GREEN]);
-        sprintf(str, "%d", CRLWidgets.ang);
+        
+        M_WriteText(0, 43, "ANG:", cr[CR_GRAY]);
+        CRL_AngleToString(CRLWidgets.ang, str, sizeof(str));
         M_WriteText(32, 43, str, cr[CR_GREEN]);
     }
 

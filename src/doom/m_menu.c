@@ -746,6 +746,7 @@ static void M_CRL_Widget_KIS (int choice);
 static void M_CRL_Widget_KIS_Format (int choice);
 static void M_CRL_Widget_KIS_Items (int choice);
 static void M_CRL_Widget_Coords (int choice);
+static void M_CRL_Widget_CoordsFrac (int choice);
 static void M_CRL_Widget_Speed (int choice);
 static void M_CRL_Widget_Time (int choice);
 static void M_CRL_Widget_Powerups (int choice);
@@ -3064,6 +3065,7 @@ static menuitem_t CRLMenu_Widgets[]=
     { M_MUL2, "- SHOW ITEMS",       M_CRL_Widget_KIS_Items,  'i' },
     { M_MUL2, "LEVEL/DM TIMER",     M_CRL_Widget_Time,       'l' },
     { M_MUL2, "PLAYER COORDS",      M_CRL_Widget_Coords,     'p' },
+    { M_MUL2, "- SHOW FRACTIONS",   M_CRL_Widget_CoordsFrac, 's' },
     { M_MUL2, "PLAYER SPEED",       M_CRL_Widget_Speed,      'p' },
     { M_MUL2, "POWERUP TIMERS",     M_CRL_Widget_Powerups,   'p' },
     { M_MUL2, "TARGET'S HEALTH",    M_CRL_Widget_Health,     't' },
@@ -3144,23 +3146,28 @@ static void M_DrawCRL_Widgets (void)
     M_WriteText (M_ItemRightAlign(str), 79, str,
                  M_Item_Glow(7, crl_widget_coords ? GLOW_GREEN : GLOW_DARKRED));
 
+    // Show fractions
+    sprintf(str, crl_widget_coordsfrac ? "ON" : "OFF");
+    M_WriteText (M_ItemRightAlign(str), 88, str,
+                 M_Item_Glow(8, crl_widget_coordsfrac ? GLOW_GREEN : GLOW_DARKRED));
+
     // Player speed
     sprintf(str, crl_widget_speed ? "ON" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 88, str,
-                 M_Item_Glow(8, crl_widget_speed ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (M_ItemRightAlign(str), 97, str,
+                 M_Item_Glow(9, crl_widget_speed ? GLOW_GREEN : GLOW_DARKRED));
 
     // Powerup timers
     sprintf(str, crl_widget_powerups ? "ON" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 97, str,
-                 M_Item_Glow(9, crl_widget_powerups ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (M_ItemRightAlign(str), 106, str,
+                 M_Item_Glow(10, crl_widget_powerups ? GLOW_GREEN : GLOW_DARKRED));
 
     // Target's health
     sprintf(str, crl_widget_health == 1 ? "TOP" :
                  crl_widget_health == 2 ? "TOP+NAME" :
                  crl_widget_health == 3 ? "BOTTOM" :
                  crl_widget_health == 4 ? "BOTTOM+NAME" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 106, str,
-                 M_Item_Glow(10, crl_widget_health ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (M_ItemRightAlign(str), 115, str,
+                 M_Item_Glow(11, crl_widget_health ? GLOW_GREEN : GLOW_DARKRED));
 
     // Print informatime message if extended HUD is off.
     if (!crl_extended_hud)
@@ -3202,6 +3209,11 @@ static void M_CRL_Widget_KIS_Items (int choice)
 static void M_CRL_Widget_Coords (int choice)
 {
     crl_widget_coords = M_INT_Slider(crl_widget_coords, 0, 2, choice, false);
+}
+
+static void M_CRL_Widget_CoordsFrac (int choice)
+{
+    crl_widget_coordsfrac ^= 1;
 }
 
 static void M_CRL_Widget_Speed (int choice)

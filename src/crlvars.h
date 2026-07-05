@@ -63,6 +63,7 @@ extern int crl_widget_kis_format;
 extern int crl_widget_kis_items;
 extern int crl_widget_time;
 extern int crl_widget_coords;
+extern int crl_widget_coordsfrac;
 extern int crl_widget_speed;
 extern int crl_widget_powerups;
 extern int crl_widget_health;

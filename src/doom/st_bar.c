@@ -1039,9 +1039,9 @@ void ST_Ticker (void)
     CRLWidgets.secrets = plyr->secretcount;
     CRLWidgets.totalsecrets = totalsecret;
 
-    CRLWidgets.x = plyr->mo->x >> FRACBITS;
-    CRLWidgets.y = plyr->mo->y >> FRACBITS;
-    CRLWidgets.ang = plyr->mo->angle / ANG1;
+    CRLWidgets.x = plyr->mo->x;
+    CRLWidgets.y = plyr->mo->y;
+    CRLWidgets.ang = plyr->mo->angle;
 
     if (deathmatch)
     {
