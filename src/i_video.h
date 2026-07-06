@@ -124,5 +124,7 @@ extern void I_ToggleVsync (void);
 extern void I_TogglePixelScaling (void);
 
 extern boolean endoom_screen_active;
+extern boolean volume_needs_update;
+extern boolean window_focused;
 
 #endif

@@ -612,6 +612,7 @@ static void M_CRL_SFXSystem (int choice);
 static void M_CRL_MusicSystem (int choice);
 static void M_CRL_SFXMode (int choice);
 static void M_CRL_SFXChannels (int choice);
+static void M_CRL_MuteInactive (int choice);
 static void M_CRL_PitchShift (int choice);
 
 static void M_ChooseCRL_Controls (int choice);
@@ -1715,6 +1716,7 @@ static menuitem_t CRLMenu_Sound[]=
     { M_MUL1, "SOUND EFFECTS MODE",    M_CRL_SFXMode,      's'},
     { M_MUL2, "PITCH-SHIFTED SOUNDS",  M_CRL_PitchShift,   'p'},
     { M_MUL1, "NUMBER OF SFX TO MIX",  M_CRL_SFXChannels,  'n'},
+    { M_MUL2, "MUTE INACTIVE WINDOW",  M_CRL_MuteInactive, 'm' },
 };
 
 static menu_t CRLDef_Sound =
@@ -1785,6 +1787,11 @@ static void M_DrawCRL_Sound (void)
     M_WriteText (M_ItemRightAlign(str), 115, str,
                  M_Item_Glow(11, snd_channels == 8 ? GLOW_GREEN :
                                  snd_channels == 1 ? GLOW_DARKRED : GLOW_DARKGREEN));
+
+    // Mute inactive window
+    sprintf(str, crl_mute_inactive ? "ON" : "OFF");
+    M_WriteText (M_ItemRightAlign(str), 124, str,
+                 M_Item_Glow(12, crl_mute_inactive ? GLOW_GREEN : GLOW_DARKRED));
 
     // Inform if FSYNTH/GUS paths anen't set.
     if (itemOn == 8)
@@ -1948,6 +1955,11 @@ static void M_CRL_PitchShift (int choice)
 static void M_CRL_SFXChannels (int choice)
 {
     snd_channels = M_INT_Slider(snd_channels, 1, 8, choice, true);
+}
+
+static void M_CRL_MuteInactive (int choice)
+{
+    crl_mute_inactive ^= 1;
 }
 
 // -----------------------------------------------------------------------------

@@ -78,6 +78,7 @@ int crl_widget_health = 0;
 
 // Sound
 int crl_monosfx = 0;
+int crl_mute_inactive = 0;
 
 // Automap
 int crl_automap_mode = 0;
@@ -183,6 +184,7 @@ void CRL_BindVariables (void)
 
     // Sound
     M_BindIntVariable("crl_monosfx",                    &crl_monosfx);
+    M_BindIntVariable("crl_mute_inactive",              &crl_mute_inactive);
 
     // Automap
     M_BindIntVariable("crl_automap_mode",               &crl_automap_mode);

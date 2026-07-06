@@ -78,6 +78,7 @@ extern int crl_widget_health;
 
 // Sound
 extern int crl_monosfx;
+extern int crl_mute_inactive;
 
 // Automap
 extern int crl_automap_mode;

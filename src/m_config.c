@@ -309,6 +309,7 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_STRING(snd_dmxoption),
     CONFIG_VARIABLE_INT_HEX(opl_io_port),
     CONFIG_VARIABLE_INT(crl_monosfx),
+    CONFIG_VARIABLE_INT(crl_mute_inactive),
     CONFIG_VARIABLE_INT(snd_pitchshift),
 #ifdef HAVE_FLUIDSYNTH
     CONFIG_VARIABLE_INT(fsynth_chorus_active),
