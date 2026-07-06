@@ -65,6 +65,7 @@ void AM_Drawer (void);
 // if the level is completed while it is up.
 void AM_Start (void);
 void AM_Stop (void);
+void AM_SetMapCenter (fixed_t x, fixed_t y);
 
 
 extern cheatseq_t cheat_amap;
