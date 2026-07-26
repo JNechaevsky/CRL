@@ -378,6 +378,7 @@ static double CalcMouseVert(int mouse_y)
 ====================
 */
 
+
 void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
 {
     int i;
@@ -389,25 +390,29 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
     int look, arti;
     int fly_height;
     ticcmd_t spect;
+    int spect_angle = 0; // [PN] Spectator camera-only, do not copy to cmd
 
     // haleyjd: removed externdriver crap
 
+    // [crispy] For fast polling.
+    G_PrepTiccmd();
+
     if (!crl_spectating)
     {
-        // [crispy] For fast polling.
-        G_PrepTiccmd();
         memcpy(cmd, &basecmd, sizeof(*cmd));
         memset(&basecmd, 0, sizeof(ticcmd_t));
     }
     else
     {
-        // [JN] CRL - can't interpolate spectator.
+        // [PN] spect_angle is used for the spectator camera only.
+        // Do not copy it into cmd to avoid rotating the actual player
+        // or desynchronizing demo/network state.
         memset(cmd, 0, sizeof(ticcmd_t));
+        spect_angle = basecmd.angleturn;
         // [JN] CRL - reset basecmd.angleturn for exact
         // position of jumping to the camera position.
         basecmd.angleturn = 0;
     }
-
     //cmd->consistancy =
     //      consistancy[consoleplayer][(maketic*ticdup)%BACKUPTICS];
     cmd->consistancy = consistancy[consoleplayer][maketic % BACKUPTICS];
@@ -953,7 +958,7 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
         else
         {
         const short old_angleturn = cmd->angleturn;
-        cmd->angleturn = CarryAngle(localview.rawangle + angle);
+        cmd->angleturn = spect_angle = CarryAngle(localview.rawangle + angle);
         localview.ticangleturn = cmd->angleturn - old_angleturn;
         }
     }
@@ -1071,8 +1076,8 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
     }
 
     // RestlessRodent -- If spectating, send the movement commands instead
-    if (crl_spectating && !MenuActive)
-    	CRL_ImpulseCamera(cmd->forwardmove, cmd->sidemove, cmd->angleturn); 
+    if (crl_spectating && !MenuActive && !askforquit)
+    	CRL_ImpulseCamera(cmd->forwardmove, cmd->sidemove, spect_angle); 
 }
 
 

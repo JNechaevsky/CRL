@@ -202,6 +202,8 @@ static void D_Display(void)
 
     if (crl_uncapped_fps)
     {
+        I_UpdateFracTic();
+
         I_StartDisplay();
         G_FastResponder();
         G_PrepTiccmd();
