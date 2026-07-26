@@ -270,8 +270,9 @@ void AM_findMinMaxBoundaries(void)
         else if (vertexes[i].y > max_y)
             max_y = vertexes[i].y;
     }
-    max_w = max_x - min_x;
-    max_h = max_y - min_y;
+    // [JN] Cppcheck - avoid overflows.
+    max_w = (fixed_t)((uint64_t)max_x - (uint64_t)min_x);
+    max_h = (fixed_t)((uint64_t)max_y - (uint64_t)min_y);
     min_w = 2 * PLAYERRADIUS;
     min_h = 2 * PLAYERRADIUS;
 
