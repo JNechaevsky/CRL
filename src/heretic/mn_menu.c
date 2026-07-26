@@ -5627,11 +5627,11 @@ static void M_DoBind (int keynum, int key)
 //  [JN] Clear key bind on the line where cursor is placed (itemOn).
 // -----------------------------------------------------------------------------
 
-static void M_ClearBind (int CurrentItPos)
+static void M_ClearBind (int Current_ItPos)
 {
     if (CurrentMenu == &CRLKbdBinds1)
     {
-        switch (CurrentItPos)
+        switch (Current_ItPos)
         {
             case 0:   key_up = 0;               break;
             case 1:   key_down = 0;             break;
@@ -5649,7 +5649,7 @@ static void M_ClearBind (int CurrentItPos)
     }
     if (CurrentMenu == &CRLKbdBinds2)
     {
-        switch (CurrentItPos)
+        switch (Current_ItPos)
         {
             case 0:   key_lookup = 0;           break;
             case 1:   key_lookdown = 0;         break;
@@ -5666,7 +5666,7 @@ static void M_ClearBind (int CurrentItPos)
     }
     if (CurrentMenu == &CRLKbdBinds3)
     {
-        switch (CurrentItPos)
+        switch (Current_ItPos)
         {
             case 0:   key_crl_menu = 0;         break;
             case 1:   key_crl_reloadlevel = 0;  break;
@@ -5686,7 +5686,7 @@ static void M_ClearBind (int CurrentItPos)
     }
     if (CurrentMenu == &CRLKbdBinds4)
     {
-        switch (CurrentItPos)
+        switch (Current_ItPos)
         {
             case 0:   key_crl_autorun = 0;      break;
             case 1:   key_crl_mlook = 0;        break;
@@ -5705,7 +5705,7 @@ static void M_ClearBind (int CurrentItPos)
     }
     if (CurrentMenu == &CRLKbdBinds5)
     {
-        switch (CurrentItPos)
+        switch (Current_ItPos)
         {
             case 0:   key_weapon1 = 0;          break;
             case 1:   key_weapon1 = 0;          break;
@@ -5721,7 +5721,7 @@ static void M_ClearBind (int CurrentItPos)
     }
     if (CurrentMenu == &CRLKbdBinds6)
     {
-        switch (CurrentItPos)
+        switch (Current_ItPos)
         {
             case 0:   key_arti_quartz = 0;      break;
             case 1:   key_arti_urn = 0;         break;
@@ -5737,7 +5737,7 @@ static void M_ClearBind (int CurrentItPos)
     }
     if (CurrentMenu == &CRLKbdBinds7)
     {
-        switch (CurrentItPos)
+        switch (Current_ItPos)
         {
             case 0:   key_map_toggle = 0;       break;
             case 1:   key_map_zoomin = 0;       break;
@@ -5752,7 +5752,7 @@ static void M_ClearBind (int CurrentItPos)
     }
     if (CurrentMenu == &CRLKbdBinds8)
     {
-        switch (CurrentItPos)
+        switch (Current_ItPos)
         {
             case 0:   key_menu_help = 0;        break;
             case 1:   key_menu_save = 0;        break;
@@ -5769,7 +5769,7 @@ static void M_ClearBind (int CurrentItPos)
     }
     if (CurrentMenu == &CRLKbdBinds9)
     {
-        switch (CurrentItPos)
+        switch (Current_ItPos)
         {
             case 0:   key_pause = 0;              break;
             case 1:   key_menu_screenshot = 0;    break;

@@ -103,7 +103,7 @@ will have new column_ts generated.
 ===================
 */
 
-void R_DrawColumnInCache(column_t * patch, byte * cache, int originy,
+static void R_DrawColumnInCache(column_t * patch, byte * cache, int originy,
                          int cacheheight)
 {
     int count, position;
@@ -137,7 +137,7 @@ void R_DrawColumnInCache(column_t * patch, byte * cache, int originy,
 ===================
 */
 
-void R_GenerateComposite(int texnum)
+static void R_GenerateComposite(int texnum)
 {
     byte *block;
     texture_t *texture;
@@ -199,7 +199,7 @@ void R_GenerateComposite(int texnum)
 ===================
 */
 
-void R_GenerateLookup(int texnum)
+static void R_GenerateLookup(int texnum)
 {
     texture_t *texture;
     byte *patchcount;           // [texture->width]
@@ -351,7 +351,7 @@ static void GenerateTextureHashTable(void)
 ==================
 */
 
-void R_InitTextures(void)
+static void R_InitTextures(void)
 {
     maptexture_t *mtexture;
     texture_t *texture;
@@ -513,7 +513,7 @@ void R_InitTextures(void)
 =================
 */
 
-void R_InitFlats(void)
+static void R_InitFlats(void)
 {
     int i;
 
@@ -538,7 +538,7 @@ void R_InitFlats(void)
 =================
 */
 
-void R_InitSpriteLumps(void)
+static void R_InitSpriteLumps(void)
 {
     int i;
     patch_t *patch;
@@ -574,7 +574,7 @@ void R_InitSpriteLumps(void)
 =================
 */
 
-void R_InitColormaps(void)
+static void R_InitColormaps(void)
 {
     int lump, length;
 //

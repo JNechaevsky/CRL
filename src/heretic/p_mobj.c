@@ -21,6 +21,7 @@
 #include "doomdef.h"
 #include "i_system.h"
 #include "m_random.h"
+#include "p_action.h"
 #include "p_local.h"
 #include "sounds.h"
 #include "s_sound.h"
@@ -117,7 +118,7 @@ boolean P_SetMobjStateNF(mobj_t * mobj, statenum_t state)
 //
 //----------------------------------------------------------------------------
 
-void P_ExplodeMissile(mobj_t * mo)
+static void P_ExplodeMissile(mobj_t * mo)
 {
     if (mo->type == MT_WHIRLWIND)
     {
@@ -142,7 +143,7 @@ void P_ExplodeMissile(mobj_t * mo)
 //
 //----------------------------------------------------------------------------
 
-void P_FloorBounceMissile(mobj_t * mo)
+static void P_FloorBounceMissile(mobj_t * mo)
 {
     mo->momz = -mo->momz;
     P_SetMobjState(mo, mobjinfo[mo->type].deathstate);
@@ -281,7 +282,7 @@ boolean P_SeekerMissile(mobj_t * actor, angle_t thresh, angle_t turnMax)
 #define FRICTION_LOW            0xf900
 #define FRICTION_FLY            0xeb00
 
-void P_XYMovement(mobj_t * mo)
+static void P_XYMovement(mobj_t * mo)
 {
     fixed_t ptryx, ptryy;
     player_t *player;
@@ -489,7 +490,7 @@ void P_XYMovement(mobj_t * mo)
 ===============
 */
 
-void P_ZMovement(mobj_t * mo)
+static void P_ZMovement(mobj_t * mo)
 {
     int dist;
     int delta;
@@ -630,7 +631,7 @@ void P_ZMovement(mobj_t * mo)
 ================
 */
 
-void P_NightmareRespawn(mobj_t * mobj)
+static void P_NightmareRespawn(mobj_t * mobj)
 {
     fixed_t x, y, z;
     subsector_t *ss;
@@ -1048,7 +1049,7 @@ void P_RemoveMobj(mobj_t * mobj)
 ============
 */
 
-void P_SpawnPlayer(mapthing_t * mthing)
+void P_SpawnPlayer(const mapthing_t *mthing)
 {
     player_t *p;
     fixed_t x, y, z;

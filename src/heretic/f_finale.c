@@ -93,7 +93,7 @@ void F_StartFinale(void)
 
 
 
-boolean F_Responder(event_t * event)
+boolean F_Responder(const event_t *event)
 {
     if (event->type != ev_keydown)
     {
@@ -151,7 +151,7 @@ void F_Ticker(void)
 */
 
 
-void F_TextWrite(void)
+static void F_TextWrite(void)
 {
     byte *src, *dest;
     int count;
@@ -208,33 +208,6 @@ void F_TextWrite(void)
 
 }
 
-
-void F_DrawPatchCol(int x, patch_t * patch, int col)
-{
-    column_t *column;
-    byte *source, *dest, *desttop;
-    int count;
-
-    column = (column_t *) ((byte *) patch + LONG(patch->columnofs[col]));
-    desttop = I_VideoBuffer + x;
-
-// step through the posts in a column
-
-    while (column->topdelta != 0xff)
-    {
-        source = (byte *) column + 3;
-        dest = desttop + column->topdelta * SCREENWIDTH;
-        count = column->length;
-
-        while (count--)
-        {
-            *dest = *source++;
-            dest += SCREENWIDTH;
-        }
-        column = (column_t *) ((byte *) column + column->length + 4);
-    }
-}
-
 /*
 ==================
 =
@@ -243,7 +216,7 @@ void F_DrawPatchCol(int x, patch_t * patch, int col)
 ==================
 */
 
-void F_DemonScroll(void)
+static void F_DemonScroll(void)
 {
     byte *p1, *p2;
     static int yval = 0;
@@ -282,7 +255,7 @@ void F_DemonScroll(void)
 ==================
 */
 
-void F_DrawUnderwater(void)
+static void F_DrawUnderwater(void)
 {
     static boolean underwawa = false;
     const char *lumpname;
@@ -324,66 +297,6 @@ void F_DrawUnderwater(void)
             //D_StartTitle(); // go to intro/demo mode.
     }
 }
-
-
-#if 0
-/*
-==================
-=
-= F_BunnyScroll
-=
-==================
-*/
-
-void F_BunnyScroll(void)
-{
-    int scrolled, x;
-    patch_t *p1, *p2;
-    char name[10];
-    int stage;
-    static int laststage;
-
-    p1 = W_CacheLumpName("PFUB2", PU_LEVEL);
-    p2 = W_CacheLumpName("PFUB1", PU_LEVEL);
-
-    scrolled = 320 - (finalecount - 230) / 2;
-    if (scrolled > 320)
-        scrolled = 320;
-    if (scrolled < 0)
-        scrolled = 0;
-
-    for (x = 0; x < SCREENWIDTH; x++)
-    {
-        if (x + scrolled < 320)
-            F_DrawPatchCol(x, p1, x + scrolled);
-        else
-            F_DrawPatchCol(x, p2, x + scrolled - 320);
-    }
-
-    if (finalecount < 1130)
-        return;
-    if (finalecount < 1180)
-    {
-        V_DrawPatch((SCREENWIDTH - 13 * 8) / 2, (SCREENHEIGHT - 8 * 8) / 2, 0,
-                    W_CacheLumpName("END0", PU_CACHE));
-        laststage = 0;
-        return;
-    }
-
-    stage = (finalecount - 1180) / 5;
-    if (stage > 6)
-        stage = 6;
-    if (stage > laststage)
-    {
-        S_StartSound(NULL, sfx_pistol);
-        laststage = stage;
-    }
-
-    M_snprintf(name, sizeof(name), "END%i", stage);
-    V_DrawPatch((SCREENWIDTH - 13 * 8) / 2, (SCREENHEIGHT - 8 * 8) / 2,
-                W_CacheLumpName(name, PU_CACHE));
-}
-#endif
 
 /*
 =======================

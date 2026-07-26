@@ -98,7 +98,7 @@ void P_Thrust(player_t * player, angle_t angle, fixed_t move)
 ==================
 */
 
-void P_CalcHeight(player_t * player)
+static void P_CalcHeight(player_t * player)
 {
     int angle;
     fixed_t bob;
@@ -192,7 +192,7 @@ void P_CalcHeight(player_t * player)
 =================
 */
 
-void P_MovePlayer(player_t * player)
+static void P_MovePlayer(player_t * player)
 {
     int look;
     int fly;
@@ -334,7 +334,7 @@ void P_MovePlayer(player_t * player)
 
 #define         ANG5    (ANG90/18)
 
-void P_DeathThink(player_t * player)
+static void P_DeathThink(player_t * player)
 {
     angle_t angle, delta;
     int lookDelta;
@@ -464,7 +464,7 @@ void P_DeathThink(player_t * player)
 //
 //----------------------------------------------------------------------------
 
-void P_ChickenPlayerThink(player_t * player)
+static void P_ChickenPlayerThink(player_t * player)
 {
     mobj_t *pmo;
 
@@ -873,7 +873,7 @@ void P_PlayerThink(player_t * player)
 //
 //----------------------------------------------------------------------------
 
-void P_ArtiTele(player_t * player)
+static void P_ArtiTele(player_t * player)
 {
     int i;
     int selections;

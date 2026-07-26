@@ -139,7 +139,7 @@ void P_InitSwitchList(void)
 //      Start a button counting down till it turns off.
 //
 //==================================================================
-void P_StartButton(line_t * line, bwhere_e w, int texture, int time)
+static void P_StartButton(line_t * line, bwhere_e w, int texture, int time)
 {
     int i;
 

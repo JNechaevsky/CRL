@@ -263,18 +263,18 @@ fixed_t P_InterceptVector(divline_t * v2, divline_t * v1)
 fixed_t opentop, openbottom, openrange;
 fixed_t lowfloor;
 
-void P_LineOpening(line_t * linedef)
+void P_LineOpening(line_t * line_def)
 {
     sector_t *front, *back;
 
-    if (linedef->sidenum[1] == -1)
+    if (line_def->sidenum[1] == -1)
     {                           // single sided line
         openrange = 0;
         return;
     }
 
-    front = linedef->frontsector;
-    back = linedef->backsector;
+    front = line_def->frontsector;
+    back = line_def->backsector;
 
     if (front->ceilingheight < back->ceilingheight)
         opentop = front->ceilingheight;
@@ -541,7 +541,7 @@ int ptflags;
 ==================
 */
 
-boolean PIT_AddLineIntercepts(line_t * ld)
+static boolean PIT_AddLineIntercepts(line_t * ld)
 {
     int s1, s2;
     fixed_t frac;
@@ -593,7 +593,7 @@ boolean PIT_AddLineIntercepts(line_t * ld)
 ==================
 */
 
-boolean PIT_AddThingIntercepts(mobj_t * thing)
+static boolean PIT_AddThingIntercepts(mobj_t * thing)
 {
     fixed_t x1, y1, x2, y2;
     int s1, s2;
@@ -652,7 +652,7 @@ boolean PIT_AddThingIntercepts(mobj_t * thing)
 ====================
 */
 
-boolean P_TraverseIntercepts(traverser_t func, fixed_t maxfrac)
+static boolean P_TraverseIntercepts(traverser_t func, fixed_t maxfrac)
 {
     int count;
     fixed_t dist;

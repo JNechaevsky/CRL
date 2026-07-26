@@ -198,7 +198,7 @@ void AM_getIslope(mline_t *ml, islope_t *is)
 }
 */
 
-void AM_activateNewScale(void)
+static void AM_activateNewScale(void)
 {
     m_x += m_w / 2;
     m_y += m_h / 2;
@@ -210,7 +210,7 @@ void AM_activateNewScale(void)
     m_y2 = m_y + m_h;
 }
 
-void AM_saveScaleAndLoc(void)
+static void AM_saveScaleAndLoc(void)
 {
     old_m_x = m_x;
     old_m_y = m_y;
@@ -218,7 +218,7 @@ void AM_saveScaleAndLoc(void)
     old_m_h = m_h;
 }
 
-void AM_restoreScaleAndLoc(void)
+static void AM_restoreScaleAndLoc(void)
 {
 
     m_w = old_m_w;
@@ -252,7 +252,7 @@ void AM_addMark(void)
 
 }
 */
-void AM_findMinMaxBoundaries(void)
+static void AM_findMinMaxBoundaries(void)
 {
     int i;
     fixed_t a, b;
@@ -284,7 +284,7 @@ void AM_findMinMaxBoundaries(void)
 
 }
 
-void AM_changeWindowLoc(void)
+static void AM_changeWindowLoc(void)
 {
     if (m_paninc.x || m_paninc.y)
     {
@@ -336,7 +336,7 @@ void AM_changeWindowLoc(void)
     m_y2 = m_y + m_h;
 }
 
-void AM_initVariables(void)
+static void AM_initVariables(void)
 {
     int pnum;
     thinker_t *think;
@@ -424,7 +424,7 @@ void AM_initVariables(void)
 //c  ST_Responder(&st_notify);
 }
 
-void AM_loadPics(void)
+static void AM_loadPics(void)
 {
     //int i;
     //char namebuf[9];
@@ -455,7 +455,7 @@ void AM_clearMarks(void)
 // should be called at the start of every level
 // right now, i figure it out myself
 
-void AM_LevelInit(void)
+static void AM_LevelInit(void)
 {
     leveljuststarted = 0;
 
@@ -510,7 +510,7 @@ void AM_Start(void)
 
 // set the window scale to the maximum size
 
-void AM_minOutWindowScale(void)
+static void AM_minOutWindowScale(void)
 {
     scale_mtof = min_scale_mtof;
     scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
@@ -519,7 +519,7 @@ void AM_minOutWindowScale(void)
 
 // set the window scale to the minimum size
 
-void AM_maxOutWindowScale(void)
+static void AM_maxOutWindowScale(void)
 {
     scale_mtof = max_scale_mtof;
     scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
@@ -531,15 +531,15 @@ boolean AM_Responder(event_t * ev)
     int rc;
     int key;
     static int bigstate = 0;
-    static int joywait = 0;
+    static int joy_wait = 0;
 
     key = ev->data1;
     rc = false;
 
     if (ev->type == ev_joystick && joybautomap >= 0
-        && (ev->data1 & (1 << joybautomap)) != 0 && joywait < I_GetTime())
+        && (ev->data1 & (1 << joybautomap)) != 0 && joy_wait < I_GetTime())
     {
-        joywait = I_GetTime() + 5;
+        joy_wait = I_GetTime() + 5;
 
         if (!automapactive)
         {
@@ -719,7 +719,7 @@ boolean AM_Responder(event_t * ev)
 
 }
 
-void AM_changeWindowScale(void)
+static void AM_changeWindowScale(void)
 {
 
     // Change the scaling multipliers
@@ -734,7 +734,7 @@ void AM_changeWindowScale(void)
         AM_activateNewScale();
 }
 
-void AM_doFollowPlayer(void)
+static void AM_doFollowPlayer(void)
 {
     if (f_oldloc.x != plr->mo->x || f_oldloc.y != plr->mo->y)
     {
@@ -813,7 +813,7 @@ void AM_Ticker(void)
 
 }
 
-void AM_clearFB(int color)
+static void AM_clearFB(int color)
 {
     int i, j;
     int dmapx;
@@ -881,7 +881,7 @@ void AM_clearFB(int color)
 // faster reject and precalculated slopes.  If I need the speed, will
 // hash algorithm to the common cases.
 
-boolean AM_clipMline(mline_t * ml, fline_t * fl)
+static boolean AM_clipMline(mline_t * ml, fline_t * fl)
 {
     enum
     { LEFT = 1, RIGHT = 2, BOTTOM = 4, TOP = 8 };
@@ -987,7 +987,7 @@ boolean AM_clipMline(mline_t * ml, fline_t * fl)
 
 // Classic Bresenham w/ whatever optimizations I need for speed
 
-void AM_drawFline(fline_t * fl, int color)
+static void AM_drawFline(fline_t * fl, int color)
 {
 
     register int x, y, dx, dy, sx, sy, ax, ay, d;
@@ -1079,7 +1079,7 @@ void AM_drawFline(fline_t * fl, int color)
  * IntensityBits = log base 2 of NumLevels; the # of bits used to describe
  *          the intensity of the drawing color. 2**IntensityBits==NumLevels
  */
-void PUTDOT(short xx, short yy, byte * cc, byte * cm)
+static void PUTDOT(short xx, short yy, byte * cc, byte * cm)
 {
     static int oldyy;
     static int oldyyshifted;
@@ -1258,7 +1258,7 @@ void DrawWuLine(int X0, int Y0, int X1, int Y1, byte * BaseColor,
     PUTDOT(X1, Y1, &BaseColor[0], NULL);
 }
 
-void AM_drawMline(mline_t * ml, int color)
+static void AM_drawMline(mline_t * ml, int color)
 {
     static fline_t fl;
 
@@ -1267,7 +1267,7 @@ void AM_drawMline(mline_t * ml, int color)
 
 }
 
-void AM_drawGrid(int color)
+static void AM_drawGrid(int color)
 {
     fixed_t x, y;
     fixed_t start, end;
@@ -1306,7 +1306,7 @@ void AM_drawGrid(int color)
     }
 }
 
-void AM_drawWalls(void)
+static void AM_drawWalls(void)
 {
     int i;
     static mline_t l;
@@ -1407,7 +1407,7 @@ void AM_drawWalls(void)
 
 }
 
-void AM_rotate(fixed_t * x, fixed_t * y, angle_t a)
+static void AM_rotate(fixed_t * x, fixed_t * y, angle_t a)
 {
     fixed_t tmpx;
 
@@ -1418,7 +1418,7 @@ void AM_rotate(fixed_t * x, fixed_t * y, angle_t a)
     *x = tmpx;
 }
 
-void AM_drawLineCharacter(mline_t * lineguy, int lineguylines, fixed_t scale,
+static void AM_drawLineCharacter(mline_t * lineguy, int lineguylines, fixed_t scale,
                           angle_t angle, int color, fixed_t x, fixed_t y)
 {
     int i;
@@ -1455,7 +1455,7 @@ void AM_drawLineCharacter(mline_t * lineguy, int lineguylines, fixed_t scale,
 
 }
 
-void AM_drawPlayers(void)
+static void AM_drawPlayers(void)
 {
 
     int i;
@@ -1495,7 +1495,7 @@ void AM_drawPlayers(void)
     }
 }
 
-void AM_drawThings(int colors, int colorrange)
+static void AM_drawThings(int colors, int colorrange)
 {
     int i;
     mobj_t *t;
@@ -1549,7 +1549,7 @@ void AM_drawMarks(void)
 }
 */
 
-void AM_drawkeys(void)
+static void AM_drawkeys(void)
 {
     if (KeyPoints[0].x != 0 || KeyPoints[0].y != 0)
     {
@@ -1568,9 +1568,15 @@ void AM_drawkeys(void)
     }
 }
 
-void AM_drawCrosshair(int color)
+// -----------------------------------------------------------------------------
+// AM_drawCrosshair
+// -----------------------------------------------------------------------------
+
+static void AM_drawCrosshair (void)
 {
-    fb[(f_w * (f_h + 1)) / 2] = color;  // single point for now
+    // [JN] Simplify: (f_w*(f_h+1))/2) = (320 * (200 - 32 + 1) / 2) = 27040.
+    // Color is always same, so macro can be used here safely.
+    I_VideoBuffer[27040] = XHAIRCOLORS; // single point for now
 }
 
 void AM_Drawer(void)
@@ -1588,7 +1594,12 @@ void AM_Drawer(void)
     AM_drawPlayers();
     if (ravmap_cheating == 2)
         AM_drawThings(THINGCOLORS, THINGRANGE);
-//  AM_drawCrosshair(XHAIRCOLORS);
+
+    // [JN] Do not draw in following mode.
+    if (!followplayer)
+    {
+        AM_drawCrosshair();
+    }
 
 //  AM_drawMarks();
     if (gameskill == sk_baby)

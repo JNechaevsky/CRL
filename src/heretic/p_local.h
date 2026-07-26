@@ -155,6 +155,7 @@ void P_MobjThinker(thinker_t *thinker);
 void P_BlasterMobjThinker(thinker_t *thinker);
 void P_SpawnPuff(fixed_t x, fixed_t y, fixed_t z);
 void P_SpawnBlood(fixed_t x, fixed_t y, fixed_t z, int damage);
+void P_SpawnPlayer(const mapthing_t *mthing);
 void P_BloodSplatter(fixed_t x, fixed_t y, fixed_t z, mobj_t * originator);
 void P_RipperBlood(mobj_t * mo);
 int P_GetThingFloorType(mobj_t * thing);
@@ -247,6 +248,7 @@ boolean P_CheckSight(mobj_t * t1, mobj_t * t2);
 void P_UseLines(player_t * player);
 
 boolean P_ChangeSector(sector_t * sector, boolean crunch);
+boolean PIT_ChangeSector(mobj_t * thing);
 
 extern mobj_t *linetarget;      // who got hit (or NULL)
 extern boolean  safe_intercept;
@@ -256,6 +258,7 @@ void P_LineAttack(mobj_t * t1, angle_t angle, fixed_t distance, fixed_t slope,
                   int damage);
 
 void P_RadiusAttack(mobj_t * spot, mobj_t * source, int damage);
+boolean PIT_RadiusAttack(mobj_t * thing);
 
 // ***** P_SETUP *****
 

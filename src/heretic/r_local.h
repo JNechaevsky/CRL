@@ -414,6 +414,7 @@ extern void (*spanfunc) (void);
 extern void (*tlcolfunc) (void);
 
 extern void R_AddPointToBox(int x, int y, fixed_t * box);
+extern void R_ExecuteSetViewSize(void);
 extern void R_InterpolateTextureOffsets (void);
 
 inline static fixed_t LerpFixed(fixed_t oldvalue, fixed_t newvalue)

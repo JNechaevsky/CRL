@@ -81,7 +81,7 @@ const char *spritename;
 =================
 */
 
-void R_InstallSpriteLump(int lump, unsigned frame, unsigned rotation,
+static void R_InstallSpriteLump(int lump, unsigned frame, unsigned rotation,
                          boolean flipped)
 {
     int r;
@@ -147,7 +147,7 @@ void R_InstallSpriteLump(int lump, unsigned frame, unsigned rotation,
 =================
 */
 
-void R_InitSpriteDefs(const char **namelist)
+static void R_InitSpriteDefs(const char **namelist)
 {
     const char **check;
     int i, l, frame, rotation;
@@ -297,9 +297,9 @@ void R_ClearSprites(void)
 ===================
 */
 
-vissprite_t overflowsprite;
+static vissprite_t overflowsprite;
 
-vissprite_t *R_NewVisSprite(void)
+static vissprite_t *R_NewVisSprite(void)
 {
     if (vissprite_p == &vissprites[crl_vanilla_limits ? MAXVISSPRITES : REALMAXVISSPRITES])
         return &overflowsprite;
@@ -369,7 +369,7 @@ void R_DrawMaskedColumn(column_t * column, signed int baseclip)
 ================
 */
 
-void R_DrawVisSprite(vissprite_t * vis, int x1, int x2)
+static void R_DrawVisSprite(vissprite_t * vis, int x1, int x2)
 {
     column_t *column;
     int texturecolumn;
@@ -460,7 +460,7 @@ void R_DrawVisSprite(vissprite_t * vis, int x1, int x2)
 ===================
 */
 
-void R_ProjectSprite(mobj_t * thing)
+static void R_ProjectSprite(mobj_t * thing)
 {
     fixed_t trx, try;
     fixed_t gxt, gyt;
@@ -680,7 +680,7 @@ void R_AddSprites(sector_t * sec)
 ========================
 */
 
-int PSpriteSY[NUMWEAPONS] = {
+static const int PSpriteSY[NUMWEAPONS] = {
     0,                          // staff
     5 * FRACUNIT,               // goldwand
     15 * FRACUNIT,              // crossbow
@@ -692,7 +692,7 @@ int PSpriteSY[NUMWEAPONS] = {
     15 * FRACUNIT               // beak
 };
 
-void R_DrawPSprite(pspdef_t * psp)
+static void R_DrawPSprite(pspdef_t * psp)
 {
     fixed_t tx;
     int x1, x2;
@@ -825,7 +825,7 @@ void R_DrawPSprite(pspdef_t * psp)
 ========================
 */
 
-void R_DrawPlayerSprites(void)
+static void R_DrawPlayerSprites(void)
 {
     int i, lightnum;
     pspdef_t *psp;
@@ -930,7 +930,7 @@ void R_SortVisSprites(void)
 ========================
 */
 
-void R_DrawSprite(vissprite_t * spr)
+static void R_DrawSprite(vissprite_t * spr)
 {
     drawseg_t *ds;
     int clipbot[SCREENWIDTH];  // [JN] 32-bit integer math

@@ -281,34 +281,6 @@ fixed_t R_PointToDist(fixed_t x, fixed_t y)
 }
 
 
-
-/*
-=================
-=
-= R_InitPointToAngle
-=
-=================
-*/
-
-void R_InitPointToAngle(void)
-{
-// now getting from tables.c
-#if 0
-    int i;
-    long t;
-    float f;
-//
-// slope (tangent) to angle lookup
-//
-    for (i = 0; i <= SLOPERANGE; i++)
-    {
-        f = atan((float) i / SLOPERANGE) / (3.141592657 * 2);
-        t = 0xffffffff * f;
-        tantoangle[i] = t;
-    }
-#endif
-}
-
 //=============================================================================
 
 /*
@@ -366,54 +338,12 @@ fixed_t R_ScaleFromGlobalAngle(angle_t visangle)
 /*
 =================
 =
-= R_InitTables
-=
-=================
-*/
-
-void R_InitTables(void)
-{
-// now getting from tables.c
-#if 0
-    int i;
-    float a, fv;
-    int t;
-
-//
-// viewangle tangent table
-//
-    for (i = 0; i < FINEANGLES / 2; i++)
-    {
-        a = (i - FINEANGLES / 4 + 0.5) * PI * 2 / FINEANGLES;
-        fv = FRACUNIT * tan(a);
-        t = fv;
-        finetangent[i] = t;
-    }
-
-//
-// finesine table
-//
-    for (i = 0; i < 5 * FINEANGLES / 4; i++)
-    {
-// OPTIMIZE: mirror...
-        a = (i + 0.5) * PI * 2 / FINEANGLES;
-        t = FRACUNIT * sin(a);
-        finesine[i] = t;
-    }
-#endif
-
-}
-
-
-/*
-=================
-=
 = R_InitTextureMapping
 =
 =================
 */
 
-void R_InitTextureMapping(void)
+static void R_InitTextureMapping(void)
 {
     int i;
     int x;
@@ -490,9 +420,9 @@ void R_InitTextureMapping(void)
 
 #define		DISTMAP	2
 
-void R_InitLightTables(void)
+static void R_InitLightTables(void)
 {
-    int i, j, level, startmap;
+    int i, j, level, start_map;
     int scale;
 
 //
@@ -500,14 +430,14 @@ void R_InitLightTables(void)
 //
     for (i = 0; i < LIGHTLEVELS; i++)
     {
-        startmap = ((LIGHTLEVELS - 1 - i) * 2) * NUMCOLORMAPS / LIGHTLEVELS;
+        start_map = ((LIGHTLEVELS - 1 - i) * 2) * NUMCOLORMAPS / LIGHTLEVELS;
         for (j = 0; j < MAXLIGHTZ; j++)
         {
             scale =
                 FixedDiv((SCREENWIDTH / 2 * FRACUNIT),
                          (j + 1) << LIGHTZSHIFT);
             scale >>= LIGHTSCALESHIFT;
-            level = startmap - scale / DISTMAP;
+            level = start_map - scale / DISTMAP;
             if (level < 0)
                 level = 0;
             if (level >= NUMCOLORMAPS)
@@ -550,7 +480,7 @@ void R_SetViewSize(int blocks, int detail)
 void R_ExecuteSetViewSize(void)
 {
     fixed_t cosadj, dy;
-    int i, j, level, startmap;
+    int i, j, level, start_map;
 
     setsizeneeded = false;
 
@@ -626,11 +556,11 @@ void R_ExecuteSetViewSize(void)
 //
     for (i = 0; i < LIGHTLEVELS; i++)
     {
-        startmap = ((LIGHTLEVELS - 1 - i) * 2) * NUMCOLORMAPS / LIGHTLEVELS;
+        start_map = ((LIGHTLEVELS - 1 - i) * 2) * NUMCOLORMAPS / LIGHTLEVELS;
         for (j = 0; j < MAXLIGHTSCALE; j++)
         {
             level =
-                startmap -
+                start_map -
                 j * SCREENWIDTH / (viewwidth << detailshift) / DISTMAP;
             if (level < 0)
                 level = 0;
@@ -666,10 +596,10 @@ void R_Init(void)
     R_InitData();
     printf (".");
     //tprintf("R_InitPointToAngle\n", 0);
-    R_InitPointToAngle();
+    //R_InitPointToAngle();
     printf (".");
     //tprintf("R_InitTables ", 0);
-    R_InitTables();
+    //R_InitTables();
     // viewwidth / viewheight / detailLevel are set by the defaults
     printf (".");
     R_SetViewSize(crl_screen_size, detailLevel);
@@ -736,7 +666,7 @@ static inline boolean CheckLocalView(const player_t *player)
 //
 //----------------------------------------------------------------------------
 
-void R_SetupFrame(player_t * player)
+static void R_SetupFrame(player_t * player)
 {
     int i;
     int tableAngle;

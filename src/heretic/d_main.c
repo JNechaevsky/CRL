@@ -92,6 +92,8 @@ boolean autostart;
 
 boolean advancedemo;
 
+static void D_PageDrawer(void);
+
 FILE *debugfile;
 
 int show_endoom = 0;       // [JN] Disabled by default
@@ -101,12 +103,6 @@ int showMessages = 1;      // [JN] Show messages has default, 0 = off, 1 = on
 // using extended range and because of this can't be used in DOS version.
 // Still used for config file compatibility.
 static int screenblocks = 10;
-
-void D_ConnectNetGame(void);
-void D_CheckNetGame(void);
-void D_PageDrawer(void);
-void D_AdvanceDemo(void);
-boolean F_Responder(event_t * ev);
 
 //---------------------------------------------------------------------------
 //
@@ -196,9 +192,7 @@ static void CRL_DrawMessageCritical (void)
 //
 //---------------------------------------------------------------------------
 
-void R_ExecuteSetViewSize(void);
-
-void D_Display(void)
+static void D_Display(void)
 {
     // For comparative timing / profiling
     if (nodrawers)
@@ -341,7 +335,7 @@ void D_Display(void)
 // Called to determine whether to grab the mouse pointer
 //
 
-boolean D_GrabMouseCallback(void)
+static boolean D_GrabMouseCallback(void)
 {
     // [JN] CRL - always grab mouse in spectator mode.
     // It's supposed to be controlled by hand, even while pause.
@@ -388,8 +382,6 @@ void D_DoomLoop(void)
 
     while (1)
     {
-        static int oldgametic;
-
         // Frame syncronous IO operations
         I_StartFrame();
 
@@ -445,7 +437,7 @@ void D_PageTicker(void)
 ================
 */
 
-void D_PageDrawer(void)
+static void D_PageDrawer(void)
 {
     V_DrawRawScreen(W_CacheLumpName(pagename, PU_CACHE));
     if (demosequence == 1)
@@ -556,7 +548,7 @@ void D_StartTitle(void)
 ==============
 */
 
-void D_CheckRecordFrom(void)
+static void D_CheckRecordFrom(void)
 {
     int p;
     char *filename;
@@ -601,7 +593,7 @@ char *iwadfile;
 
 char *basedefault = "heretic.cfg";
 
-void wadprintf(void)
+static void wadprintf(void)
 {
     if (debugmode)
     {
@@ -609,7 +601,7 @@ void wadprintf(void)
     }
 }
 
-boolean D_AddFile(char *file)
+static boolean D_AddFile(char *file)
 {
     wad_file_t *handle;
 
@@ -639,7 +631,7 @@ char smsg[80];                  // status bar line
 
 static int startup_line = STARTUP_WINDOW_Y;
 
-void hprintf(const char *string)
+static void hprintf(const char *string)
 {
     if (using_graphical_startup)
     {
@@ -658,7 +650,7 @@ void hprintf(const char *string)
         puts(string);
 }
 
-void drawstatus(void)
+static void drawstatus(void)
 {
     int i;
 
@@ -681,7 +673,7 @@ static void status(const char *string)
     }
 }
 
-void DrawThermo(void)
+static void DrawThermo(void)
 {
     static int last_progress = -1;
     int progress;
@@ -716,7 +708,7 @@ void DrawThermo(void)
     TXT_UpdateScreen();
 }
 
-void initStartup(void)
+static void initStartup(void)
 {
     byte *textScreen;
     byte *loading;
@@ -768,7 +760,7 @@ void tprintf(const char *msg, int initflag)
 }
 
 // haleyjd: moved up, removed WATCOMC code
-void CleanExit(void)
+static void CleanExit(void)
 {
     DEH_printf("Exited from HERETIC.\n");
     exit(1);
@@ -803,7 +795,7 @@ void InitThermo(int max)
 // Add configuration file variable bindings.
 //
 
-void D_BindVariables(void)
+static void D_BindVariables(void)
 {
     int i;
 

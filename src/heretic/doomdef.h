@@ -763,6 +763,23 @@ void G_PrepTiccmd(void); // [crispy]
 
 void G_ScreenShot(void);
 
+// [crispy] holding down the "Run" key may trigger special behavior
+extern boolean speedkeydown (void);
+
+// -----------------------------------------------------------------------------
+// D_MAIN
+// -----------------------------------------------------------------------------
+
+extern void D_AdvanceDemo(void);
+extern void D_PageTicker(void);
+
+// -----------------------------------------------------------------------------
+// D_NET
+// -----------------------------------------------------------------------------
+
+extern void D_ConnectNetGame(void);
+extern void D_CheckNetGame(void);
+
 //-----
 //PLAY
 //-----
@@ -855,6 +872,7 @@ extern boolean chatmodeon;
 void F_Drawer(void);
 void F_Ticker(void);
 void F_StartFinale(void);
+extern boolean F_Responder (const event_t *event);
 
 //----------------------
 // STATUS BAR (SB_bar.c)

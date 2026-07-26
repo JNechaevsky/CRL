@@ -120,7 +120,8 @@ extern vertex_t KeyPoints[];
 extern const char *LevelNames[];
 extern int ravmap_cheating;
 
-void AM_Stop(void);
+extern void AM_Start (void);
+extern void AM_Stop (void);
 
 
 #endif

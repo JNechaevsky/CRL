@@ -65,9 +65,6 @@ void G_DoVictory(void);
 void G_DoWorldDone(void);
 void G_DoSaveGame(void);
 
-void D_PageTicker(void);
-void D_AdvanceDemo(void);
-
 struct
 {
     int type;   // mobjtype_t
@@ -314,11 +311,11 @@ boolean speedkeydown (void)
 }
 
 // [crispy] for carrying rounding error
-static int CarryError(double value, const double *prevcarry, double *carry)
+static int CarryError(double value, const double *prev_carry, double *cur_carry)
 {
-    const double desired = value + *prevcarry;
+    const double desired = value + *prev_carry;
     const int actual = lround(desired);
-    *carry = desired - actual;
+    *cur_carry = desired - actual;
 
     return actual;
 }
@@ -354,20 +351,20 @@ static int CarryMouseSide(double side)
     return actual;
 }
 
-static double CalcMouseAngle(int mousex)
+static double CalcMouseAngle(int mouse_x)
 {
     if (!mouseSensitivity)
         return 0.0;
 
-    return (I_AccelerateMouse(mousex) * (mouseSensitivity + 5) * 8 / 10);
+    return (I_AccelerateMouse(mouse_x) * (mouseSensitivity + 5) * 8 / 10);
 }
 
-static double CalcMouseVert(int mousey)
+static double CalcMouseVert(int mouse_y)
 {
     if (!mouse_sensitivity_y)
         return 0.0;
 
-    return (I_AccelerateMouseY(mousey) * (mouse_sensitivity_y + 5) * 2 / 10);
+    return (I_AccelerateMouseY(mouse_y) * (mouse_sensitivity_y + 5) * 2 / 10);
 }
 
 /*
@@ -390,7 +387,7 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
     short mousex_angleturn; // [crispy]
     int forward, side;
     int look, arti;
-    int flyheight;
+    int fly_height;
     ticcmd_t spect;
 
     // haleyjd: removed externdriver crap
@@ -439,7 +436,7 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
 
     // haleyjd: removed externdriver crap
     
-    forward = side = look = arti = flyheight = 0;
+    forward = side = look = arti = fly_height = 0;
 
 //
 // use two stage accelerative turning on the keyboard and joystick
@@ -653,15 +650,15 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
     // Fly up/down/drop keys
     if (gamekeydown[key_flyup])
     {
-        flyheight = 5;          // note that the actual flyheight will be twice this
+        fly_height = 5;          // note that the actual fly_height will be twice this
     }
     if (gamekeydown[key_flydown])
     {
-        flyheight = -5;
+        fly_height = -5;
     }
     if (gamekeydown[key_flycenter])
     {
-        flyheight = TOCENTER;
+        fly_height = TOCENTER;
         // haleyjd: removed externdriver crap
         look = TOCENTER;
     }
@@ -1020,11 +1017,11 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
         }
         cmd->lookfly = look;
     }
-    if (flyheight < 0)
+    if (fly_height < 0)
     {
-        flyheight += 16;
+        fly_height += 16;
     }
-    cmd->lookfly |= flyheight << 4;
+    cmd->lookfly |= fly_height << 4;
 
 //
 // special buttons
@@ -1896,30 +1893,13 @@ also see P_SpawnPlayer in P_Things
 /*
 ====================
 =
-= G_InitPlayer
-=
-= Called at the start
-= Called by the game initialization functions
-====================
-*/
-
-void G_InitPlayer(int player)
-{
-    // clear everything else to defaults
-    G_PlayerReborn(player);
-}
-
-
-/*
-====================
-=
 = G_PlayerFinishLevel
 =
 = Can when a player completes a level
 ====================
 */
 
-void G_PlayerFinishLevel(int player)
+static void G_PlayerFinishLevel(int player)
 {
     player_t *p;
     int i;
@@ -2044,9 +2024,7 @@ void G_PlayerReborn(int player)
 ====================
 */
 
-void P_SpawnPlayer(mapthing_t * mthing);
-
-boolean G_CheckSpot(int playernum, mapthing_t * mthing)
+static boolean G_CheckSpot(int playernum, mapthing_t * mthing)
 {
     fixed_t x, y;
     subsector_t *ss;

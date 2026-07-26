@@ -23,6 +23,7 @@
 #include "i_system.h"
 #include "i_timer.h"
 #include "m_random.h"
+#include "p_action.h"
 #include "p_local.h"
 #include "s_sound.h"
 #include "v_video.h"
@@ -84,9 +85,9 @@ void P_AddBossSpot(fixed_t x, fixed_t y, angle_t angle)
 //
 //----------------------------------------------------------------------------
 
-mobj_t *soundtarget;
+static mobj_t *soundtarget;
 
-void P_RecursiveSound(sector_t * sec, int soundblocks)
+static void P_RecursiveSound(sector_t * sec, int soundblocks)
 {
     int i;
     line_t *check;
@@ -168,7 +169,7 @@ void P_NoiseAlert(mobj_t * target, mobj_t * emmiter)
 //
 //----------------------------------------------------------------------------
 
-boolean P_CheckMeleeRange(mobj_t * actor)
+static boolean P_CheckMeleeRange(mobj_t * actor)
 {
     mobj_t *mo;
     fixed_t dist;
@@ -204,7 +205,7 @@ boolean P_CheckMeleeRange(mobj_t * actor)
 //
 //----------------------------------------------------------------------------
 
-boolean P_CheckMissileRange(mobj_t * actor)
+static boolean P_CheckMissileRange(mobj_t * actor)
 {
     fixed_t dist;
 
@@ -252,12 +253,12 @@ boolean P_CheckMissileRange(mobj_t * actor)
 ================
 */
 
-fixed_t xspeed[8] =
+static const fixed_t xspeed[8] =
     { FRACUNIT, 47000, 0, -47000, -FRACUNIT, -47000, 0, 47000 };
-fixed_t yspeed[8] =
+static const fixed_t yspeed[8] =
     { 0, 47000, FRACUNIT, 47000, 0, -47000, -FRACUNIT, -47000 };
 
-boolean P_Move(mobj_t * actor)
+static boolean P_Move(mobj_t * actor)
 {
     fixed_t tryx, tryy;
     line_t *ld;
@@ -327,7 +328,7 @@ boolean P_Move(mobj_t * actor)
 //
 //----------------------------------------------------------------------------
 
-boolean P_TryWalk(mobj_t * actor)
+static boolean P_TryWalk(mobj_t * actor)
 {
     if (!P_Move(actor))
     {
@@ -345,15 +346,15 @@ boolean P_TryWalk(mobj_t * actor)
 ================
 */
 
-dirtype_t opposite[] =
+static const dirtype_t opposite[] =
     { DI_WEST, DI_SOUTHWEST, DI_SOUTH, DI_SOUTHEAST, DI_EAST, DI_NORTHEAST,
     DI_NORTH, DI_NORTHWEST, DI_NODIR
 };
 
-dirtype_t diags[] =
+static const dirtype_t diags[] =
     { DI_NORTHWEST, DI_NORTHEAST, DI_SOUTHWEST, DI_SOUTHEAST };
 
-void P_NewChaseDir(mobj_t * actor)
+static void P_NewChaseDir(mobj_t * actor)
 {
     fixed_t deltax, deltay;
     dirtype_t d[3];
@@ -478,7 +479,7 @@ void P_NewChaseDir(mobj_t * actor)
 #define MONS_LOOK_RANGE (20*64*FRACUNIT)
 #define MONS_LOOK_LIMIT 64
 
-boolean P_LookForMonsters(mobj_t * actor)
+static boolean P_LookForMonsters(mobj_t * actor)
 {
     int count;
     mobj_t *mo;
@@ -534,7 +535,7 @@ boolean P_LookForMonsters(mobj_t * actor)
 ================
 */
 
-boolean P_LookForPlayers(mobj_t * actor, boolean allaround)
+static boolean P_LookForPlayers(mobj_t * actor, boolean allaround)
 {
     int c;
     int stop;
@@ -1079,7 +1080,7 @@ void A_ImpXDeath2(mobj_t *actor, player_t *player, pspdef_t *psp)
 //
 //----------------------------------------------------------------------------
 
-boolean P_UpdateChicken(mobj_t * actor, int tics)
+static boolean P_UpdateChicken(mobj_t * actor, int tics)
 {
     mobj_t *fog;
     fixed_t x;
@@ -2149,7 +2150,7 @@ void A_Scream(mobj_t * actor, player_t *player, pspdef_t *psp)
 //
 //---------------------------------------------------------------------------
 
-void P_DropItem(mobj_t * source, mobjtype_t type, int special, int chance)
+static void P_DropItem(mobj_t * source, mobjtype_t type, int special, int chance)
 {
     mobj_t *mo;
 
