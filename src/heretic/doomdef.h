@@ -761,6 +761,9 @@ boolean G_Responder(event_t * ev);
 void G_FastResponder(void); // [crispy]
 void G_PrepTiccmd(void); // [crispy]
 
+extern void G_CRL_SetGameSpeed (int speed);
+extern void G_CRL_ChangeGameSpeed (int direction, boolean show_message);
+
 void G_ScreenShot(void);
 
 // [crispy] holding down the "Run" key may trigger special behavior

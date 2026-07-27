@@ -391,6 +391,7 @@ static void CRL_Freeze (int option);
 static void CRL_Buddha (int option);
 static void CRL_NoTarget (int option);
 static void CRL_NoMomentum (int option);
+static void CRL_GameSpeed (int choice);
 
 static void DrawCRLVideo (void);
 static void CRL_UncappedFPS (int option);
@@ -944,6 +945,7 @@ static MenuItem_t CRLMainItems[] = {
     {ITT_LRFUNC1, "BUDDHA MODE",          CRL_Buddha,     0, MENU_NONE},
     {ITT_LRFUNC1, "NO TARGET MODE",       CRL_NoTarget,   0, MENU_NONE},
     {ITT_LRFUNC1, "NO MOMENTUM MODE",     CRL_NoMomentum, 0, MENU_NONE},
+    {ITT_LRFUNC1, "GAME SPEED",           CRL_GameSpeed,  0, MENU_NONE},
     {ITT_EMPTY,   NULL,                   NULL,           0, MENU_NONE},
     {ITT_SETMENU, "VIDEO OPTIONS",        NULL,           0, MENU_CRLVIDEO},
     {ITT_SETMENU, "DISPLAY OPTIONS",      NULL,           0, MENU_CRLDISPLAY},
@@ -968,41 +970,47 @@ static void DrawCRLMain (void)
 {
     char str[32];
 
-    MN_DrTextACentered("MAIN MENU", 10, cr[CR_YELLOW]);
+    MN_DrTextACentered("MAIN CRL MENU", 10, cr[CR_YELLOW]);
 
     // Spectating
     sprintf(str, crl_spectating ? "ON" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 20,
-               M_Item_Glow(0, crl_spectating ? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(0, crl_spectating ? GLOW_GREEN : GLOW_DARKRED));
 
     // Freeze
     sprintf(str, !singleplayer ? "N/A" : crl_freeze ? "ON" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 30,
                  M_Item_Glow(1, !singleplayer ? GLOW_DARKRED :
-                             crl_freeze ? GLOW_GREEN : GLOW_RED));
+                             crl_freeze ? GLOW_GREEN : GLOW_DARKRED));
 
     // Buddha
     sprintf(str, !singleplayer ? "N/A" :
             player->cheats & CF_BUDDHA ? "ON" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 40,
                  M_Item_Glow(2, !singleplayer ? GLOW_DARKRED :
-                             player->cheats & CF_BUDDHA ? GLOW_GREEN : GLOW_RED));
+                             player->cheats & CF_BUDDHA ? GLOW_GREEN : GLOW_DARKRED));
 
     // No target
     sprintf(str, !singleplayer ? "N/A" :
             player->cheats & CF_NOTARGET ? "ON" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 50,
                  M_Item_Glow(3, !singleplayer ? GLOW_DARKRED :
-                             player->cheats & CF_NOTARGET ? GLOW_GREEN : GLOW_RED));
+                             player->cheats & CF_NOTARGET ? GLOW_GREEN : GLOW_DARKRED));
 
     // No momentum
     sprintf(str, !singleplayer ? "N/A" :
             player->cheats & CF_NOMOMENTUM ? "ON" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 60, 
                  M_Item_Glow(4, !singleplayer ? GLOW_DARKRED :
-                             player->cheats & CF_NOMOMENTUM ? GLOW_GREEN : GLOW_RED));
+                             player->cheats & CF_NOMOMENTUM ? GLOW_GREEN : GLOW_DARKRED));
 
-    MN_DrTextACentered ("SETTINGS", 70, cr[CR_YELLOW]);
+    // Game speed
+    sprintf(str, netgame ? "N/A" : "%d%%", crl_game_speed);
+    MN_DrTextA(str, M_ItemRightAlign(str), 70,
+                M_Item_Glow(5, netgame || crl_game_speed == 100 ? GLOW_DARKRED :
+                            crl_game_speed < 100 ? GLOW_YELLOW : GLOW_GREEN));
+
+    MN_DrTextACentered ("SETTINGS", 80, cr[CR_YELLOW]);
 }
 
 static void CRL_Spectating (int option)
@@ -1047,6 +1055,11 @@ static void CRL_NoMomentum (int choice)
     }
 
     player->cheats ^= CF_NOMOMENTUM;
+}
+
+static void CRL_GameSpeed (int choice)
+{
+    G_CRL_ChangeGameSpeed(choice == 0 ? -1 : 1, false);
 }
 
 // -----------------------------------------------------------------------------
