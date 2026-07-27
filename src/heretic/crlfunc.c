@@ -332,6 +332,45 @@ static byte *CRL_Colorize_MAX (int style)
 }
 
 // -----------------------------------------------------------------------------
+// CRL_FixedToString
+//  [PN] Formats fixed_t value as string with fractional part (up to 5 digits).
+// -----------------------------------------------------------------------------
+
+static void CRL_FixedToString (fixed_t value, char *const buf, size_t buf_size)
+{
+    const split_fixed_t val = SplitFixed(value);
+    
+    if (crl_widget_coordsfrac && val.frac)
+    {
+        const char *const sign = (val.negative && !val.base) ? "-" : "";
+        M_snprintf(buf, buf_size, "%s%d.%05d", sign, val.base, val.frac);
+    }
+    else
+    {
+        M_snprintf(buf, buf_size, "%d", val.base);
+    }
+}
+
+// -----------------------------------------------------------------------------
+// CRL_AngleToString
+//  [PN] Formats angle_t value as string with fractional part (up to 3 digits).
+// -----------------------------------------------------------------------------
+
+static void CRL_AngleToString (angle_t value, char *const buf, size_t buf_size)
+{
+    const split_angle_t val = SplitAngle(value);
+    
+    if (crl_widget_coordsfrac && val.frac)
+    {
+        M_snprintf(buf, buf_size, "%d.%03d", val.base, val.frac);
+    }
+    else
+    {
+        M_snprintf(buf, buf_size, "%d", val.base);
+    }
+}
+
+// -----------------------------------------------------------------------------
 // Draws CRL stats.
 //  [JN] Draw all the widgets and counters.
 // -----------------------------------------------------------------------------
@@ -365,26 +404,25 @@ void CRL_StatDrawer (void)
     if (crl_widget_coords == 1
     || (crl_widget_coords == 2 && automapactive))
     {
-        char x[8] = {0}, xpos[128] = {0};
-        char y[8] = {0}, ypos[128] = {0};
-        char ang[128];
+        char x[8] = {0};
+        char y[8] = {0};
+        char str[128];
+        int coord_x_width;
 
         M_snprintf(x, 8, "X: ");
         MN_DrTextA(x, 0, 30, cr[CR_GRAY]);
-        M_snprintf(xpos, 128, "%d ", CRLWidgets.x);
-        MN_DrTextA(xpos, MN_TextAWidth(x), 30, cr[CR_GREEN]);
+        CRL_FixedToString(CRLWidgets.x, str, sizeof(str));
+        coord_x_width = MN_TextAWidth(str);
+        MN_DrTextA(str, MN_TextAWidth(x), 30, cr[CR_GREEN]);
 
-        M_snprintf(y, 8, "Y: ");
-        MN_DrTextA(y, MN_TextAWidth(x) + 
-                      MN_TextAWidth(xpos), 30, cr[CR_GRAY]);
-        M_snprintf(ypos, 128, "%d", CRLWidgets.y);
-        MN_DrTextA(ypos, MN_TextAWidth(x) +
-                         MN_TextAWidth(xpos) +
-                         MN_TextAWidth(y), 30, cr[CR_GREEN]);
+        M_snprintf(y, 8, " Y: ");
+        MN_DrTextA(y, MN_TextAWidth(x) + coord_x_width, 30, cr[CR_GRAY]);
+        CRL_FixedToString(CRLWidgets.y, str, sizeof(str));
+        MN_DrTextA(str, MN_TextAWidth(x) + coord_x_width + MN_TextAWidth(y), 30, cr[CR_GREEN]);
 
         MN_DrTextA("ANG:", 0, 40, cr[CR_GRAY]);
-        M_snprintf(ang, 16, "%d", CRLWidgets.ang);
-        MN_DrTextA(ang, 32, 40, cr[CR_GREEN]);
+        CRL_AngleToString(CRLWidgets.ang, str, sizeof(str));
+        MN_DrTextA(str, 32, 40, cr[CR_GREEN]);
     }
 
     if (crl_widget_playstate)

@@ -307,9 +307,9 @@ void SB_Ticker(void)
     CRLWidgets.secrets = CPlayer->secretcount;
     CRLWidgets.totalsecrets = totalsecret;
 
-    CRLWidgets.x = CPlayer->mo->x >> FRACBITS;
-    CRLWidgets.y = CPlayer->mo->y >> FRACBITS;
-    CRLWidgets.ang = CPlayer->mo->angle / ANG1;
+    CRLWidgets.x = CPlayer->mo->x;
+    CRLWidgets.y = CPlayer->mo->y;
+    CRLWidgets.ang = CPlayer->mo->angle;
 }
 
 //---------------------------------------------------------------------------
