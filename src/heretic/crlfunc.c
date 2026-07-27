@@ -17,6 +17,7 @@
 
 
 #include <stdio.h>
+#include <math.h>
 
 #include "i_timer.h"
 #include "m_misc.h"
@@ -767,39 +768,75 @@ void CRL_DrawTargetsHealth (void)
 {
     char str[16];
     player_t *player = &players[displayplayer];
+    byte *color;
 
     if (player->targetsheathTics <= 0 || !player->targetsheath)
     {
         return;  // No tics or target is dead, nothing to display.
     }
 
-    sprintf(str, "%d/%d", player->targetsheath, player->targetsmaxheath);
+    // Apply translucency while Save/Load menu is active.
+    // dp_translucent = savemenuactive;
 
-    if (crl_widget_health == 1)  // Top
+    const int yy = crl_widget_speed ? 10 : 0;
+    sprintf(str, "%d/%d", player->targetsheath, player->targetsmaxheath);
+    color = CRL_HealthColor(player->targetsheath, player->targetsmaxheath);
+
+    switch (crl_widget_health)
     {
-        MN_DrTextACentered(str, 20, CRL_HealthColor(player->targetsheath,
-                                                    player->targetsmaxheath));
+        case 1:  // Top
+            MN_DrTextACentered(str, 20, color);
+            break;
+        case 2:  // Top + name
+            MN_DrTextACentered(player->targetsname, 10, color);
+            MN_DrTextACentered(str, 20, color);
+            break;
+        case 3:  // Bottom
+            MN_DrTextACentered(str, 145 - yy, color);
+            break;
+        case 4:  // Bottom + name
+            MN_DrTextACentered(player->targetsname, 135 - yy, color);
+            MN_DrTextACentered(str, 145 - yy, color);
+            break;
     }
-    else
-    if (crl_widget_health == 2)  // Top + name
+
+    // dp_translucent = false;
+}
+
+// -----------------------------------------------------------------------------
+// CRL_DrawPlayerSpeed
+//  [PN/JN] Draws player movement speed in map untits per second format.
+//  Based on the implementation by ceski from the Woof source port.
+// -----------------------------------------------------------------------------
+
+void CRL_DrawPlayerSpeed (void)
+{
+    static char str[8];
+    static char val[16];
+    static double speed = 0;
+    const player_t *player = &players[displayplayer];
+
+    // Apply translucency while Save/Load menu is active.
+    dp_translucent = savemenuactive;
+
+    // Calculating speed only every game tic (not every frame)
+    // is not possible while D_Display is called after S_UpdateSounds in D_DoomLoop.
+    // if (oldgametic < gametic)
     {
-        MN_DrTextACentered(player->targetsname, 10, CRL_HealthColor(player->targetsheath,
-                                                                    player->targetsmaxheath));
-        MN_DrTextACentered(str, 20, CRL_HealthColor(player->targetsheath,
-                                                    player->targetsmaxheath));
+        const double dx = (double)(player->mo->x - player->mo->oldx) / FRACUNIT;
+        const double dy = (double)(player->mo->y - player->mo->oldy) / FRACUNIT;
+        const double dz = (double)(player->mo->z - player->mo->oldz) / FRACUNIT;
+        speed = sqrt(dx * dx + dy * dy + dz * dz) * TICRATE;
     }
-    else
-    if (crl_widget_health == 3)  // Bottom
-    {
-        MN_DrTextACentered(str, 145, CRL_HealthColor(player->targetsheath,
-                                                     player->targetsmaxheath));
-    }
-    else
-    if (crl_widget_health == 4)  // Bottom + name
-    {
-        MN_DrTextACentered(player->targetsname, 145, CRL_HealthColor(player->targetsheath,
-                                                     player->targetsmaxheath));
-        MN_DrTextACentered(str, 135, CRL_HealthColor(player->targetsheath,
-                                                     player->targetsmaxheath));
-    }
+
+    M_snprintf(str, sizeof(str), "SPD:");
+    M_snprintf(val, sizeof(val), " %.0f", speed);
+
+    const int x_val = (SCREENWIDTH / 2);
+    const int x_str = x_val - MN_TextAWidth(str);
+
+    MN_DrTextA(str, x_str, 145, CRL_WidgetColor(widget_speed_str));
+    MN_DrTextA(val, x_val, 145, CRL_WidgetColor(widget_speed_val));
+
+    dp_translucent = false;
 }

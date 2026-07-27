@@ -259,9 +259,11 @@ static void D_Display(void)
                 // [JN] Target's health widget.
                 // Actual health values are gathered in G_Ticker.
                 if (crl_widget_health)
-                {
-                    CRL_DrawTargetsHealth();
-                }
+                CRL_DrawTargetsHealth();
+
+                // [PN] Player speed widget.
+                if (crl_widget_speed)
+                CRL_DrawPlayerSpeed();
             }
 
             CT_Drawer();
@@ -369,24 +371,10 @@ static boolean D_GrabMouseCallback(void)
 
 void D_DoomLoop(void)
 {
-    if (M_CheckParm("-debugfile"))
-    {
-        char filename[20];
-        M_snprintf(filename, sizeof(filename), "debug%i.txt", consoleplayer);
-        debugfile = M_fopen(filename, "w");
-    }
-    I_GraphicsCheckCommandLine();
-    I_SetGrabMouseCallback(D_GrabMouseCallback);
-    I_RegisterWindowIcon(heretic_data, heretic_w, heretic_h);
-    I_InitGraphics();
-
     main_loop_started = true;
 
     while (1)
     {
-        // Frame syncronous IO operations
-        I_StartFrame();
-
         // Process one or more tics
         // Will run at least one tic
         TryRunTics();
@@ -1240,6 +1228,13 @@ void D_DoomMain(void)
     NET_Init ();
 
     D_ConnectNetGame();
+
+    // [PN] Initialize main game window before startup textscreen so startup
+    // can draw in the same SDL window and avoid focus flicker.
+    I_GraphicsCheckCommandLine();
+    I_SetGrabMouseCallback(D_GrabMouseCallback);
+    I_RegisterWindowIcon(heretic_data, heretic_w, heretic_h);
+    I_InitGraphics();
 
     // haleyjd: removed WATCOMC
     initStartup();

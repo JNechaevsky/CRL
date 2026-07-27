@@ -564,8 +564,10 @@ static void CRL_Widget_KIS_Items (int choice);
 static void CRL_Widget_Time (int option);
 static void CRL_Widget_Coords (int option);
 static void CRL_Widget_CoordsFrac (int choice);
+static void CRL_Widget_Speed (int choice);
 static void CRL_Widget_Powerups (int option);
 static void CRL_Widget_Health (int option);
+
 static void CRL_Automap_Secrets (int option);
 static void CRL_Automap_SndProp (int option);
 
@@ -2740,6 +2742,7 @@ static MenuItem_t CRLWidgetsItems[] = {
     { ITT_LRFUNC2, "LEVEL TIME",             CRL_Widget_Time,      0, MENU_NONE },
     { ITT_LRFUNC2, "PLAYER COORDS",          CRL_Widget_Coords,    0, MENU_NONE },
     { ITT_LRFUNC2, "- SHOW FRACTIONS",       CRL_Widget_CoordsFrac,0, MENU_NONE },
+    { ITT_LRFUNC2, "PLAYER SPEED",           CRL_Widget_Speed,     0, MENU_NONE },
     { ITT_LRFUNC2, "POWERUP TIMERS",         CRL_Widget_Powerups,  0, MENU_NONE },
     { ITT_LRFUNC2, "TARGET'S HEALTH",        CRL_Widget_Health,    0, MENU_NONE },
     { ITT_EMPTY,   NULL,                     NULL,                 0, MENU_NONE },
@@ -2818,30 +2821,35 @@ static void DrawCRLWidgets (void)
     MN_DrTextA(str, M_ItemRightAlign(str), 100,
                M_Item_Glow(8, crl_widget_coordsfrac ? GLOW_GREEN : GLOW_DARKRED));
 
+    // Player speed
+    sprintf(str, crl_widget_speed ? "ON" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 110,
+               M_Item_Glow(9, crl_widget_speed ? GLOW_GREEN : GLOW_DARKRED));
+
     // Powerup timers
     sprintf(str, crl_widget_powerups ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 110,
-               M_Item_Glow(9, crl_widget_powerups ? GLOW_GREEN : GLOW_RED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 120,
+               M_Item_Glow(10, crl_widget_powerups ? GLOW_GREEN : GLOW_RED));
 
     // Target's health
     sprintf(str, crl_widget_health == 1 ? "TOP" :
                  crl_widget_health == 2 ? "TOP+NAME" :
                  crl_widget_health == 3 ? "BOTTOM" :
                  crl_widget_health == 4 ? "BOTTOM+NAME" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 120,
-               M_Item_Glow(10, crl_widget_health ? GLOW_GREEN : GLOW_RED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 130,
+               M_Item_Glow(11, crl_widget_health ? GLOW_GREEN : GLOW_RED));
 
-    MN_DrTextACentered("AUTOMAP", 130, cr[CR_YELLOW]);
+    MN_DrTextACentered("AUTOMAP", 140, cr[CR_YELLOW]);
 
     // Mark secret sectors
     sprintf(str, crl_automap_secrets ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 140,
-               M_Item_Glow(12, crl_automap_secrets ? GLOW_GREEN : GLOW_RED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 150,
+               M_Item_Glow(13, crl_automap_secrets ? GLOW_GREEN : GLOW_RED));
 
     // Sound propagation mode
     sprintf(str, crl_automap_sndprop ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 150,
-               M_Item_Glow(13, crl_automap_sndprop ? GLOW_GREEN : GLOW_RED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 160,
+               M_Item_Glow(14, crl_automap_sndprop ? GLOW_GREEN : GLOW_RED));
 }
 
 static void CRL_Widget_Render (int option)
@@ -2887,6 +2895,11 @@ static void CRL_Widget_Coords (int option)
 static void CRL_Widget_CoordsFrac (int choice)
 {
     crl_widget_coordsfrac ^= 1;
+}
+
+static void CRL_Widget_Speed (int choice)
+{
+    crl_widget_speed ^= 1;
 }
 
 static void CRL_Widget_Powerups (int option)
