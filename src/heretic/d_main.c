@@ -403,7 +403,12 @@ void D_DoomLoop(void)
             S_UpdateSounds(players[consoleplayer].mo);
             oldgametic = gametic;
         }
-        D_Display();
+
+        // Update display, next frame, with current state.
+        if (screenvisible)
+        {
+            D_Display();
+        }
     }
 }
 
