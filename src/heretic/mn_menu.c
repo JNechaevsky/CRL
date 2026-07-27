@@ -416,6 +416,7 @@ static void CRL_MusicSystem (int option);
 static void CRL_SFXMode (int option);
 static void CRL_PitchShift (int option);
 static void CRL_SFXChannels (int option);
+static void M_CRL_MuteInactive (int choice);
 
 static void DrawCRLControls (void);
 static void CRL_Controls_Sensivity_y(int option);
@@ -1353,6 +1354,7 @@ static MenuItem_t CRLSoundItems[] = {
     { ITT_LRFUNC1, "SOUNDS EFFECTS MODE",  CRL_SFXMode,     0, MENU_NONE },
     { ITT_LRFUNC2, "PITCH-SHIFTED SOUNDS", CRL_PitchShift,  0, MENU_NONE },
     { ITT_LRFUNC1, "NUMBER OF SFX TO MIX", CRL_SFXChannels, 0, MENU_NONE },
+    { ITT_LRFUNC1, "MUTE INACTIVE WINDOW", M_CRL_MuteInactive, 0, MENU_NONE },
 };
 
 static Menu_t CRLSound = {
@@ -1413,9 +1415,14 @@ static void DrawCRLSound (void)
     {
         if (snd_musicdevice == 5 && strcmp(gus_patch_path, "") == 0)
         {
-            MN_DrTextACentered("\"GUS[PATCH[PATH\" VARIABLE IS NOT SET", 140, cr[CR_GRAY]);
+            MN_DrTextACentered("\"GUS[PATCH[PATH\" VARIABLE IS NOT SET", 150, cr[CR_GRAY]);
         }
     }
+
+    // Mute inactive window
+    sprintf(str, crl_mute_inactive ? "ON" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 130,
+                 M_Item_Glow(11, crl_mute_inactive ? GLOW_GREEN : GLOW_DARKRED));
 }
 
 static void CRL_MusicSystem (int option)
@@ -1525,6 +1532,11 @@ static void CRL_SFXChannels (int option)
     // Only one channel produces a strange effect, 
     // as if there were no channels at all.
     snd_Channels = M_INT_Slider(snd_Channels, 2, 16, option, true);
+}
+
+static void M_CRL_MuteInactive (int choice)
+{
+    crl_mute_inactive ^= 1;
 }
 
 // -----------------------------------------------------------------------------

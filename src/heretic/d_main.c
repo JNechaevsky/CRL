@@ -393,6 +393,12 @@ void D_DoomLoop(void)
 
         if (oldgametic < gametic)
         {
+            // [JN] Mute and restore sound and music volume.
+            if (crl_mute_inactive && volume_needs_update)
+            {
+                S_MuteUnmuteSound(!window_focused);
+            }
+
             // Move positional sounds
             S_UpdateSounds(players[consoleplayer].mo);
             oldgametic = gametic;

@@ -64,6 +64,22 @@ int snd_Channels = 16;
 
 int AmbChan;
 
+void S_StopAllSound(void)
+{
+    int i;
+
+    for (i = 0; i < snd_Channels; i++)
+    {
+        if (channel[i].handle)
+        {
+            S_StopSound(channel[i].mo);
+        }
+    }
+
+    memset(channel, 0, snd_Channels * sizeof(channel_t));
+    AmbChan = -1;
+}
+
 void S_Start(void)
 {
     int i;
@@ -635,3 +651,51 @@ void S_ShutDown(void)
     I_ShutdownSound();
 }
 
+// -----------------------------------------------------------------------------
+// S_StopMusic
+//  [JN] Stop current music without shutting down sound system.
+// -----------------------------------------------------------------------------
+
+void S_StopMusic (void)
+{
+    I_StopSong();
+    if (rs != NULL)
+    {
+        I_UnRegisterSong(rs);
+        rs = NULL;
+        mus_song = -1;
+    }
+}
+
+// -----------------------------------------------------------------------------
+// S_MuteUnmuteSound
+// [JN] Sets sfx and music volume to 0 when window loses 
+//      it's focus and restores back when focus is regained.
+// -----------------------------------------------------------------------------
+
+void S_MuteUnmuteSound (boolean mute)
+{
+    if (mute)
+    {
+        // Stop all sounds and clear sfx channels.
+        S_StopAllSound();
+
+        // Set volume to zero.
+        I_SetMusicVolume(0);
+        for (int i = 0; i < MAX_SND_DIST; i++)
+        {
+            soundCurve[i] = 0;
+        }
+
+    }
+    else
+    {
+        // Restore volume to actual values.
+        I_SetMusicVolume(snd_MusicVolume * 8);
+        S_SetMaxVolume();
+    }
+
+    // All done, no need to invoke function until next 
+    // minimizing/restoring of game window is happened.
+    volume_needs_update = false;
+}

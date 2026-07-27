@@ -32,6 +32,7 @@ void S_Start(void);
 void S_StartSound(void *origin, int sound_id);
 void S_StartSoundAtVolume(void *origin, int sound_id, int volume);
 void S_StopSound(void *origin);
+void S_StopAllSound(void);
 void S_PauseSound(void);
 void S_ResumeSound(void);
 void S_UpdateSounds(mobj_t * listener);
@@ -41,5 +42,8 @@ void S_GetChannelInfo(SoundInfo_t * s);
 void S_SetMaxVolume(void);
 void S_SetMusicVolume(void);
 void S_ShutDown(void);
+void S_StopMusic (void);
+
+extern void S_MuteUnmuteSound (boolean mute);
 
 #endif
