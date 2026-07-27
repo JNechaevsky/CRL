@@ -91,7 +91,9 @@ typedef enum
     MENU_CRLKBDBINDS9,
     MENU_CRLMOUSEBINDS,
     MENU_CRLWIDGETS,
+    MENU_CRLAUTOMAP,
     MENU_CRLGAMEPLAY,
+    MENU_MISC,
     MENU_CRLLIMITS,
     MENU_NONE
 } MenuType_t;
@@ -568,6 +570,7 @@ static void CRL_Widget_Speed (int choice);
 static void CRL_Widget_Powerups (int option);
 static void CRL_Widget_Health (int option);
 
+static void DrawCRLAutomap (void);
 static void CRL_Automap_Secrets (int option);
 static void CRL_Automap_SndProp (int option);
 
@@ -582,6 +585,8 @@ static void CRL_DemoTimer (int option);
 static void CRL_TimerDirection (int option);
 static void CRL_ProgressBar (int option);
 static void CRL_InternalDemos (int option);
+
+static void DrawCRLMisc (void);
 
 static void DrawCRLLimits (void);
 static void CRL_SaveSizeWarning (int option);
@@ -956,9 +961,11 @@ static MenuItem_t CRLMainItems[] = {
     {ITT_SETMENU, "DISPLAY OPTIONS",      NULL,           0, MENU_CRLDISPLAY},
     {ITT_SETMENU, "SOUND OPTIONS",        NULL,           0, MENU_CRLSOUND},
     {ITT_SETMENU, "CONTROL SETTINGS",     NULL,           0, MENU_CRLCONTROLS},
-    {ITT_SETMENU, "WIDGETS AND AUTOMAP",  NULL,           0, MENU_CRLWIDGETS},
+    {ITT_SETMENU, "WIDGETS SETTINGS",     NULL,           0, MENU_CRLWIDGETS},
+    {ITT_SETMENU, "AUTOMAP SETTINGS",     NULL,           0, MENU_CRLAUTOMAP},
     {ITT_SETMENU, "GAMEPLAY FEATURES",    NULL,           0, MENU_CRLGAMEPLAY},
-    {ITT_SETMENU, "STATIC ENGINE LIMITS", NULL,           0, MENU_CRLLIMITS},
+    {ITT_SETMENU, "MISC FEATURES",        NULL,           0, MENU_MISC},
+    {ITT_SETMENU, "LIMITS AND WARNINGS",  NULL,           0, MENU_CRLLIMITS},
     {ITT_SETMENU, "VANILLA OPTIONS MENU", NULL,           0, MENU_OPTIONS}
 };
 
@@ -2729,7 +2736,7 @@ static void M_Bind_M_Reset (int option)
 }
 
 // -----------------------------------------------------------------------------
-// Widgets and Automap
+// Widgets
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLWidgetsItems[] = {
@@ -2745,12 +2752,9 @@ static MenuItem_t CRLWidgetsItems[] = {
     { ITT_LRFUNC2, "PLAYER SPEED",           CRL_Widget_Speed,     0, MENU_NONE },
     { ITT_LRFUNC2, "POWERUP TIMERS",         CRL_Widget_Powerups,  0, MENU_NONE },
     { ITT_LRFUNC2, "TARGET'S HEALTH",        CRL_Widget_Health,    0, MENU_NONE },
-    { ITT_EMPTY,   NULL,                     NULL,                 0, MENU_NONE },
-    { ITT_LRFUNC2, "MARK SECRET SECTORS",    CRL_Automap_Secrets,  0, MENU_NONE },
-    { ITT_LRFUNC2, "SOUND PROPAGATION MODE", CRL_Automap_SndProp,  0, MENU_NONE },
 };
 
-static Menu_t CRLWidgetsMap = {
+static Menu_t CRLWidgetsMenu = {
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
     DrawCRLWidgets,
     ITEMCOUNT(CRLWidgetsItems), CRLWidgetsItems,
@@ -2838,18 +2842,6 @@ static void DrawCRLWidgets (void)
                  crl_widget_health == 4 ? "BOTTOM+NAME" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 130,
                M_Item_Glow(11, crl_widget_health ? GLOW_GREEN : GLOW_RED));
-
-    MN_DrTextACentered("AUTOMAP", 140, cr[CR_YELLOW]);
-
-    // Mark secret sectors
-    sprintf(str, crl_automap_secrets ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 150,
-               M_Item_Glow(13, crl_automap_secrets ? GLOW_GREEN : GLOW_RED));
-
-    // Sound propagation mode
-    sprintf(str, crl_automap_sndprop ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 160,
-               M_Item_Glow(14, crl_automap_sndprop ? GLOW_GREEN : GLOW_RED));
 }
 
 static void CRL_Widget_Render (int option)
@@ -2912,6 +2904,41 @@ static void CRL_Widget_Health (int option)
     crl_widget_health = M_INT_Slider(crl_widget_health, 0, 4, option, false);
 }
 
+// -----------------------------------------------------------------------------
+// Automap
+// -----------------------------------------------------------------------------
+
+static MenuItem_t CRLAutomapItems[] = {
+    { ITT_LRFUNC2, "MARK SECRET SECTORS",    CRL_Automap_Secrets,  0, MENU_NONE },
+    { ITT_LRFUNC2, "SOUND PROPAGATION MODE", CRL_Automap_SndProp,  0, MENU_NONE },
+};
+
+static Menu_t CRLAutomap = {
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    DrawCRLAutomap,
+    ITEMCOUNT(CRLAutomapItems), CRLAutomapItems,
+    0,
+    SmallFont, false, false,
+    MENU_CRLMAIN
+};
+
+static void DrawCRLAutomap (void)
+{
+    char str[32];
+
+    MN_DrTextACentered("AUTOMAP", 10, cr[CR_YELLOW]);
+
+    // Mark secret sectors
+    sprintf(str, crl_automap_secrets ? "ON" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 20,
+               M_Item_Glow(0, crl_automap_secrets ? GLOW_GREEN : GLOW_RED));
+
+    // Sound propagation mode
+    sprintf(str, crl_automap_sndprop ? "ON" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 30,
+               M_Item_Glow(1, crl_automap_sndprop ? GLOW_GREEN : GLOW_RED));
+}
+
 static void CRL_Automap_Secrets (int option)
 {
     crl_automap_secrets ^= 1;
@@ -2923,7 +2950,7 @@ static void CRL_Automap_SndProp (int option)
 }
 
 // -----------------------------------------------------------------------------
-// Static engine limits
+// Gameplay features
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLGameplayItems[] = {
@@ -3068,7 +3095,33 @@ static void CRL_InternalDemos (int option)
 }
 
 // -----------------------------------------------------------------------------
-// Static engine limits
+// Misc features
+// -----------------------------------------------------------------------------
+
+static MenuItem_t CRLMiscItems[] = {
+    {ITT_LRFUNC2, "DUMMY DUMMY",            CRL_DefaulSkill,    0, MENU_NONE},
+    {ITT_EMPTY,  NULL,                      NULL,               0, MENU_NONE},
+
+};
+
+static Menu_t CRLMisc = {
+    CRL_MENU_LEFTOFFSET_BIG, CRL_MENU_TOPOFFSET,
+    DrawCRLMisc,
+    ITEMCOUNT(CRLMiscItems), CRLMiscItems,
+    0,
+    SmallFont, false, false,
+    MENU_CRLMAIN
+};
+
+static void DrawCRLMisc (void)
+{
+    //char str[32];
+
+    MN_DrTextACentered("MISC FEATURES", 10, cr[CR_YELLOW]);
+}
+
+// -----------------------------------------------------------------------------
+// Limits and warnings
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLLimitsItems[] = {
@@ -3166,8 +3219,10 @@ static Menu_t *Menus[] = {
     &CRLKbdBinds8,
     &CRLKbdBinds9,
     &CRLMouseBinds,
-    &CRLWidgetsMap,
+    &CRLWidgetsMenu,
+    &CRLAutomap,
     &CRLGameplay,
+    &CRLMisc,
     &CRLLimits,
 };
 
