@@ -84,6 +84,27 @@ void CRL_MoveTo_Camera (void)
 //  [JN] Colorizes counter strings and values respectively.
 // -----------------------------------------------------------------------------
 
+// [JN] Enum for widget strings and values.
+enum
+{
+    widget_kis_str,
+    widget_kills,
+    widget_items,
+    widget_secret,
+    widget_plyr1,
+    widget_plyr2,
+    widget_plyr3,
+    widget_plyr4,
+    widget_time_str,
+    widget_time_val,
+    widget_render_str,
+    widget_render_val,
+    widget_coords_str,
+    widget_coords_val,
+    widget_speed_str,
+    widget_speed_val,
+} widgetcolor_t;
+
 static byte *CRL_StatColor_Str (const int val1, const int val2)
 {
     return
@@ -106,6 +127,132 @@ static byte *CRL_PowerupColor (const int val1, const int val2)
         val1 > val2/2 ? cr[CR_GREEN]  :
         val1 > val2/4 ? cr[CR_YELLOW] :
                         cr[CR_RED]    ;
+}
+
+static byte *CRL_WidgetColor (const int i)
+{
+    static byte *player_colors[4];
+    static const int plyr_indices[] = {widget_plyr1, widget_plyr2, widget_plyr3, widget_plyr4};
+
+    player_colors[0] = cr[CR_GREEN];
+    player_colors[1] = cr[CR_GRAY];
+    player_colors[2] = cr[CR_BROWN];
+    player_colors[3] = cr[CR_RED];
+
+    switch (i)
+    {
+        case widget_kis_str:
+        case widget_time_str:
+        case widget_render_str:
+        case widget_coords_str:
+        case widget_speed_str:
+            return cr[CR_GRAY];
+        
+        case widget_kills:
+            return
+                CRLWidgets.totalkills == 0 ? cr[CR_GREEN] :
+                CRLWidgets.kills == 0 ? cr[CR_RED] :
+                CRLWidgets.kills < CRLWidgets.totalkills ? cr[CR_YELLOW] : cr[CR_GREEN];
+        case widget_items:
+            return
+                CRLWidgets.totalitems == 0 ? cr[CR_GREEN] :
+                CRLWidgets.items == 0 ? cr[CR_RED] :
+                CRLWidgets.items < CRLWidgets.totalitems ? cr[CR_YELLOW] : cr[CR_GREEN];
+        case widget_secret:
+            return
+                CRLWidgets.totalsecrets == 0 ? cr[CR_GREEN] :
+                CRLWidgets.secrets == 0 ? cr[CR_RED] :
+                CRLWidgets.secrets < CRLWidgets.totalsecrets ? cr[CR_YELLOW] : cr[CR_GREEN];
+
+        case widget_time_val:
+            return cr[CR_LIGHTGRAY];
+
+        case widget_render_val:
+        case widget_coords_val:
+        case widget_speed_val:
+            return cr[CR_GREEN];
+
+        default:
+            for (int j = 0; j < 4; j++)
+            {
+                if (i == plyr_indices[j])
+                {
+                    return player_colors[j];
+                }
+            }
+    }
+
+    return NULL;
+}
+
+// [JN/PN] Enum for widget type values.
+enum
+{
+    widget_kis_kills,
+    widget_kis_items,
+    widget_kis_secrets,
+} widget_kis_count_t;
+
+// [PN] Function for safe division to prevent division by zero.
+// Returns the percentage or 0 if the total is zero.
+static int safe_percent (int value, int total)
+{
+    return (total == 0) ? 0 : (value * 100) / total;
+}
+
+// [PN/JN] Main function to format KIS counts based on format and widget type.
+static void CRL_WidgetKISCount (char *buffer, size_t buffer_size, const int i)
+{
+    int value = 0, total = 0;
+    
+    // [PN] Set values for kills, items, or secrets based on widget type
+    switch (i)
+    {
+        case widget_kis_kills:
+            value = CRLWidgets.kills;
+            total = CRLWidgets.totalkills;
+            break;
+        
+        case widget_kis_items:
+            value = CRLWidgets.items;
+            total = CRLWidgets.totalitems;
+            break;
+        
+        case widget_kis_secrets:
+            value = CRLWidgets.secrets;
+            total = CRLWidgets.totalsecrets;
+            break;
+        
+        default:
+            // [PN] Default case for unsupported widget type
+            snprintf(buffer, buffer_size, "N/A");
+            return;
+    }
+
+    // [PN] Format based on crl_widget_kis_format
+    switch (crl_widget_kis_format)
+    {
+        case 1: // Remaining
+        {
+            // [JN] Prevent negative values.
+            const int total_value = (total - value > 0) ? (total - value) : 0;
+            snprintf(buffer, buffer_size, "%d", total_value);
+            break;
+        }
+
+        case 2: // Percent
+        {
+            snprintf(buffer, buffer_size, "%d%%", 
+                     safe_percent(value, total));
+            break;
+        }
+
+        default: // Ratio
+        {
+            snprintf(buffer, buffer_size, "%d/%d", value, total);
+            break;
+        }
+    }
 }
 
 // -----------------------------------------------------------------------------
@@ -380,40 +527,45 @@ void CRL_StatDrawer (void)
 
         // Kills:
         M_snprintf(str1, 8, "K ");
-        MN_DrTextA(str1, 0, 135, cr[CR_GRAY]);
-        M_snprintf(str2, 16, "%d/%d", CRLWidgets.kills, CRLWidgets.totalkills);
+        MN_DrTextA(str1, 0, 135, CRL_WidgetColor(widget_kis_str));
+        CRL_WidgetKISCount(str2, sizeof(str2), widget_kis_kills);
         MN_DrTextA(str2, MN_TextAWidth(str1), 135,
                          CRLWidgets.totalkills == 0 ? cr[CR_GREEN] :
                          CRLWidgets.kills == 0 ? cr[CR_RED] :
                          CRLWidgets.kills < CRLWidgets.totalkills ? cr[CR_YELLOW] : cr[CR_GREEN]);
 
         // Items:
+        if (crl_widget_kis_items == 1 || (crl_widget_kis_items == 2 && automapactive))
+        {
         M_snprintf(str3, 8, " I ");
         MN_DrTextA(str3, MN_TextAWidth(str1) +
-                         MN_TextAWidth(str2), 135, cr[CR_GRAY]);
-        M_snprintf(str4, 16, "%d/%d", CRLWidgets.items, CRLWidgets.totalitems);
+                         MN_TextAWidth(str2), 135, CRL_WidgetColor(widget_kis_str));
+        CRL_WidgetKISCount(str4, sizeof(str4), widget_kis_items);
         MN_DrTextA(str4, MN_TextAWidth(str1) +
                          MN_TextAWidth(str2) +
                          MN_TextAWidth(str3), 135,
-                         CRLWidgets.totalitems == 0 ? cr[CR_GREEN] :
-                         CRLWidgets.items == 0 ? cr[CR_RED] :
-                         CRLWidgets.items < CRLWidgets.totalitems ? cr[CR_YELLOW] : cr[CR_GREEN]);
+                         CRL_WidgetColor(widget_items));
+        }
+        else
+        {
+        str3[0] = '\0';
+        str4[0] = '\0';
+        }
 
         // Secrets:
         M_snprintf(str5, 8, " S ");
         MN_DrTextA(str5, MN_TextAWidth(str1) +
                          MN_TextAWidth(str2) +
                          MN_TextAWidth(str3) +
-                         MN_TextAWidth(str4), 135, cr[CR_GRAY]);
-        M_snprintf(str6, 16, "%d/%d", CRLWidgets.secrets, CRLWidgets.totalsecrets);
+                         MN_TextAWidth(str4), 135, CRL_WidgetColor(widget_kis_str));
+
+        CRL_WidgetKISCount(str6, sizeof(str6), widget_kis_secrets);
         MN_DrTextA(str6, MN_TextAWidth(str1) +
                          MN_TextAWidth(str2) +
                          MN_TextAWidth(str3) +
                          MN_TextAWidth(str4) +
                          MN_TextAWidth(str5), 135,
-                         CRLWidgets.totalsecrets == 0 ? cr[CR_GREEN] :
-                         CRLWidgets.secrets == 0 ? cr[CR_RED] :
-                         CRLWidgets.secrets < CRLWidgets.totalsecrets ? cr[CR_YELLOW] : cr[CR_GREEN]);
+                         CRL_WidgetColor(widget_secret));
     }
 
     // Powerup timers.
