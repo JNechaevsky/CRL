@@ -776,7 +776,8 @@ static void R_SetupFrame(player_t * player)
     if (player->fixedcolormap)
     {
         // [PN] A11Y - Invulnerability grayscaled effect
-        if (crl_a11y_invul)
+        if (crl_a11y_invul 
+        && (player->powers[pw_invulnerability] > BLINKTHRESHOLD || (player->powers[pw_invulnerability] & 8)))
         {
             fixedcolormap = grayscale_colormap;
         }
