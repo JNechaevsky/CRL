@@ -56,6 +56,7 @@
 #include "w_main.h"
 #include "v_trans.h"
 #include "v_video.h"
+#include "am_map.h"
 
 #include "icon.c"
 
@@ -1294,6 +1295,9 @@ void D_DoomMain(void)
     tprintf(DEH_String("SB_Init: Loading patches.\n"), 1);
     SB_Init();
     IncThermo();
+
+    // [JN] CRL - predefine some automap variables at program startup.
+    AM_Init();
 
 //
 // start the appropriate game based on params

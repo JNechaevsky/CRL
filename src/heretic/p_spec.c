@@ -899,13 +899,14 @@ void P_PlayerInSpecialSector(player_t * player)
             break;
         case 9:                // SecretArea
             player->secretcount++;
+            sector->oldspecial = sector->special;
+            sector->special = 0;
             // [JN] "A secret is revelaed!" message.
             if (crl_revealed_secrets)
             {
                 CT_SetMessageCentered(player, DEH_String(CRL_SECRET_FOUND));
                 S_StartSound(NULL, sfx_chat);
             }
-            sector->special = 0;
             break;
         case 11:               // Exit_SuperDamage (DOOM E1M8 finale)
             /*

@@ -286,7 +286,7 @@ boolean P_ChickenMorphPlayer(player_t * player);
 
 // ***** AM_MAP *****
 
-boolean AM_Responder(event_t * ev);
+boolean AM_Responder(const event_t * ev);
 void AM_Ticker(void);
 void AM_Drawer(void);
 
@@ -300,6 +300,8 @@ void SB_PaletteFlash(void);
 // ***** P_SAVEG *****
 
 void P_RestoreTargets (void);
+void P_ArchiveOldSpecials (void);
+void P_UnArchiveOldSpecials (void);
 
 #include "p_spec.h"
 

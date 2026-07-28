@@ -561,16 +561,20 @@ static void CRL_Widget_Render (int option);
 static void CRL_Widget_MAX (int option);
 static void CRL_Widget_Playstate (int option);
 static void CRL_Widget_KIS (int option);
-static void CRL_Widget_KIS_Format (int choice);
-static void CRL_Widget_KIS_Items (int choice);
+static void CRL_Widget_KIS_Format (int option);
+static void CRL_Widget_KIS_Items (int option);
 static void CRL_Widget_Time (int option);
 static void CRL_Widget_Coords (int option);
-static void CRL_Widget_CoordsFrac (int choice);
-static void CRL_Widget_Speed (int choice);
+static void CRL_Widget_CoordsFrac (int option);
+static void CRL_Widget_Speed (int option);
 static void CRL_Widget_Powerups (int option);
 static void CRL_Widget_Health (int option);
 
 static void DrawCRLAutomap (void);
+static void CRL_Automap_Rotate (int option);
+static void CRL_Automap_Overlay (int option);
+static void CRL_Automap_Shading (int option);
+static void CRL_Automap_Pan (int option);
 static void CRL_Automap_Secrets (int option);
 static void CRL_Automap_SndProp (int option);
 
@@ -2864,14 +2868,14 @@ static void CRL_Widget_KIS (int option)
     crl_widget_kis = M_INT_Slider(crl_widget_kis, 0, 2, option, false);
 }
 
-static void CRL_Widget_KIS_Format (int choice)
+static void CRL_Widget_KIS_Format (int option)
 {
-    crl_widget_kis_format = M_INT_Slider(crl_widget_kis_format, 0, 2, choice, false);
+    crl_widget_kis_format = M_INT_Slider(crl_widget_kis_format, 0, 2, option, false);
 }
 
-static void CRL_Widget_KIS_Items (int choice)
+static void CRL_Widget_KIS_Items (int option)
 {
-    crl_widget_kis_items = M_INT_Slider(crl_widget_kis_items, 0, 2, choice, false);
+    crl_widget_kis_items = M_INT_Slider(crl_widget_kis_items, 0, 2, option, false);
 }
 
 static void CRL_Widget_Time (int option)
@@ -2884,12 +2888,12 @@ static void CRL_Widget_Coords (int option)
     crl_widget_coords = M_INT_Slider(crl_widget_coords, 0, 2, option, false);
 }
 
-static void CRL_Widget_CoordsFrac (int choice)
+static void CRL_Widget_CoordsFrac (int option)
 {
     crl_widget_coordsfrac ^= 1;
 }
 
-static void CRL_Widget_Speed (int choice)
+static void CRL_Widget_Speed (int option)
 {
     crl_widget_speed ^= 1;
 }
@@ -2905,12 +2909,16 @@ static void CRL_Widget_Health (int option)
 }
 
 // -----------------------------------------------------------------------------
-// Automap
+// Automap settings
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLAutomapItems[] = {
-    { ITT_LRFUNC2, "MARK SECRET SECTORS",    CRL_Automap_Secrets,  0, MENU_NONE },
-    { ITT_LRFUNC2, "SOUND PROPAGATION MODE", CRL_Automap_SndProp,  0, MENU_NONE },
+    { ITT_LRFUNC2, "ROTATE MODE",            CRL_Automap_Rotate,  0, MENU_NONE },
+    { ITT_LRFUNC2, "OVERLAY MODE",           CRL_Automap_Overlay, 0, MENU_NONE },
+    { ITT_LRFUNC1, "OVERLAY SHADING LEVEL",  CRL_Automap_Shading, 0, MENU_NONE },
+    { ITT_LRFUNC1, "MOUSE PANNING MODE",     CRL_Automap_Pan,     0, MENU_NONE },
+    { ITT_LRFUNC2, "MARK SECRET SECTORS",    CRL_Automap_Secrets, 0, MENU_NONE },
+    { ITT_LRFUNC2, "SOUND PROPAGATION MODE", CRL_Automap_SndProp, 0, MENU_NONE },
 };
 
 static Menu_t CRLAutomap = {
@@ -2928,20 +2936,63 @@ static void DrawCRLAutomap (void)
 
     MN_DrTextACentered("AUTOMAP", 10, cr[CR_YELLOW]);
 
-    // Mark secret sectors
-    sprintf(str, crl_automap_secrets ? "ON" : "OFF");
+    // Rotate mode
+    sprintf(str, crl_automap_rotate ? "ON" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 20,
-               M_Item_Glow(0, crl_automap_secrets ? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(0, crl_automap_rotate ? GLOW_GREEN : GLOW_DARKRED));
+
+    // Overlay mode
+    sprintf(str, crl_automap_overlay ? "ON" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 30,
+               M_Item_Glow(1, crl_automap_overlay ? GLOW_GREEN : GLOW_DARKRED));
+
+    // Overlay shading level
+    sprintf(str,"%d", crl_automap_shading);
+    MN_DrTextA(str, M_ItemRightAlign(str), 40,
+               M_Item_Glow(2, !crl_automap_overlay ? GLOW_DARKRED :
+                               crl_automap_shading ==  0 ? GLOW_RED :
+                               crl_automap_shading == 12 ? GLOW_YELLOW : GLOW_GREEN));
+
+    // Mouse panning mode
+    sprintf(str, crl_automap_mouse_pan ? "ON" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 50,
+               M_Item_Glow(3, crl_automap_mouse_pan ? GLOW_GREEN : GLOW_DARKRED));
+
+    // Mark secret sectors
+    sprintf(str, crl_automap_secrets == 1 ? "REVEALED" :
+                 crl_automap_secrets == 2 ? "ALWAYS" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 60,
+               M_Item_Glow(4, crl_automap_secrets ? GLOW_GREEN : GLOW_RED));
 
     // Sound propagation mode
     sprintf(str, crl_automap_sndprop ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 30,
-               M_Item_Glow(1, crl_automap_sndprop ? GLOW_GREEN : GLOW_RED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 70,
+               M_Item_Glow(5, crl_automap_sndprop ? GLOW_GREEN : GLOW_RED));
+}
+
+static void CRL_Automap_Rotate (int option)
+{
+    crl_automap_rotate ^= 1;
+}
+
+static void CRL_Automap_Overlay (int option)
+{
+    crl_automap_overlay ^= 1;
+}
+
+static void CRL_Automap_Shading (int option)
+{
+    crl_automap_shading = M_INT_Slider(crl_automap_shading, 0, 12, option, true);
+}
+
+static void CRL_Automap_Pan (int option)
+{
+    crl_automap_mouse_pan ^= 1;
 }
 
 static void CRL_Automap_Secrets (int option)
 {
-    crl_automap_secrets ^= 1;
+    crl_automap_secrets = M_INT_Slider(crl_automap_secrets, 0, 2, option, false);
 }
 
 static void CRL_Automap_SndProp (int option)
@@ -2954,17 +3005,17 @@ static void CRL_Automap_SndProp (int option)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLGameplayItems[] = {
-    {ITT_LRFUNC2, "DEFAULT SKILL LEVEL",     CRL_DefaulSkill,    0, MENU_NONE},
-    {ITT_LRFUNC2, "WAND START GAME MODE",    CRL_PistolStart,    0, MENU_NONE},
-    {ITT_LRFUNC2, "COLORED STATUS BAR",      CRL_ColoredSBar,    0, MENU_NONE},
-    {ITT_LRFUNC2, "REPORT REVEALED SECRETS", CRL_RevealedSecrets, 0, MENU_NONE },
-    {ITT_LRFUNC2, "RESTORE MONSTER TARGETS", CRL_RestoreTargets, 0, MENU_NONE},
-    {ITT_LRFUNC2, "ON DEATH ACTION",         CRL_OnDeathAction,  0, MENU_NONE },
-    {ITT_EMPTY,  NULL,                      NULL,               0, MENU_NONE},
-    {ITT_LRFUNC2, "SHOW DEMO TIMER",         CRL_DemoTimer,      0, MENU_NONE},
-    {ITT_LRFUNC1, "TIMER DIRECTION",         CRL_TimerDirection, 0, MENU_NONE},
-    {ITT_LRFUNC2, "SHOW PROGRESS BAR",       CRL_ProgressBar,    0, MENU_NONE},
-    {ITT_LRFUNC2, "PLAY INTERNAL DEMOS",     CRL_InternalDemos,  0, MENU_NONE}
+    { ITT_LRFUNC2, "DEFAULT SKILL LEVEL",     CRL_DefaulSkill,     0, MENU_NONE },
+    { ITT_LRFUNC2, "WAND START GAME MODE",    CRL_PistolStart,     0, MENU_NONE },
+    { ITT_LRFUNC2, "COLORED STATUS BAR",      CRL_ColoredSBar,     0, MENU_NONE },
+    { ITT_LRFUNC2, "REPORT REVEALED SECRETS", CRL_RevealedSecrets, 0, MENU_NONE },
+    { ITT_LRFUNC2, "RESTORE MONSTER TARGETS", CRL_RestoreTargets,  0, MENU_NONE },
+    { ITT_LRFUNC2, "ON DEATH ACTION",         CRL_OnDeathAction,   0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                      NULL,                0, MENU_NONE },
+    { ITT_LRFUNC2, "SHOW DEMO TIMER",         CRL_DemoTimer,       0, MENU_NONE },
+    { ITT_LRFUNC1, "TIMER DIRECTION",         CRL_TimerDirection,  0, MENU_NONE },
+    { ITT_LRFUNC2, "SHOW PROGRESS BAR",       CRL_ProgressBar,     0, MENU_NONE },
+    { ITT_LRFUNC2, "PLAY INTERNAL DEMOS",     CRL_InternalDemos,   0, MENU_NONE }
 };
 
 static Menu_t CRLGameplay = {

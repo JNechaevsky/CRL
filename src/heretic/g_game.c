@@ -2404,6 +2404,9 @@ void G_DoLoadGame(void)
         I_Error("Bad savegame");
     }
 
+    // [plums] Restore old sector specials.
+    P_UnArchiveOldSpecials();
+
     SV_Close();
 
     // [JN] Restore monster targets.
@@ -3034,6 +3037,11 @@ void G_DoSaveGame(void)
     P_ArchiveThinkers();
     P_ArchiveSpecials();
     SV_WriteSaveGameEOF();
+
+    // [plums] write old sector specials (for revealed secrets) at the end
+    // to keep save compatibility with previous versions
+    P_ArchiveOldSpecials();
+
     SV_Close();
 
     gameaction = ga_nothing;
