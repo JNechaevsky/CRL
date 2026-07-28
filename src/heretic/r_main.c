@@ -691,7 +691,7 @@ static void R_SetupFrame(player_t * player)
             viewy = LerpFixed(CRL_camera_oldy, by);
             viewz = LerpFixed(CRL_camera_oldz, bz);
             viewangle = LerpAngle(CRL_camera_oldang, ba);
-            pitch = 0; // [JN] TODO - look up/down for Spectator mode?
+            pitch = LerpFixed(CRL_camera_oldlookdir, CRL_camera_lookdir) / MLOOKUNIT;
         }
         else
         {
@@ -699,7 +699,7 @@ static void R_SetupFrame(player_t * player)
             viewy = by;
             viewz = bz;
             viewangle = ba;
-            pitch = 0;
+            pitch = CRL_camera_lookdir / MLOOKUNIT;
         }
     }
     else

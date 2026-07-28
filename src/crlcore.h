@@ -165,15 +165,28 @@ extern void CRL_DrawMap(void (*__fl)(int, int, int, int, int),
 // Spectator Mode
 //
 
+#define MLOOKUNIT 8 // [crispy] for mouselook
+#define MLOOKUNITLOWRES 16 // [crispy] for mouselook when recording
+
+#define LOOKDIRMIN 110 // [crispy] -110, actually
+#define LOOKDIRMAX 90
+#define LOOKDIRS (LOOKDIRMIN + 1 + LOOKDIRMAX) // [crispy] lookdir range: -110..0..90
+
+#define CLAMPLOOKDIR(x) BETWEEN(-LOOKDIRMIN * MLOOKUNIT, LOOKDIRMAX * MLOOKUNIT, (x))
+
 extern fixed_t CRL_camera_x, CRL_camera_y, CRL_camera_z;
 extern fixed_t CRL_camera_oldx, CRL_camera_oldy, CRL_camera_oldz;
 extern angle_t CRL_camera_ang;
 extern angle_t CRL_camera_oldang;
+extern fixed_t CRL_camera_lookdir;
+extern fixed_t CRL_camera_oldlookdir;
 
 extern void CRL_GetCameraPos (fixed_t *x, fixed_t *y, fixed_t *z, angle_t *a);
 extern void CRL_ReportPosition (fixed_t x, fixed_t y, fixed_t z, angle_t angle);
 extern void CRL_ImpulseCamera(fixed_t fwm, fixed_t swm, angle_t at);
 extern void CRL_ImpulseCameraVert(boolean direction, fixed_t intensity);
+extern void CRL_ReportLookdir(fixed_t lookdir);
+extern void CRL_LimitLookdir(fixed_t delta);
 
 //
 // Render Counters and Widgets

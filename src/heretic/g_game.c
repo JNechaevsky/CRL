@@ -46,9 +46,6 @@
 
 #define AM_STARTKEY     9
 
-#define MLOOKUNIT 8 // [crispy] for mouselook
-#define MLOOKUNITLOWRES 16 // [crispy] for mouselook when recording
-
 // Functions
 
 void G_ReadDemoTiccmd(ticcmd_t * cmd);
@@ -480,6 +477,14 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
         // [JN] CRL - reset basecmd.angleturn for exact
         // position of jumping to the camera position.
         basecmd.angleturn = 0;
+        // [PN] Spectator mouse look.
+        if (!MenuActive && mousey && crl_mouselook)
+        {
+            const double vert = CalcMouseVert(mousey);
+            const int delta = mouse_y_invert ? CarryPitch(-vert) : CarryPitch(vert);
+            CRL_LimitLookdir(delta);
+            mousey = 0;
+        }
     }
     //cmd->consistancy =
     //      consistancy[consoleplayer][(maketic*ticdup)%BACKUPTICS];
@@ -559,6 +564,8 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
         if (!crl_mouselook)
         {
             look = TOCENTER;
+            // [PN] Reset spectator lookdir as well.
+            CRL_ReportLookdir(TOCENTER);
         }
         CT_SetMessage(&players[consoleplayer], crl_mouselook ?
                       CRL_MLOOK_ON : CRL_MLOOK_OFF, false, NULL);
@@ -1347,7 +1354,7 @@ static void SetMouseButtons(unsigned int buttons_mask)
         if (!mousebuttons[i] && button_on)
         {
             // [JN] CRL - move spectator camera up/down.
-            if (crl_spectating && !MenuActive)
+            if (crl_spectating && !MenuActive && !askforquit)
             {
                 if (i == 4)  // Hardcoded mouse wheel down
                 {
@@ -1748,8 +1755,11 @@ void G_PrepTiccmd (void)
     if (mousey && crl_mouselook && !crl_spectating)
     {
         const double vert = CalcMouseVert(mousey);
-        basecmd.lookdir += mouse_y_invert ?
-                            CarryPitch(-vert): CarryPitch(vert);
+        const int delta = mouse_y_invert ? CarryPitch(-vert) : CarryPitch(vert);
+        // [PN] Spectator mouse look
+        if (!crl_spectating)
+            basecmd.lookdir += delta;
+        CRL_LimitLookdir(delta);
         mousey = 0;
     }
 }
