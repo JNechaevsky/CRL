@@ -282,7 +282,7 @@ static player_t *plr; // the player represented by an arrow
 //static mpoint_t markpoints[AM_NUMMARKPOINTS]; // where the points are
 //static int markpointnum = 0; // next point to be assigned
 
-static int followplayer = 1; // specifies whether to follow the player around
+int followplayer = 1; // specifies whether to follow the player around
 // [PN] Accumulated automap pan delta from mouse movement
 static int mouse_pan_x = 0;
 static int mouse_pan_y = 0;
@@ -2545,8 +2545,10 @@ static void AM_MapNameDrawer (void)
 {
     if (gameepisode <= numepisodes && gamemap < 10)
     {
+        // [JN] Shift x-position on full screen automap.
+        const int xx = crl_screen_size > 10 && (!automapactive || crl_automap_overlay) ? 0 : 20;
         const char *const level_name = LevelNames[(gameepisode - 1) * 9 + gamemap - 1];
-        MN_DrTextA(DEH_String(level_name), 20, 145, NULL);
+        MN_DrTextA(DEH_String(level_name), xx, 145, NULL);
     }
 }
 

@@ -73,6 +73,7 @@ typedef struct
     int64_t x, y;
 } mpoint_t;
 
+extern int followplayer;
 
 extern void AM_Init (void);
 extern fixed_t AM_UnArchiveScaleMtof (void);

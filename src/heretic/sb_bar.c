@@ -580,7 +580,7 @@ void SB_Drawer(void)
         DrawSoundInfo();
     }
     CPlayer = &players[consoleplayer];
-    if (viewheight == SCREENHEIGHT && !automapactive)
+    if (viewheight == SCREENHEIGHT && (!automapactive || crl_automap_overlay))
     {
         DrawFullScreenStuff();
         SB_state = -1;

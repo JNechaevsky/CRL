@@ -205,9 +205,13 @@ static void D_Display(void)
     {
         I_UpdateFracTic();
 
-        I_StartDisplay();
-        G_FastResponder();
-        G_PrepTiccmd();
+        // [JN] Prevent player rotation while automap panning by mouse.
+        if (!automapactive || !crl_automap_mouse_pan || followplayer)
+        {
+            I_StartDisplay();
+            G_FastResponder();
+            G_PrepTiccmd();
+        }
     }
 
     // Change the view size if needed
