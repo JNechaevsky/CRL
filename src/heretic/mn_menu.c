@@ -167,6 +167,7 @@ static void MN_DrawInfo(void);
 static void DrawLoadMenu(void);
 static void DrawSaveMenu(void);
 static void DrawSlider(Menu_t * menu, int item, int width, int slot, boolean bigspacing, int itemPos);
+static void MN_DeactivateMenu(void);
 static void MN_LoadSlotText(void);
 
 inline static void M_ID_MenuMouseControl (void);
@@ -198,6 +199,7 @@ static int slotptr;
 static int currentSlot;
 static int quicksave;
 static int quickload;
+static boolean MenuWasPaused;
 
 // [JN] Show custom titles while performing quick save/load.
 static boolean quicksaveTitle = false;
@@ -4188,6 +4190,7 @@ static void SCNetCheck2(int option)
 
 static void SCQuitGame(int option)
 {
+    MenuWasPaused = paused;
     MenuActive = false;
     askforquit = true;
     typeofask = 1;              //quit game
@@ -4211,6 +4214,7 @@ static void SCEndGame(int option)
     }
     if (SCNetCheck(3))
     {
+        MenuWasPaused = paused;
         MenuActive = false;
         askforquit = true;
         typeofask = 2;              //endgame
@@ -4230,15 +4234,8 @@ static void SCEndGame(int option)
 static void SCMessages(int option)
 {
     showMessages ^= 1;
-    if (showMessages)
-    {
-        CT_SetMessage(&players[consoleplayer], DEH_String("MESSAGES ON"), true, NULL);
-    }
-    else
-    {
-        CT_SetMessage(&players[consoleplayer], DEH_String("MESSAGES OFF"), true, NULL);
-    }
-    S_StartSound(NULL, sfx_chat);
+        CT_SetMessage(&players[consoleplayer],
+                      DEH_String(showMessages ? "MESSAGES ON" : "MESSAGES OFF"), true, NULL);
 }
 
 //---------------------------------------------------------------------------
@@ -4784,7 +4781,7 @@ boolean MN_Responder(event_t * event)
                 {
                     return false;
                 }
-
+                
                 if (MenuActive && CurrentMenu->items[CurrentItPos].type == ITT_SLDR)
                 {
                     // [JN] Allow repetitive on sliders to move it while mouse movement.
@@ -4793,7 +4790,7 @@ boolean MN_Responder(event_t * event)
                 else
                 if (!event->data2 && !event->data3) // [JN] Do not consider movement as pressing.
                 {
-                if (!MenuActive && !usergame)
+                if (!MenuActive && !usergame && !demorecording)
                 {
                     // [JN] Open the main menu if the game is not active.
                     MN_ActivateMenu();
@@ -4815,7 +4812,7 @@ boolean MN_Responder(event_t * event)
             if (event->data1 & 2
             && !event->data2 && !event->data3) // [JN] Do not consider movement as pressing.
             {
-                if (!MenuActive && !usergame)
+                if (!MenuActive && !usergame && !demorecording)
                 {
                     // [JN] Open the main menu if the game is not active.
                     MN_ActivateMenu();
@@ -4925,7 +4922,7 @@ boolean MN_Responder(event_t * event)
         }
         if (!InfoType)
         {
-            paused = false;
+            paused = MenuWasPaused;
             MN_DeactivateMenu();
             SB_state = -1;      //refresh the statbar
         }
@@ -5014,7 +5011,7 @@ boolean MN_Responder(event_t * event)
                 players[consoleplayer].messageTics = 1;  //set the msg to be cleared
                 askforquit = false;
                 typeofask = 0;
-                paused = false;
+                paused = MenuWasPaused;
                 return true;
             }
         }
@@ -5044,6 +5041,7 @@ boolean MN_Responder(event_t * event)
         }
         else if (key == key_menu_help)           // F1
         {
+            MenuWasPaused = paused;
             SCInfo(0);      // start up info screens
             MenuActive = true;
             return (true);
@@ -5052,6 +5050,7 @@ boolean MN_Responder(event_t * event)
         {
             if (gamestate == GS_LEVEL && !demoplayback)
             {
+                MenuWasPaused = paused;
                 MenuActive = true;
                 FileMenuKeySteal = false;
                 MenuTime = 0;
@@ -5071,6 +5070,7 @@ boolean MN_Responder(event_t * event)
         {
             if (SCNetCheck(2))
             {
+                MenuWasPaused = paused;
                 MenuActive = true;
                 FileMenuKeySteal = false;
                 MenuTime = 0;
@@ -5088,6 +5088,7 @@ boolean MN_Responder(event_t * event)
         }
         else if (key == key_menu_volume)         // F4 (volume)
         {
+            MenuWasPaused = paused;
             MenuActive = true;
             FileMenuKeySteal = false;
             MenuTime = 0;
@@ -5112,6 +5113,7 @@ boolean MN_Responder(event_t * event)
             {
                 if (!quicksave || quicksave == -1)
                 {
+                    MenuWasPaused = paused;
                     MenuActive = true;
                     FileMenuKeySteal = false;
                     MenuTime = 0;
@@ -5152,6 +5154,7 @@ boolean MN_Responder(event_t * event)
         else if (key == key_menu_messages)        // F8 (toggle messages)
         {
             SCMessages(0);
+            S_StartSound(NULL, sfx_switch);
             return true;
         }
         else if (key == key_menu_qload)           // F9 (quickload)
@@ -5160,6 +5163,7 @@ boolean MN_Responder(event_t * event)
             {
                 if (!quickload || quickload == -1)
                 {
+                    MenuWasPaused = paused;
                     MenuActive = true;
                     FileMenuKeySteal = false;
                     MenuTime = 0;
@@ -5304,13 +5308,13 @@ boolean MN_Responder(event_t * event)
         }
         else if (key == key_menu_back)         // Go back to previous menu
         {
-            S_StartSound(NULL, sfx_switch);
             if (CurrentMenu->prevMenu == MENU_NONE)
             {
                 MN_DeactivateMenu();
             }
             else
             {
+                S_StartSound(NULL, sfx_switch);
                 SetMenu(CurrentMenu->prevMenu);
             }
             return (true);
@@ -5369,6 +5373,8 @@ boolean MN_Responder(event_t * event)
         }
         else if (key == key_menu_forward && CurrentItPos != -1)    // Activate item (enter)
         {
+            boolean line_action = false;
+
             if (item->type == ITT_SETMENU)
             {
                 if (item->func != NULL)
@@ -5383,13 +5389,14 @@ boolean MN_Responder(event_t * event)
                 if (item->type == ITT_LRFUNC1 || item->type == ITT_LRFUNC2)
                 {
                     item->func(RIGHT_DIR);
+                    line_action = true;
                 }
                 else if (item->type == ITT_EFUNC)
                 {
                     item->func(item->option);
                 }
             }
-            S_StartSound(NULL, sfx_dorcls);
+            S_StartSound(NULL, line_action ? sfx_switch : sfx_dorcls);
             return (true);
         }
         // [crispy] delete a savegame
@@ -5426,33 +5433,22 @@ boolean MN_Responder(event_t * event)
             }
             return (true);
         }
+        // Jump to menu item based on first letter:
+        // [JN] Allow multiple jumps over menu items with
+        // same first letters. This behavior is same to Doom.
+        // [PN] Combined loops using a cyclic index to traverse
+        // the array twice, avoiding code duplication.
         else if (charTyped != 0)
         {
-            // Jump to menu item based on first letter:
+            for (i = CurrentItPos + 1; i < CurrentMenu->itemCount + CurrentItPos + 1; i++)
+            {
+                const int index = i % CurrentMenu->itemCount;
 
-            // [JN] Allow multiple jumps over menu items with
-            // same first letters. This behavior is same to Doom.
-            for (i = CurrentItPos + 1; i < CurrentMenu->itemCount; i++)
-            {
-                if (CurrentMenu->items[i].text)
+                if (CurrentMenu->items[index].text)
                 {
-                    if (toupper(charTyped)
-                        == toupper(DEH_String(CurrentMenu->items[i].text)[0]))
+                    if (toupper(charTyped) == toupper(DEH_String(CurrentMenu->items[index].text)[0]))
                     {
-                        CurrentItPos = i;
-                        S_StartSound(NULL, sfx_switch);
-                        return (true);
-                    }
-                }
-            }
-            for (i = 0; i <= CurrentItPos; i++)
-            {
-                if (CurrentMenu->items[i].text)
-                {
-                    if (toupper(charTyped)
-                        == toupper(DEH_String(CurrentMenu->items[i].text)[0]))
-                    {
-                        CurrentItPos = i;
+                        CurrentItPos = index;
                         S_StartSound(NULL, sfx_switch);
                         return (true);
                     }
@@ -5540,9 +5536,13 @@ void MN_ActivateMenu(void)
     {
         return;
     }
-    if (paused)
+
+    // [PN] Preserve pause state from before opening menu.
+    // Do not overwrite while returning from confirmation prompts.
+    // This behavior is same to Doom.
+    if (!askforquit)
     {
-        S_ResumeSound();
+        MenuWasPaused = paused;
     }
     MenuActive = true;
     FileMenuKeySteal = false;
@@ -5569,8 +5569,10 @@ void MN_ActivateMenu(void)
 //
 //---------------------------------------------------------------------------
 
-void MN_DeactivateMenu(void)
+static void MN_DeactivateMenu(void)
 {
+    const boolean wasMenuActive = MenuActive;
+
     if (CurrentMenu != NULL)
     {
         M_Reset_Line_Glow();
@@ -5581,9 +5583,9 @@ void MN_DeactivateMenu(void)
     {
         I_StopTextInput();
     }
-    if (!netgame)
+    if (wasMenuActive && !netgame && !demoplayback)
     {
-        paused = false;
+        paused = MenuWasPaused;
     }
     // [JN] Do not play closing menu sound on quick save/loading actions.
     // Quick save playing it separatelly, quick load doesn't need it at all.

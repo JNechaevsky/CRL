@@ -903,7 +903,6 @@ extern boolean MenuActive;
 
 void MN_Init(void);
 void MN_ActivateMenu(void);
-void MN_DeactivateMenu(void);
 boolean MN_Responder(event_t * event);
 void MN_Ticker(void);
 void MN_Drawer(void);
