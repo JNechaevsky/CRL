@@ -167,10 +167,10 @@ static void MN_DrawInfo(void);
 static void DrawLoadMenu(void);
 static void DrawSaveMenu(void);
 static void DrawSlider(Menu_t * menu, int item, int width, int slot, boolean bigspacing, int itemPos);
-void MN_LoadSlotText(void);
+static void MN_LoadSlotText(void);
 
-static void M_ID_MenuMouseControl (void);
-static void M_ID_HandleSliderMouseControl (int x, int y, int width, void *value, boolean is_float, float min, float max);
+inline static void M_ID_MenuMouseControl (void);
+inline static void M_ID_HandleSliderMouseControl (int x, int y, int width, void *value, boolean is_float, float min, float max);
 
 // Public Data
 
@@ -896,6 +896,8 @@ static byte *M_Cursor_Glow (const int tics)
 
 static int M_INT_Slider (int val, int min, int max, int direction, boolean capped)
 {
+    const int old_val = val;
+
     // [PN] Adjust the slider value based on direction and handle min/max limits
     val += (direction == -1) ?  0 :     // [JN] Routine "-1" just reintializes value.
            (direction ==  0) ? -1 : 1;  // Otherwise, move either left "0" or right "1".
@@ -906,12 +908,28 @@ static int M_INT_Slider (int val, int min, int max, int direction, boolean cappe
     if (val > max)
         val = capped ? max : min;
 
+    // [JN] Play sound only if value was really changed.
+    // [PN] For line items (ITT_LRFUNC1/2), sound is handled in MN_Responder
+    // to keep keyboard/mouse/wheel behavior consistent and avoid doubles.
+    if (old_val != val)
+    {
+        if (!(MenuActive && CurrentMenu != NULL
+        && CurrentItPos >= 0 && CurrentItPos < CurrentMenu->itemCount
+        && (CurrentMenu->items[CurrentItPos].type == ITT_LRFUNC1
+        ||  CurrentMenu->items[CurrentItPos].type == ITT_LRFUNC2)))
+        {
+            S_StartSound(NULL, sfx_keyup);
+        }
+    }
+
     return val;
 }
 
 static float M_FLOAT_Slider (float val, float min, float max, float step,
                              int direction, boolean capped)
 {
+    const float old_val = val;
+
     // [PN] Adjust value based on direction
     val += (direction == -1) ? 0 :            // [JN] Routine "-1" just reintializes value.
            (direction ==  0) ? -step : step;  // Otherwise, move either left "0" or right "1".
@@ -925,6 +943,20 @@ static float M_FLOAT_Slider (float val, float min, float max, float step,
 
     // [PN/JN] Do a float correction to get x.xxx000 values
     val = roundf(val * 1000.0f) / 1000.0f;
+
+    // [JN] Play sound only if value was really changed.
+    // [PN] For line items (ITT_LRFUNC1/2), sound is handled in MN_Responder
+    // to keep keyboard/mouse/wheel behavior consistent and avoid doubles.
+    if (old_val != val)
+    {
+        if (!(MenuActive && CurrentMenu != NULL
+        && CurrentItPos >= 0 && CurrentItPos < CurrentMenu->itemCount
+        && (CurrentMenu->items[CurrentItPos].type == ITT_LRFUNC1
+        ||  CurrentMenu->items[CurrentItPos].type == ITT_LRFUNC2)))
+        {
+            S_StartSound(NULL, sfx_keyup);
+        }
+    }
 
     return val;
 }
@@ -3576,11 +3608,13 @@ void MN_Ticker(void)
     MenuTime++;
 
     // [JN] Don't go any farther with effects while active info screens.
-    
     if (InfoType)
     {
         return;
     }
+
+    // [JN] Call the menu control routine for mouse input.
+    M_ID_MenuMouseControl();
 
     // [JN] Menu glowing animation:
 
@@ -3613,67 +3647,124 @@ void MN_Ticker(void)
     }
 }
 
-static void M_ID_MenuMouseControl (void)
+// -----------------------------------------------------------------------------
+// M_ID_MenuMouseControl
+//  [PN/JN] Set menu cursor position under the mouse cursor.
+// -----------------------------------------------------------------------------
+
+inline static void M_ID_MenuMouseControl (void)
 {
+    // Skip if mouse control disabled or any binding is active
     if (!menu_mouse_allow || KbdIsBinding || MouseIsBinding)
+        return;
+
+    // Precompute scaled horizontal boundaries for the entire menu
+    const int left = CurrentMenu->x;
+    const int right = SCREENWIDTH - CurrentMenu->x;
+
+    // Determine line height based on font type
+    const int line_height = (CurrentMenu->FontType == SmallFont) ? ID_MENU_LINEHEIGHT_SMALL : ITEM_HEIGHT;
+    const int slider_height = (CurrentMenu->FontType == SmallFont) ? 3 : 2;
+    const int scaled_line_height = line_height;
+    const int base_y = CurrentMenu->y;
+
+    // Quick reject: mouse outside horizontal bounds or above menu
+    if (menu_mouse_x < left || menu_mouse_x > right || menu_mouse_y < base_y)
     {
-        // [JN] Skip hovering if the cursor is disabled/hidden or a binding is active.
+        CurrentItPos = -1;
         return;
     }
-    else
+
+    // Approximate bottom boundary - if mouse is far below, reject early
+    const int max_bottom_estimate = base_y + CurrentMenu->itemCount * scaled_line_height;
+    if (menu_mouse_y > max_bottom_estimate)
     {
-        // [JN] Which line height should be used?
-        const int line_height = (CurrentMenu->FontType == SmallFont) ?
-                                 ID_MENU_LINEHEIGHT_SMALL : ITEM_HEIGHT;
-
-        // [JN] Reset current menu item, it will be set in a cycle below.
         CurrentItPos = -1;
+        return;
+    }
 
-        // [PN] Check if the cursor is hovering over a menu item
-        for (int i = 0; i < CurrentMenu->itemCount; i++)
+    // Reset selection; will be set if cursor is over an item
+    CurrentItPos = -1;
+
+    // Scan menu items from top to bottom
+    for (int i = 0; i < CurrentMenu->itemCount; ++i)
+    {
+        // Skip empty items (ITT_EMPTY)
+        if (CurrentMenu->items[i].type == ITT_EMPTY)
+            continue;
+
+        // Sliders occupy three lines, normal items one line
+        const int mn_lines = (CurrentMenu->items[i].type == ITT_SLDR) ? slider_height : 1;
+        const int mn_top = base_y + i * scaled_line_height;
+        const int mn_bottom = mn_top + mn_lines * scaled_line_height;
+
+        // If mouse is above current item, further items are even lower - stop scan
+        if (menu_mouse_y < mn_top)
+            break;
+
+        // Check vertical overlap
+        if (menu_mouse_y <= mn_bottom)
         {
-            // [JN] Slider takes three lines.
-            const int line_item = CurrentMenu->items[i].type == ITT_SLDR ? 3 : 1;
-
-            if (menu_mouse_x >= (CurrentMenu->x)
-            &&  menu_mouse_x <= (SCREENWIDTH- CurrentMenu->x)
-            &&  menu_mouse_y >= (CurrentMenu->y + i * line_height)
-            &&  menu_mouse_y <= (CurrentMenu->y + (i + line_item) * line_height)
-            &&  CurrentMenu->items[i].type != ITT_EMPTY)
-            {
-                // [PN] Highlight the current menu item
-                CurrentItPos = i;
-            }
+            CurrentItPos = i;
+            break; // Found the topmost item under cursor
         }
     }
 }
 
+// -----------------------------------------------------------------------------
+// M_ID_HandleSliderMouseControl
+//  [PN/JN] Handle slider position setting under the mouse cursor.
+// -----------------------------------------------------------------------------
 
-static void M_ID_HandleSliderMouseControl (int x, int y, int width, void *value, boolean is_float, float min, float max)
+inline static void M_ID_HandleSliderMouseControl (int x, int y, int width, void *value, boolean is_float, float min, float max)
 {
+    // Ignore if mouse clicks are not allowed (prevents multiple adjustments)
     if (!menu_mouse_allow_click)
         return;
-    
-    // [PN] Check cursor position and item status
-    if (menu_mouse_x < x || menu_mouse_x > x + width
-    ||  menu_mouse_y < y || menu_mouse_y > y + ITEM_HEIGHT
-    ||  CurrentMenu->items[CurrentItPos].type != ITT_SLDR)
+
+    // Adjust slider boundaries to account for screen resolution and widescreen offset
+    const int adj_x = x;
+    const int adj_y = y;
+    const int adj_width = width;
+    const int adj_height = ITEM_HEIGHT;
+
+    // Verify mouse is within slider boundaries and current item is actually a slider
+    const MenuItem_t *const item = &CurrentMenu->items[CurrentItPos];
+    if (menu_mouse_x < adj_x || menu_mouse_x > adj_x + adj_width
+    ||  menu_mouse_y < adj_y || menu_mouse_y > adj_y + adj_height
+    ||  item->type != ITT_SLDR)
         return;
 
-    // [PN] Calculate and update slider value
-    {
-    const float normalized = (float)(menu_mouse_x - x + 5) / width;
-    const float newValue = min + normalized * (max - min);
+    // Calculate normalized cursor position (0.0 to 1.0) within slider
+    // Adding +5 provides a small deadzone for better precision at edges
+    const float normalized = (float)(menu_mouse_x - adj_x + 5) / (float)adj_width;
+    const float range = max - min;
+    boolean value_changed = false;
+
+    // Update the actual value based on cursor position and data type
     if (is_float)
-        *((float *)value) = newValue;
-    else
-        *((int *)value) = (int)newValue;
-    // [JN/PN] Call related routine and reset mouse click allowance
-    CurrentMenu->items[CurrentItPos].func(-1);
-    menu_mouse_allow_click = false;
-    // Play sound
-    S_StartSound(NULL, sfx_keyup);
+    {
+        float *v = (float *)value;
+        const float old_value = *v;
+        *v = min + normalized * range;
+        value_changed = (old_value != *v);
     }
+    else
+    {
+        int *v = (int *)value;
+        const int old_value = *v;
+        *v = (int)(min + normalized * range);
+        value_changed = (old_value != *v);
+    }
+
+    // Execute the item's routine to handle any side effects
+    // and prevent multiple clicks from processing in the same frame
+    item->func(-1);
+    menu_mouse_allow_click = false;
+
+    // Provide audio feedback only if the value actually changed
+    if (value_changed)
+        S_StartSound(NULL, sfx_keyup);
 }
 
 //---------------------------------------------------------------------------
@@ -3682,7 +3773,7 @@ static void M_ID_HandleSliderMouseControl (int x, int y, int width, void *value,
 //
 //---------------------------------------------------------------------------
 
-char *QuitEndMsg[] = {
+static const char *const QuitEndMsg[] = {
     "ARE YOU SURE YOU WANT TO QUIT?",
     "ARE YOU SURE YOU WANT TO END THE GAME?",
     "DO YOU WANT TO QUICKSAVE THE GAME NAMED",
@@ -3805,9 +3896,6 @@ void MN_Drawer(void)
             }
         }
     }
-
-    // [JN] Call the menu control routine for mouse input.
-    M_ID_MenuMouseControl();
 }
 
 //---------------------------------------------------------------------------
@@ -3951,7 +4039,7 @@ static void DrawSaveMenu(void)
 //              Loads in the text message for each slot
 //===========================================================================
 
-void MN_LoadSlotText(void)
+static void MN_LoadSlotText(void)
 {
     FILE *fp;
     int i;
@@ -3996,6 +4084,8 @@ static void DrawFileSlots(Menu_t * menu)
         // [JN] Highlight selected item (CurrentItPos == i) or apply fading effect.
         dp_translation = CurrentItPos == i ? cr[CR_MENU_BRIGHT2] : NULL;
         V_DrawShadowedPatchRavenOptional(x, y, W_CacheLumpName(DEH_String("M_FSLOT"), PU_CACHE), "M_FSLOT");
+        dp_translation = NULL;
+
         if (SlotStatus[i])
         {
             MN_DrTextA(SlotText[i], x + 5, y + 5, CurrentItPos == i ?
@@ -4070,15 +4160,15 @@ static boolean SCNetCheck(int option)
     {
         case 1:
             CT_SetMessage(&players[consoleplayer],
-                          "YOU CAN'T START A NEW GAME IN NETPLAY!", true, NULL);
+                         "YOU CAN'T START A NEW GAME IN NETPLAY!", true, NULL);
             break;
         case 2:
             CT_SetMessage(&players[consoleplayer],
-                          "YOU CAN'T LOAD A GAME IN NETPLAY!", true, NULL);
+                         "YOU CAN'T LOAD A GAME IN NETPLAY!", true, NULL);
             break;
         case 3:                // end game
             CT_SetMessage(&players[consoleplayer],
-                          "YOU CAN'T END A GAME IN NETPLAY!", true, NULL);
+                         "YOU CAN'T END A GAME IN NETPLAY!", true, NULL);
             break;
     }
     MenuActive = false;
@@ -4203,7 +4293,7 @@ static void SCDeleteGame(int option)
 //---------------------------------------------------------------------------
 
 // [crispy] override savegame name if it already starts with a map identifier
-static boolean StartsWithMapIdentifier (char *str)
+static boolean StartsWithMapIdentifier (const char *str)
 {
     if (strlen(str) >= 4 &&
         toupper(str[0]) == 'E' && isdigit(str[1]) &&
@@ -4221,7 +4311,7 @@ static void SCSaveCheck(int option)
     if (!usergame)
     {
         CT_SetMessage(&players[consoleplayer],
-                      "YOU CAN'T SAVE IF YOU AREN'T PLAYING", true, NULL);
+                     "YOU CAN'T SAVE IF YOU AREN'T PLAYING", true, NULL);
     }
     else
     {
@@ -4286,7 +4376,7 @@ static void SCEpisode(int option)
     if (gamemode == shareware && option > 1)
     {
         CT_SetMessage(&players[consoleplayer],
-                      "ONLY AVAILABLE IN THE REGISTERED VERSION", true, NULL);
+                     "ONLY AVAILABLE IN THE REGISTERED VERSION", true, NULL);
     }
     else
     {
@@ -4407,17 +4497,70 @@ static int G_ReloadLevel (void)
     return result;
 }
 
-static int G_GotoNextLevel(void)
-{
-    byte heretic_next[6][9] = {
+static byte heretic_next[6][9] = {
     {12, 13, 14, 15, 16, 19, 18, 21, 17},
     {22, 23, 24, 29, 26, 27, 28, 31, 25},
     {32, 33, 34, 39, 36, 37, 38, 41, 35},
     {42, 43, 44, 49, 46, 47, 48, 51, 45},
     {52, 53, 59, 55, 56, 57, 58, 61, 54},
     {62, 63, 11, 11, 11, 11, 11, 11, 11}, // E6M4-E6M9 shouldn't be accessible
-    };
+};
 
+// -----------------------------------------------------------------------------
+// G_GotoPrevLevel
+//  [PN] Mirror of G_GotoNextLevel: warp to the level that would have led here.
+//  Keeps the same episode/secret flow and the same shareware/registered guards.
+//  IMPORTANT: E6M4-E6M9 are intentionally excluded (they map to E1M1 forward).
+// -----------------------------------------------------------------------------
+static int G_GotoPrevLevel (void)
+{
+    int changed = false;
+
+    // Apply the same runtime tweaks as G_GotoNextLevel.
+    if (gamemode == shareware)
+        heretic_next[0][7] = 11;  // E1M8 secret > E1M1 in shareware
+
+    if (gamemode == registered)
+        heretic_next[2][7] = 11;  // E3M8 secret > E1M1 in registered
+
+    if (gamestate == GS_LEVEL)
+    {
+        // Current level in E*10+M encoding (e.g., E2M3 > 23).
+        const int cur  = gameepisode * 10 + gamemap;
+        int       prev = cur; // Fallback: stay if no predecessor is found.
+
+        // Find (e,m) such that heretic_next[e][m] == cur and use that (E=M prev).
+        // Skip E6M4-E6M9 to avoid back-warping into disallowed maps.
+        for (int e = 0; e < 6; ++e)
+        {
+            for (int m = 0; m < 9; ++m)
+            {
+                if (e == 5 && m >= 3)         // E6 indexes: m=3..8 are M4..M9
+                    continue;
+
+                if (heretic_next[e][m] == cur)
+                {
+                    prev = (e + 1) * 10 + (m + 1);
+                    e = 6;                    // break both loops
+                    break;
+                }
+            }
+        }
+
+        const int epsd = prev / 10;
+        const int map  = prev % 10;
+
+        // Defer the actual change, just like the original.
+        G_DeferedInitNew(gameskill, epsd, map);
+        changed = true;
+    }
+
+    return changed;
+}
+
+
+static int G_GotoNextLevel(void)
+{
     int changed = false;
 
     if (gamemode == shareware)
@@ -4717,7 +4860,11 @@ boolean MN_Responder(event_t * event)
                 {
                     // Scroll menu item backward normally, or forward for ITT_LRFUNC2
                     CurrentMenu->items[CurrentItPos].func(CurrentMenu->items[CurrentItPos].type != ITT_LRFUNC2 ? LEFT_DIR : RIGHT_DIR);
-                    S_StartSound(NULL, sfx_keyup);
+                    if (CurrentMenu->items[CurrentItPos].type == ITT_LRFUNC1
+                    ||  CurrentMenu->items[CurrentItPos].type == ITT_LRFUNC2)
+                    {
+                        S_StartSound(NULL, sfx_switch);
+                    }
                 }
                 mousewait = I_GetTime();
             }
@@ -4736,7 +4883,11 @@ boolean MN_Responder(event_t * event)
                 {
                     // Scroll menu item forward normally, or backward for ITT_LRFUNC2
                     CurrentMenu->items[CurrentItPos].func(CurrentMenu->items[CurrentItPos].type != ITT_LRFUNC2 ? RIGHT_DIR : LEFT_DIR);
-                    S_StartSound(NULL, sfx_keyup);
+                    if (CurrentMenu->items[CurrentItPos].type == ITT_LRFUNC1
+                    ||  CurrentMenu->items[CurrentItPos].type == ITT_LRFUNC2)
+                    {
+                        S_StartSound(NULL, sfx_switch);
+                    }
                 }
                 mousewait = I_GetTime();
             }
@@ -4880,7 +5031,6 @@ boolean MN_Responder(event_t * event)
                 return (false);
             }
             SCScreenSize(LEFT_DIR);
-            S_StartSound(NULL, sfx_keyup);
             return (true);
         }
         else if (key == key_menu_incscreen)
@@ -4890,7 +5040,6 @@ boolean MN_Responder(event_t * event)
                 return (false);
             }
             SCScreenSize(RIGHT_DIR);
-            S_StartSound(NULL, sfx_keyup);
             return (true);
         }
         else if (key == key_menu_help)           // F1
@@ -5044,6 +5193,12 @@ boolean MN_Responder(event_t * event)
             }
             return true;
         }
+        // [PN] Go to previous level.
+        else if ((singleplayer) && key != 0 && (key == key_crl_prevlevel || key == key_crl_prevlevel2))
+        {
+            if (G_GotoPrevLevel())
+            return true;
+        }
         // [crispy] those two can be considered as shortcuts for the IDCLEV cheat
         // and should be treated as such, i.e. add "if (!netgame)"
         else if (!netgame && key != 0 && key == key_crl_reloadlevel)
@@ -5165,7 +5320,10 @@ boolean MN_Responder(event_t * event)
             if ((item->type == ITT_LRFUNC1 || item->type == ITT_LRFUNC2 || item->type == ITT_SLDR) && item->func != NULL)
             {
                 item->func(LEFT_DIR);
-                S_StartSound(NULL, sfx_keyup);
+                if (item->type == ITT_LRFUNC1 || item->type == ITT_LRFUNC2)
+                {
+                    S_StartSound(NULL, sfx_switch);
+                }
             }
             // [JN] Go to previous-left menu by pressing Left Arrow.
             if (CurrentMenu->ScrollAR || CurrentItPos == -1)
@@ -5179,7 +5337,10 @@ boolean MN_Responder(event_t * event)
             if ((item->type == ITT_LRFUNC1 || item->type == ITT_LRFUNC2 || item->type == ITT_SLDR) && item->func != NULL)
             {
                 item->func(RIGHT_DIR);
-                S_StartSound(NULL, sfx_keyup);
+                if (item->type == ITT_LRFUNC1 || item->type == ITT_LRFUNC2)
+                {
+                    S_StartSound(NULL, sfx_switch);
+                }
             }
             // [JN] Go to next-right menu by pressing Right Arrow.
             if (CurrentMenu->ScrollAR || CurrentItPos == -1)
