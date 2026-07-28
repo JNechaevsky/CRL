@@ -315,6 +315,7 @@ extern int  firstspritelump, lastspritelump, numspritelumps;
 extern int  numflats;
 
 extern lighttable_t *colormaps;
+extern byte grayscale_colormap[256];
 
 extern void R_InitData(void);
 extern void R_PrecacheLevel(void);

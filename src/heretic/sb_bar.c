@@ -310,6 +310,12 @@ void SB_Ticker(void)
     CRLWidgets.x = CPlayer->mo->x;
     CRLWidgets.y = CPlayer->mo->y;
     CRLWidgets.ang = CPlayer->mo->angle;
+
+    // Do red-/gold-shifts from damage/items
+    if (!crl_spectating)
+    {
+        SB_PaletteFlash();
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -631,7 +637,6 @@ void SB_Drawer(void)
             SB_state = 1;
         }
     }
-    SB_PaletteFlash();
 
     // Flight icons
     if (CPlayer->powers[pw_flight])
@@ -819,27 +824,44 @@ void CRL_ReloadPalette (void)
 void SB_PaletteFlash(void)
 {
     int palette;
-    byte *pal;
 
     CPlayer = &players[consoleplayer];
 
     if (CPlayer->damagecount)
     {
-        palette = (CPlayer->damagecount + 7) >> 3;
-        if (palette >= NUMREDPALS)
-        {
-            palette = NUMREDPALS - 1;
-        }
-        palette += STARTREDPALS;
+        // [JN] A11Y - Palette flash effects.
+        // For A11Y, fix missing first pain palette index for smoother effect.
+        // [PN] Simplified pain palette logic and reduced redundancy.
+
+        const int offset     = (CPlayer->damagecount + 7) >> 3;
+        const int maxOffset  = NUMREDPALS - (crl_a11y_pal_flash ? 0 : 1);
+        const int startIndex = STARTREDPALS + (crl_a11y_pal_flash ? -1 : 0);
+
+        // [PN] Select offset, clamped to allowed range
+        palette = startIndex + (offset < NUMREDPALS ? offset : maxOffset);
+
+        // [PN] Aadditional limits for flash mode
+        if      (crl_a11y_pal_flash == 1 && palette > 5) palette = 5;
+        else if (crl_a11y_pal_flash == 2 && palette > 2) palette = 2;
+        else if (crl_a11y_pal_flash == 3)                palette = 0;
     }
     else if (CPlayer->bonuscount)
     {
-        palette = (CPlayer->bonuscount + 7) >> 3;
-        if (palette >= NUMBONUSPALS)
-        {
-            palette = NUMBONUSPALS - 1;
-        }
-        palette += STARTBONUSPALS;
+        // [JN] A11Y - Palette flash effects.
+        // For A11Y, fix missing first bonus palette index for smoother effect.
+        // [PN] Simplified bonus palette logic and reduced redundancy.
+
+        const int offset     = (CPlayer->bonuscount + 7) >> 3;
+        const int maxOffset  = NUMBONUSPALS - (crl_a11y_pal_flash ? 0 : 1);
+        const int startIndex = STARTBONUSPALS + (crl_a11y_pal_flash ? -1 : 0);
+
+        // [PN] Select offset, clamped to allowed range
+        palette = startIndex + (offset < NUMBONUSPALS ? offset : maxOffset);
+
+        // [PN] Aadditional limits for flash mode
+        if      (crl_a11y_pal_flash == 1 && palette > 11) palette = 11;
+        else if (crl_a11y_pal_flash == 2 && palette >  9) palette =  9;
+        else if (crl_a11y_pal_flash == 3)                 palette =  0;
     }
     else
     {
@@ -848,8 +870,7 @@ void SB_PaletteFlash(void)
     if (palette != sb_palette)
     {
         sb_palette = palette;
-        pal = (byte *) W_CacheLumpNum(playpalette, PU_CACHE) + palette * 768;
-        I_SetPalette(pal);
+        CRL_ReloadPalette();
     }
 }
 

@@ -411,7 +411,6 @@ static void CRL_LevelBrightness (int option);
 static void CRL_MsgCritical (int option);
 static void CRL_GfxStartup (int option);
 static void CRL_EndText (int option);
-static void CRL_Colorblind (int option);
 
 static void DrawCRLDisplay (void);
 static void CRL_TextShadows (int option);
@@ -593,6 +592,11 @@ static void CRL_ProgressBar (int option);
 static void CRL_InternalDemos (int option);
 
 static void DrawCRLMisc (void);
+static void CRL_Invul (int option);
+static void CRL_PalFlash (int option);
+static void CRL_MoveBob (int option);
+static void CRL_WeaponBob (int option);
+static void CRL_Colorblind (int option);
 
 static void DrawCRLLimits (void);
 static void CRL_SaveSizeWarning (int option);
@@ -1127,7 +1131,6 @@ static MenuItem_t CRLVideoItems[] = {
     { ITT_EMPTY,   NULL,                  NULL,              0, MENU_NONE },
     { ITT_LRFUNC2, "GRAPHICAL STARTUP",   CRL_GfxStartup,    0, MENU_NONE },
     { ITT_LRFUNC2, "SHOW ENDTEXT SCREEN", CRL_EndText,       0, MENU_NONE },
-    { ITT_LRFUNC2, "COLORBLIND",          CRL_Colorblind,    0, MENU_NONE },
 };
 
 static Menu_t CRLVideo = {
@@ -1197,32 +1200,6 @@ static void DrawCRLVideo (void)
                  show_endoom == 2 ? "PWAD ONLY" : "NEVER");
     MN_DrTextA(str, M_ItemRightAlign(str), 110,
                M_Item_Glow(9, show_endoom == 1 ? GLOW_RED : GLOW_GREEN));
-
-    // Colorblind
-    sprintf(str, crl_colorblind == 1 ? "PROTANOPIA"    :
-                 crl_colorblind == 2 ? "PROTANOMALY"   :
-                 crl_colorblind == 3 ? "DEUTERANOPIA"  :
-                 crl_colorblind == 4 ? "DEUTERANOMALY" :
-                 crl_colorblind == 5 ? "TRITANOPIA"    :
-                 crl_colorblind == 6 ? "TRITANOMALY"   :
-                 crl_colorblind == 7 ? "ACHROMATOPSIA" :
-                 crl_colorblind == 8 ? "ACHROMATOMALY" : "NONE");
-    MN_DrTextA(str, M_ItemRightAlign(str), 120,
-               M_Item_Glow(10, crl_colorblind ? GLOW_GREEN : GLOW_RED));
-
-    // Print hint about colorblind type
-    if (CurrentItPos == 10 && crl_colorblind)
-    {
-        MN_DrTextACentered(crl_colorblind == 1 ? "RED-BLIND"    :
-                           crl_colorblind == 2 ? "RED-WEAK"     :
-                           crl_colorblind == 3 ? "GREEN-BLIND"  :
-                           crl_colorblind == 4 ? "GREEN-WEAK"   :
-                           crl_colorblind == 5 ? "BLUE-BLIND"   :
-                           crl_colorblind == 6 ? "BLUE-WEAK"    :
-                           crl_colorblind == 7 ? "MONOCHROMACY" :
-                        /* crl_colorblind == 8*/ "BLUE CONE MONOCHROMACY",
-                           140, cr[CR_WHITE]);
-    }
 }
 
 static void CRL_UncappedFPS (int option)
@@ -1294,13 +1271,6 @@ static void CRL_GfxStartup (int option)
 static void CRL_EndText (int option)
 {
     show_endoom = M_INT_Slider(show_endoom, 0, 2, option, false);
-}
-
-static void CRL_Colorblind (int option)
-{
-    crl_colorblind = M_INT_Slider(crl_colorblind, 0, 8, option, false);
-
-    CRL_ReloadPalette();
 }
 
 // -----------------------------------------------------------------------------
@@ -3184,7 +3154,12 @@ static void CRL_InternalDemos (int option)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLMiscItems[] = {
-    {ITT_LRFUNC2, "DUMMY DUMMY",            CRL_DefaulSkill,    0, MENU_NONE},
+    { ITT_LRFUNC1, "INVULNERABILITY EFFECT", CRL_Invul,      0, MENU_NONE },
+    { ITT_LRFUNC2, "PALETTE FLASH EFFECTS",  CRL_PalFlash,   0, MENU_NONE },
+    { ITT_LRFUNC1, "MOVEMENT BOBBING",       CRL_MoveBob,    0, MENU_NONE },
+    { ITT_LRFUNC1, "WEAPON BOBBING",         CRL_WeaponBob,  0, MENU_NONE },
+    { ITT_LRFUNC2, "COLORBLIND",             CRL_Colorblind, 0, MENU_NONE },
+    
     {ITT_EMPTY,  NULL,                      NULL,               0, MENU_NONE},
 
 };
@@ -3200,9 +3175,86 @@ static Menu_t CRLMisc = {
 
 static void DrawCRLMisc (void)
 {
-    //char str[32];
+    char str[32];
+    const char *bobpercent[] = {
+        "OFF","5%","10%","15%","20%","25%","30%","35%","40%","45%","50%",
+        "55%","60%","65%","70%","75%","80%","85%","90%","95%","100%"
+    };
+    const char *colorblind_name[] = {
+        "NONE","PROTANOPIA","PROTANOMALY","DEUTERANOPIA","DEUTERANOMALY",
+        "TRITANOPIA","TRITANOMALY","ACHROMATOPSIA","ACHROMATOMALY"
+    };
 
-    MN_DrTextACentered("MISC FEATURES", 10, cr[CR_YELLOW]);
+    MN_DrTextACentered("ACCESSIBILITY", 10, cr[CR_YELLOW]);
+
+    // Invulnerability effect
+    sprintf(str, crl_a11y_invul ? "GRAYSCALE" : "DEFAULT");
+    MN_DrTextA(str, M_ItemRightAlign(str), 20,
+               M_Item_Glow(0, crl_a11y_invul ? GLOW_GREEN : GLOW_DARKRED));
+
+    // Palette flash effects
+    sprintf(str, crl_a11y_pal_flash == 1 ? "HALVED" :
+                 crl_a11y_pal_flash == 2 ? "QUARTERED" :
+                 crl_a11y_pal_flash == 3 ? "OFF" : "DEFAULT");
+    MN_DrTextA(str, M_ItemRightAlign(str), 30,
+               M_Item_Glow(1, crl_a11y_pal_flash == 1 ? GLOW_YELLOW :
+                              crl_a11y_pal_flash == 2 ? GLOW_ORANGE :
+                              crl_a11y_pal_flash == 3 ? GLOW_RED : GLOW_DARKRED));
+
+    // Movement bobbing
+    sprintf(str, "%s", bobpercent[crl_a11y_move_bob]);
+    MN_DrTextA(str, M_ItemRightAlign(str), 40,
+               M_Item_Glow(2, crl_a11y_move_bob == 20 ? GLOW_DARKRED :
+                              crl_a11y_move_bob ==  0 ? GLOW_RED : GLOW_YELLOW));
+
+    // Weapon bobbing
+    sprintf(str, "%s", bobpercent[crl_a11y_weapon_bob]);
+    MN_DrTextA(str, M_ItemRightAlign(str), 50,
+               M_Item_Glow(3, crl_a11y_weapon_bob == 20 ? GLOW_DARKRED :
+                              crl_a11y_weapon_bob ==  0 ? GLOW_RED : GLOW_YELLOW));
+
+    // Colorblind
+    sprintf(str, "%s", colorblind_name[crl_colorblind]);
+    MN_DrTextA(str, M_ItemRightAlign(str), 60,
+               M_Item_Glow(4, crl_colorblind ? GLOW_GREEN : GLOW_DARKRED));
+
+    // [PN] Added explanations for colorblind filters
+    if (CurrentItPos == 4 && crl_colorblind)
+    {
+        const char *colorblind_hint[] = {
+            "","RED-BLIND","RED-WEAK","GREEN-BLIND","GREEN-WEAK",
+            "BLUE-BLIND","BLUE-WEAK","MONOCHROMACY","BLUE CONE MONOCHROMACY"
+        };
+
+        MN_DrTextACentered(colorblind_hint[crl_colorblind], 140, cr[CR_WHITE]);
+    }
+}
+
+static void CRL_Invul (int option)
+{
+    crl_a11y_invul ^= 1;
+}
+
+static void CRL_PalFlash (int option)
+{
+    crl_a11y_pal_flash = M_INT_Slider(crl_a11y_pal_flash, 0, 3, option, false);
+    CRL_ReloadPalette();
+}
+
+static void CRL_MoveBob (int option)
+{
+    crl_a11y_move_bob = M_INT_Slider(crl_a11y_move_bob, 0, 20, option, true);
+}
+
+static void CRL_WeaponBob (int option)
+{
+    crl_a11y_weapon_bob = M_INT_Slider(crl_a11y_weapon_bob, 0, 20, option, true);
+}
+
+static void CRL_Colorblind (int option)
+{
+    crl_colorblind = M_INT_Slider(crl_colorblind, 0, 8, option, false);
+    CRL_ReloadPalette();
 }
 
 // -----------------------------------------------------------------------------

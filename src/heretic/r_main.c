@@ -775,8 +775,16 @@ static void R_SetupFrame(player_t * player)
     viewcos = finecosine[tableAngle];
     if (player->fixedcolormap)
     {
-        fixedcolormap = colormaps + player->fixedcolormap
-            * 256 * sizeof(lighttable_t);
+        // [PN] A11Y - Invulnerability grayscaled effect
+        if (crl_a11y_invul)
+        {
+            fixedcolormap = grayscale_colormap;
+        }
+        else
+        {
+            fixedcolormap = colormaps + player->fixedcolormap * 256;
+        }
+
         walllights = scalelightfixed;
         for (i = 0; i < MAXLIGHTSCALE; i++)
         {
