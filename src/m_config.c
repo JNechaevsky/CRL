@@ -589,6 +589,8 @@ static default_t	doom_defaults_list[] =
 
     // Automap
     CONFIG_VARIABLE_COMMENT("Automap"),
+    CONFIG_VARIABLE_INT(crl_automap_textured_bg),
+    CONFIG_VARIABLE_INT(crl_automap_scroll_bg),
     CONFIG_VARIABLE_INT(crl_automap_mode),
     CONFIG_VARIABLE_INT(crl_automap_secrets),
     CONFIG_VARIABLE_INT(crl_automap_rotate),

@@ -38,6 +38,7 @@
 #include "s_sound.h"
 #include "v_trans.h"
 #include "v_video.h"
+#include "am_map.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
@@ -573,6 +574,8 @@ static void CRL_Widget_Powerups (int option);
 static void CRL_Widget_Health (int option);
 
 static void DrawCRLAutomap (void);
+static void CRL_Automap_TexturedBg (int choice);
+static void CRL_Automap_ScrollBg (int choice);
 static void CRL_Automap_Rotate (int option);
 static void CRL_Automap_Overlay (int option);
 static void CRL_Automap_Shading (int option);
@@ -2989,12 +2992,14 @@ static void CRL_Widget_Health (int option)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLAutomapItems[] = {
-    { ITT_LRFUNC2, "ROTATE MODE",            CRL_Automap_Rotate,  0, MENU_NONE },
-    { ITT_LRFUNC2, "OVERLAY MODE",           CRL_Automap_Overlay, 0, MENU_NONE },
-    { ITT_LRFUNC1, "OVERLAY SHADING LEVEL",  CRL_Automap_Shading, 0, MENU_NONE },
-    { ITT_LRFUNC1, "MOUSE PANNING MODE",     CRL_Automap_Pan,     0, MENU_NONE },
-    { ITT_LRFUNC2, "MARK SECRET SECTORS",    CRL_Automap_Secrets, 0, MENU_NONE },
-    { ITT_LRFUNC2, "SOUND PROPAGATION MODE", CRL_Automap_SndProp, 0, MENU_NONE },
+    { ITT_LRFUNC2, "BACKGROUND STYLE",       CRL_Automap_TexturedBg, 0, MENU_NONE },
+    { ITT_LRFUNC2, "SCROLL BACKGROUND"  ,    CRL_Automap_ScrollBg,   0, MENU_NONE },
+    { ITT_LRFUNC2, "ROTATE MODE",            CRL_Automap_Rotate,     0, MENU_NONE },
+    { ITT_LRFUNC2, "OVERLAY MODE",           CRL_Automap_Overlay,    0, MENU_NONE },
+    { ITT_LRFUNC1, "OVERLAY SHADING LEVEL",  CRL_Automap_Shading,    0, MENU_NONE },
+    { ITT_LRFUNC1, "MOUSE PANNING MODE",     CRL_Automap_Pan,        0, MENU_NONE },
+    { ITT_LRFUNC2, "MARK SECRET SECTORS",    CRL_Automap_Secrets,    0, MENU_NONE },
+    { ITT_LRFUNC2, "SOUND PROPAGATION MODE", CRL_Automap_SndProp,    0, MENU_NONE },
 };
 
 static Menu_t CRLAutomap = {
@@ -3012,38 +3017,60 @@ static void DrawCRLAutomap (void)
 
     MN_DrTextACentered("AUTOMAP", 10, cr[CR_YELLOW]);
 
+    // Background style
+    sprintf(str, crl_automap_textured_bg ? "TEXTURED" : "BLACK");
+    MN_DrTextA(str, M_ItemRightAlign(str), 20,
+               M_Item_Glow(0, crl_automap_textured_bg ? GLOW_GREEN : GLOW_DARKRED));
+
+    // Scroll background
+    sprintf(str, crl_automap_scroll_bg ? "ON" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 30,
+               M_Item_Glow(1, crl_automap_scroll_bg ? GLOW_GREEN : GLOW_DARKRED));
+
     // Rotate mode
     sprintf(str, crl_automap_rotate ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 20,
-               M_Item_Glow(0, crl_automap_rotate ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 40,
+               M_Item_Glow(2, crl_automap_rotate ? GLOW_GREEN : GLOW_DARKRED));
 
     // Overlay mode
     sprintf(str, crl_automap_overlay ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 30,
-               M_Item_Glow(1, crl_automap_overlay ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 50,
+               M_Item_Glow(3, crl_automap_overlay ? GLOW_GREEN : GLOW_DARKRED));
 
     // Overlay shading level
     sprintf(str,"%d", crl_automap_shading);
-    MN_DrTextA(str, M_ItemRightAlign(str), 40,
-               M_Item_Glow(2, !crl_automap_overlay ? GLOW_DARKRED :
+    MN_DrTextA(str, M_ItemRightAlign(str), 60,
+               M_Item_Glow(4, !crl_automap_overlay ? GLOW_DARKRED :
                                crl_automap_shading ==  0 ? GLOW_RED :
                                crl_automap_shading == 12 ? GLOW_YELLOW : GLOW_GREEN));
 
     // Mouse panning mode
     sprintf(str, crl_automap_mouse_pan ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 50,
-               M_Item_Glow(3, crl_automap_mouse_pan ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 70,
+               M_Item_Glow(5, crl_automap_mouse_pan ? GLOW_GREEN : GLOW_DARKRED));
 
     // Mark secret sectors
     sprintf(str, crl_automap_secrets == 1 ? "REVEALED" :
                  crl_automap_secrets == 2 ? "ALWAYS" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 60,
-               M_Item_Glow(4, crl_automap_secrets ? GLOW_GREEN : GLOW_RED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 80,
+               M_Item_Glow(6, crl_automap_secrets ? GLOW_GREEN : GLOW_RED));
 
     // Sound propagation mode
     sprintf(str, crl_automap_sndprop ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 70,
-               M_Item_Glow(5, crl_automap_sndprop ? GLOW_GREEN : GLOW_RED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 90,
+               M_Item_Glow(7, crl_automap_sndprop ? GLOW_GREEN : GLOW_RED));
+}
+
+static void CRL_Automap_TexturedBg (int choice)
+{
+    crl_automap_textured_bg ^= 1;
+    // [JN] Reinitialize pointer to antialiased tables for line drawing.
+    AM_initOverlayMode();
+}
+
+static void CRL_Automap_ScrollBg (int choice)
+{
+    crl_automap_scroll_bg ^= 1;
 }
 
 static void CRL_Automap_Rotate (int option)

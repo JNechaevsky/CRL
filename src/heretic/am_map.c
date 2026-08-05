@@ -679,6 +679,16 @@ static void AM_MousePanning (void)
 }
 
 // -----------------------------------------------------------------------------
+// AM_initOverlayMode
+// -----------------------------------------------------------------------------
+
+void AM_initOverlayMode (void)
+{
+    // [crispy] pointer to antialiased tables for line drawing
+    antialias = (crl_automap_overlay || !crl_automap_textured_bg) ? &antialias_overlay : &antialias_normal;
+}
+
+// -----------------------------------------------------------------------------
 // AM_initVariables
 // -----------------------------------------------------------------------------
 
@@ -747,8 +757,7 @@ static void AM_initVariables (void)
         }
     }
 
-    // [crispy]
-    antialias = crl_automap_overlay ? &antialias_overlay : &antialias_normal;
+    AM_initOverlayMode();
 }
 
 // -----------------------------------------------------------------------------
@@ -1102,18 +1111,11 @@ boolean AM_Responder (const event_t *ev)
         {
             // [JN] CRL - Automap overlay mode
             crl_automap_overlay = !crl_automap_overlay;
+            CT_SetMessage(plr, DEH_String(crl_automap_overlay ? CRL_AUTOMAPOVERLAY_ON :
+                                                                CRL_AUTOMAPOVERLAY_OFF), false, NULL);
             // [JN] Redraw status bar background.
             SB_state = -1;
-            if (crl_automap_overlay)
-            {
-                CT_SetMessage(plr, DEH_String(CRL_AUTOMAPOVERLAY_ON), false, NULL);
-                antialias = &antialias_overlay;
-            }
-            else
-            {
-                CT_SetMessage(plr, DEH_String(CRL_AUTOMAPOVERLAY_OFF), false, NULL);
-                antialias = &antialias_normal;
-            }
+            AM_initOverlayMode();
         }
         else if (key == key_crl_map_mousepan || key == key_crl_map_mousepan2)
         {
@@ -1329,13 +1331,15 @@ void AM_Ticker (void)
 
 static void AM_drawBackground (void)
 {
+    if (crl_automap_textured_bg)
+    {
     pixel_t *const restrict dest = I_VideoBuffer;
     const byte *const restrict src = maplump;
     static int bg_xoffs = 0;
     static int bg_yoffs = 0;
 
     // [PN] Update background offsets only when crl_automap_rotate is disabled
-    if (!crl_automap_rotate)
+    if (!crl_automap_rotate && crl_automap_scroll_bg)
     {
         bg_xoffs = (MTOF(m_x) / 4) % MAPBGROUNDWIDTH;
         bg_yoffs = (MTOF(m_y) / 8) % MAPBGROUNDHEIGHT;
@@ -1353,6 +1357,11 @@ static void AM_drawBackground (void)
             const int xsrc = (x + bg_xoffs) % MAPBGROUNDWIDTH;
             dest[y * SCREENWIDTH + x] = row[xsrc];
         }
+    }
+    }
+    else
+    {
+    memset(I_VideoBuffer, 0, (size_t)f_w*f_h*sizeof(*I_VideoBuffer));
     }
 }
 

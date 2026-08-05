@@ -81,6 +81,8 @@ extern int crl_monosfx;
 extern int crl_mute_inactive;
 
 // Automap
+extern int crl_automap_textured_bg;
+extern int crl_automap_scroll_bg;
 extern int crl_automap_mode;
 extern int crl_automap_secrets;
 extern int crl_automap_rotate;
