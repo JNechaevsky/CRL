@@ -513,8 +513,8 @@ static void M_Bind_ZoomIn (int option);
 static void M_Bind_ZoomOut (int option);
 static void M_Bind_MaxZoom (int option);
 static void M_Bind_FollowMode (int option);
-// static void M_Bind_RotateMode (int option);
-// static void M_Bind_OverlayMode (int option);
+static void M_Bind_RotateMode (int option);
+static void M_Bind_OverlayMode (int option);
 static void M_Bind_SndPropMode (int option);
 static void M_Bind_ToggleGrid (int option);
 
@@ -615,6 +615,7 @@ static void CRL_Misc_ShotSetup (int option);
 static void M_ScrollMisc (int option);
 
 static void DrawCRLLimits (void);
+static void CRL_UnknownLineWarning (int option);
 static void CRL_SaveSizeWarning (int option);
 static void CRL_Limits (int option);
 
@@ -1226,23 +1227,29 @@ static void DrawCRLVideo (void)
     // Uncapped framerate
     sprintf(str, crl_uncapped_fps ? "ON" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 20,
-               M_Item_Glow(0, crl_uncapped_fps ? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(0, crl_uncapped_fps ? GLOW_GREEN : GLOW_DARKRED));
 
     // Framerate limit
     sprintf(str, !crl_uncapped_fps ? "35" :
                  crl_fpslimit ? "%d" : "NONE", crl_fpslimit);
     MN_DrTextA(str, M_ItemRightAlign(str), 30,
-               M_Item_Glow(1, crl_uncapped_fps ? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(1, crl_uncapped_fps ? GLOW_GREEN : GLOW_DARKRED));
 
     // Enable vsync
     sprintf(str, crl_vsync ? "ON" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 40,
-               M_Item_Glow(2, crl_vsync ? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(2, crl_vsync ? GLOW_DARKRED : GLOW_YELLOW));
 
     // Show FPS counter
     sprintf(str, crl_showfps ? "ON" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 50,
-               M_Item_Glow(3, crl_showfps ? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(3, crl_showfps ? GLOW_GREEN : GLOW_DARKRED));
+
+    // Print informatime message if extended HUD is off.
+    if (CurrentItPos == 3 && !crl_extended_hud)
+    {
+        MN_DrTextACentered("HIDDEN WHILE EXTENDED HUD IS OFF", 130, cr[CR_GRAY]);
+    }
 
     // Pixel scaling
     sprintf(str, smooth_scaling ? "SMOOTH" : "SHARP");
@@ -1255,13 +1262,13 @@ static void DrawCRLVideo (void)
                  crl_visplanes_drawing == 2 ? "OVERFILL" :
                  crl_visplanes_drawing == 3 ? "BORDER" : "OVERBORDER");
     MN_DrTextA(str, M_ItemRightAlign(str), 70,
-               M_Item_Glow(5, crl_visplanes_drawing ? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(5, crl_visplanes_drawing ? GLOW_GREEN : GLOW_DARKRED));
     
     // HOM effect
     sprintf(str, crl_hom_effect == 0 ? "OFF" :
                  crl_hom_effect == 1 ? "MULTICOLOR" : "BLACK");
     MN_DrTextA(str, M_ItemRightAlign(str), 80,
-               M_Item_Glow(6, crl_hom_effect ? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(6, crl_hom_effect ? GLOW_GREEN : GLOW_DARKRED));
 
     MN_DrTextACentered("MISCELLANEOUS", 90, cr[CR_YELLOW]);
 
@@ -1269,14 +1276,15 @@ static void DrawCRLVideo (void)
     sprintf(str, graphical_startup == 1 ? "FAST" :
                  graphical_startup == 2 ? "SLOW" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 100,
-               M_Item_Glow(8, graphical_startup == 1 ? GLOW_GREEN :
-                              graphical_startup == 2 ? GLOW_YELLOW : GLOW_RED));
+               M_Item_Glow(8, graphical_startup == 1 ? GLOW_DARKRED :
+                              graphical_startup == 2 ? GLOW_YELLOW : GLOW_GREEN));
 
     // Show ENDTEXT screen
     sprintf(str, show_endoom == 1 ? "ALWAYS" :
                  show_endoom == 2 ? "PWAD ONLY" : "NEVER");
     MN_DrTextA(str, M_ItemRightAlign(str), 110,
-               M_Item_Glow(9, show_endoom == 1 ? GLOW_RED : GLOW_GREEN));
+               M_Item_Glow(9, show_endoom == 1 ? GLOW_DARKRED :
+                              show_endoom == 2 ? GLOW_YELLOW : GLOW_GREEN));
 }
 
 static void CRL_UncappedFPS (int option)
@@ -1389,24 +1397,24 @@ static void DrawCRLDisplay (void)
     // Menu background shading
     sprintf(str, crl_menu_shading ? "%d" : "OFF", crl_menu_shading);
     MN_DrTextA(str, M_ItemRightAlign(str), 60,
-               M_Item_Glow(3, crl_menu_shading ? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(3, crl_menu_shading ? GLOW_GREEN : GLOW_DARKRED));
 
     // Extra level brightness
     sprintf(str, crl_level_brightness ? "%d" : "OFF", crl_level_brightness);
     MN_DrTextA(str, M_ItemRightAlign(str), 70,
-               M_Item_Glow(4, crl_level_brightness ? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(4, crl_level_brightness ? GLOW_GREEN : GLOW_DARKRED));
 
     MN_DrTextACentered("MESSAGES SETTINGS", 80, cr[CR_YELLOW]);
 
     // Messages enabled
     sprintf(str, showMessages ? "ON" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 90,
-               M_Item_Glow(6, showMessages ? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(6, showMessages ? GLOW_DARKRED : GLOW_GREEN));
 
     // Critical message style
     sprintf(str, crl_msg_critical ? "BLINKING" : "STATIC");
     MN_DrTextA(str, M_ItemRightAlign(str), 100,
-               M_Item_Glow(7, crl_msg_critical ? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(7, crl_msg_critical ? GLOW_GREEN : GLOW_DARKRED));
     // Show nice preview-reminder :)
     if (CurrentItPos == 7)
     {
@@ -1416,7 +1424,7 @@ static void DrawCRLDisplay (void)
     // Text casts shadows
     sprintf(str, crl_text_shadows ? "ON" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 110,
-               M_Item_Glow(8, crl_text_shadows ? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(8, crl_text_shadows ? GLOW_GREEN : GLOW_DARKRED));
 }
 
 static void CRL_Gamma (int option)
@@ -1453,17 +1461,17 @@ static void CRL_TextShadows (int option)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLSoundItems[] = {
-    { ITT_SLDR,    "SFX VOLUME",           SCSfxVolume,        MENU_NONE },
-    { ITT_EMPTY,   NULL,                   NULL,            0, MENU_NONE },
-    { ITT_EMPTY,   NULL,                   NULL,            0, MENU_NONE },
-    { ITT_SLDR,    "MUSIC VOLUME",         SCMusicVolume,      MENU_NONE },
-    { ITT_EMPTY,   NULL,                   NULL,            0, MENU_NONE },
-    { ITT_EMPTY,   NULL,                   NULL,            0, MENU_NONE },
-    { ITT_EMPTY,   NULL,                   NULL,            0, MENU_NONE },
-    { ITT_LRFUNC2, "MUSIC PLAYBACK",       CRL_MusicSystem, 0, MENU_NONE },
-    { ITT_LRFUNC1, "SOUNDS EFFECTS MODE",  CRL_SFXMode,     0, MENU_NONE },
-    { ITT_LRFUNC2, "PITCH-SHIFTED SOUNDS", CRL_PitchShift,  0, MENU_NONE },
-    { ITT_LRFUNC1, "NUMBER OF SFX TO MIX", CRL_SFXChannels, 0, MENU_NONE },
+    { ITT_SLDR,    "SFX VOLUME",           SCSfxVolume,           MENU_NONE },
+    { ITT_EMPTY,   NULL,                   NULL,               0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                   NULL,               0, MENU_NONE },
+    { ITT_SLDR,    "MUSIC VOLUME",         SCMusicVolume,         MENU_NONE },
+    { ITT_EMPTY,   NULL,                   NULL,               0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                   NULL,               0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                   NULL,               0, MENU_NONE },
+    { ITT_LRFUNC2, "MUSIC PLAYBACK",       CRL_MusicSystem,    0, MENU_NONE },
+    { ITT_LRFUNC1, "SOUNDS EFFECTS MODE",  CRL_SFXMode,        0, MENU_NONE },
+    { ITT_LRFUNC2, "PITCH-SHIFTED SOUNDS", CRL_PitchShift,     0, MENU_NONE },
+    { ITT_LRFUNC1, "NUMBER OF SFX TO MIX", CRL_SFXChannels,    0, MENU_NONE },
     { ITT_LRFUNC1, "MUTE INACTIVE WINDOW", M_CRL_MuteInactive, 0, MENU_NONE },
 };
 
@@ -1503,23 +1511,23 @@ static void DrawCRLSound (void)
                  snd_musicdevice == 11 ? "FLUIDSYNTH" :
                                          "UNKNOWN");
     MN_DrTextA(str, M_ItemRightAlign(str), 90,
-               M_Item_Glow(7, snd_musicdevice ? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(7, snd_musicdevice ? GLOW_GREEN : GLOW_DARKRED));
 
     // Sound effects mode
     sprintf(str, crl_monosfx ? "MONO" : "STEREO");
     MN_DrTextA(str, M_ItemRightAlign(str), 100,
-               M_Item_Glow(8, crl_monosfx ? GLOW_RED : GLOW_GREEN));
+               M_Item_Glow(8, crl_monosfx ? GLOW_GREEN : GLOW_DARKRED));
 
     // Pitch-shifted sounds
     sprintf(str, snd_pitchshift ? "ON" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 110,
-               M_Item_Glow(9, snd_pitchshift ? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(9, snd_pitchshift ? GLOW_DARKRED : GLOW_GREEN));
 
     // Number of SFX to mix
     sprintf(str, "%i", snd_Channels);
     MN_DrTextA(str, M_ItemRightAlign(str), 120,
-               M_Item_Glow(10, snd_Channels == 8 ? GLOW_GREEN :
-                               snd_Channels == 1 ? GLOW_RED : GLOW_DARKGREEN));
+               M_Item_Glow(10, snd_Channels == 8 ? GLOW_DARKRED :
+                               snd_Channels <= 2 ? GLOW_DARKGREEN : GLOW_GREEN));
 
     if (CurrentItPos == 7)
     {
@@ -1717,12 +1725,12 @@ static void DrawCRLControls (void)
     // Mouse look
     sprintf(str, crl_mouselook ? "ON" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 170,
-               M_Item_Glow(15, crl_mouselook ? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(15, crl_mouselook ? GLOW_GREEN : GLOW_DARKRED));
 
     // Vertical mouse movement
     sprintf(str, novert ? "OFF" : "ON");
     MN_DrTextA(str, M_ItemRightAlign(str), 180,
-               M_Item_Glow(16, novert ? GLOW_RED : GLOW_GREEN));
+               M_Item_Glow(16, novert ? GLOW_DARKRED : GLOW_GREEN));
 }
 
 static void CRL_Controls_Sensivity_y (int choice)
@@ -2405,8 +2413,8 @@ static MenuItem_t CRLKbsBinds7Items[] = {
     {ITT_EFUNC, "ZOOM OUT",               M_Bind_ZoomOut,     0, MENU_NONE},
     {ITT_EFUNC, "MAXIMUM ZOOM OUT",       M_Bind_MaxZoom,     0, MENU_NONE},
     {ITT_EFUNC, "FOLLOW MODE",            M_Bind_FollowMode,  0, MENU_NONE},
-//  {ITT_EFUNC, "ROTATE MODE",            M_Bind_RotateMode,  0, MENU_NONE},
-//  {ITT_EFUNC, "OVERLAY MODE",           M_Bind_OverlayMode, 0, MENU_NONE},
+    {ITT_EFUNC, "ROTATE MODE",            M_Bind_RotateMode,  0, MENU_NONE},
+    {ITT_EFUNC, "OVERLAY MODE",           M_Bind_OverlayMode, 0, MENU_NONE},
     {ITT_EFUNC, "SOUND PROPAGATION MODE", M_Bind_SndPropMode, 0, MENU_NONE},
     {ITT_EFUNC, "TOGGLE GRID",            M_Bind_ToggleGrid,  0, MENU_NONE}
 };
@@ -2433,10 +2441,10 @@ static void DrawCRLKbd7 (void)
     M_DrawBindKey(2, 40, key_map_zoomout);
     M_DrawBindKey(3, 50, key_map_maxzoom);
     M_DrawBindKey(4, 60, key_map_follow);
-//  M_DrawBindKey(5, 80, key_crl_map_rotate);
-//  M_DrawBindKey(6, 90, key_crl_map_overlay);
-    M_DrawBindKey(5, 70, key_crl_map_sndprop);
-    M_DrawBindKey(6, 80, key_map_grid);
+    M_DrawBindKey(5, 70, key_crl_map_rotate);
+    M_DrawBindKey(6, 80, key_crl_map_overlay);
+    M_DrawBindKey(7, 90, key_crl_map_sndprop);
+    M_DrawBindKey(8, 100, key_map_grid);
 
     M_DrawBindFooter("7", true);
 }
@@ -2466,7 +2474,6 @@ static void M_Bind_FollowMode (int option)
     M_StartBind(704);  // key_map_follow
 }
 
-/*
 static void M_Bind_RotateMode (int option)
 {
     M_StartBind(705);  // key_crl_map_rotate
@@ -2476,16 +2483,15 @@ static void M_Bind_OverlayMode (int option)
 {
     M_StartBind(706);  // key_crl_map_overlay
 }
-*/
 
 static void M_Bind_SndPropMode (int option)
 {
-    M_StartBind(705);  // key_crl_map_sndprop
+    M_StartBind(707);  // key_crl_map_sndprop
 }
 
 static void M_Bind_ToggleGrid (int option)
 {
-    M_StartBind(706);  // key_map_grid
+    M_StartBind(708);  // key_map_grid
 }
 
 // -----------------------------------------------------------------------------
@@ -2859,7 +2865,7 @@ static void DrawCRLWidgets (void)
                  crl_widget_render == 2 ? "OVERFLOWS" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 20,
                M_Item_Glow(0, crl_widget_render == 1 ? GLOW_GREEN :
-                              crl_widget_render == 2 ? GLOW_DARKGREEN : GLOW_RED));
+                              crl_widget_render == 2 ? GLOW_DARKGREEN : GLOW_DARKRED));
 
     // MAX overflow style
     sprintf(str, crl_widget_maxvp == 1 ? "BLINKING 1" :
@@ -2873,13 +2879,13 @@ static void DrawCRLWidgets (void)
                  crl_widget_playstate == 2 ? "OVERFLOWS" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 40,
                M_Item_Glow(2, crl_widget_playstate == 1 ? GLOW_GREEN :
-                              crl_widget_playstate == 2 ? GLOW_DARKGREEN : GLOW_RED));
+                              crl_widget_playstate == 2 ? GLOW_DARKGREEN : GLOW_DARKRED));
 
     // K/I/S stats
     sprintf(str, crl_widget_kis == 1 ? "ON" :
                  crl_widget_kis == 2 ? "AUTOMAP" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 50,
-               M_Item_Glow(3, crl_widget_kis ? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(3, crl_widget_kis ? GLOW_GREEN : GLOW_DARKRED));
 
     // Stats format
     sprintf(str, crl_widget_kis_format == 1 ? "REMAINING" :
@@ -2897,13 +2903,13 @@ static void DrawCRLWidgets (void)
     sprintf(str, crl_widget_time == 1 ? "ON" : 
                  crl_widget_time == 2 ? "AUTOMAP" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 80,
-               M_Item_Glow(6, crl_widget_time ? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(6, crl_widget_time ? GLOW_GREEN : GLOW_DARKRED));
 
     // Player coords
     sprintf(str, crl_widget_coords == 1 ? "ON" :
                  crl_widget_coords == 2 ? "AUTOMAP" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 90,
-               M_Item_Glow(7, crl_widget_coords ? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(7, crl_widget_coords ? GLOW_GREEN : GLOW_DARKRED));
 
     // Show fractions
     sprintf(str, crl_widget_coordsfrac ? "ON" : "OFF");
@@ -2918,7 +2924,7 @@ static void DrawCRLWidgets (void)
     // Powerup timers
     sprintf(str, crl_widget_powerups ? "ON" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 120,
-               M_Item_Glow(10, crl_widget_powerups ? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(10, crl_widget_powerups ? GLOW_GREEN : GLOW_DARKRED));
 
     // Target's health
     sprintf(str, crl_widget_health == 1 ? "TOP" :
@@ -2926,7 +2932,7 @@ static void DrawCRLWidgets (void)
                  crl_widget_health == 3 ? "BOTTOM" :
                  crl_widget_health == 4 ? "BOTTOM+NAME" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 130,
-               M_Item_Glow(11, crl_widget_health ? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(11, crl_widget_health ? GLOW_GREEN : GLOW_DARKRED));
 }
 
 static void CRL_Widget_Render (int option)
@@ -3022,12 +3028,12 @@ static void DrawCRLAutomap (void)
     // Background style
     sprintf(str, crl_automap_textured_bg ? "TEXTURED" : "BLACK");
     MN_DrTextA(str, M_ItemRightAlign(str), 20,
-               M_Item_Glow(0, crl_automap_textured_bg ? GLOW_GREEN : GLOW_DARKRED));
+               M_Item_Glow(0, crl_automap_textured_bg ? GLOW_DARKRED : GLOW_GREEN));
 
     // Scroll background
     sprintf(str, crl_automap_scroll_bg ? "ON" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 30,
-               M_Item_Glow(1, crl_automap_scroll_bg ? GLOW_GREEN : GLOW_DARKRED));
+               M_Item_Glow(1, crl_automap_scroll_bg ? GLOW_DARKRED : GLOW_GREEN));
 
     // Rotate mode
     sprintf(str, crl_automap_rotate ? "ON" : "OFF");
@@ -3043,7 +3049,7 @@ static void DrawCRLAutomap (void)
     sprintf(str,"%d", crl_automap_shading);
     MN_DrTextA(str, M_ItemRightAlign(str), 60,
                M_Item_Glow(4, !crl_automap_overlay ? GLOW_DARKRED :
-                               crl_automap_shading ==  0 ? GLOW_RED :
+                               crl_automap_shading ==  0 ? GLOW_DARKRED :
                                crl_automap_shading == 12 ? GLOW_YELLOW : GLOW_GREEN));
 
     // Mouse panning mode
@@ -3055,12 +3061,12 @@ static void DrawCRLAutomap (void)
     sprintf(str, crl_automap_secrets == 1 ? "REVEALED" :
                  crl_automap_secrets == 2 ? "ALWAYS" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 80,
-               M_Item_Glow(6, crl_automap_secrets ? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(6, crl_automap_secrets ? GLOW_GREEN : GLOW_DARKRED));
 
     // Sound propagation mode
     sprintf(str, crl_automap_sndprop ? "ON" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 90,
-               M_Item_Glow(7, crl_automap_sndprop ? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(7, crl_automap_sndprop ? GLOW_GREEN : GLOW_DARKRED));
 }
 
 static void CRL_Automap_TexturedBg (int choice)
@@ -3146,29 +3152,29 @@ static void DrawCRLGameplay (void)
     // Wand start game mode
     sprintf(str, crl_pistol_start ? "ON" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 30,
-               M_Item_Glow(1, crl_pistol_start ? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(1, crl_pistol_start ? GLOW_GREEN : GLOW_DARKRED));
 
     // Colored status bar
     sprintf(str, crl_colored_stbar ? "ON" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 40,
-               M_Item_Glow(2, crl_colored_stbar? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(2, crl_colored_stbar ? GLOW_GREEN : GLOW_DARKRED));
 
     // Report revealed secrets
     sprintf(str, crl_revealed_secrets == 1 ? "TOP" :
                  crl_revealed_secrets == 2 ? "CENTERED" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 50,
-               M_Item_Glow(3, crl_revealed_secrets ? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(3, crl_revealed_secrets ? GLOW_GREEN : GLOW_DARKRED));
 
     // Restore monster targets
     sprintf(str, crl_restore_targets ? "ON" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 60,
-               M_Item_Glow(4, crl_restore_targets? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(4, crl_restore_targets ? GLOW_GREEN : GLOW_DARKRED));
 
     // On death action
     sprintf(str, crl_death_use_action == 1 ? "LAST SAVE" :
                  crl_death_use_action == 2 ? "NOTHING" : "DEFAULT");
     MN_DrTextA(str, M_ItemRightAlign(str), 70,
-               M_Item_Glow(5, crl_death_use_action ? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(5, crl_death_use_action ? GLOW_GREEN : GLOW_DARKRED));
 
     MN_DrTextACentered("DEMOS", 80, cr[CR_YELLOW]);
 
@@ -3177,22 +3183,22 @@ static void DrawCRLGameplay (void)
                  crl_demo_timer == 2 ? "RECORDING" : 
                  crl_demo_timer == 3 ? "ALWAYS" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 90,
-               M_Item_Glow(7, crl_demo_timer ? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(7, crl_demo_timer ? GLOW_GREEN : GLOW_DARKRED));
 
     // Timer direction
     sprintf(str, crl_demo_timerdir ? "BACKWARD" : "FORWARD");
     MN_DrTextA(str, M_ItemRightAlign(str), 100,
-               M_Item_Glow(8, crl_demo_timer ? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(8, crl_demo_timer ? GLOW_GREEN : GLOW_DARKRED));
 
     // Show progress bar
     sprintf(str, crl_demo_bar ? "ON" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 110,
-               M_Item_Glow(9, crl_demo_bar? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(9, crl_demo_bar ? GLOW_GREEN : GLOW_DARKRED));
 
     // Play internal demos
     sprintf(str, crl_internal_demos ? "ON" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 120,
-               M_Item_Glow(10, crl_internal_demos? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(10, crl_internal_demos ? GLOW_DARKRED : GLOW_GREEN));
 }
 
 static void CRL_DefaulSkill (int option)
@@ -3577,8 +3583,10 @@ static void M_ScrollMisc (int choice)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLLimitsItems[] = {
-    {ITT_LRFUNC1, "SAVE GAME LIMIT WARNING",    CRL_SaveSizeWarning, 0, MENU_NONE},
-    {ITT_LRFUNC1, "RENDER LIMITS LEVEL",        CRL_Limits,          0, MENU_NONE}
+    { ITT_LRFUNC1, "UNKNOWN LINE SPECIALS",   CRL_UnknownLineWarning, 0, MENU_NONE },
+    { ITT_LRFUNC1, "SAVE GAME LIMIT WARNING", CRL_SaveSizeWarning,    0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                      NULL,                   0, MENU_NONE },
+    { ITT_LRFUNC1, "RENDER LIMITS LEVEL",     CRL_Limits,             0, MENU_NONE }
 };
 
 static Menu_t CRLLimits = {
@@ -3594,44 +3602,57 @@ static void DrawCRLLimits (void)
 {
     char str[32];
 
-    MN_DrTextACentered("STATIC ENGINE LIMITS", 10, cr[CR_YELLOW]);
+    MN_DrTextACentered("WARNINGS", 10, cr[CR_YELLOW]);
+
+    // Unknown line specials
+    sprintf(str, crl_unknown_linedefs ? "ON" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 20,
+               M_Item_Glow(0, crl_unknown_linedefs ? GLOW_GREEN : GLOW_DARKRED));
 
     // Save game limit warning
     sprintf(str, vanilla_savegame_limit ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 20,
-               M_Item_Glow(0, vanilla_savegame_limit ? GLOW_GREEN : GLOW_RED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 30,
+               M_Item_Glow(1, vanilla_savegame_limit ? GLOW_GREEN : GLOW_DARKRED));
+
+    MN_DrTextACentered("ENGINE LIMITS", 40, cr[CR_YELLOW]);
 
     // Level of the limits
     sprintf(str, crl_vanilla_limits ? "VANILLA" : "HERETIC-PLUS");
-    MN_DrTextA(str, M_ItemRightAlign(str), 30,
-               M_Item_Glow(1, crl_vanilla_limits ? GLOW_RED : GLOW_GREEN));
+    MN_DrTextA(str, M_ItemRightAlign(str), 50,
+               M_Item_Glow(3, crl_vanilla_limits ? GLOW_RED : GLOW_GREEN));
 
-    MN_DrTextA("MAXVISPLANES", CRL_MENU_LEFTOFFSET_SML + 16, 50, cr[CR_MENU_DARK2]);
-    MN_DrTextA("MAXDRAWSEGS", CRL_MENU_LEFTOFFSET_SML + 16, 60, cr[CR_MENU_DARK2]);
-    MN_DrTextA("MAXVISSPRITES", CRL_MENU_LEFTOFFSET_SML + 16, 70, cr[CR_MENU_DARK2]);
-    MN_DrTextA("MAXOPENINGS", CRL_MENU_LEFTOFFSET_SML + 16, 80, cr[CR_MENU_DARK2]);
-    MN_DrTextA("MAXPLATS", CRL_MENU_LEFTOFFSET_SML + 16, 90, cr[CR_MENU_DARK2]);
-    MN_DrTextA("MAXLINEANIMS", CRL_MENU_LEFTOFFSET_SML + 16, 100, cr[CR_MENU_DARK2]);
+    MN_DrTextA("MAXVISPLANES",  CRL_MENU_LEFTOFFSET_SML + 16,  60, cr[CR_MENU_DARK2]);
+    MN_DrTextA("MAXDRAWSEGS",   CRL_MENU_LEFTOFFSET_SML + 16,  70, cr[CR_MENU_DARK2]);
+    MN_DrTextA("MAXVISSPRITES", CRL_MENU_LEFTOFFSET_SML + 16,  80, cr[CR_MENU_DARK2]);
+    MN_DrTextA("MAXOPENINGS",   CRL_MENU_LEFTOFFSET_SML + 16,  90, cr[CR_MENU_DARK2]);
+    MN_DrTextA("MAXPLATS",      CRL_MENU_LEFTOFFSET_SML + 16, 100, cr[CR_MENU_DARK2]);
+    MN_DrTextA("MAXLINEANIMS",  CRL_MENU_LEFTOFFSET_SML + 16, 110, cr[CR_MENU_DARK2]);
 
     if (crl_vanilla_limits)
     {
-        MN_DrTextA("128", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("128"), 50, cr[CR_RED]);
-        MN_DrTextA("256", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("256"), 60, cr[CR_RED]);
-        MN_DrTextA("128", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("128"), 70, cr[CR_RED]);
-        MN_DrTextA("20480", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("20480"), 80, cr[CR_RED]);
-        MN_DrTextA("30", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("30"), 90, cr[CR_RED]);
-        MN_DrTextA("64", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("64"), 100, cr[CR_RED]);
+        MN_DrTextA("128",   CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("128"),   60, cr[CR_RED]);
+        MN_DrTextA("256",   CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("256"),   70, cr[CR_RED]);
+        MN_DrTextA("128",   CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("128"),   80, cr[CR_RED]);
+        MN_DrTextA("20480", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("20480"), 90, cr[CR_RED]);
+        MN_DrTextA("30",    CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("30"),   100, cr[CR_RED]);
+        MN_DrTextA("64",    CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("64"),   110, cr[CR_RED]);
     }
     else
     {
-        MN_DrTextA("1024", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("1024"), 50, cr[CR_GREEN]);
-        MN_DrTextA("2048", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("2048"), 60, cr[CR_GREEN]);
-        MN_DrTextA("1024", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("1024"), 70, cr[CR_GREEN]);
-        MN_DrTextA("65536", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("65536"), 80, cr[CR_GREEN]);
-        MN_DrTextA("7680", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("7680"), 90, cr[CR_GREEN]);
-        MN_DrTextA("16384", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("16384"), 100, cr[CR_GREEN]);
+        MN_DrTextA("1024",  CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("1024"),   60, cr[CR_GREEN]);
+        MN_DrTextA("2048",  CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("2048"),   70, cr[CR_GREEN]);
+        MN_DrTextA("1024",  CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("1024"),   80, cr[CR_GREEN]);
+        MN_DrTextA("65536", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("65536"),  90, cr[CR_GREEN]);
+        MN_DrTextA("7680",  CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("7680"),  100, cr[CR_GREEN]);
+        MN_DrTextA("16384", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("16384"), 110, cr[CR_GREEN]);
     }
 }
+
+static void CRL_UnknownLineWarning (int choice)
+{
+    crl_unknown_linedefs ^= 1;
+}
+
 
 static void CRL_SaveSizeWarning (int option)
 {
@@ -6205,8 +6226,8 @@ static void M_CheckBind (int key)
     if (key_map_zoomout == key)      key_map_zoomout      = 0;
     if (key_map_maxzoom == key)      key_map_maxzoom      = 0;
     if (key_map_follow == key)       key_map_follow       = 0;
-//  if (key_crl_map_rotate == key)   key_crl_map_rotate   = 0;
-//  if (key_crl_map_overlay == key)  key_crl_map_overlay  = 0;
+    if (key_crl_map_rotate == key)   key_crl_map_rotate   = 0;
+    if (key_crl_map_overlay == key)  key_crl_map_overlay  = 0;
     if (key_crl_map_sndprop == key)  key_crl_map_sndprop  = 0;
     if (key_map_grid == key)         key_map_grid         = 0;
 
@@ -6328,10 +6349,10 @@ static void M_DoBind (int keynum, int key)
         case 702:  key_map_zoomout = key;       break;
         case 703:  key_map_maxzoom = key;       break;
         case 704:  key_map_follow = key;        break;
-//      case 705:  key_crl_map_rotate = key;    break;
-//      case 706:  key_crl_map_overlay = key;   break;
-        case 705:  key_crl_map_sndprop = key;   break;
-        case 706:  key_map_grid = key;          break;
+        case 705:  key_crl_map_rotate = key;    break;
+        case 706:  key_crl_map_overlay = key;   break;
+        case 707:  key_crl_map_sndprop = key;   break;
+        case 708:  key_map_grid = key;          break;
         }
 
         // Page 8
@@ -6484,10 +6505,10 @@ static void M_ClearBind (int Current_ItPos)
             case 2:   key_map_zoomout = 0;      break;
             case 3:   key_map_maxzoom = 0;      break;
             case 4:   key_map_follow = 0;       break;
-//          case 5:   key_crl_map_rotate = 0;   break;
-//          case 6:   key_crl_map_overlay = 0;  break;
-            case 5:   key_crl_map_sndprop = 0;  break;
-            case 6:   key_map_grid = 0;         break;
+            case 5:   key_crl_map_rotate = 0;   break;
+            case 6:   key_crl_map_overlay = 0;  break;
+            case 7:   key_crl_map_sndprop = 0;  break;
+            case 8:   key_map_grid = 0;         break;
         }
     }
     if (CurrentMenu == &CRLKbdBinds8)
