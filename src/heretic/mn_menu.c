@@ -609,6 +609,8 @@ static void CRL_ConfirmQuit (int option);
 static void CRL_MenuCapFps (int option);
 
 static void DrawCRLMisc_2 (void);
+static void CRL_Misc_ShotFormat (int option);
+static void CRL_Misc_ShotSetup (int option);
 
 static void M_ScrollMisc (int option);
 
@@ -3470,21 +3472,21 @@ static void CRL_MenuCapFps (int choice)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLMiscItems_2[] = {
-    { ITT_LRFUNC1, "ENABLE REWIND",             CRL_Invul,       0, MENU_NONE },
-    { ITT_LRFUNC2, "REWIND INTERWAL (S)",       CRL_PalFlash,    0, MENU_NONE },
-    { ITT_LRFUNC1, "REWIND DEPTH (KEY FRAMES)", CRL_MoveBob,     0, MENU_NONE },
-    { ITT_LRFUNC1, "REWIND TIMEOUT (MS)",       CRL_WeaponBob,   0, MENU_NONE },
-    { ITT_EMPTY,   NULL,                        NULL,            0, MENU_NONE },
-    { ITT_LRFUNC2, "SCREENSHOT FORMAT",         CRL_AutoloadWAD, 0, MENU_NONE },
-    { ITT_LRFUNC2, "", /* Dynamic string */     CRL_AutoloadWAD, 0, MENU_NONE },
-    { ITT_EMPTY,   NULL,                        NULL,            0, MENU_NONE },
-    { ITT_EMPTY,   NULL,                        NULL,            0, MENU_NONE },
-    { ITT_EMPTY,   NULL,                        NULL,            0, MENU_NONE },
-    { ITT_EMPTY,   NULL,                        NULL,            0, MENU_NONE },
-    { ITT_EMPTY,   NULL,                        NULL,            0, MENU_NONE },
-    { ITT_EMPTY,   NULL,                        NULL,            0, MENU_NONE },
-    { ITT_EMPTY,   NULL,                        NULL,            0, MENU_NONE },
-    { ITT_LRFUNC2, "", /* < SCROLL PAGES >*/    M_ScrollMisc,    0, MENU_NONE },
+    { ITT_LRFUNC1, "ENABLE REWIND",             CRL_Invul,           0, MENU_NONE },
+    { ITT_LRFUNC2, "REWIND INTERWAL (S)",       CRL_PalFlash,        0, MENU_NONE },
+    { ITT_LRFUNC1, "REWIND DEPTH (KEY FRAMES)", CRL_MoveBob,         0, MENU_NONE },
+    { ITT_LRFUNC1, "REWIND TIMEOUT (MS)",       CRL_WeaponBob,       0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                        NULL,                0, MENU_NONE },
+    { ITT_LRFUNC1, "SCREENSHOT FORMAT",         CRL_Misc_ShotFormat, 0, MENU_NONE },
+    { ITT_LRFUNC1, "", /* Dynamic string */     CRL_Misc_ShotSetup,  0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                        NULL,                0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                        NULL,                0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                        NULL,                0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                        NULL,                0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                        NULL,                0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                        NULL,                0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                        NULL,                0, MENU_NONE },
+    { ITT_LRFUNC2, "", /* < SCROLL PAGES >*/    M_ScrollMisc,        0, MENU_NONE },
 };
 
 static Menu_t CRLMisc_2 = {
@@ -3498,14 +3500,68 @@ static Menu_t CRLMisc_2 = {
 
 static void DrawCRLMisc_2 (void)
 {
+    char str[32];
+
     Misc_Cur = (MenuType_t)MENU_MISC_2;
 
     MN_DrTextACentered("REWIND", 10, cr[CR_YELLOW]);
 
     MN_DrTextACentered("SCREENSHOTS", 60, cr[CR_YELLOW]);
 
+    // Screenshot format
+    sprintf(str, !strcmp(screenshots_format, "png") ? "PNG" : "JPEG");
+    MN_DrTextA(str, M_ItemRightAlign(str), 70, M_Item_Glow(5, GLOW_GREEN));
+
+    // Dynamic string: compression level for PNG, quality for JPG
+    const char *const label = !strcmp(screenshots_format, "png") ? "COMPRESSION LEVEL" : "QUALITY LEVEL";
+    int value = !strcmp(screenshots_format, "png") ? screenshots_png_compression : screenshots_jpg_quality;
+
+    MN_DrTextA(label, CRL_MENU_LEFTOFFSET_BIG, 80, M_Item_Glow(6, GLOW_UNCOLORED));
+
+    M_snprintf(str, 4, "%d", value);
+    MN_DrTextA(str, M_ItemRightAlign(str), 80, M_Item_Glow(6, GLOW_GREEN));
+
+    // Dynamic hints for screenshot settings.
+    if (CurrentItPos == 5)
+    {
+        MN_DrTextACentered("\"PNG\" PROVIDES LOSSLESS QUALITY,", 100, cr[CR_GRAY]);
+        MN_DrTextACentered("\"JPEG\" OFFERS FASTER SAVING",      110, cr[CR_GRAY]);
+    }
+    if (CurrentItPos == 6)
+    {
+        if (!strcmp(screenshots_format, "png"))
+        {
+            MN_DrTextACentered("HIGHER = SLOWER SAVE, SMALLER FILE", 100, cr[CR_GRAY]);
+            MN_DrTextACentered("LOWER = FASTER SAVE, LARGER FILE",   110, cr[CR_GRAY]);
+            MN_DrTextACentered("DEFAULT LEVEL IS 6",                 120, cr[CR_GRAY]);
+        }
+        else
+        {
+            MN_DrTextACentered("HIGHER = BETTER QUALITY, LARGER FILE", 100, cr[CR_GRAY]);
+            MN_DrTextACentered("LOWER = WORSE QUALITY, SMALLER FILE",  110, cr[CR_GRAY]);
+            MN_DrTextACentered("DEFAULT LEVEL IS 90",                  120, cr[CR_GRAY]);
+        }
+    }
+
     // < Scroll pages >
     M_DrawScrollPages(CRL_MENU_LEFTOFFSET_BIG, 160, 14, "2/2");
+}
+
+static void CRL_Misc_ShotFormat (int choice)
+{
+    screenshots_format = strcmp(screenshots_format, "png") ? "png" : "jpg";
+}
+
+static void CRL_Misc_ShotSetup (int choice)
+{
+    if (!strcmp(screenshots_format, "png"))
+    {
+        screenshots_png_compression = M_INT_Slider(screenshots_png_compression, 0, 10, choice, false);
+    }
+    else
+    {
+        screenshots_jpg_quality = M_INT_Slider(screenshots_jpg_quality, 1, 100, choice, false);
+    }
 }
 
 static void M_ScrollMisc (int choice)
