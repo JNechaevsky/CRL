@@ -1320,7 +1320,10 @@ void P_AddAmbientSfx(int sequence)
 {
     if (AmbSfxCount == MAX_AMBIENT_SFX)
     {
-        I_Error("Too many ambient sound sequences");
+        // [JN] CRL - clarify about vanilla limits.
+        I_Error("Too many ambient sound sequences.\n\n"
+                "Vanilla Heretic supports a maximum of 8 ambient sound sequences.\n"
+                "To fix this error, reduce the number of sound sequences on the map.");
     }
     LevelAmbientSfx[AmbSfxCount++] = AmbientSfx[sequence];
 }
