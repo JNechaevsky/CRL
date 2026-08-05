@@ -590,6 +590,9 @@ static void CRL_ColoredSBar (int option);
 static void CRL_RevealedSecrets (int option);
 static void CRL_RestoreTargets (int option);
 static void CRL_OnDeathAction (int option);
+static void CRL_AmmoWidget (int option);
+static void CRL_AmmoWidgetTranslucent (int option);
+static void CRL_AmmoWidgetColors (int option);
 static void CRL_DemoTimer (int option);
 static void CRL_TimerDirection (int option);
 static void CRL_ProgressBar (int option);
@@ -3116,17 +3119,21 @@ static void CRL_Automap_SndProp (int option)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLGameplayItems[] = {
-    { ITT_LRFUNC2, "DEFAULT SKILL LEVEL",     CRL_DefaulSkill,     0, MENU_NONE },
-    { ITT_LRFUNC2, "WAND START GAME MODE",    CRL_PistolStart,     0, MENU_NONE },
-    { ITT_LRFUNC2, "COLORED STATUS BAR",      CRL_ColoredSBar,     0, MENU_NONE },
-    { ITT_LRFUNC2, "REPORT REVEALED SECRETS", CRL_RevealedSecrets, 0, MENU_NONE },
-    { ITT_LRFUNC2, "RESTORE MONSTER TARGETS", CRL_RestoreTargets,  0, MENU_NONE },
-    { ITT_LRFUNC2, "ON DEATH ACTION",         CRL_OnDeathAction,   0, MENU_NONE },
-    { ITT_EMPTY,   NULL,                      NULL,                0, MENU_NONE },
-    { ITT_LRFUNC2, "SHOW DEMO TIMER",         CRL_DemoTimer,       0, MENU_NONE },
-    { ITT_LRFUNC1, "TIMER DIRECTION",         CRL_TimerDirection,  0, MENU_NONE },
-    { ITT_LRFUNC2, "SHOW PROGRESS BAR",       CRL_ProgressBar,     0, MENU_NONE },
-    { ITT_LRFUNC2, "PLAY INTERNAL DEMOS",     CRL_InternalDemos,   0, MENU_NONE }
+    { ITT_LRFUNC2, "DEFAULT SKILL LEVEL",      CRL_DefaulSkill,           0, MENU_NONE },
+    { ITT_LRFUNC2, "WAND START GAME MODE",     CRL_PistolStart,           0, MENU_NONE },
+    { ITT_LRFUNC2, "COLORED STATUS BAR",       CRL_ColoredSBar,           0, MENU_NONE },
+    { ITT_LRFUNC2, "REPORT REVEALED SECRETS",  CRL_RevealedSecrets,       0, MENU_NONE },
+    { ITT_LRFUNC2, "RESTORE MONSTER TARGETS",  CRL_RestoreTargets,        0, MENU_NONE },
+    { ITT_LRFUNC2, "ON DEATH ACTION",          CRL_OnDeathAction,         0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                       NULL,                      0, MENU_NONE },
+    { ITT_LRFUNC2, "SHOW AMMO WIDGET",         CRL_AmmoWidget,            0, MENU_NONE },
+    { ITT_LRFUNC1, "AMMO WIDGET TRANSLUCENCY", CRL_AmmoWidgetTranslucent, 0, MENU_NONE },
+    { ITT_LRFUNC2, "AMMO WIDGET COLORING",     CRL_AmmoWidgetColors,      0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                       NULL,                      0, MENU_NONE },
+    { ITT_LRFUNC2, "SHOW DEMO TIMER",          CRL_DemoTimer,             0, MENU_NONE },
+    { ITT_LRFUNC1, "TIMER DIRECTION",          CRL_TimerDirection,        0, MENU_NONE },
+    { ITT_LRFUNC2, "SHOW PROGRESS BAR",        CRL_ProgressBar,           0, MENU_NONE },
+    { ITT_LRFUNC2, "PLAY INTERNAL DEMOS",      CRL_InternalDemos,         0, MENU_NONE }
 };
 
 static Menu_t CRLGameplay = {
@@ -3176,29 +3183,51 @@ static void DrawCRLGameplay (void)
     MN_DrTextA(str, M_ItemRightAlign(str), 70,
                M_Item_Glow(5, crl_death_use_action ? GLOW_GREEN : GLOW_DARKRED));
 
-    MN_DrTextACentered("DEMOS", 80, cr[CR_YELLOW]);
+    MN_DrTextACentered("STATUS BAR", 80, cr[CR_YELLOW]);
+
+    // Ammo widget
+    sprintf(str, crl_ammo_widget == 1 ? "BRIEF" :
+                 crl_ammo_widget == 2 ? "FULL" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 90,
+               M_Item_Glow(7, crl_ammo_widget ? GLOW_GREEN : GLOW_DARKRED));
+
+    // Ammo widget translucency
+    sprintf(str, crl_ammo_widget_translucent ? "ON" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 100,
+               M_Item_Glow(8, !crl_ammo_widget ? GLOW_DARKRED :
+                               crl_ammo_widget_translucent ? GLOW_GREEN : GLOW_DARKRED));
+
+    // Ammo widget colors
+    sprintf(str, crl_ammo_widget_colors == 1 ? "AMMO+WEAPONS" :
+                 crl_ammo_widget_colors == 2 ? "AMMO ONLY" :
+                 crl_ammo_widget_colors == 3 ? "WEAPONS ONLY" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 110,
+               M_Item_Glow(9, !crl_ammo_widget ? GLOW_DARKRED :
+                               crl_ammo_widget_colors ? GLOW_GREEN : GLOW_DARKRED));
+
+    MN_DrTextACentered("DEMOS", 120, cr[CR_YELLOW]);
 
     // Show Demo timer
     sprintf(str, crl_demo_timer == 1 ? "PLAYBACK" : 
                  crl_demo_timer == 2 ? "RECORDING" : 
                  crl_demo_timer == 3 ? "ALWAYS" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 90,
-               M_Item_Glow(7, crl_demo_timer ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 130,
+               M_Item_Glow(11, crl_demo_timer ? GLOW_GREEN : GLOW_DARKRED));
 
     // Timer direction
     sprintf(str, crl_demo_timerdir ? "BACKWARD" : "FORWARD");
-    MN_DrTextA(str, M_ItemRightAlign(str), 100,
-               M_Item_Glow(8, crl_demo_timer ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 140,
+               M_Item_Glow(12, crl_demo_timer ? GLOW_GREEN : GLOW_DARKRED));
 
     // Show progress bar
     sprintf(str, crl_demo_bar ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 110,
-               M_Item_Glow(9, crl_demo_bar ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 150,
+               M_Item_Glow(13, crl_demo_bar ? GLOW_GREEN : GLOW_DARKRED));
 
     // Play internal demos
     sprintf(str, crl_internal_demos ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 120,
-               M_Item_Glow(10, crl_internal_demos ? GLOW_DARKRED : GLOW_GREEN));
+    MN_DrTextA(str, M_ItemRightAlign(str), 160,
+               M_Item_Glow(14, crl_internal_demos ? GLOW_DARKRED : GLOW_GREEN));
 }
 
 static void CRL_DefaulSkill (int option)
@@ -3230,6 +3259,21 @@ static void CRL_RestoreTargets (int option)
 static void CRL_OnDeathAction (int choice)
 {
     crl_death_use_action = M_INT_Slider(crl_death_use_action, 0, 2, choice, false);
+}
+
+static void CRL_AmmoWidget (int choice)
+{
+    crl_ammo_widget = M_INT_Slider(crl_ammo_widget, 0, 2, choice, false);
+}
+
+static void CRL_AmmoWidgetTranslucent (int choice)
+{
+    crl_ammo_widget_translucent = M_INT_Slider(crl_ammo_widget_translucent, 0, 1, choice, false);
+}
+
+static void CRL_AmmoWidgetColors (int choice)
+{
+    crl_ammo_widget_colors = M_INT_Slider(crl_ammo_widget_colors, 0, 3, choice, false);
 }
 
 static void CRL_DemoTimer (int choice)
@@ -3652,7 +3696,6 @@ static void CRL_UnknownLineWarning (int choice)
 {
     crl_unknown_linedefs ^= 1;
 }
-
 
 static void CRL_SaveSizeWarning (int option)
 {

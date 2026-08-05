@@ -614,41 +614,41 @@ void CRL_StatDrawer (void)
         {
             char tom[4];
 
-            MN_DrTextA("TOM:", SCREENWIDTH - 7 - MN_TextAWidth("TOM:"), 50, cr[CR_GRAY]);
+            MN_DrTextA("TOM:", SCREENWIDTH - 32 - MN_TextAWidth("TOM:"), 46, cr[CR_GRAY]);
             M_snprintf(tom, 4, "%d", CRL_counter_tome);
-            MN_DrTextA(tom, SCREENWIDTH - 7 - MN_TextAWidth(tom), 60, CRL_PowerupColor(CRL_counter_tome, 40));
+            MN_DrTextA(tom, 293, 46, CRL_PowerupColor(CRL_counter_tome, 40));
         }
         if (CRL_counter_ring)
         {
             char rng[4];
 
-            MN_DrTextA("RNG:", SCREENWIDTH - 7 - MN_TextAWidth("RNG:"), 70, cr[CR_GRAY]);
+            MN_DrTextA("RNG:", SCREENWIDTH - 32 - MN_TextAWidth("RNG:"), 56, cr[CR_GRAY]);
             M_snprintf(rng, 4, "%d", CRL_counter_ring);
-            MN_DrTextA(rng, SCREENWIDTH - 7 - MN_TextAWidth(rng), 80, CRL_PowerupColor(CRL_counter_ring, 30));
+            MN_DrTextA(rng, 293, 56, CRL_PowerupColor(CRL_counter_ring, 30));
         }
         if (CRL_counter_shadow)
         {
             char shd[4];
 
-            MN_DrTextA("SHD:", SCREENWIDTH - 7 - MN_TextAWidth("SHD:"), 90, cr[CR_GRAY]);
+            MN_DrTextA("SHD:", SCREENWIDTH - 32 - MN_TextAWidth("SHD:"), 66, cr[CR_GRAY]);
             M_snprintf(shd, 4, "%d", CRL_counter_shadow);
-            MN_DrTextA(shd, SCREENWIDTH - 7 - MN_TextAWidth(shd), 100, CRL_PowerupColor(CRL_counter_shadow, 60));
+            MN_DrTextA(shd, 293, 66, CRL_PowerupColor(CRL_counter_shadow, 60));
         }
         if (CRL_counter_wings)
         {
             char wng[4];
 
-            MN_DrTextA("WNG:", SCREENWIDTH - 7 - MN_TextAWidth("WNG:"), 110, cr[CR_GRAY]);
+            MN_DrTextA("WNG:", SCREENWIDTH - 32 - MN_TextAWidth("WNG:"), 76, cr[CR_GRAY]);
             M_snprintf(wng, 4, "%d", CRL_counter_wings);
-            MN_DrTextA(wng, SCREENWIDTH - 7 - MN_TextAWidth(wng), 120, CRL_PowerupColor(CRL_counter_wings, 60));
+            MN_DrTextA(wng, 293, 76, CRL_PowerupColor(CRL_counter_wings, 60));
         }
         if (CRL_counter_torch)
         {
             char trc[4];
 
-            MN_DrTextA("TRC:", SCREENWIDTH - 7 - MN_TextAWidth("TRC:"), 130, cr[CR_GRAY]);
+            MN_DrTextA("TRC:", SCREENWIDTH - 32 - MN_TextAWidth("TRC:"), 86, cr[CR_GRAY]);
             M_snprintf(trc, 4, "%d", CRL_counter_torch);
-            MN_DrTextA(trc, SCREENWIDTH - 7 - MN_TextAWidth(trc), 140, CRL_PowerupColor(CRL_counter_torch, 120));
+            MN_DrTextA(trc, 293, 86, CRL_PowerupColor(CRL_counter_torch, 120));
         }
     }
 }

@@ -575,6 +575,66 @@ void SB_ForceRedraw(void)
 {
     SB_state = -1;
 }
+
+// -----------------------------------------------------------------------------
+// SB_AmmoWidgetColor
+// [plums] return ammo/health/armor widget color
+// -----------------------------------------------------------------------------
+
+enum
+{
+    ammowidgetcolor_ammo,
+    ammowidgetcolor_weapon
+} ammowidgetcolor_t;
+
+static byte *const SB_AmmoWidgetColor (int i, weapontype_t weapon)
+{
+    switch (i)
+    {
+        case ammowidgetcolor_ammo:
+        {
+            const int ammo = CPlayer->ammo[wpnlev1info[weapon].ammo];
+            const int fullammo = CPlayer->maxammo[wpnlev1info[weapon].ammo];
+
+            if (crl_ammo_widget_colors != 1 && crl_ammo_widget_colors != 2)
+            {
+                return cr[CR_GRAY];
+            }
+
+            if (ammo < fullammo/4)
+                return cr[CR_RED];
+            else if (ammo < fullammo/2)
+                return cr[CR_YELLOW];
+            else
+                return cr[CR_GREEN];
+        }
+        case ammowidgetcolor_weapon:
+        {
+            // always color the weapon letter if ammo widget coloring is OFF
+            if ((crl_ammo_widget_colors != 1 && crl_ammo_widget_colors != 3) ||
+                CPlayer->weaponowned[weapon] == true)
+            {
+                switch (weapon)
+                {
+                    case wp_goldwand:   return cr[CR_YELLOW];
+                    case wp_crossbow:   return cr[CR_GREEN];
+                    case wp_blaster:    return cr[CR_BLUE2];
+                    case wp_skullrod:   return cr[CR_RED];
+                    case wp_phoenixrod: return cr[CR_ORANGE];
+                    case wp_mace:       return cr[CR_LIGHTGRAY];
+                    default:            return cr[CR_GRAY];
+                }
+            }
+            else
+            {
+                return cr[CR_GRAY];
+            }
+        }
+    }
+
+    return NULL;
+}
+
 void SB_Drawer(void)
 {
     int frame;
@@ -707,18 +767,58 @@ void SB_Drawer(void)
             BorderTopRefresh = true;
         }
     }
-/*
-		if(CPlayer->powers[pw_weaponlevel2] > BLINKTHRESHOLD
-			|| (CPlayer->powers[pw_weaponlevel2]&8))
-		{
-			V_DrawPatch(291, 0, W_CacheLumpName("ARTIPWBK", PU_CACHE));
-		}
-		else
-		{
-			BorderTopRefresh = true;
-		}
-	}
-*/
+
+    // [JN] Ammo widget.
+    if (crl_ammo_widget && crl_extended_hud)
+    {
+        char str[16];
+
+        // [PN] Parallel arrays for slot data (0-5).
+        const weapontype_t weapons[6] = { wp_goldwand, wp_crossbow, wp_blaster, wp_skullrod, wp_phoenixrod, wp_mace };
+        const int ammo_types[6]       = { am_goldwand, am_crossbow, am_blaster, am_skullrod, am_phoenixrod, am_mace };
+        const char *const labels[6]   = { "W", "E", "D", "H", "P", "M" };
+
+        byte *ammo_widget_weapon_colors[6];
+        byte *ammo_widget_ammo_colors[6];
+
+        // [JN] Move widgets slightly down when using a fullscreen status bar.
+        int yy = (crl_screen_size > 10 && (!automapactive || crl_automap_overlay)) ? 13 : 0;
+
+        // [PN] Cache ammo-widget colors for all weapon slots once per draw pass.
+        for (int i = 0; i < 6; i++)
+        {
+            ammo_widget_weapon_colors[i] = SB_AmmoWidgetColor(ammowidgetcolor_weapon, weapons[i]);
+            ammo_widget_ammo_colors[i]   = SB_AmmoWidgetColor(ammowidgetcolor_ammo, weapons[i]);
+        }
+
+        // [PN] Enable translucency once for both modes.
+        dp_translucent = crl_ammo_widget_translucent;
+
+        for (int i = 0; i < 6; i++)
+        {
+            const int current_yy = 96 + (i * 10) + yy;
+
+            // [PN] Calculate weapon icon X: 282 for Brief (1), 251 for Full.
+            const int label_xx = ((crl_ammo_widget == 1) ? 282 : 251);
+            MN_DrTextA(labels[i], label_xx, current_yy, ammo_widget_weapon_colors[i]);
+
+            if (crl_ammo_widget == 1) // Brief
+            {
+                sprintf(str, "%d", CPlayer->ammo[ammo_types[i]]);
+                MN_DrTextA(str, 293, current_yy, ammo_widget_ammo_colors[i]);
+            }
+            else // Full
+            {
+                sprintf(str, "%d/", CPlayer->ammo[ammo_types[i]]);
+                MN_DrTextA(str, 293 - MN_TextAWidth(str), current_yy, ammo_widget_ammo_colors[i]);
+
+                sprintf(str, "%d", CPlayer->maxammo[ammo_types[i]]);
+                MN_DrTextA(str, 293, current_yy, ammo_widget_ammo_colors[i]);
+            }
+        }
+
+        dp_translucent = false;
+    }
 }
 
 // -----------------------------------------------------------------------------
