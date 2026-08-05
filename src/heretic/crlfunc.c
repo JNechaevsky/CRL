@@ -385,9 +385,6 @@ int CRL_counter_torch;
 
 void CRL_StatDrawer (void)
 {
-    int yy = 0;
-    int yy2 = 0;
-
     const int CRL_MAX_count_old = (int)(lastvisplane - visplanes);
     const int TotalVisPlanes = CRLData.numcheckplanes + CRLData.numfindplanes;
 
@@ -450,16 +447,6 @@ void CRL_StatDrawer (void)
         }
     }
 
-    // Shift down render counters if no level time/KIS stats are active.
-    if (!crl_widget_time)
-    {
-        yy += 10;
-    }
-    if (!crl_widget_kis)
-    {
-        yy += 10;
-    }
-
     // Render counters
     if (crl_widget_render)
     {
@@ -469,9 +456,9 @@ void CRL_StatDrawer (void)
         {
             char spr[32];
             
-            MN_DrTextA("SPR:", 0, 75 + yy, CRL_StatColor_Str(CRLData.numsprites, CRL_MaxVisSprites));
+            MN_DrTextA("SPR:", 0, 75, CRL_StatColor_Str(CRLData.numsprites, CRL_MaxVisSprites));
             M_snprintf(spr, 16, "%d/%d", CRLData.numsprites, CRL_MaxVisSprites);
-            MN_DrTextA(spr, 32, 75 + yy, CRL_StatColor_Val(CRLData.numsprites, CRL_MaxVisSprites));
+            MN_DrTextA(spr, 32, 75, CRL_StatColor_Val(CRLData.numsprites, CRL_MaxVisSprites));
         }
 
         // Segments (256 max)
@@ -480,9 +467,9 @@ void CRL_StatDrawer (void)
         {
             char seg[32];
 
-            MN_DrTextA("SEG:", 0, 85 + yy, CRL_StatColor_Str(CRLData.numsegs, CRL_MaxDrawSegs));
+            MN_DrTextA("SEG:", 0, 85, CRL_StatColor_Str(CRLData.numsegs, CRL_MaxDrawSegs));
             M_snprintf(seg, 16, "%d/%d", CRLData.numsegs, CRL_MaxDrawSegs);
-            MN_DrTextA(seg, 32, 85 + yy, CRL_StatColor_Val(CRLData.numsegs, CRL_MaxDrawSegs));
+            MN_DrTextA(seg, 32, 85, CRL_StatColor_Val(CRLData.numsegs, CRL_MaxDrawSegs));
         }
 
         // Solid segments (32 max)
@@ -491,9 +478,9 @@ void CRL_StatDrawer (void)
         {
             char ssg[32];
 
-            MN_DrTextA("SSG:", 0, 95 + yy, CRL_StatColor_Str(CRLData.numsolidsegs, 32));
+            MN_DrTextA("SSG:", 0, 95, CRL_StatColor_Str(CRLData.numsolidsegs, 32));
             M_snprintf(ssg, 16, "%d/32", CRLData.numsolidsegs);
-            MN_DrTextA(ssg, 32, 95 + yy, CRL_StatColor_Val(CRLData.numsolidsegs, 32));
+            MN_DrTextA(ssg, 32, 95, CRL_StatColor_Val(CRLData.numsolidsegs, 32));
         }
 
         // Openings
@@ -502,9 +489,9 @@ void CRL_StatDrawer (void)
         {
             char opn[64];
 
-            MN_DrTextA("OPN:", 0, 105 + yy, CRL_StatColor_Str(CRLData.numopenings, CRL_MaxOpenings));
+            MN_DrTextA("OPN:", 0, 105, CRL_StatColor_Str(CRLData.numopenings, CRL_MaxOpenings));
             M_snprintf(opn, 16, "%d/%d", CRLData.numopenings, CRL_MaxOpenings);
-            MN_DrTextA(opn, 32, 105 + yy, CRL_StatColor_Val(CRLData.numopenings, CRL_MaxOpenings));
+            MN_DrTextA(opn, 32, 105, CRL_StatColor_Val(CRLData.numopenings, CRL_MaxOpenings));
         }
 
         // Planes (vanilla: 128, doom+: 1024)
@@ -516,31 +503,30 @@ void CRL_StatDrawer (void)
             char vis[32];
             char max[32];
 
-            MN_DrTextA("PLN:", 0, 115 + yy, TotalVisPlanes >= CRL_MaxVisPlanes ? 
+            MN_DrTextA("PLN:", 0, 115, TotalVisPlanes >= CRL_MaxVisPlanes ? 
                       (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
 
             M_snprintf(vis, 32, "%d/%d (MAX: ", TotalVisPlanes, CRL_MaxVisPlanes);
             M_snprintf(max, 32, "%d", CRL_MAX_count);
 
             // PLN: x/x (MAX:
-            MN_DrTextA(vis, 32, 115 + yy, TotalVisPlanes >= CRL_MaxVisPlanes ?
+            MN_DrTextA(vis, 32, 115, TotalVisPlanes >= CRL_MaxVisPlanes ?
                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
 
             // x
-            MN_DrTextA(max, 32 + MN_TextAWidth(vis), 115 + yy, TotalVisPlanes >= CRL_MaxVisPlanes ?
+            MN_DrTextA(max, 32 + MN_TextAWidth(vis), 115, TotalVisPlanes >= CRL_MaxVisPlanes ?
                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : 
                       CRL_MAX_count >= CRL_MaxVisPlanes ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
 
             // )
-            MN_DrTextA(")", 32 + MN_TextAWidth(vis) + MN_TextAWidth(max), 115 + yy, TotalVisPlanes >= CRL_MaxVisPlanes ?
+            MN_DrTextA(")", 32 + MN_TextAWidth(vis) + MN_TextAWidth(max), 115, TotalVisPlanes >= CRL_MaxVisPlanes ?
                        (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
         }
     }
 
-    if (!crl_widget_kis)
-    {
-        yy2 += 10;
-    }
+    const int xx  = /*crl_screen_size > 10 && (!automapactive || crl_automap_overlay)*/ automapactive ? 0 : 20;
+    const int yy  = automapactive ? 0 : 10;
+    const int yy2 = crl_widget_kis ? 0 : 10;
 
     // Level timer
     if (crl_widget_time == 1
@@ -551,9 +537,9 @@ void CRL_StatDrawer (void)
         const int time = leveltime / TICRATE;
         
         M_snprintf(stra, 8, "TIME ");
-        MN_DrTextA(stra, 0, 125 + yy2, cr[CR_GRAY]);
+        MN_DrTextA(stra, 0, 125 + yy + yy2, cr[CR_GRAY]);
         M_snprintf(strb, 16, "%02d:%02d:%02d", time/3600, (time%3600)/60, time%60);
-        MN_DrTextA(strb, MN_TextAWidth(stra), 125 + yy2, cr[CR_LIGHTGRAY]);
+        MN_DrTextA(strb, MN_TextAWidth(stra), 125 + yy + yy2, cr[CR_LIGHTGRAY]);
     }
 
     // K/I/S stats
@@ -566,9 +552,9 @@ void CRL_StatDrawer (void)
 
         // Kills:
         M_snprintf(str1, 8, "K ");
-        MN_DrTextA(str1, 0, 135, CRL_WidgetColor(widget_kis_str));
+        MN_DrTextA(str1, xx, 135 + yy, CRL_WidgetColor(widget_kis_str));
         CRL_WidgetKISCount(str2, sizeof(str2), widget_kis_kills);
-        MN_DrTextA(str2, MN_TextAWidth(str1), 135,
+        MN_DrTextA(str2, MN_TextAWidth(str1) + xx, 135 + yy,
                          CRLWidgets.totalkills == 0 ? cr[CR_GREEN] :
                          CRLWidgets.kills == 0 ? cr[CR_RED] :
                          CRLWidgets.kills < CRLWidgets.totalkills ? cr[CR_YELLOW] : cr[CR_GREEN]);
@@ -578,11 +564,11 @@ void CRL_StatDrawer (void)
         {
         M_snprintf(str3, 8, " I ");
         MN_DrTextA(str3, MN_TextAWidth(str1) +
-                         MN_TextAWidth(str2), 135, CRL_WidgetColor(widget_kis_str));
+                         MN_TextAWidth(str2) + xx, 135 + yy, CRL_WidgetColor(widget_kis_str));
         CRL_WidgetKISCount(str4, sizeof(str4), widget_kis_items);
         MN_DrTextA(str4, MN_TextAWidth(str1) +
                          MN_TextAWidth(str2) +
-                         MN_TextAWidth(str3), 135,
+                         MN_TextAWidth(str3) + xx, 135 + yy,
                          CRL_WidgetColor(widget_items));
         }
         else
@@ -596,14 +582,14 @@ void CRL_StatDrawer (void)
         MN_DrTextA(str5, MN_TextAWidth(str1) +
                          MN_TextAWidth(str2) +
                          MN_TextAWidth(str3) +
-                         MN_TextAWidth(str4), 135, CRL_WidgetColor(widget_kis_str));
+                         MN_TextAWidth(str4) + xx, 135 + yy, CRL_WidgetColor(widget_kis_str));
 
         CRL_WidgetKISCount(str6, sizeof(str6), widget_kis_secrets);
         MN_DrTextA(str6, MN_TextAWidth(str1) +
                          MN_TextAWidth(str2) +
                          MN_TextAWidth(str3) +
                          MN_TextAWidth(str4) +
-                         MN_TextAWidth(str5), 135,
+                         MN_TextAWidth(str5) + xx, 135 + yy,
                          CRL_WidgetColor(widget_secret));
     }
 
@@ -616,7 +602,7 @@ void CRL_StatDrawer (void)
                                          &CRL_counter_shadow, &CRL_counter_wings,
                                          &CRL_counter_torch };
         const int thresholds[5]  = { 40, 30, 60, 60, 120 };
-        const int y_positions[5] = { 46, 56, 66, 76, 86 };
+        const int y_positions[5] = { 45, 55, 65, 75, 85 };
 
         for (int i = 0; i < 5; i++)
         {

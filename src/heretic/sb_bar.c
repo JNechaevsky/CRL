@@ -796,7 +796,7 @@ void SB_Drawer(void)
 
         for (int i = 0; i < 6; i++)
         {
-            const int current_yy = 96 + (i * 10) + yy;
+            const int current_yy = 95 + (i * 10) + yy;
 
             // [PN] Calculate weapon icon X: 282 for Brief (1), 251 for Full.
             const int label_xx = ((crl_ammo_widget == 1) ? 282 : 251);
