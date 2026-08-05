@@ -1753,7 +1753,7 @@ void G_PrepTiccmd (void)
         mousex = 0;
     }
 
-    if (mousey && crl_mouselook && !crl_spectating)
+    if (!MenuActive && !askforquit && mousey && crl_mouselook)
     {
         const double vert = CalcMouseVert(mousey);
         const int delta = mouse_y_invert ? CarryPitch(-vert) : CarryPitch(vert);
