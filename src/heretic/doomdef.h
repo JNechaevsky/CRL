@@ -818,18 +818,11 @@ void P_UnArchiveSpecials(void);
 
 extern boolean setsizeneeded;
 
-extern boolean BorderNeedRefresh;
-extern boolean BorderTopRefresh;
-
 void R_RenderPlayerView(player_t * player);
 // called by G_Drawer
 
 void R_Init(void);
 // called by startup code
-
-void R_DrawViewBorder(void);
-void R_DrawTopBorder(void);
-// if the view size is not full screen, draws a border around it
 
 void R_SetViewSize(int blocks, int detail);
 // called by M_Responder

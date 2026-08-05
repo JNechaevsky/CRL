@@ -41,8 +41,6 @@ int centerx, centery;
 fixed_t centerxfrac, centeryfrac;
 fixed_t projection;
 
-int framecount;                 // just for profiling purposes
-
 fixed_t viewx, viewy, viewz;
 angle_t viewangle;
 fixed_t viewcos, viewsin;
@@ -570,10 +568,8 @@ void R_ExecuteSetViewSize(void)
         }
     }
 
-//
-// draw the border
-//
-    R_DrawViewBorder();         // erase old menu stuff
+    // Erase old menu stuff
+    R_FillBackScreen();
 }
 
 
@@ -610,7 +606,6 @@ void R_Init(void)
     R_InitSkyMap();
     printf (".");
     R_InitTranslationTables();
-    framecount = 0;
 }
 
 
@@ -796,25 +791,7 @@ static void R_SetupFrame(player_t * player)
     {
         fixedcolormap = 0;
     }
-    framecount++;
     validcount++;
-    if (BorderNeedRefresh)
-    {
-        if (setblocks < 10)
-        {
-            R_DrawViewBorder();
-        }
-        BorderNeedRefresh = false;
-        BorderTopRefresh = false;
-    }
-    if (BorderTopRefresh)
-    {
-        if (setblocks < 10)
-        {
-            R_DrawTopBorder();
-        }
-        BorderTopRefresh = false;
-    }
 }
 
 /*

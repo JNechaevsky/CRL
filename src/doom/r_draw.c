@@ -677,205 +677,166 @@ void R_DrawSpanLow (void)
     } while (count--);
 }
 
-//
+// -----------------------------------------------------------------------------
 // R_InitBuffer 
-// Creats lookup tables that avoid
-//  multiplies and other hazzles
-//  for getting the framebuffer address
-//  of a pixel to draw.
-//
-void
-R_InitBuffer
-( int		width,
-  int		height ) 
-{ 
-    int		i; 
+// Initializes the buffer for a given view width and height.
+// Handles border offsets and row/column calculations.
+// [PN] Simplified logic and improved readability for better understanding.
+// -----------------------------------------------------------------------------
 
-    // Handle resize,
-    //  e.g. smaller view windows
-    //  with border and/or status bar.
-    viewwindowx = (SCREENWIDTH-width) >> 1; 
+void R_InitBuffer(int width, int height)
+{
+    int i;
 
-    // Column offset. For windows.
-    for (i=0 ; i<width ; i++) 
-	columnofs[i] = viewwindowx + i;
+    // [PN] Handle resize: calculate horizontal offset (viewwindowx).
+    viewwindowx = (SCREENWIDTH - width) >> 1;
 
-    // Samw with base row offset.
-    if (width == SCREENWIDTH) 
-	viewwindowy = 0; 
-    else 
-	viewwindowy = (SCREENHEIGHT-SBARHEIGHT-height) >> 1; 
+    // [PN] Calculate column offsets (columnofs).
+    for (i = 0; i < width; i++) 
+    {
+        columnofs[i] = viewwindowx + i;
+    }
 
-    // Preclaculate all row offsets.
-    for (i=0 ; i<height ; i++) 
-	ylookup[i] = I_VideoBuffer + (i+viewwindowy)*SCREENWIDTH; 
-} 
- 
- 
+    // [PN] Calculate vertical offset (viewwindowy).
+    // Simplified using ternary operator.
+    viewwindowy = (width == SCREENWIDTH) ? 0 : (SCREENHEIGHT - SBARHEIGHT - height) >> 1;
 
+    // [PN] Precalculate row offsets (ylookup) for each row.
+    for (i = 0; i < height; i++) 
+    {
+        ylookup[i] = I_VideoBuffer + (i + viewwindowy) * SCREENWIDTH;
+    }
 
-//
+    // [PN] Free the background buffer if it exists.
+    if (background_buffer != NULL)
+    {
+        Z_Free(background_buffer);
+        background_buffer = NULL;
+    }
+}
+
+// -----------------------------------------------------------------------------
 // R_FillBackScreen
-// Fills the back screen with a pattern
-//  for variable screen sizes
+// Fills the back screen with a pattern for variable screen sizes.
 // Also draws a beveled edge.
-//
-void R_FillBackScreen (void) 
-{ 
-    const byte*	src;
-    pixel_t*	dest;
-    int		x;
-    int		y; 
-    patch_t*	patch;
+// [PN] Optimized for readability and reduced code duplication.
+//      Pre-cache patches and precompute commonly used values to improve efficiency.
+// -----------------------------------------------------------------------------
 
-    // DOOM border patch.
-    const char *name1 = DEH_String("FLOOR7_2");
-
-    // DOOM II border patch.
-    const char *name2 = DEH_String("GRNROCK");
-
-    const char *name;
-
-    const char *brdr_t = DEH_String("brdr_t");
-    const char *brdr_b = DEH_String("brdr_b");
-    const char *brdr_l = DEH_String("brdr_l");
-    const char *brdr_r = DEH_String("brdr_r");
-
-    const char *brdr_tl = DEH_String("brdr_tl");
-    const char *brdr_tr = DEH_String("brdr_tr");
-    const char *brdr_bl = DEH_String("brdr_bl");
-    const char *brdr_br = DEH_String("brdr_br");
-
+void R_FillBackScreen (void)
+{
     // If we are running full screen, there is no need to do any of this,
     // and the background buffer can be freed if it was previously in use.
-
     if (scaledviewwidth == SCREENWIDTH)
     {
-        if (background_buffer != NULL)
-        {
-            Z_Free(background_buffer);
-            background_buffer = NULL;
-        }
-
-	return;
+        return;
     }
 
     // Allocate the background buffer if necessary
-	
     if (background_buffer == NULL)
     {
-        background_buffer = Z_Malloc(SCREENWIDTH * (SCREENHEIGHT - SBARHEIGHT) * sizeof(*background_buffer),
-                                     PU_STATIC, NULL);
+        const int size = SCREENWIDTH * (SCREENHEIGHT - SBARHEIGHT);
+        background_buffer = Z_Malloc(size * sizeof(*background_buffer), PU_STATIC, 0);
     }
 
-    if (gamemode == commercial)
-	name = name2;
-    else
-	name = name1;
-    
-    src = W_CacheLumpName(name, PU_CACHE); 
-    dest = background_buffer;
-	 
-    // [crispy] Unified flat filling function
-    V_FillFlat(0, SCREENHEIGHT - SBARHEIGHT, 0, SCREENWIDTH, src, dest);
-     
-    // Draw screen and bezel; this is done to a separate screen buffer.
-
+    // [PN] Use background buffer for drawing
     V_UseBuffer(background_buffer);
 
-    patch = W_CacheLumpName(brdr_t,PU_CACHE);
+    // [PN] Cache the background texture and fill the screen
+    const byte *src = W_CacheLumpName(DEH_String(gamemode == commercial ? "GRNROCK" : "FLOOR7_2"), PU_CACHE); 
+    pixel_t *dest = background_buffer;
 
-    for (x=0 ; x<scaledviewwidth ; x+=8)
-	V_DrawPatch(viewwindowx+x, viewwindowy-8, patch, brdr_t);
-    patch = W_CacheLumpName(brdr_b,PU_CACHE);
+    // [PN] Pre-cache patches for border drawing
+    patch_t *patch_top = W_CacheLumpName(DEH_String("brdr_t"), PU_CACHE);
+    patch_t *patch_bottom = W_CacheLumpName(DEH_String("brdr_b"), PU_CACHE);
+    patch_t *patch_left = W_CacheLumpName(DEH_String("brdr_l"), PU_CACHE);
+    patch_t *patch_right = W_CacheLumpName(DEH_String("brdr_r"), PU_CACHE);
+    patch_t *patch_tl = W_CacheLumpName(DEH_String("brdr_tl"), PU_CACHE);
+    patch_t *patch_tr = W_CacheLumpName(DEH_String("brdr_tr"), PU_CACHE);
+    patch_t *patch_bl = W_CacheLumpName(DEH_String("brdr_bl"), PU_CACHE);
+    patch_t *patch_br = W_CacheLumpName(DEH_String("brdr_br"), PU_CACHE);
 
-    for (x=0 ; x<scaledviewwidth ; x+=8)
-	V_DrawPatch(viewwindowx+x, viewwindowy+viewheight, patch, brdr_b);
-    patch = W_CacheLumpName(brdr_l,PU_CACHE);
+    // [PN] Precompute commonly used values
+    const int view_x = viewwindowx;
+    const int view_y = viewwindowy;
+    const int scaledwidth = scaledviewwidth;
+    const int viewheight_res = viewheight;
 
-    for (y=0 ; y<viewheight ; y+=8)
-	V_DrawPatch(viewwindowx-8, viewwindowy+y, patch, brdr_l);
-    patch = W_CacheLumpName(brdr_r,PU_CACHE);
+    // [crispy] Unified flat filling function
+    V_FillFlat(0, SCREENHEIGHT - SBARHEIGHT, 0, SCREENWIDTH, src, dest);
 
-    for (y=0 ; y<viewheight ; y+=8)
-	V_DrawPatch(viewwindowx+scaledviewwidth, viewwindowy+y, patch, brdr_r);
+    // [PN] Draw top and bottom borders
+    for (int x = 0; x < scaledwidth; x += 8)
+    {
+        V_DrawPatch(view_x + x, view_y - 8, patch_top, "brdr_t");
+        V_DrawPatch(view_x + x, view_y + viewheight_res, patch_bottom, "brdr_b");
+    }
 
-    // Draw beveled edge. 
-    V_DrawPatch(viewwindowx-8,
-                viewwindowy-8,
-                W_CacheLumpName(brdr_tl,PU_CACHE), brdr_tl);
-    
-    V_DrawPatch(viewwindowx+scaledviewwidth,
-                viewwindowy-8,
-                W_CacheLumpName(brdr_tr,PU_CACHE), brdr_tr);
-    
-    V_DrawPatch(viewwindowx-8,
-                viewwindowy+viewheight,
-                W_CacheLumpName(brdr_bl,PU_CACHE), brdr_bl);
-    
-    V_DrawPatch(viewwindowx+scaledviewwidth,
-                viewwindowy+viewheight,
-                W_CacheLumpName(brdr_br,PU_CACHE), brdr_br);
+    // [PN] Draw left and right borders
+    for (int y = 0; y < viewheight_res; y += 8)
+    {
+        V_DrawPatch(view_x - 8, view_y + y, patch_left, "brdr_l");
+        V_DrawPatch(view_x + scaledwidth, view_y + y, patch_right, "brdr_r");
+    }
 
+    // [PN] Draw corners
+    V_DrawPatch(view_x - 8, view_y - 8, patch_tl, "brdr_tl");
+    V_DrawPatch(view_x + scaledwidth, view_y - 8, patch_tr, "brdr_tr");
+    V_DrawPatch(view_x - 8, view_y + viewheight_res, patch_bl, "brdr_bl");
+    V_DrawPatch(view_x + scaledwidth, view_y + viewheight_res, patch_br, "brdr_br");
+
+    // [PN] Restore the previous buffer
     V_RestoreBuffer();
-} 
- 
+}
 
-//
+
+// -----------------------------------------------------------------------------
 // Copy a screen buffer.
-//
-void
-R_VideoErase
-( unsigned	ofs,
-  int		count ) 
-{ 
-  // LFB copy.
-  // This might not be a good idea if memcpy
-  //  is not optiomal, e.g. byte by byte on
-  //  a 32bit CPU, as GNU GCC/Linux libc did
-  //  at one point.
+// [PN] Changed ofs to size_t for clarity and to represent offset more appropriately.
+// -----------------------------------------------------------------------------
 
+static void R_VideoErase (size_t ofs, int count)
+{
+    // [PN] Ensure the background buffer is valid before copying
     if (background_buffer != NULL)
     {
+        // [PN] Copy from background buffer to video buffer
         memcpy(I_VideoBuffer + ofs, background_buffer + ofs, count * sizeof(*I_VideoBuffer));
     }
-} 
+}
 
-
-//
+// -----------------------------------------------------------------------------
 // R_DrawViewBorder
-// Draws the border around the view
-//  for different size windows?
-//
-void R_DrawViewBorder (void) 
-{ 
-    int		top;
-    int		side;
-    int		ofs;
-    int		i; 
- 
-    if (scaledviewwidth == SCREENWIDTH) 
-	return; 
-  
-    top = ((SCREENHEIGHT-SBARHEIGHT)-viewheight)/2; 
-    side = (SCREENWIDTH-scaledviewwidth)/2; 
- 
-    // copy top and one line of left side 
-    R_VideoErase (0, top*SCREENWIDTH+side); 
- 
-    // copy one line of right side and bottom 
-    ofs = (viewheight+top)*SCREENWIDTH-side; 
-    R_VideoErase (ofs, top*SCREENWIDTH+side); 
- 
-    // copy sides using wraparound 
-    ofs = top*SCREENWIDTH + SCREENWIDTH-side; 
-    side <<= 1;
-    
-    for (i=1 ; i<viewheight ; i++) 
+// Draws the border around the view for different size windows.
+// [PN] Optimized by precomputing common offsets and reducing repeated calculations.
+//      Simplified logic for top, bottom, and side erasing.
+// -----------------------------------------------------------------------------
+
+void R_DrawViewBorder (void)
+{
+    if (scaledviewwidth == SCREENWIDTH || background_buffer == NULL)
+    {
+        return;
+    }
+
+    // [PN] Precompute common values
+    const int top = ((SCREENHEIGHT - SBARHEIGHT) - viewheight) / 2;
+    const int side = (SCREENWIDTH - scaledviewwidth) / 2;
+    const int top_offset = top * SCREENWIDTH + side;
+    const int bottom_offset = (viewheight + top) * SCREENWIDTH - side;
+
+    // [PN] Copy top and bottom sections
+    R_VideoErase(0, top_offset);
+    R_VideoErase(bottom_offset, top_offset);
+
+    // [PN] Precompute for sides
+    int ofs = top * SCREENWIDTH + SCREENWIDTH - side;
+    const int doubled_side = side << 1;
+
+    // [PN] Copy sides
+    for (int i = 1; i < viewheight; i++) 
     { 
-	R_VideoErase (ofs, side); 
-	ofs += SCREENWIDTH; 
-    } 
-} 
- 
- 
+        R_VideoErase(ofs, doubled_side);
+        ofs += SCREENWIDTH;
+    }
+}

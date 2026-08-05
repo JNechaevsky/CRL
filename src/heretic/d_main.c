@@ -52,6 +52,7 @@
 #include "m_controls.h"
 #include "m_misc.h"
 #include "p_local.h"
+#include "r_local.h"
 #include "s_sound.h"
 #include "w_main.h"
 #include "v_trans.h"
@@ -195,6 +196,8 @@ static void CRL_DrawMessageCritical (void)
 
 static void D_Display(void)
 {
+    static gamestate_t oldgamestate = -1;
+
     // For comparative timing / profiling
     if (nodrawers)
     {
@@ -218,6 +221,7 @@ static void D_Display(void)
     if (setsizeneeded)
     {
         R_ExecuteSetViewSize();
+        oldgamestate = -1;  // force background redraw
     }
 
     // [JN] RestlessRodent -- Set surface
@@ -235,6 +239,14 @@ static void D_Display(void)
             // [JN] Update automap while playing and render
             // full view so counters will show correct values.
             R_RenderPlayerView(&players[displayplayer]);
+
+            // see if the border needs to be initially drawn
+            if (oldgamestate != GS_LEVEL)
+            R_FillBackScreen();  // draw the pattern into the back screen
+
+            // see if the border needs to be updated to the screen
+            if (scaledviewwidth != SCREENWIDTH)
+            R_DrawViewBorder();  // erase old menu stuff
 
             if (automapactive)
             {
@@ -301,10 +313,16 @@ static void D_Display(void)
             break;
     }
 
+    // clean up border stuff
+    if (gamestate != oldgamestate && gamestate != GS_LEVEL)
+    CRL_ReloadPalette();
+
     if (testcontrols)
     {
         V_DrawMouseSpeedBox(testcontrols_mousespeed);
     }
+
+    oldgamestate = /*wipegamestate =*/ gamestate;
 
     if (paused && !MenuActive && !askforquit)
     {
@@ -488,7 +506,6 @@ void D_DoAdvanceDemo(void)
             pagename = DEH_String("TITLE");
             break;
         case 2:
-            BorderNeedRefresh = true;
             if (crl_internal_demos)
             {
                 G_DeferedPlayDemo(DEH_String("demo1"));
@@ -500,7 +517,6 @@ void D_DoAdvanceDemo(void)
             pagename = DEH_String("CREDIT");
             break;
         case 4:
-            BorderNeedRefresh = true;
             if (crl_internal_demos)
             {
                 G_DeferedPlayDemo(DEH_String("demo2"));
@@ -519,7 +535,6 @@ void D_DoAdvanceDemo(void)
             }
             break;
         case 6:
-            BorderNeedRefresh = true;
             if (crl_internal_demos)
             {
                 G_DeferedPlayDemo(DEH_String("demo3"));
@@ -1472,7 +1487,6 @@ void D_DoomMain(void)
 
     if (gameaction != ga_loadgame)
     {
-        BorderNeedRefresh = true;
         if (autostart || netgame)
         {
             G_InitNew(startskill, startepisode, startmap);

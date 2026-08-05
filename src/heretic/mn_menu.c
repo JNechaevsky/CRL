@@ -4864,26 +4864,20 @@ static void SCMusicVolume(int option)
     S_SetMusicVolume();
 }
 
-//---------------------------------------------------------------------------
-//
-// PROC SCScreenSize
-//
-//---------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+// SCScreenSize
+// -----------------------------------------------------------------------------
 
 static void SCScreenSize(int option)
 {
-    if (option == RIGHT_DIR)
+    const int new_size = crl_screen_size + (option == RIGHT_DIR ? 1 : -1);
+    
+    if (new_size >= 3 && new_size <= 11)
     {
-        if (crl_screen_size < 11)
-        {
-            crl_screen_size++;
-        }
+        crl_screen_size = new_size;
+        S_StartSound(NULL, sfx_keyup);
+        R_SetViewSize(crl_screen_size, detailLevel);
     }
-    else if (crl_screen_size > 3)
-    {
-        crl_screen_size--;
-    }
-    R_SetViewSize(crl_screen_size, detailLevel);
 }
 
 //---------------------------------------------------------------------------

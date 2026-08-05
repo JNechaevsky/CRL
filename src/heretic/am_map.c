@@ -819,7 +819,6 @@ void AM_Stop (void)
 {
     automapactive = false;
     stopped = true;
-    BorderNeedRefresh = true;
 }
 
 // -----------------------------------------------------------------------------

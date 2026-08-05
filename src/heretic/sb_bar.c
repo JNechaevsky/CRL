@@ -524,7 +524,6 @@ static void DrawSoundInfo(void)
         M_snprintf(text, sizeof(text), "%d", c->distance);
         MN_DrTextA(text, xPos[x++], y, NULL);
     }
-    BorderNeedRefresh = true;
 }
 
 //---------------------------------------------------------------------------
@@ -734,11 +733,6 @@ void SB_Drawer(void)
                     hitCenterFrame = true;
                 }
             }
-            BorderTopRefresh = true;
-        }
-        else
-        {
-            BorderTopRefresh = true;
         }
     }
 
@@ -760,11 +754,6 @@ void SB_Drawer(void)
             frame = (leveltime / 3) & 15;
             V_DrawPatch(spinbook_x, 17,
                         W_CacheLumpNum(spinbooklump + frame, PU_CACHE), "NULL"); // [JN] TODO - patch name
-            BorderTopRefresh = true;
-        }
-        else
-        {
-            BorderTopRefresh = true;
         }
     }
 

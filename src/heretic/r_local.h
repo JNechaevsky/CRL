@@ -359,6 +359,8 @@ extern void R_DrawTLColumnLow(void);
 extern void R_DrawTranslatedColumn(void);
 extern void R_DrawTranslatedColumnLow(void);
 extern void R_DrawTranslatedTLColumn(void);
+extern void R_DrawViewBorder (void);
+extern void R_FillBackScreen (void);
 extern void R_InitBuffer(int width, int height);
 extern void R_InitTranslationTables(void);
 

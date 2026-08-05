@@ -34,6 +34,7 @@
 #include "m_misc.h"
 #include "m_random.h"
 #include "p_local.h"
+#include "r_local.h"
 #include "s_sound.h"
 #include "v_video.h"
 
@@ -2422,6 +2423,9 @@ void G_DoLoadGame(void)
     // [JN] Restore monster targets.
     P_RestoreTargets ();
 
+    // draw the pattern into the back screen
+    R_FillBackScreen ();
+
     // [crispy] if the player is dead in this savegame,
     // do not consider it for reload
     if (players[consoleplayer].health <= 0)
@@ -2522,7 +2526,6 @@ void G_InitNew(skill_t skill, int episode, int map)
     gameepisode = episode;
     gamemap = map;
     gameskill = skill;
-    BorderNeedRefresh = true;
 
     defdemotics = 0;
 
@@ -3060,5 +3063,8 @@ void G_DoSaveGame(void)
     CT_SetMessage(&players[consoleplayer], DEH_String(TXT_GAMESAVED), true, NULL);
 
     free(filename);
+
+    // draw the pattern into the back screen
+    R_FillBackScreen ();
 }
 
