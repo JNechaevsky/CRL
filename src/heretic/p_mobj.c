@@ -559,6 +559,8 @@ static void P_ZMovement(mobj_t * mo)
             if (mo->player && mo->momz < -GRAVITY * 8 && !(mo->flags2 & MF2_FLY))       // squat down
             {
                 mo->player->deltaviewheight = mo->momz >> 3;
+                // [crispy] dead men don't say "oof"
+                if (mo->health > 0)
                 S_StartSound(mo, sfx_plroof);
                 // haleyjd: removed externdriver crap
                 mo->player->centering = true;
