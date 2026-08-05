@@ -714,6 +714,50 @@ static void DrawThermo(void)
     TXT_UpdateScreen();
 }
 
+// -----------------------------------------------------------------------------
+// drawTXTStartup
+//  [PN] Simplified thermo drawing routine.
+//  The progress bar now fills up to 51 characters
+//  independently, without relying on thermCurrent/thermMax.
+//  This guarantees a smooth full draw on every startup.
+// -----------------------------------------------------------------------------
+
+static void drawTXTStartup(void)
+{
+    if (!using_graphical_startup)
+    {
+        return;
+    }
+
+    for (int progress = 1; progress <= 51; progress++)
+    {
+        if (progress == 5)
+            hprintf(DEH_String("Loading graphics"));
+        if (progress == 35)
+            hprintf(DEH_String("Init game engine."));
+        if (progress == 40)
+            hprintf(DEH_String("Checking network game status."));
+
+        TXT_GotoXY(THERM_X, THERM_Y);
+
+        TXT_FGColor(TXT_COLOR_BRIGHT_GREEN);
+        TXT_BGColor(TXT_COLOR_GREEN, 0);
+
+        for (int i = 0; i < progress; i++)
+        {
+            TXT_PutChar(0xdb);
+        }
+
+        TXT_UpdateScreen();
+
+        // [JN] Эмуляция «медленной» загрузки.
+        if (graphical_startup == 2)
+        {
+            I_Sleep(50);
+        }
+    }
+}
+
 static void initStartup(void)
 {
     byte *textScreen;
@@ -725,7 +769,10 @@ static void initStartup(void)
         return;
     }
 
-    if (!TXT_Init()) 
+    // [PN] Use the main game window/renderer for startup textscreen (ENDOOM-style).
+    TXT_PreInit((SDL_Window *) I_GetSDLWindow(), (SDL_Renderer *) I_GetSDLRenderer());
+
+    if (!TXT_Init())
     {
         using_graphical_startup = false;
         return;
@@ -872,6 +919,8 @@ static void D_Endoom(void)
         I_Endoom(endoom_data);
     }
 }
+
+static const char *const loadparms[] = {"-file", "-merge", NULL}; // [crispy]
 
 //---------------------------------------------------------------------------
 //
@@ -1099,7 +1148,8 @@ void D_DoomMain(void)
     //
     // Disable auto-loading of .wad files.
     //
-    if (!M_ParmExists("-noautoload"))
+    if (!M_ParmExists("-noautoload") && gamemode != shareware
+    && crl_autoload_wad)  // [JN] Allow autoload per both IWAD and PWAD.
     {
         char *autoload_dir;
         autoload_dir = M_GetAutoloadDir("heretic.wad");
@@ -1116,6 +1166,32 @@ void D_DoomMain(void)
 
     // Load PWAD files.
     W_ParseCommandLine();
+
+    // [crispy] add wad files from autoload PWAD directories
+
+    if (!M_ParmExists("-noautoload") && gamemode != shareware
+    && crl_autoload_wad == 2)  // [JN] Allow autoload per PWAD only.
+    {
+        int i;
+
+        for (i = 0; loadparms[i]; i++)
+        {
+            int prm;
+            prm = M_CheckParmWithArgs(loadparms[i], 1);
+            if (prm)
+            {
+                while (++prm != myargc && myargv[prm][0] != '-')
+                {
+                    char *autoload_dir;
+                    if ((autoload_dir = M_GetAutoloadDir(M_BaseName(myargv[prm]))))
+                    {
+                        W_AutoLoadWADs(autoload_dir);
+                        free(autoload_dir);
+                    }
+                }
+            }
+        }
+    }
 
     //!
     // @arg <demo>
@@ -1176,6 +1252,32 @@ void D_DoomMain(void)
     // Generate the WAD hash table.  Speed things up a bit.
     W_GenerateHashTable();
 
+    // [crispy] process .deh files from PWADs autoload directories
+
+    if (!M_ParmExists("-noautoload") && gamemode != shareware
+    && crl_autoload_deh == 2)  // [JN] Allow autoload per PWAD only.
+    {
+        int i;
+
+        for (i = 0; loadparms[i]; i++)
+        {
+            int prm;
+            prm = M_CheckParmWithArgs(loadparms[i], 1);
+            if (prm)
+            {
+                while (++prm != myargc && myargv[prm][0] != '-')
+                {
+                    char *autoload_dir;
+                    if ((autoload_dir = M_GetAutoloadDir(M_BaseName(myargv[prm]))))
+                    {
+                        DEH_AutoLoadPatches(autoload_dir);
+                        free(autoload_dir);
+                    }
+                }
+            }
+        }
+    }
+
     //!
     // @category demo
     //
@@ -1183,7 +1285,8 @@ void D_DoomMain(void)
     // after either level exit or player respawn.
     //
 
-    demoextend = M_ParmExists("-demoextend");
+    demoextend = (!M_ParmExists("-nodemoextend"));
+    //[crispy] make demoextend the default
 
     if (W_CheckNumForName(DEH_String("E2M1")) == -1)
     {
@@ -1264,18 +1367,19 @@ void D_DoomMain(void)
     }
     wadprintf();                // print the added wadfiles
 
+    // [PN] Once status lines colleted from above, draw text startup.
+    drawTXTStartup();
+
     tprintf(DEH_String("MN_Init: Init menu system.\n"), 1);
     MN_Init();
 
     CT_Init();
 
     tprintf(DEH_String("R_Init: Init Heretic refresh daemon - ["), 1);
-    hprintf(DEH_String("Loading graphics"));
     R_Init();
     tprintf("]\n", 0);
 
     tprintf(DEH_String("P_Init: Init Playloop state.\n"), 1);
-    hprintf(DEH_String("Init game engine."));
     P_Init();
     IncThermo();
 
@@ -1290,7 +1394,6 @@ void D_DoomMain(void)
     S_Start();
 
     tprintf(DEH_String("D_CheckNetGame: Checking network game status.\n"), 1);
-    hprintf(DEH_String("Checking network game status."));
     D_CheckNetGame();
     IncThermo();
 

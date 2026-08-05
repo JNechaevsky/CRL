@@ -1261,9 +1261,11 @@ static void DrawCRLVideo (void)
     MN_DrTextACentered("MISCELLANEOUS", 90, cr[CR_YELLOW]);
 
     // Graphical startup
-    sprintf(str, graphical_startup ? "ON" : "OFF");
+    sprintf(str, graphical_startup == 1 ? "FAST" :
+                 graphical_startup == 2 ? "SLOW" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 100,
-               M_Item_Glow(8, graphical_startup ? GLOW_GREEN : GLOW_RED));
+               M_Item_Glow(8, graphical_startup == 1 ? GLOW_GREEN :
+                              graphical_startup == 2 ? GLOW_YELLOW : GLOW_RED));
 
     // Show ENDTEXT screen
     sprintf(str, show_endoom == 1 ? "ALWAYS" :
@@ -1335,7 +1337,7 @@ static void CRL_HOMDraw (int option)
 
 static void CRL_GfxStartup (int option)
 {
-    graphical_startup ^= 1;
+    graphical_startup = M_INT_Slider(graphical_startup, 0, 2, option, false);
 }
 
 static void CRL_EndText (int option)
