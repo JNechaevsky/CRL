@@ -610,45 +610,28 @@ void CRL_StatDrawer (void)
     // Powerup timers.
     if (crl_widget_powerups)
     {
-        if (CRL_counter_tome)
-        {
-            char tom[4];
+        // [PN] Parallel arrays for powerup data.
+        const char *const labels[5]  = { "TOM:", "RNG:", "SHD:", "WNG:", "TRC:" };
+        const int *const counters[5] = { &CRL_counter_tome, &CRL_counter_ring,
+                                         &CRL_counter_shadow, &CRL_counter_wings,
+                                         &CRL_counter_torch };
+        const int thresholds[5]  = { 40, 30, 60, 60, 120 };
+        const int y_positions[5] = { 46, 56, 66, 76, 86 };
 
-            MN_DrTextA("TOM:", SCREENWIDTH - 32 - MN_TextAWidth("TOM:"), 46, cr[CR_GRAY]);
-            M_snprintf(tom, 4, "%d", CRL_counter_tome);
-            MN_DrTextA(tom, 293, 46, CRL_PowerupColor(CRL_counter_tome, 40));
-        }
-        if (CRL_counter_ring)
+        for (int i = 0; i < 5; i++)
         {
-            char rng[4];
+            if (*counters[i] > 0) // [PN] Show only active powerups
+            {
+                char str[4];
+                const int current_y = y_positions[i];
 
-            MN_DrTextA("RNG:", SCREENWIDTH - 32 - MN_TextAWidth("RNG:"), 56, cr[CR_GRAY]);
-            M_snprintf(rng, 4, "%d", CRL_counter_ring);
-            MN_DrTextA(rng, 293, 56, CRL_PowerupColor(CRL_counter_ring, 30));
-        }
-        if (CRL_counter_shadow)
-        {
-            char shd[4];
+                // [PN] Draw label (TOM:, RNG:, etc.)
+                MN_DrTextA(labels[i], SCREENWIDTH - 32 - MN_TextAWidth(labels[i]), current_y, cr[CR_GRAY]);
 
-            MN_DrTextA("SHD:", SCREENWIDTH - 32 - MN_TextAWidth("SHD:"), 66, cr[CR_GRAY]);
-            M_snprintf(shd, 4, "%d", CRL_counter_shadow);
-            MN_DrTextA(shd, 293, 66, CRL_PowerupColor(CRL_counter_shadow, 60));
-        }
-        if (CRL_counter_wings)
-        {
-            char wng[4];
-
-            MN_DrTextA("WNG:", SCREENWIDTH - 32 - MN_TextAWidth("WNG:"), 76, cr[CR_GRAY]);
-            M_snprintf(wng, 4, "%d", CRL_counter_wings);
-            MN_DrTextA(wng, 293, 76, CRL_PowerupColor(CRL_counter_wings, 60));
-        }
-        if (CRL_counter_torch)
-        {
-            char trc[4];
-
-            MN_DrTextA("TRC:", SCREENWIDTH - 32 - MN_TextAWidth("TRC:"), 86, cr[CR_GRAY]);
-            M_snprintf(trc, 4, "%d", CRL_counter_torch);
-            MN_DrTextA(trc, 293, 86, CRL_PowerupColor(CRL_counter_torch, 120));
+                // [PN] Draw timer value
+                M_snprintf(str, 4, "%d", *counters[i]);
+                MN_DrTextA(str, 293, current_y, CRL_PowerupColor(*counters[i], thresholds[i]));
+            }
         }
     }
 }
