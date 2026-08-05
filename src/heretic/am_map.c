@@ -48,6 +48,10 @@ static int secretwallcolors;
 static int foundsecretwallcolors;
 static int sndpropwallcolors;
 
+// [crispy] Used for automap background tiling and scrolling
+#define MAPBGROUNDWIDTH  (SCREENWIDTH)
+#define MAPBGROUNDHEIGHT (SCREENHEIGHT - SBARHEIGHT)
+
 // [JN] FRACTOMAPBITS: overflow-safe coordinate system.
 // Written by Andrey Budko (entryway), adapted from prboom-plus/src/am_map.*
 #define MAPBITS 12
@@ -226,7 +230,6 @@ const char *LevelNames[] = {
 };
 
 boolean     automapactive = false;
-static int finit_height = SCREENHEIGHT - 42;
 
 int ravmap_cheating = 0;
 static int grid = 0;
@@ -315,8 +318,6 @@ static byte antialias_overlay[NUMALIAS][8] = {
 static byte (*antialias)[NUMALIAS][8]; // [crispy]
 
 static byte *maplump;           // pointer to the raw data for the automap background.
-static short mapystart = 0;     // y-value for the start of the map bitmap...used in the paralax stuff.
-static short mapxstart = 0;     //x-value for the bitmap.
 
 // [crispy] automap rotate mode ...
 // ... needs these early on
@@ -774,8 +775,8 @@ static void AM_clearMarks (void)
 static void AM_LevelInit (void)
 {
     f_x = f_y = 0;
-    f_w = SCREENWIDTH;
-    f_h = SCREENHEIGHT - 42;
+    f_w = MAPBGROUNDWIDTH;
+    f_h = MAPBGROUNDHEIGHT;
 
     // AM_clearMarks();
 
@@ -1320,70 +1321,38 @@ void AM_Ticker (void)
 }
 
 // -----------------------------------------------------------------------------
-// AM_clearFB
-// Clear automap frame buffer.
+// AM_drawBackground
+//  [PN] Unified background drawing: smoothly scrolls with map movement when
+//  automap_rotate is off, and freezes the offset when automap_rotate is on
+//  to avoid visual jump of background drawing.
 // -----------------------------------------------------------------------------
 
-static void AM_clearFB (void)
+static void AM_drawBackground (void)
 {
-    // [crispy] Disable map background scroll in rotate mode. The
-    // combination of the two effects is unappealing and slightly
-    // nauseating.
+    pixel_t *const restrict dest = I_VideoBuffer;
+    const byte *const restrict src = maplump;
+    static int bg_xoffs = 0;
+    static int bg_yoffs = 0;
+
+    // [PN] Update background offsets only when crl_automap_rotate is disabled
     if (!crl_automap_rotate)
     {
-        if (followplayer)
-        {
-            // [crispy] Disable map background scroll in rotate mode. The
-            // combination of the two effects is unappealing and slightly
-            // nauseating.
-            mapxstart += ((MTOF(plr->mo->x) - MTOF(plr->mo->oldx)) >> FRACTOMAPBITS) >> 1;
-            mapystart += ((MTOF(plr->mo->oldy) - MTOF(plr->mo->y)) >> FRACTOMAPBITS) >> 1;
-        }
-        else
-        {
-            // The released Heretic source does this here, but this causes a bug
-            // where the map background keeps moving when we reach the map
-            // boundaries. This is instead done in AM_changeWindowLoc.
-            /*
-            mapxstart += (MTOF(m_paninc.x) >> 1);
-            mapystart -= (MTOF(m_paninc.y) >> 1);
-
-            if (mapxstart >= finit_width)
-                mapxstart -= finit_width;
-            if (mapxstart < 0)
-                mapxstart += finit_width;
-            if (mapystart >= finit_height)
-                mapystart -= finit_height;
-            if (mapystart < 0)
-                mapystart += finit_height;
-            */
-
-            // [PN] Fixed: stop background scrolling when map window reaches boundaries
-            const int64_t cx = m_x + m_w / 2;
-            const int64_t cy = m_y + m_h / 2;
-
-            const boolean bx = (cx <= min_x && m_paninc.x < 0) || (cx >= max_x && m_paninc.x > 0);
-            const boolean by = (cy <= min_y && m_paninc.y < 0) || (cy >= max_y && m_paninc.y > 0);
-
-            if (!bx) mapxstart += (MTOF(m_paninc.x) >> 1);
-            if (!by) mapystart -= (MTOF(m_paninc.y) >> 1);
-        }
+        bg_xoffs = (MTOF(m_x) / 4) % MAPBGROUNDWIDTH;
+        bg_yoffs = (MTOF(m_y) / 8) % MAPBGROUNDHEIGHT;
+        if (bg_xoffs < 0) bg_xoffs += MAPBGROUNDWIDTH;
+        if (bg_yoffs < 0) bg_yoffs += MAPBGROUNDHEIGHT;
     }
 
-    // Wrap background position
-    while (mapxstart >= SCREENWIDTH) mapxstart -= SCREENWIDTH;
-    while (mapxstart < 0) mapxstart += SCREENWIDTH;
-    while (mapystart >= finit_height) mapystart -= finit_height;
-    while (mapystart < 0) mapystart += finit_height;
-
-    // Blit the automap background to the screen
-    int j = mapystart * SCREENWIDTH;
-    for (int i = 0; i < finit_height; i++)
+    for (int y = 0; y < MAPBGROUNDHEIGHT; y++)
     {
-        memcpy(I_VideoBuffer + i * SCREENWIDTH, maplump + j + mapxstart, SCREENWIDTH - mapxstart);
-        memcpy(I_VideoBuffer + i * SCREENWIDTH + SCREENWIDTH - mapxstart, maplump + j, mapxstart);
-        j += SCREENWIDTH;
-        if (j >= finit_height * SCREENWIDTH) j = 0;
+        const int ysrc = (y + bg_yoffs) % MAPBGROUNDHEIGHT;
+        const byte *const restrict row = src + ysrc * MAPBGROUNDWIDTH;
+
+        for (int x = 0; x < SCREENWIDTH; x++)
+        {
+            const int xsrc = (x + bg_xoffs) % MAPBGROUNDWIDTH;
+            dest[y * SCREENWIDTH + x] = row[xsrc];
+        }
     }
 }
 
@@ -1685,8 +1654,8 @@ static void PUTDOT(short xx, short yy, byte * cc, byte * cm)
 //      {
     if (yy < 32)
         cc += 7 - (yy >> 2);
-    else if (yy > (finit_height - 32))
-        cc += 7 - ((finit_height - yy) >> 2);
+    else if (yy > (MAPBGROUNDHEIGHT - 32))
+        cc += 7 - ((MAPBGROUNDHEIGHT - yy) >> 2);
 //      }
     if (cc > cm && cm != NULL)
     {
@@ -2499,9 +2468,9 @@ static void AM_drawkeys (void)
 
 static void AM_drawCrosshair (void)
 {
-    // [JN] Simplify: (f_w*(f_h+1))/2) = (320 * (200 - 32 + 1) / 2) = 27040.
+    // [JN] Simplify: (f_w*(f_h+1))/2) = (320 * (200 - 42 + 1) / 2) = 25440.
     // Color is always same, so macro can be used here safely.
-    I_VideoBuffer[27040] = XHAIRCOLORS; // single point for now
+    I_VideoBuffer[25440] = WHITE; // single point for now
 }
 
 /*
@@ -2612,7 +2581,7 @@ void AM_Drawer (void)
 
 	if (automapactive == 1 && !crl_automap_overlay)
     {
-		AM_clearFB();
+		AM_drawBackground();
     }
 
     if (crl_automap_shading && crl_automap_overlay)
