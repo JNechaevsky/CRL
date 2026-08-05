@@ -254,8 +254,12 @@ static void R_GenerateLookup(int texnum)
     {
         if (!patchcount[x])
         {
-            printf("R_GenerateLookup: column without a patch (%s)\n",
-                   texture->name);
+            char badtexture[16];
+
+            // [crispy] fix absurd texture name in error message
+            // [JN] CRL - clarify that we are handing texture here.
+            sprintf (badtexture, "\"%.8s\"", texture->name);
+            CRL_printf(M_StringJoin("\nR_GenerateLookup: missing a patch in the texture ", badtexture, NULL), false);
             return;
         }
 //                      I_Error ("R_GenerateLookup: column without a patch");
