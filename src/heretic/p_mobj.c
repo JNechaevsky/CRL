@@ -563,6 +563,8 @@ static void P_ZMovement(mobj_t * mo)
                 if (mo->health > 0)
                 S_StartSound(mo, sfx_plroof);
                 // haleyjd: removed externdriver crap
+                // [JN] Compatibility-breaking: landing doesn't center view while mouse look.
+                if (!singleplayer || !crl_mouselook)
                 mo->player->centering = true;
             }
             mo->momz = 0;
