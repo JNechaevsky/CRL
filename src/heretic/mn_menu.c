@@ -93,7 +93,8 @@ typedef enum
     MENU_CRLWIDGETS,
     MENU_CRLAUTOMAP,
     MENU_CRLGAMEPLAY,
-    MENU_MISC,
+    MENU_MISC_1,
+    MENU_MISC_2,
     MENU_CRLLIMITS,
     MENU_NONE
 } MenuType_t;
@@ -591,12 +592,22 @@ static void CRL_TimerDirection (int option);
 static void CRL_ProgressBar (int option);
 static void CRL_InternalDemos (int option);
 
-static void DrawCRLMisc (void);
+static void DrawCRLMisc_1 (void);
 static void CRL_Invul (int option);
 static void CRL_PalFlash (int option);
 static void CRL_MoveBob (int option);
 static void CRL_WeaponBob (int option);
 static void CRL_Colorblind (int option);
+static void CRL_AutoloadWAD (int option);
+static void CRL_AutoloadDEH (int option);
+static void CRL_Hightlight (int option);
+static void CRL_MenuEscKey (int option);
+static void CRL_ConfirmQuit (int option);
+static void CRL_MenuCapFps (int option);
+
+static void DrawCRLMisc_2 (void);
+
+static void M_ScrollMisc (int option);
 
 static void DrawCRLLimits (void);
 static void CRL_SaveSizeWarning (int option);
@@ -646,6 +657,14 @@ static int Keybinds_Cur;
 static void CRL_Choose_Keybinds (int choice)
 {
     SetMenu(Keybinds_Cur);
+}
+
+// Remember last misc settings page.
+static int Misc_Cur;
+
+static void M_Choose_CRL_Misc (int choice)
+{
+    SetMenu(Misc_Cur);
 }
 
 // [JN/PN] Utility function for scrolling pages by arrows / PG keys.
@@ -719,20 +738,40 @@ static void M_FillBackground (void)
 
 static byte *M_Small_Line_Glow (const int tics)
 {
-    return
-        tics == 5 ? cr[CR_MENU_BRIGHT2] :
-        tics == 4 ? cr[CR_MENU_BRIGHT1] :
-        tics == 3 ? NULL :
-        tics == 2 ? cr[CR_MENU_DARK1]   :
-                    cr[CR_MENU_DARK2]   ;
+    switch (crl_menu_highlight)
+    {
+        case 1:
+            return
+            tics == 5 ? cr[CR_MENU_BRIGHT2] : cr[CR_MENU_DARK2];
+
+        case 2:
+            return
+            tics == 5 ? cr[CR_MENU_BRIGHT2] :
+            tics == 4 ? cr[CR_MENU_BRIGHT1] :
+            tics == 3 ? NULL                :
+            tics == 2 ? cr[CR_MENU_DARK1]   :
+            tics == 1 ? cr[CR_MENU_DARK2]   : cr[CR_MENU_DARK2];
+    }
+
+    return cr[CR_MENU_DARK2];
 }
 
 static byte *M_Big_Line_Glow (const int tics)
 {
-    return
-        tics == 5 ? cr[CR_MENU_BRIGHT3] :
-        tics >= 3 ? cr[CR_MENU_BRIGHT2] :
-        tics >= 1 ? cr[CR_MENU_BRIGHT1] : NULL;
+    switch (crl_menu_highlight)
+    {
+        case 1: 
+            return
+            tics == 5 ? cr[CR_MENU_BRIGHT3] : NULL;
+
+        case 2:
+            return
+            tics == 5 ? cr[CR_MENU_BRIGHT3] :
+            tics >= 3 ? cr[CR_MENU_BRIGHT2] :
+            tics >= 1 ? cr[CR_MENU_BRIGHT1] : NULL;
+    }
+
+    return NULL;
 }
 
 static void M_Reset_Line_Glow (void)
@@ -767,6 +806,21 @@ static void M_Reset_Line_Glow (void)
 
 static byte *M_Item_Glow (const int CurrentItPosOn, const int color)
 {
+    if (!crl_menu_highlight)
+    {
+        return
+            color == GLOW_RED       ? cr[CR_RED] :
+            color == GLOW_DARKRED   ? cr[CR_DARKRED] :
+            color == GLOW_GREEN     ? cr[CR_GREEN] :
+            color == GLOW_YELLOW    ? cr[CR_YELLOW] :
+            color == GLOW_ORANGE    ? cr[CR_ORANGE] :
+            color == GLOW_LIGHTGRAY ? cr[CR_LIGHTGRAY] :
+            color == GLOW_BLUE      ? cr[CR_BLUE2] :
+            color == GLOW_OLIVE     ? cr[CR_OLIVE] :
+            color == GLOW_DARKGREEN ? cr[CR_DARKGREEN] :
+                                      NULL; // color == GLOW_UNCOLORED
+    }
+
     if (CurrentItPos == CurrentItPosOn)
     {
         return
@@ -889,6 +943,9 @@ static byte *M_Item_Glow (const int CurrentItPosOn, const int color)
 
 static byte *M_Cursor_Glow (const int tics)
 {
+    if (!crl_menu_highlight)
+    return MenuTime & 16 ? NULL : cr[CR_MENU_DARK4];
+
     return
         tics ==  8 || tics ==  7 ? cr[CR_MENU_BRIGHT4] :
         tics ==  6 || tics ==  5 ? cr[CR_MENU_BRIGHT3] :
@@ -967,6 +1024,19 @@ static float M_FLOAT_Slider (float val, float min, float max, float step,
     return val;
 }
 
+static void M_DrawScrollPages (int x, int y, int itemOnGlow, const char *pagenum)
+{
+    char str[32];
+
+    MN_DrTextA("SCROLL PAGES", x, y,
+               M_Item_Glow(14, GLOW_LIGHTGRAY));
+
+    M_snprintf(str, 32, "PAGE %s", pagenum);
+
+    MN_DrTextA(str, M_ItemRightAlign(str), y,
+               M_Item_Glow(14, GLOW_LIGHTGRAY));
+}
+
 static int DefSkillColor (const int skill)
 {
     return
@@ -992,23 +1062,23 @@ static char *const DefSkillName[5] =
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLMainItems[] = {
-    {ITT_LRFUNC1, "SPECTATOR MODE",       CRL_Spectating, 0, MENU_NONE},
-    {ITT_LRFUNC1, "FREEZE MODE",          CRL_Freeze,     0, MENU_NONE},
-    {ITT_LRFUNC1, "BUDDHA MODE",          CRL_Buddha,     0, MENU_NONE},
-    {ITT_LRFUNC1, "NO TARGET MODE",       CRL_NoTarget,   0, MENU_NONE},
-    {ITT_LRFUNC1, "NO MOMENTUM MODE",     CRL_NoMomentum, 0, MENU_NONE},
-    {ITT_LRFUNC1, "GAME SPEED",           CRL_GameSpeed,  0, MENU_NONE},
-    {ITT_EMPTY,   NULL,                   NULL,           0, MENU_NONE},
-    {ITT_SETMENU, "VIDEO OPTIONS",        NULL,           0, MENU_CRLVIDEO},
-    {ITT_SETMENU, "DISPLAY OPTIONS",      NULL,           0, MENU_CRLDISPLAY},
-    {ITT_SETMENU, "SOUND OPTIONS",        NULL,           0, MENU_CRLSOUND},
-    {ITT_SETMENU, "CONTROL SETTINGS",     NULL,           0, MENU_CRLCONTROLS},
-    {ITT_SETMENU, "WIDGETS SETTINGS",     NULL,           0, MENU_CRLWIDGETS},
-    {ITT_SETMENU, "AUTOMAP SETTINGS",     NULL,           0, MENU_CRLAUTOMAP},
-    {ITT_SETMENU, "GAMEPLAY FEATURES",    NULL,           0, MENU_CRLGAMEPLAY},
-    {ITT_SETMENU, "MISC FEATURES",        NULL,           0, MENU_MISC},
-    {ITT_SETMENU, "LIMITS AND WARNINGS",  NULL,           0, MENU_CRLLIMITS},
-    {ITT_SETMENU, "VANILLA OPTIONS MENU", NULL,           0, MENU_OPTIONS}
+    {ITT_LRFUNC1, "SPECTATOR MODE",       CRL_Spectating,    0, MENU_NONE},
+    {ITT_LRFUNC1, "FREEZE MODE",          CRL_Freeze,        0, MENU_NONE},
+    {ITT_LRFUNC1, "BUDDHA MODE",          CRL_Buddha,        0, MENU_NONE},
+    {ITT_LRFUNC1, "NO TARGET MODE",       CRL_NoTarget,      0, MENU_NONE},
+    {ITT_LRFUNC1, "NO MOMENTUM MODE",     CRL_NoMomentum,    0, MENU_NONE},
+    {ITT_LRFUNC1, "GAME SPEED",           CRL_GameSpeed,     0, MENU_NONE},
+    {ITT_EMPTY,   NULL,                   NULL,              0, MENU_NONE},
+    {ITT_SETMENU, "VIDEO OPTIONS",        NULL,              0, MENU_CRLVIDEO},
+    {ITT_SETMENU, "DISPLAY OPTIONS",      NULL,              0, MENU_CRLDISPLAY},
+    {ITT_SETMENU, "SOUND OPTIONS",        NULL,              0, MENU_CRLSOUND},
+    {ITT_SETMENU, "CONTROL SETTINGS",     NULL,              0, MENU_CRLCONTROLS},
+    {ITT_SETMENU, "WIDGETS SETTINGS",     NULL,              0, MENU_CRLWIDGETS},
+    {ITT_SETMENU, "AUTOMAP SETTINGS",     NULL,              0, MENU_CRLAUTOMAP},
+    {ITT_SETMENU, "GAMEPLAY FEATURES",    NULL,              0, MENU_CRLGAMEPLAY},
+    {ITT_SETMENU, "MISC FEATURES",        M_Choose_CRL_Misc, 0, MENU_MISC_1},
+    {ITT_SETMENU, "LIMITS AND WARNINGS",  NULL,              0, MENU_CRLLIMITS},
+    {ITT_SETMENU, "VANILLA OPTIONS MENU", NULL,              0, MENU_OPTIONS}
 };
 
 static Menu_t CRLMain = {
@@ -3150,30 +3220,37 @@ static void CRL_InternalDemos (int option)
 }
 
 // -----------------------------------------------------------------------------
-// Misc features
+// Misc features 1
 // -----------------------------------------------------------------------------
 
-static MenuItem_t CRLMiscItems[] = {
-    { ITT_LRFUNC1, "INVULNERABILITY EFFECT", CRL_Invul,      0, MENU_NONE },
-    { ITT_LRFUNC2, "PALETTE FLASH EFFECTS",  CRL_PalFlash,   0, MENU_NONE },
-    { ITT_LRFUNC1, "MOVEMENT BOBBING",       CRL_MoveBob,    0, MENU_NONE },
-    { ITT_LRFUNC1, "WEAPON BOBBING",         CRL_WeaponBob,  0, MENU_NONE },
-    { ITT_LRFUNC2, "COLORBLIND",             CRL_Colorblind, 0, MENU_NONE },
-    
-    {ITT_EMPTY,  NULL,                      NULL,               0, MENU_NONE},
-
+static MenuItem_t CRLMiscItems_1[] = {
+    { ITT_LRFUNC1, "INVULNERABILITY EFFECT",    CRL_Invul,       0, MENU_NONE },
+    { ITT_LRFUNC2, "PALETTE FLASH EFFECTS",     CRL_PalFlash,    0, MENU_NONE },
+    { ITT_LRFUNC1, "MOVEMENT BOBBING",          CRL_MoveBob,     0, MENU_NONE },
+    { ITT_LRFUNC1, "WEAPON BOBBING",            CRL_WeaponBob,   0, MENU_NONE },
+    { ITT_LRFUNC2, "COLORBLIND",                CRL_Colorblind,  0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                        NULL,            0, MENU_NONE },
+    { ITT_LRFUNC2, "AUTOLOAD WAD FILES",        CRL_AutoloadWAD, 0, MENU_NONE },
+    { ITT_LRFUNC2, "AUTOLOAD DEH FILES",        CRL_AutoloadDEH, 0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                        NULL,            0, MENU_NONE },
+    { ITT_LRFUNC2, "HIGHLIGHTING EFFECT",       CRL_Hightlight,  0, MENU_NONE },
+    { ITT_LRFUNC1, "ESC KEY BEHAVIOUR",         CRL_MenuEscKey,  0, MENU_NONE },
+    { ITT_LRFUNC1, "QUIT CONFIRMATION",         CRL_ConfirmQuit, 0, MENU_NONE },
+    { ITT_LRFUNC1, "CAP FRAMERATE IN THE MENU", CRL_MenuCapFps,  0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                        NULL,            0, MENU_NONE },
+    { ITT_LRFUNC2, "", /* < SCROLL PAGES >*/    M_ScrollMisc,    0, MENU_NONE },
 };
 
-static Menu_t CRLMisc = {
+static Menu_t CRLMisc_1 = {
     CRL_MENU_LEFTOFFSET_BIG, CRL_MENU_TOPOFFSET,
-    DrawCRLMisc,
-    ITEMCOUNT(CRLMiscItems), CRLMiscItems,
+    DrawCRLMisc_1,
+    ITEMCOUNT(CRLMiscItems_1), CRLMiscItems_1,
     0,
     SmallFont, false, false,
     MENU_CRLMAIN
 };
 
-static void DrawCRLMisc (void)
+static void DrawCRLMisc_1 (void)
 {
     char str[32];
     const char *bobpercent[] = {
@@ -3184,6 +3261,7 @@ static void DrawCRLMisc (void)
         "NONE","PROTANOPIA","PROTANOMALY","DEUTERANOPIA","DEUTERANOMALY",
         "TRITANOPIA","TRITANOMALY","ACHROMATOPSIA","ACHROMATOMALY"
     };
+    Misc_Cur = (MenuType_t)MENU_MISC_1;
 
     MN_DrTextACentered("ACCESSIBILITY", 10, cr[CR_YELLOW]);
 
@@ -3218,6 +3296,46 @@ static void DrawCRLMisc (void)
     MN_DrTextA(str, M_ItemRightAlign(str), 60,
                M_Item_Glow(4, crl_colorblind ? GLOW_GREEN : GLOW_DARKRED));
 
+    MN_DrTextACentered("AUTOLOAD", 70, cr[CR_YELLOW]);
+
+    // Autoload WAD files
+    sprintf(str, crl_autoload_wad == 1 ? "IWAD ONLY" :
+                 crl_autoload_wad == 2 ? "IWAD AND PWAD" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 80,
+               M_Item_Glow(6, crl_autoload_wad == 1 ? GLOW_YELLOW :
+                              crl_autoload_wad == 2 ? GLOW_GREEN : GLOW_DARKRED));
+
+    // Autoload DEH files
+    sprintf(str, crl_autoload_deh == 1 ? "IWAD ONLY" :
+                 crl_autoload_deh == 2 ? "IWAD AND PWAD" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 90,
+               M_Item_Glow(7, crl_autoload_deh == 1 ? GLOW_YELLOW :
+                              crl_autoload_deh == 2 ? GLOW_GREEN : GLOW_DARKRED));
+
+    MN_DrTextACentered("MENU SETTINGS", 100, cr[CR_YELLOW]);
+
+    // Highlighting effect
+    sprintf(str, crl_menu_highlight == 1 ? "STATIC" :
+                 crl_menu_highlight == 2 ? "ANIMATED" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 110,
+               M_Item_Glow(9, crl_menu_highlight == 1 ? GLOW_YELLOW :
+                              crl_menu_highlight == 2 ? GLOW_GREEN : GLOW_DARKRED));
+
+    // ESC key behaviour
+    sprintf(str, crl_menu_esc_key ? "GO BACK" : "CLOSE MENU" );
+    MN_DrTextA(str, M_ItemRightAlign(str), 120,
+               M_Item_Glow(10, crl_menu_esc_key ? GLOW_GREEN : GLOW_DARKRED));
+
+    // Quit confirmation
+    sprintf(str, crl_confirm_quit ? "ON" : "OFF" );
+    MN_DrTextA(str, M_ItemRightAlign(str), 130,
+               M_Item_Glow(11, crl_confirm_quit ? GLOW_DARKRED : GLOW_GREEN));
+
+    // Cap framerate in the menu
+    sprintf(str, crl_menu_cap_fps ? "ON" : "OFF" );
+    MN_DrTextA(str, M_ItemRightAlign(str), 140,
+               M_Item_Glow(12, crl_menu_cap_fps ? GLOW_GREEN : GLOW_DARKRED));
+
     // [PN] Added explanations for colorblind filters
     if (CurrentItPos == 4 && crl_colorblind)
     {
@@ -3226,7 +3344,38 @@ static void DrawCRLMisc (void)
             "BLUE-BLIND","BLUE-WEAK","MONOCHROMACY","BLUE CONE MONOCHROMACY"
         };
 
-        MN_DrTextACentered(colorblind_hint[crl_colorblind], 140, cr[CR_WHITE]);
+        MN_DrTextACentered(colorblind_hint[crl_colorblind], 151, cr[CR_WHITE]);
+    }
+    // [PN] Added explanations for autoload variables
+    if (CurrentItPos == 6 || CurrentItPos == 7)
+    {
+        const char *off = "AUTOLOAD IS DISABLED";
+        const char *first_line = "AUTOLOAD AND FOLDER CREATION";
+        const char *second_line1 = "ONLY ALLOWED FOR IWAD FILES";
+        const char *second_line2 = "ALLOWED FOR BOTH IWAD AND PWAD FILES";
+        const int   autoload_option = (CurrentItPos == 6) ? crl_autoload_wad : crl_autoload_deh;
+
+        switch (autoload_option)
+        {
+            case 1:
+                MN_DrTextACentered(first_line, 160, cr[CR_GRAY]);
+                MN_DrTextACentered(second_line1, 170, cr[CR_GRAY]);
+                break;
+
+            case 2:
+                MN_DrTextACentered(first_line, 160, cr[CR_GRAY]);
+                MN_DrTextACentered(second_line2, 170, cr[CR_GRAY]);
+                break;
+
+            default:
+                MN_DrTextACentered(off, 160, cr[CR_GRAY]);
+                break;            
+        }
+    }
+    else
+    {
+        // < Scroll pages >
+        M_DrawScrollPages(CRL_MENU_LEFTOFFSET_BIG, 160, 14, "1/2");
     }
 }
 
@@ -3255,6 +3404,87 @@ static void CRL_Colorblind (int option)
 {
     crl_colorblind = M_INT_Slider(crl_colorblind, 0, 8, option, false);
     CRL_ReloadPalette();
+}
+
+static void CRL_AutoloadWAD (int option)
+{
+    crl_autoload_wad = M_INT_Slider(crl_autoload_wad, 0, 2, option, false);
+}
+
+static void CRL_AutoloadDEH (int option)
+{
+    crl_autoload_deh = M_INT_Slider(crl_autoload_deh, 0, 2, option, false);
+}
+
+static void CRL_Hightlight (int option)
+{
+    crl_menu_highlight = M_INT_Slider(crl_menu_highlight, 0, 2, option, false);
+}
+
+static void CRL_MenuEscKey (int option)
+{
+    crl_menu_esc_key ^= 1;
+}
+
+static void CRL_ConfirmQuit (int option)
+{
+    crl_confirm_quit ^= 1;
+}
+
+static void CRL_MenuCapFps (int choice)
+{
+    crl_menu_cap_fps ^= 1;
+}
+
+// -----------------------------------------------------------------------------
+// Misc features 2
+// -----------------------------------------------------------------------------
+
+static MenuItem_t CRLMiscItems_2[] = {
+    { ITT_LRFUNC1, "ENABLE REWIND",             CRL_Invul,       0, MENU_NONE },
+    { ITT_LRFUNC2, "REWIND INTERWAL (S)",       CRL_PalFlash,    0, MENU_NONE },
+    { ITT_LRFUNC1, "REWIND DEPTH (KEY FRAMES)", CRL_MoveBob,     0, MENU_NONE },
+    { ITT_LRFUNC1, "REWIND TIMEOUT (MS)",       CRL_WeaponBob,   0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                        NULL,            0, MENU_NONE },
+    { ITT_LRFUNC2, "SCREENSHOT FORMAT",         CRL_AutoloadWAD, 0, MENU_NONE },
+    { ITT_LRFUNC2, "", /* Dynamic string */     CRL_AutoloadWAD, 0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                        NULL,            0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                        NULL,            0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                        NULL,            0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                        NULL,            0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                        NULL,            0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                        NULL,            0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                        NULL,            0, MENU_NONE },
+    { ITT_LRFUNC2, "", /* < SCROLL PAGES >*/    M_ScrollMisc,    0, MENU_NONE },
+};
+
+static Menu_t CRLMisc_2 = {
+    CRL_MENU_LEFTOFFSET_BIG, CRL_MENU_TOPOFFSET,
+    DrawCRLMisc_2,
+    ITEMCOUNT(CRLMiscItems_2), CRLMiscItems_2,
+    0,
+    SmallFont, false, false,
+    MENU_CRLMAIN
+};
+
+static void DrawCRLMisc_2 (void)
+{
+    Misc_Cur = (MenuType_t)MENU_MISC_2;
+
+    MN_DrTextACentered("REWIND", 10, cr[CR_YELLOW]);
+
+    MN_DrTextACentered("SCREENSHOTS", 60, cr[CR_YELLOW]);
+
+    // < Scroll pages >
+    M_DrawScrollPages(CRL_MENU_LEFTOFFSET_BIG, 160, 14, "2/2");
+}
+
+static void M_ScrollMisc (int choice)
+{
+         if (CurrentMenu == &CRLMisc_1) { SetMenu(MENU_MISC_2); }
+    else if (CurrentMenu == &CRLMisc_2) { SetMenu(MENU_MISC_1); }
+
+    CurrentItPos = 14;
 }
 
 // -----------------------------------------------------------------------------
@@ -3359,7 +3589,8 @@ static Menu_t *Menus[] = {
     &CRLWidgetsMenu,
     &CRLAutomap,
     &CRLGameplay,
-    &CRLMisc,
+    &CRLMisc_1,
+    &CRLMisc_2,
     &CRLLimits,
 };
 
@@ -3393,6 +3624,7 @@ void MN_Init(void)
 
     // [JN] Apply default first page of Keybinds menu.
     Keybinds_Cur = (MenuType_t)MENU_CRLKBDBINDS1;
+    Misc_Cur = (MenuType_t)MENU_MISC_1;
 
     // [JN] Initialize cursor position with hidden, will be set on menu opening.
     CurrentItPos = -1;
@@ -3670,33 +3902,31 @@ void MN_Ticker(void)
     // [JN] Call the menu control routine for mouse input.
     M_ID_MenuMouseControl();
 
-    // [JN] Menu glowing animation:
-
-    if (!cursor_direction && ++cursor_tics == 8)
+    // [JN] Cursor glowing animation:
+    cursor_tics += cursor_direction ? -1 : 1;
+    if (cursor_tics == 8 || cursor_tics == -8)
     {
-        // Brightening
-        cursor_direction = true;
-    }
-    else
-    if (cursor_direction && --cursor_tics == -8)
-    {
-        // Darkening
-        cursor_direction = false;
+        cursor_direction = !cursor_direction;
     }
 
     // [JN] Menu item fading effect:
-
+    // Keep menu item bright or decrease tics for fading effect.
     for (int i = 0 ; i < CurrentMenu->itemCount ; i++)
     {
-        if (CurrentItPos == i)
+        if (crl_menu_highlight == 1)
         {
-            // Keep menu item bright
-            CurrentMenu->items[i].tics = 5;
+            CurrentMenu->items[i].tics =
+                (CurrentItPos == i) ? 5 : 0;
+        }
+        else
+        if (crl_menu_highlight == 2)
+        {
+            CurrentMenu->items[i].tics = (CurrentItPos == i) ? 5 :
+                (CurrentMenu->items[i].tics > 0 ? CurrentMenu->items[i].tics - 1 : 0);
         }
         else
         {
-            // Decrease tics for glowing effect
-            CurrentMenu->items[i].tics--;
+            CurrentMenu->items[i].tics = 0;
         }
     }
 }
@@ -4136,13 +4366,13 @@ static void DrawFileSlots(Menu_t * menu)
     for (i = 0; i < SAVES_PER_PAGE; i++)
     {
         // [JN] Highlight selected item (CurrentItPos == i) or apply fading effect.
-        dp_translation = CurrentItPos == i ? cr[CR_MENU_BRIGHT2] : NULL;
+        dp_translation = (crl_menu_highlight && CurrentItPos == i) ? cr[CR_MENU_BRIGHT2] : NULL;
         V_DrawShadowedPatchRavenOptional(x, y, W_CacheLumpName(DEH_String("M_FSLOT"), PU_CACHE), "M_FSLOT");
         dp_translation = NULL;
 
         if (SlotStatus[i])
         {
-            MN_DrTextA(SlotText[i], x + 5, y + 5, CurrentItPos == i ?
+            MN_DrTextA(SlotText[i], x + 5, y + 5, crl_menu_highlight && CurrentItPos == i ?
                        cr[CR_MENU_BRIGHT2] : M_Small_Line_Glow(CurrentMenu->items[i].tics));
         }
         y += ITEM_HEIGHT;
@@ -4743,6 +4973,16 @@ boolean MN_Responder(event_t * event)
         }
 
         return false;
+    }
+
+    // [JN] CRL - optionally don’t ask for quit confirmation.
+    if (!crl_confirm_quit)
+    {
+        if (event->type == ev_quit || (event->type == ev_keydown && event->data1 == key_menu_quit))
+        {
+            I_Quit();
+            return true;
+        }
     }
 
     // "close" button pressed on window?
@@ -5355,11 +5595,29 @@ boolean MN_Responder(event_t * event)
         }
         else if (key == key_menu_activate)     // Toggle menu
         {
+            // [JN] If ESC key behaviour is set to "go back":
+            if (crl_menu_esc_key)
+            {
+                if (CurrentMenu == &MainMenu || CurrentMenu == &Options2Menu
+                ||  CurrentMenu == &LoadMenu || CurrentMenu == &SaveMenu)
+                {
+                    goto id_close_menu;  // [JN] Close menu imideatelly.
+                }
+                else
+                {
+                    goto id_prev_menu;   // [JN] Go to previous menu.
+                }
+            }
+            else
+            {
+            id_close_menu:
             MN_DeactivateMenu();
+            }
             return (true);
         }
         else if (key == key_menu_back)         // Go back to previous menu
         {
+            id_prev_menu:
             if (CurrentMenu->prevMenu == MENU_NONE)
             {
                 MN_DeactivateMenu();
