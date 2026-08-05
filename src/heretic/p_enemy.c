@@ -71,7 +71,10 @@ void P_AddBossSpot(fixed_t x, fixed_t y, angle_t angle)
 {
     if (BossSpotCount == MAX_BOSS_SPOTS)
     {
-        I_Error("Too many boss spots.");
+        // [JN] CRL - clarify about vanilla limits.
+        I_Error("Too many boss spots.\n\n"
+                "Vanilla Heretic supports a maximum of 8 D'Sparil spawn spots.\n"
+                "To fix this error, reduce the number of D'Sparils (thing type 56) on the map.");
     }
     BossSpots[BossSpotCount].x = x;
     BossSpots[BossSpotCount].y = y;
