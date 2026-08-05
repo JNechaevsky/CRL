@@ -296,7 +296,7 @@ fixed_t R_PointToDist(fixed_t x, fixed_t y)
 fixed_t R_ScaleFromGlobalAngle(angle_t visangle)
 {
     fixed_t scale;
-    int anglea, angleb;
+    angle_t anglea, angleb;
     int sinea, sineb;
     fixed_t num, den;
 
