@@ -34,6 +34,7 @@
 #include "m_misc.h"
 #include "m_random.h"
 #include "p_local.h"
+#include "g_rewind.h"
 #include "r_local.h"
 #include "s_sound.h"
 #include "v_video.h"
@@ -57,7 +58,6 @@ void G_DoReborn(int playernum);
 
 void G_DoLoadLevel(void);
 void G_DoNewGame(void);
-void G_DoPlayDemo(void);
 void G_DoCompleted(void);
 void G_DoVictory(void);
 void G_DoWorldDone(void);
@@ -1473,6 +1473,13 @@ boolean G_Responder(event_t * ev)
         return (false); 
     } 
 
+    if (ev->type == ev_keydown
+     && (ev->data1 == key_crl_rewind || ev->data1 == key_crl_rewind2))
+    {
+        G_Rewind();
+        return true;
+    }
+
     if (gamestate == GS_LEVEL)
     {
         if (CT_Responder(ev))
@@ -1828,6 +1835,9 @@ void G_Ticker(void)
             case ga_playdemo:
                 G_DoPlayDemo();
                 break;
+            case ga_rewind:
+                G_LoadAutoKeyframe();
+                break;
             case ga_screenshot:
                 V_ScreenShot("HTIC%02i.%s");
                 gameaction = ga_nothing;
@@ -1954,6 +1964,7 @@ void G_Ticker(void)
             P_Ticker();
             SB_Ticker();
             AM_Ticker();
+            G_SaveAutoKeyframe();
             // [JN] Not really needed in single player game.
             if (netgame)
             {
@@ -2340,6 +2351,7 @@ void G_WorldDone(void)
 void G_DoWorldDone(void)
 {
     gamestate = GS_LEVEL;
+    G_ResetRewind(false);
     G_DoLoadLevel();
     gameaction = ga_nothing;
 }
@@ -2488,6 +2500,7 @@ void G_DeferedInitNew(skill_t skill, int episode, int map)
 
 void G_DoNewGame(void)
 {
+    G_ResetRewind(true);
     G_InitNew(d_skill, d_episode, d_map);
     gameaction = ga_nothing;
 }
@@ -2549,6 +2562,10 @@ void G_InitNew(skill_t skill, int episode, int map)
     gameepisode = episode;
     gamemap = map;
     gameskill = skill;
+
+    // [PN] Savegame and rewind restores also pass through G_InitNew().
+    // Keep their keyframes unless the caller explicitly starts a new timeline.
+    G_ResetRewind(false);
 
     defdemotics = 0;
 
@@ -2724,11 +2741,13 @@ void G_RecordDemo(skill_t skill, int numplayers, int episode, int map,
     //!
     // @category demo
     //
-    // Smooth out low resolution turning when recording a demo.
+    // Don't smooth out low resolution turning when recording a demo.
     //
 
-    shortticfix = M_ParmExists("-shortticfix");
+    shortticfix = (!M_ParmExists("-noshortticfix"));
+    //[crispy] make shortticfix the default
 
+    G_ResetRewind(true);
     G_InitNew(skill, episode, map);
     usergame = false;
     M_StringCopy(demoname, name, sizeof(demoname));
@@ -2884,6 +2903,8 @@ void G_DoPlayDemo(void)
     }
 
     precache = false;           // don't spend a lot of time in loadlevel
+    // [PN] Force to reset rewind key frames in demos.
+    G_ResetRewind(true);
     G_InitNew(skill, episode, map);
     precache = true;
     usergame = false;
@@ -2949,6 +2970,7 @@ void G_TimeDemo(char *name)
         netgame = true;
     }
 
+    G_ResetRewind(true);
     G_InitNew(skill, episode, map);
     starttime = I_GetTime();
 

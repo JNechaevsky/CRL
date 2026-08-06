@@ -16,6 +16,7 @@ add_library(heretic STATIC
                                 dstrings.h
             f_finale.c
             g_game.c
+            g_rewind.c          g_rewind.h
             info.c              info.h
             in_lude.c
             m_random.c          m_random.h

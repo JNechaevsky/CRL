@@ -38,6 +38,7 @@
 #include "s_sound.h"
 #include "v_trans.h"
 #include "v_video.h"
+#include "g_rewind.h"
 #include "am_map.h"
 
 #include "crlcore.h"
@@ -612,6 +613,10 @@ static void CRL_ConfirmQuit (int option);
 static void CRL_MenuCapFps (int option);
 
 static void DrawCRLMisc_2 (void);
+static void CRL_Misc_RewindEnable (int option);
+static void CRL_Misc_RewindInterwal (int option);
+static void CRL_Misc_RewindDepth (int option);
+static void CRL_Misc_RewindTimeout (int option);
 static void CRL_Misc_ShotFormat (int option);
 static void CRL_Misc_ShotSetup (int option);
 
@@ -3522,21 +3527,21 @@ static void CRL_MenuCapFps (int choice)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLMiscItems_2[] = {
-    { ITT_LRFUNC1, "ENABLE REWIND",             CRL_Invul,           0, MENU_NONE },
-    { ITT_LRFUNC2, "REWIND INTERWAL (S)",       CRL_PalFlash,        0, MENU_NONE },
-    { ITT_LRFUNC1, "REWIND DEPTH (KEY FRAMES)", CRL_MoveBob,         0, MENU_NONE },
-    { ITT_LRFUNC1, "REWIND TIMEOUT (MS)",       CRL_WeaponBob,       0, MENU_NONE },
-    { ITT_EMPTY,   NULL,                        NULL,                0, MENU_NONE },
-    { ITT_LRFUNC1, "SCREENSHOT FORMAT",         CRL_Misc_ShotFormat, 0, MENU_NONE },
-    { ITT_LRFUNC1, "", /* Dynamic string */     CRL_Misc_ShotSetup,  0, MENU_NONE },
-    { ITT_EMPTY,   NULL,                        NULL,                0, MENU_NONE },
-    { ITT_EMPTY,   NULL,                        NULL,                0, MENU_NONE },
-    { ITT_EMPTY,   NULL,                        NULL,                0, MENU_NONE },
-    { ITT_EMPTY,   NULL,                        NULL,                0, MENU_NONE },
-    { ITT_EMPTY,   NULL,                        NULL,                0, MENU_NONE },
-    { ITT_EMPTY,   NULL,                        NULL,                0, MENU_NONE },
-    { ITT_EMPTY,   NULL,                        NULL,                0, MENU_NONE },
-    { ITT_LRFUNC2, "", /* < SCROLL PAGES >*/    M_ScrollMisc,        0, MENU_NONE },
+    { ITT_LRFUNC1, "ENABLE REWIND",             CRL_Misc_RewindEnable,   0, MENU_NONE },
+    { ITT_LRFUNC2, "REWIND INTERWAL (S)",       CRL_Misc_RewindInterwal, 0, MENU_NONE },
+    { ITT_LRFUNC1, "REWIND DEPTH (KEY FRAMES)", CRL_Misc_RewindDepth,    0, MENU_NONE },
+    { ITT_LRFUNC1, "REWIND TIMEOUT (MS)",       CRL_Misc_RewindTimeout,  0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                        NULL,                    0, MENU_NONE },
+    { ITT_LRFUNC1, "SCREENSHOT FORMAT",         CRL_Misc_ShotFormat,     0, MENU_NONE },
+    { ITT_LRFUNC1, "", /* Dynamic string */     CRL_Misc_ShotSetup,      0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                        NULL,                    0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                        NULL,                    0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                        NULL,                    0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                        NULL,                    0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                        NULL,                    0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                        NULL,                    0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                        NULL,                    0, MENU_NONE },
+    { ITT_LRFUNC2, "", /* < SCROLL PAGES >*/    M_ScrollMisc,            0, MENU_NONE },
 };
 
 static Menu_t CRLMisc_2 = {
@@ -3555,6 +3560,29 @@ static void DrawCRLMisc_2 (void)
     Misc_Cur = (MenuType_t)MENU_MISC_2;
 
     MN_DrTextACentered("REWIND", 10, cr[CR_YELLOW]);
+
+    // Enable rewind
+    sprintf(str, crl_rewind_enable ? "ON" : "OFF" );
+    MN_DrTextA(str, M_ItemRightAlign(str), 20,
+               M_Item_Glow(0, crl_rewind_enable ? GLOW_GREEN : GLOW_DARKRED));
+
+    // Rewind interwal (s)
+    sprintf(str, "%d", crl_rewind_interval);
+    MN_DrTextA(str, M_ItemRightAlign(str), 30,
+               M_Item_Glow(1, !crl_rewind_enable ? GLOW_DARKRED :
+                               crl_rewind_interval == 600 ? GLOW_YELLOW : GLOW_GREEN));
+
+    // Rewind depth (key frames)
+    sprintf(str, "%d", crl_rewind_depth);
+    MN_DrTextA(str, M_ItemRightAlign(str), 40,
+               M_Item_Glow(2, !crl_rewind_enable ? GLOW_DARKRED :
+                               crl_rewind_depth == 600 ? GLOW_YELLOW : GLOW_GREEN));
+
+    // Rewind timeout (ms)
+    sprintf(str, crl_rewind_timeout == 0 ? "NO LIMIT" : "%d", crl_rewind_timeout);
+    MN_DrTextA(str, M_ItemRightAlign(str), 50,
+               M_Item_Glow(3, !crl_rewind_enable ? GLOW_DARKRED :
+                               crl_rewind_timeout == 25 ? GLOW_YELLOW : GLOW_GREEN));
 
     MN_DrTextACentered("SCREENSHOTS", 60, cr[CR_YELLOW]);
 
@@ -3597,24 +3625,50 @@ static void DrawCRLMisc_2 (void)
     M_DrawScrollPages(CRL_MENU_LEFTOFFSET_BIG, 160, 14, "2/2");
 }
 
-static void CRL_Misc_ShotFormat (int choice)
+static void CRL_Misc_RewindEnable (int option)
+{
+    crl_rewind_enable ^= 1;
+
+    // Clear key frames after disabling.
+    if (!crl_rewind_enable)
+    {
+        G_ResetRewind(true);
+    }
+}
+
+static void CRL_Misc_RewindInterwal (int option)
+{
+    crl_rewind_interval = M_INT_Slider(crl_rewind_interval, 1, 600, option, false);
+}
+
+static void CRL_Misc_RewindDepth (int option)
+{
+    crl_rewind_depth = M_INT_Slider(crl_rewind_depth, 10, 600, option, false);
+}
+
+static void CRL_Misc_RewindTimeout (int option)
+{
+    crl_rewind_timeout = M_INT_Slider(crl_rewind_timeout, 0, 25, option, false);
+}
+
+static void CRL_Misc_ShotFormat (int option)
 {
     screenshots_format = strcmp(screenshots_format, "png") ? "png" : "jpg";
 }
 
-static void CRL_Misc_ShotSetup (int choice)
+static void CRL_Misc_ShotSetup (int option)
 {
     if (!strcmp(screenshots_format, "png"))
     {
-        screenshots_png_compression = M_INT_Slider(screenshots_png_compression, 0, 10, choice, false);
+        screenshots_png_compression = M_INT_Slider(screenshots_png_compression, 0, 10, option, false);
     }
     else
     {
-        screenshots_jpg_quality = M_INT_Slider(screenshots_jpg_quality, 1, 100, choice, false);
+        screenshots_jpg_quality = M_INT_Slider(screenshots_jpg_quality, 1, 100, option, false);
     }
 }
 
-static void M_ScrollMisc (int choice)
+static void M_ScrollMisc (int option)
 {
          if (CurrentMenu == &CRLMisc_1) { SetMenu(MENU_MISC_2); }
     else if (CurrentMenu == &CRLMisc_2) { SetMenu(MENU_MISC_1); }

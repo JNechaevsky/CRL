@@ -23,6 +23,7 @@
 #include "doomdef.h"
 #include "i_swap.h"
 #include "i_system.h"
+#include "memio.h"
 #include "m_misc.h"
 #include "p_local.h"
 #include "v_video.h"
@@ -32,10 +33,79 @@
 
 
 static FILE *SaveGameFP;
+static MEMFILE *SaveGameMemFP;
+static size_t SaveGameMemHint;
+static byte *SaveGameMemBuf;
+static size_t SaveGameMemBufSize;
+static size_t SaveGameMemBufPos;
+static boolean SaveGameMemWriteActive;
+static const size_t SaveGameMemMinSize = 0x20000;
 
 int savepage; // [crispy]
 uint32_t P_ThinkerToIndex (const thinker_t *thinker);
 
+
+static boolean SV_MemoryMode(void)
+{
+    return SaveGameMemWriteActive || SaveGameMemFP != NULL;
+}
+
+static void SV_StopMemoryWrite(void)
+{
+    SaveGameMemBufPos = 0;
+    SaveGameMemWriteActive = false;
+}
+
+static boolean SV_EnsureMemoryWriteCapacity(size_t bytes)
+{
+    size_t needed;
+    size_t new_size;
+    byte *new_buf;
+
+    if (bytes == 0)
+    {
+        return true;
+    }
+
+    needed = SaveGameMemBufPos + bytes;
+
+    if (needed < SaveGameMemBufPos)
+    {
+        return false;
+    }
+
+    if (needed <= SaveGameMemBufSize)
+    {
+        return true;
+    }
+
+    new_size = SaveGameMemBufSize > 0 ? SaveGameMemBufSize : SaveGameMemMinSize;
+
+    while (new_size < needed)
+    {
+        size_t grown = new_size * 2;
+
+        if (grown <= new_size)
+        {
+            new_size = needed;
+            break;
+        }
+
+        new_size = grown;
+    }
+
+    new_buf = realloc(SaveGameMemBuf, new_size);
+
+    if (new_buf == NULL)
+    {
+        return false;
+    }
+
+    SaveGameMemBuf = new_buf;
+    SaveGameMemBufSize = new_size;
+
+    return true;
+}
 
 //==========================================================================
 //
@@ -68,17 +138,87 @@ char *SV_Filename(int slot)
 
 void SV_Open(char *fileName)
 {
+    SV_StopMemoryWrite();
     SaveGameFP = M_fopen(fileName, "wb");
+    SaveGameMemFP = NULL;
 }
 
 void SV_OpenRead(char *filename)
 {
+    SV_StopMemoryWrite();
     SaveGameFP = M_fopen(filename, "rb");
+    SaveGameMemFP = NULL;
 
     if (SaveGameFP == NULL)
     {
         I_Error("Could not load savegame %s", filename);
     }
+}
+
+void SV_OpenMemoryWrite(void)
+{
+    size_t initial_size = SaveGameMemHint;
+    byte *new_buf = NULL;
+
+    SV_StopMemoryWrite();
+    SaveGameFP = NULL;
+    SaveGameMemFP = NULL;
+
+    if (initial_size < SaveGameMemMinSize)
+    {
+        initial_size = SaveGameMemMinSize;
+    }
+
+    if (SaveGameMemBufSize < initial_size)
+    {
+        new_buf = realloc(SaveGameMemBuf, initial_size);
+
+        if (new_buf != NULL)
+        {
+            SaveGameMemBuf = new_buf;
+            SaveGameMemBufSize = initial_size;
+        }
+    }
+
+    SaveGameMemBufPos = 0;
+    SaveGameMemWriteActive = true;
+}
+
+boolean SV_CloseMemoryWrite(byte **data, size_t *len)
+{
+    *data = NULL;
+    *len = 0;
+
+    if (!SaveGameMemWriteActive)
+    {
+        return false;
+    }
+
+    if (SaveGameMemBufPos > 0)
+    {
+        *data = malloc(SaveGameMemBufPos);
+
+        if (*data == NULL)
+        {
+            SV_StopMemoryWrite();
+            return false;
+        }
+
+        memcpy(*data, SaveGameMemBuf, SaveGameMemBufPos);
+        *len = SaveGameMemBufPos;
+        SaveGameMemHint = SaveGameMemBufPos + (SaveGameMemBufPos >> 2);
+    }
+
+    SV_StopMemoryWrite();
+
+    return *data != NULL;
+}
+
+void SV_OpenMemoryRead(byte *data, size_t len)
+{
+    SV_StopMemoryWrite();
+    SaveGameFP = NULL;
+    SaveGameMemFP = mem_fopen_read(data, len);
 }
 
 //==========================================================================
@@ -108,6 +248,14 @@ void SV_WriteSaveGameEOF(void)
 
 void SV_Close(void)
 {
+    SV_StopMemoryWrite();
+
+    if (SaveGameMemFP)
+    {
+        mem_fclose(SaveGameMemFP);
+        SaveGameMemFP = NULL;
+    }
+
     if (SaveGameFP)
     {
         fclose(SaveGameFP);
@@ -123,25 +271,102 @@ void SV_Close(void)
 
 void SV_Write(void *buffer, int size)
 {
-    fwrite(buffer, size, 1, SaveGameFP);
+    if (SaveGameMemWriteActive)
+    {
+        if (!SV_EnsureMemoryWriteCapacity(size))
+        {
+            I_Error("SV_Write: failed to grow memory stream");
+        }
+
+        memcpy(SaveGameMemBuf + SaveGameMemBufPos, buffer, size);
+        SaveGameMemBufPos += size;
+    }
+    else if (SaveGameMemFP != NULL)
+    {
+        mem_fwrite(buffer, size, 1, SaveGameMemFP);
+    }
+    else
+    {
+        fwrite(buffer, size, 1, SaveGameFP);
+    }
 }
 
 void SV_WriteByte(byte val)
 {
+    if (SaveGameMemWriteActive)
+    {
+        if (!SV_EnsureMemoryWriteCapacity(1))
+        {
+            I_Error("SV_WriteByte: failed to grow memory stream");
+        }
+
+        SaveGameMemBuf[SaveGameMemBufPos++] = val;
+        return;
+    }
+
     SV_Write(&val, sizeof(byte));
 }
 
 void SV_WriteWord(unsigned short val)
 {
     val = SHORT(val);
+
+    if (SaveGameMemWriteActive)
+    {
+        if (!SV_EnsureMemoryWriteCapacity(2))
+        {
+            I_Error("SV_WriteWord: failed to grow memory stream");
+        }
+
+        SaveGameMemBuf[SaveGameMemBufPos++] = val & 0xff;
+        SaveGameMemBuf[SaveGameMemBufPos++] = (val >> 8) & 0xff;
+        return;
+    }
+
     SV_Write(&val, sizeof(unsigned short));
 }
 
 void SV_WriteLong(unsigned int val)
 {
     val = LONG(val);
+
+    if (SaveGameMemWriteActive)
+    {
+        if (!SV_EnsureMemoryWriteCapacity(4))
+        {
+            I_Error("SV_WriteLong: failed to grow memory stream");
+        }
+
+        SaveGameMemBuf[SaveGameMemBufPos++] = val & 0xff;
+        SaveGameMemBuf[SaveGameMemBufPos++] = (val >> 8) & 0xff;
+        SaveGameMemBuf[SaveGameMemBufPos++] = (val >> 16) & 0xff;
+        SaveGameMemBuf[SaveGameMemBufPos++] = (val >> 24) & 0xff;
+        return;
+    }
+
     SV_Write(&val, sizeof(int));
 }
+
+/*
+void SV_WriteLongLong(int64_t val)
+{
+    val = (int64_t) (val);
+
+    if (SaveGameMemWriteActive)
+    {
+        if (!SV_EnsureMemoryWriteCapacity(sizeof(val)))
+        {
+            I_Error("SV_WriteLongLong: failed to grow memory stream");
+        }
+
+        memcpy(SaveGameMemBuf + SaveGameMemBufPos, &val, sizeof(val));
+        SaveGameMemBufPos += sizeof(val);
+        return;
+    }
+
+    SV_Write(&val, sizeof(int64_t));
+}
+*/
 
 static void SV_WritePtr(const void *ptr)
 {
@@ -158,12 +383,52 @@ static void SV_WritePtr(const void *ptr)
 
 void SV_Read(void *buffer, int size)
 {
-    int retval = fread(buffer, 1, size, SaveGameFP);
+    int retval;
+
+    if (SaveGameMemFP != NULL)
+    {
+        retval = mem_fread(buffer, 1, size, SaveGameMemFP);
+    }
+    else
+    {
+        retval = fread(buffer, 1, size, SaveGameFP);
+    }
+
     if (retval != size)
     {
         I_Error("Incomplete read in SV_Read: Expected %d, got %d bytes",
             size, retval);
     }
+}
+
+int SV_Seek(long position, int whence)
+{
+    if (SaveGameMemFP != NULL)
+    {
+        mem_rel_t mem_whence;
+
+        switch (whence)
+        {
+            case SEEK_SET:
+                mem_whence = MEM_SEEK_SET;
+                break;
+
+            case SEEK_CUR:
+                mem_whence = MEM_SEEK_CUR;
+                break;
+
+            case SEEK_END:
+                mem_whence = MEM_SEEK_END;
+                break;
+
+            default:
+                return -1;
+        }
+
+        return mem_fseek(SaveGameMemFP, position, mem_whence);
+    }
+
+    return fseek(SaveGameFP, position, whence);
 }
 
 byte SV_ReadByte(void)
@@ -1597,8 +1862,16 @@ void P_ArchiveWorld(void)
     // Sectors
     for (i = 0, sec = sectors; i < numsectors; i++, sec++)
     {
-        SV_WriteWord(sec->floorheight >> FRACBITS);
-        SV_WriteWord(sec->ceilingheight >> FRACBITS);
+        if (SV_MemoryMode())
+        {
+            SV_WriteLong(sec->floorheight);
+            SV_WriteLong(sec->ceilingheight);
+        }
+        else
+        {
+            SV_WriteWord(sec->floorheight >> FRACBITS);
+            SV_WriteWord(sec->ceilingheight >> FRACBITS);
+        }
         SV_WriteWord(sec->floorpic);
         SV_WriteWord(sec->ceilingpic);
         SV_WriteWord(sec->lightlevel);
@@ -1619,8 +1892,16 @@ void P_ArchiveWorld(void)
                 continue;
             }
             si = &sides[li->sidenum[j]];
-            SV_WriteWord(si->textureoffset >> FRACBITS);
-            SV_WriteWord(si->rowoffset >> FRACBITS);
+            if (SV_MemoryMode())
+            {
+                SV_WriteLong(si->textureoffset);
+                SV_WriteLong(si->rowoffset);
+            }
+            else
+            {
+                SV_WriteWord(si->textureoffset >> FRACBITS);
+                SV_WriteWord(si->rowoffset >> FRACBITS);
+            }
             SV_WriteWord(si->toptexture);
             SV_WriteWord(si->bottomtexture);
             SV_WriteWord(si->midtexture);
@@ -1648,8 +1929,16 @@ void P_UnArchiveWorld(void)
 //
     for (i = 0, sec = sectors; i < numsectors; i++, sec++)
     {
-        sec->floorheight = SV_ReadWord() << FRACBITS;
-        sec->ceilingheight = SV_ReadWord() << FRACBITS;
+        if (SV_MemoryMode())
+        {
+            sec->floorheight = SV_ReadLong();
+            sec->ceilingheight = SV_ReadLong();
+        }
+        else
+        {
+            sec->floorheight = SV_ReadWord() << FRACBITS;
+            sec->ceilingheight = SV_ReadWord() << FRACBITS;
+        }
         sec->floorpic = SV_ReadWord();
         sec->ceilingpic = SV_ReadWord();
         sec->lightlevel = SV_ReadWord();
@@ -1672,8 +1961,16 @@ void P_UnArchiveWorld(void)
             if (li->sidenum[j] == -1)
                 continue;
             si = &sides[li->sidenum[j]];
-            si->textureoffset = SV_ReadWord() << FRACBITS;
-            si->rowoffset = SV_ReadWord() << FRACBITS;
+            if (SV_MemoryMode())
+            {
+                si->textureoffset = SV_ReadLong();
+                si->rowoffset = SV_ReadLong();
+            }
+            else
+            {
+                si->textureoffset = SV_ReadWord() << FRACBITS;
+                si->rowoffset = SV_ReadWord() << FRACBITS;
+            }
             si->toptexture = SV_ReadWord();
             si->bottomtexture = SV_ReadWord();
             si->midtexture = SV_ReadWord();
@@ -2074,7 +2371,7 @@ void P_UnArchiveOldSpecials (void)
     // rewind 1 byte so G_DoLoadGame can find the termination marker, and fill
     // oldspecial with 0s.
     if (termbyte == SAVE_GAME_TERMINATOR)
-        fseek(SaveGameFP, -1, SEEK_CUR);
+        SV_Seek(-1, SEEK_CUR);
 
     for (i=0, sec = sectors ; i<numsectors ; i++,sec++)
     {

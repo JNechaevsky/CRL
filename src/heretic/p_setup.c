@@ -29,6 +29,7 @@
 #include "m_bbox.h"
 #include "m_misc.h"  // [JN] M_StringJoin()
 #include "p_local.h"
+#include "g_rewind.h"
 #include "s_sound.h"
 
 #include "crlcore.h"
@@ -741,8 +742,11 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
     crl_spectating = 0;
 
     // [JN] Print amount of level loading time.
+    if (!G_RewindIsRestoring())
+    {
     printf("P_SetupLevel: E%dM%d, loaded in %d ms.\n",
            gameepisode, gamemap, SDL_GetTicks() - starttime);
+    }
 
 //printf ("free memory: 0x%x\n", Z_FreeMemory());
 
