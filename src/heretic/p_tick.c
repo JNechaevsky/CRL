@@ -150,6 +150,10 @@ void P_Ticker(void)
     {
         players[displayplayer].targetsheathTics--;
     }
+    if (players[consoleplayer].cheatTics > 0)
+    {
+        players[consoleplayer].cheatTics--;
+    }
 
     if (paused)
     {

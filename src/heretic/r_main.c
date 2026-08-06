@@ -754,6 +754,8 @@ static void R_SetupFrame(player_t * player)
 
     // [JN] RestlessRodent -- Just report it
     CRL_ReportPosition(viewx, viewy, viewz, viewangle);
+    // [PN] Keep spectator pitch history in sync with position history.
+    CRL_ReportLookdir(CRL_camera_lookdir);
 
     tempCentery = viewheight / 2 + pitch * crl_screen_size / 10;
     if (centery != tempCentery)

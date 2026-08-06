@@ -209,7 +209,7 @@ static void D_Display(void)
         I_UpdateFracTic();
 
         // [JN] Prevent player rotation while automap panning by mouse.
-        if (!automapactive || !crl_automap_mouse_pan || followplayer)
+        if (!automapactive || !crl_automap_mouse_pan || am_followplayer)
         {
             I_StartDisplay();
             G_FastResponder();

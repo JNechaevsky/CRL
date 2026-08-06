@@ -25,6 +25,7 @@
 #include "p_local.h"
 #include "sounds.h"
 #include "s_sound.h"
+#include "ct_chat.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
@@ -1082,7 +1083,12 @@ void P_SpawnPlayer(const mapthing_t *mthing)
     p->mo = mobj;
     p->playerstate = PST_LIVE;
     p->refire = 0;
+    p->cheatTics = 0;
     p->message = NULL;
+    // [JN] Reset ultimatemsg, so other messages may appear.
+    // See: https://github.com/chocolate-doom/chocolate-doom/issues/781
+    ultimatemsg = false;
+    lastmessage = NULL;
     p->damagecount = 0;
     p->bonuscount = 0;
     p->chickenTics = 0;

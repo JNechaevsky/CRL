@@ -487,6 +487,10 @@ typedef struct player_s
     const char *messageCentered;	
     int messageCenteredTics;
 
+    // [JN] CRL - prevent other than typing actions in G_Responder
+    // while cheat tics are ticking.
+    int cheatTics;
+
     // [JN] CRL - target's health.
     const char*	targetsname;
     int         targetsheath;
@@ -708,6 +712,7 @@ void G_DeferedInitNew(skill_t skill, int episode, int map);
 // a normal game starts at map 1, but a warp test can start elsewhere
 
 void G_DeferedPlayDemo(const char *demo);
+void G_DoPlayDemo(void);
 
 void G_LoadGame(char *name);
 // can be called by the startup code or M_Responder
