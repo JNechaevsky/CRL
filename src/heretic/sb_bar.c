@@ -16,12 +16,9 @@
 // GNU General Public License for more details.
 //
 
-// SB_bar.c
 
-#include "ct_chat.h"
 #include "doomdef.h"
 #include "deh_str.h"
-#include "i_video.h"
 #include "i_swap.h"
 #include "i_timer.h"
 #include "m_controls.h"
@@ -33,73 +30,151 @@
 #include "v_trans.h"
 #include "v_video.h"
 #include "am_map.h"
+#include "ct_chat.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
 
-
-// Private Functions
-
-static void DrawSoundInfo(void);
-static void ShadeLine(int x, int y, int height, int shade);
-static void ShadeChain(void);
-static void DrINumber(signed int val, int x, int y);
-static void DrBNumber(signed int val, int x, int y);
-static void DrawCommonBar(void);
-static void DrawMainBar(void);
-static void DrawInventoryBar(void);
-static void DrawFullScreenStuff(void);
 
 // Public Data
 
 boolean DebugSound;             // debug flag for displaying sound info
 
 boolean inventory;
+int ArtifactFlash;
 int curpos;
 int inv_ptr;
-int ArtifactFlash;
+int playerkeys = 0;
+int sb_palette = 0;  // [JN] Externalazied variable of current palette index.
+int SB_state = -1;
 
 // Private Data
 
-static int HealthMarker;
 static int ChainWiggle;
+static int FontBNumBase;
+static int HealthMarker;
+static int oldammo = -1;
+static int oldarmor = -1;
+static int oldarti = 0;
+static int oldartiCount = 0;
+static int oldfrags = -9999;
+static int oldhealth = -1;
+static int oldkeys = -1;
+static int oldlife = -1;
+static int oldweapon = -1;
+static int playpalette;
+static int spinbooklump;
+static int spinflylump;
+
+static patch_t *PatchARMCLEAR;
+static patch_t *PatchBARBACK;
+static patch_t *PatchBLACKSQ;
+static patch_t *PatchCHAIN;
+static patch_t *PatchCHAINBACK;
+static patch_t *PatchINumbers[10];
+static patch_t *PatchINVBAR;
+static patch_t *PatchINVLFGEM1;
+static patch_t *PatchINVLFGEM2;
+static patch_t *PatchINVRTGEM1;
+static patch_t *PatchINVRTGEM2;
+static patch_t *PatchLIFEGEM;
+static patch_t *PatchLTFACE;
+static patch_t *PatchLTFCTOP;
+static patch_t *PatchNEGATIVE;
+static patch_t *PatchRTFACE;
+static patch_t *PatchRTFCTOP;
+static patch_t *PatchSELECTBOX;
+static patch_t *PatchSmNumbers[10];
+static patch_t *PatchSTATBAR;
 static player_t *CPlayer;
-int playpalette;
-int sb_palette = 0;  // [JN] Externalazied variable of current palette index.
-
-patch_t *PatchLTFACE;
-patch_t *PatchRTFACE;
-patch_t *PatchBARBACK;
-patch_t *PatchCHAIN;
-patch_t *PatchSTATBAR;
-patch_t *PatchLIFEGEM;
-//patch_t *PatchEMPWEAP;
-//patch_t *PatchLIL4BOX;
-patch_t *PatchLTFCTOP;
-patch_t *PatchRTFCTOP;
-//patch_t *PatchARMORBOX;
-//patch_t *PatchARTIBOX;
-patch_t *PatchSELECTBOX;
-//patch_t *PatchKILLSPIC;
-//patch_t *PatchMANAPIC;
-//patch_t *PatchPOWERICN;
-patch_t *PatchINVLFGEM1;
-patch_t *PatchINVLFGEM2;
-patch_t *PatchINVRTGEM1;
-patch_t *PatchINVRTGEM2;
-patch_t *PatchINumbers[10];
-patch_t *PatchNEGATIVE;
-patch_t *PatchSmNumbers[10];
-patch_t *PatchBLACKSQ;
-patch_t *PatchINVBAR;
-patch_t *PatchARMCLEAR;
-patch_t *PatchCHAINBACK;
-//byte *ShadeTables;
-int FontBNumBase;
-int spinbooklump;
-int spinflylump;
 
 
+
+
+
+
+
+//---------------------------------------------------------------------------
+//
+// PROC DrINumber
+//
+// Draws a three digit number.
+//
+//---------------------------------------------------------------------------
+
+static void DrINumber(signed int val, int x, int y)
+{
+    patch_t *patch;
+    int oldval;
+
+    oldval = val;
+    if (val < 0)
+    {
+        if (val < -9)
+        {
+            V_DrawPatch(x + 1, y + 1, W_CacheLumpName(DEH_String("LAME"), PU_CACHE), "LAME");
+        }
+        else
+        {
+            val = -val;
+            V_DrawPatch(x + 18, y, PatchINumbers[val], "NULL"); // [JN] TODO - patch names
+            V_DrawPatch(x + 9, y, PatchNEGATIVE, "NEGNUM");
+        }
+        return;
+    }
+    if (val > 99)
+    {
+        patch = PatchINumbers[val / 100];
+        V_DrawPatch(x, y, patch, "NULL"); // [JN] TODO - patch names
+    }
+    val = val % 100;
+    if (val > 9 || oldval > 99)
+    {
+        patch = PatchINumbers[val / 10];
+        V_DrawPatch(x + 9, y, patch, "NULL"); // [JN] TODO - patch names
+    }
+    val = val % 10;
+    patch = PatchINumbers[val];
+    V_DrawPatch(x + 18, y, patch, "NULL"); // [JN] TODO - patch names
+}
+
+//---------------------------------------------------------------------------
+//
+// PROC DrBNumber
+//
+// Draws a three digit number using FontB
+//
+//---------------------------------------------------------------------------
+
+static void DrBNumber(signed int val, int x, int y)
+{
+    patch_t *patch;
+    int xpos;
+    int oldval;
+
+    oldval = val;
+    xpos = x;
+    if (val < 0)
+    {
+        val = 0;
+    }
+    if (val > 99)
+    {
+        patch = W_CacheLumpNum(FontBNumBase + val / 100, PU_CACHE);
+        V_DrawShadowedPatchRaven(xpos + 6 - SHORT(patch->width) / 2, y, patch);
+    }
+    val = val % 100;
+    xpos += 12;
+    if (val > 9 || oldval > 99)
+    {
+        patch = W_CacheLumpNum(FontBNumBase + val / 10, PU_CACHE);
+        V_DrawShadowedPatchRaven(xpos + 6 - SHORT(patch->width) / 2, y, patch);
+    }
+    val = val % 10;
+    xpos += 12;
+    patch = W_CacheLumpNum(FontBNumBase + val, PU_CACHE);
+    V_DrawShadowedPatchRaven(xpos + 6 - SHORT(patch->width) / 2, y, patch);
+}
 
 //---------------------------------------------------------------------------
 //
@@ -229,87 +304,9 @@ void SB_Ticker(void)
     }
 }
 
-//---------------------------------------------------------------------------
-//
-// PROC DrINumber
-//
-// Draws a three digit number.
-//
-//---------------------------------------------------------------------------
 
-static void DrINumber(signed int val, int x, int y)
-{
-    patch_t *patch;
-    int oldval;
 
-    oldval = val;
-    if (val < 0)
-    {
-        if (val < -9)
-        {
-            V_DrawPatch(x + 1, y + 1, W_CacheLumpName(DEH_String("LAME"), PU_CACHE), "LAME");
-        }
-        else
-        {
-            val = -val;
-            V_DrawPatch(x + 18, y, PatchINumbers[val], "NULL"); // [JN] TODO - patch names
-            V_DrawPatch(x + 9, y, PatchNEGATIVE, "NEGNUM");
-        }
-        return;
-    }
-    if (val > 99)
-    {
-        patch = PatchINumbers[val / 100];
-        V_DrawPatch(x, y, patch, "NULL"); // [JN] TODO - patch names
-    }
-    val = val % 100;
-    if (val > 9 || oldval > 99)
-    {
-        patch = PatchINumbers[val / 10];
-        V_DrawPatch(x + 9, y, patch, "NULL"); // [JN] TODO - patch names
-    }
-    val = val % 10;
-    patch = PatchINumbers[val];
-    V_DrawPatch(x + 18, y, patch, "NULL"); // [JN] TODO - patch names
-}
 
-//---------------------------------------------------------------------------
-//
-// PROC DrBNumber
-//
-// Draws a three digit number using FontB
-//
-//---------------------------------------------------------------------------
-
-static void DrBNumber(signed int val, int x, int y)
-{
-    patch_t *patch;
-    int xpos;
-    int oldval;
-
-    oldval = val;
-    xpos = x;
-    if (val < 0)
-    {
-        val = 0;
-    }
-    if (val > 99)
-    {
-        patch = W_CacheLumpNum(FontBNumBase + val / 100, PU_CACHE);
-        V_DrawShadowedPatchRaven(xpos + 6 - SHORT(patch->width) / 2, y, patch);
-    }
-    val = val % 100;
-    xpos += 12;
-    if (val > 9 || oldval > 99)
-    {
-        patch = W_CacheLumpNum(FontBNumBase + val / 10, PU_CACHE);
-        V_DrawShadowedPatchRaven(xpos + 6 - SHORT(patch->width) / 2, y, patch);
-    }
-    val = val % 10;
-    xpos += 12;
-    patch = W_CacheLumpNum(FontBNumBase + val, PU_CACHE);
-    V_DrawShadowedPatchRaven(xpos + 6 - SHORT(patch->width) / 2, y, patch);
-}
 
 //---------------------------------------------------------------------------
 //
@@ -443,283 +440,15 @@ static void DrawSoundInfo(void)
 //
 //---------------------------------------------------------------------------
 
-char patcharti[][10] = {
-    {"ARTIBOX"},                // none
-    {"ARTIINVU"},               // invulnerability
-    {"ARTIINVS"},               // invisibility
-    {"ARTIPTN2"},               // health
-    {"ARTISPHL"},               // superhealth
-    {"ARTIPWBK"},               // tomeofpower
-    {"ARTITRCH"},               // torch
-    {"ARTIFBMB"},               // firebomb
-    {"ARTIEGGC"},               // egg
-    {"ARTISOAR"},               // fly
-    {"ARTIATLP"}                // teleport
-};
-
-char ammopic[][10] = {
-    {"INAMGLD"},
-    {"INAMBOW"},
-    {"INAMBST"},
-    {"INAMRAM"},
-    {"INAMPNX"},
-    {"INAMLOB"}
-};
-
-int SB_state = -1;
-static int oldarti = 0;
-static int oldartiCount = 0;
-static int oldfrags = -9999;
-static int oldammo = -1;
-static int oldarmor = -1;
-static int oldweapon = -1;
-static int oldhealth = -1;
-static int oldlife = -1;
-static int oldkeys = -1;
-
-int playerkeys = 0;
-
-
 // [crispy] Needed to support widescreen status bar.
 void SB_ForceRedraw(void)
 {
     SB_state = -1;
 }
 
-// -----------------------------------------------------------------------------
-// SB_AmmoWidgetColor
-// [plums] return ammo/health/armor widget color
-// -----------------------------------------------------------------------------
 
-enum
-{
-    ammowidgetcolor_ammo,
-    ammowidgetcolor_weapon
-} ammowidgetcolor_t;
 
-static byte *const SB_AmmoWidgetColor (int i, weapontype_t weapon)
-{
-    switch (i)
-    {
-        case ammowidgetcolor_ammo:
-        {
-            const int ammo = CPlayer->ammo[wpnlev1info[weapon].ammo];
-            const int fullammo = CPlayer->maxammo[wpnlev1info[weapon].ammo];
 
-            if (crl_ammo_widget_colors != 1 && crl_ammo_widget_colors != 2)
-            {
-                return cr[CR_GRAY];
-            }
-
-            if (ammo < fullammo/4)
-                return cr[CR_RED];
-            else if (ammo < fullammo/2)
-                return cr[CR_YELLOW];
-            else
-                return cr[CR_GREEN];
-        }
-        case ammowidgetcolor_weapon:
-        {
-            // always color the weapon letter if ammo widget coloring is OFF
-            if ((crl_ammo_widget_colors != 1 && crl_ammo_widget_colors != 3) ||
-                CPlayer->weaponowned[weapon] == true)
-            {
-                switch (weapon)
-                {
-                    case wp_goldwand:   return cr[CR_YELLOW];
-                    case wp_crossbow:   return cr[CR_GREEN];
-                    case wp_blaster:    return cr[CR_BLUE2];
-                    case wp_skullrod:   return cr[CR_RED];
-                    case wp_phoenixrod: return cr[CR_ORANGE];
-                    case wp_mace:       return cr[CR_LIGHTGRAY];
-                    default:            return cr[CR_GRAY];
-                }
-            }
-            else
-            {
-                return cr[CR_GRAY];
-            }
-        }
-    }
-
-    return NULL;
-}
-
-void SB_Drawer(void)
-{
-    int frame;
-    static boolean hitCenterFrame;
-
-    // Sound info debug stuff
-    if (DebugSound == true)
-    {
-        DrawSoundInfo();
-    }
-    CPlayer = &players[consoleplayer];
-    if (viewheight == SCREENHEIGHT && (!automapactive || crl_automap_overlay))
-    {
-        DrawFullScreenStuff();
-        SB_state = -1;
-    }
-    else
-    {
-        // [JN] CRL - always do full status bar update, as we drawing
-        // everything below automap for proper render counter values.
-        SB_state = -1;
-
-        if (SB_state == -1)
-        {
-            V_DrawPatch(0, 158, PatchBARBACK, "BARBACK");
-            if (players[consoleplayer].cheats & CF_GODMODE)
-            {
-                V_DrawPatch(16, 167,
-                            W_CacheLumpName(DEH_String("GOD1"), PU_CACHE), "GOD1");
-                V_DrawPatch(287, 167,
-                            W_CacheLumpName(DEH_String("GOD2"), PU_CACHE), "GOD2");
-            }
-            oldhealth = -1;
-        }
-        DrawCommonBar();
-        if (!inventory)
-        {
-            if (SB_state != 0)
-            {
-                // Main interface
-                V_DrawPatch(34, 160, PatchSTATBAR, "STATBAR");
-                oldarti = 0;
-                oldammo = -1;
-                oldarmor = -1;
-                oldweapon = -1;
-                oldfrags = -9999;       //can't use -1, 'cuz of negative frags
-                oldlife = -1;
-                oldkeys = -1;
-            }
-            DrawMainBar();
-            SB_state = 0;
-        }
-        else
-        {
-            if (SB_state != 1)
-            {
-                V_DrawPatch(34, 160, PatchINVBAR, "INVBAR");
-            }
-            DrawInventoryBar();
-            SB_state = 1;
-        }
-    }
-
-    // Flight icons
-    if (CPlayer->powers[pw_flight])
-    {
-        if (CPlayer->powers[pw_flight] > BLINKTHRESHOLD
-            || !(CPlayer->powers[pw_flight] & 16))
-        {
-            frame = (leveltime / 3) & 15;
-            if (CPlayer->mo->flags2 & MF2_FLY)
-            {
-                if (hitCenterFrame && (frame != 15 && frame != 0))
-                {
-                    V_DrawPatch(20, 17, W_CacheLumpNum(spinflylump + 15,
-                                                       PU_CACHE), "NULL"); // [JN] TODO - patch name
-                }
-                else
-                {
-                    V_DrawPatch(20, 17, W_CacheLumpNum(spinflylump + frame,
-                                                       PU_CACHE), "NULL"); // [JN] TODO - patch name
-                    hitCenterFrame = false;
-                }
-            }
-            else
-            {
-                if (!hitCenterFrame && (frame != 15 && frame != 0))
-                {
-                    V_DrawPatch(20, 17, W_CacheLumpNum(spinflylump + frame,
-                                                       PU_CACHE), "NULL"); // [JN] TODO - patch name
-                    hitCenterFrame = false;
-                }
-                else
-                {
-                    V_DrawPatch(20, 17, W_CacheLumpNum(spinflylump + 15,
-                                                       PU_CACHE), "NULL"); // [JN] TODO - patch name
-                    hitCenterFrame = true;
-                }
-            }
-        }
-    }
-
-    if (CPlayer->powers[pw_weaponlevel2] && !CPlayer->chickenTics)
-    {
-        int spinbook_x = 300; // [crispy]
-
-        // [JN] Shift tome icon left if fps counter or demo timer is active.
-        if (crl_showfps
-        || (demoplayback && (crl_demo_timer == 1 || crl_demo_timer == 3))
-        || (demorecording && (crl_demo_timer == 2 || crl_demo_timer == 3)))
-        {
-            spinbook_x -= 70;
-        }
-
-        if (CPlayer->powers[pw_weaponlevel2] > BLINKTHRESHOLD
-            || !(CPlayer->powers[pw_weaponlevel2] & 16))
-        {
-            frame = (leveltime / 3) & 15;
-            V_DrawPatch(spinbook_x, 17,
-                        W_CacheLumpNum(spinbooklump + frame, PU_CACHE), "NULL"); // [JN] TODO - patch name
-        }
-    }
-
-    // [JN] Ammo widget.
-    if (crl_ammo_widget && crl_extended_hud)
-    {
-        char str[16];
-
-        // [PN] Parallel arrays for slot data (0-5).
-        const weapontype_t weapons[6] = { wp_goldwand, wp_crossbow, wp_blaster, wp_skullrod, wp_phoenixrod, wp_mace };
-        const int ammo_types[6]       = { am_goldwand, am_crossbow, am_blaster, am_skullrod, am_phoenixrod, am_mace };
-        const char *const labels[6]   = { "W", "E", "D", "H", "P", "M" };
-
-        byte *ammo_widget_weapon_colors[6];
-        byte *ammo_widget_ammo_colors[6];
-
-        // [JN] Move widgets slightly down when using a fullscreen status bar.
-        int yy = (crl_screen_size > 10 && (!automapactive || crl_automap_overlay)) ? 13 : 0;
-
-        // [PN] Cache ammo-widget colors for all weapon slots once per draw pass.
-        for (int i = 0; i < 6; i++)
-        {
-            ammo_widget_weapon_colors[i] = SB_AmmoWidgetColor(ammowidgetcolor_weapon, weapons[i]);
-            ammo_widget_ammo_colors[i]   = SB_AmmoWidgetColor(ammowidgetcolor_ammo, weapons[i]);
-        }
-
-        // [PN] Enable translucency once for both modes.
-        dp_translucent = crl_ammo_widget_translucent;
-
-        for (int i = 0; i < 6; i++)
-        {
-            const int current_yy = 95 + (i * 10) + yy;
-
-            // [PN] Calculate weapon icon X: 282 for Brief (1), 251 for Full.
-            const int label_xx = ((crl_ammo_widget == 1) ? 282 : 251);
-            MN_DrTextA(labels[i], label_xx, current_yy, ammo_widget_weapon_colors[i]);
-
-            if (crl_ammo_widget == 1) // Brief
-            {
-                sprintf(str, "%d", CPlayer->ammo[ammo_types[i]]);
-                MN_DrTextA(str, 293, current_yy, ammo_widget_ammo_colors[i]);
-            }
-            else // Full
-            {
-                sprintf(str, "%d/", CPlayer->ammo[ammo_types[i]]);
-                MN_DrTextA(str, 293 - MN_TextAWidth(str), current_yy, ammo_widget_ammo_colors[i]);
-
-                sprintf(str, "%d", CPlayer->maxammo[ammo_types[i]]);
-                MN_DrTextA(str, 293, current_yy, ammo_widget_ammo_colors[i]);
-            }
-        }
-
-        dp_translucent = false;
-    }
-}
 
 // -----------------------------------------------------------------------------
 // SB_MainBarColor
@@ -734,7 +463,7 @@ enum
     hudcolor_armor
 } hudcolor_t;
 
-static byte *SB_MainBarColor (const int i)
+static byte *const SB_MainBarColor (const int i)
 {
     if (!crl_colored_stbar)
     {
@@ -880,7 +609,7 @@ void SB_PaletteFlash(void)
 //
 //---------------------------------------------------------------------------
 
-void DrawCommonBar(void)
+static void DrawCommonBar(void)
 {
     int chainY;
     int chainYY;
@@ -922,7 +651,30 @@ void DrawCommonBar(void)
 //
 //---------------------------------------------------------------------------
 
-void DrawMainBar(void)
+static const char patcharti[][10] = {
+    {"ARTIBOX"},                // none
+    {"ARTIINVU"},               // invulnerability
+    {"ARTIINVS"},               // invisibility
+    {"ARTIPTN2"},               // health
+    {"ARTISPHL"},               // superhealth
+    {"ARTIPWBK"},               // tomeofpower
+    {"ARTITRCH"},               // torch
+    {"ARTIFBMB"},               // firebomb
+    {"ARTIEGGC"},               // egg
+    {"ARTISOAR"},               // fly
+    {"ARTIATLP"}                // teleport
+};
+
+static const char ammopic[][10] = {
+    {"INAMGLD"},
+    {"INAMBOW"},
+    {"INAMBST"},
+    {"INAMRAM"},
+    {"INAMPNX"},
+    {"INAMLOB"}
+};
+
+static void DrawMainBar(void)
 {
     int i;
     int temp;
@@ -1043,7 +795,7 @@ void DrawMainBar(void)
 //
 //---------------------------------------------------------------------------
 
-void DrawInventoryBar(void)
+static void DrawInventoryBar(void)
 {
     const char *patch;
     int i;
@@ -1076,7 +828,7 @@ void DrawInventoryBar(void)
     }
 }
 
-void DrawFullScreenStuff(void)
+static void DrawFullScreenStuff(void)
 {
     const char *patch;
     int i;
@@ -1145,6 +897,245 @@ void DrawFullScreenStuff(void)
             V_DrawPatch(269, 167, !(leveltime & 4) ? PatchINVRTGEM1 : PatchINVRTGEM2,
                                   !(leveltime & 4) ? "INVGEMR1" : "INVGEMR2");
         }
+    }
+}
+
+// -----------------------------------------------------------------------------
+// SB_AmmoWidgetColor
+// [plums] return ammo/health/armor widget color
+// -----------------------------------------------------------------------------
+
+enum
+{
+    ammowidgetcolor_ammo,
+    ammowidgetcolor_weapon
+} ammowidgetcolor_t;
+
+static byte *const SB_AmmoWidgetColor (int i, weapontype_t weapon)
+{
+    switch (i)
+    {
+        case ammowidgetcolor_ammo:
+        {
+            const int ammo = CPlayer->ammo[wpnlev1info[weapon].ammo];
+            const int fullammo = CPlayer->maxammo[wpnlev1info[weapon].ammo];
+
+            if (crl_ammo_widget_colors != 1 && crl_ammo_widget_colors != 2)
+            {
+                return cr[CR_GRAY];
+            }
+
+            if (ammo < fullammo/4)
+                return cr[CR_RED];
+            else if (ammo < fullammo/2)
+                return cr[CR_YELLOW];
+            else
+                return cr[CR_GREEN];
+        }
+        case ammowidgetcolor_weapon:
+        {
+            // always color the weapon letter if ammo widget coloring is OFF
+            if ((crl_ammo_widget_colors != 1 && crl_ammo_widget_colors != 3) ||
+                CPlayer->weaponowned[weapon] == true)
+            {
+                switch (weapon)
+                {
+                    case wp_goldwand:   return cr[CR_YELLOW];
+                    case wp_crossbow:   return cr[CR_GREEN];
+                    case wp_blaster:    return cr[CR_BLUE2];
+                    case wp_skullrod:   return cr[CR_RED];
+                    case wp_phoenixrod: return cr[CR_ORANGE];
+                    case wp_mace:       return cr[CR_LIGHTGRAY];
+                    default:            return cr[CR_GRAY];
+                }
+            }
+            else
+            {
+                return cr[CR_GRAY];
+            }
+        }
+    }
+
+    return NULL;
+}
+
+// -----------------------------------------------------------------------------
+// SB_Drawer
+// -----------------------------------------------------------------------------
+
+void SB_Drawer(void)
+{
+    int frame;
+    static boolean hitCenterFrame;
+
+    // Sound info debug stuff
+    if (DebugSound == true)
+    {
+        DrawSoundInfo();
+    }
+    CPlayer = &players[consoleplayer];
+    if (viewheight == SCREENHEIGHT && (!automapactive || crl_automap_overlay))
+    {
+        DrawFullScreenStuff();
+        SB_state = -1;
+    }
+    else
+    {
+        // [JN] CRL - always do full status bar update, as we drawing
+        // everything below automap for proper render counter values.
+        SB_state = -1;
+
+        if (SB_state == -1)
+        {
+            V_DrawPatch(0, 158, PatchBARBACK, "BARBACK");
+            if (players[consoleplayer].cheats & CF_GODMODE)
+            {
+                V_DrawPatch(16, 167,
+                            W_CacheLumpName(DEH_String("GOD1"), PU_CACHE), "GOD1");
+                V_DrawPatch(287, 167,
+                            W_CacheLumpName(DEH_String("GOD2"), PU_CACHE), "GOD2");
+            }
+            oldhealth = -1;
+        }
+        DrawCommonBar();
+        if (!inventory)
+        {
+            if (SB_state != 0)
+            {
+                // Main interface
+                V_DrawPatch(34, 160, PatchSTATBAR, "STATBAR");
+                oldarti = 0;
+                oldammo = -1;
+                oldarmor = -1;
+                oldweapon = -1;
+                oldfrags = -9999;       //can't use -1, 'cuz of negative frags
+                oldlife = -1;
+                oldkeys = -1;
+            }
+            DrawMainBar();
+            SB_state = 0;
+        }
+        else
+        {
+            if (SB_state != 1)
+            {
+                V_DrawPatch(34, 160, PatchINVBAR, "INVBAR");
+            }
+            DrawInventoryBar();
+            SB_state = 1;
+        }
+    }
+
+    // Flight icons
+    if (CPlayer->powers[pw_flight])
+    {
+        if (CPlayer->powers[pw_flight] > BLINKTHRESHOLD
+            || !(CPlayer->powers[pw_flight] & 16))
+        {
+            frame = (leveltime / 3) & 15;
+            if (CPlayer->mo->flags2 & MF2_FLY)
+            {
+                if (hitCenterFrame && (frame != 15 && frame != 0))
+                {
+                    V_DrawPatch(20, 17, W_CacheLumpNum(spinflylump + 15,
+                                                       PU_CACHE), "NULL"); // [JN] TODO - patch name
+                }
+                else
+                {
+                    V_DrawPatch(20, 17, W_CacheLumpNum(spinflylump + frame,
+                                                       PU_CACHE), "NULL"); // [JN] TODO - patch name
+                    hitCenterFrame = false;
+                }
+            }
+            else
+            {
+                if (!hitCenterFrame && (frame != 15 && frame != 0))
+                {
+                    V_DrawPatch(20, 17, W_CacheLumpNum(spinflylump + frame,
+                                                       PU_CACHE), "NULL"); // [JN] TODO - patch name
+                    hitCenterFrame = false;
+                }
+                else
+                {
+                    V_DrawPatch(20, 17, W_CacheLumpNum(spinflylump + 15,
+                                                       PU_CACHE), "NULL"); // [JN] TODO - patch name
+                    hitCenterFrame = true;
+                }
+            }
+        }
+    }
+
+    if (CPlayer->powers[pw_weaponlevel2] && !CPlayer->chickenTics)
+    {
+        int spinbook_x = 300; // [crispy]
+
+        // [JN] Shift tome icon left if fps counter or demo timer is active.
+        if (crl_showfps
+        || (demoplayback && (crl_demo_timer == 1 || crl_demo_timer == 3))
+        || (demorecording && (crl_demo_timer == 2 || crl_demo_timer == 3)))
+        {
+            spinbook_x -= 70;
+        }
+
+        if (CPlayer->powers[pw_weaponlevel2] > BLINKTHRESHOLD
+        || !(CPlayer->powers[pw_weaponlevel2] & 16))
+        {
+            frame = (leveltime / 3) & 15;
+            V_DrawPatch(spinbook_x, 17,
+                        W_CacheLumpNum(spinbooklump + frame, PU_CACHE), "NULL"); // [JN] TODO - patch name
+        }
+    }
+
+    // [JN] Ammo widget.
+    if (crl_ammo_widget && crl_extended_hud)
+    {
+        char str[16];
+
+        // [PN] Parallel arrays for slot data (0-5).
+        const weapontype_t weapons[6] = { wp_goldwand, wp_crossbow, wp_blaster, wp_skullrod, wp_phoenixrod, wp_mace };
+        const int ammo_types[6]       = { am_goldwand, am_crossbow, am_blaster, am_skullrod, am_phoenixrod, am_mace };
+        const char *const labels[6]   = { "W", "E", "D", "H", "P", "M" };
+
+        byte *ammo_widget_weapon_colors[6];
+        byte *ammo_widget_ammo_colors[6];
+
+        // [JN] Move widgets slightly down when using a fullscreen status bar.
+        int yy = (crl_screen_size > 10 && (!automapactive || crl_automap_overlay)) ? 13 : 0;
+
+        // [PN] Cache ammo-widget colors for all weapon slots once per draw pass.
+        for (int i = 0; i < 6; i++)
+        {
+            ammo_widget_weapon_colors[i] = SB_AmmoWidgetColor(ammowidgetcolor_weapon, weapons[i]);
+            ammo_widget_ammo_colors[i]   = SB_AmmoWidgetColor(ammowidgetcolor_ammo, weapons[i]);
+        }
+
+        // [PN] Enable translucency once for both modes.
+        dp_translucent = crl_ammo_widget_translucent;
+
+        for (int i = 0; i < 6; i++)
+        {
+            const int current_yy = 95 + (i * 10) + yy;
+
+            // [PN] Calculate weapon icon X: 282 for Brief (1), 251 for Full.
+            const int label_xx = ((crl_ammo_widget == 1) ? 282 : 251);
+            MN_DrTextA(labels[i], label_xx, current_yy, ammo_widget_weapon_colors[i]);
+
+            if (crl_ammo_widget == 1) // Brief
+            {
+                sprintf(str, "%d", CPlayer->ammo[ammo_types[i]]);
+                MN_DrTextA(str, 293, current_yy, ammo_widget_ammo_colors[i]);
+            }
+            else // Full
+            {
+                sprintf(str, "%d/", CPlayer->ammo[ammo_types[i]]);
+                MN_DrTextA(str, 293 - MN_TextAWidth(str), current_yy, ammo_widget_ammo_colors[i]);
+
+                sprintf(str, "%d", CPlayer->maxammo[ammo_types[i]]);
+                MN_DrTextA(str, 293, current_yy, ammo_widget_ammo_colors[i]);
+            }
+        }
+
+        dp_translucent = false;
     }
 }
 
@@ -1899,13 +1890,11 @@ static boolean HandleCheats(const byte key)
     return (eat);
 }
 
-//--------------------------------------------------------------------------
-//
-// FUNC SB_Responder
-//
-//--------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+// SB_Responder
+// -----------------------------------------------------------------------------
 
-boolean SB_Responder(event_t * event)
+boolean SB_Responder (const event_t *const event)
 {
     if (event->type == ev_keydown)
     {
