@@ -20,7 +20,10 @@
 #include <stdlib.h>
 
 #include "doomdef.h"
+#include "m_misc.h"
 #include "p_local.h"
+
+#include "crlcore.h"
 
 /*
 ==============================================================================
@@ -125,8 +128,27 @@ static boolean P_SightBlockLinesIterator(int x, int y)
             return false;       // stop checking
 
         // store the line for later intersection testing
-        check_intercept(2); // [crispy] remove INTERCEPTS limit
+        check_intercept(); // [crispy] remove INTERCEPTS limit
         intercept_p->d.line = ld;
+    // [crispy] Intercepts overflow guard.
+    if (intercept_p - intercepts >= MAXINTERCEPTS_ALLOWED)
+    {
+        if (safe_intercept)
+        {
+            // [JN] CRL - it's a safe trace, don't go
+            // any farther and don't inkove overflow.
+            return false;
+        }
+        else
+        {
+            char *message = "INTERCEPTS OVERFLOW (VANILLA MAY CRASH HERE)";
+
+            // [JN] CRL - print console and in-game warnings.
+            CRL_printf(M_StringJoin("P_SightBlockLinesIterator: ", message, NULL), true);
+            CRL_SetMessageCritical("P[SIGHTBLOCKLINESITERATOR:", message, MESSAGETICS);
+            return false;
+        }
+    }
         intercept_p++;
 
     }

@@ -893,7 +893,7 @@ extern int playerkeys;
 
 
 void SB_Init(void);
-boolean SB_Responder(event_t * event);
+boolean SB_Responder(const event_t *const event);
 void SB_Ticker(void);
 void SB_Drawer(void);
 
