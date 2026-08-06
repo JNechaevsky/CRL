@@ -1215,6 +1215,10 @@ void P_SpawnSpecials(void)
     sector_t *sector;
     int i;
 
+    // [JN] CRL - initialize playstate counters.
+    CRL_plats_counter = 0;
+    CRL_lineanims_counter = 0;
+
     //
     //      Init special SECTORs
     //

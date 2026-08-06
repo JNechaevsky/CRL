@@ -1098,9 +1098,6 @@ void P_SpawnPlayer(const mapthing_t *mthing)
     p->fixedcolormap = 0;
     p->viewheight = VIEWHEIGHT;
 
-    // [JN] CRL - reset frame-independent limit counters.
-    CRL_plats_counter = 0;
-    CRL_lineanims_counter = 0;
     // [JN] CRL - reset powerup counters.
     CRL_counter_tome = 0;
     CRL_counter_ring = 0;
