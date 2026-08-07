@@ -6432,13 +6432,13 @@ static const KeyBindEntry_t keybinds[] =
     KEYBIND_ENTRY(609, &CRLKbdBinds6, 9, key_arti_morph,        key_arti_morph2,        0,   0, KBS_GLOBAL),
 
     // Page 7 - Automap
-    KEYBIND_ENTRY(700, &CRLKbdBinds7, 0, key_map_toggle,     key_map_toggle2,     KEY_TAB,   0, KBS_GLOBAL),
-    KEYBIND_ENTRY(701, &CRLKbdBinds7, 1, key_map_zoomin,     key_map_zoomin2,     '=',     '+', KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(702, &CRLKbdBinds7, 2, key_map_zoomout,    key_map_zoomout2,    '-',       0, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(703, &CRLKbdBinds7, 3, key_map_maxzoom,    key_map_maxzoom2,    '0',       0, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(704, &CRLKbdBinds7, 4, key_map_follow,     key_map_follow2,     'f',       0, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(705, &CRLKbdBinds7, 5, key_crl_map_sndprop,key_crl_map_sndprop2,'p',       0, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(706, &CRLKbdBinds7, 6, key_map_grid,       key_map_grid2,       'g',       0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(700, &CRLKbdBinds7, 0, key_map_toggle,     key_map_toggle2,     KEY_TAB,      0, KBS_GLOBAL),
+    KEYBIND_ENTRY(701, &CRLKbdBinds7, 1, key_map_zoomin,     key_map_zoomin2,     '=',  KEYP_PLUS, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(702, &CRLKbdBinds7, 2, key_map_zoomout,    key_map_zoomout2,    '-', KEYP_MINUS, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(703, &CRLKbdBinds7, 3, key_map_maxzoom,    key_map_maxzoom2,    '0',          0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(704, &CRLKbdBinds7, 4, key_map_follow,     key_map_follow2,     'f',          0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(705, &CRLKbdBinds7, 5, key_crl_map_sndprop,key_crl_map_sndprop2,'p',          0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(706, &CRLKbdBinds7, 6, key_map_grid,       key_map_grid2,       'g',          0, KBS_AUTOMAP_ONLY),
 
     // Page 8 - Function Keys
     KEYBIND_ENTRY(800, &CRLKbdBinds8, 0,  key_menu_help,     key_menu_help2,     KEY_F1,  0, KBS_GLOBAL),
