@@ -5457,7 +5457,7 @@ boolean MN_Responder(event_t * event)
 
 
     if ((ravpic && key == KEY_F1) ||
-        (key != 0 && key == key_menu_screenshot))
+        (key != 0 && (key == key_menu_screenshot || key == key_menu_screenshot2)))
     {
         G_ScreenShot();
         // [JN] Audible feedback.
@@ -5526,14 +5526,14 @@ boolean MN_Responder(event_t * event)
             SCScreenSize(RIGHT_DIR);
             return (true);
         }
-        else if (key == key_menu_help)           // F1
+        else if (key == key_menu_help || key == key_menu_help2)           // F1
         {
             MenuWasPaused = paused;
             SCInfo(0);      // start up info screens
             MenuActive = true;
             return (true);
         }
-        else if (key == key_menu_save)           // F2 (save game)
+        else if (key == key_menu_save || key == key_menu_save2)           // F2 (save game)
         {
             if (gamestate == GS_LEVEL && !demoplayback)
             {
@@ -5553,7 +5553,7 @@ boolean MN_Responder(event_t * event)
             }
             return true;
         }
-        else if (key == key_menu_load)           // F3 (load game)
+        else if (key == key_menu_load || key == key_menu_load2)           // F3 (load game)
         {
             if (SCNetCheck(2))
             {
@@ -5573,7 +5573,7 @@ boolean MN_Responder(event_t * event)
             }
             return true;
         }
-        else if (key == key_menu_volume)         // F4 (volume)
+        else if (key == key_menu_volume || key == key_menu_volume2)         // F4 (volume)
         {
             MenuWasPaused = paused;
             MenuActive = true;
@@ -5594,7 +5594,7 @@ boolean MN_Responder(event_t * event)
             // F5 isn't used in Heretic. (detail level)
             return true;
         }
-        else if (key == key_menu_qsave)           // F6 (quicksave)
+        else if (key == key_menu_qsave || key == key_menu_qsave2)           // F6 (quicksave)
         {
             if (gamestate == GS_LEVEL && !demoplayback)
             {
@@ -5626,7 +5626,7 @@ boolean MN_Responder(event_t * event)
             }
             return true;
         }
-        else if (key == key_menu_endgame)         // F7 (end game)
+        else if (key == key_menu_endgame || key == key_menu_endgame2)         // F7 (end game)
         {
             if (SCNetCheck(3))
             {
@@ -5638,13 +5638,13 @@ boolean MN_Responder(event_t * event)
             }
             return true;
         }
-        else if (key == key_menu_messages)        // F8 (toggle messages)
+        else if (key == key_menu_messages || key == key_menu_messages2)        // F8 (toggle messages)
         {
             SCMessages(0);
             S_StartSound(NULL, sfx_switch);
             return true;
         }
-        else if (key == key_menu_qload)           // F9 (quickload)
+        else if (key == key_menu_qload || key == key_menu_qload2)           // F9 (quickload)
         {
             if (SCNetCheck(2))
             {
@@ -5674,7 +5674,7 @@ boolean MN_Responder(event_t * event)
             }
             return true;
         }
-        else if (key == key_menu_quit)            // F10 (quit)
+        else if (key == key_menu_quit || key == key_menu_quit2)            // F10 (quit)
         {
             // [JN] Allow to invoke quit in any game state.
             //if (gamestate == GS_LEVEL)
@@ -5692,12 +5692,14 @@ boolean MN_Responder(event_t * event)
         }
         // [crispy] those two can be considered as shortcuts for the IDCLEV cheat
         // and should be treated as such, i.e. add "if (!netgame)"
-        else if (!netgame && key != 0 && key == key_crl_reloadlevel)
+        else if (!netgame && key != 0
+        && (key == key_crl_reloadlevel || key == key_crl_reloadlevel2))
         {
             if (G_ReloadLevel())
             return true;
         }
-        else if (!netgame && key != 0 && key == key_crl_nextlevel)
+        else if (!netgame && key != 0
+        && (key == key_crl_nextlevel || key == key_crl_nextlevel2))
         {
             if (G_GotoNextLevel())
             return true;
@@ -5706,7 +5708,7 @@ boolean MN_Responder(event_t * event)
     }
 
     // [JN] Allow to change gamma while active menu.
-    if (key == key_menu_gamma)           // F11 (gamma correction)
+    if (key == key_menu_gamma || key == key_menu_gamma2)           // F11 (gamma correction)
     {
         crl_gamma = M_INT_Slider(crl_gamma, 0, 14, 1 /*right*/, false);
         CT_SetMessage(&players[consoleplayer], gammalvls[crl_gamma][0], false, NULL);
@@ -5718,12 +5720,12 @@ boolean MN_Responder(event_t * event)
     {
         // [JN] Open Heretic/CRL menu only by pressing it's keys to allow 
         // certain CRL features to be toggled. This behavior is same to Doom.
-        if (key == key_menu_activate || key == key_crl_menu)
+        if (key == key_menu_activate || key == key_crl_menu || key == key_crl_menu2)
         {
             MN_ActivateMenu();
 
             // [JN] Spawn CRL menu
-            if (key == key_crl_menu)
+            if (key == key_crl_menu || key == key_crl_menu2)
             {
                 CurrentMenu = &CRLMain;
                 CurrentItPos = CurrentMenu->oldItPos;
@@ -5736,7 +5738,7 @@ boolean MN_Responder(event_t * event)
     else
     {
         // [JN] Deactivate CRL menu by pressing ~ key again.
-        if (key == key_crl_menu)
+        if (key == key_crl_menu || key == key_crl_menu2)
         {
             MN_DeactivateMenu();
             return (true);
@@ -6222,11 +6224,11 @@ static char *M_MakeBindName (int CurrentItPosOn, int key, int type)
             switch (key)
             {
                 case -1:  return  "---";            break;  // Means empty
-                case  0:  return  "LEFT BUTTON";    break;
-                case  1:  return  "RIGHT BUTTON";   break;
-                case  2:  return  "MIDDLE BUTTON";  break;
-                case  3:  return  "WHEEL UP";       break;
-                case  4:  return  "WHEEL DOWN";     break;
+                case  0:  return  "LEFT";           break;
+                case  1:  return  "RIGHT";          break;
+                case  2:  return  "MIDDLE";         break;
+                case  3:  return  "WHLUP";          break;
+                case  4:  return  "WHLDN";          break;
                 default:  return  other_button;     break;
             }
         }

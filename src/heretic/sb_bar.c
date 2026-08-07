@@ -1904,22 +1904,22 @@ boolean SB_Responder (const event_t *const event)
         }
 
         // [JN] CRL - handle cheat keybind shortcuts:
-        if (event->data1 == key_crl_iddqd)
+        if (event->data1 == key_crl_iddqd || event->data1 == key_crl_iddqd2)
         {
             CheatGodFunc(&players[consoleplayer], &Cheats[0]);
             return (true);
         }
-        if (event->data1 == key_crl_idfa)
+        if (event->data1 == key_crl_idfa || event->data1 == key_crl_idfa2)
         {
             CheatWeaponsFunc(&players[consoleplayer], &Cheats[2]);
             return (true);
         }
-        if (event->data1 == key_crl_idclip)
+        if (event->data1 == key_crl_idclip || event->data1 == key_crl_idclip2)
         {
             CheatNoClipFunc(&players[consoleplayer], &Cheats[1]);
             return (true);
         }
-        if (event->data1 == key_crl_iddt)
+        if (event->data1 == key_crl_iddt || event->data1 == key_crl_iddt2)
         {
             ravmap_cheating++;
             if (ravmap_cheating > 2)
