@@ -587,10 +587,10 @@ static void CRL_Automap_SndProp (int option);
 static void DrawCRLGameplay (void);
 static void CRL_DefaulSkill (int option);
 static void CRL_PistolStart (int option);
-static void CRL_ColoredSBar (int option);
 static void CRL_RevealedSecrets (int option);
 static void CRL_RestoreTargets (int option);
 static void CRL_OnDeathAction (int option);
+static void CRL_ColoredSBar (int option);
 static void CRL_AmmoWidget (int option);
 static void CRL_AmmoWidgetTranslucent (int option);
 static void CRL_AmmoWidgetColors (int option);
@@ -3126,11 +3126,11 @@ static void CRL_Automap_SndProp (int option)
 static MenuItem_t CRLGameplayItems[] = {
     { ITT_LRFUNC2, "DEFAULT SKILL LEVEL",      CRL_DefaulSkill,           0, MENU_NONE },
     { ITT_LRFUNC2, "WAND START GAME MODE",     CRL_PistolStart,           0, MENU_NONE },
-    { ITT_LRFUNC2, "COLORED STATUS BAR",       CRL_ColoredSBar,           0, MENU_NONE },
     { ITT_LRFUNC2, "REPORT REVEALED SECRETS",  CRL_RevealedSecrets,       0, MENU_NONE },
     { ITT_LRFUNC2, "RESTORE MONSTER TARGETS",  CRL_RestoreTargets,        0, MENU_NONE },
     { ITT_LRFUNC2, "ON DEATH ACTION",          CRL_OnDeathAction,         0, MENU_NONE },
     { ITT_EMPTY,   NULL,                       NULL,                      0, MENU_NONE },
+    { ITT_LRFUNC2, "COLORED STATUS BAR",       CRL_ColoredSBar,           0, MENU_NONE },
     { ITT_LRFUNC2, "SHOW AMMO WIDGET",         CRL_AmmoWidget,            0, MENU_NONE },
     { ITT_LRFUNC1, "AMMO WIDGET TRANSLUCENCY", CRL_AmmoWidgetTranslucent, 0, MENU_NONE },
     { ITT_LRFUNC2, "AMMO WIDGET COLORING",     CRL_AmmoWidgetColors,      0, MENU_NONE },
@@ -3166,29 +3166,29 @@ static void DrawCRLGameplay (void)
     MN_DrTextA(str, M_ItemRightAlign(str), 30,
                M_Item_Glow(1, crl_pistol_start ? GLOW_GREEN : GLOW_DARKRED));
 
-    // Colored status bar
-    sprintf(str, crl_colored_stbar ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 40,
-               M_Item_Glow(2, crl_colored_stbar ? GLOW_GREEN : GLOW_DARKRED));
-
     // Report revealed secrets
     sprintf(str, crl_revealed_secrets == 1 ? "TOP" :
                  crl_revealed_secrets == 2 ? "CENTERED" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 50,
-               M_Item_Glow(3, crl_revealed_secrets ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 40,
+               M_Item_Glow(2, crl_revealed_secrets ? GLOW_GREEN : GLOW_DARKRED));
 
     // Restore monster targets
     sprintf(str, crl_restore_targets ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 60,
-               M_Item_Glow(4, crl_restore_targets ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 50,
+               M_Item_Glow(3, crl_restore_targets ? GLOW_GREEN : GLOW_DARKRED));
 
     // On death action
     sprintf(str, crl_death_use_action == 1 ? "LAST SAVE" :
                  crl_death_use_action == 2 ? "NOTHING" : "DEFAULT");
-    MN_DrTextA(str, M_ItemRightAlign(str), 70,
-               M_Item_Glow(5, crl_death_use_action ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 60,
+               M_Item_Glow(4, crl_death_use_action ? GLOW_GREEN : GLOW_DARKRED));
 
-    MN_DrTextACentered("STATUS BAR", 80, cr[CR_YELLOW]);
+    MN_DrTextACentered("STATUS BAR", 70, cr[CR_YELLOW]);
+
+    // Colored status bar
+    sprintf(str, crl_colored_stbar ? "ON" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 80,
+               M_Item_Glow(6, crl_colored_stbar ? GLOW_GREEN : GLOW_DARKRED));
 
     // Ammo widget
     sprintf(str, crl_ammo_widget == 1 ? "BRIEF" :
@@ -3246,11 +3246,6 @@ static void CRL_PistolStart (int option)
     crl_pistol_start ^= 1;
 }
 
-static void CRL_ColoredSBar (int option)
-{
-    crl_colored_stbar ^= 1;
-}
-
 static void CRL_RevealedSecrets (int choice)
 {
     crl_revealed_secrets = M_INT_Slider(crl_revealed_secrets, 0, 2, choice, false);
@@ -3264,6 +3259,11 @@ static void CRL_RestoreTargets (int option)
 static void CRL_OnDeathAction (int choice)
 {
     crl_death_use_action = M_INT_Slider(crl_death_use_action, 0, 2, choice, false);
+}
+
+static void CRL_ColoredSBar (int option)
+{
+    crl_colored_stbar ^= 1;
 }
 
 static void CRL_AmmoWidget (int choice)
