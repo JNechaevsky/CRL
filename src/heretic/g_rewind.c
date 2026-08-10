@@ -426,7 +426,7 @@ static boolean LoadFullKeyframe(const keyframe_t *keyframe)
     rewind_restoring = true;
     G_InitNew(gameskill, gameepisode, gamemap);
     rewind_restoring = false;
-    // wipegamestate = gamestate;
+    wipegamestate = gamestate;
 
     a = SV_ReadByte();
     b = SV_ReadByte();

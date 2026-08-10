@@ -435,6 +435,7 @@ static void CRL_MenuBgShading (int option);
 static void CRL_LevelBrightness (int option);
 static void CRL_MsgCritical (int option);
 static void CRL_GfxStartup (int option);
+static void CRL_ScreenWipe (int option);
 static void CRL_EndText (int option);
 
 static void DrawCRLDisplay (void);
@@ -1236,6 +1237,7 @@ static MenuItem_t CRLVideoItems[] = {
     { ITT_LRFUNC1, "HOM EFFECT",          CRL_HOMDraw,       0, MENU_NONE },
     { ITT_EMPTY,   NULL,                  NULL,              0, MENU_NONE },
     { ITT_LRFUNC2, "GRAPHICAL STARTUP",   CRL_GfxStartup,    0, MENU_NONE },
+    { ITT_LRFUNC2, "SCREEN WIPE EFFECT",  CRL_ScreenWipe,    0, MENU_NONE },
     { ITT_LRFUNC2, "SHOW ENDTEXT SCREEN", CRL_EndText,       0, MENU_NONE },
 };
 
@@ -1309,12 +1311,19 @@ static void DrawCRLVideo (void)
                M_Item_Glow(8, graphical_startup == 1 ? GLOW_DARKRED :
                               graphical_startup == 2 ? GLOW_YELLOW : GLOW_GREEN));
 
+    // Screen wipe effect
+    sprintf(str, crl_screenwipe == 1 ? "MELT" :
+                 crl_screenwipe == 2 ? "FAST MELT" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 110,
+               M_Item_Glow(9, crl_screenwipe == 1 ? GLOW_GREEN :
+                              crl_screenwipe == 2 ? GLOW_YELLOW : GLOW_DARKRED));
+
     // Show ENDTEXT screen
     sprintf(str, show_endoom == 1 ? "ALWAYS" :
                  show_endoom == 2 ? "PWAD ONLY" : "NEVER");
-    MN_DrTextA(str, M_ItemRightAlign(str), 110,
-               M_Item_Glow(9, show_endoom == 1 ? GLOW_DARKRED :
-                              show_endoom == 2 ? GLOW_YELLOW : GLOW_GREEN));
+    MN_DrTextA(str, M_ItemRightAlign(str), 120,
+               M_Item_Glow(10, show_endoom == 1 ? GLOW_DARKRED :
+                               show_endoom == 2 ? GLOW_YELLOW : GLOW_GREEN));
 }
 
 static void CRL_UncappedFPS (int option)
@@ -1381,6 +1390,11 @@ static void CRL_HOMDraw (int option)
 static void CRL_GfxStartup (int option)
 {
     graphical_startup = M_INT_Slider(graphical_startup, 0, 2, option, false);
+}
+
+static void CRL_ScreenWipe (int choice)
+{
+    crl_screenwipe = M_INT_Slider(crl_screenwipe, 0, 2, choice, false);
 }
 
 static void CRL_EndText (int option)
@@ -5693,6 +5707,15 @@ boolean MN_Responder(event_t * event)
         G_ScreenShot();
         // [JN] Audible feedback.
         S_StartSound(NULL, sfx_itemup);
+        return (true);
+    }
+
+    // [PN] Clean screenshot.
+    if (key != 0 && (key == key_menu_cleanshot || key == key_menu_cleanshot2))
+    {
+        R_SetViewSize(13, detailLevel);
+        S_StartSound(NULL, sfx_itemup);
+        cleanshot_pending = true;
         return (true);
     }
 

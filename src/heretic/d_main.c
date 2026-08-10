@@ -40,6 +40,7 @@
 #include "doomkeys.h"
 #include "deh_main.h"
 #include "d_iwad.h"
+#include "f_wipe.h"
 #include "i_endoom.h"
 #include "i_input.h"
 #include "i_joystick.h"
@@ -105,6 +106,9 @@ int showMessages = 1;      // [JN] Show messages has default, 0 = off, 1 = on
 // using extended range and because of this can't be used in DOS version.
 // Still used for config file compatibility.
 static int screenblocks = 10;
+
+// wipegamestate can be set to -1 to force a wipe on the next draw
+gamestate_t wipegamestate = GS_DEMOSCREEN;
 
 //---------------------------------------------------------------------------
 //
@@ -215,6 +219,11 @@ static void D_Display(void)
         return;  // for comparative timing / profiling
     }
 
+    int      nowtime;
+    int      tics;
+    int      wipestart;
+    boolean  done;
+    boolean  wipe;
     static   gamestate_t oldgamestate = -1;
 
     // [crispy] post-rendering function pointer to apply config changes
@@ -244,6 +253,18 @@ static void D_Display(void)
     {
         R_ExecuteSetViewSize();
         oldgamestate = -1;  // force background redraw
+    }
+
+    // save the current screen if about to wipe
+    // [JN] Make screen wipe optional, use external config variable.
+    if (gamestate != wipegamestate && crl_screenwipe)
+    {
+        wipe = true;
+        wipe_StartScreen();
+    }
+    else
+    {
+        wipe = false;
     }
 
     // [JN/PN] Schedule the actual screenshot for the next frame via post_rendering_hook,
@@ -345,7 +366,7 @@ static void D_Display(void)
     if (testcontrols)
     V_DrawMouseSpeedBox(testcontrols_mousespeed);
 
-    oldgamestate = /*wipegamestate =*/ gamestate;
+    oldgamestate = wipegamestate = gamestate;
 
     // [PN] Skip pause pic, messages and menu for clean screenshot.
     if (!cleanshot_pending)
@@ -386,8 +407,42 @@ static void D_Display(void)
     // [JN] Critical messages are drawn even higher than on top everything!
     CRL_DrawMessageCritical();
 
-    // Flush buffered stuff to screen
-    I_FinishUpdate();
+    // normal update
+    if (!wipe)
+    {
+        I_FinishUpdate();  // page flip or blit buffer
+        return;
+    }
+
+    // wipe update
+    wipe_EndScreen();
+    wipestart = I_GetTime() - 1;
+
+    do
+    {
+        if (crl_uncapped_fps && crl_screenwipe)
+        {
+            nowtime = I_GetTime();
+            tics = nowtime - wipestart;
+
+            // [PN] Allow sub-tic melt rendering via fractionaltic interpolation.
+            I_UpdateFracTic();
+        }
+        else
+        {
+            do
+            {
+                nowtime = I_GetTime ();
+                tics = nowtime - wipestart;
+                I_Sleep(1);
+            } while (tics <= 0);
+        }
+
+        wipestart = nowtime;
+        done = wipe_ScreenWipe(tics);
+        MN_Drawer();       // menu is drawn even on top of wipes
+        I_FinishUpdate();  // page flip or blit buffer
+    } while (!done);
 }
 
 //

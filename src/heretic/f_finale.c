@@ -33,6 +33,9 @@ static int finalestage;                // 0 = text, 1 = art screen
 static int finalecount;
 static int finaleendcount;
 
+// [JN] Do screen wipe only once after text skipping.
+static boolean finale_wipe_done;
+
 #define TEXTSPEED       3
 #define TEXTWAIT        250
 #define	TEXTEND         25
@@ -60,6 +63,7 @@ void F_StartFinale(void)
     gameaction = ga_nothing;
     gamestate = GS_FINALE;
     automapactive = false;
+    finale_wipe_done = false;
     players[consoleplayer].cheatTics = 1;
     players[consoleplayer].messageTics = 1;
     players[consoleplayer].messageTics = 1;
@@ -197,14 +201,12 @@ void F_Ticker(void)
             F_HandleDoubleSkip();
         }
 
-        // [JN] Force a wipe after skipping text screen. -- TODO
-        /*
+        // [JN] Force a wipe after skipping text screen.
         if (finalestage && !finale_wipe_done)
         {
             finale_wipe_done = true;
             wipegamestate = -1;
         }
-        */
 
         // Advance animation.
         finalecount++;
@@ -367,8 +369,11 @@ static void F_DrawUnderwater(void)
                 palette = W_CacheLumpName(lumpname, PU_STATIC);
                 I_SetPalette(palette);
                 W_ReleaseLumpName(lumpname);
-                V_DrawRawScreen(W_CacheLumpName(DEH_String("E2END"), PU_CACHE));
             }
+            // [PN] Redraw every frame: after crossfade, the wipe buffer can
+            // still contain faint remnants of finale text if we don't refresh
+            // the underwater background continuously.
+            V_DrawRawScreen(W_CacheLumpName(DEH_String("E2END"), PU_CACHE));
             paused = false;
             MenuActive = false;
             askforquit = false;
