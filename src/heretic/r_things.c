@@ -702,8 +702,6 @@ static void R_DrawPSprite(pspdef_t * psp)
     boolean flip;
     vissprite_t *vis, avis;
 
-    int tempangle;
-
 //
 // decide which patch to use
 //
@@ -742,21 +740,12 @@ static void R_DrawPSprite(pspdef_t * psp)
     tx = sx2 - 160 * FRACUNIT;
 
     tx -= spriteoffset[lump];
-    if (viewangleoffset)
-    {
-        tempangle =
-            ((centerxfrac / 1024) * (viewangleoffset >> ANGLETOFINESHIFT));
-    }
-    else
-    {
-        tempangle = 0;
-    }
-    x1 = (centerxfrac + FixedMul(tx, pspritescale) + tempangle) >> FRACBITS;
+
+    x1 = (centerxfrac + FixedMul(tx, pspritescale)) >> FRACBITS;
     if (x1 > viewwidth)
         return;                 // off the right side
     tx += spritewidth[lump];
-    x2 = ((centerxfrac + FixedMul(tx, pspritescale) +
-           tempangle) >> FRACBITS) - 1;
+    x2 = ((centerxfrac + FixedMul(tx, pspritescale)) >> FRACBITS) - 1;
     if (x2 < 0)
         return;                 // off the left side
 
@@ -1066,13 +1055,5 @@ void R_DrawMasked(void)
 //
 // draw the psprites on top of everything
 //
-// Added for the sideviewing with an external device
-    if (viewangleoffset <= 1024 << ANGLETOFINESHIFT || viewangleoffset >=
-        -(1024 << ANGLETOFINESHIFT))
-    {                           // don't draw on side views
-        R_DrawPlayerSprites();
-    }
-
-//      if (!viewangleoffset)           // don't draw on side views
-//              R_DrawPlayerSprites ();
+    R_DrawPlayerSprites();
 }

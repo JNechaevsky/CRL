@@ -29,7 +29,6 @@
 #include "crlvars.h"
 
 
-int viewangleoffset;
 
 // haleyjd: removed WATCOMC
 
@@ -658,7 +657,6 @@ static void R_SetupFrame(player_t * player)
 
     viewplayer = player;
     // haleyjd: removed WATCOMC
-    // haleyjd FIXME: viewangleoffset handling?
     
     if (crl_spectating)
     {
@@ -708,12 +706,12 @@ static void R_SetupFrame(player_t * player)
             {
                 viewangle = (player->mo->angle + localview.angle -
                             localview.ticangle + LerpAngle(localview.oldticangle,
-                                                           localview.ticangle)) + viewangleoffset;
+                                                           localview.ticangle));
                 pitch = LerpInt(player->r_oldlookdir, player->r_lookdir) / MLOOKUNIT;
             }
             else
             {
-                viewangle = LerpAngle(player->mo->oldangle, player->mo->angle) + viewangleoffset;
+                viewangle = LerpAngle(player->mo->oldangle, player->mo->angle);
                 pitch = LerpInt(player->oldlookdir, player->lookdir);
             }
         }
@@ -722,7 +720,7 @@ static void R_SetupFrame(player_t * player)
             viewx = player->mo->x;
             viewy = player->mo->y;
             viewz = player->viewz;
-            viewangle = player->mo->angle + viewangleoffset;
+            viewangle = player->mo->angle;
             pitch = use_localview ? player->r_lookdir / MLOOKUNIT : // [JN] Precise vertical mouse look.
                                     player->lookdir; // [crispy]
         }
