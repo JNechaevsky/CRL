@@ -1112,7 +1112,7 @@ static MenuItem_t CRLMainItems[] = {
     {ITT_SETMENU, "WIDGETS SETTINGS",     NULL,              0, MENU_CRLWIDGETS},
     {ITT_SETMENU, "AUTOMAP SETTINGS",     NULL,              0, MENU_CRLAUTOMAP},
     {ITT_SETMENU, "GAMEPLAY FEATURES",    NULL,              0, MENU_CRLGAMEPLAY},
-    {ITT_SETMENU, "MISC FEATURES",        M_Choose_CRL_Misc, 0, MENU_MISC_1},
+    {ITT_EFUNC,   "MISC FEATURES",        M_Choose_CRL_Misc, 0, MENU_NONE},
     {ITT_SETMENU, "LIMITS AND WARNINGS",  NULL,              0, MENU_CRLLIMITS},
     {ITT_SETMENU, "VANILLA OPTIONS MENU", NULL,              0, MENU_OPTIONS}
 };
