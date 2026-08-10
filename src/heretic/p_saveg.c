@@ -234,7 +234,10 @@ void SV_WriteSaveGameEOF(void)
 
     // Enforce the same savegame size limit as in Vanilla Heretic
 
-    if (vanilla_savegame_limit && ftell(SaveGameFP) > SAVEGAMESIZE)
+    // [PN] Only check file size when writing to a file, not to memory buffer.
+    // ftell(NULL) is UB and crashes MSVC CRT on rewind keyframe saves.
+    if (vanilla_savegame_limit && SaveGameFP != NULL
+     && ftell(SaveGameFP) > SAVEGAMESIZE)
     {
         // [JN] CRL - print a warnings instead of quit with an error.
         CRL_SetMessageCritical("SV[CLOSE:", "SAVEGAME OVERFLOW (VANILLA CRASHES HERE)", MESSAGETICS);
