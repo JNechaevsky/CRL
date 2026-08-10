@@ -4900,6 +4900,12 @@ static void SCNetCheck2(int option)
 
 static void SCQuitGame(int option)
 {
+    // [JN] CRL - optionally don’t ask for quit confirmation.
+    if (!crl_confirm_quit)
+    {
+        I_Quit();
+    }
+
     MenuWasPaused = paused;
     MenuActive = false;
     askforquit = true;

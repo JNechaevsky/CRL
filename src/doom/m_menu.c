@@ -4909,6 +4909,12 @@ static const char *M_SelectEndMessage(void)
 
 static void M_QuitDOOM(int choice)
 {
+    // [JN] CRL - optionally don’t ask for quit confirmation.
+    if (!crl_confirm_quit)
+    {
+        I_Quit();
+    }
+
     DEH_snprintf(endstring, sizeof(endstring), "%s\n\n" DOSY,
                  DEH_String(M_SelectEndMessage()));
 
