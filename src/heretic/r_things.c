@@ -406,7 +406,7 @@ static void R_DrawVisSprite(vissprite_t * vis, int x1, int x2)
             ((vis->mobjflags & MF_TRANSLATION) >> (MF_TRANSSHIFT - 8));
     }
 
-    dc_iscale = abs(vis->xiscale) >> detailshift;
+    dc_iscale = abs(vis->xiscale);
     dc_texturemid = vis->texturemid;
     frac = vis->startfrac;
     spryscale = vis->scale;
@@ -584,7 +584,7 @@ static void R_ProjectSprite(mobj_t * thing)
     vis = R_NewVisSprite();
     vis->mobjflags = thing->flags;
     vis->psprite = false;
-    vis->scale = xscale << detailshift;
+    vis->scale = xscale;
     vis->gx = interpx;
     vis->gy = interpy;
     vis->gz = interpz;
@@ -630,7 +630,7 @@ static void R_ProjectSprite(mobj_t * thing)
         vis->colormap = colormaps;      // full bright
     else
     {                           // diminished light
-        index = xscale >> (LIGHTSCALESHIFT - detailshift);
+        index = xscale >> LIGHTSCALESHIFT;
         if (index >= MAXLIGHTSCALE)
             index = MAXLIGHTSCALE - 1;
         vis->colormap = spritelights[index];
@@ -776,7 +776,7 @@ static void R_DrawPSprite(pspdef_t * psp)
     }
     vis->x1 = x1 < 0 ? 0 : x1;
     vis->x2 = x2 >= viewwidth ? viewwidth - 1 : x2;
-    vis->scale = pspritescale << detailshift;
+    vis->scale = pspritescale;
     if (flip)
     {
         vis->xiscale = -pspriteiscale;

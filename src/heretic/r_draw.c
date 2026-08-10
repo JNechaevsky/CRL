@@ -101,35 +101,6 @@ void R_DrawColumn(void)
     while (count--);
 }
 
-void R_DrawColumnLow(void)
-{
-    int count;
-    byte *dest;
-    fixed_t frac, fracstep;
-
-    count = dc_yh - dc_yl;
-    if (count < 0)
-        return;
-
-#ifdef RANGECHECK
-    if ((unsigned) dc_x >= SCREENWIDTH || dc_yl < 0 || dc_yh >= SCREENHEIGHT)
-        I_Error("R_DrawColumn: %i to %i at %i", dc_yl, dc_yh, dc_x);
-#endif
-
-    dest = ylookup[dc_yl] + columnofs[dc_x];
-
-    fracstep = dc_iscale;
-    frac = dc_texturemid + (dc_yl - centery) * fracstep;
-
-    do
-    {
-        *dest = dc_colormap[dc_source[(frac >> FRACBITS) & 127]];
-        dest += SCREENWIDTH;
-        frac += fracstep;
-    }
-    while (count--);
-}
-
 // Translucent column draw - blended with background using tinttable.
 
 void R_DrawTLColumn(void)
@@ -322,33 +293,6 @@ void R_DrawSpan(void)
             CRL_MarkPixelP(CRLPlaneSurface, dc_visplaneused, dest);
         }
 
-        *dest++ = ds_colormap[ds_source[spot]];
-        xfrac += ds_xstep;
-        yfrac += ds_ystep;
-    }
-    while (count--);
-}
-
-void R_DrawSpanLow(void)
-{
-    fixed_t xfrac, yfrac;
-    byte *dest;
-    int count, spot;
-
-#ifdef RANGECHECK
-    if (ds_x2 < ds_x1 || ds_x1 < 0 || ds_x2 >= SCREENWIDTH
-        || (unsigned) ds_y > SCREENHEIGHT)
-        I_Error("R_DrawSpan: %i to %i at %i", ds_x1, ds_x2, ds_y);
-#endif
-
-    xfrac = ds_xfrac;
-    yfrac = ds_yfrac;
-
-    dest = ylookup[ds_y] + columnofs[ds_x1];
-    count = ds_x2 - ds_x1;
-    do
-    {
-        spot = ((yfrac >> (16 - 6)) & (63 * 64)) + ((xfrac >> 16) & 63);
         *dest++ = ds_colormap[ds_source[spot]];
         xfrac += ds_xstep;
         yfrac += ds_ystep;

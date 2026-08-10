@@ -47,7 +47,6 @@ fixed_t viewcos, viewsin;
 player_t *viewplayer;
 localview_t localview; // [crispy]
 
-int detailshift;                // 0 = high, 1 = low
 
 //
 // precalculated math tables
@@ -317,7 +316,7 @@ fixed_t R_ScaleFromGlobalAngle(angle_t visangle)
 // bothe sines are allways positive
     sinea = finesine[anglea >> ANGLETOFINESHIFT];
     sineb = finesine[angleb >> ANGLETOFINESHIFT];
-    num = FixedMul(projection, sineb) << detailshift;
+    num = FixedMul(projection, sineb);
     den = FixedMul(rw_distance, sinea);
     if (den > num >> 16)
     {
@@ -493,8 +492,7 @@ void R_ExecuteSetViewSize(void)
         viewheight = (setblocks * 158 / 10);
     }
 
-    detailshift = setdetail;
-    viewwidth = scaledviewwidth >> detailshift;
+    viewwidth = scaledviewwidth;
 
     centery = viewheight / 2;
     centerx = viewwidth / 2;
@@ -502,20 +500,10 @@ void R_ExecuteSetViewSize(void)
     centeryfrac = centery << FRACBITS;
     projection = centerxfrac;
 
-    if (!detailshift)
-    {
-        colfunc = basecolfunc = R_DrawColumn;
-        tlcolfunc = R_DrawTLColumn;
-        transcolfunc = R_DrawTranslatedColumn;
-        spanfunc = R_DrawSpan;
-    }
-    else
-    {
-        colfunc = basecolfunc = R_DrawColumnLow;
-        tlcolfunc = R_DrawTLColumn;
-        transcolfunc = R_DrawTranslatedColumn;
-        spanfunc = R_DrawSpanLow;
-    }
+    colfunc = basecolfunc = R_DrawColumn;
+    tlcolfunc = R_DrawTLColumn;
+    transcolfunc = R_DrawTranslatedColumn;
+    spanfunc = R_DrawSpan;
 
     R_InitBuffer(scaledviewwidth, viewheight);
 
@@ -540,7 +528,7 @@ void R_ExecuteSetViewSize(void)
     {
         dy = ((i - viewheight / 2) << FRACBITS) + FRACUNIT / 2;
         dy = abs(dy);
-        yslope[i] = FixedDiv((viewwidth << detailshift) / 2 * FRACUNIT, dy);
+        yslope[i] = FixedDiv(viewwidth / 2 * FRACUNIT, dy);
     }
 
     for (i = 0; i < viewwidth; i++)
@@ -559,7 +547,7 @@ void R_ExecuteSetViewSize(void)
         {
             level =
                 start_map -
-                j * SCREENWIDTH / (viewwidth << detailshift) / DISTMAP;
+                j * SCREENWIDTH / viewwidth / DISTMAP;
             if (level < 0)
                 level = 0;
             if (level >= NUMCOLORMAPS)
@@ -764,7 +752,7 @@ static void R_SetupFrame(player_t * player)
         centeryfrac = centery << FRACBITS;
         for (i = 0; i < viewheight; i++)
         {
-            yslope[i] = FixedDiv((viewwidth << detailshift) / 2 * FRACUNIT,
+            yslope[i] = FixedDiv(viewwidth / 2 * FRACUNIT,
                                  abs(((i - centery) << FRACBITS) +
                                      FRACUNIT / 2));
         }
