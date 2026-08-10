@@ -697,6 +697,10 @@ static void CRL_Choose_Keybinds (int choice)
     SetMenu(Keybinds_Cur);
 }
 
+// Forward declarations for scrolling and remembering last pages.
+static Menu_t CRLMisc_1;
+static Menu_t CRLMisc_2;
+
 // Remember last misc settings page.
 static int Misc_Cur;
 
@@ -740,6 +744,9 @@ static void M_ScrollPages (boolean direction)
     else if (CurrentMenu == &CRLKbdBinds7) nextMenu = (direction ? MENU_CRLKBDBINDS8 : MENU_CRLKBDBINDS6);
     else if (CurrentMenu == &CRLKbdBinds8) nextMenu = (direction ? MENU_CRLKBDBINDS1 : MENU_CRLKBDBINDS7);
     else if (CurrentMenu == &CRLKbdBinds9) nextMenu = (direction ? MENU_CRLKBDBINDS1 : MENU_CRLKBDBINDS8);
+    // Misc features:
+    else if (CurrentMenu == &CRLMisc_1) nextMenu = MENU_MISC_2;
+    else if (CurrentMenu == &CRLMisc_2) nextMenu = MENU_MISC_1;
 
     // If a new menu was set up, play the navigation sound.
     if (nextMenu)
@@ -748,6 +755,7 @@ static void M_ScrollPages (boolean direction)
         S_StartSound(NULL, sfx_switch);
     }
 }
+
 // -----------------------------------------------------------------------------
 
 // [JN] Delay before shading.
@@ -1069,7 +1077,7 @@ static void M_DrawScrollPages (int x, int y, int itemOnGlow, const char *pagenum
     MN_DrTextA("SCROLL PAGES", x, y,
                M_Item_Glow(14, GLOW_LIGHTGRAY));
 
-    M_snprintf(str, 32, "PAGE %s", pagenum);
+    M_snprintf(str, 32, "%s", M_StringJoin("PAGE ", pagenum, NULL));
 
     MN_DrTextA(str, M_ItemRightAlign(str), y,
                M_Item_Glow(14, GLOW_LIGHTGRAY));
@@ -1114,7 +1122,7 @@ static MenuItem_t CRLMainItems[] = {
     {ITT_SETMENU, "WIDGETS SETTINGS",     NULL,              0, MENU_CRLWIDGETS},
     {ITT_SETMENU, "AUTOMAP SETTINGS",     NULL,              0, MENU_CRLAUTOMAP},
     {ITT_SETMENU, "GAMEPLAY FEATURES",    NULL,              0, MENU_CRLGAMEPLAY},
-    {ITT_EFUNC,   "MISC FEATURES",        M_Choose_CRL_Misc, 0, MENU_NONE},
+    {ITT_EFUNC,   "MISC FEATURES",        M_Choose_CRL_Misc, 0, MENU_MISC_1},
     {ITT_SETMENU, "LIMITS AND WARNINGS",  NULL,              0, MENU_CRLLIMITS},
     {ITT_SETMENU, "VANILLA OPTIONS MENU", NULL,              0, MENU_OPTIONS}
 };
@@ -3378,7 +3386,7 @@ static Menu_t CRLMisc_1 = {
     DrawCRLMisc_1,
     ITEMCOUNT(CRLMiscItems_1), CRLMiscItems_1,
     0,
-    SmallFont, false, false,
+    SmallFont, false, true,
     MENU_CRLMAIN
 };
 
@@ -3595,7 +3603,7 @@ static Menu_t CRLMisc_2 = {
     DrawCRLMisc_2,
     ITEMCOUNT(CRLMiscItems_2), CRLMiscItems_2,
     0,
-    SmallFont, false, false,
+    SmallFont, false, true,
     MENU_CRLMAIN
 };
 
@@ -6092,7 +6100,7 @@ boolean MN_Responder(event_t * event)
         }
         else if (key == key_menu_left)       // Slider left
         {
-            if ((item->type == ITT_LRFUNC1 || item->type == ITT_LRFUNC2 || item->type == ITT_SLDR) && item->func != NULL)
+            if (CurrentItPos != -1 && (item->type == ITT_LRFUNC1 || item->type == ITT_LRFUNC2 || item->type == ITT_SLDR) && item->func != NULL)
             {
                 item->func(LEFT_DIR);
                 if (item->type == ITT_LRFUNC1 || item->type == ITT_LRFUNC2)
@@ -6109,7 +6117,7 @@ boolean MN_Responder(event_t * event)
         }
         else if (key == key_menu_right)      // Slider right
         {
-            if ((item->type == ITT_LRFUNC1 || item->type == ITT_LRFUNC2 || item->type == ITT_SLDR) && item->func != NULL)
+            if (CurrentItPos != -1 && (item->type == ITT_LRFUNC1 || item->type == ITT_LRFUNC2 || item->type == ITT_SLDR) && item->func != NULL)
             {
                 item->func(RIGHT_DIR);
                 if (item->type == ITT_LRFUNC1 || item->type == ITT_LRFUNC2)
