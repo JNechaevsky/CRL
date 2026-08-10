@@ -1312,11 +1312,13 @@ static void DrawCRLVideo (void)
                               graphical_startup == 2 ? GLOW_YELLOW : GLOW_GREEN));
 
     // Screen wipe effect
-    sprintf(str, crl_screenwipe == 1 ? "MELT" :
-                 crl_screenwipe == 2 ? "FAST MELT" : "OFF");
+    sprintf(str, crl_screenwipe == 1 ? "CROSSFADE" :
+                 crl_screenwipe == 2 ? "MELT" :
+                 crl_screenwipe == 3 ? "FAST MELT": "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 110,
                M_Item_Glow(9, crl_screenwipe == 1 ? GLOW_GREEN :
-                              crl_screenwipe == 2 ? GLOW_YELLOW : GLOW_DARKRED));
+                              crl_screenwipe == 2 ? GLOW_YELLOW :
+                              crl_screenwipe == 3 ? GLOW_ORANGE : GLOW_DARKRED));
 
     // Show ENDTEXT screen
     sprintf(str, show_endoom == 1 ? "ALWAYS" :
@@ -1394,7 +1396,7 @@ static void CRL_GfxStartup (int option)
 
 static void CRL_ScreenWipe (int choice)
 {
-    crl_screenwipe = M_INT_Slider(crl_screenwipe, 0, 2, choice, false);
+    crl_screenwipe = M_INT_Slider(crl_screenwipe, 0, 3, choice, false);
 }
 
 static void CRL_EndText (int option)
