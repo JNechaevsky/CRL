@@ -186,6 +186,20 @@ static void CRL_DrawMessageCritical (void)
                                                     cr[CR_WHITE]);  // Static
 }
 
+// -----------------------------------------------------------------------------
+// R_CleanShotHook
+//  [PN] Clean screenshot hook: called at the start of the next D_Display
+//  via post_rendering_hook. By that time, the GPU back buffer holds the
+//  previous frame which we capture here.
+// -----------------------------------------------------------------------------
+
+static void R_CleanShotHook (void)
+{
+    V_ScreenShot("DOOM%02i.%s");
+    R_SetViewSize(crl_screen_size, detailLevel);
+    cleanshot_pending = false;
+}
+
 //---------------------------------------------------------------------------
 //
 // PROC D_Display
@@ -196,12 +210,20 @@ static void CRL_DrawMessageCritical (void)
 
 static void D_Display(void)
 {
-    static gamestate_t oldgamestate = -1;
-
-    // For comparative timing / profiling
     if (nodrawers)
     {
-        return;
+        return;  // for comparative timing / profiling
+    }
+
+    static   gamestate_t oldgamestate = -1;
+
+    // [crispy] post-rendering function pointer to apply config changes
+    // that affect rendering and that are better applied after the current
+    // frame has finished rendering
+    if (post_rendering_hook)
+    {
+        post_rendering_hook();
+        post_rendering_hook = NULL;
     }
 
     if (crl_uncapped_fps)
@@ -217,28 +239,36 @@ static void D_Display(void)
         }
     }
 
-    // Change the view size if needed
+    // change the view size if needed
     if (setsizeneeded)
     {
         R_ExecuteSetViewSize();
         oldgamestate = -1;  // force background redraw
     }
 
-    // [JN] RestlessRodent -- Set surface
-    CRLSurface = I_VideoBuffer;
+    // [JN/PN] Schedule the actual screenshot for the next frame via post_rendering_hook,
+    // so it captures this clean frame from the GPU back buffer.
+    if (cleanshot_pending)
+    post_rendering_hook = R_CleanShotHook;
 
-//
-// do buffered drawing
-//
+    // do buffered drawing
     switch (gamestate)
     {
         case GS_LEVEL:
             if (!gametic)
-                break;
+            break;
 
-            // [JN] Update automap while playing and render
-            // full view so counters will show correct values.
+            // RestlessRodent -- Set surface
+            CRLSurface = I_VideoBuffer;
+
+            // draw the view directly
             R_RenderPlayerView(&players[displayplayer]);
+            // [PN] Capture clean world-only preview before automap/HUD/widgets/menu overlays.
+            // P_UpdateSavePreviewCache();
+
+            // [JN] Fail-safe: return earlier if post rendering hook is still active.
+            if (post_rendering_hook && !cleanshot_pending)
+            return;
 
             // see if the border needs to be initially drawn
             if (oldgamestate != GS_LEVEL)
@@ -248,66 +278,60 @@ static void D_Display(void)
             if (scaledviewwidth != SCREENWIDTH)
             R_DrawViewBorder();  // erase old menu stuff
 
-            if (automapactive)
+            // [PN] Skip all HUD overlays for clean screenshot.
+            if (!cleanshot_pending)
             {
+                // [JN] CRL - Draw automap on top of player view and view border,
+                // and update while playing. This also needed for render counters update.
+                if (automapactive)
                 AM_Drawer();
-            }
-            else
-            {
-                // [JN] RestlessRodent -- draw visplanes if overlayed
+
+                // RestlessRodent -- draw visplanes if overlayed
                 CRL_DrawVisPlanes(1);
+
+                // [JN] Do not draw any CRL widgets if not in game level.
+                if (crl_extended_hud)
+                {
+                    // RestlessRodent -- CRL Stats
+                    CRL_StatDrawer();
+
+                    // [crispy] demo timer widget
+                    if (demoplayback && (crl_demo_timer == 1 || crl_demo_timer == 3))
+                    {
+                        CRL_DemoTimer(crl_demo_timerdir ? (deftotaldemotics - defdemotics) : defdemotics);
+                    }
+                    else if (demorecording && (crl_demo_timer == 2 || crl_demo_timer == 3))
+                    {
+                        CRL_DemoTimer(leveltime);
+                    }
+
+                    // [JN] Target's health widget.
+                    // Actual health values are gathered in G_Ticker.
+                    if (crl_widget_health)
+                    CRL_DrawTargetsHealth();
+
+                    // [PN] Player speed widget.
+                    if (crl_widget_speed)
+                    CRL_DrawPlayerSpeed();
+                }
+
+                // [JN] Main status bar drawing function.
+                SB_Drawer();
+
+                // [JN] Chat drawer
+                if (netgame && chatmodeon)
+                CT_Drawer();
             }
-
-            if (crl_extended_hud)
-            {
-                // [JN] CRL Stats
-                CRL_StatDrawer();
-
-                // [crispy] demo timer widget
-                if (demoplayback && (crl_demo_timer == 1 || crl_demo_timer == 3))
-                {
-                    CRL_DemoTimer(crl_demo_timerdir ? (deftotaldemotics - defdemotics) : defdemotics);
-                }
-                else if (demorecording && (crl_demo_timer == 2 || crl_demo_timer == 3))
-                {
-                    CRL_DemoTimer(leveltime);
-                }
-
-                // [JN] Target's health widget.
-                // Actual health values are gathered in G_Ticker.
-                if (crl_widget_health)
-                CRL_DrawTargetsHealth();
-
-                // [PN] Player speed widget.
-                if (crl_widget_speed)
-                CRL_DrawPlayerSpeed();
-            }
-
-            CT_Drawer();
-            SB_Drawer();
-
-            if (crl_extended_hud)
-            {
-                // [crispy] demo progress bar
-                if (demoplayback && crl_demo_bar)
-                {
-                    CRL_DemoBar();
-                }
-
-                // [JN] Draw FPS counter.
-                if (crl_showfps)
-                {
-                    CRL_DrawFPS();
-                }
-            }
-
             break;
+
         case GS_INTERMISSION:
             IN_Drawer();
             break;
+
         case GS_FINALE:
             F_Drawer();
             break;
+
         case GS_DEMOSCREEN:
             D_PageDrawer();
             break;
@@ -317,40 +341,50 @@ static void D_Display(void)
     if (gamestate != oldgamestate && gamestate != GS_LEVEL)
     CRL_ReloadPalette();
 
+    // Box showing current mouse speed
     if (testcontrols)
-    {
-        V_DrawMouseSpeedBox(testcontrols_mousespeed);
-    }
+    V_DrawMouseSpeedBox(testcontrols_mousespeed);
 
     oldgamestate = /*wipegamestate =*/ gamestate;
 
-    if (paused && !MenuActive && !askforquit)
+    // [PN] Skip pause pic, messages and menu for clean screenshot.
+    if (!cleanshot_pending)
     {
-        if (!netgame)
+        // draw pause pic
+        if (paused && !MenuActive && !askforquit)
         {
-            V_DrawShadowedPatchRavenOptional(160, viewwindowy + 5, W_CacheLumpName(DEH_String("PAUSED"),
-                                                              PU_CACHE), "PAUSED");
+            const int y = !netgame ? viewwindowy + 5 : 70;
+
+            V_DrawShadowedPatchRavenOptional(160, y, W_CacheLumpName(DEH_String("PAUSED"), PU_CACHE), "PAUSED");
         }
-        else
+
+        if (crl_extended_hud)
         {
-            V_DrawShadowedPatchRavenOptional(160, 70, W_CacheLumpName(DEH_String("PAUSED"), PU_CACHE), "PAUSED");
+            // [crispy] demo progress bar
+            if (demoplayback && crl_demo_bar)
+            CRL_DemoBar();
+
+            // [JN] Draw FPS counter, except on finale/text screens.
+            if (crl_showfps && gamestate != GS_FINALE)
+            CRL_DrawFPS();
         }
+
+
+        // Handle player messages
+        DrawMessage();
+
+        // [JN] Handle centered player messages.
+        CRL_DrawMessageCentered();
+
+        // Menu drawing
+        MN_Drawer();
     }
-
-    // [JN] Handle centered player messages.
-    CRL_DrawMessageCentered();
-
-    // Menu drawing
-    MN_Drawer();
-
-    // Handle player messages
-    DrawMessage();
-
-    // [JN] Critical messages are drawn even higher than on top everything!
-    CRL_DrawMessageCritical();
 
     // Send out any new accumulation
     NetUpdate();
+
+    // [JN] Critical messages are drawn even higher than on top everything!
+    CRL_DrawMessageCritical();
 
     // Flush buffered stuff to screen
     I_FinishUpdate();
