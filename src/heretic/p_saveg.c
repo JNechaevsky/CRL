@@ -27,6 +27,7 @@
 #include "m_misc.h"
 #include "p_local.h"
 #include "v_video.h"
+#include "v_savepreview.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
@@ -450,6 +451,50 @@ uint32_t SV_ReadLong(void)
     uint32_t result;
     SV_Read(&result, sizeof(int));
     return LONG(result);
+}
+
+// -----------------------------------------------------------------------------
+// [PN] Savegame preview helpers.
+// -----------------------------------------------------------------------------
+
+static v_savepreview_cache_t saveg_preview_cache;
+
+static byte saveg_pixel_to_palette(pixel_t pixel, void *user_data)
+{
+    (void)user_data;
+
+    return pixel;
+}
+
+void P_RequestSavePreviewCapture (void)
+{
+    V_SavePreview_RequestCapture(&saveg_preview_cache);
+}
+
+boolean P_IsSavePreviewReady (void)
+{
+    return V_SavePreview_IsReady(&saveg_preview_cache);
+}
+
+// [PN] Refresh clean world-only save preview cache from the freshly rendered view.
+void P_UpdateSavePreviewCache (void)
+{
+    if (!saveg_preview_cache.capture_requested)
+    {
+        return;
+    }
+
+    V_SavePreview_UpdateCache(&saveg_preview_cache,
+                              I_VideoBuffer,
+                              SCREENWIDTH,
+                              SCREENHEIGHT,
+                              viewwindowx,
+                              viewwindowy,
+                              scaledviewwidth,
+                              viewheight,
+                              SCREENWIDTH,
+                              saveg_pixel_to_palette,
+                              NULL);
 }
 
 // [JN] Separate function to read "mobj_s *target"
@@ -2337,6 +2382,32 @@ void P_RestoreTargets (void)
         restoretargets_fail = 0;
     }
 }
+
+// -----------------------------------------------------------------------------
+// P_ArchiveSavePreview
+// [PN] Archive savegame preview thumbnail at end of save file
+// using shared V_SavePreview footer format.
+// -----------------------------------------------------------------------------
+
+void P_ArchiveSavePreview (void)
+{
+    byte thumb[V_SAVEPREVIEW_SIZE];
+    byte footer[V_SAVEPREVIEW_FOOTER_SIZE];
+
+    V_SavePreview_CopyOrBlack(&saveg_preview_cache, thumb);
+    V_SavePreview_WriteFooter(footer);
+
+    for (int i = 0; i < V_SAVEPREVIEW_SIZE; ++i)
+    {
+        SV_WriteByte(thumb[i]);
+    }
+
+    for (int i = 0; i < V_SAVEPREVIEW_FOOTER_SIZE; ++i)
+    {
+        SV_WriteByte(footer[i]);
+    }
+}
+
 
 // -----------------------------------------------------------------------------
 // P_ArchiveOldSpecials

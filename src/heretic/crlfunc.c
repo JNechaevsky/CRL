@@ -398,6 +398,9 @@ void CRL_StatDrawer (void)
         CRL_Get_MAX();
     }
 
+    // Apply translucency while Save/Load menu is active.
+    dp_translucent = savemenuactive;
+
     // Player coords
     if (crl_widget_coords == 1
     || (crl_widget_coords == 2 && automapactive))
@@ -620,6 +623,8 @@ void CRL_StatDrawer (void)
             }
         }
     }
+
+    dp_translucent = false;
 }
 
 // -----------------------------------------------------------------------------
@@ -745,7 +750,7 @@ void CRL_DrawTargetsHealth (void)
     }
 
     // Apply translucency while Save/Load menu is active.
-    // dp_translucent = savemenuactive;
+    dp_translucent = savemenuactive;
 
     const int yy = crl_widget_speed ? 10 : 0;
     sprintf(str, "%d/%d", player->targetsheath, player->targetsmaxheath);
@@ -769,7 +774,7 @@ void CRL_DrawTargetsHealth (void)
             break;
     }
 
-    // dp_translucent = false;
+    dp_translucent = false;
 }
 
 // -----------------------------------------------------------------------------

@@ -305,6 +305,11 @@ void P_RestoreTargets (void);
 void P_ArchiveOldSpecials (void);
 void P_UnArchiveOldSpecials (void);
 
+extern void     P_ArchiveSavePreview (void);
+extern void     P_RequestSavePreviewCapture (void);
+extern boolean  P_IsSavePreviewReady (void);
+extern void     P_UpdateSavePreviewCache (void);
+
 #include "p_spec.h"
 
 #endif // __P_LOCAL__

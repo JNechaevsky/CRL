@@ -1963,6 +1963,7 @@ void G_Ticker(void)
                         savegameslot =
                             (players[i].cmd.
                              buttons & BTS_SAVEMASK) >> BTS_SAVESHIFT;
+                             P_RequestSavePreviewCapture();
                         gameaction = ga_savegame;
                         break;
                 }
@@ -3076,6 +3077,7 @@ void G_SaveGame(int slot, char *description)
 {
     savegameslot = slot;
     M_StringCopy(savedescription, description, sizeof(savedescription));
+    P_RequestSavePreviewCapture();
     sendsave = true;
 }
 
@@ -3089,6 +3091,14 @@ void G_SaveGame(int slot, char *description)
 
 void G_DoSaveGame(void)
 {
+    if (!P_IsSavePreviewReady())
+    {
+        // [PN] Delay save until next frame captures a clean world-only preview.
+        gameaction = ga_nothing;
+        sendsave = true;
+        return;
+    }
+
     int i;
     char *filename;
     char verString[VERSIONSIZE];
@@ -3122,6 +3132,9 @@ void G_DoSaveGame(void)
     // [plums] write old sector specials (for revealed secrets) at the end
     // to keep save compatibility with previous versions
     P_ArchiveOldSpecials();
+
+    // [PN] Write savegame preview thumbnail after terminator.
+    P_ArchiveSavePreview();
 
     SV_Close();
 
