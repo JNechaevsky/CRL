@@ -481,6 +481,7 @@ static void M_Bind_UseArti (int option);
 
 static void DrawCRLKbd3 (void);
 static void M_Bind_CRLmenu (int option);
+static void M_Bind_PrevLevel (int option);
 static void M_Bind_RestartLevel (int option);
 static void M_Bind_NextLevel (int option);
 static void M_Bind_FastForward (int option);
@@ -2023,6 +2024,7 @@ static void M_Bind_UseArti (int option)
 
 static MenuItem_t CRLKbsBinds3Items[] = {
     { ITT_EFUNC, "MAIN CRL MENU",        M_Bind_CRLmenu,        0, MENU_NONE },
+    { ITT_EFUNC, "GO TO PREVIOUS LEVEL", M_Bind_PrevLevel,      0, MENU_NONE },
     { ITT_EFUNC, "RESTART LEVEL/DEMO",   M_Bind_RestartLevel,   0, MENU_NONE },
     { ITT_EFUNC, "GO TO NEXT LEVEL",     M_Bind_NextLevel,      0, MENU_NONE },
     { ITT_EFUNC, "DEMO FAST-FORWARD",    M_Bind_FastForward,    0, MENU_NONE },
@@ -2056,21 +2058,22 @@ static void DrawCRLKbd3 (void)
     MN_DrTextACentered("CRL CONTROLS", 10, cr[CR_YELLOW]);
 
     M_DrawBindKey(0, 20, key_crl_menu, key_crl_menu2);
-    M_DrawBindKey(1, 30, key_crl_reloadlevel, key_crl_reloadlevel2);
-    M_DrawBindKey(2, 40, key_crl_nextlevel, key_crl_nextlevel2);
-    M_DrawBindKey(3, 50, key_crl_demospeed, key_crl_demospeed2);
-    M_DrawBindKey(4, 60, key_crl_extendedhud, key_crl_extendedhud2);
+    M_DrawBindKey(1, 30, key_crl_prevlevel, key_crl_prevlevel2);
+    M_DrawBindKey(2, 40, key_crl_reloadlevel, key_crl_reloadlevel2);
+    M_DrawBindKey(3, 50, key_crl_nextlevel, key_crl_nextlevel2);
+    M_DrawBindKey(4, 60, key_crl_demospeed, key_crl_demospeed2);
+    M_DrawBindKey(5, 70, key_crl_extendedhud, key_crl_extendedhud2);
 
-    MN_DrTextACentered("GAME MODES", 70, cr[CR_YELLOW]);
+    MN_DrTextACentered("GAME MODES", 80, cr[CR_YELLOW]);
 
-    M_DrawBindKey(6, 80, key_crl_spectator, key_crl_spectator2);
-    M_DrawBindKey(7, 90, key_crl_cameraup, key_crl_cameraup2);
-    M_DrawBindKey(8, 100, key_crl_cameradown, key_crl_cameradown2);
-    M_DrawBindKey(9, 110, key_crl_cameramoveto, key_crl_cameramoveto2);
-    M_DrawBindKey(10, 120, key_crl_freeze, key_crl_freeze2);
-    M_DrawBindKey(11, 130, key_crl_buddha, key_crl_buddha2);
-    M_DrawBindKey(12, 140, key_crl_notarget, key_crl_notarget2);
-    M_DrawBindKey(13, 150, key_crl_nomomentum, key_crl_nomomentum2);
+    M_DrawBindKey(7, 90, key_crl_spectator, key_crl_spectator2);
+    M_DrawBindKey(8, 100, key_crl_cameraup, key_crl_cameraup2);
+    M_DrawBindKey(9, 110, key_crl_cameradown, key_crl_cameradown2);
+    M_DrawBindKey(10, 120, key_crl_cameramoveto, key_crl_cameramoveto2);
+    M_DrawBindKey(11, 130, key_crl_freeze, key_crl_freeze2);
+    M_DrawBindKey(12, 140, key_crl_buddha, key_crl_buddha2);
+    M_DrawBindKey(13, 150, key_crl_notarget, key_crl_notarget2);
+    M_DrawBindKey(14, 160, key_crl_nomomentum, key_crl_nomomentum2);
 
     M_DrawBindFooter("3", true);
 }
@@ -2080,64 +2083,69 @@ static void M_Bind_CRLmenu (int option)
     M_StartBind(300);  // key_crl_menu
 }
 
+static void M_Bind_PrevLevel (int choice)
+{
+    M_StartBind(301);  // key_crl_prevlevel
+}
+
 static void M_Bind_RestartLevel (int option)
 {
-    M_StartBind(301);  // key_crl_reloadlevel
+    M_StartBind(302);  // key_crl_reloadlevel
 }
 
 static void M_Bind_NextLevel (int option)
 {
-    M_StartBind(302);  // key_crl_nextlevel
+    M_StartBind(303);  // key_crl_nextlevel
 }
 
 static void M_Bind_FastForward (int option)
 {
-    M_StartBind(303);  // key_crl_demospeed
+    M_StartBind(304);  // key_crl_demospeed
 }
 
 static void M_Bind_ExtendedHUD (int choice)
 {
-    M_StartBind(304);  // key_crl_extendedhud
+    M_StartBind(305);  // key_crl_extendedhud
 }
 
 static void M_Bind_SpectatorMode (int option)
 {
-    M_StartBind(305);  // key_crl_spectator
+    M_StartBind(306);  // key_crl_spectator
 }
 
 static void M_Bind_CameraUp (int option)
 {
-    M_StartBind(306);  // key_crl_cameraup
+    M_StartBind(307);  // key_crl_cameraup
 }
 
 static void M_Bind_CameraDown (int option)
 {
-    M_StartBind(307);  // key_crl_cameradown
+    M_StartBind(308);  // key_crl_cameradown
 }
 
 static void M_Bind_CameraMoveTo (int choice)
 {
-    M_StartBind(308);  // key_crl_cameramoveto
+    M_StartBind(309);  // key_crl_cameramoveto
 }
 
 static void M_Bind_FreezeMode (int option)
 {
-    M_StartBind(309);  // key_crl_freeze
+    M_StartBind(310);  // key_crl_freeze
 }
 
 static void M_Bind_BuddhaMode (int choice)
 {
-    M_StartBind(310);  // key_crl_buddha
+    M_StartBind(311);  // key_crl_buddha
 }
 
 static void M_Bind_NotargetMode (int option)
 {
-    M_StartBind(311);  // key_crl_notarget
+    M_StartBind(312);  // key_crl_notarget
 }
 
 static void M_Bind_NomomentumMode (int choice)
 {
-    M_StartBind(312);  // key_crl_nomomentum
+    M_StartBind(313);  // key_crl_nomomentum
 }
 
 // -----------------------------------------------------------------------------
@@ -6637,18 +6645,19 @@ static const KeyBindEntry_t keybinds[] =
 
     // Page 3 - CRL Controls & Game Modes
     KEYBIND_ENTRY(300, &CRLKbdBinds3, 0,  key_crl_menu,        key_crl_menu2,        '`',  0, KBS_GLOBAL),
-    KEYBIND_ENTRY(301, &CRLKbdBinds3, 1,  key_crl_reloadlevel, key_crl_reloadlevel2, 0,    0, KBS_GLOBAL),
-    KEYBIND_ENTRY(302, &CRLKbdBinds3, 2,  key_crl_nextlevel,   key_crl_nextlevel2,   0,    0, KBS_GLOBAL),
-    KEYBIND_ENTRY(303, &CRLKbdBinds3, 3,  key_crl_demospeed,   key_crl_demospeed2,   0,    0, KBS_GLOBAL),
-    KEYBIND_ENTRY(304, &CRLKbdBinds3, 4,  key_crl_extendedhud, key_crl_extendedhud2, 0,    0, KBS_GLOBAL),
-    KEYBIND_ENTRY(305, &CRLKbdBinds3, 6,  key_crl_spectator,   key_crl_spectator2,   0,    0, KBS_GLOBAL),
-    KEYBIND_ENTRY(306, &CRLKbdBinds3, 7,  key_crl_cameraup,    key_crl_cameraup2,    0,    0, KBS_GLOBAL),
-    KEYBIND_ENTRY(307, &CRLKbdBinds3, 8,  key_crl_cameradown,  key_crl_cameradown2,  0,    0, KBS_GLOBAL),
-    KEYBIND_ENTRY(308, &CRLKbdBinds3, 9,  key_crl_cameramoveto,key_crl_cameramoveto2,0,    0, KBS_GLOBAL),
-    KEYBIND_ENTRY(309, &CRLKbdBinds3, 10, key_crl_freeze,      key_crl_freeze2,      0,    0, KBS_GLOBAL),
-    KEYBIND_ENTRY(310, &CRLKbdBinds3, 11, key_crl_buddha,      key_crl_buddha2,      0,    0, KBS_GLOBAL),
-    KEYBIND_ENTRY(311, &CRLKbdBinds3, 12, key_crl_notarget,    key_crl_notarget2,    0,    0, KBS_GLOBAL),
-    KEYBIND_ENTRY(312, &CRLKbdBinds3, 13, key_crl_nomomentum,  key_crl_nomomentum2,  0,    0, KBS_GLOBAL),
+    KEYBIND_ENTRY(301, &CRLKbdBinds3, 1,  key_crl_prevlevel,   key_crl_prevlevel2, 0,    0, KBS_GLOBAL),
+    KEYBIND_ENTRY(302, &CRLKbdBinds3, 2,  key_crl_reloadlevel, key_crl_reloadlevel2, 0,    0, KBS_GLOBAL),
+    KEYBIND_ENTRY(303, &CRLKbdBinds3, 3,  key_crl_nextlevel,   key_crl_nextlevel2,   0,    0, KBS_GLOBAL),
+    KEYBIND_ENTRY(304, &CRLKbdBinds3, 4,  key_crl_demospeed,   key_crl_demospeed2,   0,    0, KBS_GLOBAL),
+    KEYBIND_ENTRY(305, &CRLKbdBinds3, 5,  key_crl_extendedhud, key_crl_extendedhud2, 0,    0, KBS_GLOBAL),
+    KEYBIND_ENTRY(306, &CRLKbdBinds3, 7,  key_crl_spectator,   key_crl_spectator2,   0,    0, KBS_GLOBAL),
+    KEYBIND_ENTRY(307, &CRLKbdBinds3, 8,  key_crl_cameraup,    key_crl_cameraup2,    0,    0, KBS_GLOBAL),
+    KEYBIND_ENTRY(308, &CRLKbdBinds3, 9,  key_crl_cameradown,  key_crl_cameradown2,  0,    0, KBS_GLOBAL),
+    KEYBIND_ENTRY(309, &CRLKbdBinds3, 10, key_crl_cameramoveto,key_crl_cameramoveto2,0,    0, KBS_GLOBAL),
+    KEYBIND_ENTRY(310, &CRLKbdBinds3, 11, key_crl_freeze,      key_crl_freeze2,      0,    0, KBS_GLOBAL),
+    KEYBIND_ENTRY(311, &CRLKbdBinds3, 12, key_crl_buddha,      key_crl_buddha2,      0,    0, KBS_GLOBAL),
+    KEYBIND_ENTRY(312, &CRLKbdBinds3, 13, key_crl_notarget,    key_crl_notarget2,    0,    0, KBS_GLOBAL),
+    KEYBIND_ENTRY(313, &CRLKbdBinds3, 14, key_crl_nomomentum,  key_crl_nomomentum2,  0,    0, KBS_GLOBAL),
 
     // Page 4 - Advanced Movement, Visplanes, Cheats
     KEYBIND_ENTRY(400, &CRLKbdBinds4, 0,  key_crl_autorun,  key_crl_autorun2,  KEY_CAPSLOCK, 0, KBS_GLOBAL),
