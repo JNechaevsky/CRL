@@ -607,6 +607,7 @@ static void CRL_Widget_Powerups (int option);
 static void CRL_Widget_Health (int option);
 
 static void DrawCRLAutomap (void);
+static void CRL_Automap_Antialias (int option);
 static void CRL_Automap_TexturedBg (int choice);
 static void CRL_Automap_ScrollBg (int choice);
 static void CRL_Automap_Rotate (int option);
@@ -2740,6 +2741,7 @@ static void CRL_Widget_Health (int option)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLAutomapItems[] = {
+    { ITT_LRFUNC2, "LINE ANTIALIASING",      CRL_Automap_Antialias,  0, MENU_NONE },
     { ITT_LRFUNC2, "BACKGROUND STYLE",       CRL_Automap_TexturedBg, 0, MENU_NONE },
     { ITT_LRFUNC2, "SCROLL BACKGROUND"  ,    CRL_Automap_ScrollBg,   0, MENU_NONE },
     { ITT_LRFUNC2, "ROTATE MODE",            CRL_Automap_Rotate,     0, MENU_NONE },
@@ -2765,48 +2767,58 @@ static void DrawCRLAutomap (void)
 
     MN_DrTextACentered("AUTOMAP", 10, cr[CR_YELLOW]);
 
+    // Line antialiasing
+    sprintf(str, crl_automap_antialias ? "ON" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 20,
+               M_Item_Glow(0, crl_automap_antialias ? GLOW_DARKRED : GLOW_GREEN));
+
     // Background style
     sprintf(str, crl_automap_textured_bg ? "TEXTURED" : "BLACK");
-    MN_DrTextA(str, M_ItemRightAlign(str), 20,
-               M_Item_Glow(0, crl_automap_textured_bg ? GLOW_DARKRED : GLOW_GREEN));
+    MN_DrTextA(str, M_ItemRightAlign(str), 30,
+               M_Item_Glow(1, crl_automap_textured_bg ? GLOW_DARKRED : GLOW_GREEN));
 
     // Scroll background
     sprintf(str, crl_automap_scroll_bg ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 30,
-               M_Item_Glow(1, crl_automap_scroll_bg ? GLOW_DARKRED : GLOW_GREEN));
+    MN_DrTextA(str, M_ItemRightAlign(str), 40,
+               M_Item_Glow(2, crl_automap_scroll_bg ? GLOW_DARKRED : GLOW_GREEN));
 
     // Rotate mode
     sprintf(str, crl_automap_rotate ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 40,
-               M_Item_Glow(2, crl_automap_rotate ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 50,
+               M_Item_Glow(3, crl_automap_rotate ? GLOW_GREEN : GLOW_DARKRED));
 
     // Overlay mode
     sprintf(str, crl_automap_overlay ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 50,
-               M_Item_Glow(3, crl_automap_overlay ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 60,
+               M_Item_Glow(4, crl_automap_overlay ? GLOW_GREEN : GLOW_DARKRED));
 
     // Overlay shading level
     sprintf(str,"%d", crl_automap_shading);
-    MN_DrTextA(str, M_ItemRightAlign(str), 60,
-               M_Item_Glow(4, !crl_automap_overlay ? GLOW_DARKRED :
+    MN_DrTextA(str, M_ItemRightAlign(str), 70,
+               M_Item_Glow(5, !crl_automap_overlay ? GLOW_DARKRED :
                                crl_automap_shading ==  0 ? GLOW_DARKRED :
                                crl_automap_shading == 12 ? GLOW_YELLOW : GLOW_GREEN));
 
     // Mouse panning mode
     sprintf(str, crl_automap_mouse_pan ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 70,
-               M_Item_Glow(5, crl_automap_mouse_pan ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 80,
+               M_Item_Glow(6, crl_automap_mouse_pan ? GLOW_GREEN : GLOW_DARKRED));
 
     // Mark secret sectors
     sprintf(str, crl_automap_secrets == 1 ? "REVEALED" :
                  crl_automap_secrets == 2 ? "ALWAYS" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 80,
-               M_Item_Glow(6, crl_automap_secrets ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 90,
+               M_Item_Glow(7, crl_automap_secrets ? GLOW_GREEN : GLOW_DARKRED));
 
     // Sound propagation mode
     sprintf(str, crl_automap_sndprop ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 90,
-               M_Item_Glow(7, crl_automap_sndprop ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 100,
+               M_Item_Glow(8, crl_automap_sndprop ? GLOW_GREEN : GLOW_DARKRED));
+}
+
+static void CRL_Automap_Antialias (int choice)
+{
+    crl_automap_antialias ^= 1;
 }
 
 static void CRL_Automap_TexturedBg (int choice)
@@ -2829,6 +2841,7 @@ static void CRL_Automap_Rotate (int option)
 static void CRL_Automap_Overlay (int option)
 {
     crl_automap_overlay ^= 1;
+    AM_initOverlayMode();
 }
 
 static void CRL_Automap_Shading (int option)

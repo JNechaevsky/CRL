@@ -81,6 +81,7 @@ int crl_monosfx = 0;
 int crl_mute_inactive = 0;
 
 // Automap
+int crl_automap_antialias = 1;
 int crl_automap_textured_bg = 1;
 int crl_automap_scroll_bg = 1;
 int crl_automap_mode = 0;
@@ -192,6 +193,7 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_mute_inactive",              &crl_mute_inactive);
 
     // Automap
+    M_BindIntVariable("crl_automap_antialias",          &crl_automap_antialias);
     M_BindIntVariable("crl_automap_textured_bg",        &crl_automap_textured_bg);
     M_BindIntVariable("crl_automap_scroll_bg",          &crl_automap_scroll_bg);
     M_BindIntVariable("crl_automap_mode",               &crl_automap_mode);

@@ -315,6 +315,14 @@ static byte antialias_overlay[NUMALIAS][8] = {
     { 75,  75,  74,  74,  73,  73,  72,  72},   // CDWALLCOLORS
 };
 
+// [PN] Colors for disabled antialiasing
+static byte non_antialias[NUMALIAS][2] = {
+    { 96, 100},   // WALLCOLORS
+    {110, 106},   // FDWALLCOLORS
+    { 75, 76},    // CDWALLCOLORS
+};
+
+
 static byte (*antialias)[NUMALIAS][8]; // [crispy]
 
 static byte *maplump;           // pointer to the raw data for the automap background.
@@ -1549,93 +1557,100 @@ static boolean AM_clipMline (mline_t *ml, fline_t *fl)
 // Classic Bresenham w/ whatever optimizations needed for speed.
 // -----------------------------------------------------------------------------
 
-static void AM_drawFline (fline_t *fl, int color)
+static void AM_drawFline (fline_t *const fl, int color)
 {
-    int x;
-    int y;
-    int dx;
-    int dy;
-    int sx;
-    int sy;
-    int ax;
-    int ay;
-    int d;
+    int x, y, dx, dy, sx, sy, ax, ay, d;
     static int fuck = 0;
 
-    switch (color)
+    if (crl_automap_antialias)
     {
-        case WALLCOLORS:
-            DrawWuLine(fl->a.x, fl->a.y, fl->b.x, fl->b.y, &(*antialias)[0][0],
-                       8, 3);
-            break;
-        case FDWALLCOLORS:
-            DrawWuLine(fl->a.x, fl->a.y, fl->b.x, fl->b.y, &(*antialias)[1][0],
-                       8, 3);
-            break;
-        case CDWALLCOLORS:
-            DrawWuLine(fl->a.x, fl->a.y, fl->b.x, fl->b.y, &(*antialias)[2][0],
-                       8, 3);
-            break;
-        default:
-            {
-                // For debugging only
-                if (fl->a.x < 0 || fl->a.x >= f_w
-                    || fl->a.y < 0 || fl->a.y >= f_h
-                    || fl->b.x < 0 || fl->b.x >= f_w
-                    || fl->b.y < 0 || fl->b.y >= f_h)
-                {
-                    fprintf(stderr, "fuck %d \r", fuck++);
-                    return;
-                }
+        // Antialiased lines
+        switch (color)
+        {
+            case WALLCOLORS:
+                DrawWuLine(fl->a.x, fl->a.y, fl->b.x, fl->b.y, &(*antialias)[0][0], 8, 3);
+                return;
+            case FDWALLCOLORS:
+                DrawWuLine(fl->a.x, fl->a.y, fl->b.x, fl->b.y, &(*antialias)[1][0], 8, 3);
+                return;
+            case CDWALLCOLORS:
+                DrawWuLine(fl->a.x, fl->a.y, fl->b.x, fl->b.y, &(*antialias)[2][0], 8, 3);
+                return;
+        }
+    }
+    else
+    {
+        // Non-antialiased: use solid colors
+        switch (color)
+        {
+            case WALLCOLORS:
+                color = non_antialias[0][crl_automap_overlay];
+                break;
+            case FDWALLCOLORS:
+                color = non_antialias[1][crl_automap_overlay];
+                break;
+            case CDWALLCOLORS:
+                color = non_antialias[2][crl_automap_overlay];
+                break;
+        }
+    }
+
+    // Default: Bresenham line drawing
+    if (fl->a.x < 0 || fl->a.x >= f_w
+    ||  fl->a.y < 0 || fl->a.y >= f_h
+    ||  fl->b.x < 0 || fl->b.x >= f_w
+    ||  fl->b.y < 0 || fl->b.y >= f_h)
+    {
+        fprintf(stderr, "fuck %d \r", fuck++);
+        return;
+    }
 
 #define DOT(xx,yy,cc) fb[(yy)*f_w+(xx)]=(cc)    //the MACRO!
 
-                dx = fl->b.x - fl->a.x;
-                ax = 2 * (dx < 0 ? -dx : dx);
-                sx = dx < 0 ? -1 : 1;
+    dx = fl->b.x - fl->a.x;
+    ax = 2 * (dx < 0 ? -dx : dx);
+    sx = dx < 0 ? -1 : 1;
 
-                dy = fl->b.y - fl->a.y;
-                ay = 2 * (dy < 0 ? -dy : dy);
-                sy = dy < 0 ? -1 : 1;
+    dy = fl->b.y - fl->a.y;
+    ay = 2 * (dy < 0 ? -dy : dy);
+    sy = dy < 0 ? -1 : 1;
 
-                x = fl->a.x;
-                y = fl->a.y;
+    x = fl->a.x;
+    y = fl->a.y;
 
-                if (ax > ay)
-                {
-                    d = ay - ax / 2;
-                    while (1)
-                    {
-                        DOT(x, y, color);
-                        if (x == fl->b.x)
-                            return;
-                        if (d >= 0)
-                        {
-                            y += sy;
-                            d -= ax;
-                        }
-                        x += sx;
-                        d += ay;
-                    }
-                }
-                else
-                {
-                    d = ax - ay / 2;
-                    while (1)
-                    {
-                        DOT(x, y, color);
-                        if (y == fl->b.y)
-                            return;
-                        if (d >= 0)
-                        {
-                            x += sx;
-                            d -= ay;
-                        }
-                        y += sy;
-                        d += ax;
-                    }
-                }
+    if (ax > ay)
+    {
+        d = ay - ax / 2;
+        while (1)
+        {
+            DOT(x, y, color);
+            if (x == fl->b.x)
+                return;
+            if (d >= 0)
+            {
+                y += sy;
+                d -= ax;
             }
+            x += sx;
+            d += ay;
+        }
+    }
+    else
+    {
+        d = ax - ay / 2;
+        while (1)
+        {
+            DOT(x, y, color);
+            if (y == fl->b.y)
+                return;
+            if (d >= 0)
+            {
+                x += sx;
+                d -= ay;
+            }
+            y += sy;
+            d += ax;
+        }
     }
 }
 
