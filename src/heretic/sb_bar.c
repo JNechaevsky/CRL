@@ -1336,6 +1336,25 @@ static void CheatWarpFunc (player_t *const player, Cheat_t *const cheat)
     }
 }
 
+static void CheatMDKFunc (player_t *const player, Cheat_t *const cheat)
+{
+    FULL_CHEAT_CHECK;
+    // Do an overflow-safe trace to get target.
+    P_AimLineAttack (player->mo, player->mo->angle, MISSILERANGE, true);
+
+    if (linetarget)
+    {
+        // Got one, deal damage equal to it's health.
+        P_DamageMobj (linetarget, NULL, NULL, player->targetsheath);
+        CT_SetMessage(player, "TARGET KILLED", false, NULL);
+    }
+    else
+    {
+        // No target found, just inform.
+        CT_SetMessage(player, "TARGET NOT FOUND", false, NULL);
+    }
+}
+
 static void CheatArtifact1Func (player_t *const player, Cheat_t *const cheat)
 {
     FULL_CHEAT_CHECK;
@@ -1814,6 +1833,8 @@ static Cheat_t Cheats[] = {
     { CheatWarpFunc,        &(cheatseq_t){ CHEAT_SEQ("idclev",   2) } },
     { CheatWarpFunc,        &(cheatseq_t){ CHEAT_SEQ("engage",   2) } },
     { CheatWarpFunc,        &(cheatseq_t){ CHEAT_SEQ("visit",    2) } },
+    // MDK
+    { CheatMDKFunc,         &(cheatseq_t){ CHEAT_SEQ("mdk", 0) } },
     // Artifacts
     { CheatArtifact1Func,   &(cheatseq_t){ CHEAT_SEQ("gimme",    0) } },
     { CheatArtifact2Func,   &(cheatseq_t){ CHEAT_SEQ("gimme",    1) } },
@@ -1909,6 +1930,11 @@ boolean SB_Responder (const event_t *const event)
             CheatGodFunc(&players[consoleplayer], &Cheats[0]);
             return (true);
         }
+        if (event->data1 == key_crl_idkfa || event->data1 == key_crl_idkfa2)
+        {
+            CheatWeapKeysFunc(&players[consoleplayer], &Cheats[2]);
+            return (true);
+        }
         if (event->data1 == key_crl_idfa || event->data1 == key_crl_idfa2)
         {
             CheatWeaponsFunc(&players[consoleplayer], &Cheats[2]);
@@ -1926,6 +1952,11 @@ boolean SB_Responder (const event_t *const event)
             {
                 ravmap_cheating = 0;
             }
+            return (true);
+        }
+        if (event->data1 == key_crl_mdk || event->data1 == key_crl_mdk2)
+        {
+            CheatMDKFunc(&players[consoleplayer], &Cheats[1]);
             return (true);
         }
     }
