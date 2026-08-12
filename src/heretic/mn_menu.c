@@ -578,10 +578,10 @@ static void M_Bind_Reset (int option);
 static void DrawCRLMouse (void);
 static void M_Bind_M_FireAttack (int option);
 static void M_Bind_M_MoveForward (int option);
-static void M_Bind_M_SpeedOn (int option);
-static void M_Bind_M_StrafeOn (int option);
 static void M_Bind_M_MoveBackward (int option);
 static void M_Bind_M_Use (int option);
+static void M_Bind_M_SpeedOn (int option);
+static void M_Bind_M_StrafeOn (int option);
 static void M_Bind_M_StrafeLeft (int option);
 static void M_Bind_M_StrafeRight (int option);
 static void M_Bind_M_PrevWeapon (int option);
@@ -2445,10 +2445,10 @@ static void M_Bind_Reset (int option)
 static MenuItem_t CRLMouseItems[] = {
     { ITT_EFUNC, "FIRE/ATTACK",               M_Bind_M_FireAttack,     0, MENU_NONE },
     { ITT_EFUNC, "MOVE FORWARD",              M_Bind_M_MoveForward,    0, MENU_NONE },
-    { ITT_EFUNC, "SPEED ON",                  M_Bind_M_SpeedOn,        0, MENU_NONE },
-    { ITT_EFUNC, "STRAFE ON",                 M_Bind_M_StrafeOn,       0, MENU_NONE },
     { ITT_EFUNC, "MOVE BACKWARD",             M_Bind_M_MoveBackward,   0, MENU_NONE },
     { ITT_EFUNC, "USE",                       M_Bind_M_Use,            0, MENU_NONE },
+    { ITT_EFUNC, "SPEED ON",                  M_Bind_M_SpeedOn,        0, MENU_NONE },
+    { ITT_EFUNC, "STRAFE ON",                 M_Bind_M_StrafeOn,       0, MENU_NONE },
     { ITT_EFUNC, "STRAFE LEFT",               M_Bind_M_StrafeLeft,     0, MENU_NONE },
     { ITT_EFUNC, "STRAFE RIGHT",              M_Bind_M_StrafeRight,    0, MENU_NONE },
     { ITT_EFUNC, "PREV WEAPON",               M_Bind_M_PrevWeapon,     0, MENU_NONE },
@@ -2477,10 +2477,10 @@ static void DrawCRLMouse (void)
 
     M_DrawBindButton(0, 20, mousebfire, mousebfire2);
     M_DrawBindButton(1, 30, mousebforward, mousebforward2);
-    M_DrawBindButton(2, 40, mousebspeed, mousebspeed2);
-    M_DrawBindButton(3, 50, mousebstrafe, mousebstrafe2);
-    M_DrawBindButton(4, 60, mousebbackward, mousebbackward2);
-    M_DrawBindButton(5, 70, mousebuse, mousebuse2);
+    M_DrawBindButton(2, 40, mousebbackward, mousebbackward2);
+    M_DrawBindButton(3, 50, mousebuse, mousebuse2);
+    M_DrawBindButton(4, 60, mousebspeed, mousebspeed2);
+    M_DrawBindButton(5, 70, mousebstrafe, mousebstrafe2);
     M_DrawBindButton(6, 80, mousebstrafeleft, mousebstrafeleft2);
     M_DrawBindButton(7, 90, mousebstraferight, mousebstraferight2);
     M_DrawBindButton(8, 100, mousebprevweapon, mousebprevweapon2);
@@ -2504,24 +2504,24 @@ static void M_Bind_M_MoveForward (int option)
     M_StartMouseBind(1001);  // mousebforward
 }
 
-static void M_Bind_M_SpeedOn (int option)
-{
-    M_StartMouseBind(1002);  // mousebspeed
-}
-
-static void M_Bind_M_StrafeOn (int option)
-{
-    M_StartMouseBind(1003);  // mousebstrafe
-}
-
 static void M_Bind_M_MoveBackward (int option)
 {
-    M_StartMouseBind(1004);  // mousebbackward
+    M_StartMouseBind(1002);  // mousebbackward
 }
 
 static void M_Bind_M_Use (int option)
 {
-    M_StartMouseBind(1005);  // mousebuse
+    M_StartMouseBind(1003);  // mousebuse
+}
+
+static void M_Bind_M_SpeedOn (int option)
+{
+    M_StartMouseBind(1004);  // mousebspeed
+}
+
+static void M_Bind_M_StrafeOn (int option)
+{
+    M_StartMouseBind(1005);  // mousebstrafe
 }
 
 static void M_Bind_M_StrafeLeft (int option)
@@ -6608,10 +6608,10 @@ static const MouseBindEntry_t mousebinds[] =
 {
     MOUSEBIND_ENTRY(1000, 0,  mousebfire,        mousebfire2,         0, -1),
     MOUSEBIND_ENTRY(1001, 1,  mousebforward,     mousebforward2,      2, -1),
-    MOUSEBIND_ENTRY(1002, 2,  mousebspeed,       mousebspeed2,       -1, -1),
-    MOUSEBIND_ENTRY(1003, 3,  mousebstrafe,      mousebstrafe2,       1, -1),
-    MOUSEBIND_ENTRY(1004, 4,  mousebbackward,    mousebbackward2,    -1, -1),
-    MOUSEBIND_ENTRY(1005, 5,  mousebuse,         mousebuse2,         -1, -1),
+    MOUSEBIND_ENTRY(1002, 2,  mousebbackward,    mousebbackward2,    -1, -1),
+    MOUSEBIND_ENTRY(1003, 3,  mousebuse,         mousebuse2,         -1, -1),
+    MOUSEBIND_ENTRY(1004, 4,  mousebspeed,       mousebspeed2,       -1, -1),
+    MOUSEBIND_ENTRY(1005, 5,  mousebstrafe,      mousebstrafe2,       1, -1),
     MOUSEBIND_ENTRY(1006, 6,  mousebstrafeleft,  mousebstrafeleft2,  -1, -1),
     MOUSEBIND_ENTRY(1007, 7,  mousebstraferight, mousebstraferight2, -1, -1),
     MOUSEBIND_ENTRY(1008, 8,  mousebprevweapon,  mousebprevweapon2,   4, -1),
