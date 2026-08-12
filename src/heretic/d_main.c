@@ -199,7 +199,7 @@ static void CRL_DrawMessageCritical (void)
 
 static void R_CleanShotHook (void)
 {
-    V_ScreenShot("DOOM%02i.%s");
+    V_ScreenShot("HTIC%02i.%s");
     R_SetViewSize(crl_screen_size, detailLevel);
     cleanshot_pending = false;
 }

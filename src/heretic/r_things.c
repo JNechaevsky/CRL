@@ -23,6 +23,7 @@
 #include "i_swap.h"
 #include "i_system.h"
 #include "r_local.h"
+#include "v_video.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
@@ -820,7 +821,8 @@ static void R_DrawPlayerSprites(void)
     pspdef_t *psp;
 
     // [JN] RestlessRodent -- Do not draw player gun sprite if spectating
-    if (crl_spectating)
+    // [PN] Skip weapon sprites for clean screenshot capture.
+    if (crl_spectating || cleanshot_pending)
     	return;
 
 //
