@@ -548,6 +548,8 @@ static void M_Bind_OverlayMode (int option);
 static void M_Bind_PanMode (int option);
 static void M_Bind_SndPropMode (int option);
 static void M_Bind_ToggleGrid (int option);
+static void M_Bind_AddMark (int option);
+static void M_Bind_ClearMarks (int option);
 
 static void DrawCRLKbd8 (void);
 static void M_Bind_HelpScreen (int option);
@@ -2258,7 +2260,9 @@ static MenuItem_t CRLKbsBinds7Items[] = {
     { ITT_EFUNC, "OVERLAY MODE",           M_Bind_OverlayMode, 0, MENU_NONE },
     { ITT_EFUNC, "MOUSE PANNING MODE",     M_Bind_PanMode,     0, MENU_NONE },
     { ITT_EFUNC, "SOUND PROPAGATION MODE", M_Bind_SndPropMode, 0, MENU_NONE },
-    { ITT_EFUNC, "TOGGLE GRID",            M_Bind_ToggleGrid,  0, MENU_NONE }
+    { ITT_EFUNC, "TOGGLE GRID",            M_Bind_ToggleGrid,  0, MENU_NONE },
+    { ITT_EFUNC, "MARK LOCATION",          M_Bind_AddMark,     0, MENU_NONE },
+    { ITT_EFUNC, "CLEAR ALL MARKS",        M_Bind_ClearMarks,  0, MENU_NONE }
 };
 
 static Menu_t CRLKbdBinds7 = {
@@ -2288,6 +2292,8 @@ static void DrawCRLKbd7 (void)
     M_DrawBindKey(7, 90, key_crl_map_mousepan, key_crl_map_mousepan2);
     M_DrawBindKey(8, 100, key_crl_map_sndprop, key_crl_map_sndprop2);
     M_DrawBindKey(9, 110, key_map_grid, key_map_grid2);
+    M_DrawBindKey(10, 120, key_map_mark, key_map_mark2);
+    M_DrawBindKey(11, 130, key_map_clearmark, key_map_clearmark2);
 
     M_DrawBindFooter("7", true);
 }
@@ -2302,6 +2308,8 @@ static void M_Bind_OverlayMode (int option) { M_StartBind(706); } // key_crl_map
 static void M_Bind_PanMode (int option)     { M_StartBind(707); } // key_crl_map_mousepan
 static void M_Bind_SndPropMode (int option) { M_StartBind(708); } // key_crl_map_sndprop
 static void M_Bind_ToggleGrid (int option)  { M_StartBind(709); } // key_map_grid
+static void M_Bind_AddMark (int option)     { M_StartBind(710); } // key_map_mark
+static void M_Bind_ClearMarks (int option)  { M_StartBind(711); } // key_map_clearmark
 
 // -----------------------------------------------------------------------------
 // Keybinds 8
@@ -6414,6 +6422,8 @@ static const KeyBindEntry_t keybinds[] =
     KEYBIND_ENTRY(707, &CRLKbdBinds7, 7, key_crl_map_mousepan, key_crl_map_mousepan2, 0,            0, KBS_AUTOMAP_ONLY),
     KEYBIND_ENTRY(708, &CRLKbdBinds7, 8, key_crl_map_sndprop,  key_crl_map_sndprop2,  'p',          0, KBS_AUTOMAP_ONLY),
     KEYBIND_ENTRY(709, &CRLKbdBinds7, 9, key_map_grid,         key_map_grid2,         'g',          0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(710, &CRLKbdBinds7, 10, key_map_mark,        key_map_mark2,         'm',          0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(711, &CRLKbdBinds7, 11, key_map_clearmark,   key_map_clearmark2,    'c',          0, KBS_AUTOMAP_ONLY),
 
     // Page 8
     KEYBIND_ENTRY(800, &CRLKbdBinds8, 0,  key_menu_help,     key_menu_help2,     KEY_F1,  0, KBS_GLOBAL),

@@ -25,10 +25,12 @@
 #include "ct_chat.h"
 #include "doomdef.h"
 #include "deh_str.h"
+#include "i_swap.h"
 #include "i_timer.h"
 #include "i_video.h"
 #include "v_trans.h"
 #include "m_controls.h"
+#include "m_misc.h"
 #include "p_action.h"
 #include "p_local.h"
 #include "am_map.h"
@@ -234,8 +236,6 @@ boolean     automapactive = false;
 int ravmap_cheating = 0;
 static int grid = 0;
 
-static byte *fb;                // pseudo-frame buffer
-
 // location of window on screen
 static int  f_x;
 static int  f_y;
@@ -281,9 +281,9 @@ static fixed_t scale_ftom;
 
 static player_t *plr; // the player represented by an arrow
 
-//static patch_t *marknums[10]; // numbers used for marking by the automap
-//static mpoint_t markpoints[AM_NUMMARKPOINTS]; // where the points are
-//static int markpointnum = 0; // next point to be assigned
+static patch_t *marknums[10]; // numbers used for marking by the automap
+static mpoint_t markpoints[AM_NUMMARKPOINTS]; // where the points are
+static int markpointnum = 0; // next point to be assigned
 
 int am_followplayer = 1; // specifies whether to follow the player around
 // [PN] Accumulated automap pan delta from mouse movement
@@ -360,15 +360,12 @@ void AM_Init (void)
     maplump = W_CacheLumpName(DEH_String("AUTOPAGE"), PU_STATIC);
 
     // [JN] Initialize mark patches.
-    /*
-    char namebuf[9];
+    const int startLump = W_GetNumForName(DEH_String("SMALLIN0"));
 
     for (int i = 0 ; i < 10 ; i++)
     {
-        DEH_snprintf(namebuf, 9, "AMMNUM%d", i);
-        marknums[i] = W_CacheLumpName(namebuf, PU_STATIC);
+        marknums[i] = W_CacheLumpNum(startLump + i, PU_STATIC);
     }
-    */
 }
 
 // -----------------------------------------------------------------------------
@@ -461,10 +458,9 @@ fixed_t AM_UnArchiveScaleMtof (void)
 // Adds a marker at the current location.
 // -----------------------------------------------------------------------------
 
-/*
 static void AM_addMark (void)
 {
-    if (!followplayer)
+    if (!am_followplayer)
     {
         markpoints[markpointnum].x = m_x + m_w/2;
         markpoints[markpointnum].y = m_y + m_h/2;
@@ -477,7 +473,6 @@ static void AM_addMark (void)
 
     markpointnum = (markpointnum + 1) % AM_NUMMARKPOINTS;
 }
-*/
 
 // -----------------------------------------------------------------------------
 // AM_findMinMaxBoundaries
@@ -706,7 +701,6 @@ static void AM_initVariables (void)
     mobj_t *mo;
 
     automapactive = true;
-    fb = I_VideoBuffer;
 
     m_paninc.x = m_paninc.y = 0;
     m_paninc_frac_x = m_paninc_frac_y = 0;
@@ -772,7 +766,6 @@ static void AM_initVariables (void)
 // AM_clearMarks
 // -----------------------------------------------------------------------------
 
-/*
 static void AM_clearMarks (void)
 {
     for (int i = 0 ; i < AM_NUMMARKPOINTS ; i++)
@@ -781,7 +774,6 @@ static void AM_clearMarks (void)
     }
     markpointnum = 0;
 }
-*/
 
 // -----------------------------------------------------------------------------
 // AM_LevelInit
@@ -795,7 +787,7 @@ static void AM_LevelInit (void)
     f_w = MAPBGROUNDWIDTH;
     f_h = MAPBGROUNDHEIGHT;
 
-    // AM_clearMarks();
+    AM_clearMarks();
 
     AM_findMinMaxBoundaries();
 
@@ -892,7 +884,7 @@ boolean AM_Responder (const event_t *ev)
 {
     int         rc;
     static int  bigstate=0;
-    // static char buffer[20];
+    static char buffer[20];
     int         key;
 
     // [JN] If run button is hold, pan/zoom Automap faster.    
@@ -1093,7 +1085,6 @@ boolean AM_Responder (const event_t *ev)
             CT_SetMessage(plr, grid ?
                            AMSTR_GRIDON : AMSTR_GRIDOFF, false, NULL);
         }
-        /*
         else if (key == key_map_mark || key == key_map_mark2)
         {
             M_snprintf(buffer, sizeof(buffer), "%s %d",
@@ -1106,7 +1097,6 @@ boolean AM_Responder (const event_t *ev)
             AM_clearMarks();
             CT_SetMessage(plr, DEH_String(AMSTR_MARKSCLEARED), false, NULL);
         }
-        */
         else if (key == key_crl_map_rotate || key == key_crl_map_rotate2)
         {
             // [JN] CRL - Automap rotate mode
@@ -1380,7 +1370,7 @@ static void AM_drawBackground (void)
 static void AM_shadeBackground (void)
 {
     const int height = crl_screen_size > 10 ? 
-                       SCREENHEIGHT : (SCREENHEIGHT - 40);
+                       SCREENHEIGHT : (SCREENHEIGHT - SBARHEIGHT);
 
     for (int y = 0; y < SCREENWIDTH * height ; y++)
     {
@@ -1605,7 +1595,7 @@ static void AM_drawFline (fline_t *const fl, int color)
         return;
     }
 
-#define DOT(xx,yy,cc) fb[(yy)*f_w+(xx)]=(cc)    //the MACRO!
+#define DOT(xx,yy,cc) I_VideoBuffer[(yy)*f_w+(xx)]=(cc)    //the MACRO!
 
     dx = fl->b.x - fl->a.x;
     ax = 2 * (dx < 0 ? -dx : dx);
@@ -1703,7 +1693,7 @@ static void PUTDOT(short xx, short yy, byte * cc, byte * cm)
         oldyy = yy;
         oldyyshifted = yy * 320;
     }
-    fb[oldyyshifted + xx] = *(cc);
+    I_VideoBuffer[oldyyshifted + xx] = *(cc);
 //      fb[(yy)*f_w+(xx)]=*(cc);
 }
 
@@ -2435,26 +2425,39 @@ static void AM_drawSpectator (void)
 // Draw the marked locations on the automap.
 // -----------------------------------------------------------------------------
 
-
-/*
-void AM_drawMarks (void)
+static void AM_drawMarks (void)
 {
-  int i, fx, fy, w, h;
+    int i, fx, fy;
+    mpoint_t pt;
+    char name[9];
 
-  for (i=0;i<AM_NUMMARKPOINTS;i++)
-  {
-    if (markpoints[i].x != -1)
+    for ( i = 0 ; i < AM_NUMMARKPOINTS ; i++)
     {
-      w = SHORT(marknums[i]->width);
-      h = SHORT(marknums[i]->height);
-      fx = CXMTOF(markpoints[i].x);
-      fy = CYMTOF(markpoints[i].y);
-      if (fx >= f_x && fx <= f_w - w && fy >= f_y && fy <= f_h - h)
-  			V_DrawPatch(fx, fy, marknums[i]);
+        if (markpoints[i].x != -1)
+        {
+            // [crispy] center marks around player
+            pt.x = markpoints[i].x;
+            pt.y = markpoints[i].y;
+
+            if (crl_automap_rotate)
+            {
+                AM_rotatePoint(&pt);
+            }
+
+            fx = (CXMTOF(pt.x)) - 1;
+            fy = (CYMTOF(pt.y)) - 2;
+
+            if (fx >= f_x && fx <= f_w - 5 && fy >= f_y && fy <= f_h - 6)
+            {
+                // [JN] Construct proper patch name for possible error handling:
+                sprintf(name, "SMALLIN%d", i);
+                dp_translation = cr[CR_GREEN];
+                V_DrawPatch(fx, fy, marknums[i], name);
+                dp_translation = NULL;
+            }
+        }
     }
-  }
 }
-*/
 
 // -----------------------------------------------------------------------------
 // AM_drawkeys
@@ -2641,12 +2644,12 @@ void AM_Drawer (void)
         AM_drawCrosshair();
     }
 
-    // AM_drawMarks();
-
     if (gameskill == sk_baby)
     {
         AM_drawkeys();
     }
+
+    AM_drawMarks();
 	
     AM_MapNameDrawer();
 }
