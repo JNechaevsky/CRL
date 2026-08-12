@@ -170,6 +170,7 @@ mobj_t *P_SPMAngle(mobj_t * source, mobjtype_t type, angle_t angle);
 // ***** P_ENEMY *****
 
 void P_NoiseAlert(mobj_t * target, mobj_t * emmiter);
+void P_ForgetPlayer (const player_t *player);
 void P_InitMonsters(void);
 void P_AddBossSpot(fixed_t x, fixed_t y, angle_t angle);
 void P_Massacre(void);
@@ -194,8 +195,9 @@ typedef struct
 } intercept_t;
 
 #define	MAXINTERCEPTS	128
-extern intercept_t *intercepts, *intercept_p;   // [crispy] remove INTERCEPTS limit
-extern void check_intercept (const short func); // [crispy] remove INTERCEPTS limit
+#define	MAXINTERCEPTS_ALLOWED	126  // [JN] Emperically verified limit of DOS version
+extern intercept_t *intercepts, *intercept_p;  // [crispy] remove INTERCEPTS limit
+extern void check_intercept (void);            // [crispy] remove INTERCEPTS limit
 typedef boolean(*traverser_t) (intercept_t * in);
 
 
@@ -286,7 +288,7 @@ boolean P_ChickenMorphPlayer(player_t * player);
 
 // ***** AM_MAP *****
 
-boolean AM_Responder(event_t * ev);
+boolean AM_Responder(const event_t * ev);
 void AM_Ticker(void);
 void AM_Drawer(void);
 
@@ -300,6 +302,13 @@ void SB_PaletteFlash(void);
 // ***** P_SAVEG *****
 
 void P_RestoreTargets (void);
+void P_ArchiveOldSpecials (void);
+void P_UnArchiveOldSpecials (void);
+
+extern void     P_ArchiveSavePreview (void);
+extern void     P_RequestSavePreviewCapture (void);
+extern boolean  P_IsSavePreviewReady (void);
+extern void     P_UpdateSavePreviewCache (void);
 
 #include "p_spec.h"
 

@@ -40,6 +40,7 @@
 #include "doomkeys.h"
 #include "deh_main.h"
 #include "d_iwad.h"
+#include "f_wipe.h"
 #include "i_endoom.h"
 #include "i_input.h"
 #include "i_joystick.h"
@@ -52,10 +53,12 @@
 #include "m_controls.h"
 #include "m_misc.h"
 #include "p_local.h"
+#include "r_local.h"
 #include "s_sound.h"
 #include "w_main.h"
 #include "v_trans.h"
 #include "v_video.h"
+#include "am_map.h"
 
 #include "icon.c"
 
@@ -103,6 +106,9 @@ int showMessages = 1;      // [JN] Show messages has default, 0 = off, 1 = on
 // using extended range and because of this can't be used in DOS version.
 // Still used for config file compatibility.
 static int screenblocks = 10;
+
+// wipegamestate can be set to -1 to force a wipe on the next draw
+gamestate_t wipegamestate = GS_DEMOSCREEN;
 
 //---------------------------------------------------------------------------
 //
@@ -184,6 +190,20 @@ static void CRL_DrawMessageCritical (void)
                                                     cr[CR_WHITE]);  // Static
 }
 
+// -----------------------------------------------------------------------------
+// R_CleanShotHook
+//  [PN] Clean screenshot hook: called at the start of the next D_Display
+//  via post_rendering_hook. By that time, the GPU back buffer holds the
+//  previous frame which we capture here.
+// -----------------------------------------------------------------------------
+
+static void R_CleanShotHook (void)
+{
+    V_ScreenShot("DOOM%02i.%s");
+    R_SetViewSize(crl_screen_size, detailLevel);
+    cleanshot_pending = false;
+}
+
 //---------------------------------------------------------------------------
 //
 // PROC D_Display
@@ -194,141 +214,235 @@ static void CRL_DrawMessageCritical (void)
 
 static void D_Display(void)
 {
-    // For comparative timing / profiling
     if (nodrawers)
     {
-        return;
+        return;  // for comparative timing / profiling
+    }
+
+    int      nowtime;
+    int      tics;
+    int      wipestart;
+    boolean  done;
+    boolean  wipe;
+    static   gamestate_t oldgamestate = -1;
+
+    // [crispy] post-rendering function pointer to apply config changes
+    // that affect rendering and that are better applied after the current
+    // frame has finished rendering
+    if (post_rendering_hook)
+    {
+        post_rendering_hook();
+        post_rendering_hook = NULL;
     }
 
     if (crl_uncapped_fps)
     {
         I_UpdateFracTic();
 
-        I_StartDisplay();
-        G_FastResponder();
-        G_PrepTiccmd();
+        // [JN] Prevent player rotation while automap panning by mouse.
+        if (!automapactive || !crl_automap_mouse_pan || am_followplayer)
+        {
+            I_StartDisplay();
+            G_FastResponder();
+            G_PrepTiccmd();
+        }
     }
 
-    // Change the view size if needed
+    // change the view size if needed
     if (setsizeneeded)
     {
         R_ExecuteSetViewSize();
+        oldgamestate = -1;  // force background redraw
     }
 
-    // [JN] RestlessRodent -- Set surface
-    CRLSurface = I_VideoBuffer;
+    // save the current screen if about to wipe
+    // [JN] Make screen wipe optional, use external config variable.
+    if (gamestate != wipegamestate && crl_screenwipe)
+    {
+        wipe = true;
+        wipe_StartScreen();
+    }
+    else
+    {
+        wipe = false;
+    }
 
-//
-// do buffered drawing
-//
+    // [JN/PN] Schedule the actual screenshot for the next frame via post_rendering_hook,
+    // so it captures this clean frame from the GPU back buffer.
+    if (cleanshot_pending)
+    post_rendering_hook = R_CleanShotHook;
+
+    // do buffered drawing
     switch (gamestate)
     {
         case GS_LEVEL:
             if (!gametic)
-                break;
-
-            // [JN] Update automap while playing and render
-            // full view so counters will show correct values.
-            R_RenderPlayerView(&players[displayplayer]);
-
-            if (automapactive)
-            {
-                AM_Drawer();
-            }
-            else
-            {
-                // [JN] RestlessRodent -- draw visplanes if overlayed
-                CRL_DrawVisPlanes(1);
-            }
-
-            if (crl_extended_hud)
-            {
-                // [JN] CRL Stats
-                CRL_StatDrawer();
-
-                // [crispy] demo timer widget
-                if (demoplayback && (crl_demo_timer == 1 || crl_demo_timer == 3))
-                {
-                    CRL_DemoTimer(crl_demo_timerdir ? (deftotaldemotics - defdemotics) : defdemotics);
-                }
-                else if (demorecording && (crl_demo_timer == 2 || crl_demo_timer == 3))
-                {
-                    CRL_DemoTimer(leveltime);
-                }
-
-                // [JN] Target's health widget.
-                // Actual health values are gathered in G_Ticker.
-                if (crl_widget_health)
-                {
-                    CRL_DrawTargetsHealth();
-                }
-            }
-
-            CT_Drawer();
-            SB_Drawer();
-
-            if (crl_extended_hud)
-            {
-                // [crispy] demo progress bar
-                if (demoplayback && crl_demo_bar)
-                {
-                    CRL_DemoBar();
-                }
-
-                // [JN] Draw FPS counter.
-                if (crl_showfps)
-                {
-                    CRL_DrawFPS();
-                }
-            }
-
             break;
+
+            // RestlessRodent -- Set surface
+            CRLSurface = I_VideoBuffer;
+
+            // draw the view directly
+            R_RenderPlayerView(&players[displayplayer]);
+            // [PN] Capture clean world-only preview before automap/HUD/widgets/menu overlays.
+            P_UpdateSavePreviewCache();
+
+            // [JN] Fail-safe: return earlier if post rendering hook is still active.
+            if (post_rendering_hook && !cleanshot_pending)
+            return;
+
+            // see if the border needs to be initially drawn
+            if (oldgamestate != GS_LEVEL)
+            R_FillBackScreen();  // draw the pattern into the back screen
+
+            // see if the border needs to be updated to the screen
+            if (scaledviewwidth != SCREENWIDTH)
+            R_DrawViewBorder();  // erase old menu stuff
+
+            // [PN] Skip all HUD overlays for clean screenshot.
+            if (!cleanshot_pending)
+            {
+                // [JN] CRL - Draw automap on top of player view and view border,
+                // and update while playing. This also needed for render counters update.
+                if (automapactive)
+                AM_Drawer();
+
+                // RestlessRodent -- draw visplanes if overlayed
+                CRL_DrawVisPlanes(1);
+
+                // [JN] Do not draw any CRL widgets if not in game level.
+                if (crl_extended_hud)
+                {
+                    // RestlessRodent -- CRL Stats
+                    CRL_StatDrawer();
+
+                    // [crispy] demo timer widget
+                    if (demoplayback && (crl_demo_timer == 1 || crl_demo_timer == 3))
+                    {
+                        CRL_DemoTimer(crl_demo_timerdir ? (deftotaldemotics - defdemotics) : defdemotics);
+                    }
+                    else if (demorecording && (crl_demo_timer == 2 || crl_demo_timer == 3))
+                    {
+                        CRL_DemoTimer(leveltime);
+                    }
+
+                    // [JN] Target's health widget.
+                    // Actual health values are gathered in G_Ticker.
+                    if (crl_widget_health)
+                    CRL_DrawTargetsHealth();
+
+                    // [PN] Player speed widget.
+                    if (crl_widget_speed)
+                    CRL_DrawPlayerSpeed();
+                }
+
+                // [JN] Main status bar drawing function.
+                SB_Drawer();
+
+                // [JN] Chat drawer
+                if (netgame && chatmodeon)
+                CT_Drawer();
+            }
+            break;
+
         case GS_INTERMISSION:
             IN_Drawer();
             break;
+
         case GS_FINALE:
             F_Drawer();
             break;
+
         case GS_DEMOSCREEN:
             D_PageDrawer();
             break;
     }
 
+    // clean up border stuff
+    if (gamestate != oldgamestate && gamestate != GS_LEVEL)
+    CRL_ReloadPalette();
+
+    // Box showing current mouse speed
     if (testcontrols)
+    V_DrawMouseSpeedBox(testcontrols_mousespeed);
+
+    oldgamestate = wipegamestate = gamestate;
+
+    // [PN] Skip pause pic, messages and menu for clean screenshot.
+    if (!cleanshot_pending)
     {
-        V_DrawMouseSpeedBox(testcontrols_mousespeed);
-    }
-
-    if (paused && !MenuActive && !askforquit)
-    {
-        if (!netgame)
+        // draw pause pic
+        if (paused && !MenuActive && !askforquit)
         {
-            V_DrawShadowedPatchRavenOptional(160, viewwindowy + 5, W_CacheLumpName(DEH_String("PAUSED"),
-                                                              PU_CACHE), "PAUSED");
+            const int y = !netgame ? viewwindowy + 5 : 70;
+
+            V_DrawShadowedPatchRavenOptional(160, y, W_CacheLumpName(DEH_String("PAUSED"), PU_CACHE), "PAUSED");
         }
-        else
+
+        if (crl_extended_hud)
         {
-            V_DrawShadowedPatchRavenOptional(160, 70, W_CacheLumpName(DEH_String("PAUSED"), PU_CACHE), "PAUSED");
+            // [crispy] demo progress bar
+            if (demoplayback && crl_demo_bar)
+            CRL_DemoBar();
+
+            // [JN] Draw FPS counter, except on finale/text screens.
+            if (crl_showfps && gamestate != GS_FINALE)
+            CRL_DrawFPS();
         }
+
+
+        // Handle player messages
+        DrawMessage();
+
+        // [JN] Handle centered player messages.
+        CRL_DrawMessageCentered();
+
+        // Menu drawing
+        MN_Drawer();
     }
-
-    // [JN] Handle centered player messages.
-    CRL_DrawMessageCentered();
-
-    // Menu drawing
-    MN_Drawer();
-
-    // Handle player messages
-    DrawMessage();
-
-    // [JN] Critical messages are drawn even higher than on top everything!
-    CRL_DrawMessageCritical();
 
     // Send out any new accumulation
     NetUpdate();
 
-    // Flush buffered stuff to screen
-    I_FinishUpdate();
+    // [JN] Critical messages are drawn even higher than on top everything!
+    CRL_DrawMessageCritical();
+
+    // normal update
+    if (!wipe)
+    {
+        I_FinishUpdate();  // page flip or blit buffer
+        return;
+    }
+
+    // wipe update
+    wipe_EndScreen();
+    wipestart = I_GetTime() - 1;
+
+    do
+    {
+        if (crl_uncapped_fps && crl_screenwipe)
+        {
+            nowtime = I_GetTime();
+            tics = nowtime - wipestart;
+
+            // [PN] Allow sub-tic melt rendering via fractionaltic interpolation.
+            I_UpdateFracTic();
+        }
+        else
+        {
+            do
+            {
+                nowtime = I_GetTime ();
+                tics = nowtime - wipestart;
+                I_Sleep(1);
+            } while (tics <= 0);
+        }
+
+        wipestart = nowtime;
+        done = wipe_ScreenWipe(tics);
+        MN_Drawer();       // menu is drawn even on top of wipes
+        I_FinishUpdate();  // page flip or blit buffer
+    } while (!done);
 }
 
 //
@@ -369,35 +483,32 @@ static boolean D_GrabMouseCallback(void)
 
 void D_DoomLoop(void)
 {
-    if (M_CheckParm("-debugfile"))
-    {
-        char filename[20];
-        M_snprintf(filename, sizeof(filename), "debug%i.txt", consoleplayer);
-        debugfile = M_fopen(filename, "w");
-    }
-    I_GraphicsCheckCommandLine();
-    I_SetGrabMouseCallback(D_GrabMouseCallback);
-    I_RegisterWindowIcon(heretic_data, heretic_w, heretic_h);
-    I_InitGraphics();
-
     main_loop_started = true;
 
     while (1)
     {
-        // Frame syncronous IO operations
-        I_StartFrame();
-
         // Process one or more tics
         // Will run at least one tic
         TryRunTics();
 
         if (oldgametic < gametic)
         {
+            // [JN] Mute and restore sound and music volume.
+            if (crl_mute_inactive && volume_needs_update)
+            {
+                S_MuteUnmuteSound(!window_focused);
+            }
+
             // Move positional sounds
             S_UpdateSounds(players[consoleplayer].mo);
             oldgametic = gametic;
         }
-        D_Display();
+
+        // Update display, next frame, with current state.
+        if (screenvisible)
+        {
+            D_Display();
+        }
     }
 }
 
@@ -484,7 +595,6 @@ void D_DoAdvanceDemo(void)
             pagename = DEH_String("TITLE");
             break;
         case 2:
-            BorderNeedRefresh = true;
             if (crl_internal_demos)
             {
                 G_DeferedPlayDemo(DEH_String("demo1"));
@@ -496,7 +606,6 @@ void D_DoAdvanceDemo(void)
             pagename = DEH_String("CREDIT");
             break;
         case 4:
-            BorderNeedRefresh = true;
             if (crl_internal_demos)
             {
                 G_DeferedPlayDemo(DEH_String("demo2"));
@@ -515,7 +624,6 @@ void D_DoAdvanceDemo(void)
             }
             break;
         case 6:
-            BorderNeedRefresh = true;
             if (crl_internal_demos)
             {
                 G_DeferedPlayDemo(DEH_String("demo3"));
@@ -710,6 +818,50 @@ static void DrawThermo(void)
     TXT_UpdateScreen();
 }
 
+// -----------------------------------------------------------------------------
+// drawTXTStartup
+//  [PN] Simplified thermo drawing routine.
+//  The progress bar now fills up to 51 characters
+//  independently, without relying on thermCurrent/thermMax.
+//  This guarantees a smooth full draw on every startup.
+// -----------------------------------------------------------------------------
+
+static void drawTXTStartup(void)
+{
+    if (!using_graphical_startup)
+    {
+        return;
+    }
+
+    for (int progress = 1; progress <= 51; progress++)
+    {
+        if (progress == 5)
+            hprintf(DEH_String("Loading graphics"));
+        if (progress == 35)
+            hprintf(DEH_String("Init game engine."));
+        if (progress == 40)
+            hprintf(DEH_String("Checking network game status."));
+
+        TXT_GotoXY(THERM_X, THERM_Y);
+
+        TXT_FGColor(TXT_COLOR_BRIGHT_GREEN);
+        TXT_BGColor(TXT_COLOR_GREEN, 0);
+
+        for (int i = 0; i < progress; i++)
+        {
+            TXT_PutChar(0xdb);
+        }
+
+        TXT_UpdateScreen();
+
+        // [JN] Эмуляция «медленной» загрузки.
+        if (graphical_startup == 2)
+        {
+            I_Sleep(50);
+        }
+    }
+}
+
 static void initStartup(void)
 {
     byte *textScreen;
@@ -721,7 +873,10 @@ static void initStartup(void)
         return;
     }
 
-    if (!TXT_Init()) 
+    // [PN] Use the main game window/renderer for startup textscreen (ENDOOM-style).
+    TXT_PreInit((SDL_Window *) I_GetSDLWindow(), (SDL_Renderer *) I_GetSDLRenderer());
+
+    if (!TXT_Init())
     {
         using_graphical_startup = false;
         return;
@@ -868,6 +1023,8 @@ static void D_Endoom(void)
         I_Endoom(endoom_data);
     }
 }
+
+static const char *const loadparms[] = {"-file", "-merge", NULL}; // [crispy]
 
 //---------------------------------------------------------------------------
 //
@@ -1095,7 +1252,8 @@ void D_DoomMain(void)
     //
     // Disable auto-loading of .wad files.
     //
-    if (!M_ParmExists("-noautoload"))
+    if (!M_ParmExists("-noautoload") && gamemode != shareware
+    && crl_autoload_wad)  // [JN] Allow autoload per both IWAD and PWAD.
     {
         char *autoload_dir;
         autoload_dir = M_GetAutoloadDir("heretic.wad");
@@ -1112,6 +1270,32 @@ void D_DoomMain(void)
 
     // Load PWAD files.
     W_ParseCommandLine();
+
+    // [crispy] add wad files from autoload PWAD directories
+
+    if (!M_ParmExists("-noautoload") && gamemode != shareware
+    && crl_autoload_wad == 2)  // [JN] Allow autoload per PWAD only.
+    {
+        int i;
+
+        for (i = 0; loadparms[i]; i++)
+        {
+            int prm;
+            prm = M_CheckParmWithArgs(loadparms[i], 1);
+            if (prm)
+            {
+                while (++prm != myargc && myargv[prm][0] != '-')
+                {
+                    char *autoload_dir;
+                    if ((autoload_dir = M_GetAutoloadDir(M_BaseName(myargv[prm]))))
+                    {
+                        W_AutoLoadWADs(autoload_dir);
+                        free(autoload_dir);
+                    }
+                }
+            }
+        }
+    }
 
     //!
     // @arg <demo>
@@ -1172,6 +1356,32 @@ void D_DoomMain(void)
     // Generate the WAD hash table.  Speed things up a bit.
     W_GenerateHashTable();
 
+    // [crispy] process .deh files from PWADs autoload directories
+
+    if (!M_ParmExists("-noautoload") && gamemode != shareware
+    && crl_autoload_deh == 2)  // [JN] Allow autoload per PWAD only.
+    {
+        int i;
+
+        for (i = 0; loadparms[i]; i++)
+        {
+            int prm;
+            prm = M_CheckParmWithArgs(loadparms[i], 1);
+            if (prm)
+            {
+                while (++prm != myargc && myargv[prm][0] != '-')
+                {
+                    char *autoload_dir;
+                    if ((autoload_dir = M_GetAutoloadDir(M_BaseName(myargv[prm]))))
+                    {
+                        DEH_AutoLoadPatches(autoload_dir);
+                        free(autoload_dir);
+                    }
+                }
+            }
+        }
+    }
+
     //!
     // @category demo
     //
@@ -1179,7 +1389,8 @@ void D_DoomMain(void)
     // after either level exit or player respawn.
     //
 
-    demoextend = M_ParmExists("-demoextend");
+    demoextend = (!M_ParmExists("-nodemoextend"));
+    //[crispy] make demoextend the default
 
     if (W_CheckNumForName(DEH_String("E2M1")) == -1)
     {
@@ -1230,6 +1441,13 @@ void D_DoomMain(void)
 
     D_ConnectNetGame();
 
+    // [PN] Initialize main game window before startup textscreen so startup
+    // can draw in the same SDL window and avoid focus flicker.
+    I_GraphicsCheckCommandLine();
+    I_SetGrabMouseCallback(D_GrabMouseCallback);
+    I_RegisterWindowIcon(heretic_data, heretic_w, heretic_h);
+    I_InitGraphics();
+
     // haleyjd: removed WATCOMC
     initStartup();
 
@@ -1253,18 +1471,19 @@ void D_DoomMain(void)
     }
     wadprintf();                // print the added wadfiles
 
+    // [PN] Once status lines colleted from above, draw text startup.
+    drawTXTStartup();
+
     tprintf(DEH_String("MN_Init: Init menu system.\n"), 1);
     MN_Init();
 
     CT_Init();
 
     tprintf(DEH_String("R_Init: Init Heretic refresh daemon - ["), 1);
-    hprintf(DEH_String("Loading graphics"));
     R_Init();
     tprintf("]\n", 0);
 
     tprintf(DEH_String("P_Init: Init Playloop state.\n"), 1);
-    hprintf(DEH_String("Init game engine."));
     P_Init();
     IncThermo();
 
@@ -1279,7 +1498,6 @@ void D_DoomMain(void)
     S_Start();
 
     tprintf(DEH_String("D_CheckNetGame: Checking network game status.\n"), 1);
-    hprintf(DEH_String("Checking network game status."));
     D_CheckNetGame();
     IncThermo();
 
@@ -1288,6 +1506,9 @@ void D_DoomMain(void)
     tprintf(DEH_String("SB_Init: Loading patches.\n"), 1);
     SB_Init();
     IncThermo();
+
+    // [JN] CRL - predefine some automap variables at program startup.
+    AM_Init();
 
 //
 // start the appropriate game based on params
@@ -1355,7 +1576,6 @@ void D_DoomMain(void)
 
     if (gameaction != ga_loadgame)
     {
-        BorderNeedRefresh = true;
         if (autostart || netgame)
         {
             G_InitNew(startskill, startepisode, startmap);

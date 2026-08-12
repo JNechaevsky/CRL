@@ -437,7 +437,17 @@ void V_DrawShadowedPatchRavenOptional (int x, int y, const patch_t *patch, const
                     *dest2 = tinttable[((*dest2) << 8)];
                     dest2 += SCREENWIDTH;
                 }
-                *dest = *sourcetrans++;
+
+                // [PN] Draw main pixel with translucency support.
+                if (dp_translucent)
+                {
+                    *dest = tinttable[((*dest) << 8) + *sourcetrans++];
+                }
+                else
+                {
+                    *dest = *sourcetrans++;
+                }
+
                 dest += SCREENWIDTH;
             }
             column = (column_t *) ((byte *) column + column->length + 4);

@@ -189,6 +189,40 @@ boolean F_Responder (const event_t *event)
     return false;
 }
 
+// -----------------------------------------------------------------------------
+// F_HandleDoubleSkip
+//  [PN] Helper function for double-skip logic.
+// -----------------------------------------------------------------------------
+
+static boolean F_CheckDoubleSkip(player_t *player)
+{
+    // Arrays for buttons and their corresponding state fields
+    const int buttons[] = {BT_ATTACK, BT_USE};
+    boolean *const state_fields[] = {&player->attackdown, &player->usedown};
+
+    for (int j = 0; j < 2; j++)
+    {
+        const boolean old_state = *state_fields[j];
+
+        if (player->cmd.buttons & buttons[j] && !menuactive)
+        {
+            if (!old_state)
+            {
+                if (finalecount >= finaleendcount) 
+                    return true; // Signal to break
+
+                finalecount += finaleendcount;
+            }
+            *state_fields[j] = true;
+        }
+        else
+        {
+            *state_fields[j] = false;
+        }
+    }
+    
+    return false;
+}
 
 //
 // F_Ticker
@@ -223,43 +257,9 @@ void F_Ticker (void)
                 || players[i].cmd.buttons == (BT_SPECIAL | BTS_PAUSE))
                 continue;
 
-                // [JN] Double-skip by pressing "attack" button.
-                const boolean old_attackdown = players[i].attackdown;
-
-                if (players[i].cmd.buttons & BT_ATTACK && !menuactive)
-                {
-                    if (!old_attackdown)
-                    {
-                        if (finalecount >= finaleendcount)
-                        break;
-    
-                        finalecount += finaleendcount;
-                    }
-                    players[i].attackdown = true;
-                }
-                else
-                {
-                    players[i].attackdown = false;
-                }
-    
-                // [JN] Double-skip by pressing "use" button.
-                const boolean old_usedown = players[i].usedown;
-
-                if (players[i].cmd.buttons & BT_USE && !menuactive)
-                {
-                    if (!old_usedown)
-                    {
-                        if (finalecount >= finaleendcount)
-                        break;
-    
-                        finalecount += finaleendcount;
-                    }
-                    players[i].usedown = true;
-                }
-                else
-                {
-                    players[i].usedown = false;
-                }
+                // [PN] Double-skip by pressing "attack" or "use" button.
+                if (F_CheckDoubleSkip(&players[i]))
+                break;
             }
 
             if (i < MAXPLAYERS)

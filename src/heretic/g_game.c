@@ -34,6 +34,8 @@
 #include "m_misc.h"
 #include "m_random.h"
 #include "p_local.h"
+#include "g_rewind.h"
+#include "r_local.h"
 #include "s_sound.h"
 #include "v_video.h"
 
@@ -46,9 +48,6 @@
 
 #define AM_STARTKEY     9
 
-#define MLOOKUNIT 8 // [crispy] for mouselook
-#define MLOOKUNITLOWRES 16 // [crispy] for mouselook when recording
-
 // Functions
 
 void G_ReadDemoTiccmd(ticcmd_t * cmd);
@@ -59,7 +58,6 @@ void G_DoReborn(int playernum);
 
 void G_DoLoadLevel(void);
 void G_DoNewGame(void);
-void G_DoPlayDemo(void);
 void G_DoCompleted(void);
 void G_DoVictory(void);
 void G_DoWorldDone(void);
@@ -148,15 +146,87 @@ fixed_t forwardmove[2] = { 0x19, 0x32 };
 fixed_t sidemove[2] = { 0x18, 0x28 };
 fixed_t angleturn[3] = { 640, 1280, 320 };      // + slow turn
 
-static int *weapon_keys[] =
+static const int game_speed_steps[] =
 {
-    &key_weapon1,
-    &key_weapon2,
-    &key_weapon3,
-    &key_weapon4,
-    &key_weapon5,
-    &key_weapon6,
-    &key_weapon7
+    3, 4, 5, 6, 7, 8, 9, 10,
+    15, 20, 25, 30, 35, 40, 45, 50,
+    60, 70, 80, 90, 100,
+    150, 200, 250, 300, 350, 400, 450, 500,
+    600, 700, 800, 900, 1000,
+    1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000,
+    6000, 7000, 8000, 9000, 10000
+};
+
+static int G_CRL_NextGameSpeed (int direction)
+{
+    int i;
+
+    if (direction == 0)
+    {
+        return 100;
+    }
+
+    if (direction > 0)
+    {
+        for (i = 0 ; i < arrlen(game_speed_steps) ; i++)
+        {
+            if (crl_game_speed < game_speed_steps[i])
+            {
+                return game_speed_steps[i];
+            }
+        }
+
+        return game_speed_steps[arrlen(game_speed_steps) - 1];
+    }
+
+    for (i = arrlen(game_speed_steps) - 1 ; i >= 0 ; i--)
+    {
+        if (crl_game_speed > game_speed_steps[i])
+        {
+            return game_speed_steps[i];
+        }
+    }
+
+    return game_speed_steps[0];
+}
+
+// [PN] Clamp and apply the current game speed to the local game clock.
+void G_CRL_SetGameSpeed (int speed)
+{
+    crl_game_speed = BETWEEN(3, 10000, speed);
+    I_SetTimeScale(netgame ? 100 : crl_game_speed);
+}
+
+// [PN] Step game speed up/down or reset it and report the new value to the player.
+void G_CRL_ChangeGameSpeed (int direction, boolean show_message)
+{
+    static char msg[32];
+
+    if (netgame)
+    {
+        CT_SetMessage(&players[consoleplayer], CRL_GAME_SPEED_NA_N, false, NULL);
+        return;
+    }
+
+    G_CRL_SetGameSpeed(G_CRL_NextGameSpeed(direction));
+
+    M_snprintf(msg, sizeof(msg), "GAME SPEED: %d%%", crl_game_speed);
+    CT_SetMessage(&players[consoleplayer], msg, false, NULL);
+}
+
+typedef struct {
+    int *primary;
+    int *secondary;
+} weapon_keys_pair_t;
+
+static weapon_keys_pair_t weapon_keys[] = {
+    { &key_weapon1, &key_weapon1_2 },
+    { &key_weapon2, &key_weapon2_2 },
+    { &key_weapon3, &key_weapon3_2 },
+    { &key_weapon4, &key_weapon4_2 },
+    { &key_weapon5, &key_weapon5_2 },
+    { &key_weapon6, &key_weapon6_2 },
+    { &key_weapon7, &key_weapon7_2 }
 };
 
 // Set to -1 or +1 to switch to the previous or next weapon.
@@ -305,8 +375,10 @@ boolean usearti = true;
 
 boolean speedkeydown (void)
 {
-    return (key_speed < NUMKEYS && gamekeydown[key_speed]) ||
+    return ((key_speed < NUMKEYS && gamekeydown[key_speed])) ||
+            (key_speed2 < NUMKEYS && gamekeydown[key_speed2]) ||
            (mousebspeed < MAX_MOUSE_BUTTONS && mousebuttons[mousebspeed]) ||
+           (mousebspeed2 < MAX_MOUSE_BUTTONS && mousebuttons[mousebspeed2]) ||
            (joybspeed < MAX_JOY_BUTTONS && joybuttons[joybspeed]);
 }
 
@@ -412,6 +484,14 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
         // [JN] CRL - reset basecmd.angleturn for exact
         // position of jumping to the camera position.
         basecmd.angleturn = 0;
+        // [PN] Spectator mouse look.
+        if (!MenuActive && mousey && crl_mouselook)
+        {
+            const double vert = CalcMouseVert(mousey);
+            const int delta = mouse_y_invert ? CarryPitch(-vert) : CarryPitch(vert);
+            CRL_LimitLookdir(delta);
+            mousey = 0;
+        }
     }
     //cmd->consistancy =
     //      consistancy[consoleplayer][(maketic*ticdup)%BACKUPTICS];
@@ -430,12 +510,13 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
 
 //printf ("cons: %i\n",cmd->consistancy);
 
-    strafe = gamekeydown[key_strafe] || mousebuttons[mousebstrafe]
+    strafe = gamekeydown[key_strafe] || gamekeydown[key_strafe2]
+        || mousebuttons[mousebstrafe] || mousebuttons[mousebstrafe2]
         || joybuttons[joybstrafe];
 
     // [crispy] when "always run" is active,
     // pressing the "run" key will result in walking
-    speed = (key_speed >= NUMKEYS || joybspeed >= MAX_JOY_BUTTONS);
+    speed = (key_speed >= NUMKEYS || key_speed2 >= NUMKEYS || joybspeed >= MAX_JOY_BUTTONS);
     speed ^= speedkeydown();
     crl_camzspeed = speed;
 
@@ -447,7 +528,8 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
 // use two stage accelerative turning on the keyboard and joystick
 //
     if (joyxmove < 0 || joyxmove > 0
-        || gamekeydown[key_right] || gamekeydown[key_left])
+        || gamekeydown[key_right] || gamekeydown[key_right2]
+        || gamekeydown[key_left] || gamekeydown[key_left2])
         turnheld += ticdup;
     else
         turnheld = 0;
@@ -457,14 +539,14 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
         tspeed = speed;
 
     // [crispy] add quick 180° reverse
-    if (gamekeydown[key_180turn])
+    if (gamekeydown[key_180turn] || gamekeydown[key_180turn2])
     {
         cmd->angleturn += ANG180 >> FRACBITS;
-        gamekeydown[key_180turn] = false;
+        gamekeydown[key_180turn] = gamekeydown[key_180turn2] = false;
     }
 
     // [crispy] toggle "always run"
-    if (gamekeydown[key_crl_autorun])
+    if (gamekeydown[key_crl_autorun] || gamekeydown[key_crl_autorun2])
     {
         static int joybspeed_old = 2;
 
@@ -480,25 +562,28 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
 
         CT_SetMessage(&players[consoleplayer], joybspeed >= MAX_JOY_BUTTONS ?
                       CRL_AUTORUN_ON : CRL_AUTORUN_OFF, false, NULL);
-        S_StartSound(NULL, sfx_chat);
-        gamekeydown[key_crl_autorun] = false;
+        S_StartSound(NULL, sfx_switch);
+        gamekeydown[key_crl_autorun] = gamekeydown[key_crl_autorun2] = false;
     }
 
     // [JN] Toggle mouse look.
-    if (gamekeydown[key_crl_mlook])
+    if (gamekeydown[key_crl_mlook] || gamekeydown[key_crl_mlook2])
     {
         crl_mouselook ^= 1;
         if (!crl_mouselook)
         {
             look = TOCENTER;
+            // [PN] Reset spectator lookdir as well.
+            CRL_ReportLookdir(TOCENTER);
         }
         CT_SetMessage(&players[consoleplayer], crl_mouselook ?
                       CRL_MLOOK_ON : CRL_MLOOK_OFF, false, NULL);
-        S_StartSound(NULL, sfx_chat);
-        gamekeydown[key_crl_mlook] = false;
+        S_StartSound(NULL, sfx_switch);
+        gamekeydown[key_crl_mlook] = gamekeydown[key_crl_mlook2] = false;
     }
 
-    if (gamekeydown[key_lookdown] || gamekeydown[key_lookup])
+    if (gamekeydown[key_lookdown] || gamekeydown[key_lookdown2]
+     || gamekeydown[key_lookup] || gamekeydown[key_lookup2])
     {
         lookheld += ticdup;
     }
@@ -516,13 +601,13 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
     }
 
     // [JN] Toggle vertical mouse movement.
-    if (gamekeydown[key_crl_novert])
+    if (gamekeydown[key_crl_novert] || gamekeydown[key_crl_novert2])
     {
         novert ^= 1;
         CT_SetMessage(&players[consoleplayer], novert ?
                        CRL_NOVERT_ON : CRL_NOVERT_OFF, false, NULL);
-        S_StartSound(NULL, sfx_chat);
-        gamekeydown[key_crl_novert] = false;
+        S_StartSound(NULL, sfx_switch);
+        gamekeydown[key_crl_novert] = gamekeydown[key_crl_novert2] = false;
     }
 
 //
@@ -532,9 +617,9 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
     {
         if (!cmd->angleturn)
         {
-            if (gamekeydown[key_right])
+            if (gamekeydown[key_right] || gamekeydown[key_right2])
                 side += sidemove[speed];
-            if (gamekeydown[key_left])
+            if (gamekeydown[key_left] || gamekeydown[key_left2])
                 side -= sidemove[speed];
             if (use_analog && joyxmove)
             {
@@ -554,9 +639,9 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
     }
     else
     {
-        if (gamekeydown[key_right])
+        if (gamekeydown[key_right] || gamekeydown[key_right2])
             angle -= angleturn[tspeed];
-        if (gamekeydown[key_left])
+        if (gamekeydown[key_left] || gamekeydown[key_left2])
             angle += angleturn[tspeed];
         if (use_analog && joyxmove)
         {
@@ -575,15 +660,15 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
         }
     }
 
-    if (gamekeydown[key_up])
+    if (gamekeydown[key_up] || gamekeydown[key_up2])
         forward += forwardmove[speed];
-    if (gamekeydown[key_down])
+    if (gamekeydown[key_down] || gamekeydown[key_down2])
         forward -= forwardmove[speed];
     if (use_analog && joyymove)
     {
         joyymove = joyymove * joystick_move_sensitivity / 10;
         joyymove = (joyymove > FRACUNIT) ? FRACUNIT : joyymove;
-        joyymove = (joyymove < -FRACUNIT) ? FRACUNIT : joyymove;
+        joyymove = (joyymove < -FRACUNIT) ? -FRACUNIT : joyymove;
         forward -= FixedMul(forwardmove[speed], joyymove);
     }
     else if (joystick_move_sensitivity)
@@ -593,10 +678,12 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
         if (joyymove > 0)
             forward -= forwardmove[speed];
     }
-    if (gamekeydown[key_straferight] || mousebuttons[mousebstraferight]
+    if (gamekeydown[key_straferight] || gamekeydown[key_straferight2]
+     || mousebuttons[mousebstraferight] || mousebuttons[mousebstraferight2]
      || joybuttons[joybstraferight])
         side += sidemove[speed];
-    if (gamekeydown[key_strafeleft] || mousebuttons[mousebstrafeleft]
+    if (gamekeydown[key_strafeleft] || gamekeydown[key_strafeleft2]
+     || mousebuttons[mousebstrafeleft] || mousebuttons[mousebstrafeleft2]
      || joybuttons[joybstrafeleft])
         side -= sidemove[speed];
 
@@ -615,11 +702,11 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
             side += sidemove[speed];
     }
     // Look up/down/center keys
-    if (gamekeydown[key_lookup])
+    if (gamekeydown[key_lookup] || gamekeydown[key_lookup2])
     {
         look = lspeed;
     }
-    if (gamekeydown[key_lookdown])
+    if (gamekeydown[key_lookdown] || gamekeydown[key_lookdown2])
     {
         look = -lspeed;
     }
@@ -645,7 +732,7 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
     }
     */
     // haleyjd: removed externdriver crap
-    if (gamekeydown[key_lookcenter])
+    if (gamekeydown[key_lookcenter] || gamekeydown[key_lookcenter2])
     {
         look = TOCENTER;
     }
@@ -653,15 +740,15 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
     // haleyjd: removed externdriver crap
     
     // Fly up/down/drop keys
-    if (gamekeydown[key_flyup])
+    if (gamekeydown[key_flyup] || gamekeydown[key_flyup2])
     {
         fly_height = 5;          // note that the actual fly_height will be twice this
     }
-    if (gamekeydown[key_flydown])
+    if (gamekeydown[key_flydown] || gamekeydown[key_flydown2])
     {
         fly_height = -5;
     }
-    if (gamekeydown[key_flycenter])
+    if (gamekeydown[key_flycenter] || gamekeydown[key_flycenter2])
     {
         fly_height = TOCENTER;
         // haleyjd: removed externdriver crap
@@ -669,14 +756,15 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
     }
 
     // Use artifact key
-    if (gamekeydown[key_useartifact] || mousebuttons[mousebuseartifact])
+    if (gamekeydown[key_useartifact] || gamekeydown[key_useartifact2]
+    || mousebuttons[mousebuseartifact] || mousebuttons[mousebuseartifact2])
     {
-        if (gamekeydown[key_speed] && !noartiskip)
+        if ((gamekeydown[key_speed] || gamekeydown[key_speed2]) && !noartiskip)
         {
             if (players[consoleplayer].inventory[inv_ptr].type != arti_none)
             {
-                gamekeydown[key_useartifact] = false;
-                mousebuttons[mousebuseartifact] = false;
+                gamekeydown[key_useartifact] = gamekeydown[key_useartifact2] = false;
+                mousebuttons[mousebuseartifact] = mousebuttons[mousebuseartifact2] = false;
                 cmd->arti = 0xff;       // skip artifact code
             }
         }
@@ -755,11 +843,12 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
 //
     cmd->chatchar = CT_dequeueChatChar();
 
-    if (gamekeydown[key_fire] || mousebuttons[mousebfire]
+    if (gamekeydown[key_fire] || gamekeydown[key_fire2]
+        || mousebuttons[mousebfire] || mousebuttons[mousebfire2]
         || joybuttons[joybfire])
         cmd->buttons |= BT_ATTACK;
 
-    if (gamekeydown[key_use] || joybuttons[joybuse] || mousebuttons[mousebuse])
+    if (gamekeydown[key_use] || gamekeydown[key_use2] || joybuttons[joybuse] || mousebuttons[mousebuse] || mousebuttons[mousebuse2])
     {
         cmd->buttons |= BT_USE;
         dclicks = 0;            // clear double clicks if hit use button
@@ -779,11 +868,12 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
     }
     else
     {
-        for (i=0; i<arrlen(weapon_keys); ++i)
+        for (i=0; (size_t)i<arrlen(weapon_keys); ++i)
         {
-            int key = *weapon_keys[i];
+            const int key  = *weapon_keys[i].primary;
+            const int key2 = *weapon_keys[i].secondary;
 
-            if (gamekeydown[key])
+            if (gamekeydown[key] || gamekeydown[key2])
             {
                 cmd->buttons |= BT_CHANGE; 
                 cmd->buttons |= i<<BT_WEAPONSHIFT; 
@@ -797,11 +887,13 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
     // [JN] CRL - move spectator camera up and down.
     if (crl_spectating)
     {
-        if (gamekeydown[key_crl_cameraup] || gamekeydown[key_flyup])
+        if (gamekeydown[key_crl_cameraup] || gamekeydown[key_crl_cameraup2]
+        ||  gamekeydown[key_flyup] || gamekeydown[key_flyup2])
         {
             CRL_ImpulseCameraVert(true, crl_camzspeed ? 16 : 8);
         }
-        if (gamekeydown[key_crl_cameradown] || gamekeydown[key_flydown])
+        if (gamekeydown[key_crl_cameradown] || gamekeydown[key_crl_cameradown2]
+        ||  gamekeydown[key_flydown] || gamekeydown[key_flydown2])
         {
             CRL_ImpulseCameraVert(false, crl_camzspeed ? 16 : 8);
         }
@@ -812,7 +904,8 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
     if (singleplayer)
     {
         // Spectator - go to camera position.
-        if (gamekeydown[key_crl_cameramoveto] && crl_spectating)
+        if ((gamekeydown[key_crl_cameramoveto] || gamekeydown[key_crl_cameramoveto2])
+        && crl_spectating)
         {
             CT_SetMessage(&players[consoleplayer], "MOVE TO CAMERA POSITION", false, NULL);
             CRL_MoveTo_Camera();
@@ -820,7 +913,7 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
         }
 
         // Iimitate jump by Arch-Vile's attack (press).
-        if (gamekeydown[key_crl_vilebomb])
+        if (gamekeydown[key_crl_vilebomb] || gamekeydown[key_crl_vilebomb2])
         {
             CRL_vilebomb = true;
         }
@@ -830,7 +923,7 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
         }
 
         // Iimitate jump by Arch-Vile's attack (hold).
-        if (gamekeydown[key_crl_vilefly])
+        if (gamekeydown[key_crl_vilefly] || gamekeydown[key_crl_vilefly2])
         {
             // Allow airborne controls.
             // Will be disabled in P_ZMovement after player landing.
@@ -840,7 +933,7 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
         }
 
         // Clear MAX visplanes.
-        if (gamekeydown[key_crl_clearmax])
+        if (gamekeydown[key_crl_clearmax] || gamekeydown[key_crl_clearmax2])
         {
             CRL_Clear_MAX();
             CRL_Get_MAX();
@@ -848,7 +941,7 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
         }
 
         // Jump to MAX visplanes.
-        if (gamekeydown[key_crl_movetomax])
+        if (gamekeydown[key_crl_movetomax] || gamekeydown[key_crl_movetomax2])
         {
             CRL_MoveTo_MAX();
             CT_SetMessage(&players[consoleplayer], "MOVE TO MAX", false, NULL);
@@ -858,12 +951,12 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
 //
 // mouse
 //
-    if (mousebuttons[mousebforward])
+    if (mousebuttons[mousebforward] || mousebuttons[mousebforward2])
     {
         forward += forwardmove[speed];
     }
 
-    if (mousebuttons[mousebbackward])
+    if (mousebuttons[mousebbackward] || mousebuttons[mousebbackward2])
     {
 	forward -= forwardmove[speed];
     }
@@ -875,34 +968,39 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
 	//
 	// forward double click
 	//
-	if (mousebuttons[mousebforward] != dclickstate && dclicktime > 1)
-	{
-	    dclickstate = mousebuttons[mousebforward];
-	    if (dclickstate)
-		dclicks++;
-	    if (dclicks == 2)
-	    {
-		cmd->buttons |= BT_USE;
-		dclicks = 0;
-	    }
-	    else
-		dclicktime = 0;
-	}
-	else
-	{
-	    dclicktime += ticdup;
-	    if (dclicktime > 20)
-	    {
-		dclicks = 0;
-		dclickstate = 0;
-	    }
-	}
+    if ((mousebuttons[mousebforward] != dclickstate || mousebuttons[mousebforward2] != dclickstate) && dclicktime > 1)
+    {
+        if (mousebuttons[mousebforward] != dclickstate)
+            dclickstate = mousebuttons[mousebforward];
+        else
+            dclickstate = mousebuttons[mousebforward2];
+
+        if (dclickstate)
+            dclicks++;
+
+        if (dclicks == 2)
+        {
+            cmd->buttons |= BT_USE;
+            dclicks = 0;
+        }
+        else
+            dclicktime = 0;
+    }
+    else
+    {
+        dclicktime += ticdup;
+        if (dclicktime > 20)
+        {
+            dclicks = 0;
+            dclickstate = 0;
+        }
+    }
 
 	//
 	// strafe double click
 	//
 
-	bstrafe = mousebuttons[mousebstrafe] || joybuttons[joybstrafe];
+	bstrafe = mousebuttons[mousebstrafe] || mousebuttons[mousebstrafe2] || joybuttons[joybstrafe];
 	if (bstrafe != dclickstate2 && dclicktime2 > 1)
 	{
 	    dclickstate2 = bstrafe;
@@ -1094,6 +1192,12 @@ void G_DoLoadLevel(void)
     int i;
 
     levelstarttic = gametic;    // for time calculation
+
+    if (wipegamestate == GS_LEVEL)
+    {
+        wipegamestate = -1;             // force a wipe
+    }
+
     gamestate = GS_LEVEL;
     for (i = 0; i < MAXPLAYERS; i++)
     {
@@ -1279,7 +1383,7 @@ static void SetMouseButtons(unsigned int buttons_mask)
         if (!mousebuttons[i] && button_on)
         {
             // [JN] CRL - move spectator camera up/down.
-            if (crl_spectating && !MenuActive)
+            if (crl_spectating && !MenuActive && !askforquit)
             {
                 if (i == 4)  // Hardcoded mouse wheel down
                 {
@@ -1293,30 +1397,29 @@ static void SetMouseButtons(unsigned int buttons_mask)
             }
             else
             {
-                if (i == mousebprevweapon)
+                if (i == mousebprevweapon || i == mousebprevweapon2)
                 {
                     next_weapon = -1;
                 }
-                else if (i == mousebnextweapon)
+                else if (i == mousebnextweapon || i == mousebnextweapon2)
                 {
                     next_weapon = 1;
                 }
-                else
-                if (i == mousebuse)
+                else if (i == mousebuse || i == mousebuse2)
                 {
                     // [PN] Mouse wheel "use" workaround: some mouse buttons (e.g. wheel click)
                     // generate only a single tick event. We simulate a short BT_USE press here.
                     basecmd.buttons |= BT_USE;
                 }
-                else if (i == mousebinvleft)
+                else if (i == mousebinvleft || i == mousebinvleft2)
                 {
                     InventoryMoveLeft();
                 }
-                else if (i == mousebinvright)
+                else if (i == mousebinvright || i == mousebinvright2)
                 {
                     InventoryMoveRight();
                 }
-                else if (i == mousebuseartifact)
+                else if (i == mousebuseartifact || i == mousebuseartifact2)
                 {
                     if (!inventory)
                     {
@@ -1348,14 +1451,16 @@ boolean G_Responder(event_t * ev)
     plr = &players[consoleplayer];
 
     // [crispy] demo fast-forward
-    if (ev->type == ev_keydown && ev->data1 == key_crl_demospeed
+    if (ev->type == ev_keydown
+    && (ev->data1 == key_crl_demospeed || ev->data1 == key_crl_demospeed2)
     && (demoplayback || gamestate == GS_DEMOSCREEN))
     {
         singletics = !singletics;
         return (true);
     }
 
-    if (ev->type == ev_keyup && ev->data1 == key_useartifact)
+    if (ev->type == ev_keyup
+    && (ev->data1 == key_useartifact || ev->data1 == key_useartifact2))
     {                           // flag to denote that it's okay to use an artifact
         if (!inventory)
         {
@@ -1366,7 +1471,8 @@ boolean G_Responder(event_t * ev)
 
     // Check for spy mode player cycle
     if (gamestate == GS_LEVEL && ev->type == ev_keydown
-        && ev->data1 == key_spy && !deathmatch)
+        && (ev->data1 == key_spy || ev->data1 == key_spy2)
+        && !deathmatch)
     {                           // Cycle the display player
         do
         {
@@ -1397,6 +1503,13 @@ boolean G_Responder(event_t * ev)
         return (false); 
     } 
 
+    if (ev->type == ev_keydown
+     && (ev->data1 == key_crl_rewind || ev->data1 == key_crl_rewind2))
+    {
+        G_Rewind();
+        return true;
+    }
+
     if (gamestate == GS_LEVEL)
     {
         if (CT_Responder(ev))
@@ -1411,6 +1524,20 @@ boolean G_Responder(event_t * ev)
         {                       // Automap ate the event
             return (true);
         }
+
+        if (players[consoleplayer].cheatTics)
+        {
+            // [JN] Reset cheatTics if user have opened menu or moved/pressed mouse buttons.
+            if (MenuActive || ev->type == ev_mouse)
+            {
+                players[consoleplayer].cheatTics = 0;
+            }
+            // [JN] Prevent other keys while cheatTics is running after typing "ID".
+            if (players[consoleplayer].cheatTics > 0)
+            {
+                return true;
+            }
+        }
     }
 
     if (ev->type == ev_mouse)
@@ -1418,11 +1545,13 @@ boolean G_Responder(event_t * ev)
         testcontrols_mousespeed = abs(ev->data2);
     }
 
-    if (ev->type == ev_keydown && ev->data1 == key_prevweapon)
+    if (ev->type == ev_keydown
+    && (ev->data1 == key_prevweapon || ev->data1 == key_prevweapon2))
     {
         next_weapon = -1;
     }
-    else if (ev->type == ev_keydown && ev->data1 == key_nextweapon)
+    else if (ev->type == ev_keydown
+    && (ev->data1 == key_nextweapon || ev->data1 == key_nextweapon2))
     {
         next_weapon = 1;
     }
@@ -1430,7 +1559,7 @@ boolean G_Responder(event_t * ev)
     switch (ev->type)
     {
         case ev_keydown:
-            if (ev->data1 == key_invleft)
+            if (ev->data1 == key_invleft || ev->data1 == key_invleft2)
             {
                 inventoryTics = 5 * 35;
                 if (!inventory)
@@ -1453,7 +1582,7 @@ boolean G_Responder(event_t * ev)
                 }
                 return (true);
             }
-            if (ev->data1 == key_invright)
+            if (ev->data1 == key_invright || ev->data1 == key_invright2)
             {
                 inventoryTics = 5 * 35;
                 if (!inventory)
@@ -1478,7 +1607,7 @@ boolean G_Responder(event_t * ev)
                 }
                 return (true);
             }
-            if (ev->data1 == key_pause && !MenuActive)
+            if ((ev->data1 == key_pause || ev->data1 == key_pause2) && !MenuActive)
             {
                 sendpause = true;
                 return (true);
@@ -1488,7 +1617,7 @@ boolean G_Responder(event_t * ev)
                 gamekeydown[ev->data1] = true;
             }
             // [JN] CRL - Toggle extended HUD.
-            if (ev->data1 == key_crl_extendedhud)
+            if (ev->data1 == key_crl_extendedhud || ev->data1 == key_crl_extendedhud2)
             {
                 crl_extended_hud ^= 1;
                 CT_SetMessage(plr, crl_extended_hud ?
@@ -1498,14 +1627,18 @@ boolean G_Responder(event_t * ev)
                 SB_state = -1;
             }
             // [JN] CRL - Toggle spectator mode.
-            if (ev->data1 == key_crl_spectator)
+            if (ev->data1 == key_crl_spectator || ev->data1 == key_crl_spectator2)
             {
                 crl_spectating ^= 1;
                 CT_SetMessage(plr, crl_spectating ?
                               CRL_SPECTATOR_ON : CRL_SPECTATOR_OFF, false, NULL);
-            }        
+                if (crl_spectating)
+                    I_SetPalette(W_CacheLumpName(DEH_String("PLAYPAL"), PU_CACHE));
+                else
+                    CRL_ReloadPalette();
+            }
             // [JN] CRL - Toggle freeze mode.
-            if (ev->data1 == key_crl_freeze)
+            if (ev->data1 == key_crl_freeze || ev->data1 == key_crl_freeze2)
             {
                 // Allow freeze only in single player game, otherwise desyncs may occur.
                 if (demorecording)
@@ -1529,7 +1662,7 @@ boolean G_Responder(event_t * ev)
                               CRL_FREEZE_ON : CRL_FREEZE_OFF, false, NULL);
             }
             // [JN] CRL (Woof!) - Toggle Buddha mode.
-            if (ev->data1 == key_crl_buddha)
+            if (ev->data1 == key_crl_buddha || ev->data1 == key_crl_buddha2)
             {
                 // Allow Buddha mode only in single player game, otherwise desyncs may occur.
                 if (demorecording)
@@ -1552,7 +1685,7 @@ boolean G_Responder(event_t * ev)
                               CRL_BUDDHA_ON : CRL_BUDDHA_OFF, false, NULL);
             }
             // [JN] CRL - Toggle notarget mode.
-            if (ev->data1 == key_crl_notarget)
+            if (ev->data1 == key_crl_notarget || ev->data1 == key_crl_notarget2)
             {
                 // Allow notarget only in single player game, otherwise desyncs may occur.
                 if (demorecording)
@@ -1577,7 +1710,7 @@ boolean G_Responder(event_t * ev)
                               CRL_NOTARGET_ON : CRL_NOTARGET_OFF, false, NULL);
             }
             // [JN] CRL - Toggle nomomentum mode.
-            if (ev->data1 == key_crl_nomomentum)
+            if (ev->data1 == key_crl_nomomentum || ev->data1 == key_crl_nomomentum2)
             {
                 // Allow no momentum only in single player game, otherwise desyncs may occur.
                 if (demorecording)
@@ -1658,8 +1791,8 @@ void G_FastResponder (void)
 // [crispy]
 void G_PrepTiccmd (void)
 {
-    const boolean strafe = gamekeydown[key_strafe] ||
-        mousebuttons[mousebstrafe] || joybuttons[joybstrafe];
+    const boolean strafe = gamekeydown[key_strafe] || gamekeydown[key_strafe2] ||
+        mousebuttons[mousebstrafe] || mousebuttons[mousebstrafe2] || joybuttons[joybstrafe];
 
     // [JN] Deny camera rotation/looking while active menu in multiplayer.
     if (netgame && (MenuActive || askforquit))
@@ -1677,11 +1810,17 @@ void G_PrepTiccmd (void)
         mousex = 0;
     }
 
-    if (mousey && crl_mouselook && !crl_spectating)
+    if (!MenuActive && !askforquit && mousey && crl_mouselook)
     {
         const double vert = CalcMouseVert(mousey);
-        basecmd.lookdir += mouse_y_invert ?
-                            CarryPitch(-vert): CarryPitch(vert);
+        const int delta = mouse_y_invert ? CarryPitch(-vert) : CarryPitch(vert);
+        // [PN] Spectator mouse look
+        if (!crl_spectating)
+        {
+            basecmd.lookdir += delta;
+            basecmd.r_lookdir += delta;
+        }
+        CRL_LimitLookdir(delta);
         mousey = 0;
     }
 }
@@ -1727,6 +1866,9 @@ void G_Ticker(void)
                 break;
             case ga_playdemo:
                 G_DoPlayDemo();
+                break;
+            case ga_rewind:
+                G_LoadAutoKeyframe();
                 break;
             case ga_screenshot:
                 V_ScreenShot("HTIC%02i.%s");
@@ -1827,6 +1969,7 @@ void G_Ticker(void)
                         savegameslot =
                             (players[i].cmd.
                              buttons & BTS_SAVEMASK) >> BTS_SAVESHIFT;
+                             P_RequestSavePreviewCapture();
                         gameaction = ga_savegame;
                         break;
                 }
@@ -1854,6 +1997,7 @@ void G_Ticker(void)
             P_Ticker();
             SB_Ticker();
             AM_Ticker();
+            G_SaveAutoKeyframe();
             // [JN] Not really needed in single player game.
             if (netgame)
             {
@@ -1941,6 +2085,7 @@ static void G_PlayerFinishLevel(int player)
     p->messageCenteredTics = 0;
     p->targetsheathTics = 0;
     p->lookdir = p->oldlookdir = 0;
+    p->r_lookdir = p->r_oldlookdir = 0;
     p->mo->flags &= ~MF_SHADOW; // Remove invisibility
     p->extralight = 0;          // Remove weapon flashes
     p->fixedcolormap = 0;       // Remove torch
@@ -2002,6 +2147,7 @@ void G_PlayerReborn(int player)
     p->messageCenteredTics = 0;
     p->targetsheathTics = 0;
     p->lookdir = 0;
+    p->r_lookdir = 0;
     p->ammo[am_goldwand] = 50;
     for (i = 0; i < NUMAMMO; i++)
     {
@@ -2238,6 +2384,7 @@ void G_WorldDone(void)
 void G_DoWorldDone(void)
 {
     gamestate = GS_LEVEL;
+    G_ResetRewind(false);
     G_DoLoadLevel();
     gameaction = ga_nothing;
 }
@@ -2336,6 +2483,9 @@ void G_DoLoadGame(void)
         I_Error("Bad savegame");
     }
 
+    // [plums] Restore old sector specials.
+    P_UnArchiveOldSpecials();
+
     SV_Close();
 
     // [JN] Restore monster targets.
@@ -2380,6 +2530,7 @@ void G_DeferedInitNew(skill_t skill, int episode, int map)
 
 void G_DoNewGame(void)
 {
+    G_ResetRewind(true);
     G_InitNew(d_skill, d_episode, d_map);
     gameaction = ga_nothing;
 }
@@ -2441,7 +2592,10 @@ void G_InitNew(skill_t skill, int episode, int map)
     gameepisode = episode;
     gamemap = map;
     gameskill = skill;
-    BorderNeedRefresh = true;
+
+    // [PN] Savegame and rewind restores also pass through G_InitNew().
+    // Keep their keyframes unless the caller explicitly starts a new timeline.
+    G_ResetRewind(false);
 
     defdemotics = 0;
 
@@ -2546,7 +2700,7 @@ void G_WriteDemoTiccmd(ticcmd_t * cmd)
 {
     byte *demo_start;
 
-    if (gamekeydown[key_demo_quit]) // press to end demo recording
+    if (gamekeydown[key_demo_quit] || gamekeydown[key_demo_quit2]) // press to end demo recording
         G_CheckDemoStatus();
 
     demo_start = demo_p;
@@ -2617,11 +2771,13 @@ void G_RecordDemo(skill_t skill, int numplayers, int episode, int map,
     //!
     // @category demo
     //
-    // Smooth out low resolution turning when recording a demo.
+    // Don't smooth out low resolution turning when recording a demo.
     //
 
-    shortticfix = M_ParmExists("-shortticfix");
+    shortticfix = (!M_ParmExists("-noshortticfix"));
+    //[crispy] make shortticfix the default
 
+    G_ResetRewind(true);
     G_InitNew(skill, episode, map);
     usergame = false;
     M_StringCopy(demoname, name, sizeof(demoname));
@@ -2777,6 +2933,8 @@ void G_DoPlayDemo(void)
     }
 
     precache = false;           // don't spend a lot of time in loadlevel
+    // [PN] Force to reset rewind key frames in demos.
+    G_ResetRewind(true);
     G_InitNew(skill, episode, map);
     precache = true;
     usergame = false;
@@ -2842,6 +3000,7 @@ void G_TimeDemo(char *name)
         netgame = true;
     }
 
+    G_ResetRewind(true);
     G_InitNew(skill, episode, map);
     starttime = I_GetTime();
 
@@ -2924,6 +3083,7 @@ void G_SaveGame(int slot, char *description)
 {
     savegameslot = slot;
     M_StringCopy(savedescription, description, sizeof(savedescription));
+    P_RequestSavePreviewCapture();
     sendsave = true;
 }
 
@@ -2937,6 +3097,14 @@ void G_SaveGame(int slot, char *description)
 
 void G_DoSaveGame(void)
 {
+    if (!P_IsSavePreviewReady())
+    {
+        // [PN] Delay save until next frame captures a clean world-only preview.
+        gameaction = ga_nothing;
+        sendsave = true;
+        return;
+    }
+
     int i;
     char *filename;
     char verString[VERSIONSIZE];
@@ -2966,6 +3134,14 @@ void G_DoSaveGame(void)
     P_ArchiveThinkers();
     P_ArchiveSpecials();
     SV_WriteSaveGameEOF();
+
+    // [plums] write old sector specials (for revealed secrets) at the end
+    // to keep save compatibility with previous versions
+    P_ArchiveOldSpecials();
+
+    // [PN] Write savegame preview thumbnail after terminator.
+    P_ArchiveSavePreview();
+
     SV_Close();
 
     gameaction = ga_nothing;
@@ -2974,5 +3150,8 @@ void G_DoSaveGame(void)
     CT_SetMessage(&players[consoleplayer], DEH_String(TXT_GAMESAVED), true, NULL);
 
     free(filename);
+
+    // draw the pattern into the back screen
+    R_FillBackScreen ();
 }
 

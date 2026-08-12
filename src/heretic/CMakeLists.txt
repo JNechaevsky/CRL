@@ -1,5 +1,5 @@
 add_library(heretic STATIC
-            am_data.h
+            ../v_savepreview.c  ../v_savepreview.h
             am_map.c            am_map.h
             ct_chat.c           ct_chat.h
             crlfunc.c           crlfunc.h
@@ -16,7 +16,9 @@ add_library(heretic STATIC
                                 doomdef.h
                                 dstrings.h
             f_finale.c
+            f_wipe.c            f_wipe.h
             g_game.c
+            g_rewind.c          g_rewind.h
             info.c              info.h
             in_lude.c
             m_random.c          m_random.h

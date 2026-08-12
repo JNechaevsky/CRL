@@ -81,6 +81,8 @@ extern int crl_monosfx;
 extern int crl_mute_inactive;
 
 // Automap
+extern int crl_automap_textured_bg;
+extern int crl_automap_scroll_bg;
 extern int crl_automap_mode;
 extern int crl_automap_secrets;
 extern int crl_automap_rotate;
@@ -93,6 +95,9 @@ extern int crl_automap_sndprop;
 extern int crl_default_skill;
 extern int crl_pistol_start;
 extern int crl_colored_stbar;
+extern int crl_ammo_widget;
+extern int crl_ammo_widget_translucent;
+extern int crl_ammo_widget_colors;
 extern int crl_revealed_secrets;
 extern char *crl_revealed_secrets_msg;
 extern int crl_restore_targets;

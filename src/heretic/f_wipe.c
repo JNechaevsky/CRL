@@ -343,8 +343,8 @@ static int wipe_doMelt (int ticks)
                 else if (y_prev[col] < SCREENHEIGHT)
                 {
                     // [PN] Accelerate after warm-up rows; speed still scales via crl_screenwipe.
-                    // const int speed_factor = crl_screenwipe == 1 ? 1 : 2;
-                    int dy = (y_prev[col] < 16) ? y_prev[col] + 1 : (8 * crl_screenwipe);
+                    const int speed_factor = crl_screenwipe == 2 ? 1 : 2;
+                    int dy = (y_prev[col] < 16) ? y_prev[col] + 1 : (8 * speed_factor);
                     int next = y_prev[col] + dy;
 
                     if (next > SCREENHEIGHT)
@@ -419,8 +419,8 @@ int wipe_ScreenWipe (const int ticks)
         wipe_scr = I_VideoBuffer;
 
         // [PN] Select wipe effect based on crl_screenwipe:
-        // 1/2 = Melt / 3 = Melt.
-        if (crl_screenwipe == 3)
+        // 1 = Crossfade, 2/3 = Melt.
+        if (crl_screenwipe == 1)
         {
             wipe_initCrossfade();
         }
@@ -431,7 +431,7 @@ int wipe_ScreenWipe (const int ticks)
     }
 
     // final stuff
-    if (crl_screenwipe == 3)
+    if (crl_screenwipe == 1)
     {
         if (wipe_doCrossfade(ticks))
         {

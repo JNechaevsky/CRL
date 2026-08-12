@@ -16,13 +16,11 @@
 // GNU General Public License for more details.
 //
 
-// SB_bar.c
 
-#include "ct_chat.h"
 #include "doomdef.h"
 #include "deh_str.h"
-#include "i_video.h"
 #include "i_swap.h"
+#include "i_timer.h"
 #include "m_controls.h"
 #include "m_cheat.h"
 #include "m_misc.h"
@@ -32,163 +30,151 @@
 #include "v_trans.h"
 #include "v_video.h"
 #include "am_map.h"
+#include "ct_chat.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
 
-
-// Types
-
-typedef struct Cheat_s
-{
-    void (*func) (player_t * player, struct Cheat_s * cheat);
-    cheatseq_t *seq;
-} Cheat_t;
-
-// Private Functions
-
-static void DrawSoundInfo(void);
-static void ShadeLine(int x, int y, int height, int shade);
-static void ShadeChain(void);
-static void DrINumber(signed int val, int x, int y);
-static void DrBNumber(signed int val, int x, int y);
-static void DrawCommonBar(void);
-static void DrawMainBar(void);
-static void DrawInventoryBar(void);
-static void DrawFullScreenStuff(void);
-static boolean HandleCheats(byte key);
-static void CheatGodFunc(player_t * player, Cheat_t * cheat);
-static void CheatNoClipFunc(player_t * player, Cheat_t * cheat);
-static void CheatWeaponsFunc(player_t * player, Cheat_t * cheat);
-static void CheatPowerFunc(player_t * player, Cheat_t * cheat);
-static void CheatHealthFunc(player_t * player, Cheat_t * cheat);
-static void CheatKeysFunc(player_t * player, Cheat_t * cheat);
-static void CheatSoundFunc(player_t * player, Cheat_t * cheat);
-static void CheatTickerFunc(player_t * player, Cheat_t * cheat);
-static void CheatArtifact1Func(player_t * player, Cheat_t * cheat);
-static void CheatArtifact2Func(player_t * player, Cheat_t * cheat);
-static void CheatArtifact3Func(player_t * player, Cheat_t * cheat);
-static void CheatWarpFunc(player_t * player, Cheat_t * cheat);
-static void CheatChickenFunc(player_t * player, Cheat_t * cheat);
-static void CheatMassacreFunc(player_t * player, Cheat_t * cheat);
-static void CheatIDKFAFunc(player_t * player, Cheat_t * cheat);
-static void CheatIDDQDFunc(player_t * player, Cheat_t * cheat);
 
 // Public Data
 
 boolean DebugSound;             // debug flag for displaying sound info
 
 boolean inventory;
+int ArtifactFlash;
 int curpos;
 int inv_ptr;
-int ArtifactFlash;
-
-static int DisplayTicker = 0;
+int playerkeys = 0;
+int sb_palette = 0;  // [JN] Externalazied variable of current palette index.
+int SB_state = -1;
 
 // Private Data
 
-static int HealthMarker;
 static int ChainWiggle;
+static int FontBNumBase;
+static int HealthMarker;
+static int oldammo = -1;
+static int oldarmor = -1;
+static int oldarti = 0;
+static int oldartiCount = 0;
+static int oldfrags = -9999;
+static int oldhealth = -1;
+static int oldkeys = -1;
+static int oldlife = -1;
+static int oldweapon = -1;
+static int playpalette;
+static int spinbooklump;
+static int spinflylump;
+
+static patch_t *PatchARMCLEAR;
+static patch_t *PatchBARBACK;
+static patch_t *PatchBLACKSQ;
+static patch_t *PatchCHAIN;
+static patch_t *PatchCHAINBACK;
+static patch_t *PatchINumbers[10];
+static patch_t *PatchINVBAR;
+static patch_t *PatchINVLFGEM1;
+static patch_t *PatchINVLFGEM2;
+static patch_t *PatchINVRTGEM1;
+static patch_t *PatchINVRTGEM2;
+static patch_t *PatchLIFEGEM;
+static patch_t *PatchLTFACE;
+static patch_t *PatchLTFCTOP;
+static patch_t *PatchNEGATIVE;
+static patch_t *PatchRTFACE;
+static patch_t *PatchRTFCTOP;
+static patch_t *PatchSELECTBOX;
+static patch_t *PatchSmNumbers[10];
+static patch_t *PatchSTATBAR;
 static player_t *CPlayer;
-int playpalette;
-int sb_palette = 0;  // [JN] Externalazied variable of current palette index.
 
-patch_t *PatchLTFACE;
-patch_t *PatchRTFACE;
-patch_t *PatchBARBACK;
-patch_t *PatchCHAIN;
-patch_t *PatchSTATBAR;
-patch_t *PatchLIFEGEM;
-//patch_t *PatchEMPWEAP;
-//patch_t *PatchLIL4BOX;
-patch_t *PatchLTFCTOP;
-patch_t *PatchRTFCTOP;
-//patch_t *PatchARMORBOX;
-//patch_t *PatchARTIBOX;
-patch_t *PatchSELECTBOX;
-//patch_t *PatchKILLSPIC;
-//patch_t *PatchMANAPIC;
-//patch_t *PatchPOWERICN;
-patch_t *PatchINVLFGEM1;
-patch_t *PatchINVLFGEM2;
-patch_t *PatchINVRTGEM1;
-patch_t *PatchINVRTGEM2;
-patch_t *PatchINumbers[10];
-patch_t *PatchNEGATIVE;
-patch_t *PatchSmNumbers[10];
-patch_t *PatchBLACKSQ;
-patch_t *PatchINVBAR;
-patch_t *PatchARMCLEAR;
-patch_t *PatchCHAINBACK;
-//byte *ShadeTables;
-int FontBNumBase;
-int spinbooklump;
-int spinflylump;
 
-// Toggle god mode
-cheatseq_t CheatGodSeq = CHEAT("quicken", 0);
 
-// Toggle no clipping mode
-cheatseq_t CheatNoClipSeq = CHEAT("kitty", 0);
 
-// Get all weapons and ammo
-cheatseq_t CheatWeaponsSeq = CHEAT("rambo", 0);
 
-// Toggle tome of power
-cheatseq_t CheatPowerSeq = CHEAT("shazam", 0);
 
-// Get full health
-cheatseq_t CheatHealthSeq = CHEAT("ponce", 0);
 
-// Get all keys
-cheatseq_t CheatKeysSeq = CHEAT("skel", 0);
+//---------------------------------------------------------------------------
+//
+// PROC DrINumber
+//
+// Draws a three digit number.
+//
+//---------------------------------------------------------------------------
 
-// Toggle sound debug info
-cheatseq_t CheatSoundSeq = CHEAT("noise", 0);
+static void DrINumber(signed int val, int x, int y)
+{
+    patch_t *patch;
+    int oldval;
 
-// Toggle ticker
-cheatseq_t CheatTickerSeq = CHEAT("ticker", 0);
+    oldval = val;
+    if (val < 0)
+    {
+        if (val < -9)
+        {
+            V_DrawPatch(x + 1, y + 1, W_CacheLumpName(DEH_String("LAME"), PU_CACHE), "LAME");
+        }
+        else
+        {
+            val = -val;
+            V_DrawPatch(x + 18, y, PatchINumbers[val], "NULL"); // [JN] TODO - patch names
+            V_DrawPatch(x + 9, y, PatchNEGATIVE, "NEGNUM");
+        }
+        return;
+    }
+    if (val > 99)
+    {
+        patch = PatchINumbers[val / 100];
+        V_DrawPatch(x, y, patch, "NULL"); // [JN] TODO - patch names
+    }
+    val = val % 100;
+    if (val > 9 || oldval > 99)
+    {
+        patch = PatchINumbers[val / 10];
+        V_DrawPatch(x + 9, y, patch, "NULL"); // [JN] TODO - patch names
+    }
+    val = val % 10;
+    patch = PatchINumbers[val];
+    V_DrawPatch(x + 18, y, patch, "NULL"); // [JN] TODO - patch names
+}
 
-// Get an artifact 1st stage (ask for type)
-cheatseq_t CheatArtifact1Seq = CHEAT("gimme", 0);
+//---------------------------------------------------------------------------
+//
+// PROC DrBNumber
+//
+// Draws a three digit number using FontB
+//
+//---------------------------------------------------------------------------
 
-// Get an artifact 2nd stage (ask for count)
-cheatseq_t CheatArtifact2Seq = CHEAT("gimme", 1);
+static void DrBNumber(signed int val, int x, int y)
+{
+    patch_t *patch;
+    int xpos;
+    int oldval;
 
-// Get an artifact final stage
-cheatseq_t CheatArtifact3Seq = CHEAT("gimme", 2);
-
-// Warp to new level
-cheatseq_t CheatWarpSeq = CHEAT("engage", 2);
-
-// Save a screenshot
-cheatseq_t CheatChickenSeq = CHEAT("cockadoodledoo", 0);
-
-// Kill all monsters
-cheatseq_t CheatMassacreSeq = CHEAT("massacre", 0);
-
-cheatseq_t CheatIDKFASeq = CHEAT("idkfa", 0);
-cheatseq_t CheatIDDQDSeq = CHEAT("iddqd", 0);
-
-static Cheat_t Cheats[] = {
-    {CheatGodFunc,       &CheatGodSeq},
-    {CheatNoClipFunc,    &CheatNoClipSeq},
-    {CheatWeaponsFunc,   &CheatWeaponsSeq},
-    {CheatPowerFunc,     &CheatPowerSeq},
-    {CheatHealthFunc,    &CheatHealthSeq},
-    {CheatKeysFunc,      &CheatKeysSeq},
-    {CheatSoundFunc,     &CheatSoundSeq},
-    {CheatTickerFunc,    &CheatTickerSeq},
-    {CheatArtifact1Func, &CheatArtifact1Seq},
-    {CheatArtifact2Func, &CheatArtifact2Seq},
-    {CheatArtifact3Func, &CheatArtifact3Seq},
-    {CheatWarpFunc,      &CheatWarpSeq},
-    {CheatChickenFunc,   &CheatChickenSeq},
-    {CheatMassacreFunc,  &CheatMassacreSeq},
-    {CheatIDKFAFunc,     &CheatIDKFASeq},
-    {CheatIDDQDFunc,     &CheatIDDQDSeq},
-    {NULL,               NULL} 
-};
+    oldval = val;
+    xpos = x;
+    if (val < 0)
+    {
+        val = 0;
+    }
+    if (val > 99)
+    {
+        patch = W_CacheLumpNum(FontBNumBase + val / 100, PU_CACHE);
+        V_DrawShadowedPatchRaven(xpos + 6 - SHORT(patch->width) / 2, y, patch);
+    }
+    val = val % 100;
+    xpos += 12;
+    if (val > 9 || oldval > 99)
+    {
+        patch = W_CacheLumpNum(FontBNumBase + val / 10, PU_CACHE);
+        V_DrawShadowedPatchRaven(xpos + 6 - SHORT(patch->width) / 2, y, patch);
+    }
+    val = val % 10;
+    xpos += 12;
+    patch = W_CacheLumpNum(FontBNumBase + val, PU_CACHE);
+    V_DrawShadowedPatchRaven(xpos + 6 - SHORT(patch->width) / 2, y, patch);
+}
 
 //---------------------------------------------------------------------------
 //
@@ -307,92 +293,20 @@ void SB_Ticker(void)
     CRLWidgets.secrets = CPlayer->secretcount;
     CRLWidgets.totalsecrets = totalsecret;
 
-    CRLWidgets.x = CPlayer->mo->x >> FRACBITS;
-    CRLWidgets.y = CPlayer->mo->y >> FRACBITS;
-    CRLWidgets.ang = CPlayer->mo->angle / ANG1;
+    CRLWidgets.x = CPlayer->mo->x;
+    CRLWidgets.y = CPlayer->mo->y;
+    CRLWidgets.ang = CPlayer->mo->angle;
+
+    // Do red-/gold-shifts from damage/items
+    if (!crl_spectating)
+    {
+        SB_PaletteFlash();
+    }
 }
 
-//---------------------------------------------------------------------------
-//
-// PROC DrINumber
-//
-// Draws a three digit number.
-//
-//---------------------------------------------------------------------------
 
-static void DrINumber(signed int val, int x, int y)
-{
-    patch_t *patch;
-    int oldval;
 
-    oldval = val;
-    if (val < 0)
-    {
-        if (val < -9)
-        {
-            V_DrawPatch(x + 1, y + 1, W_CacheLumpName(DEH_String("LAME"), PU_CACHE), "LAME");
-        }
-        else
-        {
-            val = -val;
-            V_DrawPatch(x + 18, y, PatchINumbers[val], "NULL"); // [JN] TODO - patch names
-            V_DrawPatch(x + 9, y, PatchNEGATIVE, "NEGNUM");
-        }
-        return;
-    }
-    if (val > 99)
-    {
-        patch = PatchINumbers[val / 100];
-        V_DrawPatch(x, y, patch, "NULL"); // [JN] TODO - patch names
-    }
-    val = val % 100;
-    if (val > 9 || oldval > 99)
-    {
-        patch = PatchINumbers[val / 10];
-        V_DrawPatch(x + 9, y, patch, "NULL"); // [JN] TODO - patch names
-    }
-    val = val % 10;
-    patch = PatchINumbers[val];
-    V_DrawPatch(x + 18, y, patch, "NULL"); // [JN] TODO - patch names
-}
 
-//---------------------------------------------------------------------------
-//
-// PROC DrBNumber
-//
-// Draws a three digit number using FontB
-//
-//---------------------------------------------------------------------------
-
-static void DrBNumber(signed int val, int x, int y)
-{
-    patch_t *patch;
-    int xpos;
-    int oldval;
-
-    oldval = val;
-    xpos = x;
-    if (val < 0)
-    {
-        val = 0;
-    }
-    if (val > 99)
-    {
-        patch = W_CacheLumpNum(FontBNumBase + val / 100, PU_CACHE);
-        V_DrawShadowedPatchRaven(xpos + 6 - SHORT(patch->width) / 2, y, patch);
-    }
-    val = val % 100;
-    xpos += 12;
-    if (val > 9 || oldval > 99)
-    {
-        patch = W_CacheLumpNum(FontBNumBase + val / 10, PU_CACHE);
-        V_DrawShadowedPatchRaven(xpos + 6 - SHORT(patch->width) / 2, y, patch);
-    }
-    val = val % 10;
-    xpos += 12;
-    patch = W_CacheLumpNum(FontBNumBase + val, PU_CACHE);
-    V_DrawShadowedPatchRaven(xpos + 6 - SHORT(patch->width) / 2, y, patch);
-}
 
 //---------------------------------------------------------------------------
 //
@@ -518,7 +432,6 @@ static void DrawSoundInfo(void)
         M_snprintf(text, sizeof(text), "%d", c->distance);
         MN_DrTextA(text, xPos[x++], y, NULL);
     }
-    BorderNeedRefresh = true;
 }
 
 //---------------------------------------------------------------------------
@@ -527,194 +440,15 @@ static void DrawSoundInfo(void)
 //
 //---------------------------------------------------------------------------
 
-char patcharti[][10] = {
-    {"ARTIBOX"},                // none
-    {"ARTIINVU"},               // invulnerability
-    {"ARTIINVS"},               // invisibility
-    {"ARTIPTN2"},               // health
-    {"ARTISPHL"},               // superhealth
-    {"ARTIPWBK"},               // tomeofpower
-    {"ARTITRCH"},               // torch
-    {"ARTIFBMB"},               // firebomb
-    {"ARTIEGGC"},               // egg
-    {"ARTISOAR"},               // fly
-    {"ARTIATLP"}                // teleport
-};
-
-char ammopic[][10] = {
-    {"INAMGLD"},
-    {"INAMBOW"},
-    {"INAMBST"},
-    {"INAMRAM"},
-    {"INAMPNX"},
-    {"INAMLOB"}
-};
-
-int SB_state = -1;
-static int oldarti = 0;
-static int oldartiCount = 0;
-static int oldfrags = -9999;
-static int oldammo = -1;
-static int oldarmor = -1;
-static int oldweapon = -1;
-static int oldhealth = -1;
-static int oldlife = -1;
-static int oldkeys = -1;
-
-int playerkeys = 0;
-
-
 // [crispy] Needed to support widescreen status bar.
 void SB_ForceRedraw(void)
 {
     SB_state = -1;
 }
-void SB_Drawer(void)
-{
-    int frame;
-    static boolean hitCenterFrame;
 
-    // Sound info debug stuff
-    if (DebugSound == true)
-    {
-        DrawSoundInfo();
-    }
-    CPlayer = &players[consoleplayer];
-    if (viewheight == SCREENHEIGHT && !automapactive)
-    {
-        DrawFullScreenStuff();
-        SB_state = -1;
-    }
-    else
-    {
-        // [JN] CRL - always do full status bar update, as we drawing
-        // everything below automap for proper render counter values.
-        SB_state = -1;
 
-        if (SB_state == -1)
-        {
-            V_DrawPatch(0, 158, PatchBARBACK, "BARBACK");
-            if (players[consoleplayer].cheats & CF_GODMODE)
-            {
-                V_DrawPatch(16, 167,
-                            W_CacheLumpName(DEH_String("GOD1"), PU_CACHE), "GOD1");
-                V_DrawPatch(287, 167,
-                            W_CacheLumpName(DEH_String("GOD2"), PU_CACHE), "GOD2");
-            }
-            oldhealth = -1;
-        }
-        DrawCommonBar();
-        if (!inventory)
-        {
-            if (SB_state != 0)
-            {
-                // Main interface
-                V_DrawPatch(34, 160, PatchSTATBAR, "STATBAR");
-                oldarti = 0;
-                oldammo = -1;
-                oldarmor = -1;
-                oldweapon = -1;
-                oldfrags = -9999;       //can't use -1, 'cuz of negative frags
-                oldlife = -1;
-                oldkeys = -1;
-            }
-            DrawMainBar();
-            SB_state = 0;
-        }
-        else
-        {
-            if (SB_state != 1)
-            {
-                V_DrawPatch(34, 160, PatchINVBAR, "INVBAR");
-            }
-            DrawInventoryBar();
-            SB_state = 1;
-        }
-    }
-    SB_PaletteFlash();
 
-    // Flight icons
-    if (CPlayer->powers[pw_flight])
-    {
-        if (CPlayer->powers[pw_flight] > BLINKTHRESHOLD
-            || !(CPlayer->powers[pw_flight] & 16))
-        {
-            frame = (leveltime / 3) & 15;
-            if (CPlayer->mo->flags2 & MF2_FLY)
-            {
-                if (hitCenterFrame && (frame != 15 && frame != 0))
-                {
-                    V_DrawPatch(20, 17, W_CacheLumpNum(spinflylump + 15,
-                                                       PU_CACHE), "NULL"); // [JN] TODO - patch name
-                }
-                else
-                {
-                    V_DrawPatch(20, 17, W_CacheLumpNum(spinflylump + frame,
-                                                       PU_CACHE), "NULL"); // [JN] TODO - patch name
-                    hitCenterFrame = false;
-                }
-            }
-            else
-            {
-                if (!hitCenterFrame && (frame != 15 && frame != 0))
-                {
-                    V_DrawPatch(20, 17, W_CacheLumpNum(spinflylump + frame,
-                                                       PU_CACHE), "NULL"); // [JN] TODO - patch name
-                    hitCenterFrame = false;
-                }
-                else
-                {
-                    V_DrawPatch(20, 17, W_CacheLumpNum(spinflylump + 15,
-                                                       PU_CACHE), "NULL"); // [JN] TODO - patch name
-                    hitCenterFrame = true;
-                }
-            }
-            BorderTopRefresh = true;
-        }
-        else
-        {
-            BorderTopRefresh = true;
-        }
-    }
 
-    if (CPlayer->powers[pw_weaponlevel2] && !CPlayer->chickenTics)
-    {
-        int spinbook_x = 300; // [crispy]
-
-        // [JN] Shift tome icon left if fps counter or demo timer is active.
-        if (crl_showfps
-        || (demoplayback && (crl_demo_timer == 1 || crl_demo_timer == 3))
-        || (demorecording && (crl_demo_timer == 2 || crl_demo_timer == 3)))
-        {
-            spinbook_x -= 70;
-        }
-
-        if (CPlayer->powers[pw_weaponlevel2] > BLINKTHRESHOLD
-            || !(CPlayer->powers[pw_weaponlevel2] & 16))
-        {
-            frame = (leveltime / 3) & 15;
-            V_DrawPatch(spinbook_x, 17,
-                        W_CacheLumpNum(spinbooklump + frame, PU_CACHE), "NULL"); // [JN] TODO - patch name
-            BorderTopRefresh = true;
-        }
-        else
-        {
-            BorderTopRefresh = true;
-        }
-    }
-/*
-		if(CPlayer->powers[pw_weaponlevel2] > BLINKTHRESHOLD
-			|| (CPlayer->powers[pw_weaponlevel2]&8))
-		{
-			V_DrawPatch(291, 0, W_CacheLumpName("ARTIPWBK", PU_CACHE));
-		}
-		else
-		{
-			BorderTopRefresh = true;
-		}
-	}
-*/
-}
 
 // -----------------------------------------------------------------------------
 // SB_MainBarColor
@@ -729,7 +463,7 @@ enum
     hudcolor_armor
 } hudcolor_t;
 
-static byte *SB_MainBarColor (const int i)
+static byte *const SB_MainBarColor (const int i)
 {
     if (!crl_colored_stbar)
     {
@@ -819,27 +553,44 @@ void CRL_ReloadPalette (void)
 void SB_PaletteFlash(void)
 {
     int palette;
-    byte *pal;
 
     CPlayer = &players[consoleplayer];
 
     if (CPlayer->damagecount)
     {
-        palette = (CPlayer->damagecount + 7) >> 3;
-        if (palette >= NUMREDPALS)
-        {
-            palette = NUMREDPALS - 1;
-        }
-        palette += STARTREDPALS;
+        // [JN] A11Y - Palette flash effects.
+        // For A11Y, fix missing first pain palette index for smoother effect.
+        // [PN] Simplified pain palette logic and reduced redundancy.
+
+        const int offset     = (CPlayer->damagecount + 7) >> 3;
+        const int maxOffset  = NUMREDPALS - (crl_a11y_pal_flash ? 0 : 1);
+        const int startIndex = STARTREDPALS + (crl_a11y_pal_flash ? -1 : 0);
+
+        // [PN] Select offset, clamped to allowed range
+        palette = startIndex + (offset < NUMREDPALS ? offset : maxOffset);
+
+        // [PN] Aadditional limits for flash mode
+        if      (crl_a11y_pal_flash == 1 && palette > 5) palette = 5;
+        else if (crl_a11y_pal_flash == 2 && palette > 2) palette = 2;
+        else if (crl_a11y_pal_flash == 3)                palette = 0;
     }
     else if (CPlayer->bonuscount)
     {
-        palette = (CPlayer->bonuscount + 7) >> 3;
-        if (palette >= NUMBONUSPALS)
-        {
-            palette = NUMBONUSPALS - 1;
-        }
-        palette += STARTBONUSPALS;
+        // [JN] A11Y - Palette flash effects.
+        // For A11Y, fix missing first bonus palette index for smoother effect.
+        // [PN] Simplified bonus palette logic and reduced redundancy.
+
+        const int offset     = (CPlayer->bonuscount + 7) >> 3;
+        const int maxOffset  = NUMBONUSPALS - (crl_a11y_pal_flash ? 0 : 1);
+        const int startIndex = STARTBONUSPALS + (crl_a11y_pal_flash ? -1 : 0);
+
+        // [PN] Select offset, clamped to allowed range
+        palette = startIndex + (offset < NUMBONUSPALS ? offset : maxOffset);
+
+        // [PN] Aadditional limits for flash mode
+        if      (crl_a11y_pal_flash == 1 && palette > 11) palette = 11;
+        else if (crl_a11y_pal_flash == 2 && palette >  9) palette =  9;
+        else if (crl_a11y_pal_flash == 3)                 palette =  0;
     }
     else
     {
@@ -848,8 +599,7 @@ void SB_PaletteFlash(void)
     if (palette != sb_palette)
     {
         sb_palette = palette;
-        pal = (byte *) W_CacheLumpNum(playpalette, PU_CACHE) + palette * 768;
-        I_SetPalette(pal);
+        CRL_ReloadPalette();
     }
 }
 
@@ -859,7 +609,7 @@ void SB_PaletteFlash(void)
 //
 //---------------------------------------------------------------------------
 
-void DrawCommonBar(void)
+static void DrawCommonBar(void)
 {
     int chainY;
     int chainYY;
@@ -901,7 +651,30 @@ void DrawCommonBar(void)
 //
 //---------------------------------------------------------------------------
 
-void DrawMainBar(void)
+static const char patcharti[][10] = {
+    {"ARTIBOX"},                // none
+    {"ARTIINVU"},               // invulnerability
+    {"ARTIINVS"},               // invisibility
+    {"ARTIPTN2"},               // health
+    {"ARTISPHL"},               // superhealth
+    {"ARTIPWBK"},               // tomeofpower
+    {"ARTITRCH"},               // torch
+    {"ARTIFBMB"},               // firebomb
+    {"ARTIEGGC"},               // egg
+    {"ARTISOAR"},               // fly
+    {"ARTIATLP"}                // teleport
+};
+
+static const char ammopic[][10] = {
+    {"INAMGLD"},
+    {"INAMBOW"},
+    {"INAMBST"},
+    {"INAMRAM"},
+    {"INAMPNX"},
+    {"INAMLOB"}
+};
+
+static void DrawMainBar(void)
 {
     int i;
     int temp;
@@ -1022,7 +795,7 @@ void DrawMainBar(void)
 //
 //---------------------------------------------------------------------------
 
-void DrawInventoryBar(void)
+static void DrawInventoryBar(void)
 {
     const char *patch;
     int i;
@@ -1055,7 +828,7 @@ void DrawInventoryBar(void)
     }
 }
 
-void DrawFullScreenStuff(void)
+static void DrawFullScreenStuff(void)
 {
     const char *patch;
     int i;
@@ -1127,118 +900,313 @@ void DrawFullScreenStuff(void)
     }
 }
 
-//--------------------------------------------------------------------------
-//
-// FUNC SB_Responder
-//
-//--------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+// SB_AmmoWidgetColor
+// [plums] return ammo/health/armor widget color
+// -----------------------------------------------------------------------------
 
-boolean SB_Responder(event_t * event)
+enum
 {
-    if (event->type == ev_keydown)
-    {
-        if (HandleCheats(event->data1))
-        {                       // Need to eat the key
-            return (true);
-        }
+    ammowidgetcolor_ammo,
+    ammowidgetcolor_weapon
+} ammowidgetcolor_t;
 
-        // [JN] CRL - handle cheat keybind shortcuts:
-        if (event->data1 == key_crl_iddqd)
+static byte *const SB_AmmoWidgetColor (int i, weapontype_t weapon)
+{
+    switch (i)
+    {
+        case ammowidgetcolor_ammo:
         {
-            CheatGodFunc(&players[consoleplayer], &Cheats[0]);
-            return (true);
-        }
-        if (event->data1 == key_crl_idfa)
-        {
-            CheatWeaponsFunc(&players[consoleplayer], &Cheats[2]);
-            return (true);
-        }
-        if (event->data1 == key_crl_idclip)
-        {
-            CheatNoClipFunc(&players[consoleplayer], &Cheats[1]);
-            return (true);
-        }
-        if (event->data1 == key_crl_iddt)
-        {
-            ravmap_cheating++;
-            if (ravmap_cheating > 2)
+            const int ammo = CPlayer->ammo[wpnlev1info[weapon].ammo];
+            const int fullammo = CPlayer->maxammo[wpnlev1info[weapon].ammo];
+
+            if (crl_ammo_widget_colors != 1 && crl_ammo_widget_colors != 2)
             {
-                ravmap_cheating = 0;
+                return cr[CR_GRAY];
             }
-            return (true);
+
+            if (ammo < fullammo/4)
+                return cr[CR_RED];
+            else if (ammo < fullammo/2)
+                return cr[CR_YELLOW];
+            else
+                return cr[CR_GREEN];
         }
-    }
-    return (false);
-}
-
-//--------------------------------------------------------------------------
-//
-// FUNC HandleCheats
-//
-// Returns true if the caller should eat the key.
-//
-//--------------------------------------------------------------------------
-
-static boolean HandleCheats(byte key)
-{
-    int i;
-    boolean eat;
-
-    if (netgame || gameskill == sk_nightmare)
-    {                           // Can't cheat in a net-game, or in nightmare mode
-        return (false);
-    }
-    if (players[consoleplayer].health <= 0)
-    {                           // Dead players can't cheat
-        return (false);
-    }
-    eat = false;
-    for (i = 0; Cheats[i].func != NULL; i++)
-    {
-        if (cht_CheckCheat(Cheats[i].seq, key))
+        case ammowidgetcolor_weapon:
         {
-            Cheats[i].func(&players[consoleplayer], &Cheats[i]);
-            S_StartSound(NULL, sfx_dorcls);
+            // always color the weapon letter if ammo widget coloring is OFF
+            if ((crl_ammo_widget_colors != 1 && crl_ammo_widget_colors != 3) ||
+                CPlayer->weaponowned[weapon] == true)
+            {
+                switch (weapon)
+                {
+                    case wp_goldwand:   return cr[CR_YELLOW];
+                    case wp_crossbow:   return cr[CR_GREEN];
+                    case wp_blaster:    return cr[CR_BLUE2];
+                    case wp_skullrod:   return cr[CR_RED];
+                    case wp_phoenixrod: return cr[CR_ORANGE];
+                    case wp_mace:       return cr[CR_LIGHTGRAY];
+                    default:            return cr[CR_GRAY];
+                }
+            }
+            else
+            {
+                return cr[CR_GRAY];
+            }
         }
     }
-    return (eat);
+
+    return NULL;
 }
 
-//--------------------------------------------------------------------------
-//
-// CHEAT FUNCTIONS
-//
-//--------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+// SB_Drawer
+// -----------------------------------------------------------------------------
 
-static void CheatGodFunc(player_t * player, Cheat_t * cheat)
+void SB_Drawer(void)
 {
+    int frame;
+    static boolean hitCenterFrame;
+
+    // Sound info debug stuff
+    if (DebugSound == true)
+    {
+        DrawSoundInfo();
+    }
+    CPlayer = &players[consoleplayer];
+    if (viewheight == SCREENHEIGHT && (!automapactive || crl_automap_overlay))
+    {
+        DrawFullScreenStuff();
+        SB_state = -1;
+    }
+    else
+    {
+        // [JN] CRL - always do full status bar update, as we drawing
+        // everything below automap for proper render counter values.
+        SB_state = -1;
+
+        if (SB_state == -1)
+        {
+            V_DrawPatch(0, 158, PatchBARBACK, "BARBACK");
+            if (players[consoleplayer].cheats & CF_GODMODE)
+            {
+                V_DrawPatch(16, 167,
+                            W_CacheLumpName(DEH_String("GOD1"), PU_CACHE), "GOD1");
+                V_DrawPatch(287, 167,
+                            W_CacheLumpName(DEH_String("GOD2"), PU_CACHE), "GOD2");
+            }
+            oldhealth = -1;
+        }
+        DrawCommonBar();
+        if (!inventory)
+        {
+            if (SB_state != 0)
+            {
+                // Main interface
+                V_DrawPatch(34, 160, PatchSTATBAR, "STATBAR");
+                oldarti = 0;
+                oldammo = -1;
+                oldarmor = -1;
+                oldweapon = -1;
+                oldfrags = -9999;       //can't use -1, 'cuz of negative frags
+                oldlife = -1;
+                oldkeys = -1;
+            }
+            DrawMainBar();
+            SB_state = 0;
+        }
+        else
+        {
+            if (SB_state != 1)
+            {
+                V_DrawPatch(34, 160, PatchINVBAR, "INVBAR");
+            }
+            DrawInventoryBar();
+            SB_state = 1;
+        }
+    }
+
+    // Flight icons
+    if (CPlayer->powers[pw_flight])
+    {
+        if (CPlayer->powers[pw_flight] > BLINKTHRESHOLD
+            || !(CPlayer->powers[pw_flight] & 16))
+        {
+            frame = (leveltime / 3) & 15;
+            if (CPlayer->mo->flags2 & MF2_FLY)
+            {
+                if (hitCenterFrame && (frame != 15 && frame != 0))
+                {
+                    V_DrawPatch(20, 17, W_CacheLumpNum(spinflylump + 15,
+                                                       PU_CACHE), "NULL"); // [JN] TODO - patch name
+                }
+                else
+                {
+                    V_DrawPatch(20, 17, W_CacheLumpNum(spinflylump + frame,
+                                                       PU_CACHE), "NULL"); // [JN] TODO - patch name
+                    hitCenterFrame = false;
+                }
+            }
+            else
+            {
+                if (!hitCenterFrame && (frame != 15 && frame != 0))
+                {
+                    V_DrawPatch(20, 17, W_CacheLumpNum(spinflylump + frame,
+                                                       PU_CACHE), "NULL"); // [JN] TODO - patch name
+                    hitCenterFrame = false;
+                }
+                else
+                {
+                    V_DrawPatch(20, 17, W_CacheLumpNum(spinflylump + 15,
+                                                       PU_CACHE), "NULL"); // [JN] TODO - patch name
+                    hitCenterFrame = true;
+                }
+            }
+        }
+    }
+
+    if (CPlayer->powers[pw_weaponlevel2] && !CPlayer->chickenTics)
+    {
+        int spinbook_x = 300; // [crispy]
+
+        // [JN] Shift tome icon left if fps counter or demo timer is active.
+        if (crl_showfps
+        || (demoplayback && (crl_demo_timer == 1 || crl_demo_timer == 3))
+        || (demorecording && (crl_demo_timer == 2 || crl_demo_timer == 3)))
+        {
+            spinbook_x -= 70;
+        }
+
+        if (CPlayer->powers[pw_weaponlevel2] > BLINKTHRESHOLD
+        || !(CPlayer->powers[pw_weaponlevel2] & 16))
+        {
+            frame = (leveltime / 3) & 15;
+            V_DrawPatch(spinbook_x, 17,
+                        W_CacheLumpNum(spinbooklump + frame, PU_CACHE), "NULL"); // [JN] TODO - patch name
+        }
+    }
+
+    // [JN] Ammo widget.
+    if (crl_ammo_widget && crl_extended_hud)
+    {
+        char str[16];
+
+        // [PN] Parallel arrays for slot data (0-5).
+        const weapontype_t weapons[6] = { wp_goldwand, wp_crossbow, wp_blaster, wp_skullrod, wp_phoenixrod, wp_mace };
+        const int ammo_types[6]       = { am_goldwand, am_crossbow, am_blaster, am_skullrod, am_phoenixrod, am_mace };
+        const char *const labels[6]   = { "W", "E", "D", "H", "P", "M" };
+
+        byte *ammo_widget_weapon_colors[6];
+        byte *ammo_widget_ammo_colors[6];
+
+        // [JN] Move widgets slightly down when using a fullscreen status bar.
+        int yy = (crl_screen_size > 10 && (!automapactive || crl_automap_overlay)) ? 13 : 0;
+
+        // [PN] Cache ammo-widget colors for all weapon slots once per draw pass.
+        for (int i = 0; i < 6; i++)
+        {
+            ammo_widget_weapon_colors[i] = SB_AmmoWidgetColor(ammowidgetcolor_weapon, weapons[i]);
+            ammo_widget_ammo_colors[i]   = SB_AmmoWidgetColor(ammowidgetcolor_ammo, weapons[i]);
+        }
+
+        // [PN] Enable translucency once for both modes.
+        dp_translucent = crl_ammo_widget_translucent;
+
+        for (int i = 0; i < 6; i++)
+        {
+            const int current_yy = 95 + (i * 10) + yy;
+
+            // [PN] Calculate weapon icon X: 282 for Brief (1), 251 for Full.
+            const int label_xx = ((crl_ammo_widget == 1) ? 282 : 251);
+            MN_DrTextA(labels[i], label_xx, current_yy, ammo_widget_weapon_colors[i]);
+
+            if (crl_ammo_widget == 1) // Brief
+            {
+                sprintf(str, "%d", CPlayer->ammo[ammo_types[i]]);
+                MN_DrTextA(str, 293, current_yy, ammo_widget_ammo_colors[i]);
+            }
+            else // Full
+            {
+                sprintf(str, "%d/", CPlayer->ammo[ammo_types[i]]);
+                MN_DrTextA(str, 293 - MN_TextAWidth(str), current_yy, ammo_widget_ammo_colors[i]);
+
+                sprintf(str, "%d", CPlayer->maxammo[ammo_types[i]]);
+                MN_DrTextA(str, 293, current_yy, ammo_widget_ammo_colors[i]);
+            }
+        }
+
+        dp_translucent = false;
+    }
+}
+
+
+// =============================================================================
+//
+//                              CHEAT FUNCTIONS
+//
+// =============================================================================
+
+#define FULL_CHEAT_CHECK if(netgame || demorecording || demoplayback){return;}
+#define SAFE_CHEAT_CHECK if(netgame || demorecording){return;}
+
+typedef struct Cheat_s
+{
+    void (*func) (player_t *const player, struct Cheat_s *const cheat);
+    cheatseq_t *seq;
+} Cheat_t;
+
+static void CheatWaitFunc (player_t *const player, Cheat_t *const cheat)
+{
+    FULL_CHEAT_CHECK;
+    // [JN] If user types "id", activate timer to prevent
+    // other than typing actions in G_Responder.
+    player->cheatTics = TICRATE * 2;
+}
+
+static void CheatGodFunc (player_t *const player, Cheat_t *const cheat)
+{
+    FULL_CHEAT_CHECK;
+
+    // [crispy] dead players are first respawned at the current position
+    mapthing_t mt = {0};
+
+    if (player->playerstate == PST_DEAD)
+    {
+        angle_t an;
+
+        mt.x = player->mo->x >> FRACBITS;
+        mt.y = player->mo->y >> FRACBITS;
+        mt.angle = (player->mo->angle + ANG45/2)*(uint64_t)45/ANG45;
+        mt.type = consoleplayer + 1;
+        P_SpawnPlayer(&mt);
+
+        // [crispy] spawn a teleport fog
+        an = player->mo->angle >> ANGLETOFINESHIFT;
+        P_SpawnMobj(player->mo->x + 20 * finecosine[an],
+                    player->mo->y + 20 * finesine[an],
+                    player->mo->z + TELEFOGHEIGHT, MT_TFOG);
+        S_StartSound(NULL, sfx_telept);
+
+        // [crispy] fix reviving as "zombie" if god mode was already enabled
+        if (player->mo)
+        {
+            player->mo->health = MAXHEALTH;
+        }
+        player->health = MAXHEALTH;
+        player->lookdir = 0;
+    }
+
     player->cheats ^= CF_GODMODE;
-    if (player->cheats & CF_GODMODE)
-    {
-        CT_SetMessage(player, DEH_String(TXT_CHEATGODON), false, NULL);
-    }
-    else
-    {
-        CT_SetMessage(player, DEH_String(TXT_CHEATGODOFF), false, NULL);
-    }
+    CT_SetMessage(player, DEH_String(player->cheats & CF_GODMODE ?
+                  TXT_CHEATGODON : TXT_CHEATGODOFF), false, NULL);
     SB_state = -1;
+    player->cheatTics = 1;
 }
 
-static void CheatNoClipFunc(player_t * player, Cheat_t * cheat)
+static void CheatWeaponsFunc (player_t *const player, Cheat_t *const cheat)
 {
-    player->cheats ^= CF_NOCLIP;
-    if (player->cheats & CF_NOCLIP)
-    {
-        CT_SetMessage(player, DEH_String(TXT_CHEATNOCLIPON), false, NULL);
-    }
-    else
-    {
-        CT_SetMessage(player, DEH_String(TXT_CHEATNOCLIPOFF), false, NULL);
-    }
-}
+    FULL_CHEAT_CHECK;
 
-static void CheatWeaponsFunc(player_t * player, Cheat_t * cheat)
-{
     int i;
 
     player->armorpoints = 200;
@@ -1266,93 +1234,149 @@ static void CheatWeaponsFunc(player_t * player, Cheat_t * cheat)
         player->ammo[i] = player->maxammo[i];
     }
     CT_SetMessage(player, DEH_String(TXT_CHEATWEAPONS), false, NULL);
+    player->cheatTics = 1;
 }
 
-static void CheatPowerFunc(player_t * player, Cheat_t * cheat)
+static void CheatWeapKeysFunc (player_t *const player, Cheat_t *const cheat)
 {
-    if (player->powers[pw_weaponlevel2])
+    FULL_CHEAT_CHECK;
+
+    int i;
+
+    player->armorpoints = 200;
+    player->armortype = 2;
+    if (!player->backpack)
     {
-        player->powers[pw_weaponlevel2] = 0;
-        CT_SetMessage(player, DEH_String(TXT_CHEATPOWEROFF), false, NULL);
+        for (i = 0; i < NUMAMMO; i++)
+        {
+            player->maxammo[i] *= 2;
+        }
+        player->backpack = true;
     }
-    else
+    for (i = 0; i < NUMWEAPONS - 1; i++)
     {
-        P_UseArtifact(player, arti_tomeofpower);
-        CT_SetMessage(player, DEH_String(TXT_CHEATPOWERON), false, NULL);
+        player->weaponowned[i] = true;
     }
+    if (gamemode == shareware)
+    {
+        player->weaponowned[wp_skullrod] = false;
+        player->weaponowned[wp_phoenixrod] = false;
+        player->weaponowned[wp_mace] = false;
+    }
+    for (i = 0; i < NUMAMMO; i++)
+    {
+        player->ammo[i] = player->maxammo[i];
+    }
+    player->keys[key_yellow] = true;
+    player->keys[key_green] = true;
+    player->keys[key_blue] = true;
+    playerkeys = 7;             // Key refresh flags
+    CT_SetMessage(player, DEH_String(TXT_CHEATWEAPKEYS), false, NULL);
+    player->cheatTics = 1;
 }
 
-static void CheatHealthFunc(player_t * player, Cheat_t * cheat)
+static void CheatChoppersFunc (player_t *const player, Cheat_t *const cheat)
 {
-    if (player->chickenTics)
-    {
-        player->health = player->mo->health = MAXCHICKENHEALTH;
-    }
-    else
-    {
-        player->health = player->mo->health = MAXHEALTH;
-    }
-    CT_SetMessage(player, DEH_String(TXT_CHEATHEALTH), false, NULL);
+    FULL_CHEAT_CHECK;
+    player->weaponowned[wp_gauntlets] = true;
+    player->powers[pw_invulnerability] = true;
+    CT_SetMessage(player, DEH_String(TXT_CHOPPERS), false, NULL);
 }
 
-static void CheatKeysFunc(player_t * player, Cheat_t * cheat)
+static void CheatKeysFunc (player_t *const player, Cheat_t *const cheat)
 {
+    FULL_CHEAT_CHECK;
     player->keys[key_yellow] = true;
     player->keys[key_green] = true;
     player->keys[key_blue] = true;
     playerkeys = 7;             // Key refresh flags
     CT_SetMessage(player, DEH_String(TXT_CHEATKEYS), false, NULL);
+    player->cheatTics = 1;
 }
 
-static void CheatSoundFunc(player_t * player, Cheat_t * cheat)
+static void CheatNoClipFunc (player_t *const player, Cheat_t *const cheat)
 {
-    DebugSound = !DebugSound;
-    if (DebugSound)
+    FULL_CHEAT_CHECK;
+    player->cheats ^= CF_NOCLIP;
+    CT_SetMessage(player, DEH_String(player->cheats & CF_NOCLIP ?
+                  TXT_CHEATNOCLIPON : TXT_CHEATNOCLIPOFF), false, NULL);
+    player->cheatTics = 1;
+}
+
+static void CheatWarpFunc (player_t *const player, Cheat_t *const cheat)
+{
+    // [JN] Safe to use IDCLEV/ENGAGE while demo playback.
+    SAFE_CHEAT_CHECK;
+
+    char args[2];
+
+    cht_GetParam(cheat->seq, args);
+
+    const int episode = args[0] - '0';
+    const int map = args[1] - '0';
+    if (D_ValidEpisodeMap(heretic, gamemode, episode, map))
     {
-        CT_SetMessage(player, DEH_String(TXT_CHEATSOUNDON), false, NULL);
+        // [crisp] allow IDCLEV during demo playback and warp to the requested map
+        if (demoplayback)
+        {
+            demowarp = map;
+            nodrawers = true;
+            singletics = true;
+
+            if (map <= gamemap)
+            {
+                G_DoPlayDemo();
+            }
+        }
+        else
+        {
+            G_DeferedInitNew(gameskill, episode, map);
+            player->cheatTics = 1;
+        }
+    }
+}
+
+static void CheatMDKFunc (player_t *const player, Cheat_t *const cheat)
+{
+    FULL_CHEAT_CHECK;
+    // Do an overflow-safe trace to get target.
+    P_AimLineAttack (player->mo, player->mo->angle, MISSILERANGE, true);
+
+    if (linetarget)
+    {
+        // Got one, deal damage equal to it's health.
+        P_DamageMobj (linetarget, NULL, NULL, player->targetsheath);
+        CT_SetMessage(player, "TARGET KILLED", false, NULL);
     }
     else
     {
-        CT_SetMessage(player, DEH_String(TXT_CHEATSOUNDOFF), false, NULL);
+        // No target found, just inform.
+        CT_SetMessage(player, "TARGET NOT FOUND", false, NULL);
     }
 }
 
-static void CheatTickerFunc(player_t * player, Cheat_t * cheat)
+static void CheatArtifact1Func (player_t *const player, Cheat_t *const cheat)
 {
-    DisplayTicker = !DisplayTicker;
-    if (DisplayTicker)
-    {
-        CT_SetMessage(player, DEH_String(TXT_CHEATTICKERON), false, NULL);
-    }
-    else
-    {
-        CT_SetMessage(player, DEH_String(TXT_CHEATTICKEROFF), false, NULL);
-    }
-
-    I_DisplayFPSDots(DisplayTicker);
-}
-
-static void CheatArtifact1Func(player_t * player, Cheat_t * cheat)
-{
+    FULL_CHEAT_CHECK;
     CT_SetMessage(player, DEH_String(TXT_CHEATARTIFACTS1), false, NULL);
 }
 
-static void CheatArtifact2Func(player_t * player, Cheat_t * cheat)
+static void CheatArtifact2Func (player_t *const player, Cheat_t *const cheat)
 {
+    FULL_CHEAT_CHECK;
     CT_SetMessage(player, DEH_String(TXT_CHEATARTIFACTS2), false, NULL);
 }
 
-static void CheatArtifact3Func(player_t * player, Cheat_t * cheat)
+static void CheatArtifact3Func (player_t *const player, Cheat_t *const cheat)
 {
+    FULL_CHEAT_CHECK;
+
     char args[2];
     int i;
-    int j;
-    int type;
-    int count;
 
     cht_GetParam(cheat->seq, args);
-    type = args[0] - 'a' + 1;
-    count = args[1] - '0';
+    const int type = args[0] - 'a' + 1;
+    const int count = args[1] - '0';
     if (type == 26 && count == 0)
     {                           // All artifacts
         for (i = arti_none + 1; i < NUMARTIFACTS; i++)
@@ -1362,7 +1386,7 @@ static void CheatArtifact3Func(player_t * player, Cheat_t * cheat)
             {
                 continue;
             }
-            for (j = 0; j < 16; j++)
+            for (int j = 0; j < 16; j++)
             {
                 P_GiveArtifact(player, i, NULL);
             }
@@ -1373,7 +1397,7 @@ static void CheatArtifact3Func(player_t * player, Cheat_t * cheat)
              && count > 0 && count < 10)
     {
         if (gamemode == shareware
-         && (type == arti_superhealth || type == arti_teleport))
+        && (type == arti_superhealth || type == arti_teleport))
         {
             CT_SetMessage(player, DEH_String(TXT_CHEATARTIFACTSFAIL), false, NULL);
             return;
@@ -1388,27 +1412,61 @@ static void CheatArtifact3Func(player_t * player, Cheat_t * cheat)
     {                           // Bad input
         CT_SetMessage(player, DEH_String(TXT_CHEATARTIFACTSFAIL), false, NULL);
     }
+    player->cheatTics = 1;
 }
 
-static void CheatWarpFunc(player_t * player, Cheat_t * cheat)
+static void CheatArtifactAllFunc (player_t *const player, Cheat_t *const cheat)
 {
-    char args[2];
-    int episode;
-    int map;
+    FULL_CHEAT_CHECK;
 
-    cht_GetParam(cheat->seq, args);
-
-    episode = args[0] - '0';
-    map = args[1] - '0';
-    if (D_ValidEpisodeMap(heretic, gamemode, episode, map))
+    for (int i = arti_none + 1; i < NUMARTIFACTS; i++)
     {
-        G_DeferedInitNew(gameskill, episode, map);
-        CT_SetMessage(player, DEH_String(TXT_CHEATWARP), false, NULL);
+        for (int j = 0; j < 16; j++)
+        {
+            P_GiveArtifact(player, i, NULL);
+        }
     }
+    CT_SetMessage(player, DEH_String(TXT_CHEATARTIFACTS4), false, NULL);
+    player->cheatTics = 1;
 }
 
-static void CheatChickenFunc(player_t * player, Cheat_t * cheat)
+static void CheatPowerFunc (player_t *const player, Cheat_t *const cheat)
 {
+    FULL_CHEAT_CHECK;
+
+    if (player->powers[pw_weaponlevel2])
+    {
+        player->powers[pw_weaponlevel2] = 0;
+        CT_SetMessage(player, DEH_String(TXT_CHEATPOWEROFF), false, NULL);
+    }
+    else
+    {
+        P_UseArtifact(player, arti_tomeofpower);
+        CT_SetMessage(player, DEH_String(TXT_CHEATPOWERON), false, NULL);
+    }
+    player->cheatTics = 1;
+}
+
+static void CheatHealthFunc (player_t *const player, Cheat_t *const cheat)
+{
+    FULL_CHEAT_CHECK;
+
+    if (player->chickenTics)
+    {
+        player->health = player->mo->health = MAXCHICKENHEALTH;
+    }
+    else
+    {
+        player->health = player->mo->health = MAXHEALTH;
+    }
+    CT_SetMessage(player, DEH_String(TXT_CHEATHEALTH), false, NULL);
+    player->cheatTics = 1;
+}
+
+static void CheatChickenFunc (player_t *const player, Cheat_t *const cheat)
+{
+    FULL_CHEAT_CHECK;
+
     if (player->chickenTics)
     {
         if (P_UndoPlayerChicken(player))
@@ -1420,31 +1478,487 @@ static void CheatChickenFunc(player_t * player, Cheat_t * cheat)
     {
         CT_SetMessage(player, DEH_String(TXT_CHEATCHICKENON), false, NULL);
     }
+    player->cheatTics = 1;
 }
 
-static void CheatMassacreFunc(player_t * player, Cheat_t * cheat)
+static void CheatMassacreFunc (player_t *const player, Cheat_t *const cheat)
 {
+    FULL_CHEAT_CHECK;
     P_Massacre();
     CT_SetMessage(player, DEH_String(TXT_CHEATMASSACRE), false, NULL);
+    player->cheatTics = 1;
 }
 
-static void CheatIDKFAFunc(player_t * player, Cheat_t * cheat)
+static int SB_Cheat_Massacre (const boolean explode)
 {
-    int i;
-    if (player->chickenTics)
+    int killcount = 0;
+    int amount;
+    mobj_t *mo;
+    thinker_t *think;
+
+    for (think = thinkercap.next; think != &thinkercap; think = think->next)
+    {
+        if (think->function != P_MobjThinker)
+        {                       // Not a mobj thinker
+            continue;
+        }
+        mo = (mobj_t *) think;
+        amount = explode ? 10000 : mo->health;
+        if ((mo->flags & MF_COUNTKILL) && (mo->health > 0))
+        {
+            P_DamageMobj(mo, NULL, NULL, amount);
+            killcount++;
+        }
+    }
+    return killcount;
+}
+
+static void CheatTNTEMFunc (player_t *const player, Cheat_t *const cheat)
+{
+    FULL_CHEAT_CHECK;
+
+    static char buf[52];
+
+    const int killcount = SB_Cheat_Massacre(true);
+
+    M_snprintf(buf, sizeof(buf), "MONSTERS KILLED: %d", killcount);
+
+    CT_SetMessage(player, buf, false, NULL);
+    player->cheatTics = 1;
+}
+
+static void CheatKILLEMFunc (player_t *const player, Cheat_t *const cheat)
+{
+    FULL_CHEAT_CHECK;
+
+    static char buf[52];
+
+    const int killcount = SB_Cheat_Massacre(false);
+
+    M_snprintf(buf, sizeof(buf), "MONSTERS KILLED: %d", killcount);
+
+    CT_SetMessage(player, buf, false, NULL);
+    player->cheatTics = 1;
+}
+
+static void CheatIDMUSFunc (player_t *const player, Cheat_t *const cheat)
+{
+    char buf[3];
+
+    // [JN] Harmless cheat, always allow.
+
+    // [JN] Prevent impossible selection.
+    const int maxnum = gamemode == retail     ? 47 :  // 5 episodes
+                       gamemode == registered ? 26 :  // 3 episodes
+                                                 8 ;  // 1 episode (shareware)
+
+    cht_GetParam(cheat->seq, buf);
+    const int musnum = mus_e1m1 + (buf[0]-'1')*9 + (buf[1]-'1');
+
+    if (((buf[0]-'1')*9 + buf[1]-'1') > maxnum)
+    {
+        CT_SetMessage(player, DEH_String(TXT_NOMUS), false, NULL);
+    }
+    else
+    {
+        S_StartSong(musnum, true);
+        // [JN] jff 3/17/98 remember idmus number for restore
+        // idmusnum = musnum;
+        CT_SetMessage(player, DEH_String(TXT_MUS), false, NULL);
+    }
+    player->cheatTics = 1;
+}
+
+static void CheatAMapFunc (player_t *const player, Cheat_t *const cheat)
+{
+    // [JN] Harmless cheat, always allow.
+    ravmap_cheating = (ravmap_cheating + 1) % 3;
+    player->cheatTics = 1;
+}
+
+// -----------------------------------------------------------------------------
+// SB_CheatRevealThing
+//  [PN] Cycles automap camera through matching things.
+// -----------------------------------------------------------------------------
+
+static void SB_CheatRevealThing (const int flags, const boolean alive_only, int *last_index)
+{
+    thinker_t *think;
+    mobj_t *first_match = NULL;
+    mobj_t *selected = NULL;
+    int match_index = 0;
+    int selected_index = -1;
+    const int target_index = *last_index + 1;
+
+    if (!automapactive)
     {
         return;
     }
-    for (i = 1; i < 8; i++)
+
+    for (think = thinkercap.next; think != &thinkercap; think = think->next)
     {
-        player->weaponowned[i] = false;
+        if (think->function != P_MobjThinker)
+        {
+            continue;
+        }
+
+        mobj_t *mo = (mobj_t *) think;
+
+        if (!(mo->flags & flags))
+        {
+            continue;
+        }
+
+        if (alive_only && mo->health <= 0)
+        {
+            continue;
+        }
+
+        if (!first_match)
+        {
+            first_match = mo;
+        }
+
+        if (match_index == target_index)
+        {
+            selected = mo;
+            selected_index = match_index;
+            break;
+        }
+
+        ++match_index;
     }
-    player->pendingweapon = wp_staff;
-    CT_SetMessage(player, DEH_String(TXT_CHEATIDKFA), true, NULL);
+
+    if (!selected && first_match)
+    {
+        selected = first_match;
+        selected_index = 0;
+    }
+
+    if (selected)
+    {
+        am_followplayer = 0;
+        AM_SetMapCenter(selected->x, selected->y);
+        *last_index = selected_index;
+    }
+    else
+    {
+        *last_index = -1;
+    }
 }
 
-static void CheatIDDQDFunc(player_t * player, Cheat_t * cheat)
+// -----------------------------------------------------------------------------
+// CheatRevealKillFunc
+//  [PN] Cycles automap camera through alive monsters.
+// -----------------------------------------------------------------------------
+
+static void CheatRevealKillFunc (player_t *const player, Cheat_t *const cheat)
 {
-    P_DamageMobj(player->mo, NULL, player->mo, 10000);
-    CT_SetMessage(player, DEH_String(TXT_CHEATIDDQD), true, NULL);
+    static int last_index = -1;
+    static int last_episode = -1;
+    static int last_map = -1;
+
+    if (deathmatch)
+    {
+        return;
+    }
+
+    if (last_episode != gameepisode || last_map != gamemap)
+    {
+        last_episode = gameepisode;
+        last_map = gamemap;
+        last_index = -1;
+    }
+
+    SB_CheatRevealThing(MF_COUNTKILL, true, &last_index);
+    player->cheatTics = 1;
+}
+
+// -----------------------------------------------------------------------------
+// CheatRevealItemFunc
+//  [PN] Cycles automap camera through countable items.
+// -----------------------------------------------------------------------------
+
+static void CheatRevealItemFunc (player_t *const player, Cheat_t *const cheat)
+{
+    static int last_index = -1;
+    static int last_episode = -1;
+    static int last_map = -1;
+
+    if (deathmatch)
+    {
+        return;
+    }
+
+    if (last_episode != gameepisode || last_map != gamemap)
+    {
+        last_episode = gameepisode;
+        last_map = gamemap;
+        last_index = -1;
+    }
+
+    SB_CheatRevealThing(MF_COUNTITEM, false, &last_index);
+    player->cheatTics = 1;
+}
+
+// -----------------------------------------------------------------------------
+// SB_IsSecretSector
+//  [PN] Treat both live and already-revealed secret sectors as valid targets.
+// -----------------------------------------------------------------------------
+
+static boolean SB_IsSecretSector (const sector_t *sec)
+{
+    return sec->special == 9 || sec->oldspecial == 9;
+}
+
+// -----------------------------------------------------------------------------
+// CheatRevealSecretFunc
+//  [PN] Cycles automap camera through secret sectors.
+// -----------------------------------------------------------------------------
+
+static void CheatRevealSecretFunc (player_t *const player, Cheat_t *const cheat)
+{
+    static int last_secret = -1;
+    static int last_episode = -1;
+    static int last_map = -1;
+
+    if (deathmatch || !automapactive || numsectors <= 0)
+    {
+        return;
+    }
+
+    if (last_episode != gameepisode || last_map != gamemap)
+    {
+        last_episode = gameepisode;
+        last_map = gamemap;
+        last_secret = -1;
+    }
+
+    for (int step = 0; step < numsectors; ++step)
+    {
+        int i = last_secret + 1 + step;
+        i %= numsectors;
+
+        if (SB_IsSecretSector(&sectors[i])
+        && sectors[i].linecount > 0
+        && sectors[i].lines != NULL
+        && sectors[i].lines[0] != NULL
+        && sectors[i].lines[0]->v1 != NULL)
+        {
+            am_followplayer = 0;
+            AM_SetMapCenter(sectors[i].lines[0]->v1->x, sectors[i].lines[0]->v1->y);
+            last_secret = i;
+            break;
+        }
+    }
+
+    player->cheatTics = 1;
+}
+
+
+
+static void CheatIDMYPOSFunc (player_t *const player, Cheat_t *const cheat)
+{
+    static char buf[52];
+
+    // [JN] Harmless cheat, always allow.
+    M_snprintf(buf, sizeof(buf), "ANG=0X%X;X,Y=(0X%X,0X%X)",
+               players[displayplayer].mo->angle,
+               players[displayplayer].mo->x,
+               players[displayplayer].mo->y);
+    CT_SetMessage(player, buf, false, NULL);
+    player->cheatTics = 1;
+}
+
+static void CheatFREEZEFunc (player_t *const player, Cheat_t *const cheat)
+{
+    FULL_CHEAT_CHECK;
+    crl_freeze ^= 1;
+    CT_SetMessage(&players[consoleplayer], crl_freeze ?
+                 CRL_FREEZE_ON : CRL_FREEZE_OFF, false, NULL);
+    player->cheatTics = 1;
+}
+
+static void CheatNOTARGETFunc (player_t *const player, Cheat_t *const cheat)
+{
+    FULL_CHEAT_CHECK;
+    player->cheats ^= CF_NOTARGET;
+    P_ForgetPlayer(player);
+    CT_SetMessage(player, player->cheats & CF_NOTARGET ?
+                  CRL_NOTARGET_ON : CRL_NOTARGET_OFF, false, NULL);
+    player->cheatTics = 1;
+}
+
+static void CheatBUDDHAFunc (player_t *const player, Cheat_t *const cheat)
+{
+    FULL_CHEAT_CHECK;
+    player->cheats ^= CF_BUDDHA;
+    CT_SetMessage(player, player->cheats & CF_BUDDHA ?
+                  CRL_BUDDHA_ON : CRL_BUDDHA_OFF, false, NULL);
+    player->cheatTics = 1;
+}
+
+// -----------------------------------------------------------------------------
+//
+// CHEAT CODES
+//
+// -----------------------------------------------------------------------------
+
+#define CHEAT_SEQ(str, params) str, sizeof(str)-1, params, 0, 0, ""
+
+static Cheat_t Cheats[] = {
+    { CheatWaitFunc,        &(cheatseq_t){ CHEAT_SEQ("id", 0) } },
+    // Toggle god mode
+    { CheatGodFunc,         &(cheatseq_t){ CHEAT_SEQ("iddqd", 0) } },
+    { CheatGodFunc,         &(cheatseq_t){ CHEAT_SEQ("quicken", 0) } },
+    { CheatGodFunc,         &(cheatseq_t){ CHEAT_SEQ("satan", 0) } },
+    // Get all weapons and ammo
+    { CheatWeaponsFunc,     &(cheatseq_t){ CHEAT_SEQ("idfa", 0) } },
+    { CheatWeaponsFunc,     &(cheatseq_t){ CHEAT_SEQ("rambo", 0) } },
+    { CheatWeaponsFunc,     &(cheatseq_t){ CHEAT_SEQ("nra", 0) } },
+    // Get all weapons and keys
+    { CheatWeapKeysFunc,    &(cheatseq_t){ CHEAT_SEQ("idkfa", 0) } },
+    // Get Gauntlets of the Necromancer
+    { CheatChoppersFunc,    &(cheatseq_t){ CHEAT_SEQ("idchoppers", 0) } },
+    // Get all keys
+    { CheatKeysFunc,        &(cheatseq_t){ CHEAT_SEQ("idka", 0) } },
+    { CheatKeysFunc,        &(cheatseq_t){ CHEAT_SEQ("skel", 0) } },
+    { CheatKeysFunc,        &(cheatseq_t){ CHEAT_SEQ("locksmith", 0) } },
+    // Toggle no clipping mode
+    { CheatNoClipFunc,      &(cheatseq_t){ CHEAT_SEQ("idclip", 0) } },
+    { CheatNoClipFunc,      &(cheatseq_t){ CHEAT_SEQ("idspispopd", 0) } },
+    { CheatNoClipFunc,      &(cheatseq_t){ CHEAT_SEQ("kitty", 0) } },
+    { CheatNoClipFunc,      &(cheatseq_t){ CHEAT_SEQ("casper", 0) } },
+    // Warp to new level
+    { CheatWarpFunc,        &(cheatseq_t){ CHEAT_SEQ("idclev",   2) } },
+    { CheatWarpFunc,        &(cheatseq_t){ CHEAT_SEQ("engage",   2) } },
+    { CheatWarpFunc,        &(cheatseq_t){ CHEAT_SEQ("visit",    2) } },
+    // MDK
+    { CheatMDKFunc,         &(cheatseq_t){ CHEAT_SEQ("mdk", 0) } },
+    // Artifacts
+    { CheatArtifact1Func,   &(cheatseq_t){ CHEAT_SEQ("gimme",    0) } },
+    { CheatArtifact2Func,   &(cheatseq_t){ CHEAT_SEQ("gimme",    1) } },
+    { CheatArtifact3Func,   &(cheatseq_t){ CHEAT_SEQ("gimme",    2) } },
+    { CheatArtifact1Func,   &(cheatseq_t){ CHEAT_SEQ("idbehold", 0) } },
+    { CheatArtifact2Func,   &(cheatseq_t){ CHEAT_SEQ("idbehold", 1) } },
+    { CheatArtifact3Func,   &(cheatseq_t){ CHEAT_SEQ("idbehold", 2) } },
+    // Get all artifacts
+    { CheatArtifactAllFunc, &(cheatseq_t){ CHEAT_SEQ("indiana", 0) } },
+    // Toggle tome of power
+    { CheatPowerFunc,       &(cheatseq_t){ CHEAT_SEQ("shazam", 0) } },
+    // Get full health
+    { CheatHealthFunc,      &(cheatseq_t){ CHEAT_SEQ("ponce", 0) } },
+    { CheatHealthFunc,      &(cheatseq_t){ CHEAT_SEQ("clubmed", 0) } },
+    // Turn to a chicken
+    { CheatChickenFunc,     &(cheatseq_t){ CHEAT_SEQ("cockadoodledoo", 0) } },
+    { CheatChickenFunc,     &(cheatseq_t){ CHEAT_SEQ("deliverance", 0) } },
+    // Kill all monsters
+    { CheatTNTEMFunc,       &(cheatseq_t){ CHEAT_SEQ("tntem", 0) } },
+    { CheatKILLEMFunc,      &(cheatseq_t){ CHEAT_SEQ("killem", 0) } },
+    { CheatMassacreFunc,    &(cheatseq_t){ CHEAT_SEQ("massacre", 0) } },
+    { CheatMassacreFunc,    &(cheatseq_t){ CHEAT_SEQ("butcher", 0) } },
+    // [JN] IDMUS
+    { CheatIDMUSFunc,       &(cheatseq_t){ CHEAT_SEQ("idmus", 2) } },
+    // Reveal all map
+    { CheatAMapFunc,        &(cheatseq_t){ CHEAT_SEQ("iddt", 0) } },
+    { CheatAMapFunc,        &(cheatseq_t){ CHEAT_SEQ("ravmap", 0) } },
+    { CheatAMapFunc,        &(cheatseq_t){ CHEAT_SEQ("mapsco", 0) } },
+    // [PN] Woof-style automap reveal helpers
+    { CheatRevealKillFunc,   &(cheatseq_t){ CHEAT_SEQ("iddkt", 0) } },
+    { CheatRevealItemFunc,   &(cheatseq_t){ CHEAT_SEQ("iddit", 0) } },
+    { CheatRevealSecretFunc, &(cheatseq_t){ CHEAT_SEQ("iddst", 0) } },
+    // [JN] IDMYPOS coords
+    { CheatIDMYPOSFunc,     &(cheatseq_t){ CHEAT_SEQ("idmypos", 0) } },
+    { CheatIDMYPOSFunc,     &(cheatseq_t){ CHEAT_SEQ("where", 0) } },
+    // [JN] ID-specific modes
+    { CheatFREEZEFunc,      &(cheatseq_t){ CHEAT_SEQ("freeze", 0) } },
+    { CheatNOTARGETFunc,    &(cheatseq_t){ CHEAT_SEQ("notarget", 0) } },
+    { CheatBUDDHAFunc,      &(cheatseq_t){ CHEAT_SEQ("buddha", 0) } },
+    { NULL, NULL }
+};
+
+//--------------------------------------------------------------------------
+//
+// FUNC HandleCheats
+//
+// Returns true if the caller should eat the key.
+//
+//--------------------------------------------------------------------------
+
+static boolean HandleCheats(const byte key)
+{
+    /* [crispy] check for nightmare/netgame per cheat, to allow "harmless" cheats
+    ** [JN] Allow in nightmare and for dead player (can be resurrected).
+    if (netgame || gameskill == sk_nightmare)
+    {                           // Can't cheat in a net-game, or in nightmare mode
+        return (false);
+    }
+    */
+
+    boolean eat = false;
+    for (int i = 0; Cheats[i].func != NULL; i++)
+    {
+        if (cht_CheckCheat(Cheats[i].seq, key))
+        {
+            Cheats[i].func(&players[consoleplayer], &Cheats[i]);
+            // [JN] Do not play sound after typing just "ID".
+            if (Cheats[i].func != CheatWaitFunc)
+            {
+                S_StartSound(NULL, sfx_dorcls);
+            }
+        }
+    }
+    return (eat);
+}
+
+// -----------------------------------------------------------------------------
+// SB_Responder
+// -----------------------------------------------------------------------------
+
+boolean SB_Responder (const event_t *const event)
+{
+    if (event->type == ev_keydown)
+    {
+        if (HandleCheats(event->data1))
+        {                       // Need to eat the key
+            return (true);
+        }
+
+        // [JN] CRL - handle cheat keybind shortcuts:
+        if (event->data1 == key_crl_iddqd || event->data1 == key_crl_iddqd2)
+        {
+            CheatGodFunc(&players[consoleplayer], &Cheats[0]);
+            return (true);
+        }
+        if (event->data1 == key_crl_idkfa || event->data1 == key_crl_idkfa2)
+        {
+            CheatWeapKeysFunc(&players[consoleplayer], &Cheats[2]);
+            return (true);
+        }
+        if (event->data1 == key_crl_idfa || event->data1 == key_crl_idfa2)
+        {
+            CheatWeaponsFunc(&players[consoleplayer], &Cheats[2]);
+            return (true);
+        }
+        if (event->data1 == key_crl_idclip || event->data1 == key_crl_idclip2)
+        {
+            CheatNoClipFunc(&players[consoleplayer], &Cheats[1]);
+            return (true);
+        }
+        if (event->data1 == key_crl_iddt || event->data1 == key_crl_iddt2)
+        {
+            ravmap_cheating++;
+            if (ravmap_cheating > 2)
+            {
+                ravmap_cheating = 0;
+            }
+            return (true);
+        }
+        if (event->data1 == key_crl_mdk || event->data1 == key_crl_mdk2)
+        {
+            CheatMDKFunc(&players[consoleplayer], &Cheats[1]);
+            return (true);
+        }
+    }
+    return (false);
 }

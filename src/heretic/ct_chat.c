@@ -174,23 +174,23 @@ boolean CT_Responder (event_t *ev)
     if (!chatmodeon)
     {
         sendto = 0;
-        if (ev->data1 == key_multi_msg)
+        if (ev->data1 == key_multi_msg || ev->data1 == key_multi_msg2)
         {
             sendto = CT_PLR_ALL;
         }
-        else if (ev->data1 == key_multi_msgplayer[0])
+        else if (ev->data1 == key_multi_msgplayer[0] || ev->data1 == key_multi_msgplayer2[0])
         {
             sendto = CT_PLR_GREEN;
         }
-        else if (ev->data1 == key_multi_msgplayer[1])
+        else if (ev->data1 == key_multi_msgplayer[1] || ev->data1 == key_multi_msgplayer2[1])
         {
             sendto = CT_PLR_YELLOW;
         }
-        else if (ev->data1 == key_multi_msgplayer[2])
+        else if (ev->data1 == key_multi_msgplayer[2] || ev->data1 == key_multi_msgplayer2[2])
         {
             sendto = CT_PLR_RED;
         }
-        else if (ev->data1 == key_multi_msgplayer[3])
+        else if (ev->data1 == key_multi_msgplayer[3] || ev->data1 == key_multi_msgplayer2[3])
         {
             sendto = CT_PLR_BLUE;
         }
@@ -367,7 +367,6 @@ void CT_Drawer(void)
             }
         }
         V_DrawShadowedPatchRavenOptional(x, 10, W_CacheLumpName(DEH_String("FONTA59"), PU_CACHE), "FONTA59");
-        BorderTopRefresh = true;
     }
 }
 

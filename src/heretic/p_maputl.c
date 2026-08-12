@@ -489,40 +489,22 @@ boolean P_BlockThingsIterator(int x, int y, boolean(*func) (mobj_t *))
 
 intercept_t *intercepts, *intercept_p; // [crispy] remove INTERCEPTS limit
 
-// [JN] Show which function exactlly is hitting limit:
-// 0 - PIT_AddLineIntercepts
-// 1 - PIT_AddThingIntercepts
-// 2 - P_SightBlockLinesIterator
-
+// -----------------------------------------------------------------------------
 // [crispy] remove INTERCEPTS limit
-void check_intercept (const short func)
+// taken from PrBoom+/src/p_maputl.c:422-433
+// -----------------------------------------------------------------------------
+
+void check_intercept (void)
 {
-    static size_t num_intercepts;
-    const size_t offset = intercept_p - intercepts;
+	static size_t num_intercepts;
+	const size_t offset = intercept_p - intercepts;
 
-    if (offset >= num_intercepts)
-    {
-        num_intercepts = num_intercepts ? num_intercepts * 2 : MAXINTERCEPTS;
-        intercepts = I_Realloc(intercepts, sizeof(*intercepts) * num_intercepts);
-        intercept_p = intercepts + offset;
-
-        if (num_intercepts == 2 * MAXINTERCEPTS)
-        {
-            // [JN] Oh my, we have to make different strings for in-game
-            // and console prints, because of different font handling.
-            char *function = func == 0 ? "PIT[ADDLINEINTERCEPTS:"     :
-                             func == 1 ? "PIT[ADDTHINGINTERCEPTS:"    :
-                                         "P[SIGHTBLOCKLINESITERATOR:" ;
-            char *message = "HIT INTERCEPTS LIMIT! (VANILLA CRASHES HERE)";
-            
-            CRL_printf(M_StringJoin(func == 0 ? "PIT_AddLineIntercepts: "     :
-                                    func == 1 ? "PIT_AddThingIntercepts: "    :
-                                                "P_SightBlockLinesIterator: " ,
-                                                "Hit INTERCEPTS limit!\n", NULL), true);
-            
-            CRL_SetMessageCritical(function, message, MESSAGETICS);
-        }
-    }
+	if (offset >= num_intercepts)
+	{
+		num_intercepts = num_intercepts ? num_intercepts * 2 : MAXINTERCEPTS;
+		intercepts = I_Realloc(intercepts, sizeof(*intercepts) * num_intercepts);
+		intercept_p = intercepts + offset;
+	}
 }
 
 divline_t trace;
@@ -574,10 +556,29 @@ static boolean PIT_AddLineIntercepts(line_t * ld)
     if (earlyout && frac < FRACUNIT && !ld->backsector)
         return false;           // stop checking
 
-    check_intercept(0); // [crispy] remove INTERCEPTS limit
+    check_intercept(); // [crispy] remove INTERCEPTS limit
     intercept_p->frac = frac;
     intercept_p->isaline = true;
     intercept_p->d.line = ld;
+    // [crispy] Intercepts overflow guard.
+    if (intercept_p - intercepts >= MAXINTERCEPTS_ALLOWED)
+    {
+        if (safe_intercept)
+        {
+            // [JN] CRL - it's a safe trace, don't go
+            // any farther and don't inkove overflow.
+            return false;
+        }
+        else
+        {
+            char *const message = "INTERCEPTS OVERFLOW (VANILLA MAY CRASH HERE)";
+
+            // [JN] CRL - print console and in-game warnings.
+            CRL_printf(M_StringJoin("PIT_AddLineIntercepts: ", message, NULL), true);
+            CRL_SetMessageCritical("PIT[ADDLINEINTERCEPTS:", message, MESSAGETICS);
+            return false;
+        }
+    }
     intercept_p++;
 
     return true;                // continue
@@ -633,10 +634,29 @@ static boolean PIT_AddThingIntercepts(mobj_t * thing)
     frac = P_InterceptVector(&trace, &dl);
     if (frac < 0)
         return true;            // behind source
-    check_intercept(1); // [crispy] remove INTERCEPTS limit
+    check_intercept(); // [crispy] remove INTERCEPTS limit
     intercept_p->frac = frac;
     intercept_p->isaline = false;
     intercept_p->d.thing = thing;
+    // [crispy] Intercepts overflow guard.
+    if (intercept_p - intercepts >= MAXINTERCEPTS_ALLOWED)
+    {
+        if (safe_intercept)
+        {
+            // [JN] CRL - it's a safe trace, don't go
+            // any farther and don't inkove overflow.
+            return false;
+        }
+        else
+        {
+            char *const message = "INTERCEPTS OVERFLOW (VANILLA MAY CRASH HERE)";
+
+            // [JN] CRL - print console and in-game warnings.
+            CRL_printf(M_StringJoin("PIT_AddThingIntercepts: ", message, NULL), true);
+            CRL_SetMessageCritical("PIT[ADDTHINGINTERCEPTS:", message, MESSAGETICS);
+            return false;
+        }
+    }
     intercept_p++;
 
     return true;                // keep going

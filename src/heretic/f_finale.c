@@ -31,14 +31,23 @@
 
 static int finalestage;                // 0 = text, 1 = art screen
 static int finalecount;
+static int finaleendcount;
+
+// [JN] Do screen wipe only once after text skipping.
+static boolean finale_wipe_done;
 
 #define TEXTSPEED       3
 #define TEXTWAIT        250
+#define	TEXTEND         25
 
 static const char *finaletext;
 static const char *finaleflat;
 
 static int FontABaseLump;
+
+// [JN] Externalized F_DemonScroll variables to allow repeated scrolling.
+static int yval = 0;
+static int nextscroll = 0;
 
 
 /*
@@ -54,6 +63,9 @@ void F_StartFinale(void)
     gameaction = ga_nothing;
     gamestate = GS_FINALE;
     automapactive = false;
+    finale_wipe_done = false;
+    players[consoleplayer].cheatTics = 1;
+    players[consoleplayer].messageTics = 1;
     players[consoleplayer].messageTics = 1;
     players[consoleplayer].message = NULL;
     players[consoleplayer].messageCenteredTics = 1;
@@ -85,7 +97,13 @@ void F_StartFinale(void)
 
     finalestage = 0;
     finalecount = 0;
+    // [JN] Count intermission/finale text lenght. Once it's fully printed, 
+    // no extra "attack/use" button pressing is needed for skipping.
+    finaleendcount = strlen(finaletext) * TEXTSPEED + TEXTEND;
     FontABaseLump = W_GetNumForName(DEH_String("FONTA_S")) + 1;
+    // [JN] Reset F_DemonScroll variables.
+    yval = 0;
+    nextscroll = 0;
 
 //      S_ChangeMusic(mus_victor, true);
     S_StartSong(mus_cptd, true);
@@ -112,6 +130,41 @@ boolean F_Responder(const event_t *event)
     return false;
 }
 
+// -----------------------------------------------------------------------------
+// F_HandleDoubleSkip
+//  [PN] Helper function for double-skip logic.
+// -----------------------------------------------------------------------------
+
+static void F_HandleDoubleSkip(void)
+{
+    player_t *const player = &players[consoleplayer];
+    
+    // Arrays for buttons and their corresponding state fields
+    const int buttons[] = {BT_ATTACK, BT_USE};
+    boolean *const state_fields[] = {&player->attackdown, &player->usedown};
+    
+    for (int i = 0; i < 2; i++)
+    {
+        const boolean old_state = *state_fields[i];
+        
+        if (player->cmd.buttons & buttons[i] && !MenuActive && !finalestage)
+        {
+            if (!old_state)
+            {
+                if (finalecount >= finaleendcount)
+                {
+                    finalestage = 1;
+                }
+                finalecount += finaleendcount;
+            }
+            *state_fields[i] = true;
+        }
+        else
+        {
+            *state_fields[i] = false;
+        }
+    }
+}
 
 /*
 =======================
@@ -123,6 +176,46 @@ boolean F_Responder(const event_t *event)
 
 void F_Ticker(void)
 {
+    // [JN] If we are in single player mode, allow double skipping of
+    // finale texts. The first skip is printing all the text,
+    // the second is advancing to next state.
+    if (singleplayer)
+    {
+        // [JN] Make PAUSE working properly on text screen
+        if (paused)
+        {
+            return;
+        }
+
+        // [JN] Check for skipping. Allow double-press skiping, 
+        // but don't skip immediately.
+        if (finalecount > 10)
+        {
+            // [JN] Don't allow skipping by pressing PAUSE button.
+            if (players[consoleplayer].cmd.buttons == (BT_SPECIAL | BTS_PAUSE))
+            {
+                return;
+            }
+
+            // [PN] Double-skip by pressing "attack" or "use" button.
+            F_HandleDoubleSkip();
+        }
+
+        // [JN] Force a wipe after skipping text screen.
+        if (finalestage && !finale_wipe_done)
+        {
+            finale_wipe_done = true;
+            wipegamestate = -1;
+        }
+
+        // Advance animation.
+        finalecount++;
+    }
+    //
+    // [JN] Standard Heretic routine, safe for network game and demos.
+    //
+    else
+    {
     finalecount++;
     if (!finalestage
         && finalecount > strlen(finaletext) * TEXTSPEED + TEXTWAIT)
@@ -138,6 +231,7 @@ void F_Ticker(void)
 		if (gameepisode == 3)
 			S_StartMusic (mus_bunny);
 */
+    }
     }
 }
 
@@ -219,8 +313,6 @@ static void F_TextWrite(void)
 static void F_DemonScroll(void)
 {
     byte *p1, *p2;
-    static int yval = 0;
-    static int nextscroll = 0;
 
     if (finalecount < nextscroll)
     {
@@ -277,8 +369,11 @@ static void F_DrawUnderwater(void)
                 palette = W_CacheLumpName(lumpname, PU_STATIC);
                 I_SetPalette(palette);
                 W_ReleaseLumpName(lumpname);
-                V_DrawRawScreen(W_CacheLumpName(DEH_String("E2END"), PU_CACHE));
             }
+            // [PN] Redraw every frame: after crossfade, the wipe buffer can
+            // still contain faint remnants of finale text if we don't refresh
+            // the underwater background continuously.
+            V_DrawRawScreen(W_CacheLumpName(DEH_String("E2END"), PU_CACHE));
             paused = false;
             MenuActive = false;
             askforquit = false;

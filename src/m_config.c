@@ -589,6 +589,8 @@ static default_t	doom_defaults_list[] =
 
     // Automap
     CONFIG_VARIABLE_COMMENT("Automap"),
+    CONFIG_VARIABLE_INT(crl_automap_textured_bg),
+    CONFIG_VARIABLE_INT(crl_automap_scroll_bg),
     CONFIG_VARIABLE_INT(crl_automap_mode),
     CONFIG_VARIABLE_INT(crl_automap_secrets),
     CONFIG_VARIABLE_INT(crl_automap_rotate),
@@ -612,6 +614,9 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(crl_default_skill),
     CONFIG_VARIABLE_INT(crl_pistol_start),
     CONFIG_VARIABLE_INT(crl_colored_stbar),
+    CONFIG_VARIABLE_INT(crl_ammo_widget),
+    CONFIG_VARIABLE_INT(crl_ammo_widget_translucent),
+    CONFIG_VARIABLE_INT(crl_ammo_widget_colors),
     CONFIG_VARIABLE_INT(crl_revealed_secrets),
     CONFIG_VARIABLE_STRING(crl_revealed_secrets_msg),
     CONFIG_VARIABLE_INT(crl_restore_targets),

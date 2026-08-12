@@ -98,6 +98,9 @@ typedef struct
     //      the renderer.
     fixed_t	interpfloorheight;
     fixed_t	interpceilingheight;
+
+    // [crispy] revealed secrets
+    short	oldspecial;
 } sector_t;
 
 typedef struct
@@ -312,6 +315,7 @@ extern int  firstspritelump, lastspritelump, numspritelumps;
 extern int  numflats;
 
 extern lighttable_t *colormaps;
+extern byte grayscale_colormap[256];
 
 extern void R_InitData(void);
 extern void R_PrecacheLevel(void);
@@ -347,14 +351,12 @@ extern lighttable_t *ds_colormap;
 extern visplane_t *dc_visplaneused; // RestlessRodent -- CRL
 
 extern void R_DrawColumn(void);
-extern void R_DrawColumnLow(void);
 extern void R_DrawSpan(void);
-extern void R_DrawSpanLow(void);
 extern void R_DrawTLColumn(void);
-extern void R_DrawTLColumnLow(void);
 extern void R_DrawTranslatedColumn(void);
-extern void R_DrawTranslatedColumnLow(void);
 extern void R_DrawTranslatedTLColumn(void);
+extern void R_DrawViewBorder (void);
+extern void R_FillBackScreen (void);
 extern void R_InitBuffer(int width, int height);
 extern void R_InitTranslationTables(void);
 
@@ -388,7 +390,6 @@ typedef struct localview_s
 
 extern int centerx, centery;
 extern int detailLevel;
-extern int detailshift;         // 0 = high, 1 = low
 extern int extralight;
 extern int flyheight;
 extern int R_PointOnSegSide(fixed_t x, fixed_t y, seg_t * line);

@@ -697,6 +697,9 @@ void R_ExecuteSetViewSize (void)
 	}
     }
 
+    // Erase old menu stuff
+    R_FillBackScreen();
+
     st_fullupdate = true; // [JN] Redraw status bar background.
 }
 

@@ -262,7 +262,10 @@ void P_AddMaceSpot(mapthing_t * mthing)
 {
     if (MaceSpotCount == MAX_MACE_SPOTS)
     {
-        I_Error("Too many mace spots.");
+        // [JN] CRL - clarify about vanilla limits.
+        I_Error("Too many mace spots.\n\n"
+                "Vanilla Heretic supports a maximum of 8 Firemaces spawn spots.\n"
+                "To fix this error, reduce the number of Firemaces (thing type 2002) on the map.");
     }
     MaceSpots[MaceSpotCount].x = mthing->x << FRACBITS;
     MaceSpots[MaceSpotCount].y = mthing->y << FRACBITS;
@@ -1942,7 +1945,7 @@ void P_MovePsprites(player_t * player)
         if (movingState && !player->attackdown)
         {
             // Apply full bobbing only if not raising/lowering and not attacking.
-            P_ApplyBobbing(&psp->sx2, &psp->sy2, true, player->bob);
+            P_ApplyBobbing(&psp->sx2, &psp->sy2, true, player->r_bob);
         }
     }
 

@@ -29,7 +29,6 @@
 #include "crlvars.h"
 
 
-int viewangleoffset;
 
 // haleyjd: removed WATCOMC
 
@@ -41,15 +40,12 @@ int centerx, centery;
 fixed_t centerxfrac, centeryfrac;
 fixed_t projection;
 
-int framecount;                 // just for profiling purposes
-
 fixed_t viewx, viewy, viewz;
 angle_t viewangle;
 fixed_t viewcos, viewsin;
 player_t *viewplayer;
 localview_t localview; // [crispy]
 
-int detailshift;                // 0 = high, 1 = low
 
 //
 // precalculated math tables
@@ -296,7 +292,7 @@ fixed_t R_PointToDist(fixed_t x, fixed_t y)
 fixed_t R_ScaleFromGlobalAngle(angle_t visangle)
 {
     fixed_t scale;
-    int anglea, angleb;
+    angle_t anglea, angleb;
     int sinea, sineb;
     fixed_t num, den;
 
@@ -319,7 +315,7 @@ fixed_t R_ScaleFromGlobalAngle(angle_t visangle)
 // bothe sines are allways positive
     sinea = finesine[anglea >> ANGLETOFINESHIFT];
     sineb = finesine[angleb >> ANGLETOFINESHIFT];
-    num = FixedMul(projection, sineb) << detailshift;
+    num = FixedMul(projection, sineb);
     den = FixedMul(rw_distance, sinea);
     if (den > num >> 16)
     {
@@ -495,8 +491,7 @@ void R_ExecuteSetViewSize(void)
         viewheight = (setblocks * 158 / 10);
     }
 
-    detailshift = setdetail;
-    viewwidth = scaledviewwidth >> detailshift;
+    viewwidth = scaledviewwidth;
 
     centery = viewheight / 2;
     centerx = viewwidth / 2;
@@ -504,20 +499,10 @@ void R_ExecuteSetViewSize(void)
     centeryfrac = centery << FRACBITS;
     projection = centerxfrac;
 
-    if (!detailshift)
-    {
-        colfunc = basecolfunc = R_DrawColumn;
-        tlcolfunc = R_DrawTLColumn;
-        transcolfunc = R_DrawTranslatedColumn;
-        spanfunc = R_DrawSpan;
-    }
-    else
-    {
-        colfunc = basecolfunc = R_DrawColumnLow;
-        tlcolfunc = R_DrawTLColumn;
-        transcolfunc = R_DrawTranslatedColumn;
-        spanfunc = R_DrawSpanLow;
-    }
+    colfunc = basecolfunc = R_DrawColumn;
+    tlcolfunc = R_DrawTLColumn;
+    transcolfunc = R_DrawTranslatedColumn;
+    spanfunc = R_DrawSpan;
 
     R_InitBuffer(scaledviewwidth, viewheight);
 
@@ -542,7 +527,7 @@ void R_ExecuteSetViewSize(void)
     {
         dy = ((i - viewheight / 2) << FRACBITS) + FRACUNIT / 2;
         dy = abs(dy);
-        yslope[i] = FixedDiv((viewwidth << detailshift) / 2 * FRACUNIT, dy);
+        yslope[i] = FixedDiv(viewwidth / 2 * FRACUNIT, dy);
     }
 
     for (i = 0; i < viewwidth; i++)
@@ -561,7 +546,7 @@ void R_ExecuteSetViewSize(void)
         {
             level =
                 start_map -
-                j * SCREENWIDTH / (viewwidth << detailshift) / DISTMAP;
+                j * SCREENWIDTH / viewwidth / DISTMAP;
             if (level < 0)
                 level = 0;
             if (level >= NUMCOLORMAPS)
@@ -570,10 +555,8 @@ void R_ExecuteSetViewSize(void)
         }
     }
 
-//
-// draw the border
-//
-    R_DrawViewBorder();         // erase old menu stuff
+    // Erase old menu stuff
+    R_FillBackScreen();
 }
 
 
@@ -610,7 +593,6 @@ void R_Init(void)
     R_InitSkyMap();
     printf (".");
     R_InitTranslationTables();
-    framecount = 0;
 }
 
 
@@ -675,7 +657,6 @@ static void R_SetupFrame(player_t * player)
 
     viewplayer = player;
     // haleyjd: removed WATCOMC
-    // haleyjd FIXME: viewangleoffset handling?
     
     if (crl_spectating)
     {
@@ -691,7 +672,7 @@ static void R_SetupFrame(player_t * player)
             viewy = LerpFixed(CRL_camera_oldy, by);
             viewz = LerpFixed(CRL_camera_oldz, bz);
             viewangle = LerpAngle(CRL_camera_oldang, ba);
-            pitch = 0; // [JN] TODO - look up/down for Spectator mode?
+            pitch = LerpFixed(CRL_camera_oldlookdir, CRL_camera_lookdir) / MLOOKUNIT;
         }
         else
         {
@@ -699,11 +680,13 @@ static void R_SetupFrame(player_t * player)
             viewy = by;
             viewz = bz;
             viewangle = ba;
-            pitch = 0;
+            pitch = CRL_camera_lookdir / MLOOKUNIT;
         }
     }
     else
     {
+        const boolean use_localview = CheckLocalView(player);
+
         // [AM] Interpolate the player camera if the feature is enabled.
         if (crl_uncapped_fps &&
             // Don't interpolate on the first tic of a level,
@@ -715,8 +698,6 @@ static void R_SetupFrame(player_t * player)
             // Don't interpolate during a paused state
             realleveltime > oldleveltime)
         {
-            const boolean use_localview = CheckLocalView(player);
-
             viewx = LerpFixed(player->mo->oldx, player->mo->x);
             viewy = LerpFixed(player->mo->oldy, player->mo->y);
             viewz = LerpFixed(player->oldviewz, player->viewz);
@@ -725,22 +706,23 @@ static void R_SetupFrame(player_t * player)
             {
                 viewangle = (player->mo->angle + localview.angle -
                             localview.ticangle + LerpAngle(localview.oldticangle,
-                                                           localview.ticangle)) + viewangleoffset;
+                                                           localview.ticangle));
+                pitch = LerpInt(player->r_oldlookdir, player->r_lookdir) / MLOOKUNIT;
             }
             else
             {
-                viewangle = LerpAngle(player->mo->oldangle, player->mo->angle) + viewangleoffset;
+                viewangle = LerpAngle(player->mo->oldangle, player->mo->angle);
+                pitch = LerpInt(player->oldlookdir, player->lookdir);
             }
-
-            pitch = LerpInt(player->oldlookdir, player->lookdir);
         }
         else
         {
             viewx = player->mo->x;
             viewy = player->mo->y;
             viewz = player->viewz;
-            viewangle = player->mo->angle + viewangleoffset;
-            pitch = player->lookdir; // [crispy]
+            viewangle = player->mo->angle;
+            pitch = use_localview ? player->r_lookdir / MLOOKUNIT : // [JN] Precise vertical mouse look.
+                                    player->lookdir; // [crispy]
         }
     }
     
@@ -758,6 +740,8 @@ static void R_SetupFrame(player_t * player)
 
     // [JN] RestlessRodent -- Just report it
     CRL_ReportPosition(viewx, viewy, viewz, viewangle);
+    // [PN] Keep spectator pitch history in sync with position history.
+    CRL_ReportLookdir(CRL_camera_lookdir);
 
     tempCentery = viewheight / 2 + pitch * crl_screen_size / 10;
     if (centery != tempCentery)
@@ -766,7 +750,7 @@ static void R_SetupFrame(player_t * player)
         centeryfrac = centery << FRACBITS;
         for (i = 0; i < viewheight; i++)
         {
-            yslope[i] = FixedDiv((viewwidth << detailshift) / 2 * FRACUNIT,
+            yslope[i] = FixedDiv(viewwidth / 2 * FRACUNIT,
                                  abs(((i - centery) << FRACBITS) +
                                      FRACUNIT / 2));
         }
@@ -775,8 +759,17 @@ static void R_SetupFrame(player_t * player)
     viewcos = finecosine[tableAngle];
     if (player->fixedcolormap)
     {
-        fixedcolormap = colormaps + player->fixedcolormap
-            * 256 * sizeof(lighttable_t);
+        // [PN] A11Y - Invulnerability grayscaled effect
+        if (crl_a11y_invul 
+        && (player->powers[pw_invulnerability] > BLINKTHRESHOLD || (player->powers[pw_invulnerability] & 8)))
+        {
+            fixedcolormap = grayscale_colormap;
+        }
+        else
+        {
+            fixedcolormap = colormaps + player->fixedcolormap * 256;
+        }
+
         walllights = scalelightfixed;
         for (i = 0; i < MAXLIGHTSCALE; i++)
         {
@@ -787,25 +780,7 @@ static void R_SetupFrame(player_t * player)
     {
         fixedcolormap = 0;
     }
-    framecount++;
     validcount++;
-    if (BorderNeedRefresh)
-    {
-        if (setblocks < 10)
-        {
-            R_DrawViewBorder();
-        }
-        BorderNeedRefresh = false;
-        BorderTopRefresh = false;
-    }
-    if (BorderTopRefresh)
-    {
-        if (setblocks < 10)
-        {
-            R_DrawTopBorder();
-        }
-        BorderTopRefresh = false;
-    }
 }
 
 /*

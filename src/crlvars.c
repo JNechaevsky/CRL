@@ -81,6 +81,8 @@ int crl_monosfx = 0;
 int crl_mute_inactive = 0;
 
 // Automap
+int crl_automap_textured_bg = 1;
+int crl_automap_scroll_bg = 1;
 int crl_automap_mode = 0;
 int crl_automap_secrets = 0;
 int crl_automap_rotate = 0;
@@ -93,6 +95,9 @@ int crl_automap_sndprop = 0;
 int crl_default_skill = 2;
 int crl_pistol_start = 0;
 int crl_colored_stbar = 0;
+int crl_ammo_widget = 0;
+int crl_ammo_widget_translucent = 0;
+int crl_ammo_widget_colors = 0;
 int crl_revealed_secrets = 0;
 char *crl_revealed_secrets_msg = "A secret is revealed!";
 int crl_restore_targets = 0;
@@ -187,6 +192,8 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_mute_inactive",              &crl_mute_inactive);
 
     // Automap
+    M_BindIntVariable("crl_automap_textured_bg",        &crl_automap_textured_bg);
+    M_BindIntVariable("crl_automap_scroll_bg",          &crl_automap_scroll_bg);
     M_BindIntVariable("crl_automap_mode",               &crl_automap_mode);
     M_BindIntVariable("crl_automap_secrets",            &crl_automap_secrets);
     M_BindIntVariable("crl_automap_rotate",             &crl_automap_rotate);
@@ -199,6 +206,9 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_default_skill",              &crl_default_skill);
     M_BindIntVariable("crl_pistol_start",               &crl_pistol_start);
     M_BindIntVariable("crl_colored_stbar",              &crl_colored_stbar);
+    M_BindIntVariable("crl_ammo_widget",                &crl_ammo_widget);
+    M_BindIntVariable("crl_ammo_widget_translucent",    &crl_ammo_widget_translucent);
+    M_BindIntVariable("crl_ammo_widget_colors",         &crl_ammo_widget_colors);
     M_BindIntVariable("crl_revealed_secrets",           &crl_revealed_secrets);
     M_BindStringVariable("crl_revealed_secrets_msg",    &crl_revealed_secrets_msg);
     M_BindIntVariable("crl_restore_targets",            &crl_restore_targets);

@@ -64,6 +64,22 @@ int snd_Channels = 16;
 
 int AmbChan;
 
+void S_StopAllSound(void)
+{
+    int i;
+
+    for (i = 0; i < snd_Channels; i++)
+    {
+        if (channel[i].handle)
+        {
+            S_StopSound(channel[i].mo);
+        }
+    }
+
+    memset(channel, 0, snd_Channels * sizeof(channel_t));
+    AmbChan = -1;
+}
+
 void S_Start(void)
 {
     int i;
@@ -159,6 +175,9 @@ void S_StartSound(void *_origin, int sound_id)
     static int sndcount = 0;
     int chan;
 
+    // [JN] Listener for spectator mode.
+    int64_t listener_x, listener_y;
+
     // [JN] Do not play sound while demo-warp.
     if (nodrawers /*|| demowarp*/)
     {
@@ -174,10 +193,21 @@ void S_StartSound(void *_origin, int sound_id)
         origin = listener;
     }
 
+    if (!crl_spectating)
+    {
+        listener_x = listener->x;
+        listener_y = listener->y;
+    }
+    else
+    {
+        listener_x = CRL_camera_x;
+        listener_y = CRL_camera_y;
+    }
+
 // calculate the distance before other stuff so that we can throw out
 // sounds that are beyond the hearing range.
-    absx = abs(origin->x - listener->x);
-    absy = abs(origin->y - listener->y);
+    absx = llabs(origin->x - listener_x);
+    absy = llabs(origin->y - listener_y);
     dist = absx + absy - (absx > absy ? absy >> 1 : absx >> 1);
     dist >>= FRACBITS;
 //  dist = P_AproxDistance(origin->x-viewx, origin->y-viewy)>>FRACBITS;
@@ -414,11 +444,25 @@ boolean S_StopSoundID(int sound_id, int priority)
         {
             I_StopSound(channel[lp].handle);
         }
-        if (S_sfx[channel[i].sound_id].usefulness > 0)
+
+        // [PN] SAFE: use lp, not i, and sanity-check sound id
         {
-            S_sfx[channel[i].sound_id].usefulness--;
+            const int sid = channel[lp].sound_id;
+            if (sid >= 0 && sid < NUMSFX && S_sfx[sid].usefulness > 0)
+            {
+                S_sfx[sid].usefulness--;
+            }
         }
+
+        // [PN] Clear channel state
+        channel[lp].handle = 0;
         channel[lp].mo = NULL;
+        channel[lp].sound_id = 0;
+        channel[lp].priority = 0;
+        if (AmbChan == lp)
+        {
+            AmbChan = -1;
+        }
     }
     return (true);
 }
@@ -501,8 +545,22 @@ void S_UpdateSounds(mobj_t * listener)
         }
         else
         {
-            absx = abs(channel[i].mo->x - listener->x);
-            absy = abs(channel[i].mo->y - listener->y);
+            // [JN] Listener for spectator mode.
+            int64_t listener_x, listener_y;
+
+            if (!crl_spectating)
+            {
+                listener_x = listener->x;
+                listener_y = listener->y;
+            }
+            else
+            {
+                listener_x = CRL_camera_x;
+                listener_y = CRL_camera_y;
+            }
+
+            absx = llabs(channel[i].mo->x - listener_x);
+            absy = llabs(channel[i].mo->y - listener_y);
             dist = absx + absy - (absx > absy ? absy >> 1 : absx >> 1);
             dist >>= FRACBITS;
 //          dist = P_AproxDistance(channel[i].mo->x-listener->x, channel[i].mo->y-listener->y)>>FRACBITS;
@@ -519,7 +577,7 @@ void S_UpdateSounds(mobj_t * listener)
 //          vol = (*((byte *)W_CacheLumpName("SNDCURVE", PU_CACHE)+dist)*(snd_MaxVolume*8))>>7;
             vol = soundCurve[dist];
 
-            angle = R_PointToAngle2(listener->x, listener->y,
+            angle = R_PointToAngle2(listener_x, listener_y,
                                     channel[i].mo->x, channel[i].mo->y);
             angle = (angle - viewangle) >> 24;
             sep = angle * 2 - 128;
@@ -635,3 +693,51 @@ void S_ShutDown(void)
     I_ShutdownSound();
 }
 
+// -----------------------------------------------------------------------------
+// S_StopMusic
+//  [JN] Stop current music without shutting down sound system.
+// -----------------------------------------------------------------------------
+
+void S_StopMusic (void)
+{
+    I_StopSong();
+    if (rs != NULL)
+    {
+        I_UnRegisterSong(rs);
+        rs = NULL;
+        mus_song = -1;
+    }
+}
+
+// -----------------------------------------------------------------------------
+// S_MuteUnmuteSound
+// [JN] Sets sfx and music volume to 0 when window loses 
+//      it's focus and restores back when focus is regained.
+// -----------------------------------------------------------------------------
+
+void S_MuteUnmuteSound (boolean mute)
+{
+    if (mute)
+    {
+        // Stop all sounds and clear sfx channels.
+        S_StopAllSound();
+
+        // Set volume to zero.
+        I_SetMusicVolume(0);
+        for (int i = 0; i < MAX_SND_DIST; i++)
+        {
+            soundCurve[i] = 0;
+        }
+
+    }
+    else
+    {
+        // Restore volume to actual values.
+        I_SetMusicVolume(snd_MusicVolume * 8);
+        S_SetMaxVolume();
+    }
+
+    // All done, no need to invoke function until next 
+    // minimizing/restoring of game window is happened.
+    volume_needs_update = false;
+}

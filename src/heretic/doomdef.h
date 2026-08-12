@@ -107,7 +107,8 @@ typedef enum
     ga_completed,
     ga_victory,
     ga_worlddone,
-    ga_screenshot
+    ga_screenshot,
+    ga_rewind
 } gameaction_t;
 
 typedef enum
@@ -445,9 +446,14 @@ typedef struct player_s
     fixed_t viewheight;         // base height above floor for viewz
     fixed_t deltaviewheight;    // squat speed
     fixed_t bob;                // bounded/scaled total momentum
+    // [JN] A11Y - Weapon bobbing.
+    // Variable used only for rendering to avoid desyncs.
+    fixed_t r_bob;
 
     int flyheight;
     int lookdir, oldlookdir;
+    // [JN] Precise vertical mouse look, used only for rendering.
+    int r_lookdir, r_oldlookdir;
     boolean centering;
     int health;                 // only used between levels, mo->health
     // is used during levels
@@ -481,6 +487,10 @@ typedef struct player_s
     // [JN] Hint centered messages.
     const char *messageCentered;	
     int messageCenteredTics;
+
+    // [JN] CRL - prevent other than typing actions in G_Responder
+    // while cheat tics are ticking.
+    int cheatTics;
 
     // [JN] CRL - target's health.
     const char*	targetsname;
@@ -599,6 +609,10 @@ extern mapthing_t deathmatchstarts[10];
 extern mapthing_t playerstarts[MAXPLAYERS];
 extern boolean playerstartsingame[MAXPLAYERS];
 
+// wipegamestate can be set to -1
+//  to force a wipe on the next draw
+extern gamestate_t wipegamestate;
+
 extern int mouseSensitivity;
 
 extern boolean precache;        // if true, load all graphics at level load
@@ -703,6 +717,7 @@ void G_DeferedInitNew(skill_t skill, int episode, int map);
 // a normal game starts at map 1, but a warp test can start elsewhere
 
 void G_DeferedPlayDemo(const char *demo);
+void G_DoPlayDemo(void);
 
 void G_LoadGame(char *name);
 // can be called by the startup code or M_Responder
@@ -717,8 +732,11 @@ void G_SaveGame(int slot, char *description);
 char *SV_Filename(int slot);
 void SV_Open(char *fileName);
 void SV_OpenRead(char *fileName);
+void SV_OpenMemoryRead(byte *data, size_t len);
+void SV_OpenMemoryWrite(void);
 void SV_WriteSaveGameEOF(void);
 void SV_Close(void);
+boolean SV_CloseMemoryWrite(byte **data, size_t *len);
 void SV_Write(void *buffer, int size);
 void SV_WriteByte(byte val);
 void SV_WriteWord(unsigned short val);
@@ -727,6 +745,7 @@ void SV_Read(void *buffer, int size);
 byte SV_ReadByte(void);
 uint16_t SV_ReadWord(void);
 uint32_t SV_ReadLong(void);
+int SV_Seek(long position, int whence);
 
 extern char *savegamedir;
 extern char  savename[256];
@@ -760,6 +779,9 @@ void G_Ticker(void);
 boolean G_Responder(event_t * ev);
 void G_FastResponder(void); // [crispy]
 void G_PrepTiccmd(void); // [crispy]
+
+extern void G_CRL_SetGameSpeed (int speed);
+extern void G_CRL_ChangeGameSpeed (int direction, boolean show_message);
 
 void G_ScreenShot(void);
 
@@ -812,18 +834,11 @@ void P_UnArchiveSpecials(void);
 
 extern boolean setsizeneeded;
 
-extern boolean BorderNeedRefresh;
-extern boolean BorderTopRefresh;
-
 void R_RenderPlayerView(player_t * player);
 // called by G_Drawer
 
 void R_Init(void);
 // called by startup code
-
-void R_DrawViewBorder(void);
-void R_DrawTopBorder(void);
-// if the view size is not full screen, draws a border around it
 
 void R_SetViewSize(int blocks, int detail);
 // called by M_Responder
@@ -887,7 +902,7 @@ extern int playerkeys;
 
 
 void SB_Init(void);
-boolean SB_Responder(event_t * event);
+boolean SB_Responder(const event_t *const event);
 void SB_Ticker(void);
 void SB_Drawer(void);
 
@@ -900,7 +915,6 @@ extern boolean MenuActive;
 
 void MN_Init(void);
 void MN_ActivateMenu(void);
-void MN_DeactivateMenu(void);
 boolean MN_Responder(event_t * event);
 void MN_Ticker(void);
 void MN_Drawer(void);

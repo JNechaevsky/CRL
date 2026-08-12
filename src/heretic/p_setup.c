@@ -27,7 +27,9 @@
 #include "i_system.h"
 #include "m_argv.h"
 #include "m_bbox.h"
+#include "m_misc.h"  // [JN] M_StringJoin()
 #include "p_local.h"
+#include "g_rewind.h"
 #include "s_sound.h"
 
 #include "crlcore.h"
@@ -342,7 +344,55 @@ static void P_LoadLineDefs(int lump)
     {
         ld->flags = SHORT(mld->flags);
         ld->special = SHORT(mld->special);
+
+        // [JN] warn about unknown linedef types.
+        if (crl_unknown_linedefs && (unsigned short) ld->special > 107)
+        {
+            char  badspec[8];
+            char  badline[11];
+            char *string;
+
+            sprintf(badspec, "%d", ld->special);
+            sprintf(badline, "%d", i);
+            string = M_StringJoin("UNKNOWN SPECIAL ", badspec, " AT LINE ", badline, NULL);
+            CRL_printf(string, false);
+            CRL_SetMessageCritical("P[LOADLINEDEFS:", string, MESSAGETICS);
+        }
+
         ld->tag = SHORT(mld->tag);
+
+        // [JN] Warn about special linedefs without tag.
+        if (ld->special && !ld->tag)
+        {
+            char  badline[11];
+            char *string;
+
+            switch (ld->special)
+            {
+                case 1:     // Door Open Wait Close (also monsters)
+                case 26:    // Door (Blue) Open Wait Close
+                case 27:    // Door (Yellow) Open Wait Close
+                case 28:    // Door (Green) Open Wait Close
+                case 31:    // Door Open Stay
+                case 32:    // Door (Blue) Open Stay
+                case 33:    // Door (Green) Open Stay
+                case 34:    // Door (Yellow) Open Stay
+                case 48:    // Scroll Texture Left
+                case 99:    // Scroll Texture Right
+                case 11:    // S1 Exit Level
+                case 51:    // S1 Exit Level (goes to secret level)
+                case 52:    // W1 Exit Level
+                case 105:   // Exit Level (goes to secret level)
+                    break;
+
+                default:
+                    sprintf(badline, "%i", i);
+                    string = M_StringJoin("SPECIAL LINEDEF ", badline, " WITHOUT TAG", NULL);
+                    CRL_printf(string, false);
+                    break;
+            }
+        }
+
         v1 = ld->v1 = &vertexes[SHORT(mld->v1)];
         v2 = ld->v2 = &vertexes[SHORT(mld->v2)];
         ld->dx = v2->x - v1->x;
@@ -692,8 +742,11 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
     crl_spectating = 0;
 
     // [JN] Print amount of level loading time.
+    if (!G_RewindIsRestoring())
+    {
     printf("P_SetupLevel: E%dM%d, loaded in %d ms.\n",
            gameepisode, gamemap, SDL_GetTicks() - starttime);
+    }
 
 //printf ("free memory: 0x%x\n", Z_FreeMemory());
 

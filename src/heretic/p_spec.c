@@ -899,13 +899,14 @@ void P_PlayerInSpecialSector(player_t * player)
             break;
         case 9:                // SecretArea
             player->secretcount++;
+            sector->oldspecial = sector->special;
+            sector->special = 0;
             // [JN] "A secret is revelaed!" message.
             if (crl_revealed_secrets)
             {
                 CT_SetMessageCentered(player, DEH_String(CRL_SECRET_FOUND));
                 S_StartSound(NULL, sfx_chat);
             }
-            sector->special = 0;
             break;
         case 11:               // Exit_SuperDamage (DOOM E1M8 finale)
             /*
@@ -982,8 +983,16 @@ void P_PlayerInSpecialSector(player_t * player)
             break;
 
         default:
-            I_Error("P_PlayerInSpecialSector: "
-                    "unknown special %i", sector->special);
+        {
+            char secnum[7];
+
+            sprintf(secnum, "%i", sector->special);
+
+            // [JN] CRL - do not crash, print an in-game instead.
+            CRL_SetMessageCritical("P[PLAYERINSPECIALSECTOR:",
+                                   M_StringJoin("UNKNOWN SPECIAL ", secnum,
+                                   " (VANILLA CRASHES HERE)", NULL), 2);
+        }
     }
 }
 
@@ -1206,6 +1215,10 @@ void P_SpawnSpecials(void)
     sector_t *sector;
     int i;
 
+    // [JN] CRL - initialize playstate counters.
+    CRL_plats_counter = 0;
+    CRL_lineanims_counter = 0;
+
     //
     //      Init special SECTORs
     //
@@ -1311,7 +1324,10 @@ void P_AddAmbientSfx(int sequence)
 {
     if (AmbSfxCount == MAX_AMBIENT_SFX)
     {
-        I_Error("Too many ambient sound sequences");
+        // [JN] CRL - clarify about vanilla limits.
+        I_Error("Too many ambient sound sequences.\n\n"
+                "Vanilla Heretic supports a maximum of 8 ambient sound sequences.\n"
+                "To fix this error, reduce the number of sound sequences on the map.");
     }
     LevelAmbientSfx[AmbSfxCount++] = AmbientSfx[sequence];
 }

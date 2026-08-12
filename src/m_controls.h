@@ -87,7 +87,7 @@ extern int key_crl_nomomentum, key_crl_nomomentum2;
 
 // Advanced movement
 extern int key_crl_autorun, key_crl_autorun2;
-extern int key_crl_mlook; // [crispy]
+extern int key_crl_mlook, key_crl_mlook2; // [crispy]
 extern int key_crl_novert, key_crl_novert2;
 extern int key_crl_vilebomb, key_crl_vilebomb2;
 extern int key_crl_vilefly, key_crl_vilefly2;
@@ -236,9 +236,9 @@ extern int mousebprevweapon, mousebprevweapon2;
 extern int mousebnextweapon, mousebnextweapon2;
 
 // Heretic & Hexen: Inventory
-extern int mousebinvleft;
-extern int mousebinvright;
-extern int mousebuseartifact;
+extern int mousebinvleft, mousebinvleft2;
+extern int mousebinvright, mousebinvright2;
+extern int mousebuseartifact, mousebuseartifact2;
 // extern int mousebjump;
 
 extern int dclick_use;

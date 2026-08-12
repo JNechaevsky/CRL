@@ -25,6 +25,7 @@
 #include "p_local.h"
 #include "sounds.h"
 #include "s_sound.h"
+#include "ct_chat.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
@@ -408,7 +409,7 @@ static void P_XYMovement(mobj_t * mo)
     }
     // [JN] CRL - limit/supress momentum while airborne to
     // avoid having too high speed boost.
-    if (CRL_aircontrol)
+    if (player && CRL_aircontrol)
     {
         mo->momx *= 0.925;
         mo->momy *= 0.925;
@@ -559,8 +560,12 @@ static void P_ZMovement(mobj_t * mo)
             if (mo->player && mo->momz < -GRAVITY * 8 && !(mo->flags2 & MF2_FLY))       // squat down
             {
                 mo->player->deltaviewheight = mo->momz >> 3;
+                // [crispy] dead men don't say "oof"
+                if (mo->health > 0)
                 S_StartSound(mo, sfx_plroof);
                 // haleyjd: removed externdriver crap
+                // [JN] Compatibility-breaking: landing doesn't center view while mouse look.
+                if (!singleplayer || !crl_mouselook)
                 mo->player->centering = true;
             }
             mo->momz = 0;
@@ -1078,7 +1083,12 @@ void P_SpawnPlayer(const mapthing_t *mthing)
     p->mo = mobj;
     p->playerstate = PST_LIVE;
     p->refire = 0;
+    p->cheatTics = 0;
     p->message = NULL;
+    // [JN] Reset ultimatemsg, so other messages may appear.
+    // See: https://github.com/chocolate-doom/chocolate-doom/issues/781
+    ultimatemsg = false;
+    lastmessage = NULL;
     p->damagecount = 0;
     p->bonuscount = 0;
     p->chickenTics = 0;
@@ -1088,9 +1098,6 @@ void P_SpawnPlayer(const mapthing_t *mthing)
     p->fixedcolormap = 0;
     p->viewheight = VIEWHEIGHT;
 
-    // [JN] CRL - reset frame-independent limit counters.
-    CRL_plats_counter = 0;
-    CRL_lineanims_counter = 0;
     // [JN] CRL - reset powerup counters.
     CRL_counter_tome = 0;
     CRL_counter_ring = 0;

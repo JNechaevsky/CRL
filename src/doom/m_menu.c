@@ -1505,11 +1505,13 @@ static void M_DrawCRL_Video (void)
     M_WriteTextCentered(79, "MISCELLANEOUS", cr[CR_YELLOW]);
 
     // Screen wipe effect
-    sprintf(str, crl_screenwipe == 1 ? "ON" :
-                 crl_screenwipe == 2 ? "FAST" : "OFF");
+    sprintf(str, crl_screenwipe == 1 ? "MELT" :
+                 crl_screenwipe == 2 ? "FAST MELT" :
+                 crl_screenwipe == 3 ? "CROSSFADE" : "OFF");
     M_WriteText (M_ItemRightAlign(str), 88, str,
                  M_Item_Glow(8, crl_screenwipe == 1 ? GLOW_DARKRED :
-                                crl_screenwipe == 2 ? GLOW_YELLOW : GLOW_GREEN));
+                                crl_screenwipe == 2 ? GLOW_YELLOW :
+                                crl_screenwipe == 3 ? GLOW_ORANGE : GLOW_GREEN));
 
     // Screen ENDOOM screen
     sprintf(str, show_endoom == 1 ? "ALWAYS" :
@@ -1583,7 +1585,7 @@ static void M_CRL_HOMDraw (int choice)
 
 static void M_CRL_ScreenWipe (int choice)
 {
-    crl_screenwipe = M_INT_Slider(crl_screenwipe, 0, 2, choice, false);
+    crl_screenwipe = M_INT_Slider(crl_screenwipe, 0, 3, choice, false);
 }
 
 static void M_CRL_ShowENDOOM (int choice)
@@ -4909,6 +4911,12 @@ static const char *M_SelectEndMessage(void)
 
 static void M_QuitDOOM(int choice)
 {
+    // [JN] CRL - optionally don’t ask for quit confirmation.
+    if (!crl_confirm_quit)
+    {
+        I_Quit();
+    }
+
     DEH_snprintf(endstring, sizeof(endstring), "%s\n\n" DOSY,
                  DEH_String(M_SelectEndMessage()));
 
@@ -7111,18 +7119,18 @@ static const KeyBindEntry_t keybinds[] =
     KEYBIND_ENTRY(409, &CRLDef_Keybinds_4, 9, key_nextweapon, key_nextweapon2, 0,   0, KBS_GLOBAL),
 
     // Page 5
-    KEYBIND_ENTRY(500, &CRLDef_Keybinds_5, 0,  key_map_toggle,       key_map_toggle2,       KEY_TAB, 0, KBS_GLOBAL),
-    KEYBIND_ENTRY(501, &CRLDef_Keybinds_5, 1,  key_map_zoomin,       key_map_zoomin2,       '=',   '+', KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(502, &CRLDef_Keybinds_5, 2,  key_map_zoomout,      key_map_zoomout2,      '-',     0, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(503, &CRLDef_Keybinds_5, 3,  key_map_maxzoom,      key_map_maxzoom2,      '0',     0, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(504, &CRLDef_Keybinds_5, 4,  key_map_follow,       key_map_follow2,       'f',     0, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(505, &CRLDef_Keybinds_5, 5,  key_crl_map_rotate,   key_crl_map_rotate2,   'r',     0, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(506, &CRLDef_Keybinds_5, 6,  key_crl_map_overlay,  key_crl_map_overlay2,  'o',     0, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(507, &CRLDef_Keybinds_5, 7,  key_crl_map_mousepan, key_crl_map_mousepan2, 0,       0, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(508, &CRLDef_Keybinds_5, 8,  key_crl_map_sndprop,  key_crl_map_sndprop2,  'p',     0, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(509, &CRLDef_Keybinds_5, 9,  key_map_grid,         key_map_grid2,         'g',     0, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(510, &CRLDef_Keybinds_5, 10, key_map_mark,         key_map_mark2,         'm',     0, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(511, &CRLDef_Keybinds_5, 11, key_map_clearmark,    key_map_clearmark2,    'c',     0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(500, &CRLDef_Keybinds_5, 0,  key_map_toggle,       key_map_toggle2,       KEY_TAB,      0, KBS_GLOBAL),
+    KEYBIND_ENTRY(501, &CRLDef_Keybinds_5, 1,  key_map_zoomin,       key_map_zoomin2,       '=',  KEYP_PLUS, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(502, &CRLDef_Keybinds_5, 2,  key_map_zoomout,      key_map_zoomout2,      '-', KEYP_MINUS, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(503, &CRLDef_Keybinds_5, 3,  key_map_maxzoom,      key_map_maxzoom2,      '0',          0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(504, &CRLDef_Keybinds_5, 4,  key_map_follow,       key_map_follow2,       'f',          0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(505, &CRLDef_Keybinds_5, 5,  key_crl_map_rotate,   key_crl_map_rotate2,   'r',          0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(506, &CRLDef_Keybinds_5, 6,  key_crl_map_overlay,  key_crl_map_overlay2,  'o',          0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(507, &CRLDef_Keybinds_5, 7,  key_crl_map_mousepan, key_crl_map_mousepan2, 0,            0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(508, &CRLDef_Keybinds_5, 8,  key_crl_map_sndprop,  key_crl_map_sndprop2,  'p',          0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(509, &CRLDef_Keybinds_5, 9,  key_map_grid,         key_map_grid2,         'g',          0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(510, &CRLDef_Keybinds_5, 10, key_map_mark,         key_map_mark2,         'm',          0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(511, &CRLDef_Keybinds_5, 11, key_map_clearmark,    key_map_clearmark2,    'c',          0, KBS_AUTOMAP_ONLY),
 
     // Page 6
     KEYBIND_ENTRY(600, &CRLDef_Keybinds_6, 0,  key_menu_help,     key_menu_help2,     KEY_F1,  0, KBS_GLOBAL),

@@ -28,6 +28,7 @@
 
 #include "doomdef.h"
 #include "i_system.h"
+#include "m_misc.h"
 #include "r_local.h"
 
 #include "crlcore.h"
@@ -86,8 +87,9 @@ void GAME_IdentifySubSector(void* __what, CRLSubData_t* __info)
 // -----------------------------------------------------------------------------
 
 static byte medusa_ptr[129];
+static char medusa_message[32];
 
-static boolean medusa_indicator (const byte *data, int texture)
+static boolean medusa_indicator (const byte *data, int texture, const line_t *const line)
 {
     byte *composite;
 
@@ -118,12 +120,20 @@ static boolean medusa_indicator (const byte *data, int texture)
 #if 0
         // [kg] this fixes the bug
         dc_source = data;
-#else
-        memset(medusa_ptr, leveltime, sizeof(medusa_ptr));
-        dc_source = medusa_ptr;
-        CRL_SetMessageCritical("R[RENDERMASKEDSEGRANGE:", "MEDUSA ERROR DETECTED", 2);
-#endif
         colfunc();
+#else
+        lighttable_t *old_colormap = dc_colormap;
+
+        // [PN] Colorize Medusa with common CRL_homcolor.
+        memset(medusa_ptr, CRL_homcolor, sizeof(medusa_ptr));
+        dc_source = medusa_ptr;
+        dc_colormap = colormaps;
+        // [PN] Show linedef number where Medusa is happening.
+        M_snprintf(medusa_message, sizeof(medusa_message), "MEDUSA ERROR ON LINEDEF %d", (int)(line - lines));
+        CRL_SetMessageCritical("R_RenderMaskedSegRange:", medusa_message, 2);
+        colfunc();
+        dc_colormap = old_colormap;
+#endif
 
         return 0;
     }
@@ -220,7 +230,7 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
                                             maskedtexturecol[dc_x]) - 3);
 
             // [JN] CRL - check if column possibly have a Medusa.
-            if(medusa_indicator((byte*) col + 3, texnum))
+            if(medusa_indicator((byte*) col + 3, texnum, curline->linedef))
             {
                 R_DrawMaskedColumn(col, -1);
             }
@@ -299,7 +309,8 @@ static void R_RenderSegLoop(void)
         if (segtextured)
         {
             // calculate texture offset
-            angle = (rw_centerangle + xtoviewangle[rw_x]) >> ANGLETOFINESHIFT;
+            // [PN] ASAN: Keep angle in finetangent array
+            angle = (rw_centerangle + xtoviewangle[rw_x]) >> ANGLETOFINESHIFT & 0xFFF;
             texturecolumn =
                 rw_offset - FixedMul(finetangent[angle], rw_distance);
             texturecolumn >>= FRACBITS;

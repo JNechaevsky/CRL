@@ -17,6 +17,7 @@
 
 
 #include <stdio.h>
+#include <math.h>
 
 #include "i_timer.h"
 #include "m_misc.h"
@@ -84,6 +85,27 @@ void CRL_MoveTo_Camera (void)
 //  [JN] Colorizes counter strings and values respectively.
 // -----------------------------------------------------------------------------
 
+// [JN] Enum for widget strings and values.
+enum
+{
+    widget_kis_str,
+    widget_kills,
+    widget_items,
+    widget_secret,
+    widget_plyr1,
+    widget_plyr2,
+    widget_plyr3,
+    widget_plyr4,
+    widget_time_str,
+    widget_time_val,
+    widget_render_str,
+    widget_render_val,
+    widget_coords_str,
+    widget_coords_val,
+    widget_speed_str,
+    widget_speed_val,
+} widgetcolor_t;
+
 static byte *CRL_StatColor_Str (const int val1, const int val2)
 {
     return
@@ -106,6 +128,132 @@ static byte *CRL_PowerupColor (const int val1, const int val2)
         val1 > val2/2 ? cr[CR_GREEN]  :
         val1 > val2/4 ? cr[CR_YELLOW] :
                         cr[CR_RED]    ;
+}
+
+static byte *CRL_WidgetColor (const int i)
+{
+    static byte *player_colors[4];
+    static const int plyr_indices[] = {widget_plyr1, widget_plyr2, widget_plyr3, widget_plyr4};
+
+    player_colors[0] = cr[CR_GREEN];
+    player_colors[1] = cr[CR_GRAY];
+    player_colors[2] = cr[CR_BROWN];
+    player_colors[3] = cr[CR_RED];
+
+    switch (i)
+    {
+        case widget_kis_str:
+        case widget_time_str:
+        case widget_render_str:
+        case widget_coords_str:
+        case widget_speed_str:
+            return cr[CR_GRAY];
+        
+        case widget_kills:
+            return
+                CRLWidgets.totalkills == 0 ? cr[CR_GREEN] :
+                CRLWidgets.kills == 0 ? cr[CR_RED] :
+                CRLWidgets.kills < CRLWidgets.totalkills ? cr[CR_YELLOW] : cr[CR_GREEN];
+        case widget_items:
+            return
+                CRLWidgets.totalitems == 0 ? cr[CR_GREEN] :
+                CRLWidgets.items == 0 ? cr[CR_RED] :
+                CRLWidgets.items < CRLWidgets.totalitems ? cr[CR_YELLOW] : cr[CR_GREEN];
+        case widget_secret:
+            return
+                CRLWidgets.totalsecrets == 0 ? cr[CR_GREEN] :
+                CRLWidgets.secrets == 0 ? cr[CR_RED] :
+                CRLWidgets.secrets < CRLWidgets.totalsecrets ? cr[CR_YELLOW] : cr[CR_GREEN];
+
+        case widget_time_val:
+            return cr[CR_LIGHTGRAY];
+
+        case widget_render_val:
+        case widget_coords_val:
+        case widget_speed_val:
+            return cr[CR_GREEN];
+
+        default:
+            for (int j = 0; j < 4; j++)
+            {
+                if (i == plyr_indices[j])
+                {
+                    return player_colors[j];
+                }
+            }
+    }
+
+    return NULL;
+}
+
+// [JN/PN] Enum for widget type values.
+enum
+{
+    widget_kis_kills,
+    widget_kis_items,
+    widget_kis_secrets,
+} widget_kis_count_t;
+
+// [PN] Function for safe division to prevent division by zero.
+// Returns the percentage or 0 if the total is zero.
+static int safe_percent (int value, int total)
+{
+    return (total == 0) ? 0 : (value * 100) / total;
+}
+
+// [PN/JN] Main function to format KIS counts based on format and widget type.
+static void CRL_WidgetKISCount (char *buffer, size_t buffer_size, const int i)
+{
+    int value = 0, total = 0;
+    
+    // [PN] Set values for kills, items, or secrets based on widget type
+    switch (i)
+    {
+        case widget_kis_kills:
+            value = CRLWidgets.kills;
+            total = CRLWidgets.totalkills;
+            break;
+        
+        case widget_kis_items:
+            value = CRLWidgets.items;
+            total = CRLWidgets.totalitems;
+            break;
+        
+        case widget_kis_secrets:
+            value = CRLWidgets.secrets;
+            total = CRLWidgets.totalsecrets;
+            break;
+        
+        default:
+            // [PN] Default case for unsupported widget type
+            snprintf(buffer, buffer_size, "N/A");
+            return;
+    }
+
+    // [PN] Format based on crl_widget_kis_format
+    switch (crl_widget_kis_format)
+    {
+        case 1: // Remaining
+        {
+            // [JN] Prevent negative values.
+            const int total_value = (total - value > 0) ? (total - value) : 0;
+            snprintf(buffer, buffer_size, "%d", total_value);
+            break;
+        }
+
+        case 2: // Percent
+        {
+            snprintf(buffer, buffer_size, "%d%%", 
+                     safe_percent(value, total));
+            break;
+        }
+
+        default: // Ratio
+        {
+            snprintf(buffer, buffer_size, "%d/%d", value, total);
+            break;
+        }
+    }
 }
 
 // -----------------------------------------------------------------------------
@@ -185,6 +333,45 @@ static byte *CRL_Colorize_MAX (int style)
 }
 
 // -----------------------------------------------------------------------------
+// CRL_FixedToString
+//  [PN] Formats fixed_t value as string with fractional part (up to 5 digits).
+// -----------------------------------------------------------------------------
+
+static void CRL_FixedToString (fixed_t value, char *const buf, size_t buf_size)
+{
+    const split_fixed_t val = SplitFixed(value);
+    
+    if (crl_widget_coordsfrac && val.frac)
+    {
+        const char *const sign = (val.negative && !val.base) ? "-" : "";
+        M_snprintf(buf, buf_size, "%s%d.%05d", sign, val.base, val.frac);
+    }
+    else
+    {
+        M_snprintf(buf, buf_size, "%d", val.base);
+    }
+}
+
+// -----------------------------------------------------------------------------
+// CRL_AngleToString
+//  [PN] Formats angle_t value as string with fractional part (up to 3 digits).
+// -----------------------------------------------------------------------------
+
+static void CRL_AngleToString (angle_t value, char *const buf, size_t buf_size)
+{
+    const split_angle_t val = SplitAngle(value);
+    
+    if (crl_widget_coordsfrac && val.frac)
+    {
+        M_snprintf(buf, buf_size, "%d.%03d", val.base, val.frac);
+    }
+    else
+    {
+        M_snprintf(buf, buf_size, "%d", val.base);
+    }
+}
+
+// -----------------------------------------------------------------------------
 // Draws CRL stats.
 //  [JN] Draw all the widgets and counters.
 // -----------------------------------------------------------------------------
@@ -198,9 +385,6 @@ int CRL_counter_torch;
 
 void CRL_StatDrawer (void)
 {
-    int yy = 0;
-    int yy2 = 0;
-
     const int CRL_MAX_count_old = (int)(lastvisplane - visplanes);
     const int TotalVisPlanes = CRLData.numcheckplanes + CRLData.numfindplanes;
 
@@ -214,30 +398,32 @@ void CRL_StatDrawer (void)
         CRL_Get_MAX();
     }
 
+    // Apply translucency while Save/Load menu is active.
+    dp_translucent = savemenuactive;
+
     // Player coords
     if (crl_widget_coords == 1
     || (crl_widget_coords == 2 && automapactive))
     {
-        char x[8] = {0}, xpos[128] = {0};
-        char y[8] = {0}, ypos[128] = {0};
-        char ang[128];
+        char x[8] = {0};
+        char y[8] = {0};
+        char str[128];
+        int coord_x_width;
 
         M_snprintf(x, 8, "X: ");
         MN_DrTextA(x, 0, 30, cr[CR_GRAY]);
-        M_snprintf(xpos, 128, "%d ", CRLWidgets.x);
-        MN_DrTextA(xpos, MN_TextAWidth(x), 30, cr[CR_GREEN]);
+        CRL_FixedToString(CRLWidgets.x, str, sizeof(str));
+        coord_x_width = MN_TextAWidth(str);
+        MN_DrTextA(str, MN_TextAWidth(x), 30, cr[CR_GREEN]);
 
-        M_snprintf(y, 8, "Y: ");
-        MN_DrTextA(y, MN_TextAWidth(x) + 
-                      MN_TextAWidth(xpos), 30, cr[CR_GRAY]);
-        M_snprintf(ypos, 128, "%d", CRLWidgets.y);
-        MN_DrTextA(ypos, MN_TextAWidth(x) +
-                         MN_TextAWidth(xpos) +
-                         MN_TextAWidth(y), 30, cr[CR_GREEN]);
+        M_snprintf(y, 8, " Y: ");
+        MN_DrTextA(y, MN_TextAWidth(x) + coord_x_width, 30, cr[CR_GRAY]);
+        CRL_FixedToString(CRLWidgets.y, str, sizeof(str));
+        MN_DrTextA(str, MN_TextAWidth(x) + coord_x_width + MN_TextAWidth(y), 30, cr[CR_GREEN]);
 
         MN_DrTextA("ANG:", 0, 40, cr[CR_GRAY]);
-        M_snprintf(ang, 16, "%d", CRLWidgets.ang);
-        MN_DrTextA(ang, 32, 40, cr[CR_GREEN]);
+        CRL_AngleToString(CRLWidgets.ang, str, sizeof(str));
+        MN_DrTextA(str, 32, 40, cr[CR_GREEN]);
     }
 
     if (crl_widget_playstate)
@@ -264,16 +450,6 @@ void CRL_StatDrawer (void)
         }
     }
 
-    // Shift down render counters if no level time/KIS stats are active.
-    if (!crl_widget_time)
-    {
-        yy += 10;
-    }
-    if (!crl_widget_kis)
-    {
-        yy += 10;
-    }
-
     // Render counters
     if (crl_widget_render)
     {
@@ -283,9 +459,9 @@ void CRL_StatDrawer (void)
         {
             char spr[32];
             
-            MN_DrTextA("SPR:", 0, 75 + yy, CRL_StatColor_Str(CRLData.numsprites, CRL_MaxVisSprites));
+            MN_DrTextA("SPR:", 0, 75, CRL_StatColor_Str(CRLData.numsprites, CRL_MaxVisSprites));
             M_snprintf(spr, 16, "%d/%d", CRLData.numsprites, CRL_MaxVisSprites);
-            MN_DrTextA(spr, 32, 75 + yy, CRL_StatColor_Val(CRLData.numsprites, CRL_MaxVisSprites));
+            MN_DrTextA(spr, 32, 75, CRL_StatColor_Val(CRLData.numsprites, CRL_MaxVisSprites));
         }
 
         // Segments (256 max)
@@ -294,9 +470,9 @@ void CRL_StatDrawer (void)
         {
             char seg[32];
 
-            MN_DrTextA("SEG:", 0, 85 + yy, CRL_StatColor_Str(CRLData.numsegs, CRL_MaxDrawSegs));
+            MN_DrTextA("SEG:", 0, 85, CRL_StatColor_Str(CRLData.numsegs, CRL_MaxDrawSegs));
             M_snprintf(seg, 16, "%d/%d", CRLData.numsegs, CRL_MaxDrawSegs);
-            MN_DrTextA(seg, 32, 85 + yy, CRL_StatColor_Val(CRLData.numsegs, CRL_MaxDrawSegs));
+            MN_DrTextA(seg, 32, 85, CRL_StatColor_Val(CRLData.numsegs, CRL_MaxDrawSegs));
         }
 
         // Solid segments (32 max)
@@ -305,9 +481,9 @@ void CRL_StatDrawer (void)
         {
             char ssg[32];
 
-            MN_DrTextA("SSG:", 0, 95 + yy, CRL_StatColor_Str(CRLData.numsolidsegs, 32));
+            MN_DrTextA("SSG:", 0, 95, CRL_StatColor_Str(CRLData.numsolidsegs, 32));
             M_snprintf(ssg, 16, "%d/32", CRLData.numsolidsegs);
-            MN_DrTextA(ssg, 32, 95 + yy, CRL_StatColor_Val(CRLData.numsolidsegs, 32));
+            MN_DrTextA(ssg, 32, 95, CRL_StatColor_Val(CRLData.numsolidsegs, 32));
         }
 
         // Openings
@@ -316,9 +492,9 @@ void CRL_StatDrawer (void)
         {
             char opn[64];
 
-            MN_DrTextA("OPN:", 0, 105 + yy, CRL_StatColor_Str(CRLData.numopenings, CRL_MaxOpenings));
+            MN_DrTextA("OPN:", 0, 105, CRL_StatColor_Str(CRLData.numopenings, CRL_MaxOpenings));
             M_snprintf(opn, 16, "%d/%d", CRLData.numopenings, CRL_MaxOpenings);
-            MN_DrTextA(opn, 32, 105 + yy, CRL_StatColor_Val(CRLData.numopenings, CRL_MaxOpenings));
+            MN_DrTextA(opn, 32, 105, CRL_StatColor_Val(CRLData.numopenings, CRL_MaxOpenings));
         }
 
         // Planes (vanilla: 128, doom+: 1024)
@@ -330,31 +506,30 @@ void CRL_StatDrawer (void)
             char vis[32];
             char max[32];
 
-            MN_DrTextA("PLN:", 0, 115 + yy, TotalVisPlanes >= CRL_MaxVisPlanes ? 
+            MN_DrTextA("PLN:", 0, 115, TotalVisPlanes >= CRL_MaxVisPlanes ? 
                       (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
 
             M_snprintf(vis, 32, "%d/%d (MAX: ", TotalVisPlanes, CRL_MaxVisPlanes);
             M_snprintf(max, 32, "%d", CRL_MAX_count);
 
             // PLN: x/x (MAX:
-            MN_DrTextA(vis, 32, 115 + yy, TotalVisPlanes >= CRL_MaxVisPlanes ?
+            MN_DrTextA(vis, 32, 115, TotalVisPlanes >= CRL_MaxVisPlanes ?
                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
 
             // x
-            MN_DrTextA(max, 32 + MN_TextAWidth(vis), 115 + yy, TotalVisPlanes >= CRL_MaxVisPlanes ?
+            MN_DrTextA(max, 32 + MN_TextAWidth(vis), 115, TotalVisPlanes >= CRL_MaxVisPlanes ?
                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : 
                       CRL_MAX_count >= CRL_MaxVisPlanes ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
 
             // )
-            MN_DrTextA(")", 32 + MN_TextAWidth(vis) + MN_TextAWidth(max), 115 + yy, TotalVisPlanes >= CRL_MaxVisPlanes ?
+            MN_DrTextA(")", 32 + MN_TextAWidth(vis) + MN_TextAWidth(max), 115, TotalVisPlanes >= CRL_MaxVisPlanes ?
                        (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
         }
     }
 
-    if (!crl_widget_kis)
-    {
-        yy2 += 10;
-    }
+    const int xx  = /*crl_screen_size > 10 && (!automapactive || crl_automap_overlay)*/ automapactive ? 0 : 20;
+    const int yy  = automapactive ? 0 : 10;
+    const int yy2 = crl_widget_kis ? 0 : 10;
 
     // Level timer
     if (crl_widget_time == 1
@@ -365,9 +540,9 @@ void CRL_StatDrawer (void)
         const int time = leveltime / TICRATE;
         
         M_snprintf(stra, 8, "TIME ");
-        MN_DrTextA(stra, 0, 125 + yy2, cr[CR_GRAY]);
+        MN_DrTextA(stra, 0, 125 + yy + yy2, cr[CR_GRAY]);
         M_snprintf(strb, 16, "%02d:%02d:%02d", time/3600, (time%3600)/60, time%60);
-        MN_DrTextA(strb, MN_TextAWidth(stra), 125 + yy2, cr[CR_LIGHTGRAY]);
+        MN_DrTextA(strb, MN_TextAWidth(stra), 125 + yy + yy2, cr[CR_LIGHTGRAY]);
     }
 
     // K/I/S stats
@@ -380,86 +555,76 @@ void CRL_StatDrawer (void)
 
         // Kills:
         M_snprintf(str1, 8, "K ");
-        MN_DrTextA(str1, 0, 135, cr[CR_GRAY]);
-        M_snprintf(str2, 16, "%d/%d", CRLWidgets.kills, CRLWidgets.totalkills);
-        MN_DrTextA(str2, MN_TextAWidth(str1), 135,
+        MN_DrTextA(str1, xx, 135 + yy, CRL_WidgetColor(widget_kis_str));
+        CRL_WidgetKISCount(str2, sizeof(str2), widget_kis_kills);
+        MN_DrTextA(str2, MN_TextAWidth(str1) + xx, 135 + yy,
                          CRLWidgets.totalkills == 0 ? cr[CR_GREEN] :
                          CRLWidgets.kills == 0 ? cr[CR_RED] :
                          CRLWidgets.kills < CRLWidgets.totalkills ? cr[CR_YELLOW] : cr[CR_GREEN]);
 
         // Items:
+        if (crl_widget_kis_items == 1 || (crl_widget_kis_items == 2 && automapactive))
+        {
         M_snprintf(str3, 8, " I ");
         MN_DrTextA(str3, MN_TextAWidth(str1) +
-                         MN_TextAWidth(str2), 135, cr[CR_GRAY]);
-        M_snprintf(str4, 16, "%d/%d", CRLWidgets.items, CRLWidgets.totalitems);
+                         MN_TextAWidth(str2) + xx, 135 + yy, CRL_WidgetColor(widget_kis_str));
+        CRL_WidgetKISCount(str4, sizeof(str4), widget_kis_items);
         MN_DrTextA(str4, MN_TextAWidth(str1) +
                          MN_TextAWidth(str2) +
-                         MN_TextAWidth(str3), 135,
-                         CRLWidgets.totalitems == 0 ? cr[CR_GREEN] :
-                         CRLWidgets.items == 0 ? cr[CR_RED] :
-                         CRLWidgets.items < CRLWidgets.totalitems ? cr[CR_YELLOW] : cr[CR_GREEN]);
+                         MN_TextAWidth(str3) + xx, 135 + yy,
+                         CRL_WidgetColor(widget_items));
+        }
+        else
+        {
+        str3[0] = '\0';
+        str4[0] = '\0';
+        }
 
         // Secrets:
         M_snprintf(str5, 8, " S ");
         MN_DrTextA(str5, MN_TextAWidth(str1) +
                          MN_TextAWidth(str2) +
                          MN_TextAWidth(str3) +
-                         MN_TextAWidth(str4), 135, cr[CR_GRAY]);
-        M_snprintf(str6, 16, "%d/%d", CRLWidgets.secrets, CRLWidgets.totalsecrets);
+                         MN_TextAWidth(str4) + xx, 135 + yy, CRL_WidgetColor(widget_kis_str));
+
+        CRL_WidgetKISCount(str6, sizeof(str6), widget_kis_secrets);
         MN_DrTextA(str6, MN_TextAWidth(str1) +
                          MN_TextAWidth(str2) +
                          MN_TextAWidth(str3) +
                          MN_TextAWidth(str4) +
-                         MN_TextAWidth(str5), 135,
-                         CRLWidgets.totalsecrets == 0 ? cr[CR_GREEN] :
-                         CRLWidgets.secrets == 0 ? cr[CR_RED] :
-                         CRLWidgets.secrets < CRLWidgets.totalsecrets ? cr[CR_YELLOW] : cr[CR_GREEN]);
+                         MN_TextAWidth(str5) + xx, 135 + yy,
+                         CRL_WidgetColor(widget_secret));
     }
 
     // Powerup timers.
     if (crl_widget_powerups)
     {
-        if (CRL_counter_tome)
-        {
-            char tom[4];
+        // [PN] Parallel arrays for powerup data.
+        const char *const labels[5]  = { "TOM:", "RNG:", "SHD:", "WNG:", "TRC:" };
+        const int *const counters[5] = { &CRL_counter_tome, &CRL_counter_ring,
+                                         &CRL_counter_shadow, &CRL_counter_wings,
+                                         &CRL_counter_torch };
+        const int thresholds[5]  = { 40, 30, 60, 60, 120 };
+        const int y_positions[5] = { 45, 55, 65, 75, 85 };
 
-            MN_DrTextA("TOM:", SCREENWIDTH - 7 - MN_TextAWidth("TOM:"), 50, cr[CR_GRAY]);
-            M_snprintf(tom, 4, "%d", CRL_counter_tome);
-            MN_DrTextA(tom, SCREENWIDTH - 7 - MN_TextAWidth(tom), 60, CRL_PowerupColor(CRL_counter_tome, 40));
-        }
-        if (CRL_counter_ring)
+        for (int i = 0; i < 5; i++)
         {
-            char rng[4];
+            if (*counters[i] > 0) // [PN] Show only active powerups
+            {
+                char str[4];
+                const int current_y = y_positions[i];
 
-            MN_DrTextA("RNG:", SCREENWIDTH - 7 - MN_TextAWidth("RNG:"), 70, cr[CR_GRAY]);
-            M_snprintf(rng, 4, "%d", CRL_counter_ring);
-            MN_DrTextA(rng, SCREENWIDTH - 7 - MN_TextAWidth(rng), 80, CRL_PowerupColor(CRL_counter_ring, 30));
-        }
-        if (CRL_counter_shadow)
-        {
-            char shd[4];
+                // [PN] Draw label (TOM:, RNG:, etc.)
+                MN_DrTextA(labels[i], SCREENWIDTH - 32 - MN_TextAWidth(labels[i]), current_y, cr[CR_GRAY]);
 
-            MN_DrTextA("SHD:", SCREENWIDTH - 7 - MN_TextAWidth("SHD:"), 90, cr[CR_GRAY]);
-            M_snprintf(shd, 4, "%d", CRL_counter_shadow);
-            MN_DrTextA(shd, SCREENWIDTH - 7 - MN_TextAWidth(shd), 100, CRL_PowerupColor(CRL_counter_shadow, 60));
-        }
-        if (CRL_counter_wings)
-        {
-            char wng[4];
-
-            MN_DrTextA("WNG:", SCREENWIDTH - 7 - MN_TextAWidth("WNG:"), 110, cr[CR_GRAY]);
-            M_snprintf(wng, 4, "%d", CRL_counter_wings);
-            MN_DrTextA(wng, SCREENWIDTH - 7 - MN_TextAWidth(wng), 120, CRL_PowerupColor(CRL_counter_wings, 60));
-        }
-        if (CRL_counter_torch)
-        {
-            char trc[4];
-
-            MN_DrTextA("TRC:", SCREENWIDTH - 7 - MN_TextAWidth("TRC:"), 130, cr[CR_GRAY]);
-            M_snprintf(trc, 4, "%d", CRL_counter_torch);
-            MN_DrTextA(trc, SCREENWIDTH - 7 - MN_TextAWidth(trc), 140, CRL_PowerupColor(CRL_counter_torch, 120));
+                // [PN] Draw timer value
+                M_snprintf(str, 4, "%d", *counters[i]);
+                MN_DrTextA(str, 293, current_y, CRL_PowerupColor(*counters[i], thresholds[i]));
+            }
         }
     }
+
+    dp_translucent = false;
 }
 
 // -----------------------------------------------------------------------------
@@ -577,39 +742,75 @@ void CRL_DrawTargetsHealth (void)
 {
     char str[16];
     player_t *player = &players[displayplayer];
+    byte *color;
 
     if (player->targetsheathTics <= 0 || !player->targetsheath)
     {
         return;  // No tics or target is dead, nothing to display.
     }
 
-    sprintf(str, "%d/%d", player->targetsheath, player->targetsmaxheath);
+    // Apply translucency while Save/Load menu is active.
+    dp_translucent = savemenuactive;
 
-    if (crl_widget_health == 1)  // Top
+    const int yy = crl_widget_speed ? 10 : 0;
+    sprintf(str, "%d/%d", player->targetsheath, player->targetsmaxheath);
+    color = CRL_HealthColor(player->targetsheath, player->targetsmaxheath);
+
+    switch (crl_widget_health)
     {
-        MN_DrTextACentered(str, 20, CRL_HealthColor(player->targetsheath,
-                                                    player->targetsmaxheath));
+        case 1:  // Top
+            MN_DrTextACentered(str, 20, color);
+            break;
+        case 2:  // Top + name
+            MN_DrTextACentered(player->targetsname, 10, color);
+            MN_DrTextACentered(str, 20, color);
+            break;
+        case 3:  // Bottom
+            MN_DrTextACentered(str, 145 - yy, color);
+            break;
+        case 4:  // Bottom + name
+            MN_DrTextACentered(player->targetsname, 135 - yy, color);
+            MN_DrTextACentered(str, 145 - yy, color);
+            break;
     }
-    else
-    if (crl_widget_health == 2)  // Top + name
+
+    dp_translucent = false;
+}
+
+// -----------------------------------------------------------------------------
+// CRL_DrawPlayerSpeed
+//  [PN/JN] Draws player movement speed in map untits per second format.
+//  Based on the implementation by ceski from the Woof source port.
+// -----------------------------------------------------------------------------
+
+void CRL_DrawPlayerSpeed (void)
+{
+    static char str[8];
+    static char val[16];
+    static double speed = 0;
+    const player_t *player = &players[displayplayer];
+
+    // Apply translucency while Save/Load menu is active.
+    dp_translucent = savemenuactive;
+
+    // Calculating speed only every game tic (not every frame)
+    // is not possible while D_Display is called after S_UpdateSounds in D_DoomLoop.
+    // if (oldgametic < gametic)
     {
-        MN_DrTextACentered(player->targetsname, 10, CRL_HealthColor(player->targetsheath,
-                                                                    player->targetsmaxheath));
-        MN_DrTextACentered(str, 20, CRL_HealthColor(player->targetsheath,
-                                                    player->targetsmaxheath));
+        const double dx = (double)(player->mo->x - player->mo->oldx) / FRACUNIT;
+        const double dy = (double)(player->mo->y - player->mo->oldy) / FRACUNIT;
+        const double dz = (double)(player->mo->z - player->mo->oldz) / FRACUNIT;
+        speed = sqrt(dx * dx + dy * dy + dz * dz) * TICRATE;
     }
-    else
-    if (crl_widget_health == 3)  // Bottom
-    {
-        MN_DrTextACentered(str, 145, CRL_HealthColor(player->targetsheath,
-                                                     player->targetsmaxheath));
-    }
-    else
-    if (crl_widget_health == 4)  // Bottom + name
-    {
-        MN_DrTextACentered(player->targetsname, 145, CRL_HealthColor(player->targetsheath,
-                                                     player->targetsmaxheath));
-        MN_DrTextACentered(str, 135, CRL_HealthColor(player->targetsheath,
-                                                     player->targetsmaxheath));
-    }
+
+    M_snprintf(str, sizeof(str), "SPD:");
+    M_snprintf(val, sizeof(val), " %.0f", speed);
+
+    const int x_val = (SCREENWIDTH / 2);
+    const int x_str = x_val - MN_TextAWidth(str);
+
+    MN_DrTextA(str, x_str, 145, CRL_WidgetColor(widget_speed_str));
+    MN_DrTextA(val, x_val, 145, CRL_WidgetColor(widget_speed_val));
+
+    dp_translucent = false;
 }

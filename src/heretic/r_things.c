@@ -406,7 +406,7 @@ static void R_DrawVisSprite(vissprite_t * vis, int x1, int x2)
             ((vis->mobjflags & MF_TRANSLATION) >> (MF_TRANSSHIFT - 8));
     }
 
-    dc_iscale = abs(vis->xiscale) >> detailshift;
+    dc_iscale = abs(vis->xiscale);
     dc_texturemid = vis->texturemid;
     frac = vis->startfrac;
     spryscale = vis->scale;
@@ -584,7 +584,7 @@ static void R_ProjectSprite(mobj_t * thing)
     vis = R_NewVisSprite();
     vis->mobjflags = thing->flags;
     vis->psprite = false;
-    vis->scale = xscale << detailshift;
+    vis->scale = xscale;
     vis->gx = interpx;
     vis->gy = interpy;
     vis->gz = interpz;
@@ -630,7 +630,7 @@ static void R_ProjectSprite(mobj_t * thing)
         vis->colormap = colormaps;      // full bright
     else
     {                           // diminished light
-        index = xscale >> (LIGHTSCALESHIFT - detailshift);
+        index = xscale >> LIGHTSCALESHIFT;
         if (index >= MAXLIGHTSCALE)
             index = MAXLIGHTSCALE - 1;
         vis->colormap = spritelights[index];
@@ -702,8 +702,6 @@ static void R_DrawPSprite(pspdef_t * psp)
     boolean flip;
     vissprite_t *vis, avis;
 
-    int tempangle;
-
 //
 // decide which patch to use
 //
@@ -742,21 +740,12 @@ static void R_DrawPSprite(pspdef_t * psp)
     tx = sx2 - 160 * FRACUNIT;
 
     tx -= spriteoffset[lump];
-    if (viewangleoffset)
-    {
-        tempangle =
-            ((centerxfrac / 1024) * (viewangleoffset >> ANGLETOFINESHIFT));
-    }
-    else
-    {
-        tempangle = 0;
-    }
-    x1 = (centerxfrac + FixedMul(tx, pspritescale) + tempangle) >> FRACBITS;
+
+    x1 = (centerxfrac + FixedMul(tx, pspritescale)) >> FRACBITS;
     if (x1 > viewwidth)
         return;                 // off the right side
     tx += spritewidth[lump];
-    x2 = ((centerxfrac + FixedMul(tx, pspritescale) +
-           tempangle) >> FRACBITS) - 1;
+    x2 = ((centerxfrac + FixedMul(tx, pspritescale)) >> FRACBITS) - 1;
     if (x2 < 0)
         return;                 // off the left side
 
@@ -776,7 +765,7 @@ static void R_DrawPSprite(pspdef_t * psp)
     }
     vis->x1 = x1 < 0 ? 0 : x1;
     vis->x2 = x2 >= viewwidth ? viewwidth - 1 : x2;
-    vis->scale = pspritescale << detailshift;
+    vis->scale = pspritescale;
     if (flip)
     {
         vis->xiscale = -pspriteiscale;
@@ -1066,13 +1055,5 @@ void R_DrawMasked(void)
 //
 // draw the psprites on top of everything
 //
-// Added for the sideviewing with an external device
-    if (viewangleoffset <= 1024 << ANGLETOFINESHIFT || viewangleoffset >=
-        -(1024 << ANGLETOFINESHIFT))
-    {                           // don't draw on side views
-        R_DrawPlayerSprites();
-    }
-
-//      if (!viewangleoffset)           // don't draw on side views
-//              R_DrawPlayerSprites ();
+    R_DrawPlayerSprites();
 }
