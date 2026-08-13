@@ -111,6 +111,9 @@ int consoleplayer;              // player taking events and displaying
 int displayplayer;              // view being displayed
 int levelstarttic;              // gametic at level start
 int totalkills, totalitems, totalsecret;        // for intermission
+int totaltimes, totalleveltimes; // [crispy] CPhipps - total time for all completed levels
+
+boolean finalintermission; // [crispy] track intermission at end of episode
 
 char demoname[32];
 boolean demorecording;
@@ -2372,13 +2375,21 @@ void G_DoCompleted(void)
     }
     else if (gamemap == 8)
     {
-        gameaction = ga_victory;
-        return;
+        // [crispy] track intermission at end of episode
+        finalintermission = true;
     }
     else
     {
         gamemap++;
     }
+
+    // [crispy] CPhipps - total time for all completed levels
+    // cph - modified so that only whole seconds are added to the totalleveltimes
+    // value; so our total is compatible with the "naive" total of just adding
+    // the times in seconds shown for each level. Also means our total time
+    // will agree with Compet-n.
+    totaltimes = (totalleveltimes += (leveltime - leveltime % TICRATE));
+
     gamestate = GS_INTERMISSION;
     IN_Start();
 }
@@ -2392,6 +2403,12 @@ void G_DoCompleted(void)
 void G_WorldDone(void)
 {
     gameaction = ga_worlddone;
+
+    // [crispy] track intermission at end of episode
+    if (finalintermission)
+    {
+        gameaction = ga_victory;
+    }
 }
 
 //============================================================================
@@ -2501,6 +2518,12 @@ void G_DoLoadGame(void)
     {                           // Missing savegame termination marker
         I_Error("Bad savegame");
     }
+
+    // [JN] Create total level time
+    const int d = SV_ReadByte();
+    const int e = SV_ReadByte();
+    const int f = SV_ReadByte();
+    totalleveltimes = (d << 16) + (e << 8) + f;
 
     // [plums] Restore old sector specials.
     P_UnArchiveOldSpecials();
@@ -2612,9 +2635,15 @@ void G_InitNew(skill_t skill, int episode, int map)
     gamemap = map;
     gameskill = skill;
 
+    // [crispy] CPhipps - total time for all completed levels
+    totalleveltimes = 0;
+
     // [PN] Savegame and rewind restores also pass through G_InitNew().
     // Keep their keyframes unless the caller explicitly starts a new timeline.
     G_ResetRewind(false);
+
+    // [crispy] track intermission at end of episode
+    finalintermission = false;
 
     defdemotics = 0;
 
@@ -3153,6 +3182,11 @@ void G_DoSaveGame(void)
     P_ArchiveThinkers();
     P_ArchiveSpecials();
     SV_WriteSaveGameEOF();
+
+    // [JN] Write total level times
+    SV_WriteByte(totalleveltimes >> 16);
+    SV_WriteByte(totalleveltimes >> 8);
+    SV_WriteByte(totalleveltimes);
 
     // [plums] write old sector specials (for revealed secrets) at the end
     // to keep save compatibility with previous versions
