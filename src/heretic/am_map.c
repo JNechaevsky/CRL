@@ -1974,8 +1974,13 @@ static void AM_drawWalls (void)
 
             if (!lines[i].backsector)
             {
+                // [JN] Colorize 1-sided exits with azure.
+                if (lines[i].special == 11 || lines[i].special == 51)
+                {
+                    AM_drawMline(&l, EXITS);
+                }
                 // [JN] CRL - mark secret sectors.
-                if (crl_automap_secrets > 1 && lines[i].frontsector->special == 9)
+                else if (crl_automap_secrets > 1 && lines[i].frontsector->special == 9)
                 {
                     AM_drawMline(&l, secretwallcolors);
                 }
@@ -1991,9 +1996,19 @@ static void AM_drawWalls (void)
             }
             else
             {
-                if (lines[i].special == 39)
-                { // teleporters
-                    AM_drawMline(&l, WALLCOLORS+WALLRANGE/2);
+                // [JN] Colorize teleporters with red.
+                if (lines[i].special == 39
+                ||  lines[i].special == 97)
+                {
+                    AM_drawMline(&l, TELEPORTERS);
+                }
+                // [JN] Colorize 2-sided exits with azure.
+                // Switches can still be 2-sided.
+                else
+                if (lines[i].special == 52 || lines[i].special == 105
+                ||  lines[i].special == 11 || lines[i].special == 51)
+                {
+                    AM_drawMline(&l, EXITS);
                 }
                 else
                 if (lines[i].flags & ML_SECRET) // secret door
@@ -2052,7 +2067,7 @@ static void AM_drawWalls (void)
                 else
                 if (ravmap_cheating)
                 {
-                    AM_drawMline(&l, TSWALLCOLORS);
+                    AM_drawMline(&l, MLDONTDRAW1);
                 }
             }
         }
@@ -2060,7 +2075,7 @@ static void AM_drawWalls (void)
         {
             if (!(lines[i].flags & ML_DONTDRAW))
             {
-                AM_drawMline(&l, GRAYS+3);
+                AM_drawMline(&l, MLDONTDRAW2);
             }
         }
     }
@@ -2178,7 +2193,7 @@ static void AM_drawLineCharacter (mline_t *lineguy, int lineguylines,
 static void AM_drawPlayers (void)
 {
     int       i;
-    const int       their_colors[] = { GREENKEY, YELLOWKEY, BLOODRED, BLUEKEY };
+    const int       their_colors[] = { PL_GREEN, PL_YELLOW, PL_RED, PL_BLUE };
     int       their_color = -1;
     int       color;
     mpoint_t  pt;
@@ -2209,7 +2224,7 @@ static void AM_drawPlayers (void)
         }
 
         AM_drawLineCharacter(player_arrow, NUMPLYRLINES, 0,
-                             smoothangle, crl_spectating ? arrow_color : WHITE, pt.x, pt.y);
+                             smoothangle, crl_spectating ? arrow_color : PL_WHITE, pt.x, pt.y);
 
         return;
     }
@@ -2333,7 +2348,7 @@ static void AM_drawThings (void)
             if (t->type == MT_BLOOD || t->type == MT_PUFFY)
             {
                 AM_drawLineCharacter(thintriangle_guy, arrlen(thintriangle_guy),
-                                     actualradius >> 2, actualangle, GRAYS, pt.x, pt.y);
+                                     actualradius >> 2, actualangle, THINGCOLORS, pt.x, pt.y);
             }
             else
             {
@@ -2496,7 +2511,7 @@ static void AM_drawCrosshair (void)
 {
     // [JN] Simplify: (f_w*(f_h+1))/2) = (320 * (200 - 42 + 1) / 2) = 25440.
     // Color is always same, so macro can be used here safely.
-    I_VideoBuffer[25440] = WHITE; // single point for now
+    I_VideoBuffer[25440] = PL_WHITE; // single point for now
 }
 
 /*

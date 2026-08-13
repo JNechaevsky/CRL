@@ -112,7 +112,7 @@ int consoleplayer;              // player taking events and displaying
 int displayplayer;              // view being displayed
 int levelstarttic;              // gametic at level start
 int totalkills, totalitems, totalsecret;        // for intermission
-int totaltimes, totalleveltimes; // [crispy] CPhipps - total time for all completed levels
+int totalleveltimes;            // [crispy] CPhipps - total time for all completed levels
 
 boolean finalintermission; // [crispy] track intermission at end of episode
 
@@ -2386,13 +2386,6 @@ void G_DoCompleted(void)
     {
         gamemap++;
     }
-
-    // [crispy] CPhipps - total time for all completed levels
-    // cph - modified so that only whole seconds are added to the totalleveltimes
-    // value; so our total is compatible with the "naive" total of just adding
-    // the times in seconds shown for each level. Also means our total time
-    // will agree with Compet-n.
-    totaltimes = (totalleveltimes += (leveltime - leveltime % TICRATE));
 
     gamestate = GS_INTERMISSION;
     automapactive = false; 

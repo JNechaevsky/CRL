@@ -176,7 +176,7 @@ static void DrawLoadMenu(void);
 static void DrawSaveMenu(void);
 static void DrawSavePreview(const Menu_t *menu);
 static void DrawSavePreviewBorder(int x, int y, int w, int h);
-static void DrawSlider(Menu_t * menu, int item, int width, int slot, boolean bigspacing, int itemPos);
+static void DrawSlider(int item, int width, int slot, boolean bigspacing, int itemPos);
 static void MN_DeactivateMenu(void);
 static void MN_LoadSlotText(void);
 
@@ -1456,7 +1456,7 @@ static void DrawCRLDisplay (void)
     MN_DrTextACentered("DISPLAY OPTIONS", 20, cr[CR_YELLOW]);
 
     // Gamma-correction slider and num
-    DrawSlider(&CRLDisplay, 1, 15, crl_gamma, false, 0);
+    DrawSlider(1, 15, crl_gamma, false, 0);
     M_ID_HandleSliderMouseControl(70, 40, 124, &crl_gamma, false, 0, 15);
     MN_DrTextA(gammalvls[crl_gamma][1], 221, 45, M_Item_Glow(0, GLOW_UNCOLORED));
 
@@ -1556,12 +1556,12 @@ static void DrawCRLSound (void)
 
     MN_DrTextACentered("SOUND OPTIONS", 10, cr[CR_YELLOW]);
 
-    DrawSlider(&CRLSound, 1, 16, snd_MaxVolume, false, 0);
+    DrawSlider(1, 16, snd_MaxVolume, false, 0);
     M_ID_HandleSliderMouseControl(70, 30, 134, &snd_MaxVolume, false, 0, 15);
     sprintf(str,"%d", snd_MaxVolume);
     MN_DrTextA(str, 228, 35, M_Item_Glow(0, GLOW_UNCOLORED));
 
-    DrawSlider(&CRLSound, 4, 16, snd_MusicVolume, false, 3);
+    DrawSlider(4, 16, snd_MusicVolume, false, 3);
     M_ID_HandleSliderMouseControl(70, 60, 134, &snd_MusicVolume, false, 0, 15);
     sprintf(str,"%d", snd_MusicVolume);
     MN_DrTextA(str, 228, 65, M_Item_Glow(3, GLOW_UNCOLORED));
@@ -1766,24 +1766,24 @@ static void DrawCRLControls (void)
 
     MN_DrTextACentered("MOUSE CONFIGURATION", 40, cr[CR_YELLOW]);
 
-    DrawSlider(&CRLControls, 4, 16, mouseSensitivity, false, 3);
+    DrawSlider(4, 16, mouseSensitivity, false, 3);
     M_ID_HandleSliderMouseControl(66, 60, 132, &mouseSensitivity, false, 0, 15);
     sprintf(str,"%d", mouseSensitivity);
     MN_DrTextA(str, 227, 65, M_Item_Glow(3, mouseSensitivity == 255 ? GLOW_YELLOW :
                                             mouseSensitivity  >  15 ? GLOW_GREEN : GLOW_LIGHTGRAY));
 
-    DrawSlider(&CRLControls, 7, 16, mouse_sensitivity_y, false, 6);
+    DrawSlider(7, 16, mouse_sensitivity_y, false, 6);
     M_ID_HandleSliderMouseControl(66, 90, 132, &mouse_sensitivity_y, false, 0, 15);
     sprintf(str,"%d", mouse_sensitivity_y);
     MN_DrTextA(str, 227, 95, M_Item_Glow(6, mouse_sensitivity_y == 255 ? GLOW_YELLOW :
                                             mouse_sensitivity_y  >  15 ? GLOW_GREEN : GLOW_LIGHTGRAY));
 
-    DrawSlider(&CRLControls, 10, 7, (mouse_acceleration * 1.8f) - 2, false, 9);
+    DrawSlider(10, 7, (mouse_acceleration * 1.8f) - 2, false, 9);
     M_ID_HandleSliderMouseControl(66, 120, 60, &mouse_acceleration, true, 0, 6);
     sprintf(str,"%.1f", mouse_acceleration);
     MN_DrTextA(str, 155, 125, M_Item_Glow(9, GLOW_LIGHTGRAY));
 
-    DrawSlider(&CRLControls, 13, 15, mouse_threshold / 2.2f, false, 12);
+    DrawSlider(13, 15, mouse_threshold / 2.2f, false, 12);
     M_ID_HandleSliderMouseControl(66, 150, 124, &mouse_threshold, false, 0, 32);
     sprintf(str,"%d", mouse_threshold);
     MN_DrTextA(str, 219, 155, M_Item_Glow(12, GLOW_LIGHTGRAY));
@@ -4554,7 +4554,7 @@ static void DrawOptionsMenu(void)
 {
     MN_DrTextB(DEH_String(showMessages ? "ON" : "OFF"), 196, 50,
                    M_Big_Line_Glow(CurrentMenu->items[1].tics));
-    DrawSlider(&OptionsMenu, 3, 10, mouseSensitivity, true, 2);
+    DrawSlider(3, 10, mouseSensitivity, true, 2);
     M_ID_HandleSliderMouseControl(110, 90, 84, &mouseSensitivity, false, 0, 10);
 }
 
@@ -4570,19 +4570,19 @@ static void DrawOptions2Menu(void)
 
     // SFX Volume
     sprintf(str, "%d", snd_MaxVolume);
-    DrawSlider(&Options2Menu, 1, 16, snd_MaxVolume, true, 0);
+    DrawSlider(1, 16, snd_MaxVolume, true, 0);
     M_ID_HandleSliderMouseControl(94, 40, 132, &snd_MaxVolume, false, 0, 15);
     MN_DrTextA(str, 252, 45, M_Item_Glow(0, snd_MaxVolume ? GLOW_LIGHTGRAY : GLOW_DARKGRAY));
 
     // Music Volume
     sprintf(str, "%d", snd_MusicVolume);
-    DrawSlider(&Options2Menu, 3, 16, snd_MusicVolume, true, 2);
+    DrawSlider(3, 16, snd_MusicVolume, true, 2);
     M_ID_HandleSliderMouseControl(94, 80, 132, &snd_MusicVolume, false, 0, 15);
     MN_DrTextA(str, 252, 85, M_Item_Glow(2, snd_MusicVolume ? GLOW_LIGHTGRAY : GLOW_DARKGRAY));
 
     // Screen Size
     sprintf(str, "%d", crl_screen_size);
-    DrawSlider(&Options2Menu, 5, 9, crl_screen_size - 3, true, 4);
+    DrawSlider(5, 9, crl_screen_size - 3, true, 4);
     M_ID_HandleSliderMouseControl(94, 120, 76, &crl_screen_size, false, 3, 12);
     MN_DrTextA(str, 196, 125, M_Item_Glow(4, GLOW_LIGHTGRAY));
 }
@@ -6116,15 +6116,15 @@ static void SetMenu(MenuType_t menu)
 //
 //---------------------------------------------------------------------------
 
-static void DrawSlider(Menu_t * menu, int item, int width, int slot, boolean bigspacing, int itemPos)
+static void DrawSlider(int item, int width, int slot, boolean bigspacing, int itemPos)
 {
     int x;
     int y;
     int x2;
     int count;
 
-    x = menu->x + 24;
-    y = menu->y + 2 + (item * (bigspacing ? ITEM_HEIGHT : ID_MENU_LINEHEIGHT_SMALL));
+    x = CurrentMenu->x + 24;
+    y = CurrentMenu->y + 2 + (item * (bigspacing ? ITEM_HEIGHT : ID_MENU_LINEHEIGHT_SMALL));
 
     // [JN] Highlight active slider and gem.
     if (itemPos == CurrentItPos)

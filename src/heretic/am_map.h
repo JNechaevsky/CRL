@@ -22,81 +22,78 @@
 #include "r_local.h"
 
 
-// For use if I do walls with outsides/insides
-#define REDS		12*8
-#define REDRANGE	1       //16
-#define BLUES		(256-4*16+8)
-#define BLUERANGE	1       //8
-#define GREENS		(33*8)
-#define GREENRANGE	1       //16
-#define GRAYS		(5*8)
-#define GRAYSRANGE	1       //16
-#define BROWNS		(14*8)
-#define BROWNRANGE	1       //16
-#define YELLOWS		10*8
-#define YELLOWRANGE	1
-#define BLACK		0
-#define WHITE		4*8
-#define PARCH		13*8-1
-#define BLOODRED  150
-#define BLUEKEY 	197
-#define YELLOWKEY 144
-#define GREENKEY  220
-
-// Automap colors
-#define BACKGROUND	PARCH
-#define YOURCOLORS	WHITE
-#define YOURRANGE	0
-#define WALLCOLORS	REDS
-#define WALLRANGE	REDRANGE
-#define TSWALLCOLORS	GRAYS
-#define TSWALLRANGE	GRAYSRANGE
-#define FDWALLCOLORS	BROWNS
-#define FDWALLRANGE	BROWNRANGE
-#define CDWALLCOLORS	YELLOWS
-#define CDWALLRANGE	YELLOWRANGE
-#define THINGCOLORS	GREENS
-#define THINGRANGE	GREENRANGE
-#define SECRETWALLCOLORS WALLCOLORS
-#define SECRETWALLRANGE WALLRANGE
-#define GRIDCOLORS	(GRAYS + GRAYSRANGE/2)
-#define GRIDRANGE	0
-#define XHAIRCOLORS	GRAYS
-
-// drawing stuff
-#define	FB		0
-
-#define AM_NUMMARKPOINTS 10
-
 typedef struct
 {
     int64_t x, y;
 } mpoint_t;
 
 extern int64_t m_x, m_y;
+extern fixed_t AM_UnArchiveScaleMtof (void);
 
 extern int am_followplayer;
+extern int ravmap_cheating;
 extern int am_grid;
+extern angle_t mapangle;
 
+#define AM_NUMMARKPOINTS 10
 extern int markpointnum;
 extern int markpointnum_max;
-extern mpoint_t markpoints[AM_NUMMARKPOINTS]; // where the points are
-extern int markpointnum; // next point to be assigned
+extern mpoint_t markpoints[AM_NUMMARKPOINTS];
 
-extern void AM_Init (void);
-extern fixed_t AM_UnArchiveScaleMtof (void);
-extern void AM_ArchiveScaleMtof (fixed_t scale);
-extern angle_t mapangle;
-void AM_SetMapCenter (fixed_t x, fixed_t y);
-
-//extern boolean automapactive;
 extern vertex_t KeyPoints[];
 extern const char *LevelNames[];
-extern int ravmap_cheating;
 
+extern void AM_ArchiveScaleMtof (fixed_t scale);
+extern void AM_Init (void);
 extern void AM_initOverlayMode (void);
+extern void AM_SetMapCenter (fixed_t x, fixed_t y);
 extern void AM_Start (void);
 extern void AM_Stop (void);
 
 
+//
+// Automap colors:
+//
+
+// Common walls
+#define WALLCOLORS      96
+#define TSWALLCOLORS    40
+#define FDWALLCOLORS    112
+#define CDWALLCOLORS    80
+
+// Hidden lines
+#define MLDONTDRAW1     40
+#define MLDONTDRAW2     43
+
+// Teleporters
+#define TELEPORTERS     156
+
+// Exits
+#define EXITS           182
+
+// Players (no antialiasing)
+#define PL_WHITE        32
+#define PL_GREEN        221
+#define PL_YELLOW       241
+#define PL_RED          160
+#define PL_BLUE         198
+
+// Grid (no antialiasing)
+#define GRIDCOLORS      39
+
+// Things
+#define THINGCOLORS     38
+
+// Keys
+#define BLUEKEY         197
+#define YELLOWKEY       144
+#define GREENKEY        220
+
+
+
 #endif
+
+
+
+
+
