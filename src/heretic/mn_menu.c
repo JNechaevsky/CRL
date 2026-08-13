@@ -96,7 +96,8 @@ typedef enum
     MENU_CRLKBDBINDS7,
     MENU_CRLKBDBINDS8,
     MENU_CRLKBDBINDS9,
-    MENU_CRLMOUSEBINDS,
+    MENU_CRLMOUSEBINDS1,
+    MENU_CRLMOUSEBINDS2,
     MENU_CRLWIDGETS,
     MENU_CRLAUTOMAP,
     MENU_CRLGAMEPLAY,
@@ -577,7 +578,7 @@ static void M_Bind_ToPlayer3 (int option);
 static void M_Bind_ToPlayer4 (int option);
 static void M_Bind_Reset (int option);
 
-static void DrawCRLMouse (void);
+static void DrawCRLMouse1 (void);
 static void M_Bind_M_FireAttack (int option);
 static void M_Bind_M_MoveForward (int option);
 static void M_Bind_M_MoveBackward (int option);
@@ -591,6 +592,18 @@ static void M_Bind_M_NextWeapon (int option);
 static void M_Bind_M_InventoryLeft (int option);
 static void M_Bind_M_InventoryRight (int option);
 static void M_Bind_M_UseArtifact (int option);
+
+static void DrawCRLMouse2 (void);
+static void M_Bind_M_Quartz (int option);
+static void M_Bind_M_Urn (int option);
+static void M_Bind_M_Bomb (int option);
+static void M_Bind_M_Tome (int option);
+static void M_Bind_M_Ring (int option);
+static void M_Bind_M_Chaosdevice (int option);
+static void M_Bind_M_Shadowsphere (int option);
+static void M_Bind_M_Wings (int option);
+static void M_Bind_M_Torch (int option);
+static void M_Bind_M_Morph (int option);
 
 static void M_Bind_M_Reset (int option);
 
@@ -675,7 +688,7 @@ static void    M_ClearBind (int CurrentItPos);
 static byte   *M_ColorizeBind (int itemSetOn, int key1, int key2);
 static void    M_ResetBinds (void);
 static void    M_DrawBindKey (int itemNum, int yPos, int key1, int key2);
-static void    M_DrawBindFooter (char *pagenum, boolean drawPages);
+static void    M_DrawBindFooter (char *pagenum);
 
 // Mouse binding prototypes
 static boolean MouseIsBinding;
@@ -706,6 +719,18 @@ static int Keybinds_Cur;
 static void CRL_Choose_Keybinds (int choice)
 {
     SetMenu(Keybinds_Cur);
+}
+
+// Forward declarations for scrolling and remembering last pages.
+static Menu_t CRLMouseBinds1;
+static Menu_t CRLMouseBinds2;
+
+// Remember last keybindings page.
+static int Mousebinds_Cur;
+
+static void CRL_Choose_Mousebinds (int choice)
+{
+    SetMenu(Mousebinds_Cur);
 }
 
 // Forward declarations for scrolling and remembering last pages.
@@ -755,6 +780,9 @@ static void M_ScrollPages (boolean direction)
     else if (CurrentMenu == &CRLKbdBinds7) nextMenu = (direction ? MENU_CRLKBDBINDS8 : MENU_CRLKBDBINDS6);
     else if (CurrentMenu == &CRLKbdBinds8) nextMenu = (direction ? MENU_CRLKBDBINDS9 : MENU_CRLKBDBINDS7);
     else if (CurrentMenu == &CRLKbdBinds9) nextMenu = (direction ? MENU_CRLKBDBINDS1 : MENU_CRLKBDBINDS8);
+    // Mouse bindings:
+    else if (CurrentMenu == &CRLMouseBinds1) nextMenu = MENU_CRLMOUSEBINDS2;
+    else if (CurrentMenu == &CRLMouseBinds2) nextMenu = MENU_CRLMOUSEBINDS1;
     // Misc features:
     else if (CurrentMenu == &CRLMisc_1) nextMenu = MENU_MISC_2;
     else if (CurrentMenu == &CRLMisc_2) nextMenu = MENU_MISC_1;
@@ -1729,7 +1757,7 @@ static void M_CRL_MuteInactive (int choice)
 
 static MenuItem_t CRLControlsItems[] = {
     {ITT_EFUNC,   "KEYBOARD BINDINGS",       CRL_Choose_Keybinds,       0, MENU_NONE},
-    {ITT_SETMENU, "MOUSE BINDINGS",          NULL,                      0, MENU_CRLMOUSEBINDS},
+    {ITT_EFUNC,   "MOUSE BINDINGS",          CRL_Choose_Mousebinds,     0, MENU_NONE},
     {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
     {ITT_SLDR,    "HORIZONTAL SENSITIVITY",  SCMouseSensi,              0, MENU_NONE},
     {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
@@ -1880,7 +1908,7 @@ static void DrawCRLKbd1 (void)
     M_DrawBindKey(10, 120, key_fire, key_fire2);
     M_DrawBindKey(11, 130, key_use, key_use2);
 
-    M_DrawBindFooter("1", true);
+    M_DrawBindFooter("1/9");
 }
 
 static void M_Bind_MoveForward (int option)  { M_StartBind(100); } // key_up
@@ -1946,7 +1974,7 @@ static void DrawCRLKbd2 (void)
     M_DrawBindKey(9, 110, key_invright, key_invright2);
     M_DrawBindKey(10, 120, key_useartifact, key_useartifact2);
 
-    M_DrawBindFooter("2", true);
+    M_DrawBindFooter("2/9");
 }
 
 static void M_Bind_LookUp (int option)     { M_StartBind(200); } // key_lookup
@@ -2016,7 +2044,7 @@ static void DrawCRLKbd3 (void)
     M_DrawBindKey(13, 150, key_crl_cameradown, key_crl_cameradown2);
     M_DrawBindKey(14, 160, key_crl_cameramoveto, key_crl_cameramoveto2);
 
-    M_DrawBindFooter("3", true);
+    M_DrawBindFooter("3/9");
 }
 
 static void M_Bind_CRLmenu (int option)           { M_StartBind(300); } // key_crl_menu
@@ -2095,7 +2123,7 @@ static void DrawCRLKbd4 (void)
 
     M_DrawBindKey(14, 160, key_crl_iddqd, key_crl_iddqd2);
 
-    M_DrawBindFooter("4", true);
+    M_DrawBindFooter("4/9");
 }
 
 static void M_Bind_FreezeMode (int option)     { M_StartBind(400); } // key_crl_freeze
@@ -2169,7 +2197,7 @@ static void DrawCRLKbd5 (void)
     M_DrawBindKey(13, 150, key_prevweapon, key_prevweapon2);
     M_DrawBindKey(14, 160, key_nextweapon, key_nextweapon2);
 
-    M_DrawBindFooter("5", true);
+    M_DrawBindFooter("5/9");
 }
 
 static void M_Bind_IDKFA (int option)      { M_StartBind(501); } // key_crl_idkfa
@@ -2232,7 +2260,7 @@ static void DrawCRLKbd6 (void)
     M_DrawBindKey(8, 100, key_arti_torch, key_arti_torch2);
     M_DrawBindKey(9, 110, key_arti_morph, key_arti_morph2);
 
-    M_DrawBindFooter("6", true);
+    M_DrawBindFooter("6/9");
 }
 
 static void M_Bind_Quartz (int option)       { M_StartBind(600); } // key_arti_quartz
@@ -2295,7 +2323,7 @@ static void DrawCRLKbd7 (void)
     M_DrawBindKey(10, 120, key_map_mark, key_map_mark2);
     M_DrawBindKey(11, 130, key_map_clearmark, key_map_clearmark2);
 
-    M_DrawBindFooter("7", true);
+    M_DrawBindFooter("7/9");
 }
 
 static void M_Bind_ToggleMap (int option)   { M_StartBind(700); } // key_map_toggle
@@ -2360,7 +2388,7 @@ static void DrawCRLKbd8 (void)
     M_DrawBindKey(10, 120, key_menu_gamma, key_menu_gamma2);
     M_DrawBindKey(11, 130, key_spy, key_spy2);
 
-    M_DrawBindFooter("8", true);
+    M_DrawBindFooter("8/9");
 }
 
 static void M_Bind_HelpScreen (int option)     { M_StartBind(800); } // key_menu_help
@@ -2427,7 +2455,7 @@ static void DrawCRLKbd9 (void)
 
     MN_DrTextACentered("RESET", 120, cr[CR_YELLOW]);
 
-    M_DrawBindFooter("9", true);
+    M_DrawBindFooter("9/9");
 }
 
 static void M_Bind_Pause (int option)          { M_StartBind(900); } // key_pause
@@ -2448,38 +2476,38 @@ static void M_Bind_Reset (int option)
 }
 
 // -----------------------------------------------------------------------------
-// Mouse bindings
+// Mouse bindings 1
 // -----------------------------------------------------------------------------
 
-static MenuItem_t CRLMouseItems[] = {
-    { ITT_EFUNC, "FIRE/ATTACK",               M_Bind_M_FireAttack,     0, MENU_NONE },
-    { ITT_EFUNC, "MOVE FORWARD",              M_Bind_M_MoveForward,    0, MENU_NONE },
-    { ITT_EFUNC, "MOVE BACKWARD",             M_Bind_M_MoveBackward,   0, MENU_NONE },
-    { ITT_EFUNC, "USE",                       M_Bind_M_Use,            0, MENU_NONE },
-    { ITT_EFUNC, "SPEED ON",                  M_Bind_M_SpeedOn,        0, MENU_NONE },
-    { ITT_EFUNC, "STRAFE ON",                 M_Bind_M_StrafeOn,       0, MENU_NONE },
-    { ITT_EFUNC, "STRAFE LEFT",               M_Bind_M_StrafeLeft,     0, MENU_NONE },
-    { ITT_EFUNC, "STRAFE RIGHT",              M_Bind_M_StrafeRight,    0, MENU_NONE },
-    { ITT_EFUNC, "PREV WEAPON",               M_Bind_M_PrevWeapon,     0, MENU_NONE },
-    { ITT_EFUNC, "NEXT WEAPON",               M_Bind_M_NextWeapon,     0, MENU_NONE },
-    { ITT_EFUNC, "INVENTORY LEFT",            M_Bind_M_InventoryLeft,  0, MENU_NONE },
-    { ITT_EFUNC, "INVENTORY RIGHT",           M_Bind_M_InventoryRight, 0, MENU_NONE },
-    { ITT_EFUNC, "USE ARTIFACT",              M_Bind_M_UseArtifact,    0, MENU_NONE },
-    { ITT_EMPTY, NULL,                        NULL,                    0, MENU_NONE },
-    { ITT_EFUNC, "RESET BINDINGS TO DEFAULT", M_Bind_M_Reset,          0, MENU_NONE },
+static MenuItem_t CRLMouseItems1[] = {
+    { ITT_EFUNC, "FIRE/ATTACK",     M_Bind_M_FireAttack,     0, MENU_NONE },
+    { ITT_EFUNC, "MOVE FORWARD",    M_Bind_M_MoveForward,    0, MENU_NONE },
+    { ITT_EFUNC, "MOVE BACKWARD",   M_Bind_M_MoveBackward,   0, MENU_NONE },
+    { ITT_EFUNC, "USE",             M_Bind_M_Use,            0, MENU_NONE },
+    { ITT_EFUNC, "SPEED ON",        M_Bind_M_SpeedOn,        0, MENU_NONE },
+    { ITT_EFUNC, "STRAFE ON",       M_Bind_M_StrafeOn,       0, MENU_NONE },
+    { ITT_EFUNC, "STRAFE LEFT",     M_Bind_M_StrafeLeft,     0, MENU_NONE },
+    { ITT_EFUNC, "STRAFE RIGHT",    M_Bind_M_StrafeRight,    0, MENU_NONE },
+    { ITT_EFUNC, "PREV WEAPON",     M_Bind_M_PrevWeapon,     0, MENU_NONE },
+    { ITT_EFUNC, "NEXT WEAPON",     M_Bind_M_NextWeapon,     0, MENU_NONE },
+    { ITT_EFUNC, "INVENTORY LEFT",  M_Bind_M_InventoryLeft,  0, MENU_NONE },
+    { ITT_EFUNC, "INVENTORY RIGHT", M_Bind_M_InventoryRight, 0, MENU_NONE },
+    { ITT_EFUNC, "USE ARTIFACT",    M_Bind_M_UseArtifact,    0, MENU_NONE },
 };
 
-static Menu_t CRLMouseBinds = {
+static Menu_t CRLMouseBinds1 = {
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
-    DrawCRLMouse,
-    ITEMCOUNT(CRLMouseItems), CRLMouseItems,
+    DrawCRLMouse1,
+    ITEMCOUNT(CRLMouseItems1), CRLMouseItems1,
     0,
-    SmallFont, false, false,
+    SmallFont, true, true,
     MENU_CRLCONTROLS
 };
 
-static void DrawCRLMouse (void)
+static void DrawCRLMouse1 (void)
 {
+    Mousebinds_Cur = (MenuType_t)MENU_CRLMOUSEBINDS1;
+
     M_FillBackground();
 
     MN_DrTextACentered("MOUSE BINDINGS", 10, cr[CR_YELLOW]);
@@ -2498,75 +2526,85 @@ static void DrawCRLMouse (void)
     M_DrawBindButton(11, 130, mousebinvright, mousebinvright2);
     M_DrawBindButton(12, 140, mousebuseartifact, mousebuseartifact2);
 
-    MN_DrTextACentered("RESET", 150, cr[CR_YELLOW]);
-
-    M_DrawBindFooter(NULL, false);
+    M_DrawBindFooter("1/2");
 }
 
-static void M_Bind_M_FireAttack (int option)
+static void M_Bind_M_FireAttack (int option)     { M_StartMouseBind(1000); } // mousebfire
+static void M_Bind_M_MoveForward (int option)    { M_StartMouseBind(1001); } // mousebforward
+static void M_Bind_M_MoveBackward (int option)   { M_StartMouseBind(1002); } // mousebbackward
+static void M_Bind_M_Use (int option)            { M_StartMouseBind(1003); } // mousebuse
+static void M_Bind_M_SpeedOn (int option)        { M_StartMouseBind(1004); } // mousebspeed
+static void M_Bind_M_StrafeOn (int option)       { M_StartMouseBind(1005); } // mousebstrafe
+static void M_Bind_M_StrafeLeft (int option)     { M_StartMouseBind(1006); } // mousebstrafeleft
+static void M_Bind_M_StrafeRight (int option)    { M_StartMouseBind(1007); } // mousebstraferight
+static void M_Bind_M_PrevWeapon (int option)     { M_StartMouseBind(1008); } // mousebprevweapon
+static void M_Bind_M_NextWeapon (int option)     { M_StartMouseBind(1009); } // mousebnextweapon
+static void M_Bind_M_InventoryLeft (int option)  { M_StartMouseBind(1010); } // mousebinvleft
+static void M_Bind_M_InventoryRight (int option) { M_StartMouseBind(1011); } // mousebinvright
+static void M_Bind_M_UseArtifact (int option)    { M_StartMouseBind(1012); } // mousebuseartifact
+
+// -----------------------------------------------------------------------------
+// Mouse bindings 2
+// -----------------------------------------------------------------------------
+
+static MenuItem_t CRLMouseItems2[] = {
+    { ITT_EFUNC, "QUARTZ FLASK",              M_Bind_M_Quartz,       0, MENU_NONE },
+    { ITT_EFUNC, "MYSTIC URN",                M_Bind_M_Urn,          0, MENU_NONE },
+    { ITT_EFUNC, "TIMEBOMB",                  M_Bind_M_Bomb,         0, MENU_NONE },
+    { ITT_EFUNC, "TOME OF POWER",             M_Bind_M_Tome,         0, MENU_NONE },
+    { ITT_EFUNC, "RING OF INVINCIBILITY",     M_Bind_M_Ring,         0, MENU_NONE },
+    { ITT_EFUNC, "CHAOS DEVICE",              M_Bind_M_Chaosdevice,  0, MENU_NONE },
+    { ITT_EFUNC, "SHADOWSPHERE",              M_Bind_M_Shadowsphere, 0, MENU_NONE },
+    { ITT_EFUNC, "WINGS OF WRATH",            M_Bind_M_Wings,        0, MENU_NONE },
+    { ITT_EFUNC, "TORCH",                     M_Bind_M_Torch,        0, MENU_NONE },
+    { ITT_EFUNC, "MORPH OVUM",                M_Bind_M_Morph,        0, MENU_NONE },
+    { ITT_EMPTY, NULL,                        NULL,                  0, MENU_NONE },
+    { ITT_EFUNC, "RESET BINDINGS TO DEFAULT", M_Bind_M_Reset,        0, MENU_NONE },
+};
+
+static Menu_t CRLMouseBinds2 = {
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    DrawCRLMouse2,
+    ITEMCOUNT(CRLMouseItems2), CRLMouseItems2,
+    0,
+    SmallFont, true, true,
+    MENU_CRLCONTROLS
+};
+
+static void DrawCRLMouse2 (void)
 {
-    M_StartMouseBind(1000);  // mousebfire
+    Mousebinds_Cur = (MenuType_t)MENU_CRLMOUSEBINDS2;
+
+    M_FillBackground();
+
+    MN_DrTextACentered("ARTIFACTS", 10, cr[CR_YELLOW]);
+
+    M_DrawBindButton(0, 20, mouseb_arti_quartz, mouseb_arti_quartz2);
+    M_DrawBindButton(1, 30, mouseb_arti_urn, mouseb_arti_urn2);
+    M_DrawBindButton(2, 40, mouseb_arti_bomb, mouseb_arti_bomb2);
+    M_DrawBindButton(3, 50, mouseb_arti_tome, mouseb_arti_tome2);
+    M_DrawBindButton(4, 60, mouseb_arti_ring, mouseb_arti_ring2);
+    M_DrawBindButton(5, 70, mouseb_arti_chaosdevice, mouseb_arti_chaosdevice2);
+    M_DrawBindButton(6, 80, mouseb_arti_shadowsphere, mouseb_arti_shadowsphere2);
+    M_DrawBindButton(7, 90, mouseb_arti_wings, mouseb_arti_wings2);
+    M_DrawBindButton(8, 100, mouseb_arti_torch, mouseb_arti_torch2);
+    M_DrawBindButton(9, 110, mouseb_arti_morph, mouseb_arti_morph2);
+
+    MN_DrTextACentered("RESET", 120, cr[CR_YELLOW]);
+
+    M_DrawBindFooter("2/2");
 }
 
-static void M_Bind_M_MoveForward (int option)
-{
-    M_StartMouseBind(1001);  // mousebforward
-}
-
-static void M_Bind_M_MoveBackward (int option)
-{
-    M_StartMouseBind(1002);  // mousebbackward
-}
-
-static void M_Bind_M_Use (int option)
-{
-    M_StartMouseBind(1003);  // mousebuse
-}
-
-static void M_Bind_M_SpeedOn (int option)
-{
-    M_StartMouseBind(1004);  // mousebspeed
-}
-
-static void M_Bind_M_StrafeOn (int option)
-{
-    M_StartMouseBind(1005);  // mousebstrafe
-}
-
-static void M_Bind_M_StrafeLeft (int option)
-{
-    M_StartMouseBind(1006);  // mousebstrafeleft
-}
-
-static void M_Bind_M_StrafeRight (int option)
-{
-    M_StartMouseBind(1007);  // mousebstraferight
-}
-
-static void M_Bind_M_PrevWeapon (int option)
-{
-    M_StartMouseBind(1008);  // mousebprevweapon
-}
-
-static void M_Bind_M_NextWeapon (int option)
-{
-    M_StartMouseBind(1009);  // mousebnextweapon
-}
-
-static void M_Bind_M_InventoryLeft (int option)
-{
-    M_StartMouseBind(1010);  // mousebinvleft
-}
-
-static void M_Bind_M_InventoryRight (int option)
-{
-    M_StartMouseBind(1011);  // mousebinvright
-}
-
-static void M_Bind_M_UseArtifact (int option)
-{
-    M_StartMouseBind(1012);  // mousebuseartifact
-}
+static void M_Bind_M_Quartz (int option)       { M_StartMouseBind(2000); } // mouseb_arti_quartz
+static void M_Bind_M_Urn (int option)          { M_StartMouseBind(2001); } // mouseb_arti_urn
+static void M_Bind_M_Bomb (int option)         { M_StartMouseBind(2002); } // mouseb_arti_bomb
+static void M_Bind_M_Tome (int option)         { M_StartMouseBind(2003); } // mouseb_arti_tome
+static void M_Bind_M_Ring (int option)         { M_StartMouseBind(2004); } // mouseb_arti_ring
+static void M_Bind_M_Chaosdevice (int option)  { M_StartMouseBind(2005); } // mouseb_arti_chaosdevice
+static void M_Bind_M_Shadowsphere (int option) { M_StartMouseBind(2006); } // mouseb_arti_shadowsphere
+static void M_Bind_M_Wings (int option)        { M_StartMouseBind(2007); } // mouseb_arti_wings
+static void M_Bind_M_Torch (int option)        { M_StartMouseBind(2008); } // mouseb_arti_torch
+static void M_Bind_M_Morph (int option)        { M_StartMouseBind(2009); } // mouseb_arti_morph
 
 static void M_Bind_M_Reset (int option)
 {
@@ -3541,7 +3579,8 @@ static Menu_t *Menus[] = {
     &CRLKbdBinds7,
     &CRLKbdBinds8,
     &CRLKbdBinds9,
-    &CRLMouseBinds,
+    &CRLMouseBinds1,
+    &CRLMouseBinds2,
     &CRLWidgetsMenu,
     &CRLAutomap,
     &CRLGameplay,
@@ -3580,6 +3619,7 @@ void MN_Init(void)
 
     // [JN] Apply default first page of Keybinds menu.
     Keybinds_Cur = (MenuType_t)MENU_CRLKBDBINDS1;
+    Mousebinds_Cur = (MenuType_t)MENU_CRLMOUSEBINDS1;
     Misc_Cur = (MenuType_t)MENU_MISC_1;
 
     // [JN] Initialize cursor position with hidden, will be set on menu opening.
@@ -5908,7 +5948,7 @@ boolean MN_Responder(event_t * event)
                 M_ClearBind(CurrentItPos);
             }
             // [JN] ...or clear mouse bind.
-            else if (CurrentMenu == &CRLMouseBinds)
+            else if (CurrentMenu == &CRLMouseBinds1 || CurrentMenu == &CRLMouseBinds2)
             {
                 M_ClearMouseBind(CurrentItPos);
             }
@@ -6283,21 +6323,12 @@ static void M_DoBindAction (int *slot1, int *slot2, int key, int type)
 //  Draw footer in key binding pages with numeration.
 // -----------------------------------------------------------------------------
 
-static void M_DrawBindFooter (char *pagenum, boolean drawPages)
+static void M_DrawBindFooter (char *pagenum)
 {
-    const char *string = "PRESS ENTER TO BIND, DEL TO CLEAR";
-
-    if (drawPages)
-    {
-        MN_DrTextACentered(string, 170, cr[CR_GRAY]);
-        MN_DrTextA("PGUP", CRL_MENU_LEFTOFFSET, 180, cr[CR_GRAY]);
-        MN_DrTextACentered(M_StringJoin("PAGE ", pagenum, "/9", NULL), 180, cr[CR_GRAY]);
-        MN_DrTextA("PGDN", M_ItemRightAlign("PGDN"), 180, cr[CR_GRAY]);
-    }
-    else
-    {
-        MN_DrTextACentered(string, 180, cr[CR_GRAY]);
-    }
+    MN_DrTextACentered("PRESS ENTER TO BIND, DEL TO CLEAR", 170, cr[CR_GRAY]);
+    MN_DrTextA("PGUP", CRL_MENU_LEFTOFFSET, 180, cr[CR_GRAY]);
+    MN_DrTextACentered(M_StringJoin("PAGE ", pagenum, NULL), 180, cr[CR_GRAY]);
+    MN_DrTextA("PGDN", M_ItemRightAlign("PGDN"), 180, cr[CR_GRAY]);
 }
 // =============================================================================
 //
@@ -6617,6 +6648,7 @@ static void M_DrawBindKey (int itemNum, int yPos, int key1, int key2)
 typedef struct
 {
     int bindnum;
+    const Menu_t *menu;
     int item;
     int *slot1;
     int *slot2;
@@ -6624,24 +6656,35 @@ typedef struct
     int default2;
 } MouseBindEntry_t;
 
-#define MOUSEBIND_ENTRY(bindnum, item_idx, btn1, btn2, def1, def2) \
-    { bindnum, item_idx, &(btn1), &(btn2), def1, def2 }
+#define MOUSEBIND_ENTRY(bindnum, menu_ptr, item_idx, btn1, btn2, def1, def2) \
+    { bindnum, menu_ptr, item_idx, &(btn1), &(btn2), def1, def2 }
 
 static const MouseBindEntry_t mousebinds[] =
 {
-    MOUSEBIND_ENTRY(1000, 0,  mousebfire,        mousebfire2,         0, -1),
-    MOUSEBIND_ENTRY(1001, 1,  mousebforward,     mousebforward2,      2, -1),
-    MOUSEBIND_ENTRY(1002, 2,  mousebbackward,    mousebbackward2,    -1, -1),
-    MOUSEBIND_ENTRY(1003, 3,  mousebuse,         mousebuse2,         -1, -1),
-    MOUSEBIND_ENTRY(1004, 4,  mousebspeed,       mousebspeed2,       -1, -1),
-    MOUSEBIND_ENTRY(1005, 5,  mousebstrafe,      mousebstrafe2,       1, -1),
-    MOUSEBIND_ENTRY(1006, 6,  mousebstrafeleft,  mousebstrafeleft2,  -1, -1),
-    MOUSEBIND_ENTRY(1007, 7,  mousebstraferight, mousebstraferight2, -1, -1),
-    MOUSEBIND_ENTRY(1008, 8,  mousebprevweapon,  mousebprevweapon2,   4, -1),
-    MOUSEBIND_ENTRY(1009, 9,  mousebnextweapon,  mousebnextweapon2,   3, -1),
-    MOUSEBIND_ENTRY(1010, 10, mousebinvleft,     mousebinvleft2,     -1, -1),
-    MOUSEBIND_ENTRY(1011, 11, mousebinvright,    mousebinvright2,    -1, -1),
-    MOUSEBIND_ENTRY(1012, 12, mousebuseartifact, mousebuseartifact2, -1, -1),
+    MOUSEBIND_ENTRY(1000, &CRLMouseBinds1, 0,  mousebfire,        mousebfire2,         0, -1),
+    MOUSEBIND_ENTRY(1001, &CRLMouseBinds1, 1,  mousebforward,     mousebforward2,      2, -1),
+    MOUSEBIND_ENTRY(1002, &CRLMouseBinds1, 2,  mousebbackward,    mousebbackward2,    -1, -1),
+    MOUSEBIND_ENTRY(1003, &CRLMouseBinds1, 3,  mousebuse,         mousebuse2,         -1, -1),
+    MOUSEBIND_ENTRY(1004, &CRLMouseBinds1, 4,  mousebspeed,       mousebspeed2,       -1, -1),
+    MOUSEBIND_ENTRY(1005, &CRLMouseBinds1, 5,  mousebstrafe,      mousebstrafe2,       1, -1),
+    MOUSEBIND_ENTRY(1006, &CRLMouseBinds1, 6,  mousebstrafeleft,  mousebstrafeleft2,  -1, -1),
+    MOUSEBIND_ENTRY(1007, &CRLMouseBinds1, 7,  mousebstraferight, mousebstraferight2, -1, -1),
+    MOUSEBIND_ENTRY(1008, &CRLMouseBinds1, 8,  mousebprevweapon,  mousebprevweapon2,   4, -1),
+    MOUSEBIND_ENTRY(1009, &CRLMouseBinds1, 9,  mousebnextweapon,  mousebnextweapon2,   3, -1),
+    MOUSEBIND_ENTRY(1010, &CRLMouseBinds1, 10, mousebinvleft,     mousebinvleft2,     -1, -1),
+    MOUSEBIND_ENTRY(1011, &CRLMouseBinds1, 11, mousebinvright,    mousebinvright2,    -1, -1),
+    MOUSEBIND_ENTRY(1012, &CRLMouseBinds1, 12, mousebuseartifact, mousebuseartifact2, -1, -1),
+
+    MOUSEBIND_ENTRY(2000, &CRLMouseBinds2, 0, mouseb_arti_quartz,       mouseb_arti_quartz2,       -1, -1),
+    MOUSEBIND_ENTRY(2001, &CRLMouseBinds2, 1, mouseb_arti_urn,          mouseb_arti_urn2,          -1, -1),
+    MOUSEBIND_ENTRY(2002, &CRLMouseBinds2, 2, mouseb_arti_bomb,         mouseb_arti_bomb2,         -1, -1),
+    MOUSEBIND_ENTRY(2003, &CRLMouseBinds2, 3, mouseb_arti_tome,         mouseb_arti_tome2,         -1, -1),
+    MOUSEBIND_ENTRY(2004, &CRLMouseBinds2, 4, mouseb_arti_ring,         mouseb_arti_ring2,         -1, -1),
+    MOUSEBIND_ENTRY(2005, &CRLMouseBinds2, 5, mouseb_arti_chaosdevice,  mouseb_arti_chaosdevice2,  -1, -1),
+    MOUSEBIND_ENTRY(2006, &CRLMouseBinds2, 6, mouseb_arti_shadowsphere, mouseb_arti_shadowsphere2, -1, -1),
+    MOUSEBIND_ENTRY(2007, &CRLMouseBinds2, 7, mouseb_arti_wings,        mouseb_arti_wings2,        -1, -1),
+    MOUSEBIND_ENTRY(2008, &CRLMouseBinds2, 8, mouseb_arti_torch,        mouseb_arti_torch2,        -1, -1),
+    MOUSEBIND_ENTRY(2009, &CRLMouseBinds2, 9, mouseb_arti_morph,        mouseb_arti_morph2,        -1, -1),
 };
 
 #undef MOUSEBIND_ENTRY
@@ -6706,7 +6749,7 @@ static void M_ClearMouseBind (int Current_ItPos)
 {
     for (size_t i = 0; i < sizeof(mousebinds) / sizeof(mousebinds[0]); i++)
     {
-        if (mousebinds[i].item == Current_ItPos)
+        if (mousebinds[i].menu == CurrentMenu && mousebinds[i].item == Current_ItPos)
         {
             *mousebinds[i].slot1 = -1;
             *mousebinds[i].slot2 = -1;

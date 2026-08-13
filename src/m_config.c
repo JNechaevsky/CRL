@@ -363,6 +363,16 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_KEY(key_fire2),
     CONFIG_VARIABLE_KEY(key_use2),
 
+    // View
+    CONFIG_VARIABLE_KEY(key_lookup2),
+    CONFIG_VARIABLE_KEY(key_lookdown2),
+    CONFIG_VARIABLE_KEY(key_lookcenter2),
+
+    // Flying
+    CONFIG_VARIABLE_KEY(key_flyup2),
+    CONFIG_VARIABLE_KEY(key_flydown2),
+    CONFIG_VARIABLE_KEY(key_flycenter2),
+
     // CRL Controls
     CONFIG_VARIABLE_KEYBIND(key_crl_menu, key_crl_menu2),
     CONFIG_VARIABLE_KEYBIND(key_crl_prevlevel, key_crl_prevlevel2),
@@ -418,6 +428,9 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_KEYBIND(key_nextweapon, key_nextweapon2),
 
     // Artifacts
+    CONFIG_VARIABLE_KEY(key_invleft2),
+    CONFIG_VARIABLE_KEY(key_invright2),
+    CONFIG_VARIABLE_KEY(key_useartifact2),
     CONFIG_VARIABLE_KEYBIND(key_arti_quartz, key_arti_quartz2),
     CONFIG_VARIABLE_KEYBIND(key_arti_urn, key_arti_urn2),
     CONFIG_VARIABLE_KEYBIND(key_arti_bomb, key_arti_bomb2),
@@ -523,6 +536,16 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_MOUSEBIND(mouseb_invleft, mouseb_invleft2),
     CONFIG_VARIABLE_MOUSEBIND(mouseb_invright, mouseb_invright2),
     CONFIG_VARIABLE_MOUSEBIND(mouseb_useartifact, mouseb_useartifact2),
+    CONFIG_VARIABLE_MOUSEBIND(mouseb_arti_quartz, mouseb_arti_quartz2),
+    CONFIG_VARIABLE_MOUSEBIND(mouseb_arti_urn, mouseb_arti_urn2),
+    CONFIG_VARIABLE_MOUSEBIND(mouseb_arti_bomb, mouseb_arti_bomb2),
+    CONFIG_VARIABLE_MOUSEBIND(mouseb_arti_tome, mouseb_arti_tome2),
+    CONFIG_VARIABLE_MOUSEBIND(mouseb_arti_ring, mouseb_arti_ring2),
+    CONFIG_VARIABLE_MOUSEBIND(mouseb_arti_chaosdevice, mouseb_arti_chaosdevice2),
+    CONFIG_VARIABLE_MOUSEBIND(mouseb_arti_shadowsphere, mouseb_arti_shadowsphere2),
+    CONFIG_VARIABLE_MOUSEBIND(mouseb_arti_wings, mouseb_arti_wings2),
+    CONFIG_VARIABLE_MOUSEBIND(mouseb_arti_torch, mouseb_arti_torch2),
+    CONFIG_VARIABLE_MOUSEBIND(mouseb_arti_morph, mouseb_arti_morph2),
     CONFIG_VARIABLE_INT(dclick_use),
     CONFIG_VARIABLE_COMMENT(""),
 
