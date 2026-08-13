@@ -234,7 +234,7 @@ const char *LevelNames[] = {
 boolean     automapactive = false;
 
 int ravmap_cheating = 0;
-static int grid = 0;
+int am_grid = 0;
 
 // location of window on screen
 static int  f_x;
@@ -282,8 +282,8 @@ static fixed_t scale_ftom;
 static player_t *plr; // the player represented by an arrow
 
 static patch_t *marknums[10]; // numbers used for marking by the automap
-static mpoint_t markpoints[AM_NUMMARKPOINTS]; // where the points are
-static int markpointnum = 0; // next point to be assigned
+mpoint_t markpoints[AM_NUMMARKPOINTS]; // where the points are
+int markpointnum = 0; // next point to be assigned
 
 int am_followplayer = 1; // specifies whether to follow the player around
 // [PN] Accumulated automap pan delta from mouse movement
@@ -1080,9 +1080,9 @@ boolean AM_Responder (const event_t *ev)
         }
         else if (key == key_map_grid || key == key_map_grid2)
         {
-            grid = !grid;
+            am_grid = !am_grid;
 
-            CT_SetMessage(plr, grid ?
+            CT_SetMessage(plr, am_grid ?
                            AMSTR_GRIDON : AMSTR_GRIDOFF, false, NULL);
         }
         else if (key == key_map_mark || key == key_map_mark2)
@@ -2615,7 +2615,7 @@ void AM_Drawer (void)
         AM_shadeBackground();
     }
 
-    if (grid)
+    if (am_grid)
     {
         AM_drawGrid();
     }

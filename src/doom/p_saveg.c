@@ -2421,7 +2421,7 @@ void P_ArchiveAutomap (void)
     saveg_write32(mapangle);
 
     saveg_write32(markpointnum);
-    for (int i = 0; i < AM_NUMMARKPOINTS; ++i)
+    for (int i = 0; i < markpointnum; ++i)
     {
         saveg_write64(markpoints[i].x);
         saveg_write64(markpoints[i].y);
@@ -2522,7 +2522,7 @@ void P_UnArchiveAutomap (void)
         markpointnum = 0;
     }
 
-    for (int i = 0; i < AM_NUMMARKPOINTS; ++i)
+    for (int i = 0; i < markpointnum; ++i)
     {
         markpoints[i].x = saveg_read64();
         markpoints[i].y = saveg_read64();

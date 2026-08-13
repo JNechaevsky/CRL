@@ -73,11 +73,20 @@ typedef struct
     int64_t x, y;
 } mpoint_t;
 
+extern int64_t m_x, m_y;
+
 extern int am_followplayer;
+extern int am_grid;
+
+extern int markpointnum;
+extern int markpointnum_max;
+extern mpoint_t markpoints[AM_NUMMARKPOINTS]; // where the points are
+extern int markpointnum; // next point to be assigned
 
 extern void AM_Init (void);
 extern fixed_t AM_UnArchiveScaleMtof (void);
 extern void AM_ArchiveScaleMtof (fixed_t scale);
+extern angle_t mapangle;
 void AM_SetMapCenter (fixed_t x, fixed_t y);
 
 //extern boolean automapactive;

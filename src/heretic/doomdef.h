@@ -828,6 +828,8 @@ void P_ArchiveThinkers(void);
 void P_UnArchiveThinkers(void);
 void P_ArchiveSpecials(void);
 void P_UnArchiveSpecials(void);
+void P_ArchiveAutomap(void);
+void P_UnArchiveAutomap(void);
 // load / save game routines
 
 

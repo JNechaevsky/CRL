@@ -28,6 +28,7 @@
 #include "p_local.h"
 #include "v_video.h"
 #include "v_savepreview.h"
+#include "am_map.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
@@ -351,8 +352,7 @@ void SV_WriteLong(unsigned int val)
     SV_Write(&val, sizeof(int));
 }
 
-/*
-void SV_WriteLongLong(int64_t val)
+static void SV_WriteLongLong(int64_t val)
 {
     val = (int64_t) (val);
 
@@ -370,7 +370,6 @@ void SV_WriteLongLong(int64_t val)
 
     SV_Write(&val, sizeof(int64_t));
 }
-*/
 
 static void SV_WritePtr(const void *ptr)
 {
@@ -454,6 +453,13 @@ uint32_t SV_ReadLong(void)
     uint32_t result;
     SV_Read(&result, sizeof(int));
     return LONG(result);
+}
+
+static int64_t SV_ReadLongLong(void)
+{
+    int64_t result;
+    SV_Read(&result, sizeof(int64_t));
+    return (int64_t)(result);
 }
 
 // -----------------------------------------------------------------------------
@@ -2296,6 +2302,63 @@ void P_UnArchiveSpecials(void)
         }
 
     }
+
+}
+
+// -----------------------------------------------------------------------------
+// P_ArchiveAutomap
+// [PN] Archive automap state in a tagged post-EOF tail block.
+// -----------------------------------------------------------------------------
+
+void P_ArchiveAutomap (void)
+{
+    SV_WriteWord(automapactive);
+    SV_WriteLong(am_followplayer);
+    SV_WriteLongLong(m_x);
+    SV_WriteLongLong(m_y);
+    SV_WriteLong(AM_UnArchiveScaleMtof());
+    SV_WriteLong(mapangle);
+
+    SV_WriteLong(markpointnum);
+    for (int i = 0; i < markpointnum; ++i)
+    {
+        SV_WriteLongLong(markpoints[i].x);
+        SV_WriteLongLong(markpoints[i].y);
+    }
+
+    SV_WriteLong(am_grid);
+
+}
+
+// -----------------------------------------------------------------------------
+// P_UnArchiveAutomap
+// [PN] Restore optional automap state from tagged post-EOF tail block.
+// -----------------------------------------------------------------------------
+
+void P_UnArchiveAutomap (void)
+{
+    automapactive = SV_ReadWord();
+    if (automapactive) 
+        AM_Start();
+
+    am_followplayer = SV_ReadLong();
+    m_x = SV_ReadLongLong();
+    m_y = SV_ReadLongLong();
+    AM_ArchiveScaleMtof(SV_ReadLong());
+    mapangle = SV_ReadLong();
+
+    markpointnum = SV_ReadLong();
+    if (markpointnum < 0 || markpointnum >= AM_NUMMARKPOINTS)
+    {
+        markpointnum = 0;
+    }
+    for (int i = 0; i < markpointnum; ++i)
+    {
+        markpoints[i].x = SV_ReadLongLong();
+        markpoints[i].y = SV_ReadLongLong();
+    }
+
+    am_grid = SV_ReadLong();
 
 }
 

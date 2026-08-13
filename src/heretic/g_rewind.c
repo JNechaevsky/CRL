@@ -309,19 +309,20 @@ static keyframe_t *SaveFullKeyframe(void)
     SV_WriteByte(leveltime >> 16);
     SV_WriteByte(leveltime >> 8);
     SV_WriteByte(leveltime);
-    // SV_WriteByte(totalleveltimes >> 16);
-    // SV_WriteByte(totalleveltimes >> 8);
-    // SV_WriteByte(totalleveltimes);
     P_ArchivePlayers();
     P_ArchiveWorld();
     P_ArchiveThinkers();
     P_ArchiveSpecials();
-    // P_ArchiveAutomap();
+    SV_WriteSaveGameEOF();
+
+    SV_WriteByte(totalleveltimes >> 16);
+    SV_WriteByte(totalleveltimes >> 8);
+    SV_WriteByte(totalleveltimes);
     P_ArchiveOldSpecials();
+    P_ArchiveAutomap();
     // SV_WriteByte(fastparm ? 1 : 0);
     // SV_WriteByte(respawnparm ? 1 : 0);
     // SV_WriteByte(coop_spawns ? 1 : 0);
-    SV_WriteSaveGameEOF();
 
     if (!SV_CloseMemoryWrite(&keyframe->data, &keyframe->size))
     {
@@ -374,7 +375,7 @@ static boolean LoadFullKeyframe(const keyframe_t *keyframe)
     char version_text[VERSIONSIZE];
     int i;
     int a, b, c;
-    // int d, e, f;
+    int d, e, f;
 
     SV_OpenMemoryRead(keyframe->data, keyframe->size);
 
@@ -433,18 +434,11 @@ static boolean LoadFullKeyframe(const keyframe_t *keyframe)
     c = SV_ReadByte();
     leveltime = (a << 16) + (b << 8) + c;
 
-    // d = SV_ReadByte();
-    // e = SV_ReadByte();
-    // f = SV_ReadByte();
-    // totalleveltimes = (d << 16) + (e << 8) + f;
-
     P_UnArchivePlayers();
     P_UnArchiveWorld();
     P_UnArchiveThinkers();
     P_UnArchiveSpecials();
-    P_RestoreTargets();
-    // P_UnArchiveAutomap();
-    P_UnArchiveOldSpecials();
+
     // fastparm = (SV_ReadByte() != 0);
     // respawnparm = (SV_ReadByte() != 0);
     // coop_spawns = (SV_ReadByte() != 0);
@@ -454,6 +448,15 @@ static boolean LoadFullKeyframe(const keyframe_t *keyframe)
         SV_Close();
         I_Error("Bad rewind key frame");
     }
+
+    d = SV_ReadByte();
+    e = SV_ReadByte();
+    f = SV_ReadByte();
+    totalleveltimes = (d << 16) + (e << 8) + f;
+
+    P_UnArchiveOldSpecials();
+    P_UnArchiveAutomap();
+    P_RestoreTargets();
 
     SV_Close();
 

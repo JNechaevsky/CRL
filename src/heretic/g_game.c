@@ -38,6 +38,7 @@
 #include "r_local.h"
 #include "s_sound.h"
 #include "v_video.h"
+#include "am_map.h"
 
 #include "crlcore.h"
 #include "crlvars.h"
@@ -2352,6 +2353,9 @@ void G_DoCompleted(void)
 
     gameaction = ga_nothing;
 
+    if (automapactive) 
+	AM_Stop(); 
+
     // quit demo unless -demoextend
     if (!demoextend && G_CheckDemoStatus())
     {
@@ -2391,6 +2395,8 @@ void G_DoCompleted(void)
     totaltimes = (totalleveltimes += (leveltime - leveltime % TICRATE));
 
     gamestate = GS_INTERMISSION;
+    automapactive = false; 
+
     IN_Start();
 }
 
@@ -2528,6 +2534,9 @@ void G_DoLoadGame(void)
     // [plums] Restore old sector specials.
     P_UnArchiveOldSpecials();
 
+    // [PN] Restore optional automap state.
+    P_UnArchiveAutomap();
+
     SV_Close();
 
     // [JN] Restore monster targets.
@@ -2631,6 +2640,7 @@ void G_InitNew(skill_t skill, int episode, int map)
     demorecording = false;
     demoplayback = false;
     netdemo = false;
+    automapactive = false;
     gameepisode = episode;
     gamemap = map;
     gameskill = skill;
@@ -3191,6 +3201,9 @@ void G_DoSaveGame(void)
     // [plums] write old sector specials (for revealed secrets) at the end
     // to keep save compatibility with previous versions
     P_ArchiveOldSpecials();
+
+    // [PN] Write automap state after EOF and optional CRL tails.
+    P_ArchiveAutomap();
 
     // [PN] Write savegame preview thumbnail after terminator.
     P_ArchiveSavePreview();
