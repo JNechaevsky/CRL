@@ -2476,15 +2476,28 @@ void G_LoadGame(char *name)
 
 #define VERSIONSIZE 16
 
+// [crispy] point to active artifact after load
+void G_RestoreArtifactPointer(void)
+{
+    const player_t *const p = &players[consoleplayer];
+
+    for (int i = 0; i < p->inventorySlotNum; i++)
+    {
+        if (p->inventory[i].type == p->readyArtifact)
+        {
+            curpos = inv_ptr = i;
+            curpos = (curpos > CURPOS_MAX) ? CURPOS_MAX : curpos;
+            break;
+        }
+    }
+}
+
 void G_DoLoadGame(void)
 {
     int i;
     int a, b, c;
     char savestr[SAVESTRINGSIZE];
     char vcheck[VERSIONSIZE], readversion[VERSIONSIZE];
-    const player_t *p; // [crispy]
-
-    p = &players[consoleplayer]; // [crispy]
 
     gameaction = ga_nothing;
 
@@ -2531,15 +2544,7 @@ void G_DoLoadGame(void)
     P_UnArchiveSpecials();
 
     // [crispy] point to active artifact after load
-    for (i = 0; i < p->inventorySlotNum; i++)
-    {
-        if (p->inventory[i].type == p->readyArtifact)
-        {
-            curpos = inv_ptr = i;
-            curpos = (curpos > CURPOS_MAX) ? CURPOS_MAX : curpos;
-            break;
-        }
-    }
+    G_RestoreArtifactPointer();
 
     if (SV_ReadByte() != SAVE_GAME_TERMINATOR)
     {                           // Missing savegame termination marker
