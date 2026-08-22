@@ -112,7 +112,6 @@ int consoleplayer;              // player taking events and displaying
 int displayplayer;              // view being displayed
 int levelstarttic;              // gametic at level start
 int totalkills, totalitems, totalsecret;        // for intermission
-int totalleveltimes;            // [crispy] CPhipps - total time for all completed levels
 int totaltimes, totalleveltimes; // [crispy] CPhipps - total time for all completed levels
 
 boolean finalintermission; // [crispy] track intermission at end of episode
