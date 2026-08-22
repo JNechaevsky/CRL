@@ -50,7 +50,7 @@ static void SetIcon(void)
 #ifndef _WIN32
     SDL_Surface *surface;
 
-    surface = SDL_CreateRGBSurfaceFrom((void *) nergame_icon_data, netgame_icon_w,
+    surface = SDL_CreateRGBSurfaceFrom((void *) netgame_icon_data, netgame_icon_w,
                                        netgame_icon_h, 32, netgame_icon_w * 4,
                                        0xffu << 24, 0xffu << 16,
                                        0xffu << 8, 0xffu << 0);
