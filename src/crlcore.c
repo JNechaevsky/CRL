@@ -109,6 +109,58 @@ static int _vptable[NUMPLANEBORDERCOLORS];
 static int _homtable[HOMCOUNT];
 int CRL_homcolor;  // Color to use
 
+
+// -----------------------------------------------------------------------------
+// CRL_InitHOMColors
+// -----------------------------------------------------------------------------
+
+void CRL_InitHOMColors (void)
+{
+    int i;
+    unsigned char *const playpal = W_CacheLumpName("PLAYPAL", PU_STATIC);
+
+    if (crl_hom_effect == 1)
+    {
+        // [JN] Initialize HOM (RGBY) multi colors, but prevent
+        // using too bright values by multiplying by 3, not by 4.
+        for (i = 0; i < 64 ; i++)
+        {
+            _homtable[i]     = V_GetPaletteIndex(playpal, i*3,   0,   0);
+            _homtable[i+64]  = V_GetPaletteIndex(playpal,   0, i*3,   0);
+            _homtable[i+128] = V_GetPaletteIndex(playpal,   0,   0, i*3);
+            _homtable[i+192] = V_GetPaletteIndex(playpal, i*3, i*3,   0);
+        }
+    }
+    else
+    if (crl_hom_effect == 2)
+    {
+        // [JN] Rainbow colors, bright and vibrant.
+        // 6 rainbow colors: Red, Yellow, Green, Cyan, Blue, Magenta.
+        for (i = 0; i < 256; i++)
+        {
+            const int seg = (i * 6) / 256;  // segment number (0...5)
+            const int pos = (i * 6) % 256;  // position inside segment (0...255)
+            int r, g, b;
+
+            switch (seg)
+            {
+                case 0:  r = 255;       g = pos;       b = 0;         break;  // Red → Yellow
+                case 1:  r = 255 - pos; g = 255;       b = 0;         break;  // Yellow → Green
+                case 2:  r = 0;         g = 255;       b = pos;       break;  // Green → Cyan
+                case 3:  r = 0;         g = 255 - pos; b = 255;       break;  // Cyan → Blue
+                case 4:  r = pos;       g = 0;         b = 255;       break;  // Blue → Magenta
+                case 5:  r = 255;       g = 0;         b = 255 - pos; break;  // Magenta → Red
+                default: r = 255;       g = 0;         b = 0;         break;  // Shouldn't happen
+            }
+
+            _homtable[i] = V_GetPaletteIndex(playpal, r, g, b);
+        }
+    }
+
+    
+    W_ReleaseLumpName("PLAYPAL");
+}
+
 // -----------------------------------------------------------------------------
 // CRL_Init
 // Initializes things.
@@ -116,24 +168,15 @@ int CRL_homcolor;  // Color to use
 
 void CRL_Init (void)
 {
-    unsigned char *playpal = W_CacheLumpName("PLAYPAL", PU_STATIC);
-    int i;
+    unsigned char *const playpal = W_CacheLumpName("PLAYPAL", PU_STATIC);
 
     // Make plane surface
     _planesize = SCREENAREA * sizeof(*CRLPlaneSurface);
     CRLPlaneSurface = Z_Malloc(_planesize, PU_STATIC, NULL);
     memset(CRLPlaneSurface, 0, _planesize);
 
-    // [JN] Initialize HOM (RGBY) multi colors, but prevent
-    // using too bright values by multiplying by 3, not by 4.
-
-    for (i = 0; i < 64 ; i++)
-    {
-        _homtable[i]     = V_GetPaletteIndex(playpal, i*3,   0,   0);
-        _homtable[i+64]  = V_GetPaletteIndex(playpal,   0, i*3,   0);
-        _homtable[i+128] = V_GetPaletteIndex(playpal,   0,   0, i*3);
-        _homtable[i+192] = V_GetPaletteIndex(playpal, i*3, i*3,   0);
-    }
+    // [JN] Initialize HOM multicolors.
+    CRL_InitHOMColors();
 
     // [JN] Initialise VP color table. Using V_GetPaletteIndex is better
     // than directly referencing palette indexes, so we can make colours

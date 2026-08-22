@@ -1497,8 +1497,8 @@ static void M_DrawCRL_Video (void)
                  M_Item_Glow(5, crl_visplanes_drawing ? GLOW_GREEN : GLOW_DARKRED));
 
     // HOM effect
-    sprintf(str, crl_hom_effect == 1 ? "MULTICOLOR" :
-                 crl_hom_effect == 2 ? "BLACK" : "OFF");
+    sprintf(str, crl_hom_effect == 1 ? "MULTICOLOR 1" :
+                 crl_hom_effect == 2 ? "MULTICOLOR 2" : "OFF");
     M_WriteText (M_ItemRightAlign(str), 70, str,
                  M_Item_Glow(6, crl_hom_effect ? GLOW_GREEN : GLOW_DARKRED));
 
@@ -1581,6 +1581,7 @@ static void M_CRL_VisplanesDraw (int choice)
 static void M_CRL_HOMDraw (int choice)
 {
     crl_hom_effect = M_INT_Slider(crl_hom_effect, 0, 2, choice, false);
+    CRL_InitHOMColors();
 }
 
 static void M_CRL_ScreenWipe (int choice)

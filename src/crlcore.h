@@ -142,6 +142,7 @@ extern int  CRL_MaxAnims;
 //      range of [0.0, 1.0).  Used for interpolation.
 extern fixed_t fractionaltic;
 
+extern void CRL_InitHOMColors (void);
 extern void CRL_Init (void);
 extern void CRL_ChangeFrame (int __err);
 extern void CRL_MarkPixelP (void** __surface, void* __what, void* __drawp);
