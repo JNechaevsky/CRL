@@ -1,5 +1,5 @@
-static const int setup_icon_w = 128;
-static const int setup_icon_h = 128;
+static const int netgame_icon_w = 128;
+static const int netgame_icon_h = 128;
 
 static const unsigned int setup_icon_data[] = {
     0xffffff00, 0xffffff00, 0xffffff00, 0xffffff00, 0xffffff00, 0xffffff00, 
