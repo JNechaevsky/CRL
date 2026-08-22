@@ -3,7 +3,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 cmake_minimum_required(VERSION 3.15)
 cmake_policy(SET CMP0069 NEW)
 cmake_policy(SET CMP0091 NEW)
-project("CRL" VERSION 2.0.0 LANGUAGES C)
+project("CRL" VERSION 2.1.0 LANGUAGES C)
 set(CMAKE_C_STANDARD 99)
 
 # Autotools variables
@@ -11,7 +11,7 @@ set(top_srcdir ${CMAKE_CURRENT_SOURCE_DIR})
 set(top_builddir ${CMAKE_CURRENT_BINARY_DIR})
 
 # AC_INIT variables
-set(PACKAGE_VERSION "2.0")
+set(PACKAGE_VERSION "2.1")
 set(PACKAGE_NAME "${PROJECT_NAME}")
 set(PACKAGE_TARNAME "crl-doom")
 set(PACKAGE_STRING "${PROJECT_NAME} ${PACKAGE_VERSION}")
