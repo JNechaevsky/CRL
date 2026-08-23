@@ -24,9 +24,17 @@ extern void ID_FormatWidgetTime (char *buf, size_t bufsize, int ticks, int mode)
 
 extern void CRL_MoveTo_Camera (void);
 
-extern void CRL_Clear_MAX (void);
-extern void CRL_Get_MAX (void);
-extern void CRL_MoveTo_MAX (void);
+extern void CRL_Clear_ALL_MAX (void);
+extern void CRL_Clear_SSG_MAX (void);
+extern void CRL_Clear_SEG_MAX (void);
+extern void CRL_Clear_OPN_MAX (void);
+extern void CRL_Clear_PLN_MAX (void);
+extern void CRL_MoveTo_SSG_MAX (void);
+extern void CRL_MoveTo_SEG_MAX (void);
+extern void CRL_MoveTo_OPN_MAX (void);
+extern void CRL_MoveTo_PLN_MAX (void);
+extern void CRL_Get_Render_MAX (CRL_Render_max_t *max);
+extern void CRL_MoveTo_Render_MAX (const CRL_Render_max_t *max);
 
 // [crispy] demo progress bar and timer widget
 extern void CRL_DemoTimer (const int time);

@@ -972,16 +972,16 @@ void G_BuildTiccmd(ticcmd_t *cmd, int maketic)
         // Clear MAX visplanes.
         if (gamekeydown[key_crl_clearmax] || gamekeydown[key_crl_clearmax2])
         {
-            CRL_Clear_MAX();
-            CRL_Get_MAX();
-            CT_SetMessage(&players[consoleplayer], "CLEARED MAX", false, NULL);
+            CRL_Clear_PLN_MAX();
+            CRL_Get_Render_MAX(&CRL_MAX_pln);
+            CT_SetMessage(&players[consoleplayer], "CLEARED PLN MAX", false, NULL);
         }
 
         // Jump to MAX visplanes.
         if (gamekeydown[key_crl_movetomax] || gamekeydown[key_crl_movetomax2])
         {
-            CRL_MoveTo_MAX();
-            CT_SetMessage(&players[consoleplayer], "MOVE TO MAX", false, NULL);
+            CT_SetMessage(&players[consoleplayer], "MOVE TO PLN MAX", false, NULL);
+            CRL_MoveTo_Render_MAX(&CRL_MAX_pln);
         }
     }
 

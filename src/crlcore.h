@@ -52,6 +52,19 @@ typedef struct CRL_Data_s
     int numopenings;    // [JN] Number of openings.
 } CRL_Data_t;
 
+// MAX values for render counters.
+typedef struct
+{
+    int count;
+    fixed_t x, y, z;
+    angle_t ang;
+} CRL_Render_max_t;
+
+extern CRL_Render_max_t CRL_MAX_pln;
+extern CRL_Render_max_t CRL_MAX_ssg;
+extern CRL_Render_max_t CRL_MAX_seg;
+extern CRL_Render_max_t CRL_MAX_opn;
+
 // Visplane information
 typedef struct CRLPlaneData_s
 {
@@ -212,11 +225,6 @@ extern void CRL_printf (const char *message, const boolean critical);
 
 extern void CRL_WidgetsDrawer (void);
 extern void CRL_ReloadPalette (void);
-
-extern fixed_t CRL_MAX_x;
-extern fixed_t CRL_MAX_y;
-extern fixed_t CRL_MAX_z;
-extern angle_t CRL_MAX_ang;
 
 extern int  CRL_lineanims_counter;
 extern int  CRL_plats_counter;

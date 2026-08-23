@@ -43,6 +43,13 @@ jmp_buf CRLJustIncaseBuf;
 CRL_Data_t CRLData;
 CRL_Widgets_t CRLWidgets;
 
+// MAX values for render counters.
+
+CRL_Render_max_t CRL_MAX_pln;
+CRL_Render_max_t CRL_MAX_ssg;
+CRL_Render_max_t CRL_MAX_seg;
+CRL_Render_max_t CRL_MAX_opn;
+
 // Visplane storage.
 #define MAXCOUNTPLANES 4096
 static void*   _planelist[MAXCOUNTPLANES];
@@ -51,13 +58,6 @@ static int     _numplanes;
 
 #define DARKSHADE 8
 #define DARKMASK  7
-
-// [JN] For MAX visplanes handling:
-
-fixed_t CRL_MAX_x;
-fixed_t CRL_MAX_y;
-fixed_t CRL_MAX_z;
-angle_t CRL_MAX_ang;
 
 // [JN] Frame-independend counters:
 
