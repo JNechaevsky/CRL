@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <math.h>
 
+#include "ct_chat.h"
 #include "i_timer.h"
 #include "m_misc.h"
 #include "v_trans.h"
@@ -386,6 +387,7 @@ int CRL_counter_torch;
 
 void CRL_StatDrawer (void)
 {
+    int xx = crl_widget_font ? 20 : 32;
     const int CRL_current_pln_count = (int)(lastvisplane - visplanes);
     const int TotalVisPlanes = CRLData.numcheckplanes + CRLData.numfindplanes;
 
@@ -424,19 +426,19 @@ void CRL_StatDrawer (void)
         int coord_x_width;
 
         M_snprintf(x, 8, "X: ");
-        MN_DrTextA(x, 0, 30, cr[CR_GRAY]);
+        fontfunc(x, 0, 30, cr[CR_GRAY]);
         CRL_FixedToString(CRLWidgets.x, str, sizeof(str));
-        coord_x_width = MN_TextAWidth(str);
-        MN_DrTextA(str, MN_TextAWidth(x), 30, cr[CR_GREEN]);
+        coord_x_width = widthfunc(str);
+        fontfunc(str, widthfunc(x), 30, cr[CR_GREEN]);
 
         M_snprintf(y, 8, " Y: ");
-        MN_DrTextA(y, MN_TextAWidth(x) + coord_x_width, 30, cr[CR_GRAY]);
+        fontfunc(y, widthfunc(x) + coord_x_width, 30, cr[CR_GRAY]);
         CRL_FixedToString(CRLWidgets.y, str, sizeof(str));
-        MN_DrTextA(str, MN_TextAWidth(x) + coord_x_width + MN_TextAWidth(y), 30, cr[CR_GREEN]);
+        fontfunc(str, widthfunc(x) + coord_x_width + widthfunc(y), 30, cr[CR_GREEN]);
 
-        MN_DrTextA("ANG:", 0, 40, cr[CR_GRAY]);
+        fontfunc("ANG:", 0, 40, cr[CR_GRAY]);
         CRL_AngleToString(CRLWidgets.ang, str, sizeof(str));
-        MN_DrTextA(str, 32, 40, cr[CR_GREEN]);
+        fontfunc(str, xx, 40, cr[CR_GREEN]);
     }
 
     if (crl_widget_playstate)
@@ -446,9 +448,9 @@ void CRL_StatDrawer (void)
         {
             char plt[32];
 
-            MN_DrTextA("PLT:", 0, 53, CRL_StatColor_Str(CRL_plats_counter, CRL_MaxPlats));
+            fontfunc("PLT:", 0, 53, CRL_StatColor_Str(CRL_plats_counter, CRL_MaxPlats));
             M_snprintf(plt, 16, "%d/%d", CRL_plats_counter, CRL_MaxPlats);
-            MN_DrTextA(plt, 32, 53, CRL_StatColor_Val(CRL_plats_counter, CRL_MaxPlats));
+            fontfunc(plt, xx, 53, CRL_StatColor_Val(CRL_plats_counter, CRL_MaxPlats));
         }
 
         // Animated lines (64 max)
@@ -457,9 +459,9 @@ void CRL_StatDrawer (void)
         {
             char ani[32];
 
-            MN_DrTextA("ANI:", 0, 63, CRL_StatColor_Str(CRL_lineanims_counter, CRL_MaxAnims));
+            fontfunc("ANI:", 0, 63, CRL_StatColor_Str(CRL_lineanims_counter, CRL_MaxAnims));
             M_snprintf(ani, 16, "%d/%d", CRL_lineanims_counter, CRL_MaxAnims);
-            MN_DrTextA(ani, 32, 63, CRL_StatColor_Val(CRL_lineanims_counter, CRL_MaxAnims));
+            fontfunc(ani, xx, 63, CRL_StatColor_Val(CRL_lineanims_counter, CRL_MaxAnims));
         }
     }
 
@@ -474,9 +476,9 @@ void CRL_StatDrawer (void)
         {
             char spr[32];
             
-            MN_DrTextA("SPR:", 0, 75 + yy, CRL_StatColor_Str(CRLData.numsprites, CRL_MaxVisSprites));
+            fontfunc("SPR:", 0, 75 + yy, CRL_StatColor_Str(CRLData.numsprites, CRL_MaxVisSprites));
             M_snprintf(spr, 16, "%d/%d", CRLData.numsprites, CRL_MaxVisSprites);
-            MN_DrTextA(spr, 32, 75 + yy, CRL_StatColor_Val(CRLData.numsprites, CRL_MaxVisSprites));
+            fontfunc(spr, xx, 75 + yy, CRL_StatColor_Val(CRLData.numsprites, CRL_MaxVisSprites));
         }
 
         // Segments (256 max)
@@ -488,16 +490,16 @@ void CRL_StatDrawer (void)
             char max[32];
             const int current_overflow = CRLData.numsegs >= CRL_MaxDrawSegs;
 
-            MN_DrTextA("SEG:", 0, 85 + yy, current_overflow ?
+            fontfunc("SEG:", 0, 85 + yy, current_overflow ?
                       (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
             M_snprintf(value, sizeof(value), "%d/%d (MAX: ", CRLData.numsegs, CRL_MaxDrawSegs);
             M_snprintf(max, sizeof(max), "%d", CRL_MAX_seg.count);
-            MN_DrTextA(value, 32, 85 + yy, current_overflow ?
+            fontfunc(value, xx, 85 + yy, current_overflow ?
                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
-            MN_DrTextA(max, 32 + MN_TextAWidth(value), 85 + yy, current_overflow ?
+            fontfunc(max, xx + widthfunc(value), 85 + yy, current_overflow ?
                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) :
                       CRL_MAX_seg.count >= CRL_MaxDrawSegs ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
-            MN_DrTextA(")", 32 + MN_TextAWidth(value) + MN_TextAWidth(max), 85 + yy, current_overflow ?
+            fontfunc(")", xx + widthfunc(value) + widthfunc(max), 85 + yy, current_overflow ?
                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
         }
 
@@ -510,16 +512,16 @@ void CRL_StatDrawer (void)
             char max[32];
             const int current_overflow = CRLData.numsolidsegs >= 32;
 
-            MN_DrTextA("SSG:", 0, 95 + yy, current_overflow ?
+            fontfunc("SSG:", 0, 95 + yy, current_overflow ?
                       (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
             M_snprintf(value, sizeof(value), "%d/%d (MAX: ", CRLData.numsolidsegs, 32);
             M_snprintf(max, sizeof(max), "%d", CRL_MAX_ssg.count);
-            MN_DrTextA(value, 32, 95 + yy, current_overflow ?
+            fontfunc(value, xx, 95 + yy, current_overflow ?
                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
-            MN_DrTextA(max, 32 + MN_TextAWidth(value), 95 + yy, current_overflow ?
+            fontfunc(max, xx + widthfunc(value), 95 + yy, current_overflow ?
                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) :
                       CRL_MAX_ssg.count >= 32 ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
-            MN_DrTextA(")", 32 + MN_TextAWidth(value) + MN_TextAWidth(max), 95 + yy, current_overflow ?
+            fontfunc(")", xx + widthfunc(value) + widthfunc(max), 95 + yy, current_overflow ?
                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
         }
 
@@ -532,16 +534,16 @@ void CRL_StatDrawer (void)
             char max[32];
             const int current_overflow = CRLData.numopenings >= CRL_MaxOpenings;
 
-            MN_DrTextA("OPN:", 0, 105 + yy, current_overflow ?
+            fontfunc("OPN:", 0, 105 + yy, current_overflow ?
                       (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
             M_snprintf(value, sizeof(value), "%d/%d (MAX: ", CRLData.numopenings, CRL_MaxOpenings);
             M_snprintf(max, sizeof(max), "%d", CRL_MAX_opn.count);
-            MN_DrTextA(value, 32, 105 + yy, current_overflow ?
+            fontfunc(value, xx, 105 + yy, current_overflow ?
                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
-            MN_DrTextA(max, 32 + MN_TextAWidth(value), 105 + yy, current_overflow ?
+            fontfunc(max, xx + widthfunc(value), 105 + yy, current_overflow ?
                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) :
                       CRL_MAX_opn.count >= CRL_MaxOpenings ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
-            MN_DrTextA(")", 32 + MN_TextAWidth(value) + MN_TextAWidth(max), 105 + yy, current_overflow ?
+            fontfunc(")", xx + widthfunc(value) + widthfunc(max), 105 + yy, current_overflow ?
                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
         }
 
@@ -553,28 +555,28 @@ void CRL_StatDrawer (void)
             char vis[32];
             char max[32];
 
-            MN_DrTextA("PLN:", 0, 115 + yy, TotalVisPlanes >= CRL_MaxVisPlanes ? 
+            fontfunc("PLN:", 0, 115 + yy, TotalVisPlanes >= CRL_MaxVisPlanes ? 
                       (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
 
-            M_snprintf(vis, 32, "%d/%d (MAX: ", TotalVisPlanes, CRL_MaxVisPlanes);
-            M_snprintf(max, 32, "%d", CRL_MAX_pln.count);
+            M_snprintf(vis, xx, "%d/%d (MAX: ", TotalVisPlanes, CRL_MaxVisPlanes);
+            M_snprintf(max, xx, "%d", CRL_MAX_pln.count);
 
             // PLN: x/x (MAX:
-            MN_DrTextA(vis, 32, 115 + yy, TotalVisPlanes >= CRL_MaxVisPlanes ?
+            fontfunc(vis, xx, 115 + yy, TotalVisPlanes >= CRL_MaxVisPlanes ?
                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
 
             // x
-            MN_DrTextA(max, 32 + MN_TextAWidth(vis), 115 + yy, TotalVisPlanes >= CRL_MaxVisPlanes ?
+            fontfunc(max, xx + widthfunc(vis), 115 + yy, TotalVisPlanes >= CRL_MaxVisPlanes ?
                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : 
                       CRL_MAX_pln.count >= CRL_MaxVisPlanes ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
 
             // )
-            MN_DrTextA(")", 32 + MN_TextAWidth(vis) + MN_TextAWidth(max), 115 + yy, TotalVisPlanes >= CRL_MaxVisPlanes ?
+            fontfunc(")", xx + widthfunc(vis) + widthfunc(max), 115 + yy, TotalVisPlanes >= CRL_MaxVisPlanes ?
                        (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
         }
     }
 
-    const int xx  = /*crl_screen_size > 10 && (!automapactive || crl_automap_overlay)*/ automapactive ? 0 : 20;
+    const int xx2  = /*crl_screen_size > 10 && (!automapactive || crl_automap_overlay)*/ automapactive ? 0 : 20;
     const int yy  = automapactive ? 0 : 10;
     const int yy2 = crl_widget_kis ? 0 : 10;
 
@@ -587,9 +589,9 @@ void CRL_StatDrawer (void)
         const int time = leveltime / TICRATE;
         
         M_snprintf(stra, 8, "TIME ");
-        MN_DrTextA(stra, 0, 125 + yy + yy2, cr[CR_GRAY]);
+        fontfunc(stra, 0, 125 + yy + yy2, cr[CR_GRAY]);
         M_snprintf(strb, 16, "%02d:%02d:%02d", time/3600, (time%3600)/60, time%60);
-        MN_DrTextA(strb, MN_TextAWidth(stra), 125 + yy + yy2, cr[CR_LIGHTGRAY]);
+        fontfunc(strb, widthfunc(stra), 125 + yy + yy2, cr[CR_LIGHTGRAY]);
     }
 
     // K/I/S stats
@@ -602,9 +604,9 @@ void CRL_StatDrawer (void)
 
         // Kills:
         M_snprintf(str1, 8, "K ");
-        MN_DrTextA(str1, xx, 135 + yy, CRL_WidgetColor(widget_kis_str));
+        fontfunc(str1, xx2, 135 + yy, CRL_WidgetColor(widget_kis_str));
         CRL_WidgetKISCount(str2, sizeof(str2), widget_kis_kills);
-        MN_DrTextA(str2, MN_TextAWidth(str1) + xx, 135 + yy,
+        fontfunc(str2, widthfunc(str1) + xx2, 135 + yy,
                          CRLWidgets.totalkills == 0 ? cr[CR_GREEN] :
                          CRLWidgets.kills == 0 ? cr[CR_RED] :
                          CRLWidgets.kills < CRLWidgets.totalkills ? cr[CR_YELLOW] : cr[CR_GREEN]);
@@ -613,12 +615,12 @@ void CRL_StatDrawer (void)
         if (crl_widget_kis_items == 1 || (crl_widget_kis_items == 2 && automapactive))
         {
         M_snprintf(str3, 8, " I ");
-        MN_DrTextA(str3, MN_TextAWidth(str1) +
-                         MN_TextAWidth(str2) + xx, 135 + yy, CRL_WidgetColor(widget_kis_str));
+        fontfunc(str3, widthfunc(str1) +
+                         widthfunc(str2) + xx2, 135 + yy, CRL_WidgetColor(widget_kis_str));
         CRL_WidgetKISCount(str4, sizeof(str4), widget_kis_items);
-        MN_DrTextA(str4, MN_TextAWidth(str1) +
-                         MN_TextAWidth(str2) +
-                         MN_TextAWidth(str3) + xx, 135 + yy,
+        fontfunc(str4, widthfunc(str1) +
+                         widthfunc(str2) +
+                         widthfunc(str3) + xx2, 135 + yy,
                          CRL_WidgetColor(widget_items));
         }
         else
@@ -629,17 +631,17 @@ void CRL_StatDrawer (void)
 
         // Secrets:
         M_snprintf(str5, 8, " S ");
-        MN_DrTextA(str5, MN_TextAWidth(str1) +
-                         MN_TextAWidth(str2) +
-                         MN_TextAWidth(str3) +
-                         MN_TextAWidth(str4) + xx, 135 + yy, CRL_WidgetColor(widget_kis_str));
+        fontfunc(str5, widthfunc(str1) +
+                         widthfunc(str2) +
+                         widthfunc(str3) +
+                         widthfunc(str4) + xx2, 135 + yy, CRL_WidgetColor(widget_kis_str));
 
         CRL_WidgetKISCount(str6, sizeof(str6), widget_kis_secrets);
-        MN_DrTextA(str6, MN_TextAWidth(str1) +
-                         MN_TextAWidth(str2) +
-                         MN_TextAWidth(str3) +
-                         MN_TextAWidth(str4) +
-                         MN_TextAWidth(str5) + xx, 135 + yy,
+        fontfunc(str6, widthfunc(str1) +
+                         widthfunc(str2) +
+                         widthfunc(str3) +
+                         widthfunc(str4) +
+                         widthfunc(str5) + xx2, 135 + yy,
                          CRL_WidgetColor(widget_secret));
     }
 
@@ -662,11 +664,11 @@ void CRL_StatDrawer (void)
                 const int current_y = y_positions[i];
 
                 // [PN] Draw label (TOM:, RNG:, etc.)
-                MN_DrTextA(labels[i], SCREENWIDTH - 32 - MN_TextAWidth(labels[i]), current_y, cr[CR_GRAY]);
+                fontfunc(labels[i], SCREENWIDTH - 32 - widthfunc(labels[i]), current_y, cr[CR_GRAY]);
 
                 // [PN] Draw timer value
                 M_snprintf(str, 4, "%d", *counters[i]);
-                MN_DrTextA(str, 293, current_y, CRL_PowerupColor(*counters[i], thresholds[i]));
+                fontfunc(str, 293, current_y, CRL_PowerupColor(*counters[i], thresholds[i]));
             }
         }
     }
@@ -697,10 +699,10 @@ void CRL_DrawFPS (void)
     sprintf(fps, "%d", CRL_fps);
     sprintf(fps_str, "FPS");
 
-    MN_DrTextA(fps, SCREENWIDTH - 11 - MN_TextAWidth(fps) 
-                                     - MN_TextAWidth(fps_str), yy, cr[CR_GRAY]);
+    fontfunc(fps, SCREENWIDTH - 11 - widthfunc(fps) 
+                                     - widthfunc(fps_str), yy, cr[CR_GRAY]);
 
-    MN_DrTextA(fps_str, SCREENWIDTH - 7 - MN_TextAWidth(fps_str), yy, cr[CR_GRAY]);
+    fontfunc(fps_str, SCREENWIDTH - 7 - widthfunc(fps_str), yy, cr[CR_GRAY]);
 }
 
 
@@ -743,8 +745,9 @@ void CRL_DemoTimer (const int time)
         last_update_gametic = gametic;
     }
 
-    const int x = 237 + (hours > 0 ? 0 : 20);
-    MN_DrTextA(n, x, 10, cr[CR_LIGHTGRAY]);
+    const int x = crl_widget_font ? 15 : 0;
+    const int xx = 237 + x + (hours > 0 ? 0 : 20);
+    fontfunc(n, xx, 10, cr[CR_LIGHTGRAY]);
 }
 
 // -----------------------------------------------------------------------------
@@ -806,18 +809,18 @@ void CRL_DrawTargetsHealth (void)
     switch (crl_widget_health)
     {
         case 1:  // Top
-            MN_DrTextACentered(str, 20, color);
+            fontcenteredfunc(str, 20, color);
             break;
         case 2:  // Top + name
-            MN_DrTextACentered(player->targetsname, 10, color);
-            MN_DrTextACentered(str, 20, color);
+            fontcenteredfunc(player->targetsname, 10, color);
+            fontcenteredfunc(str, 20, color);
             break;
         case 3:  // Bottom
-            MN_DrTextACentered(str, 145 - yy, color);
+            fontcenteredfunc(str, 145 - yy, color);
             break;
         case 4:  // Bottom + name
-            MN_DrTextACentered(player->targetsname, 135 - yy, color);
-            MN_DrTextACentered(str, 145 - yy, color);
+            fontcenteredfunc(player->targetsname, 135 - yy, color);
+            fontcenteredfunc(str, 145 - yy, color);
             break;
     }
 
@@ -854,10 +857,10 @@ void CRL_DrawPlayerSpeed (void)
     M_snprintf(val, sizeof(val), " %.0f", speed);
 
     const int x_val = (SCREENWIDTH / 2);
-    const int x_str = x_val - MN_TextAWidth(str);
+    const int x_str = x_val - widthfunc(str);
 
-    MN_DrTextA(str, x_str, 145, CRL_WidgetColor(widget_speed_str));
-    MN_DrTextA(val, x_val, 145, CRL_WidgetColor(widget_speed_val));
+    fontfunc(str, x_str, 145, CRL_WidgetColor(widget_speed_str));
+    fontfunc(val, x_val, 145, CRL_WidgetColor(widget_speed_val));
 
     dp_translucent = false;
 }

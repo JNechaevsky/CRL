@@ -63,6 +63,7 @@ extern int crl_rewind_timeout;
 
 // Widgets
 extern int crl_extended_hud;
+extern int crl_widget_font;
 extern int crl_widget_playstate;
 extern int crl_widget_render;
 extern int crl_widget_maxvp;

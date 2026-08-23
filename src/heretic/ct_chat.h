@@ -22,6 +22,7 @@
 #pragma once
 
 #include "doomdef.h"
+#include "dsda_font.h"
 
 
 #define CT_PLR_GREEN	1
@@ -37,6 +38,7 @@
 #define CT_KEY_ALL		't'
 
 
+extern void CT_InitWidgetDrawingFuncs (void);
 extern void CT_SetMessage (player_t *player, const char *message, boolean ultmsg, byte *table);
 extern void CT_SetMessageCentered (player_t *player, const char *message);
 extern void MSG_Ticker (void);
@@ -45,3 +47,7 @@ extern boolean ultimatemsg;
 
 extern char *chat_macros[10];
 extern const char *lastmessage;
+
+extern void (*fontfunc) (const char *text, int x, int y, byte *table);
+extern void (*fontcenteredfunc) (const char *text, int y, byte *table);
+extern int (*widthfunc) (const char *string);

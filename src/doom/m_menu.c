@@ -740,6 +740,7 @@ static void M_Bind_M_Reset (int choice);
 
 static void M_ChooseCRL_Widgets (int choice);
 static void M_DrawCRL_Widgets (void);
+static void M_CRL_Widget_Font (int choice);
 static void M_CRL_Widget_Render (int choice);
 static void M_CRL_Widget_MAX (int choice);
 static void M_CRL_Widget_Playstate (int choice);
@@ -3074,6 +3075,7 @@ static void M_Bind_M_Reset (int choice)
 
 static menuitem_t CRLMenu_Widgets[]=
 {
+    { M_MUL2, "WIDGETS FONT",       M_CRL_Widget_Font,       'w' },
     { M_MUL2, "RENDER COUNTERS",    M_CRL_Widget_Render,     'r' },
     { M_MUL2, "MAX OVERFLOW STYLE", M_CRL_Widget_MAX,        'm' },
     { M_MUL2, "PLAYSTATE COUNTERS", M_CRL_Widget_Playstate,  'p' },
@@ -3110,87 +3112,98 @@ static void M_DrawCRL_Widgets (void)
 
     M_WriteTextCentered(7, "WIDGETS", cr[CR_YELLOW]);
 
+    // Widgets font
+    sprintf(str, crl_widget_font ? "DSDA" : "DEFAULT");
+    M_WriteText (M_ItemRightAlign(str), 16, str,
+                 M_Item_Glow(0, crl_widget_font ? GLOW_GREEN : GLOW_DARKRED));
+
     // Rendering counters
     sprintf(str, crl_widget_render == 1 ? "ON" :
                  crl_widget_render == 2 ? "OVERFLOWS" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 16, str,
-                 M_Item_Glow(0, crl_widget_render == 1 ? GLOW_GREEN :
+    M_WriteText (M_ItemRightAlign(str), 25, str,
+                 M_Item_Glow(1, crl_widget_render == 1 ? GLOW_GREEN :
                                 crl_widget_render == 2 ? GLOW_DARKGREEN : GLOW_DARKRED));
 
     // MAX overflow style
     sprintf(str, crl_widget_maxvp == 1 ? "BLINKING 1" :
                  crl_widget_maxvp == 2 ? "BLINKING 2" : "STATIC");
-    M_WriteText (M_ItemRightAlign(str), 25, str,
-                 M_Item_Glow(1, crl_widget_maxvp == 1 ? (gametic &  8 ? GLOW_YELLOW : GLOW_GREEN) :
+    M_WriteText (M_ItemRightAlign(str), 34, str,
+                 M_Item_Glow(2, crl_widget_maxvp == 1 ? (gametic &  8 ? GLOW_YELLOW : GLOW_GREEN) :
                                 crl_widget_maxvp == 2 ? (gametic & 16 ? GLOW_YELLOW : GLOW_GREEN) : GLOW_YELLOW));
 
     // Playstate counters
     sprintf(str, crl_widget_playstate == 1 ? "ON" :
                  crl_widget_playstate == 2 ? "OVERFLOWS" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 34, str,
-                 M_Item_Glow(2, crl_widget_playstate == 1 ? GLOW_GREEN :
+    M_WriteText (M_ItemRightAlign(str), 43, str,
+                 M_Item_Glow(3, crl_widget_playstate == 1 ? GLOW_GREEN :
                                 crl_widget_playstate == 2 ? GLOW_DARKGREEN : GLOW_DARKRED));
 
     // K/I/S stats
     sprintf(str, crl_widget_kis == 1 ? "ON" :
                  crl_widget_kis == 2 ? "AUTOMAP" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 43, str,
-                 M_Item_Glow(3, crl_widget_kis ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (M_ItemRightAlign(str), 52, str,
+                 M_Item_Glow(4, crl_widget_kis ? GLOW_GREEN : GLOW_DARKRED));
 
     // Stats format
     sprintf(str, crl_widget_kis_format == 1 ? "REMAINING" :
                  crl_widget_kis_format == 2 ? "PERCENT" : "RATIO");
-    M_WriteText (M_ItemRightAlign(str), 52, str,
-                 M_Item_Glow(4, crl_widget_kis_format ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (M_ItemRightAlign(str), 61, str,
+                 M_Item_Glow(5, crl_widget_kis_format ? GLOW_GREEN : GLOW_DARKRED));
 
     // Show items
     sprintf(str, crl_widget_kis_items == 1 ? "ON" :
                  crl_widget_kis_items == 2 ? "AUTOMAP" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 61, str,
-                 M_Item_Glow(5, crl_widget_kis_items ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (M_ItemRightAlign(str), 70, str,
+                 M_Item_Glow(6, crl_widget_kis_items ? GLOW_GREEN : GLOW_DARKRED));
 
     // Level/DM timer
     sprintf(str, crl_widget_time == 1 ? "ALWAYS / NO CS"  :
                  crl_widget_time == 2 ? "AUTOMAP / NO CS" :
                  crl_widget_time == 3 ? "ALWAYS / CS"     :
                  crl_widget_time == 4 ? "AUTOMAP / CS"    : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 70, str,
-                 M_Item_Glow(6, crl_widget_time ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (M_ItemRightAlign(str), 79, str,
+                 M_Item_Glow(7, crl_widget_time ? GLOW_GREEN : GLOW_DARKRED));
 
     // Player coords
     sprintf(str, crl_widget_coords == 1 ? "ON" :
                  crl_widget_coords == 2 ? "AUTOMAP" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 79, str,
-                 M_Item_Glow(7, crl_widget_coords ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (M_ItemRightAlign(str), 88, str,
+                 M_Item_Glow(8, crl_widget_coords ? GLOW_GREEN : GLOW_DARKRED));
 
     // Show fractions
     sprintf(str, crl_widget_coordsfrac ? "ON" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 88, str,
-                 M_Item_Glow(8, crl_widget_coordsfrac ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (M_ItemRightAlign(str), 97, str,
+                 M_Item_Glow(9, crl_widget_coordsfrac ? GLOW_GREEN : GLOW_DARKRED));
 
     // Player speed
     sprintf(str, crl_widget_speed ? "ON" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 97, str,
-                 M_Item_Glow(9, crl_widget_speed ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (M_ItemRightAlign(str), 106, str,
+                 M_Item_Glow(10, crl_widget_speed ? GLOW_GREEN : GLOW_DARKRED));
 
     // Powerup timers
     sprintf(str, crl_widget_powerups ? "ON" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 106, str,
-                 M_Item_Glow(10, crl_widget_powerups ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (M_ItemRightAlign(str), 115, str,
+                 M_Item_Glow(11, crl_widget_powerups ? GLOW_GREEN : GLOW_DARKRED));
 
     // Target's health
     sprintf(str, crl_widget_health == 1 ? "TOP" :
                  crl_widget_health == 2 ? "TOP+NAME" :
                  crl_widget_health == 3 ? "BOTTOM" :
                  crl_widget_health == 4 ? "BOTTOM+NAME" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 115, str,
-                 M_Item_Glow(11, crl_widget_health ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (M_ItemRightAlign(str), 124, str,
+                 M_Item_Glow(12, crl_widget_health ? GLOW_GREEN : GLOW_DARKRED));
 
     // Print informatime message if extended HUD is off.
     if (!crl_extended_hud)
     {
         M_WriteTextCentered(160, "HIDDEN WHILE EXTENDED HUD IS OFF", cr[CR_GRAY]);
     }
+}
+
+static void M_CRL_Widget_Font (int choice)
+{
+    crl_widget_font ^= 1;
+    CT_InitWidgetDrawingFuncs();
 }
 
 static void M_CRL_Widget_Render (int choice)

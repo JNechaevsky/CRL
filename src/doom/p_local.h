@@ -67,6 +67,7 @@
 #define MESSAGETICS (TICRATE * 4)
 
 extern void CT_Init (void);
+extern void CT_InitWidgetDrawingFuncs (void);
 extern void CT_Drawer (void);
 extern void CT_Ticker (void);
 extern void MSG_Ticker (void);
@@ -84,6 +85,10 @@ extern char *player_names[];
 extern boolean     ultimatemsg;
 extern const char *lastmessage;
 extern int         showMessages;
+
+extern void (*fontfunc) (int x, int y, const char *text, byte *table);
+extern void (*fontcenteredfunc) (int y, const char *text, byte *table);
+extern int (*widthfunc) (const char *string);
 
 // -----------------------------------------------------------------------------
 // P_CEILNG
