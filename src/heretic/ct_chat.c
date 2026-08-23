@@ -115,6 +115,9 @@ void CT_Init (void)
         memset(chat_msg[i], 0, MESSAGESIZE);
     }
 
+    // Initialize small DSDA font.
+    DSDA_FontInit();
+
     FontABaseLump = W_GetNumForName(DEH_String("FONTA_S")) + 1;
 }
 

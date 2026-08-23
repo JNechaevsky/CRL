@@ -22,6 +22,7 @@
 #include "doomkeys.h"
 #include "d_englsh.h"
 #include "deh_str.h"
+#include "dsda_font.h"
 #include "i_input.h"
 #include "m_controls.h"
 #include "m_misc.h"
@@ -118,6 +119,9 @@ void CT_Init (void)
         DEH_snprintf(buffer, sizeof(buffer), "STCFN%.3d", j++);
         hu_font[i] = (patch_t *) W_CacheLumpName(buffer, PU_STATIC);
     }
+
+    // Initialize small DSDA font.
+    DSDA_FontInit();
 
     ChatFontBaseLump = W_GetNumForName(DEH_String("STCFN033"));
 }

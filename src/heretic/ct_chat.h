@@ -22,6 +22,7 @@
 #pragma once
 
 #include "doomdef.h"
+#include "dsda_font.h"
 
 
 #define CT_PLR_GREEN	1
