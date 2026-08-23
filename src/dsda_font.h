@@ -1,5 +1,7 @@
 //
 // Copyright(C) 2023 by Ryan Krafnick
+// Copyright(C) 2018-2026 Julia Nechaevskaya
+// Copyright(C) 2024-2026 Polina "Aura" N.
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,4 +21,6 @@
 extern const byte *const dsda_font_lut[];
 
 extern void DSDA_FontInit(void);
-extern void DSDA_DrawText(int x, int y, const char *text, byte *table);
+extern void DSDA_DrawText(int x, int y, const char *const text, byte *const table);
+extern void DSDA_DrawTextCentered(int y, const char *const text, byte *const table);
+extern int  DSDA_StringWidth(const char *const string);

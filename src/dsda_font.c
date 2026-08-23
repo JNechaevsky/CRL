@@ -1,5 +1,7 @@
 //
 // Copyright(C) 2023 by Ryan Krafnick
+// Copyright(C) 2018-2026 Julia Nechaevskaya
+// Copyright(C) 2024-2026 Polina "Aura" N.
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,6 +20,7 @@
 #include <ctype.h>      // toupper
 #include "doomtype.h"
 #include "dsda_font.h"
+#include "i_swap.h"     // SHORT
 #include "v_patch.h"
 #include "v_video.h"
 
@@ -45,7 +48,7 @@ void DSDA_FontInit(void)
 // DSDA_DrawText
 // -----------------------------------------------------------------------------
 
-void DSDA_DrawText(int x, int y, const char *text, byte *table)
+void DSDA_DrawText(int x, int y, const char *const text, byte *const table)
 {
     dp_translation = table;
 
@@ -65,6 +68,70 @@ void DSDA_DrawText(int x, int y, const char *text, byte *table)
     }
     
     dp_translation = NULL;
+}
+
+// -----------------------------------------------------------------------------
+// DSDA_DrawTextCentered
+// -----------------------------------------------------------------------------
+
+void DSDA_DrawTextCentered(int y, const char *const text, byte *const table)
+{
+    // Find width
+    int total_width = 0;
+    for (const char *ch = text; *ch; ch++)
+    {
+        const int c = toupper((unsigned char)*ch);
+        const int idx = c - HU_FONTSTART;
+        
+        if (idx >= 0 && idx < HU_FONTSIZE && dsda_font[idx])
+            total_width += dsda_font[idx]->width;
+        else if (c < 33 || c > 126)
+            total_width += 4;  // Space or non-printable character
+    }
+
+    // Draw text on the screen
+    int x = (320 - total_width) / 2; // 320 = SCREENWIDTH
+    dp_translation = table;
+
+    for (const char *ch = text; *ch; ch++)
+    {
+        const int c = toupper((unsigned char)*ch);
+        const int idx = c - HU_FONTSTART;
+
+        if (idx >= 0 && idx < HU_FONTSIZE && dsda_font[idx])
+        {
+            patch_t *const patch = dsda_font[idx];
+            V_DrawPatch(x, y, patch, "DSDA_FONT");
+            x += patch->width;
+        }
+        else if (c < 33 || c > 126)
+        {
+            x += 4;
+        }
+    }
+
+    dp_translation = NULL;
+}
+
+// -----------------------------------------------------------------------------
+// DSDA_StringWidth
+// -----------------------------------------------------------------------------
+
+int DSDA_StringWidth(const char *const string)
+{
+    int w = 0;
+
+    for (int i = 0; i < strlen(string); i++)
+    {
+        const int c = toupper(string[i]) - HU_FONTSTART;
+
+        if (c < 0 || c >= HU_FONTSIZE)
+        w += 4;
+        else
+        w += SHORT(dsda_font[c]->width);
+    }
+
+    return w;
 }
 
 // -----------------------------------------------------------------------------

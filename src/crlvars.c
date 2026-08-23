@@ -63,6 +63,7 @@ int crl_rewind_timeout = 10;
 
 // Widgets
 int crl_extended_hud = 1;
+int crl_widget_font = 0;
 int crl_widget_playstate = 2;
 int crl_widget_render = 1;
 int crl_widget_maxvp = 0;
@@ -175,6 +176,7 @@ void CRL_BindVariables (void)
 
     // Widgets
     M_BindIntVariable("crl_extended_hud",               &crl_extended_hud);
+    M_BindIntVariable("crl_widget_font",                &crl_widget_font);
     M_BindIntVariable("crl_widget_playstate",           &crl_widget_playstate);
     M_BindIntVariable("crl_widget_render",              &crl_widget_render);
     M_BindIntVariable("crl_widget_maxvp",               &crl_widget_maxvp);
