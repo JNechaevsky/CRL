@@ -17,6 +17,8 @@
 //  DSDA Font, embedded into CRL executable.
 //
 
+#include "doomtype.h"
+
 
 extern const byte *const dsda_font_lut[];
 

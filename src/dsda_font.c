@@ -18,7 +18,6 @@
 //
 
 #include <ctype.h>      // toupper
-#include "doomtype.h"
 #include "dsda_font.h"
 #include "i_swap.h"     // SHORT
 #include "v_patch.h"
