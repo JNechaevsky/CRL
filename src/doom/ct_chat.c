@@ -129,7 +129,7 @@ void CT_Init (void)
     // Initialize small DSDA font.
     DSDA_FontInit();
 
-    // Initialize widget drawing functions.
+    // Initialize pointers to widget drawing functions.
     CT_InitWidgetDrawingFuncs();
 
     ChatFontBaseLump = W_GetNumForName(DEH_String("STCFN033"));

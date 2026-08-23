@@ -608,6 +608,7 @@ static void M_Bind_M_Morph (int option);
 static void M_Bind_M_Reset (int option);
 
 static void DrawCRLWidgets (void);
+static void CRL_Widget_Font (int option);
 static void CRL_Widget_Render (int option);
 static void CRL_Widget_MAX (int option);
 static void CRL_Widget_Playstate (int option);
@@ -2619,6 +2620,7 @@ static void M_Bind_M_Reset (int option)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLWidgetsItems[] = {
+    { ITT_LRFUNC2, "WIDGETS FONT",           CRL_Widget_Font,      0, MENU_NONE },
     { ITT_LRFUNC2, "RENDER COUNTERS",        CRL_Widget_Render,    0, MENU_NONE },
     { ITT_LRFUNC2, "MAX OVERFLOW STYLE",     CRL_Widget_MAX,       0, MENU_NONE },
     { ITT_LRFUNC2, "PLAYSTATE COUNTERS",     CRL_Widget_Playstate, 0, MENU_NONE },
@@ -2648,79 +2650,91 @@ static void DrawCRLWidgets (void)
 
     MN_DrTextACentered("WIDGETS", 10, cr[CR_YELLOW]);
 
+    // Widgets font
+    sprintf(str, crl_widget_font ? "DSDA" : "DEFAULT");
+    MN_DrTextA(str, M_ItemRightAlign(str), 20,
+               M_Item_Glow(0, crl_widget_render == 1 ? GLOW_GREEN :
+                              crl_widget_render == 2 ? GLOW_DARKGREEN : GLOW_DARKRED));
+
     // Render counters
     sprintf(str, crl_widget_render == 1 ? "ON" :
                  crl_widget_render == 2 ? "OVERFLOWS" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 20,
-               M_Item_Glow(0, crl_widget_render == 1 ? GLOW_GREEN :
+    MN_DrTextA(str, M_ItemRightAlign(str), 30,
+               M_Item_Glow(1, crl_widget_render == 1 ? GLOW_GREEN :
                               crl_widget_render == 2 ? GLOW_DARKGREEN : GLOW_DARKRED));
 
     // MAX overflow style
     sprintf(str, crl_widget_maxvp == 1 ? "BLINKING 1" :
                  crl_widget_maxvp == 2 ? "BLINKING 2" : "STATIC");
-    MN_DrTextA(str, M_ItemRightAlign(str), 30,
-               M_Item_Glow(1, crl_widget_maxvp == 1 ? (gametic &  8 ? GLOW_YELLOW : GLOW_GREEN) :
+    MN_DrTextA(str, M_ItemRightAlign(str), 40,
+               M_Item_Glow(2, crl_widget_maxvp == 1 ? (gametic &  8 ? GLOW_YELLOW : GLOW_GREEN) :
                               crl_widget_maxvp == 2 ? (gametic & 16 ? GLOW_YELLOW : GLOW_GREEN) : GLOW_YELLOW));
 
     // Playstate counters
     sprintf(str, crl_widget_playstate == 1 ? "ON" :
                  crl_widget_playstate == 2 ? "OVERFLOWS" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 40,
-               M_Item_Glow(2, crl_widget_playstate == 1 ? GLOW_GREEN :
+    MN_DrTextA(str, M_ItemRightAlign(str), 50,
+               M_Item_Glow(3, crl_widget_playstate == 1 ? GLOW_GREEN :
                               crl_widget_playstate == 2 ? GLOW_DARKGREEN : GLOW_DARKRED));
 
     // K/I/S stats
     sprintf(str, crl_widget_kis == 1 ? "ON" :
                  crl_widget_kis == 2 ? "AUTOMAP" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 50,
-               M_Item_Glow(3, crl_widget_kis ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 60,
+               M_Item_Glow(4, crl_widget_kis ? GLOW_GREEN : GLOW_DARKRED));
 
     // Stats format
     sprintf(str, crl_widget_kis_format == 1 ? "REMAINING" :
                  crl_widget_kis_format == 2 ? "PERCENT" : "RATIO");
-    MN_DrTextA(str, M_ItemRightAlign(str), 60,
-                M_Item_Glow(4, crl_widget_kis_format ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 70,
+                M_Item_Glow(5, crl_widget_kis_format ? GLOW_GREEN : GLOW_DARKRED));
 
     // Show items
     sprintf(str, crl_widget_kis_items == 1 ? "ON" :
                  crl_widget_kis_items == 2 ? "AUTOMAP" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 70,
-               M_Item_Glow(5, crl_widget_kis_items ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 80,
+               M_Item_Glow(6, crl_widget_kis_items ? GLOW_GREEN : GLOW_DARKRED));
 
     // Level time
     sprintf(str, crl_widget_time == 1 ? "ON" : 
                  crl_widget_time == 2 ? "AUTOMAP" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 80,
-               M_Item_Glow(6, crl_widget_time ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 90,
+               M_Item_Glow(7, crl_widget_time ? GLOW_GREEN : GLOW_DARKRED));
 
     // Player coords
     sprintf(str, crl_widget_coords == 1 ? "ON" :
                  crl_widget_coords == 2 ? "AUTOMAP" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 90,
-               M_Item_Glow(7, crl_widget_coords ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 100,
+               M_Item_Glow(8, crl_widget_coords ? GLOW_GREEN : GLOW_DARKRED));
 
     // Show fractions
     sprintf(str, crl_widget_coordsfrac ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 100,
-               M_Item_Glow(8, crl_widget_coordsfrac ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 110,
+               M_Item_Glow(9, crl_widget_coordsfrac ? GLOW_GREEN : GLOW_DARKRED));
 
     // Player speed
     sprintf(str, crl_widget_speed ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 110,
-               M_Item_Glow(9, crl_widget_speed ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 120,
+               M_Item_Glow(10, crl_widget_speed ? GLOW_GREEN : GLOW_DARKRED));
 
     // Powerup timers
     sprintf(str, crl_widget_powerups ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 120,
-               M_Item_Glow(10, crl_widget_powerups ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 130,
+               M_Item_Glow(11, crl_widget_powerups ? GLOW_GREEN : GLOW_DARKRED));
 
     // Target's health
     sprintf(str, crl_widget_health == 1 ? "TOP" :
                  crl_widget_health == 2 ? "TOP+NAME" :
                  crl_widget_health == 3 ? "BOTTOM" :
                  crl_widget_health == 4 ? "BOTTOM+NAME" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 130,
-               M_Item_Glow(11, crl_widget_health ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 140,
+               M_Item_Glow(12, crl_widget_health ? GLOW_GREEN : GLOW_DARKRED));
+}
+
+static void CRL_Widget_Font (int choice)
+{
+    crl_widget_font ^= 1;
+    CT_InitWidgetDrawingFuncs();
 }
 
 static void CRL_Widget_Render (int option)
