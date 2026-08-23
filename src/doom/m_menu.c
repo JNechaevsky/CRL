@@ -4968,7 +4968,6 @@ static void M_ChangeDetail(int choice)
 	CRL_SetMessage(&players[consoleplayer], DEH_String(DETAILHI), false, NULL);
     else
 	CRL_SetMessage(&players[consoleplayer], DEH_String(DETAILLO), false, NULL);
-CT_InitWidgetDrawingFuncs();
 }
 
 
