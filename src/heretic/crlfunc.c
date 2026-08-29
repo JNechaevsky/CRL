@@ -306,6 +306,7 @@ void CRL_MoveTo_Render_MAX (const CRL_Render_max_t *max)
     player->mo->x = max->x;
     player->mo->y = max->y;
     player->mo->z = max->z;
+    player->viewz = player->mo->z + player->viewheight;
     // Supress any horizontal and vertical momentums.
     player->mo->momx = player->mo->momy = player->mo->momz = 0;
     // Set angle and heights.
