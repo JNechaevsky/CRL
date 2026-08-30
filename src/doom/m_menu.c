@@ -3714,6 +3714,9 @@ static void M_DrawCRL_Panel_1 (void)
 
     M_WriteTextCentered(7, "RENDER LIMITS", cr[CR_YELLOW]);
 
+    byte *const flash_gray = (gametic & 8) ? cr[CR_GRAY] : cr[CR_LIGHTGRAY];
+    byte *const flash_red  = (gametic & 8) ? cr[CR_RED]  : cr[CR_YELLOW];
+
     // Sprites
     {
         char spr[32];
@@ -3725,90 +3728,44 @@ static void M_DrawCRL_Panel_1 (void)
         M_WriteText(x + x2, 16, spr, CRL_StatColor_Val(CRLData.numsprites, CRL_MaxVisSprites));
     }
 
-    // Solidsegs
+    // [PN] Solidsegs, Segments, Openings, Planes
+    const struct
     {
-        char value[32];
-        char max[32];
-        const int x2 = M_StringWidth("SOLIDSEGS: ");
-        const int current_overflow = CRLData.numsolidsegs >= CRL_MAX_SOLIDSEGS;
+        const char *const label;
+        int y;
+        int current;
+        int limit;
+        int max_count;
+        void (*get_counter)(char*, size_t, char*, size_t);
+    } items[] = {
+        { "SOLIDSEGS: ", 25,  CRLData.numsolidsegs,    CRL_MAX_SOLIDSEGS, CRL_MAX_ssg.count, CRL_CounterValue_SSG },
+        { "SEGMENTS: ",  52,  CRLData.numsegs,         CRL_MaxDrawSegs,   CRL_MAX_seg.count, CRL_CounterValue_SEG },
+        { "OPENINGS: ",  79,  CRLData.numopenings,     CRL_MaxOpenings,   CRL_MAX_opn.count, CRL_CounterValue_OPN },
+        { "PLANES: ",    106, CRL_GetTotalVisPlanes(), CRL_MaxVisPlanes,  CRL_MAX_pln.count, CRL_CounterValue_PLN }
+    };
 
-        CRL_CounterValue_SSG(value, sizeof(value), max, sizeof(max));
-
-        M_WriteText(x, 25, "SOLIDSEGS: ", current_overflow ?
-                   (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
-        M_WriteText(x + x2, 25, value, current_overflow ?
-                   (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
-        M_WriteText(x + x2 + M_StringWidth(value), 25, max, current_overflow ?
-                   (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) :
-                   CRL_MAX_ssg.count >= CRL_MAX_SOLIDSEGS ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
-        M_WriteText(x + x2 + M_StringWidth(value) + M_StringWidth(max), 25, ")", current_overflow ?
-                   (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
-    }
-
-    // Segments
+    for (size_t i = 0; i < sizeof(items) / sizeof(items[0]); i++)
     {
-        char value[32];
-        char max[32];
-        const int x2 = M_StringWidth("SEGMENTS: ");
-        const int current_overflow = CRLData.numsegs >= CRL_MaxDrawSegs;
+        char val_str[32];
+        char max_str[32];
+        const int x2 = M_StringWidth(items[i].label);
+        const int is_overflow = items[i].current >= items[i].limit;
 
-        CRL_CounterValue_SEG(value, sizeof(value), max, sizeof(max));
+        items[i].get_counter(val_str, sizeof(val_str), max_str, sizeof(max_str));
 
-        M_WriteText(x, 52, "SEGMENTS: ", current_overflow ?
-                   (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
-        M_WriteText(x + x2, 52, value, current_overflow ?
-                   (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
-        M_WriteText(x + x2 + M_StringWidth(value), 52, max, current_overflow ?
-                   (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) :
-                   CRL_MAX_seg.count >= CRL_MaxDrawSegs ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
-        M_WriteText(x + x2 + M_StringWidth(value) + M_StringWidth(max), 52, ")", current_overflow ?
-                   (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
-    }
+        byte *const label_color = is_overflow ? flash_gray : cr[CR_GRAY];
+        byte *const val_color   = is_overflow ? flash_red : cr[CR_GREEN];
+        byte *const max_color   = is_overflow ? flash_red :
+                                 (items[i].max_count >= items[i].limit ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
 
-    // Openings
-    {
-        char value[32];
-        char max[32];
-        const int x2 = M_StringWidth("OPENINGS: ");
-        const int current_overflow = CRLData.numopenings >= CRL_MaxOpenings;
+        M_WriteText(x, items[i].y, items[i].label, label_color);
+        M_WriteText(x + x2, items[i].y, val_str, val_color);
 
-        CRL_CounterValue_OPN(value, sizeof(value), max, sizeof(max));
+        const int val_width = M_StringWidth(val_str);
+        M_WriteText(x + x2 + val_width, items[i].y, max_str, max_color);
 
-        M_WriteText(x, 79, "OPENINGS: ", current_overflow ?
-                   (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
-        M_WriteText(x + x2, 79, value, current_overflow ?
-                   (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
-        M_WriteText(x + x2 + M_StringWidth(value), 79, max, current_overflow ?
-                   (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) :
-                   CRL_MAX_opn.count >= CRL_MaxOpenings ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
-        M_WriteText(x + x2 + M_StringWidth(value) + M_StringWidth(max), 79, ")", current_overflow ?
-                   (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
-    }
-
-    // Planes
-    {
-        char vis[32];
-        char max[32];
-        const int x2 = M_StringWidth("PLANES: ");
-        const int TotalVisPlanes = CRL_GetTotalVisPlanes();
-
-        CRL_CounterValue_PLN(vis, sizeof(vis), max, sizeof(max));
-
-        M_WriteText(x, 106, "PLANES: ", TotalVisPlanes >= CRL_MaxVisPlanes ? 
-                   (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
-
-        // PLN: x/x (MAX:
-        M_WriteText(x + x2, 106, vis, TotalVisPlanes >= CRL_MaxVisPlanes ?
-                   (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
-
-        // x
-        M_WriteText(x + x2 + M_StringWidth(vis), 106, max, TotalVisPlanes >= CRL_MaxVisPlanes ?
-                   (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : 
-                   CRL_MAX_pln.count >= CRL_MaxVisPlanes ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
-
-        // )
-        M_WriteText(x + x2 + M_StringWidth(vis) + M_StringWidth(max), 106, ")", TotalVisPlanes >= CRL_MaxVisPlanes ?
-                   (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
+        const int max_width = M_StringWidth(max_str);
+        M_WriteText(x + x2 + val_width + max_width, items[i].y, ")", val_color);
     }
 
     // < Scroll pages >

@@ -3654,6 +3654,9 @@ static void DrawCRLPanel_1 (void)
 
     MN_DrTextACentered("RENDER LIMITS", 10, cr[CR_YELLOW]);
 
+    byte *const flash_gray = (gametic & 8) ? cr[CR_GRAY] : cr[CR_LIGHTGRAY];
+    byte *const flash_red  = (gametic & 8) ? cr[CR_RED]  : cr[CR_YELLOW];
+
     // Sprites
     {
         char spr[32];
@@ -3665,90 +3668,44 @@ static void DrawCRLPanel_1 (void)
         MN_DrTextA(spr, x + x2, 20, CRL_StatColor_Val(CRLData.numsprites, CRL_MaxVisSprites));
     }
 
-    // Solidsegs
+    // [PN] Solidsegs, Segments, Openings, Planes
+    const struct
     {
-        char value[32];
-        char max[32];
-        const int x2 = MN_TextAWidth("SOLIDSEGS: ");
-        const int current_overflow = CRLData.numsolidsegs >= CRL_MAX_SOLIDSEGS;
+        const char *const label;
+        int y;
+        int current;
+        int limit;
+        int max_count;
+        void (*get_counter)(char *, size_t, char *, size_t);
+    } items[] = {
+        { "SOLIDSEGS: ", 30,  CRLData.numsolidsegs,    CRL_MAX_SOLIDSEGS, CRL_MAX_ssg.count, CRL_CounterValue_SSG },
+        { "SEGMENTS: ",  60,  CRLData.numsegs,         CRL_MaxDrawSegs,   CRL_MAX_seg.count, CRL_CounterValue_SEG },
+        { "OPENINGS: ",  90,  CRLData.numopenings,     CRL_MaxOpenings,   CRL_MAX_opn.count, CRL_CounterValue_OPN },
+        { "PLANES: ",    120, CRL_GetTotalVisPlanes(), CRL_MaxVisPlanes,  CRL_MAX_pln.count, CRL_CounterValue_PLN }
+    };
 
-        CRL_CounterValue_SSG(value, sizeof(value), max, sizeof(max));
-
-        MN_DrTextA("SOLIDSEGS: ", x, 30, current_overflow ?
-                  (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
-        MN_DrTextA(value, x + x2, 30, current_overflow ?
-                  (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
-        MN_DrTextA(max, x + x2 + MN_TextAWidth(value), 30, current_overflow ?
-                  (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) :
-                  CRL_MAX_ssg.count >= CRL_MAX_SOLIDSEGS ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
-        MN_DrTextA(")", x + x2 + MN_TextAWidth(value) + MN_TextAWidth(max), 30, current_overflow ?
-                  (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
-    }
-
-    // Segments
+    for (size_t i = 0; i < sizeof(items) / sizeof(items[0]); i++)
     {
-        char value[32];
-        char max[32];
-        const int x2 = MN_TextAWidth("SEGMENTS: ");
-        const int current_overflow = CRLData.numsegs >= CRL_MaxDrawSegs;
+        char val_str[32];
+        char max_str[32];
+        const int x2 = MN_TextAWidth(items[i].label);
+        const int is_overflow = items[i].current >= items[i].limit;
 
-        CRL_CounterValue_SEG(value, sizeof(value), max, sizeof(max));
+        items[i].get_counter(val_str, sizeof(val_str), max_str, sizeof(max_str));
 
-        MN_DrTextA("SEGMENTS:", x, 60, current_overflow ?
-                  (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
-        MN_DrTextA(value, x + x2, 60, current_overflow ?
-                  (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
-        MN_DrTextA(max, x + x2 + MN_TextAWidth(value), 60, current_overflow ?
-                  (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) :
-                  CRL_MAX_seg.count >= CRL_MaxDrawSegs ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
-        MN_DrTextA(")", x + x2 + MN_TextAWidth(value) + MN_TextAWidth(max), 60, current_overflow ?
-                  (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
-    }
+        byte *const label_color = is_overflow ? flash_gray : cr[CR_GRAY];
+        byte *const val_color   = is_overflow ? flash_red : cr[CR_GREEN];
+        byte *const max_color   = is_overflow ? flash_red :
+                                 (items[i].max_count >= items[i].limit ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
 
-    // Openings
-    {
-        char value[32];
-        char max[32];
-        const int x2 = MN_TextAWidth("OPENINGS: ");
-        const int current_overflow = CRLData.numopenings >= CRL_MaxOpenings;
+        MN_DrTextA(items[i].label, x, items[i].y, label_color);
+        MN_DrTextA(val_str, x + x2, items[i].y, val_color);
 
-        CRL_CounterValue_OPN(value, sizeof(value), max, sizeof(max));
+        const int val_width = MN_TextAWidth(val_str);
+        MN_DrTextA(max_str, x + x2 + val_width, items[i].y, max_color);
 
-        MN_DrTextA("OPENINGS: ", x, 90, current_overflow ?
-                  (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
-        MN_DrTextA(value, x + x2, 90, current_overflow ?
-                  (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
-        MN_DrTextA(max, x + x2 + MN_TextAWidth(value), 90, current_overflow ?
-                  (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) :
-                  CRL_MAX_opn.count >= CRL_MaxOpenings ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
-        MN_DrTextA(")", x + x2 + MN_TextAWidth(value) + MN_TextAWidth(max), 90, current_overflow ?
-                  (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
-    }
-
-    // Planes (vanilla: 128, doom+: 1024)
-    {
-        char vis[32];
-        char max[32];
-        const int x2 = MN_TextAWidth("PLANES: ");
-        const int TotalVisPlanes = CRL_GetTotalVisPlanes();
-
-        CRL_CounterValue_PLN(vis, sizeof(vis), max, sizeof(max));
-
-        MN_DrTextA("PLANES: ", x, 120, TotalVisPlanes >= CRL_MaxVisPlanes ? 
-                  (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
-
-        // PLN: x/x (MAX:
-        MN_DrTextA(vis, x + x2, 120, TotalVisPlanes >= CRL_MaxVisPlanes ?
-                  (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
-
-        // x
-        MN_DrTextA(max, x + x2 + MN_TextAWidth(vis), 120, TotalVisPlanes >= CRL_MaxVisPlanes ?
-                  (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : 
-                  CRL_MAX_pln.count >= CRL_MaxVisPlanes ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
-
-        // )
-        MN_DrTextA(")", x + x2 + MN_TextAWidth(vis) + MN_TextAWidth(max), 120, TotalVisPlanes >= CRL_MaxVisPlanes ?
-                   (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
+        const int max_width = MN_TextAWidth(max_str);
+        MN_DrTextA(")", x + x2 + val_width + max_width, items[i].y, val_color);
     }
 
     // < Scroll pages >
@@ -3756,14 +3713,22 @@ static void DrawCRLPanel_1 (void)
 }
 
 static void CRL_MoveToSSG (int option) { CRL_MoveTo_SSG_MAX(); }
-static void CRL_ClearSSG (int option)  { CRL_Clear_SSG_MAX();  }
+static void CRL_ClearSSG (int option)  { CRL_Clear_SSG_MAX();  CRL_Get_Render_MAX(&CRL_MAX_ssg); }
 static void CRL_MoveToSEG (int option) { CRL_MoveTo_SEG_MAX(); }
-static void CRL_ClearSEG (int option)  { CRL_Clear_SEG_MAX();  }
+static void CRL_ClearSEG (int option)  { CRL_Clear_SEG_MAX();  CRL_Get_Render_MAX(&CRL_MAX_seg); }
 static void CRL_MoveToOPN (int option) { CRL_MoveTo_OPN_MAX(); }
-static void CRL_ClearOPN (int option)  { CRL_Clear_OPN_MAX();  }
+static void CRL_ClearOPN (int option)  { CRL_Clear_OPN_MAX();  CRL_Get_Render_MAX(&CRL_MAX_opn); }
 static void CRL_MoveToPLN (int option) { CRL_MoveTo_PLN_MAX(); }
-static void CRL_ClearPLN (int option)  { CRL_Clear_PLN_MAX();  }
-static void CRL_ClearALL (int option)  { CRL_Clear_ALL_MAX();  }
+static void CRL_ClearPLN (int option)  { CRL_Clear_PLN_MAX();  CRL_Get_Render_MAX(&CRL_MAX_pln); }
+
+static void CRL_ClearALL (int option)
+{
+    CRL_Clear_ALL_MAX();
+    CRL_Get_Render_MAX(&CRL_MAX_ssg);
+    CRL_Get_Render_MAX(&CRL_MAX_seg);
+    CRL_Get_Render_MAX(&CRL_MAX_opn);
+    CRL_Get_Render_MAX(&CRL_MAX_pln);
+}
 
 // -----------------------------------------------------------------------------
 // CRL Control Panel 2

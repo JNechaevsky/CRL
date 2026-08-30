@@ -541,12 +541,29 @@ void CRL_StatDrawer (void)
         }
     }
 
-    // Render counters
+    // [PN] Render counters
     if (crl_widget_render)
     {
         const int yy = crl_widget_time ? 0 : 10;
+        byte *const flash_gray = (gametic & 8) ? cr[CR_GRAY] : cr[CR_LIGHTGRAY];
+        byte *const flash_red  = (gametic & 8) ? cr[CR_RED]  : cr[CR_YELLOW];
 
-        // Sprites (vanilla: 128, doom+: 1024)
+        const struct
+        {
+            const char *const label;
+            int y;
+            int current;
+            int limit;
+            int max_count;
+            void (*get_counter)(char *, size_t, char *, size_t);
+        } items[] = {
+            { "SSG:", 85,  CRLData.numsolidsegs, CRL_MAX_SOLIDSEGS, CRL_MAX_ssg.count, CRL_CounterValue_SSG },
+            { "SEG:", 95,  CRLData.numsegs,      CRL_MaxDrawSegs,   CRL_MAX_seg.count, CRL_CounterValue_SEG },
+            { "OPN:", 105, CRLData.numopenings,  CRL_MaxOpenings,   CRL_MAX_opn.count, CRL_CounterValue_OPN },
+            { "PLN:", 115, TotalVisPlanes,       CRL_MaxVisPlanes,  CRL_MAX_pln.count, CRL_CounterValue_PLN }
+        };
+
+        // Sprites
         if (crl_widget_render == 1
         || (crl_widget_render == 2 && CRLData.numsprites >= CRL_MaxVisSprites))
         {
@@ -558,97 +575,37 @@ void CRL_StatDrawer (void)
             fontfunc(spr, xx, 75 + yy, CRL_StatColor_Val(CRLData.numsprites, CRL_MaxVisSprites));
         }
 
-        // Solid segments (32 max)
-        if (crl_widget_render == 1
-        || (crl_widget_render == 2 && (CRLData.numsolidsegs >= CRL_MAX_SOLIDSEGS
-                                   ||  CRL_MAX_ssg.count >= CRL_MAX_SOLIDSEGS)))
+        // Solidsegs, Segments, Openings, Planes
+        for (size_t i = 0; i < sizeof(items) / sizeof(items[0]); i++)
         {
-            char value[32];
-            char max[32];
-            const int current_overflow = CRLData.numsolidsegs >= CRL_MAX_SOLIDSEGS;
+            const int current_overflow = items[i].current >= items[i].limit;
+            const int max_overflow = items[i].max_count >= items[i].limit;
+            const int should_render = (crl_widget_render == 1)
+                                      || (crl_widget_render == 2 && (current_overflow || max_overflow));
 
-            CRL_CounterValue_SSG(value, sizeof(value), max, sizeof(max));
+            if (!should_render)
+            {
+                continue;
+            }
 
-            fontfunc("SSG:", 0, 85 + yy, current_overflow ?
-                      (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
-            fontfunc(value, xx, 85 + yy, current_overflow ?
-                      (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
-            fontfunc(max, xx + widthfunc(value), 85 + yy, current_overflow ?
-                      (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) :
-                      CRL_MAX_ssg.count >= CRL_MAX_SOLIDSEGS ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
-            fontfunc(")", xx + widthfunc(value) + widthfunc(max), 85 + yy, current_overflow ?
-                      (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
-        }
+            char val_str[32];
+            char max_str[32];
 
-        // Segments (256 max)
-        if (crl_widget_render == 1
-        || (crl_widget_render == 2 && (CRLData.numsegs >= CRL_MaxDrawSegs
-                                   ||  CRL_MAX_seg.count >= CRL_MaxDrawSegs)))
-        {
-            char value[32];
-            char max[32];
-            const int current_overflow = CRLData.numsegs >= CRL_MaxDrawSegs;
+            items[i].get_counter(val_str, sizeof(val_str), max_str, sizeof(max_str));
 
-            CRL_CounterValue_SEG(value, sizeof(value), max, sizeof(max));
+            byte *const label_color = current_overflow ? flash_gray : cr[CR_GRAY];
+            byte *const val_color   = current_overflow ? flash_red : cr[CR_GREEN];
+            byte *const max_color   = current_overflow ? flash_red :
+                                         (max_overflow ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
 
-            fontfunc("SEG:", 0, 95 + yy, current_overflow ?
-                      (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
-            fontfunc(value, xx, 95 + yy, current_overflow ?
-                      (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
-            fontfunc(max, xx + widthfunc(value), 95 + yy, current_overflow ?
-                      (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) :
-                      CRL_MAX_seg.count >= CRL_MaxDrawSegs ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
-            fontfunc(")", xx + widthfunc(value) + widthfunc(max), 95 + yy, current_overflow ?
-                      (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
-        }
+            fontfunc(items[i].label, 0, items[i].y + yy, label_color);
+            fontfunc(val_str, xx, items[i].y + yy, val_color);
 
-        // Openings
-        if (crl_widget_render == 1
-        || (crl_widget_render == 2 && (CRLData.numopenings >= CRL_MaxOpenings
-                                   ||  CRL_MAX_opn.count >= CRL_MaxOpenings)))
-        {
-            char value[32];
-            char max[32];
-            const int current_overflow = CRLData.numopenings >= CRL_MaxOpenings;
+            const int val_width = widthfunc(val_str);
+            fontfunc(max_str, xx + val_width, items[i].y + yy, max_color);
 
-            CRL_CounterValue_OPN(value, sizeof(value), max, sizeof(max));
-
-            fontfunc("OPN:", 0, 105 + yy, current_overflow ?
-                      (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
-            fontfunc(value, xx, 105 + yy, current_overflow ?
-                      (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
-            fontfunc(max, xx + widthfunc(value), 105 + yy, current_overflow ?
-                      (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) :
-                      CRL_MAX_opn.count >= CRL_MaxOpenings ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
-            fontfunc(")", xx + widthfunc(value) + widthfunc(max), 105 + yy, current_overflow ?
-                      (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
-        }
-
-        // Planes (vanilla: 128, doom+: 1024)
-        if (crl_widget_render == 1
-        || (crl_widget_render == 2 && (TotalVisPlanes >= CRL_MaxVisPlanes
-                                   ||  CRL_MAX_pln.count >= CRL_MaxVisPlanes)))
-        {
-            char vis[32];
-            char max[32];
-
-            CRL_CounterValue_PLN(vis, sizeof(vis), max, sizeof(max));
-
-            fontfunc("PLN:", 0, 115 + yy, TotalVisPlanes >= CRL_MaxVisPlanes ? 
-                      (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
-
-            // PLN: x/x (MAX:
-            fontfunc(vis, xx, 115 + yy, TotalVisPlanes >= CRL_MaxVisPlanes ?
-                      (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
-
-            // x
-            fontfunc(max, xx + widthfunc(vis), 115 + yy, TotalVisPlanes >= CRL_MaxVisPlanes ?
-                      (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : 
-                      CRL_MAX_pln.count >= CRL_MaxVisPlanes ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
-
-            // )
-            fontfunc(")", xx + widthfunc(vis) + widthfunc(max), 115 + yy, TotalVisPlanes >= CRL_MaxVisPlanes ?
-                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
+            const int max_width = widthfunc(max_str);
+            fontfunc(")", xx + val_width + max_width, items[i].y + yy, val_color);
         }
     }
 
