@@ -293,6 +293,10 @@ void CRL_Get_Render_MAX (CRL_Render_max_t *max)
 
 void CRL_MoveTo_Render_MAX (const CRL_Render_max_t *max)
 {
+    // Prevent jumping to X0/Y0 coords if count equals zero.
+    if (max->count <= 0)
+        return;
+
     player_t *player = &players[displayplayer];
 
     // Define subsector we will move on.
