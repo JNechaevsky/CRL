@@ -310,12 +310,12 @@ static void D_Display(void)
                 // RestlessRodent -- draw visplanes if overlayed
                 CRL_DrawVisPlanes(1);
 
+                // RestlessRodent -- CRL Stats
+                CRL_StatDrawer();
+
                 // [JN] Do not draw any CRL widgets if not in game level.
                 if (crl_extended_hud)
                 {
-                    // RestlessRodent -- CRL Stats
-                    CRL_StatDrawer();
-
                     // [crispy] demo timer widget
                     if (demoplayback && (crl_demo_timer == 1 || crl_demo_timer == 3))
                     {

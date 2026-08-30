@@ -512,6 +512,11 @@ void CRL_StatDrawer (void)
         CRL_Get_Render_MAX(&CRL_MAX_opn);
     }
 
+    // Even if extended HUD is disabled, we still
+    // have to count MAX values in the code above.
+    if (!crl_extended_hud)
+        return;
+
     // Apply translucency while Save/Load menu is active.
     dp_translucent = savemenuactive;
 

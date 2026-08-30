@@ -793,21 +793,75 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
             players[consoleplayer].mo->momz = 1000*FRACUNIT / players[consoleplayer].mo->info->mass;
         }
 
-        // Clear MAX visplanes.
-        if (gamekeydown[key_crl_clearmax] || gamekeydown[key_crl_clearmax2])
+        // SSG - Move to MAX.
+        if (gamekeydown[key_crl_moveto_ssg_max] || gamekeydown[key_crl_moveto_ssg_max2])
+        {
+            CRL_SetMessage(&players[consoleplayer], "MOVE TO SSG MAX", false, NULL);
+            CRL_MoveTo_SSG_MAX();
+        }
+
+        // SSG - Clear MAX.
+        if (gamekeydown[key_crl_clear_ssg_max] || gamekeydown[key_crl_clear_ssg_max2])
+        {
+            CRL_Clear_SSG_MAX();
+            CRL_Get_Render_MAX(&CRL_MAX_ssg);
+            CRL_SetMessage(&players[consoleplayer], "CLEARED SSG MAX", false, NULL);
+        }
+
+        // SEG - Move to MAX.
+        if (gamekeydown[key_crl_moveto_seg_max] || gamekeydown[key_crl_moveto_seg_max2])
+        {
+            CRL_SetMessage(&players[consoleplayer], "MOVE TO SEG MAX", false, NULL);
+            CRL_MoveTo_SEG_MAX();
+        }
+
+        // SEG - Clear MAX.
+        if (gamekeydown[key_crl_clear_seg_max] || gamekeydown[key_crl_clear_seg_max2])
+        {
+            CRL_Clear_SEG_MAX();
+            CRL_Get_Render_MAX(&CRL_MAX_seg);
+            CRL_SetMessage(&players[consoleplayer], "CLEARED SEG MAX", false, NULL);
+        }
+
+        // OPN - Move to MAX.
+        if (gamekeydown[key_crl_moveto_opn_max] || gamekeydown[key_crl_moveto_opn_max2])
+        {
+            CRL_SetMessage(&players[consoleplayer], "MOVE TO OPN MAX", false, NULL);
+            CRL_MoveTo_OPN_MAX();
+        }
+
+        // OPN - Clear MAX.
+        if (gamekeydown[key_crl_clear_opn_max] || gamekeydown[key_crl_clear_opn_max2])
+        {
+            CRL_Clear_OPN_MAX();
+            CRL_Get_Render_MAX(&CRL_MAX_opn);
+            CRL_SetMessage(&players[consoleplayer], "CLEARED OPN MAX", false, NULL);
+        }
+
+        // PLN - Move to MAX.
+        if (gamekeydown[key_crl_moveto_pln_max] || gamekeydown[key_crl_moveto_pln_max2])
+        {
+            CRL_SetMessage(&players[consoleplayer], "MOVE TO PLN MAX", false, NULL);
+            CRL_MoveTo_PLN_MAX();
+        }
+
+        // PLN - Clear MAX.
+        if (gamekeydown[key_crl_clear_pln_max] || gamekeydown[key_crl_clear_pln_max2])
         {
             CRL_Clear_PLN_MAX();
             CRL_Get_Render_MAX(&CRL_MAX_pln);
             CRL_SetMessage(&players[consoleplayer], "CLEARED PLN MAX", false, NULL);
         }
 
-        // Jump to MAX visplanes.
-        if (gamekeydown[key_crl_movetomax] || gamekeydown[key_crl_movetomax2])
+        // Clear ALL MAX.
+        if (gamekeydown[key_crl_clear_all_max] || gamekeydown[key_crl_clear_all_max2])
         {
-            demoplayback = false;
-            netdemo = false;
-            CRL_SetMessage(&players[consoleplayer], "MOVE TO PLN MAX", false, NULL);
-            CRL_MoveTo_Render_MAX(&CRL_MAX_pln);
+            CRL_Clear_ALL_MAX();
+            CRL_Get_Render_MAX(&CRL_MAX_ssg);
+            CRL_Get_Render_MAX(&CRL_MAX_seg);
+            CRL_Get_Render_MAX(&CRL_MAX_opn);
+            CRL_Get_Render_MAX(&CRL_MAX_pln);
+            CRL_SetMessage(&players[consoleplayer], "CLEARED ALL MAX VALUES", false, NULL);
         }
     }
 
