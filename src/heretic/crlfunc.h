@@ -16,6 +16,10 @@
 //
 
 
+#include "doomtype.h" // byte
+
+#include "crlcore.h"
+
 #pragma once
 
 // [JN] Vanilla limit of solid segs on screen.
