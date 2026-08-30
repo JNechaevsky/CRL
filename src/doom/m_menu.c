@@ -3992,7 +3992,7 @@ static void M_DrawCRL_Panel_1 (void)
     // Sprites
     {
         char spr[32];
-        const int x2 = M_StringWidth("SOLIDSEGS: ");
+        const int x2 = M_StringWidth("SPRITES: ");
 
         CRL_CounterValue_SPR(spr, sizeof(spr));
 

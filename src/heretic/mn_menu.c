@@ -43,6 +43,7 @@
 #include "am_map.h"
 
 #include "crlcore.h"
+#include "crlfunc.h"
 #include "crlvars.h"
 
 // Macros
@@ -104,6 +105,8 @@ typedef enum
     MENU_MISC_1,
     MENU_MISC_2,
     MENU_CRLLIMITS,
+    MENU_CRLPANEL_1,
+    MENU_CRLPANEL_2,
     MENU_NONE
 } MenuType_t;
 
@@ -416,13 +419,6 @@ static player_t *player;
 
 static void DrawCRLMain (void);
 
-static void CRL_Spectating (int option);
-static void CRL_Freeze (int option);
-static void CRL_Buddha (int option);
-static void CRL_NoTarget (int option);
-static void CRL_NoMomentum (int option);
-static void CRL_GameSpeed (int choice);
-
 static void DrawCRLVideo (void);
 static void CRL_UncappedFPS (int option);
 static void CRL_LimitFPS (int option);
@@ -643,7 +639,7 @@ static void CRL_ColoredSBar (int option);
 static void CRL_AmmoWidget (int option);
 static void CRL_AmmoWidgetTranslucent (int option);
 static void CRL_AmmoWidgetColors (int option);
-static void CRL_DemoTimer (int option);
+static void M_CRL_DemoTimer (int option);
 static void CRL_TimerDirection (int option);
 static void CRL_ProgressBar (int option);
 static void CRL_InternalDemos (int option);
@@ -675,6 +671,26 @@ static void DrawCRLLimits (void);
 static void CRL_UnknownLineWarning (int option);
 static void CRL_SaveSizeWarning (int option);
 static void CRL_Limits (int option);
+
+static void DrawCRLPanel_1 (void);
+static void CRL_MoveToSSG (int option);
+static void CRL_ClearSSG (int option);
+static void CRL_MoveToSEG (int option);
+static void CRL_ClearSEG (int option);
+static void CRL_MoveToOPN (int option);
+static void CRL_ClearOPN (int option);
+static void CRL_MoveToPLN (int option);
+static void CRL_ClearPLN (int option);
+static void CRL_ClearALL (int option);
+static void DrawCRLPanel_2 (void);
+static void CRL_Spectating (int option);
+static void CRL_Freeze (int option);
+static void CRL_Buddha (int option);
+static void CRL_NoTarget (int option);
+static void CRL_NoMomentum (int option);
+static void CRL_GameSpeed (int option);
+
+static void M_ScrollPanel (int option);
 
 // Keyboard binding prototypes
 static boolean KbdIsBinding;
@@ -713,6 +729,12 @@ static Menu_t CRLKbdBinds6;
 static Menu_t CRLKbdBinds7;
 static Menu_t CRLKbdBinds8;
 static Menu_t CRLKbdBinds9;
+static Menu_t CRLMouseBinds1;
+static Menu_t CRLMouseBinds2;
+static Menu_t CRLMisc_1;
+static Menu_t CRLMisc_2;
+static Menu_t CRLPanel_1;
+static Menu_t CRLPanel_2;
 
 // Remember last keybindings page.
 static int Keybinds_Cur;
@@ -722,10 +744,6 @@ static void CRL_Choose_Keybinds (int choice)
     SetMenu(Keybinds_Cur);
 }
 
-// Forward declarations for scrolling and remembering last pages.
-static Menu_t CRLMouseBinds1;
-static Menu_t CRLMouseBinds2;
-
 // Remember last keybindings page.
 static int Mousebinds_Cur;
 
@@ -734,16 +752,20 @@ static void CRL_Choose_Mousebinds (int choice)
     SetMenu(Mousebinds_Cur);
 }
 
-// Forward declarations for scrolling and remembering last pages.
-static Menu_t CRLMisc_1;
-static Menu_t CRLMisc_2;
-
 // Remember last misc settings page.
 static int Misc_Cur;
 
 static void M_Choose_CRL_Misc (int choice)
 {
     SetMenu(Misc_Cur);
+}
+
+// Remember last misc settings page.
+static int Panel_Cur;
+
+static void M_Choose_CRL_Panel (int choice)
+{
+    SetMenu(Panel_Cur);
 }
 
 // [JN/PN] Utility function for scrolling pages by arrows / PG keys.
@@ -787,6 +809,9 @@ static void M_ScrollPages (boolean direction)
     // Misc features:
     else if (CurrentMenu == &CRLMisc_1) nextMenu = MENU_MISC_2;
     else if (CurrentMenu == &CRLMisc_2) nextMenu = MENU_MISC_1;
+    // CRL control panel:
+    else if (CurrentMenu == &CRLPanel_1) nextMenu = MENU_CRLPANEL_2;
+    else if (CurrentMenu == &CRLPanel_2) nextMenu = MENU_CRLPANEL_1;
 
     // If a new menu was set up, play the navigation sound.
     if (nextMenu)
@@ -1115,12 +1140,12 @@ static void M_DrawScrollPages (int x, int y, int itemOnGlow, const char *pagenum
     char str[32];
 
     MN_DrTextA("SCROLL PAGES", x, y,
-               M_Item_Glow(14, GLOW_LIGHTGRAY));
+               M_Item_Glow(itemOnGlow, GLOW_LIGHTGRAY));
 
     M_snprintf(str, 32, "%s", M_StringJoin("PAGE ", pagenum, NULL));
 
     MN_DrTextA(str, M_ItemRightAlign(str), y,
-               M_Item_Glow(14, GLOW_LIGHTGRAY));
+               M_Item_Glow(itemOnGlow, GLOW_LIGHTGRAY));
 }
 
 static int DefSkillColor (const int skill)
@@ -1148,6 +1173,7 @@ static char *const DefSkillName[5] =
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLMainItems[] = {
+    /*
     {ITT_LRFUNC1, "SPECTATOR MODE",       CRL_Spectating,    0, MENU_NONE},
     {ITT_LRFUNC1, "FREEZE MODE",          CRL_Freeze,        0, MENU_NONE},
     {ITT_LRFUNC1, "BUDDHA MODE",          CRL_Buddha,        0, MENU_NONE},
@@ -1155,6 +1181,7 @@ static MenuItem_t CRLMainItems[] = {
     {ITT_LRFUNC1, "NO MOMENTUM MODE",     CRL_NoMomentum,    0, MENU_NONE},
     {ITT_LRFUNC1, "GAME SPEED",           CRL_GameSpeed,     0, MENU_NONE},
     {ITT_EMPTY,   NULL,                   NULL,              0, MENU_NONE},
+    */
     {ITT_SETMENU, "VIDEO OPTIONS",        NULL,              0, MENU_CRLVIDEO},
     {ITT_SETMENU, "DISPLAY OPTIONS",      NULL,              0, MENU_CRLDISPLAY},
     {ITT_SETMENU, "SOUND OPTIONS",        NULL,              0, MENU_CRLSOUND},
@@ -1164,6 +1191,7 @@ static MenuItem_t CRLMainItems[] = {
     {ITT_SETMENU, "GAMEPLAY FEATURES",    NULL,              0, MENU_CRLGAMEPLAY},
     {ITT_EFUNC,   "MISC FEATURES",        M_Choose_CRL_Misc, 0, MENU_MISC_1},
     {ITT_SETMENU, "LIMITS AND WARNINGS",  NULL,              0, MENU_CRLLIMITS},
+    {ITT_EFUNC,   "CRL CONTROL PANEL",    M_Choose_CRL_Panel, 0, MENU_CRLPANEL_1},
     {ITT_SETMENU, "VANILLA OPTIONS MENU", NULL,              0, MENU_OPTIONS}
 };
 
@@ -1178,49 +1206,7 @@ static Menu_t CRLMain = {
 
 static void DrawCRLMain (void)
 {
-    char str[32];
-
-    MN_DrTextACentered("MAIN CRL MENU", 10, cr[CR_YELLOW]);
-
-    // Spectating
-    sprintf(str, crl_spectating ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 20,
-               M_Item_Glow(0, crl_spectating ? GLOW_GREEN : GLOW_DARKRED));
-
-    // Freeze
-    sprintf(str, !singleplayer ? "N/A" : crl_freeze ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 30,
-                 M_Item_Glow(1, !singleplayer ? GLOW_DARKRED :
-                             crl_freeze ? GLOW_GREEN : GLOW_DARKRED));
-
-    // Buddha
-    sprintf(str, !singleplayer ? "N/A" :
-            player->cheats & CF_BUDDHA ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 40,
-                 M_Item_Glow(2, !singleplayer ? GLOW_DARKRED :
-                             player->cheats & CF_BUDDHA ? GLOW_GREEN : GLOW_DARKRED));
-
-    // No target
-    sprintf(str, !singleplayer ? "N/A" :
-            player->cheats & CF_NOTARGET ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 50,
-                 M_Item_Glow(3, !singleplayer ? GLOW_DARKRED :
-                             player->cheats & CF_NOTARGET ? GLOW_GREEN : GLOW_DARKRED));
-
-    // No momentum
-    sprintf(str, !singleplayer ? "N/A" :
-            player->cheats & CF_NOMOMENTUM ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 60, 
-                 M_Item_Glow(4, !singleplayer ? GLOW_DARKRED :
-                             player->cheats & CF_NOMOMENTUM ? GLOW_GREEN : GLOW_DARKRED));
-
-    // Game speed
-    sprintf(str, netgame ? "N/A" : "%d%%", crl_game_speed);
-    MN_DrTextA(str, M_ItemRightAlign(str), 70,
-                M_Item_Glow(5, netgame || crl_game_speed == 100 ? GLOW_DARKRED :
-                            crl_game_speed < 100 ? GLOW_YELLOW : GLOW_GREEN));
-
-    MN_DrTextACentered ("SETTINGS", 80, cr[CR_YELLOW]);
+    MN_DrTextACentered ("OPTIONS", 10, cr[CR_YELLOW]);
 }
 
 static void CRL_Spectating (int option)
@@ -2941,7 +2927,7 @@ static MenuItem_t CRLGameplayItems[] = {
     { ITT_LRFUNC1, "AMMO WIDGET TRANSLUCENCY", CRL_AmmoWidgetTranslucent, 0, MENU_NONE },
     { ITT_LRFUNC2, "AMMO WIDGET COLORING",     CRL_AmmoWidgetColors,      0, MENU_NONE },
     { ITT_EMPTY,   NULL,                       NULL,                      0, MENU_NONE },
-    { ITT_LRFUNC2, "SHOW DEMO TIMER",          CRL_DemoTimer,             0, MENU_NONE },
+    { ITT_LRFUNC2, "SHOW DEMO TIMER",          M_CRL_DemoTimer,           0, MENU_NONE },
     { ITT_LRFUNC1, "TIMER DIRECTION",          CRL_TimerDirection,        0, MENU_NONE },
     { ITT_LRFUNC2, "SHOW PROGRESS BAR",        CRL_ProgressBar,           0, MENU_NONE },
     { ITT_LRFUNC2, "PLAY INTERNAL DEMOS",      CRL_InternalDemos,         0, MENU_NONE }
@@ -3087,7 +3073,7 @@ static void CRL_AmmoWidgetColors (int choice)
     crl_ammo_widget_colors = M_INT_Slider(crl_ammo_widget_colors, 0, 3, choice, false);
 }
 
-static void CRL_DemoTimer (int choice)
+static void M_CRL_DemoTimer (int choice)
 {
     crl_demo_timer = M_INT_Slider(crl_demo_timer, 0, 3, choice, false);
 }
@@ -3570,6 +3556,249 @@ static void CRL_Limits (int option)
     CRL_SetStaticLimits("HERETIC+");
 }
 
+// -----------------------------------------------------------------------------
+// CRL Control Panel 1
+// -----------------------------------------------------------------------------
+
+static MenuItem_t CRLPanelItems_1[] = {
+    { ITT_EMPTY,   "", /* SPRITES:   */      NULL,          0, MENU_NONE },
+    { ITT_EMPTY,   "", /* SOLIDSEGS: */      NULL,          0, MENU_NONE },
+    { ITT_LRFUNC1, "MOVE TO MAX",            CRL_MoveToSSG, 0, MENU_NONE },
+    { ITT_LRFUNC1, "CLEAR MAX",              CRL_ClearSSG,  0, MENU_NONE },
+    { ITT_EMPTY,   "", /* SEGMENTS:  */      NULL,          0, MENU_NONE },
+    { ITT_LRFUNC1, "MOVE TO MAX",            CRL_MoveToSEG, 0, MENU_NONE },
+    { ITT_LRFUNC1, "CLEAR MAX",              CRL_ClearSEG,  0, MENU_NONE },
+    { ITT_EMPTY,   "", /* OPENINGS:  */      NULL,          0, MENU_NONE },
+    { ITT_LRFUNC1, "MOVE TO MAX",            CRL_MoveToOPN, 0, MENU_NONE },
+    { ITT_LRFUNC1, "CLEAR MAX",              CRL_ClearOPN,  0, MENU_NONE },
+    { ITT_EMPTY,   "", /* VISPLANES: */      NULL,          0, MENU_NONE },
+    { ITT_LRFUNC1, "MOVE TO MAX",            CRL_MoveToPLN, 0, MENU_NONE },
+    { ITT_LRFUNC1, "CLEAR MAX",              CRL_ClearPLN,  0, MENU_NONE },
+    { ITT_EMPTY,   "",                       NULL,          0, MENU_NONE },
+    { ITT_LRFUNC1, "CLEAR ALL MAX VALUES",   CRL_ClearALL,  0, MENU_NONE },
+    { ITT_LRFUNC2, "", /* < SCROLL PAGES >*/ M_ScrollPanel, 0, MENU_NONE },
+};
+
+static Menu_t CRLPanel_1 = {
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    DrawCRLPanel_1,
+    ITEMCOUNT(CRLPanelItems_1), CRLPanelItems_1,
+    15,
+    SmallFont, false, true,
+    MENU_CRLMAIN
+};
+
+static void DrawCRLPanel_1 (void)
+{
+    // [JN] Indent to the left of the menu items' text, because of the "*" marker.
+    const int x = CRL_MENU_LEFTOFFSET - MN_TextAWidth("* ");
+
+    Panel_Cur = (MenuType_t)MENU_CRLPANEL_1;
+
+    MN_DrTextACentered("RENDER LIMITS", 10, cr[CR_YELLOW]);
+
+    // Sprites
+    {
+        char spr[32];
+        const int x2 = MN_TextAWidth("SPRITES: ");
+
+        CRL_CounterValue_SPR(spr, sizeof(spr));
+
+        MN_DrTextA("SPRITES: ", x, 20, CRL_StatColor_Str(CRLData.numsprites, CRL_MaxVisSprites));
+        MN_DrTextA(spr, x + x2, 20, CRL_StatColor_Val(CRLData.numsprites, CRL_MaxVisSprites));
+    }
+
+    // Solidsegs
+    {
+        char value[32];
+        char max[32];
+        const int x2 = MN_TextAWidth("SOLIDSEGS: ");
+        const int current_overflow = CRLData.numsolidsegs >= CRL_MAX_SOLIDSEGS;
+
+        CRL_CounterValue_SSG(value, sizeof(value), max, sizeof(max));
+
+        MN_DrTextA("SOLIDSEGS: ", x, 30, current_overflow ?
+                  (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
+        MN_DrTextA(value, x + x2, 30, current_overflow ?
+                  (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
+        MN_DrTextA(max, x + x2 + MN_TextAWidth(value), 30, current_overflow ?
+                  (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) :
+                  CRL_MAX_ssg.count >= CRL_MAX_SOLIDSEGS ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
+        MN_DrTextA(")", x + x2 + MN_TextAWidth(value) + MN_TextAWidth(max), 30, current_overflow ?
+                  (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
+    }
+
+    // Segments
+    {
+        char value[32];
+        char max[32];
+        const int x2 = MN_TextAWidth("SEGMENTS: ");
+        const int current_overflow = CRLData.numsegs >= CRL_MaxDrawSegs;
+
+        CRL_CounterValue_SEG(value, sizeof(value), max, sizeof(max));
+
+        MN_DrTextA("SEGMENTS:", x, 60, current_overflow ?
+                  (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
+        MN_DrTextA(value, x + x2, 60, current_overflow ?
+                  (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
+        MN_DrTextA(max, x + x2 + MN_TextAWidth(value), 60, current_overflow ?
+                  (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) :
+                  CRL_MAX_seg.count >= CRL_MaxDrawSegs ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
+        MN_DrTextA(")", x + x2 + MN_TextAWidth(value) + MN_TextAWidth(max), 60, current_overflow ?
+                  (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
+    }
+
+    // Openings
+    {
+        char value[32];
+        char max[32];
+        const int x2 = MN_TextAWidth("OPENINGS: ");
+        const int current_overflow = CRLData.numopenings >= CRL_MaxOpenings;
+
+        CRL_CounterValue_OPN(value, sizeof(value), max, sizeof(max));
+
+        MN_DrTextA("OPENINGS: ", x, 90, current_overflow ?
+                  (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
+        MN_DrTextA(value, x + x2, 90, current_overflow ?
+                  (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
+        MN_DrTextA(max, x + x2 + MN_TextAWidth(value), 90, current_overflow ?
+                  (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) :
+                  CRL_MAX_opn.count >= CRL_MaxOpenings ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
+        MN_DrTextA(")", x + x2 + MN_TextAWidth(value) + MN_TextAWidth(max), 90, current_overflow ?
+                  (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
+    }
+
+    // Planes (vanilla: 128, doom+: 1024)
+    {
+        char vis[32];
+        char max[32];
+        const int x2 = MN_TextAWidth("PLANES: ");
+        const int TotalVisPlanes = CRL_GetTotalVisPlanes();
+
+        CRL_CounterValue_PLN(vis, sizeof(vis), max, sizeof(max));
+
+        MN_DrTextA("PLANES: ", x, 120, TotalVisPlanes >= CRL_MaxVisPlanes ? 
+                  (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
+
+        // PLN: x/x (MAX:
+        MN_DrTextA(vis, x + x2, 120, TotalVisPlanes >= CRL_MaxVisPlanes ?
+                  (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
+
+        // x
+        MN_DrTextA(max, x + x2 + MN_TextAWidth(vis), 120, TotalVisPlanes >= CRL_MaxVisPlanes ?
+                  (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : 
+                  CRL_MAX_pln.count >= CRL_MaxVisPlanes ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
+
+        // )
+        MN_DrTextA(")", x + x2 + MN_TextAWidth(vis) + MN_TextAWidth(max), 120, TotalVisPlanes >= CRL_MaxVisPlanes ?
+                   (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
+    }
+
+    // < Scroll pages >
+    M_DrawScrollPages(CRL_MENU_LEFTOFFSET, 170, 15, "1/2");
+}
+
+static void CRL_MoveToSSG (int option) { CRL_MoveTo_SSG_MAX(); }
+static void CRL_ClearSSG (int option)  { CRL_Clear_SSG_MAX();  }
+static void CRL_MoveToSEG (int option) { CRL_MoveTo_SEG_MAX(); }
+static void CRL_ClearSEG (int option)  { CRL_Clear_SEG_MAX();  }
+static void CRL_MoveToOPN (int option) { CRL_MoveTo_OPN_MAX(); }
+static void CRL_ClearOPN (int option)  { CRL_Clear_OPN_MAX();  }
+static void CRL_MoveToPLN (int option) { CRL_MoveTo_PLN_MAX(); }
+static void CRL_ClearPLN (int option)  { CRL_Clear_PLN_MAX();  }
+static void CRL_ClearALL (int option)  { CRL_Clear_ALL_MAX();  }
+
+// -----------------------------------------------------------------------------
+// CRL Control Panel 2
+// -----------------------------------------------------------------------------
+
+static MenuItem_t CRLPanelItems_2[] = {
+    { ITT_LRFUNC1, "SPECTATOR MODE",         CRL_Spectating, 0, MENU_NONE },
+    { ITT_LRFUNC1, "FREEZE MODE",            CRL_Freeze,     0, MENU_NONE },
+    { ITT_LRFUNC1, "BUDDHA MODE",            CRL_Buddha,     0, MENU_NONE },
+    { ITT_LRFUNC1, "NO TARGET MODE",         CRL_NoTarget,   0, MENU_NONE },
+    { ITT_LRFUNC1, "NO MOMENTUM MODE",       CRL_NoMomentum, 0, MENU_NONE },
+    { ITT_LRFUNC1, "GAME SPEED",             CRL_GameSpeed,  0, MENU_NONE },
+    { ITT_EMPTY,   "",                       NULL,           0, MENU_NONE },
+    { ITT_EMPTY,   "",                       NULL,           0, MENU_NONE },
+    { ITT_EMPTY,   "",                       NULL,           0, MENU_NONE },
+    { ITT_EMPTY,   "",                       NULL,           0, MENU_NONE },
+    { ITT_EMPTY,   "",                       NULL,           0, MENU_NONE },
+    { ITT_EMPTY,   "",                       NULL,           0, MENU_NONE },
+    { ITT_EMPTY,   "",                       NULL,           0, MENU_NONE },
+    { ITT_EMPTY,   "",                       NULL,           0, MENU_NONE },
+    { ITT_EMPTY,   "",                       NULL,           0, MENU_NONE },
+    { ITT_LRFUNC2, "", /* < SCROLL PAGES >*/ M_ScrollPanel,  0, MENU_NONE },
+};
+
+static Menu_t CRLPanel_2 = {
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    DrawCRLPanel_2,
+    ITEMCOUNT(CRLPanelItems_2), CRLPanelItems_2,
+    15,
+    SmallFont, false, true,
+    MENU_CRLMAIN
+};
+
+static void DrawCRLPanel_2 (void)
+{
+    char str[32];
+
+    Panel_Cur = (MenuType_t)MENU_CRLPANEL_2;
+
+    MN_DrTextACentered("GAME MODES", 10, cr[CR_YELLOW]);
+
+    // Spectating
+    sprintf(str, crl_spectating ? "ON" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 20,
+               M_Item_Glow(0, crl_spectating ? GLOW_GREEN : GLOW_DARKRED));
+
+    // Freeze
+    sprintf(str, !singleplayer ? "N/A" : crl_freeze ? "ON" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 30,
+                 M_Item_Glow(1, !singleplayer ? GLOW_DARKRED :
+                             crl_freeze ? GLOW_GREEN : GLOW_DARKRED));
+
+    // Buddha
+    sprintf(str, !singleplayer ? "N/A" :
+            player->cheats & CF_BUDDHA ? "ON" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 40,
+                 M_Item_Glow(2, !singleplayer ? GLOW_DARKRED :
+                             player->cheats & CF_BUDDHA ? GLOW_GREEN : GLOW_DARKRED));
+
+    // No target
+    sprintf(str, !singleplayer ? "N/A" :
+            player->cheats & CF_NOTARGET ? "ON" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 50,
+                 M_Item_Glow(3, !singleplayer ? GLOW_DARKRED :
+                             player->cheats & CF_NOTARGET ? GLOW_GREEN : GLOW_DARKRED));
+
+    // No momentum
+    sprintf(str, !singleplayer ? "N/A" :
+            player->cheats & CF_NOMOMENTUM ? "ON" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 60, 
+                 M_Item_Glow(4, !singleplayer ? GLOW_DARKRED :
+                             player->cheats & CF_NOMOMENTUM ? GLOW_GREEN : GLOW_DARKRED));
+
+    // Game speed
+    sprintf(str, netgame ? "N/A" : "%d%%", crl_game_speed);
+    MN_DrTextA(str, M_ItemRightAlign(str), 70,
+                M_Item_Glow(5, netgame || crl_game_speed == 100 ? GLOW_DARKRED :
+                            crl_game_speed < 100 ? GLOW_YELLOW : GLOW_GREEN));
+
+    // < Scroll pages >
+    M_DrawScrollPages(CRL_MENU_LEFTOFFSET, 170, 15, "2/2");
+}
+
+static void M_ScrollPanel (int option)
+{
+         if (CurrentMenu == &CRLPanel_1) { SetMenu(MENU_CRLPANEL_2); }
+    else if (CurrentMenu == &CRLPanel_2) { SetMenu(MENU_CRLPANEL_1); }
+
+    CurrentItPos = 14;
+}
+
+
 static Menu_t *Menus[] = {
     &MainMenu,
     &EpisodeMenu,
@@ -3602,8 +3831,9 @@ static Menu_t *Menus[] = {
     &CRLMisc_1,
     &CRLMisc_2,
     &CRLLimits,
+    &CRLPanel_1,
+    &CRLPanel_2,
 };
-
 
 
 //---------------------------------------------------------------------------
@@ -3636,6 +3866,7 @@ void MN_Init(void)
     Keybinds_Cur = (MenuType_t)MENU_CRLKBDBINDS1;
     Mousebinds_Cur = (MenuType_t)MENU_CRLMOUSEBINDS1;
     Misc_Cur = (MenuType_t)MENU_MISC_1;
+    Panel_Cur = (MenuType_t)MENU_CRLPANEL_1;
 
     // [JN] Initialize cursor position with hidden, will be set on menu opening.
     CurrentItPos = -1;
@@ -5756,7 +5987,8 @@ boolean MN_Responder(event_t * event)
             // [JN] Spawn CRL menu
             if (key == key_crl_menu || key == key_crl_menu2)
             {
-                CurrentMenu = &CRLMain;
+                //CurrentMenu = &CRLMain;
+                SetMenu(Panel_Cur);
                 CurrentItPos = CurrentMenu->oldItPos;
             }
 

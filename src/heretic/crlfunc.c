@@ -107,7 +107,7 @@ enum
     widget_speed_val,
 } widgetcolor_t;
 
-static byte *CRL_StatColor_Str (const int val1, const int val2)
+byte *const CRL_StatColor_Str (const int val1, const int val2)
 {
     return
         val1 == val2 ? cr[CR_LIGHTGRAY] :
@@ -115,7 +115,7 @@ static byte *CRL_StatColor_Str (const int val1, const int val2)
                        cr[CR_GRAY];
 }
 
-static byte *CRL_StatColor_Val (const int val1, const int val2)
+byte *const CRL_StatColor_Val (const int val1, const int val2)
 {
     return
         val1 == val2 ? cr[CR_YELLOW] :
@@ -123,7 +123,7 @@ static byte *CRL_StatColor_Val (const int val1, const int val2)
                        cr[CR_GREEN];
 }
 
-static byte *CRL_PowerupColor (const int val1, const int val2)
+static byte *const CRL_PowerupColor (const int val1, const int val2)
 {
     return
         val1 > val2/2 ? cr[CR_GREEN]  :
@@ -321,7 +321,7 @@ void CRL_MoveTo_Render_MAX (const CRL_Render_max_t *max)
     P_SetThingPosition(player->mo);
 }
 
-static byte *CRL_Colorize_MAX (int style)
+byte *const CRL_Colorize_MAX (int style)
 {
     switch (style)
     {
@@ -553,28 +553,6 @@ void CRL_StatDrawer (void)
             fontfunc(spr, xx, 75 + yy, CRL_StatColor_Val(CRLData.numsprites, CRL_MaxVisSprites));
         }
 
-        // Segments (256 max)
-        if (crl_widget_render == 1
-        || (crl_widget_render == 2 && (CRLData.numsegs >= CRL_MaxDrawSegs
-                                   ||  CRL_MAX_seg.count >= CRL_MaxDrawSegs)))
-        {
-            char value[32];
-            char max[32];
-            const int current_overflow = CRLData.numsegs >= CRL_MaxDrawSegs;
-
-            CRL_CounterValue_SEG(value, sizeof(value), max, sizeof(max));
-
-            fontfunc("SEG:", 0, 85 + yy, current_overflow ?
-                      (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
-            fontfunc(value, xx, 85 + yy, current_overflow ?
-                      (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
-            fontfunc(max, xx + widthfunc(value), 85 + yy, current_overflow ?
-                      (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) :
-                      CRL_MAX_seg.count >= CRL_MaxDrawSegs ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
-            fontfunc(")", xx + widthfunc(value) + widthfunc(max), 85 + yy, current_overflow ?
-                      (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
-        }
-
         // Solid segments (32 max)
         if (crl_widget_render == 1
         || (crl_widget_render == 2 && (CRLData.numsolidsegs >= CRL_MAX_SOLIDSEGS
@@ -586,13 +564,35 @@ void CRL_StatDrawer (void)
 
             CRL_CounterValue_SSG(value, sizeof(value), max, sizeof(max));
 
-            fontfunc("SSG:", 0, 95 + yy, current_overflow ?
+            fontfunc("SSG:", 0, 85 + yy, current_overflow ?
+                      (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
+            fontfunc(value, xx, 85 + yy, current_overflow ?
+                      (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
+            fontfunc(max, xx + widthfunc(value), 85 + yy, current_overflow ?
+                      (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) :
+                      CRL_MAX_ssg.count >= CRL_MAX_SOLIDSEGS ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
+            fontfunc(")", xx + widthfunc(value) + widthfunc(max), 85 + yy, current_overflow ?
+                      (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
+        }
+
+        // Segments (256 max)
+        if (crl_widget_render == 1
+        || (crl_widget_render == 2 && (CRLData.numsegs >= CRL_MaxDrawSegs
+                                   ||  CRL_MAX_seg.count >= CRL_MaxDrawSegs)))
+        {
+            char value[32];
+            char max[32];
+            const int current_overflow = CRLData.numsegs >= CRL_MaxDrawSegs;
+
+            CRL_CounterValue_SEG(value, sizeof(value), max, sizeof(max));
+
+            fontfunc("SEG:", 0, 95 + yy, current_overflow ?
                       (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
             fontfunc(value, xx, 95 + yy, current_overflow ?
                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
             fontfunc(max, xx + widthfunc(value), 95 + yy, current_overflow ?
                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) :
-                      CRL_MAX_ssg.count >= CRL_MAX_SOLIDSEGS ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
+                      CRL_MAX_seg.count >= CRL_MaxDrawSegs ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
             fontfunc(")", xx + widthfunc(value) + widthfunc(max), 95 + yy, current_overflow ?
                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
         }
