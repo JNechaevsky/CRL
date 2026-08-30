@@ -20,12 +20,15 @@
 #include <ctype.h>      // toupper
 #include "dsda_font.h"
 #include "i_swap.h"     // SHORT
+#include "m_misc.h"     // M_snprintf
 #include "v_patch.h"
 #include "v_video.h"
+#include "w_wad.h"      // W_CheckNumForName, W_CacheLumpName
+#include "z_zone.h"     // PU_STATIC
 
 
 #define HU_FONTSTART    33
-#define HU_FONTSIZE     63
+#define HU_FONTSIZE     94      // [PN] ASCII 33 ('!') through ASCII 126 ('~').
 
 patch_t *dsda_font[HU_FONTSIZE];
 
@@ -33,13 +36,27 @@ patch_t *dsda_font[HU_FONTSIZE];
 // -----------------------------------------------------------------------------
 // DSDA_FontInit
 //  Initialize DSDA font at program startup. Called by CT_Init.
+//  [PN] Every glyph is looked up as a lump first, so a font provided by a PWAD
+//  replaces the embedded one, glyph by glyph. The embedded patches are
+//  the fallback, so the font works even when nothing provides them.
 // -----------------------------------------------------------------------------
 
 void DSDA_FontInit(void)
 {
     for (int i = 0; i < HU_FONTSIZE; i++)
     {
-        dsda_font[i] = (patch_t *)dsda_font_lut[i];
+        char name[10];
+
+        M_snprintf(name, sizeof(name), "DIG%03d", HU_FONTSTART + i);
+
+        if (W_CheckNumForName(name) != -1)
+        {
+            dsda_font[i] = W_CacheLumpName(name, PU_STATIC);
+        }
+        else
+        {
+            dsda_font[i] = (patch_t *) dsda_font_lut[i];
+        }
     }
 }
 
