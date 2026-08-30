@@ -18,6 +18,9 @@
 
 #pragma once
 
+// [JN] Vanilla limit of solid segs on screen.
+#define CRL_MAX_SOLIDSEGS 32
+
 extern void CRL_MoveTo_Camera (void);
 
 extern void CRL_Clear_ALL_MAX (void);
@@ -31,6 +34,14 @@ extern void CRL_MoveTo_OPN_MAX (void);
 extern void CRL_MoveTo_PLN_MAX (void);
 extern void CRL_Get_Render_MAX (CRL_Render_max_t *max);
 extern void CRL_MoveTo_Render_MAX (const CRL_Render_max_t *max);
+
+// [PN] Render counters' values.
+extern void CRL_CounterValue_SPR (char *const value, size_t value_size);
+extern void CRL_CounterValue_SSG (char *const value, size_t value_size, char *const max, size_t max_size);
+extern void CRL_CounterValue_SEG (char *const value, size_t value_size, char *const max, size_t max_size);
+extern void CRL_CounterValue_OPN (char *const value, size_t value_size, char *const max, size_t max_size);
+extern void CRL_CounterValue_PLN (char *const value, size_t value_size, char *const max, size_t max_size);
+extern int  CRL_GetTotalVisPlanes (void);
 
 // [crispy] demo progress bar and timer widget
 extern void CRL_DemoTimer (const int time);
