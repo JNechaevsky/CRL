@@ -62,7 +62,6 @@ extern int key_useartifact, key_useartifact2;
 
 // CRL controls
 
-extern int key_crl_menu, key_crl_menu2;               // RestlessRodent -- CRL
 extern int key_crl_prevlevel, key_crl_prevlevel2;     // [PN]
 extern int key_crl_nextlevel, key_crl_nextlevel2;     // [crispy]
 extern int key_crl_reloadlevel, key_crl_reloadlevel2; // [crispy]
@@ -92,10 +91,18 @@ extern int key_crl_novert, key_crl_novert2;
 extern int key_crl_vilebomb, key_crl_vilebomb2;
 extern int key_crl_vilefly, key_crl_vilefly2;
 
-// Visplanes MAX value
+// CRL Control Panel
 
-extern int key_crl_clearmax, key_crl_clearmax2;
-extern int key_crl_movetomax, key_crl_movetomax2;
+extern int key_crl_menu, key_crl_menu2;               // RestlessRodent -- CRL
+extern int key_crl_moveto_ssg_max, key_crl_moveto_ssg_max2;
+extern int key_crl_clear_ssg_max, key_crl_clear_ssg_max2;
+extern int key_crl_moveto_seg_max, key_crl_moveto_seg_max2;
+extern int key_crl_clear_seg_max, key_crl_clear_seg_max2;
+extern int key_crl_moveto_opn_max, key_crl_moveto_opn_max2;
+extern int key_crl_clear_opn_max, key_crl_clear_opn_max2;
+extern int key_crl_moveto_pln_max, key_crl_moveto_pln_max2;
+extern int key_crl_clear_pln_max, key_crl_clear_pln_max2;
+extern int key_crl_clear_all_max, key_crl_clear_all_max2;
 
 // Cheat shortcuts
 

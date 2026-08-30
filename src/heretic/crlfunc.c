@@ -107,7 +107,7 @@ enum
     widget_speed_val,
 } widgetcolor_t;
 
-static byte *CRL_StatColor_Str (const int val1, const int val2)
+byte *const CRL_StatColor_Str (const int val1, const int val2)
 {
     return
         val1 == val2 ? cr[CR_LIGHTGRAY] :
@@ -115,7 +115,7 @@ static byte *CRL_StatColor_Str (const int val1, const int val2)
                        cr[CR_GRAY];
 }
 
-static byte *CRL_StatColor_Val (const int val1, const int val2)
+byte *const CRL_StatColor_Val (const int val1, const int val2)
 {
     return
         val1 == val2 ? cr[CR_YELLOW] :
@@ -123,7 +123,7 @@ static byte *CRL_StatColor_Val (const int val1, const int val2)
                        cr[CR_GREEN];
 }
 
-static byte *CRL_PowerupColor (const int val1, const int val2)
+static byte *const CRL_PowerupColor (const int val1, const int val2)
 {
     return
         val1 > val2/2 ? cr[CR_GREEN]  :
@@ -293,6 +293,10 @@ void CRL_Get_Render_MAX (CRL_Render_max_t *max)
 
 void CRL_MoveTo_Render_MAX (const CRL_Render_max_t *max)
 {
+    // Prevent jumping to X0/Y0 coords if count equals zero.
+    if (max->count <= 0)
+        return;
+
     player_t *player = &players[displayplayer];
 
     // Define subsector we will move on.
@@ -306,6 +310,7 @@ void CRL_MoveTo_Render_MAX (const CRL_Render_max_t *max)
     player->mo->x = max->x;
     player->mo->y = max->y;
     player->mo->z = max->z;
+    player->viewz = player->mo->z + player->viewheight;
     // Supress any horizontal and vertical momentums.
     player->mo->momx = player->mo->momy = player->mo->momz = 0;
     // Set angle and heights.
@@ -316,7 +321,7 @@ void CRL_MoveTo_Render_MAX (const CRL_Render_max_t *max)
     P_SetThingPosition(player->mo);
 }
 
-static byte *CRL_Colorize_MAX (int style)
+byte *const CRL_Colorize_MAX (int style)
 {
     switch (style)
     {
@@ -374,6 +379,72 @@ static void CRL_AngleToString (angle_t value, char *const buf, size_t buf_size)
 }
 
 // -----------------------------------------------------------------------------
+// CRL_GetTotalVisPlanes
+//  [PN] Total amount of visplanes used during the current frame.
+// -----------------------------------------------------------------------------
+
+int CRL_GetTotalVisPlanes (void)
+{
+    return CRLData.numcheckplanes + CRLData.numfindplanes;
+}
+
+// -----------------------------------------------------------------------------
+// CRL_CounterValue_SPR
+//  [PN] Sprites: "current/max".
+// -----------------------------------------------------------------------------
+
+void CRL_CounterValue_SPR (char *const value, size_t value_size)
+{
+    M_snprintf(value, value_size, "%d/%d", CRLData.numsprites, CRL_MaxVisSprites);
+}
+
+// -----------------------------------------------------------------------------
+// CRL_CounterValue_SSG
+//  [PN] Solid segments: "current/max (MAX: N)" and the peak value.
+// -----------------------------------------------------------------------------
+
+void CRL_CounterValue_SSG (char *const value, size_t value_size, char *const max, size_t max_size)
+{
+    M_snprintf(value, value_size, "%d/%d (MAX: ", CRLData.numsolidsegs, CRL_MAX_SOLIDSEGS);
+    M_snprintf(max, max_size, "%d", CRL_MAX_ssg.count);
+}
+
+// -----------------------------------------------------------------------------
+// CRL_CounterValue_SEG
+//  [PN] Segments: "current/max (MAX: N)" and the peak value.
+// -----------------------------------------------------------------------------
+
+void CRL_CounterValue_SEG (char *const value, size_t value_size, char *const max, size_t max_size)
+{
+    M_snprintf(value, value_size, "%d/%d (MAX: ", CRLData.numsegs, CRL_MaxDrawSegs);
+    M_snprintf(max, max_size, "%d", CRL_MAX_seg.count);
+}
+
+// -----------------------------------------------------------------------------
+// CRL_CounterValue_OPN
+//  [PN] Openings: "current/max (MAX: N)" and the peak value.
+// -----------------------------------------------------------------------------
+
+void CRL_CounterValue_OPN (char *const value, size_t value_size, char *const max, size_t max_size)
+{
+    M_snprintf(value, value_size, "%d/%d (MAX: ", CRLData.numopenings, CRL_MaxOpenings);
+    M_snprintf(max, max_size, "%d", CRL_MAX_opn.count);
+}
+
+// -----------------------------------------------------------------------------
+// CRL_CounterValue_PLN
+//  [PN] Visplanes: "current/max (MAX: N)" and the peak value.
+// -----------------------------------------------------------------------------
+
+void CRL_CounterValue_PLN (char *const value, size_t value_size, char *const max, size_t max_size)
+{
+    const int TotalVisPlanes = CRL_GetTotalVisPlanes();
+
+    M_snprintf(value, value_size, "%d/%d (MAX: ", TotalVisPlanes, CRL_MaxVisPlanes);
+    M_snprintf(max, max_size, "%d", CRL_MAX_pln.count);
+}
+
+// -----------------------------------------------------------------------------
 // Draws CRL stats.
 //  [JN] Draw all the widgets and counters.
 // -----------------------------------------------------------------------------
@@ -389,7 +460,7 @@ void CRL_StatDrawer (void)
 {
     int xx = crl_widget_font ? 20 : 32;
     const int CRL_current_pln_count = (int)(lastvisplane - visplanes);
-    const int TotalVisPlanes = CRLData.numcheckplanes + CRLData.numfindplanes;
+    const int TotalVisPlanes = CRL_GetTotalVisPlanes();
 
     // [PN] Remember each render counter's peak and its player position.
     if (CRL_current_pln_count > CRL_MAX_pln.count)
@@ -412,6 +483,11 @@ void CRL_StatDrawer (void)
         CRL_MAX_opn.count = CRLData.numopenings;
         CRL_Get_Render_MAX(&CRL_MAX_opn);
     }
+
+    // Even if extended HUD is disabled, we still
+    // have to count MAX values in the code above.
+    if (!crl_extended_hud)
+        return;
 
     // Apply translucency while Save/Load menu is active.
     dp_translucent = savemenuactive;
@@ -475,10 +551,33 @@ void CRL_StatDrawer (void)
         || (crl_widget_render == 2 && CRLData.numsprites >= CRL_MaxVisSprites))
         {
             char spr[32];
-            
+
+            CRL_CounterValue_SPR(spr, sizeof(spr));
+
             fontfunc("SPR:", 0, 75 + yy, CRL_StatColor_Str(CRLData.numsprites, CRL_MaxVisSprites));
-            M_snprintf(spr, 16, "%d/%d", CRLData.numsprites, CRL_MaxVisSprites);
             fontfunc(spr, xx, 75 + yy, CRL_StatColor_Val(CRLData.numsprites, CRL_MaxVisSprites));
+        }
+
+        // Solid segments (32 max)
+        if (crl_widget_render == 1
+        || (crl_widget_render == 2 && (CRLData.numsolidsegs >= CRL_MAX_SOLIDSEGS
+                                   ||  CRL_MAX_ssg.count >= CRL_MAX_SOLIDSEGS)))
+        {
+            char value[32];
+            char max[32];
+            const int current_overflow = CRLData.numsolidsegs >= CRL_MAX_SOLIDSEGS;
+
+            CRL_CounterValue_SSG(value, sizeof(value), max, sizeof(max));
+
+            fontfunc("SSG:", 0, 85 + yy, current_overflow ?
+                      (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
+            fontfunc(value, xx, 85 + yy, current_overflow ?
+                      (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
+            fontfunc(max, xx + widthfunc(value), 85 + yy, current_overflow ?
+                      (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) :
+                      CRL_MAX_ssg.count >= CRL_MAX_SOLIDSEGS ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
+            fontfunc(")", xx + widthfunc(value) + widthfunc(max), 85 + yy, current_overflow ?
+                      (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
         }
 
         // Segments (256 max)
@@ -490,37 +589,15 @@ void CRL_StatDrawer (void)
             char max[32];
             const int current_overflow = CRLData.numsegs >= CRL_MaxDrawSegs;
 
-            fontfunc("SEG:", 0, 85 + yy, current_overflow ?
-                      (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
-            M_snprintf(value, sizeof(value), "%d/%d (MAX: ", CRLData.numsegs, CRL_MaxDrawSegs);
-            M_snprintf(max, sizeof(max), "%d", CRL_MAX_seg.count);
-            fontfunc(value, xx, 85 + yy, current_overflow ?
-                      (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
-            fontfunc(max, xx + widthfunc(value), 85 + yy, current_overflow ?
-                      (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) :
-                      CRL_MAX_seg.count >= CRL_MaxDrawSegs ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
-            fontfunc(")", xx + widthfunc(value) + widthfunc(max), 85 + yy, current_overflow ?
-                      (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
-        }
+            CRL_CounterValue_SEG(value, sizeof(value), max, sizeof(max));
 
-        // Solid segments (32 max)
-        if (crl_widget_render == 1
-        || (crl_widget_render == 2 && (CRLData.numsolidsegs >= 32
-                                   ||  CRL_MAX_ssg.count >= 32)))
-        {
-            char value[32];
-            char max[32];
-            const int current_overflow = CRLData.numsolidsegs >= 32;
-
-            fontfunc("SSG:", 0, 95 + yy, current_overflow ?
+            fontfunc("SEG:", 0, 95 + yy, current_overflow ?
                       (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
-            M_snprintf(value, sizeof(value), "%d/%d (MAX: ", CRLData.numsolidsegs, 32);
-            M_snprintf(max, sizeof(max), "%d", CRL_MAX_ssg.count);
             fontfunc(value, xx, 95 + yy, current_overflow ?
                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
             fontfunc(max, xx + widthfunc(value), 95 + yy, current_overflow ?
                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) :
-                      CRL_MAX_ssg.count >= 32 ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
+                      CRL_MAX_seg.count >= CRL_MaxDrawSegs ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
             fontfunc(")", xx + widthfunc(value) + widthfunc(max), 95 + yy, current_overflow ?
                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
         }
@@ -534,10 +611,10 @@ void CRL_StatDrawer (void)
             char max[32];
             const int current_overflow = CRLData.numopenings >= CRL_MaxOpenings;
 
+            CRL_CounterValue_OPN(value, sizeof(value), max, sizeof(max));
+
             fontfunc("OPN:", 0, 105 + yy, current_overflow ?
                       (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
-            M_snprintf(value, sizeof(value), "%d/%d (MAX: ", CRLData.numopenings, CRL_MaxOpenings);
-            M_snprintf(max, sizeof(max), "%d", CRL_MAX_opn.count);
             fontfunc(value, xx, 105 + yy, current_overflow ?
                       (gametic & 8 ? cr[CR_RED] : cr[CR_YELLOW]) : cr[CR_GREEN]);
             fontfunc(max, xx + widthfunc(value), 105 + yy, current_overflow ?
@@ -555,11 +632,10 @@ void CRL_StatDrawer (void)
             char vis[32];
             char max[32];
 
+            CRL_CounterValue_PLN(vis, sizeof(vis), max, sizeof(max));
+
             fontfunc("PLN:", 0, 115 + yy, TotalVisPlanes >= CRL_MaxVisPlanes ? 
                       (gametic & 8 ? cr[CR_GRAY] : cr[CR_LIGHTGRAY]) : cr[CR_GRAY]);
-
-            M_snprintf(vis, xx, "%d/%d (MAX: ", TotalVisPlanes, CRL_MaxVisPlanes);
-            M_snprintf(max, xx, "%d", CRL_MAX_pln.count);
 
             // PLN: x/x (MAX:
             fontfunc(vis, xx, 115 + yy, TotalVisPlanes >= CRL_MaxVisPlanes ?

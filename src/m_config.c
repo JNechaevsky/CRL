@@ -374,7 +374,6 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_KEY(key_flycenter2),
 
     // CRL Controls
-    CONFIG_VARIABLE_KEYBIND(key_crl_menu, key_crl_menu2),
     CONFIG_VARIABLE_KEYBIND(key_crl_prevlevel, key_crl_prevlevel2),
     CONFIG_VARIABLE_KEYBIND(key_crl_reloadlevel, key_crl_reloadlevel2),
     CONFIG_VARIABLE_KEYBIND(key_crl_nextlevel, key_crl_nextlevel2),
@@ -402,9 +401,17 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_KEYBIND(key_crl_vilebomb, key_crl_vilebomb2),
     CONFIG_VARIABLE_KEYBIND(key_crl_vilefly, key_crl_vilefly2),
 
-    // Visplanes MAX value
-    CONFIG_VARIABLE_KEYBIND(key_crl_clearmax, key_crl_clearmax2),
-    CONFIG_VARIABLE_KEYBIND(key_crl_movetomax, key_crl_movetomax2),
+    // CRL Control Panel
+    CONFIG_VARIABLE_KEYBIND(key_crl_menu, key_crl_menu2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_moveto_ssg_max, key_crl_moveto_ssg_max2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_clear_ssg_max, key_crl_clear_ssg_max2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_moveto_seg_max, key_crl_moveto_seg_max2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_clear_seg_max, key_crl_clear_seg_max2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_moveto_opn_max, key_crl_moveto_opn_max2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_clear_opn_max, key_crl_clear_opn_max2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_moveto_pln_max, key_crl_moveto_pln_max2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_clear_pln_max, key_crl_clear_pln_max2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_clear_all_max, key_crl_clear_all_max2),
     CONFIG_VARIABLE_KEYBIND(key_crl_limits, key_crl_limits2),
 
     // Cheat shortcuts

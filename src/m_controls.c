@@ -74,7 +74,6 @@ int key_useartifact = KEY_ENTER; int key_useartifact2 = 0;
 
 // CRL controls
 
-int key_crl_menu        = '`'; int key_crl_menu2 = 0;        // RestlessRodent -- CRL
 int key_crl_prevlevel   = 0;   int key_crl_prevlevel2   = 0; // [PN]
 int key_crl_nextlevel   = 0;   int key_crl_nextlevel2   = 0; // [crispy]
 int key_crl_reloadlevel = 0;   int key_crl_reloadlevel2 = 0; // [crispy]
@@ -106,10 +105,18 @@ int key_crl_novert   = 0;            int key_crl_novert2   = 0;
 int key_crl_vilebomb = 0;            int key_crl_vilebomb2 = 0;
 int key_crl_vilefly  = 0;            int key_crl_vilefly2  = 0;
 
-// Visplanes MAX value
+// CRL Control Panel
 
-int key_crl_clearmax  = 0; int key_crl_clearmax2  = 0;
-int key_crl_movetomax = 0; int key_crl_movetomax2 = 0;
+int key_crl_menu           = '`'; int key_crl_menu2 = 0;        // RestlessRodent -- CRL
+int key_crl_moveto_ssg_max = 0;   int key_crl_moveto_ssg_max2  = 0;
+int key_crl_clear_ssg_max  = 0;   int key_crl_clear_ssg_max2   = 0;
+int key_crl_moveto_seg_max = 0;   int key_crl_moveto_seg_max2  = 0;
+int key_crl_clear_seg_max  = 0;   int key_crl_clear_seg_max2   = 0;
+int key_crl_moveto_opn_max = 0;   int key_crl_moveto_opn_max2  = 0;
+int key_crl_clear_opn_max  = 0;   int key_crl_clear_opn_max2   = 0;
+int key_crl_moveto_pln_max = 0;   int key_crl_moveto_pln_max2  = 0;
+int key_crl_clear_pln_max  = 0;   int key_crl_clear_pln_max2   = 0;
+int key_crl_clear_all_max  = 0;   int key_crl_clear_all_max2   = 0;
 
 // Cheat shortcuts
 
@@ -319,7 +326,6 @@ void M_BindControls (void)
 
     // CRL Controls
 
-    M_BindIntVariableKeybind("key_crl_menu", &key_crl_menu,  "key_crl_menu2",  &key_crl_menu2); // RestlessRodent -- CRL
     M_BindIntVariableKeybind("key_crl_prevlevel",   &key_crl_prevlevel,   "key_crl_prevlevel2",   &key_crl_prevlevel2);  // [PN]
     M_BindIntVariableKeybind("key_crl_reloadlevel", &key_crl_reloadlevel, "key_crl_reloadlevel2", &key_crl_reloadlevel); // [crispy]
     M_BindIntVariableKeybind("key_crl_nextlevel",   &key_crl_nextlevel,   "key_crl_nextlevel2",   &key_crl_nextlevel2);  // [crispy]
@@ -349,11 +355,19 @@ void M_BindControls (void)
     M_BindIntVariableKeybind("key_crl_vilefly",  &key_crl_vilefly,  "key_crl_vilefly2",  &key_crl_vilefly2);
     M_BindIntVariableKeybind("key_crl_mlook",    &key_crl_mlook,    "key_crl_mlook2",    &key_crl_mlook2);   // [crispy]
 
-    // Visplanes MAX value
+    // CRL Control Panel
 
-    M_BindIntVariableKeybind("key_crl_clearmax",  &key_crl_clearmax,  "key_crl_clearmax2",  &key_crl_clearmax2);
-    M_BindIntVariableKeybind("key_crl_movetomax", &key_crl_movetomax, "key_crl_movetomax2", &key_crl_movetomax2);
-    M_BindIntVariableKeybind("key_crl_limits",    &key_crl_limits,    "key_crl_limits2",    &key_crl_limits2); // TODO?
+    M_BindIntVariableKeybind("key_crl_menu",           &key_crl_menu,           "key_crl_menu2",          &key_crl_menu2); // RestlessRodent -- CRL
+    M_BindIntVariableKeybind("key_crl_moveto_ssg_max", &key_crl_moveto_ssg_max, "key_crl_moveto_ssg_max", &key_crl_moveto_ssg_max2);
+    M_BindIntVariableKeybind("key_crl_clear_ssg_max",  &key_crl_clear_ssg_max,  "key_crl_clear_ssg_max2", &key_crl_clear_ssg_max2);
+    M_BindIntVariableKeybind("key_crl_moveto_seg_max", &key_crl_moveto_seg_max, "key_crl_moveto_seg_max", &key_crl_moveto_seg_max);
+    M_BindIntVariableKeybind("key_crl_clear_seg_max",  &key_crl_clear_seg_max,  "key_crl_clear_seg_max",  &key_crl_clear_seg_max);
+    M_BindIntVariableKeybind("key_crl_moveto_opn_max", &key_crl_moveto_opn_max, "key_crl_moveto_opn_max", &key_crl_moveto_opn_max);
+    M_BindIntVariableKeybind("key_crl_clear_opn_max",  &key_crl_clear_opn_max,  "key_crl_clear_opn_max",  &key_crl_clear_opn_max);
+    M_BindIntVariableKeybind("key_crl_moveto_pln_max", &key_crl_moveto_pln_max, "key_crl_moveto_pln_max", &key_crl_moveto_pln_max);
+    M_BindIntVariableKeybind("key_crl_clear_pln_max",  &key_crl_clear_pln_max,  "key_crl_clear_pln_max",  &key_crl_clear_pln_max);
+    M_BindIntVariableKeybind("key_crl_clear_all_max",  &key_crl_clear_all_max,  "key_crl_clear_all_max",  &key_crl_clear_all_max);
+    M_BindIntVariableKeybind("key_crl_limits",         &key_crl_limits,         "key_crl_limits2",        &key_crl_limits2); // TODO?
 
     // Cheat shortcuts
 
