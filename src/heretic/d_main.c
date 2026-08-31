@@ -552,7 +552,7 @@ void D_PageTicker(void)
 
 static void D_PageDrawer(void)
 {
-    V_DrawRawScreen(W_CacheLumpName(pagename, PU_CACHE));
+    V_DrawRawScreen(W_GetNumForName(pagename));
     if (demosequence == 1)
     {
         V_DrawPatch(4, 160, W_CacheLumpName(DEH_String("ADVISOR"), PU_CACHE));

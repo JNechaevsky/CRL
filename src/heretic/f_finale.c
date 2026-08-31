@@ -374,7 +374,7 @@ static void F_DrawUnderwater(void)
             // [PN] Redraw every frame: after crossfade, the wipe buffer can
             // still contain faint remnants of finale text if we don't refresh
             // the underwater background continuously.
-            V_DrawRawScreen(W_CacheLumpName(DEH_String("E2END"), PU_CACHE));
+            V_DrawRawScreen(W_GetNumForName(DEH_String("E2END")));
             paused = false;
             MenuActive = false;
             askforquit = false;
@@ -389,7 +389,7 @@ static void F_DrawUnderwater(void)
                 W_ReleaseLumpName(lumpname);
                 underwawa = false;
             }
-            V_DrawRawScreen(W_CacheLumpName(DEH_String("TITLE"), PU_CACHE));
+            V_DrawRawScreen(W_GetNumForName(DEH_String("TITLE")));
             //D_StartTitle(); // go to intro/demo mode.
     }
 }
@@ -413,11 +413,11 @@ void F_Drawer(void)
             case 1:
                 if (gamemode == shareware)
                 {
-                    V_DrawRawScreen(W_CacheLumpName("ORDER", PU_CACHE));
+                    V_DrawRawScreen(W_GetNumForName("ORDER"));
                 }
                 else
                 {
-                    V_DrawRawScreen(W_CacheLumpName("CREDIT", PU_CACHE));
+                    V_DrawRawScreen(W_GetNumForName("CREDIT"));
                 }
                 break;
             case 2:
@@ -428,7 +428,7 @@ void F_Drawer(void)
                 break;
             case 4:            // Just show credits screen for extended episodes
             case 5:
-                V_DrawRawScreen(W_CacheLumpName("CREDIT", PU_CACHE));
+                V_DrawRawScreen(W_GetNumForName("CREDIT"));
                 break;
         }
     }

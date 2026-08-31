@@ -28,6 +28,7 @@
 
 // Needed because we are refering to patches.
 #include "v_patch.h"
+#include "w_wad.h" // lumpindex_t
 
 //
 // VIDEO
@@ -56,7 +57,7 @@ void V_DrawShadowedPatch(int x, int y, const patch_t *patch);
 void V_DrawShadowedPatchRaven(int x, int y, patch_t *patch);
 void V_DrawShadowedPatchRavenOptional(int x, int y, const patch_t *patch);
 void V_DrawTLPatch(int x, int y, patch_t *patch);
-void V_DrawRawScreen(const byte *raw);
+void V_DrawRawScreen(const lumpindex_t index);
 
 // Draw a linear block of pixels into the view buffer.
 

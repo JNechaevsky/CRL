@@ -543,11 +543,26 @@ void V_DrawTLPatch(int x, int y, patch_t * patch)
 //
 // Draw a "raw" screen (lump containing raw data to blit directly
 // to the screen)
+// [JN] CRL - catch incorrect (non 320x200) raw screens. Adapted from Crispy Heretic.
 //
  
-void V_DrawRawScreen (const byte *raw)
+void V_DrawRawScreen (const lumpindex_t index)
 {
-    memcpy(dest_screen, raw, SCREENWIDTH * SCREENHEIGHT);
+    const patch_t *const patch = W_CacheLumpNum(index, PU_CACHE);
+    const int size = W_LumpLength(index);
+    static const int valid_size = 64000;  // i.e. (320 * 200), valid RAW screen
+    
+    if (size == valid_size)
+    {
+        memcpy(dest_screen, patch, valid_size);
+    }
+    else
+    {
+        // [JN] Do not draw trashy pixels, print a critical message instead.
+        CRL_SetMessageCritical("V[DRAWRAWSCREEN:",
+        M_StringJoin("INCORRECT RAW SCREEN \"", V_PatchSourceName(patch), "\"", NULL), 2);
+        return;
+    }
 }
 
 //
