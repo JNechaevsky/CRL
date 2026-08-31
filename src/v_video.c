@@ -114,12 +114,39 @@ void V_CopyRect(int srcx, int srcy, pixel_t *source,
     } 
 } 
 
+// -----------------------------------------------------------------------------
+// V_PatchSourceName
+//  [PN] Name of the lump a cached patch came from. Patches drawn by lump
+//  number (the HUD and the Raven fonts are runs of lumps) have no name at
+//  hand, so it is taken back from the lump table: the block returned by
+//  W_CacheLumpNum is exactly what the lump keeps as its cache.
+//  Only used to build the "bad v_drawpatch" message, where the scan of the
+//  table is cheap enough to afford.
+// -----------------------------------------------------------------------------
+
+static const char *const V_PatchSourceName (const void *const patch)
+{
+    static char name[9];    // [PN] lumpinfo_t.name is char[8], no terminating 0.
+    lumpindex_t i;
+
+    for (i = 0; i < (lumpindex_t) numlumps; i++)
+    {
+        if (lumpinfo[i] != NULL && lumpinfo[i]->cache == patch)
+        {
+            M_StringCopy(name, lumpinfo[i]->name, sizeof(name));
+            return name;
+        }
+    }
+
+    return "UNKNOWN";
+}
+
 //
 // V_DrawPatch
 // Masks a column based masked pic to the screen. 
 //
 
-void V_DrawPatch(int x, int y, patch_t *patch, const char *name)
+void V_DrawPatch(int x, int y, patch_t *patch)
 { 
     int count;
     int col;
@@ -141,7 +168,7 @@ void V_DrawPatch(int x, int y, patch_t *patch, const char *name)
 		// RestlessRodent -- Do not die
 		// [JN] ... print a critical message instead.
         CRL_SetMessageCritical("V_DRAWPATCH:", 
-        M_StringJoin("BAD V_DRAWPATCH \"", name, "\"", NULL), 2);
+        M_StringJoin("BAD V_DRAWPATCH \"", V_PatchSourceName(patch), "\"", NULL), 2);
 		return;
     }
 
@@ -211,7 +238,7 @@ void V_DrawPatchFlipped(int x, int y, patch_t *patch)
     {
         // [JN] Do not crash, print a critical message instead.
         CRL_SetMessageCritical("V_DRAWPATCHFLIPPED:", 
-        M_StringJoin("BAD V_DRAWPATCH \"", "UNKNOWN", "\"", NULL), 2);
+        M_StringJoin("BAD V_DRAWPATCH \"", V_PatchSourceName(patch), "\"", NULL), 2);
         return;
     }
 #endif
@@ -248,7 +275,7 @@ void V_DrawPatchFlipped(int x, int y, patch_t *patch)
 // Used by Doom with tintmap map.
 // -----------------------------------------------------------------------------
 
-void V_DrawShadowedPatch (int x, int y, const patch_t *patch, const char *name)
+void V_DrawShadowedPatch (int x, int y, const patch_t *patch)
 {
     int       count, col, w;
     const byte *source;
@@ -267,7 +294,7 @@ void V_DrawShadowedPatch (int x, int y, const patch_t *patch, const char *name)
     {
         // [JN] Do not crash, print a critical message instead.
         CRL_SetMessageCritical("V_DRAWPATCH:",
-        M_StringJoin("BAD V_DRAWPATCH \"", name, "\"", NULL), 2);
+        M_StringJoin("BAD V_DRAWPATCH \"", V_PatchSourceName(patch), "\"", NULL), 2);
         return;
     }
 #endif
@@ -339,7 +366,10 @@ void V_DrawShadowedPatchRaven(int x, int y, patch_t *patch)
      || y < 0
      || y + SHORT(patch->height) > SCREENHEIGHT)
     {
-        I_Error("Bad V_DrawShadowedPatch");
+        // [JN] Do not crash, print a critical message instead.
+        CRL_SetMessageCritical("V_DRAWPATCHRAVEN:",
+        M_StringJoin("BAD V_DRAWPATCH \"", V_PatchSourceName(patch), "\"", NULL), 2);
+        return;
     }
 
     col = 0;
@@ -385,7 +415,7 @@ void V_DrawShadowedPatchRaven(int x, int y, patch_t *patch)
 // Used by Heretic and Hexen with tinttable map and draws optional shadow.
 // -----------------------------------------------------------------------------
 
-void V_DrawShadowedPatchRavenOptional (int x, int y, const patch_t *patch, const char *name)
+void V_DrawShadowedPatchRavenOptional (int x, int y, const patch_t *patch)
 {
     int       count, col, w;
     const byte *source;
@@ -404,7 +434,7 @@ void V_DrawShadowedPatchRavenOptional (int x, int y, const patch_t *patch, const
     {
         // [JN] Do not crash, print a critical message instead.
         CRL_SetMessageCritical("V_DRAWPATCH:",
-        M_StringJoin("BAD V_DRAWPATCH \"", name, "\"", NULL), 2);
+        M_StringJoin("BAD V_DRAWPATCH \"", V_PatchSourceName(patch), "\"", NULL), 2);
         return;
     }
 #endif
@@ -477,7 +507,11 @@ void V_DrawTLPatch(int x, int y, patch_t * patch)
      || y < 0
      || y + SHORT(patch->height) > SCREENHEIGHT)
     {
-        I_Error("Bad V_DrawTLPatch");
+        // [PN] Do not crash, print a critical message instead, naming the
+        // picture: every caller here draws a freshly cached lump.
+        CRL_SetMessageCritical("V_DRAWTLPATCH:",
+        M_StringJoin("BAD V_DRAWPATCH \"", V_PatchSourceName(patch), "\"", NULL), 2);
+        return;
     }
 
     col = 0;
@@ -509,11 +543,26 @@ void V_DrawTLPatch(int x, int y, patch_t * patch)
 //
 // Draw a "raw" screen (lump containing raw data to blit directly
 // to the screen)
+// [JN] CRL - catch incorrect (non 320x200) raw screens. Adapted from Crispy Heretic.
 //
  
-void V_DrawRawScreen (const byte *raw)
+void V_DrawRawScreen (const lumpindex_t index)
 {
-    memcpy(dest_screen, raw, SCREENWIDTH * SCREENHEIGHT);
+    const patch_t *const patch = W_CacheLumpNum(index, PU_CACHE);
+    const int size = W_LumpLength(index);
+    static const int valid_size = 64000;  // i.e. (320 * 200), valid RAW screen
+    
+    if (size == valid_size)
+    {
+        memcpy(dest_screen, patch, valid_size);
+    }
+    else
+    {
+        // [JN] Do not draw trashy pixels, print a critical message instead.
+        CRL_SetMessageCritical("V[DRAWRAWSCREEN:",
+        M_StringJoin("INCORRECT RAW SCREEN \"", V_PatchSourceName(patch), "\"", NULL), 2);
+        return;
+    }
 }
 
 //

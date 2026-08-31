@@ -418,13 +418,13 @@ void CT_Drawer (void)
         {
             // [PN] Fetch and draw font patch for printable characters.
             patch_t *patch = W_CacheLumpNum(ChatFontBaseLump + c - 33, PU_STATIC);
-            V_DrawShadowedPatch(x, 10, patch, "STCFN");
+            V_DrawShadowedPatch(x, 10, patch);
             x += patch->width;
         }
     }
 
     // [PN] Draw cursor at the end of the message.
-    V_DrawShadowedPatch(x, 10, W_CacheLumpName(DEH_String("STCFN095"), PU_STATIC), "STCFN095");
+    V_DrawShadowedPatch(x, 10, W_CacheLumpName(DEH_String("STCFN095"), PU_STATIC));
 }
 
 // -----------------------------------------------------------------------------

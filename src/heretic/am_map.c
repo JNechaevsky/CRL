@@ -2467,7 +2467,7 @@ static void AM_drawMarks (void)
                 // [JN] Construct proper patch name for possible error handling:
                 sprintf(name, "SMALLIN%d", i);
                 dp_translation = cr[CR_GREEN];
-                V_DrawPatch(fx, fy, marknums[i], name);
+                V_DrawPatch(fx, fy, marknums[i]);
                 dp_translation = NULL;
             }
         }

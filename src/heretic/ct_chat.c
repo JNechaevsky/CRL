@@ -399,11 +399,11 @@ void CT_Drawer(void)
                 patch_t *patch = W_CacheLumpNum(FontABaseLump +
                                                 chat_msg[consoleplayer][i] - 33,
                                                 PU_CACHE);
-                V_DrawShadowedPatchRavenOptional(x, 10, patch, "NULL"); // [JN] TODO - patch name
+                V_DrawShadowedPatchRavenOptional(x, 10, patch);
                 x += patch->width;
             }
         }
-        V_DrawShadowedPatchRavenOptional(x, 10, W_CacheLumpName(DEH_String("FONTA59"), PU_CACHE), "FONTA59");
+        V_DrawShadowedPatchRavenOptional(x, 10, W_CacheLumpName(DEH_String("FONTA59"), PU_CACHE));
     }
 }
 
