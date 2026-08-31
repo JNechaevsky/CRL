@@ -41,7 +41,7 @@ int crl_fpslimit = 0;
 int crl_vsync = 1;
 int crl_showfps = 0;
 int crl_visplanes_drawing = 0;
-int crl_hom_effect = 1;
+int crl_hom_effect = 2;
 int crl_gamma = 10;
 int crl_menu_shading = 12;
 int crl_level_brightness = 0;
@@ -63,7 +63,7 @@ int crl_rewind_timeout = 10;
 
 // Widgets
 int crl_extended_hud = 1;
-int crl_widget_font = 0;
+int crl_widget_font = 1;
 int crl_widget_playstate = 2;
 int crl_widget_render = 1;
 int crl_widget_maxvp = 0;
