@@ -588,21 +588,21 @@ void IN_Drawer(void)
         case 1:                // leaving old level
             if (gameepisode < 4)
             {
-                V_DrawPatch(0, 0, patchINTERPIC, "NULL"); // [JN] TODO - patch name
+                V_DrawPatch(0, 0, patchINTERPIC);
                 IN_DrawOldLevel();
             }
             break;
         case 2:                // going to the next level
             if (gameepisode < 4)
             {
-                V_DrawPatch(0, 0, patchINTERPIC, "NULL"); // [JN] TODO - patch name
+                V_DrawPatch(0, 0, patchINTERPIC);
                 IN_DrawYAH();
             }
             break;
         case 3:                // waiting before going to the next level
             if (gameepisode < 4)
             {
-                V_DrawPatch(0, 0, patchINTERPIC, "NULL"); // [JN] TODO - patch name
+                V_DrawPatch(0, 0, patchINTERPIC);
             }
             break;
         default:
@@ -665,14 +665,12 @@ void IN_DrawOldLevel(void)
         for (i = 0; i < gamemap - 1; i++)
         {
             V_DrawPatch(YAHspot[gameepisode - 1][i].x,
-                        YAHspot[gameepisode - 1][i].y, patchBEENTHERE,
-                        "IN_X");
+                        YAHspot[gameepisode - 1][i].y, patchBEENTHERE);
         }
         if (!(intertime & 16))
         {
             V_DrawPatch(YAHspot[gameepisode - 1][8].x,
-                        YAHspot[gameepisode - 1][8].y, patchBEENTHERE,
-                        "IN_X");
+                        YAHspot[gameepisode - 1][8].y, patchBEENTHERE);
         }
     }
     else
@@ -680,20 +678,18 @@ void IN_DrawOldLevel(void)
         for (i = 0; i < prevmap - 1; i++)
         {
             V_DrawPatch(YAHspot[gameepisode - 1][i].x,
-                        YAHspot[gameepisode - 1][i].y, patchBEENTHERE,
-                        "IN_X");
+                        YAHspot[gameepisode - 1][i].y, patchBEENTHERE);
         }
         if (players[consoleplayer].didsecret)
         {
             V_DrawPatch(YAHspot[gameepisode - 1][8].x,
-                        YAHspot[gameepisode - 1][8].y, patchBEENTHERE,
-                        "IN_X");
+                        YAHspot[gameepisode - 1][8].y, patchBEENTHERE);
         }
         if (!(intertime & 16))
         {
             V_DrawPatch(YAHspot[gameepisode - 1][prevmap - 1].x,
                         YAHspot[gameepisode - 1][prevmap - 1].y,
-                        patchBEENTHERE, "IN_X");
+                        patchBEENTHERE);
         }
     }
 }
@@ -722,20 +718,17 @@ void IN_DrawYAH(void)
     for (i = 0; i < prevmap; i++)
     {
         V_DrawPatch(YAHspot[gameepisode - 1][i].x,
-                    YAHspot[gameepisode - 1][i].y, patchBEENTHERE,
-                    "IN_X");
+                    YAHspot[gameepisode - 1][i].y, patchBEENTHERE);
     }
     if (players[consoleplayer].didsecret)
     {
         V_DrawPatch(YAHspot[gameepisode - 1][8].x,
-                    YAHspot[gameepisode - 1][8].y, patchBEENTHERE,
-                    "IN_X");
+                    YAHspot[gameepisode - 1][8].y, patchBEENTHERE);
     }
     if (!(intertime & 16) || interstate == 3)
     {                           // draw the destination 'X'
         V_DrawPatch(YAHspot[gameepisode - 1][gamemap - 1].x,
-                    YAHspot[gameepisode - 1][gamemap - 1].y, patchGOINGTHERE,
-                    "IN_YAH");
+                    YAHspot[gameepisode - 1][gamemap - 1].y, patchGOINGTHERE);
     }
 }
 

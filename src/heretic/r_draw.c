@@ -385,22 +385,22 @@ void R_FillBackScreen (void)
     // [PN] Draw top and bottom borders
     for (int x = view_x; x < view_x + view_w; x += 16)
     {
-        V_DrawPatch(x, view_y - 4 + yy, W_CacheLumpName(DEH_String("BORDT"), PU_CACHE), "BORDT");
-        V_DrawPatch(x, view_y + view_h, W_CacheLumpName(DEH_String("BORDB"), PU_CACHE), "BORDB");
+        V_DrawPatch(x, view_y - 4 + yy, W_CacheLumpName(DEH_String("BORDT"), PU_CACHE));
+        V_DrawPatch(x, view_y + view_h, W_CacheLumpName(DEH_String("BORDB"), PU_CACHE));
     }
 
     // [PN] Draw left and right borders
     for (int y = view_y; y < view_y + view_h; y += 16)
     {
-        V_DrawPatch(view_x - 4, y, W_CacheLumpName(DEH_String("BORDL"), PU_CACHE), "BORDL");
-        V_DrawPatch(view_x + view_w, y, W_CacheLumpName(DEH_String("BORDR"), PU_CACHE), "BORDR");
+        V_DrawPatch(view_x - 4, y, W_CacheLumpName(DEH_String("BORDL"), PU_CACHE));
+        V_DrawPatch(view_x + view_w, y, W_CacheLumpName(DEH_String("BORDR"), PU_CACHE));
     }
 
     // [PN] Draw corners
-    V_DrawPatch(view_x - 4, view_y - 4 + yy, W_CacheLumpName(DEH_String("BORDTL"), PU_CACHE), "BORDTL");
-    V_DrawPatch(view_x + view_w, view_y - 4 + yy, W_CacheLumpName(DEH_String("BORDTR"), PU_CACHE), "BORDTR");
-    V_DrawPatch(view_x + view_w, view_y + view_h, W_CacheLumpName(DEH_String("BORDBR"), PU_CACHE), "BORDBR");
-    V_DrawPatch(view_x - 4, view_y + view_h, W_CacheLumpName(DEH_String("BORDBL"), PU_CACHE), "BORDBL");
+    V_DrawPatch(view_x - 4, view_y - 4 + yy, W_CacheLumpName(DEH_String("BORDTL"), PU_CACHE));
+    V_DrawPatch(view_x + view_w, view_y - 4 + yy, W_CacheLumpName(DEH_String("BORDTR"), PU_CACHE));
+    V_DrawPatch(view_x + view_w, view_y + view_h, W_CacheLumpName(DEH_String("BORDBR"), PU_CACHE));
+    V_DrawPatch(view_x - 4, view_y + view_h, W_CacheLumpName(DEH_String("BORDBL"), PU_CACHE));
 
     // [PN] Restore the original buffer
     V_RestoreBuffer();

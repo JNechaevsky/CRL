@@ -768,22 +768,22 @@ void R_FillBackScreen (void)
     // [PN] Draw top and bottom borders
     for (int x = 0; x < scaledwidth; x += 8)
     {
-        V_DrawPatch(view_x + x, view_y - 8, patch_top, "brdr_t");
-        V_DrawPatch(view_x + x, view_y + viewheight_res, patch_bottom, "brdr_b");
+        V_DrawPatch(view_x + x, view_y - 8, patch_top);
+        V_DrawPatch(view_x + x, view_y + viewheight_res, patch_bottom);
     }
 
     // [PN] Draw left and right borders
     for (int y = 0; y < viewheight_res; y += 8)
     {
-        V_DrawPatch(view_x - 8, view_y + y, patch_left, "brdr_l");
-        V_DrawPatch(view_x + scaledwidth, view_y + y, patch_right, "brdr_r");
+        V_DrawPatch(view_x - 8, view_y + y, patch_left);
+        V_DrawPatch(view_x + scaledwidth, view_y + y, patch_right);
     }
 
     // [PN] Draw corners
-    V_DrawPatch(view_x - 8, view_y - 8, patch_tl, "brdr_tl");
-    V_DrawPatch(view_x + scaledwidth, view_y - 8, patch_tr, "brdr_tr");
-    V_DrawPatch(view_x - 8, view_y + viewheight_res, patch_bl, "brdr_bl");
-    V_DrawPatch(view_x + scaledwidth, view_y + viewheight_res, patch_br, "brdr_br");
+    V_DrawPatch(view_x - 8, view_y - 8, patch_tl);
+    V_DrawPatch(view_x + scaledwidth, view_y - 8, patch_tr);
+    V_DrawPatch(view_x - 8, view_y + viewheight_res, patch_bl);
+    V_DrawPatch(view_x + scaledwidth, view_y + viewheight_res, patch_br);
 
     // [PN] Restore the previous buffer
     V_RestoreBuffer();

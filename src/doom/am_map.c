@@ -2074,7 +2074,7 @@ static void AM_drawMarks (void)
             {
                 // [JN] Construct proper patch name for possible error handling:
                 sprintf(name, "AMMNUM%d", i);
-                V_DrawPatch(fx, fy, marknums[i], name);
+                V_DrawPatch(fx, fy, marknums[i]);
             }
         }
     }

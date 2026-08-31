@@ -409,7 +409,7 @@ static void F_TextWrite (void)
 	    break;
 	// [JN] Construct proper patch name for possible error handling:
 	sprintf(name, "STCFN%03d", c + HU_FONTSTART);
-	V_DrawShadowedPatch(cx, cy, hu_font[c], name);
+	V_DrawShadowedPatch(cx, cy, hu_font[c]);
 	cx+=w;
     }
 	
@@ -620,7 +620,7 @@ static void F_CastDrawer (void)
     const char *bossback = DEH_String("BOSSBACK");
     
     // erase the entire screen to a background
-    V_DrawPatch (0, 0, W_CacheLumpName (bossback, PU_CACHE), bossback);
+    V_DrawPatch (0, 0, W_CacheLumpName (bossback, PU_CACHE));
 
     // [JN] Simplify to use common text drawing function.
     M_WriteTextCentered(180, DEH_String(castorder[castnum].name), NULL);
@@ -632,11 +632,11 @@ static void F_CastDrawer (void)
     flip = (boolean)sprframe->flip[0];
 			
     patch = W_CacheLumpNum (lump+firstspritelump, PU_CACHE);
+
     if (flip)
 	V_DrawPatchFlipped(SCREENWIDTH/2, 170, patch);
     else
-    // [JN] TODO - handle "bad v_drawpatch" name. But how?
-	V_DrawPatch(SCREENWIDTH/2, 170, patch, "FINALE PATCH");
+	V_DrawPatch(SCREENWIDTH/2, 170, patch);
 }
 
 
@@ -712,7 +712,7 @@ static void F_BunnyScroll (void)
     {
         V_DrawPatch((SCREENWIDTH - 13 * 8) / 2,
                     (SCREENHEIGHT - 8 * 8) / 2, 
-                     W_CacheLumpName(end0, PU_CACHE), end0);
+                     W_CacheLumpName(end0, PU_CACHE));
 	laststage = 0;
 	return;
     }
@@ -729,7 +729,7 @@ static void F_BunnyScroll (void)
     DEH_snprintf(name, 10, "END%i", stage);
     V_DrawPatch((SCREENWIDTH - 13 * 8) / 2, 
                 (SCREENHEIGHT - 8 * 8) / 2, 
-                W_CacheLumpName (name,PU_CACHE), name);
+                W_CacheLumpName (name,PU_CACHE));
 }
 
 static void F_ArtScreenDrawer(void)
@@ -766,7 +766,7 @@ static void F_ArtScreenDrawer(void)
 
         lumpname = DEH_String(lumpname);
 
-        V_DrawPatch (0, 0, W_CacheLumpName(lumpname, PU_CACHE), lumpname);
+        V_DrawPatch (0, 0, W_CacheLumpName(lumpname, PU_CACHE));
     }
 }
 

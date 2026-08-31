@@ -79,7 +79,7 @@ void DSDA_DrawText(int x, int y, const char *const text, byte *const table)
         }
 
         patch_t *const patch = dsda_font[c - HU_FONTSTART];
-        V_DrawPatch(x, y, patch, "DSDA_FONT");
+        V_DrawPatch(x, y, patch);
         x += patch->width;
     }
     
@@ -117,7 +117,7 @@ void DSDA_DrawTextCentered(int y, const char *const text, byte *const table)
         if (idx >= 0 && idx < HU_FONTSIZE && dsda_font[idx])
         {
             patch_t *const patch = dsda_font[idx];
-            V_DrawPatch(x, y, patch, "DSDA_FONT");
+            V_DrawPatch(x, y, patch);
             x += patch->width;
         }
         else if (c < 33 || c > 126)

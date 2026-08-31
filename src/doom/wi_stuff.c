@@ -408,23 +408,7 @@ static patch_t *background;
 // slam background
 static void WI_slamBackground(void)
 {
-    const char *name1 = DEH_String("INTERPIC");
-    char  name2[9];
-
-    // [JN] Construct proper patch name for possible error handling:
-    if (gamemode == commercial)
-    {
-        V_DrawPatch(0, 0, background, name1);
-    }
-    else if (gameversion >= exe_ultimate && wbs->epsd == 3)
-    {
-        V_DrawPatch(0, 0, background, name1);
-    }
-    else
-    {
-        sprintf(name2, "WIMAP%d", wbs->epsd);
-        V_DrawPatch(0, 0, background, name2);
-    }
+    V_DrawPatch(0, 0, background);
 }
 
 // The ticker is used to detect keys
@@ -457,12 +441,12 @@ static void WI_drawLF(void)
 
         // draw <LevelName> 
         V_DrawShadowedPatch((SCREENWIDTH - SHORT(lnames[wbs->last]->width))/2,
-                    y, lnames[wbs->last], lvlname);
+                    y, lnames[wbs->last]);
 
         // draw "Finished!"
         y += (5*SHORT(lnames[wbs->last]->height))/4;
 
-        V_DrawShadowedPatch((SCREENWIDTH - SHORT(finished->width)) / 2, y, finished, DEH_String("WIF"));
+        V_DrawShadowedPatch((SCREENWIDTH - SHORT(finished->width)) / 2, y, finished);
     }
     else if (wbs->last == NUMCMAPS)
     {
@@ -478,7 +462,7 @@ static void WI_drawLF(void)
         patch_t tmp = { SCREENWIDTH, SCREENHEIGHT, 1, 1, 
                         { 0, 0, 0, 0, 0, 0, 0, 0 } };
 
-        V_DrawPatch(0, y, &tmp, "NULL");
+        V_DrawPatch(0, y, &tmp);
     }
 }
 
@@ -493,7 +477,7 @@ static void WI_drawEL(void)
     // draw "Entering"
     V_DrawShadowedPatch((SCREENWIDTH - SHORT(entering->width))/2,
 		y,
-                entering, DEH_String("WIENTER"));
+                entering);
 
     // draw level
     y += (5*SHORT(lnames[wbs->next]->height))/4;
@@ -510,7 +494,7 @@ static void WI_drawEL(void)
 
     V_DrawShadowedPatch((SCREENWIDTH - SHORT(lnames[wbs->next]->width))/2,
 		y, 
-                lnames[wbs->next], lvlname);
+                lnames[wbs->next]);
 
 }
 
@@ -554,7 +538,7 @@ WI_drawOnLnode
 	// If splat is drawing offscreen, "else" condition will be invoked.
 	V_DrawShadowedPatch(lnodes[wbs->epsd][n].x,
                     lnodes[wbs->epsd][n].y,
-		    c[i], DEH_String("WISPLAT"));
+		    c[i]);
     }
     else
     {
@@ -672,7 +656,7 @@ static void WI_drawAnimatedBack(void)
 
 	// [JN] Construct proper patch name for possible error handling:
 	sprintf(name, "WIA10702");
-	V_DrawPatch(a->loc.x, a->loc.y, a->p[a->nanims - 1], name);
+	V_DrawPatch(a->loc.x, a->loc.y, a->p[a->nanims - 1]);
     }
 
     for (i=0 ; i<NUMANIMS[wbs->epsd] ; i++)
@@ -682,7 +666,7 @@ static void WI_drawAnimatedBack(void)
 	// [JN] Construct proper patch name for possible error handling:
 	sprintf(name, "WIA%d%.2d%.2d", wbs->epsd, i, a->ctr);
 	if (a->ctr >= 0)
-	    V_DrawPatch(a->loc.x, a->loc.y, a->p[a->ctr], name);
+	    V_DrawPatch(a->loc.x, a->loc.y, a->p[a->ctr]);
     }
 }
 
@@ -741,13 +725,13 @@ WI_drawNum
 	x -= fontwidth;
 	// [JN] Construct proper patch name for possible error handling:
 	sprintf(name, "WINUM%d", n);
-	V_DrawShadowedPatch(x, y, num[ n % 10 ], name);
+	V_DrawShadowedPatch(x, y, num[ n % 10 ]);
 	n /= 10;
     }
 
     // draw a minus sign if necessary
     if (neg)
-	V_DrawShadowedPatch(x-=8, y, wiminus, DEH_String("WIMINUS"));
+	V_DrawShadowedPatch(x-=8, y, wiminus);
 
     return x;
 
@@ -762,7 +746,7 @@ WI_drawPercent
     if (pcnt < 0)
 	return;
 
-    V_DrawShadowedPatch(x, y, percent, DEH_String("WIPCNT"));
+    V_DrawShadowedPatch(x, y, percent);
     WI_drawNum(x, y, pcnt, -1);
 }
 
@@ -798,14 +782,14 @@ WI_drawTime
 
 	    // draw
 	    if (div==60 || t / div)
-		V_DrawShadowedPatch(x, y, colon, DEH_String("WICOLON"));
+		V_DrawShadowedPatch(x, y, colon);
 	    
 	} while (t / div);
     }
     else
     {
 	// "sucks"
-	V_DrawShadowedPatch(x - SHORT(sucks->width), y, sucks, DEH_String("WISUCKS")); 
+	V_DrawShadowedPatch(x - SHORT(sucks->width), y, sucks); 
     }
 }
 
@@ -1103,10 +1087,10 @@ static void WI_drawDeathmatchStats(void)
     // draw stat titles (top line)
     V_DrawShadowedPatch(DM_TOTALSX-SHORT(total->width)/2,
 		DM_MATRIXY-WI_SPACINGY+10,
-		total, DEH_String("WIMSTT"));
+		total);
     
-    V_DrawShadowedPatch(DM_KILLERSX, DM_KILLERSY, killers, DEH_String("WIKILRS"));
-    V_DrawShadowedPatch(DM_VICTIMSX, DM_VICTIMSY, victims, DEH_String("WIVCTMS"));
+    V_DrawShadowedPatch(DM_KILLERSX, DM_KILLERSY, killers);
+    V_DrawShadowedPatch(DM_VICTIMSX, DM_VICTIMSY, victims);
 
     // draw P?
     x = DM_MATRIXX + DM_SPACINGX;
@@ -1121,21 +1105,21 @@ static void WI_drawDeathmatchStats(void)
 
 	    V_DrawShadowedPatch(x-SHORT(p[i]->width)/2,
 			DM_MATRIXY - WI_SPACINGY,
-			p[i], name);
+			p[i]);
 	    
 	    V_DrawShadowedPatch(DM_MATRIXX-SHORT(p[i]->width)/2,
 			y,
-			p[i], name);
+			p[i]);
 
 	    if (i == me)
 	    {
 		V_DrawPatch(x-SHORT(p[i]->width)/2,
 			    DM_MATRIXY - WI_SPACINGY,
-			    bstar, DEH_String("STFDEAD0"));
+			    bstar);
 
 		V_DrawPatch(DM_MATRIXX-SHORT(p[i]->width)/2,
 			    y,
-			    star, DEH_String("STFST01"));
+			    star);
 	    }
 	}
 	else
@@ -1376,18 +1360,18 @@ static void WI_drawNetgameStats(void)
 
     // draw stat titles (top line)
     V_DrawShadowedPatch(NG_STATSX+NG_SPACINGX-SHORT(kills->width),
-		NG_STATSY, kills, DEH_String("WIOSTK"));
+		NG_STATSY, kills);
 
     // [JN] TODO - add support for French version ("WIOBJ").
     V_DrawShadowedPatch(NG_STATSX+2*NG_SPACINGX-SHORT(items->width),
-		NG_STATSY, items, DEH_String("WIOSTI"));
+		NG_STATSY, items);
 
     V_DrawShadowedPatch(NG_STATSX+3*NG_SPACINGX-SHORT(secret->width),
-		NG_STATSY, secret, DEH_String("WIOSTS"));
+		NG_STATSY, secret);
     
     if (dofrags)
 	V_DrawShadowedPatch(NG_STATSX+4*NG_SPACINGX-SHORT(frags->width),
-		    NG_STATSY, frags, DEH_String("WIFRGS"));
+		    NG_STATSY, frags);
 
     // draw stats
     y = NG_STATSY + SHORT(kills->height);
@@ -1401,10 +1385,10 @@ static void WI_drawNetgameStats(void)
 
 	// [JN] Construct proper patch name for possible error handling:
 	sprintf(name, "STPB%d", i);
-	V_DrawShadowedPatch(x-SHORT(p[i]->width), y, p[i], name);
+	V_DrawShadowedPatch(x-SHORT(p[i]->width), y, p[i]);
 
 	if (i == me)
-	    V_DrawPatch(x-SHORT(p[i]->width), y, star, DEH_String("STFST01"));
+	    V_DrawPatch(x-SHORT(p[i]->width), y, star);
 
 	x += NG_SPACINGX;
 	WI_drawPercent(x-pwidth, y+10, cnt_kills[i]);	x += NG_SPACINGX;
@@ -1553,22 +1537,22 @@ static void WI_drawStats(void)
     
     WI_drawLF();
 
-    V_DrawShadowedPatch(SP_STATSX, SP_STATSY, kills, DEH_String("WIOSTK"));
+    V_DrawShadowedPatch(SP_STATSX, SP_STATSY, kills);
     WI_drawPercent(SCREENWIDTH - SP_STATSX, SP_STATSY, cnt_kills[0]);
 
     // [JN] TODO - add support for French version ("WIOBJ").
-    V_DrawShadowedPatch(SP_STATSX, SP_STATSY+lh, items, DEH_String("WIOSTI"));
+    V_DrawShadowedPatch(SP_STATSX, SP_STATSY+lh, items);
     WI_drawPercent(SCREENWIDTH - SP_STATSX, SP_STATSY+lh, cnt_items[0]);
 
-    V_DrawShadowedPatch(SP_STATSX, SP_STATSY+2*lh, sp_secret, DEH_String("WISCRT2"));
+    V_DrawShadowedPatch(SP_STATSX, SP_STATSY+2*lh, sp_secret);
     WI_drawPercent(SCREENWIDTH - SP_STATSX, SP_STATSY+2*lh, cnt_secret[0]);
 
-    V_DrawShadowedPatch(SP_TIMEX, SP_TIMEY, timepatch, DEH_String("WITIME"));
+    V_DrawShadowedPatch(SP_TIMEX, SP_TIMEY, timepatch);
     WI_drawTime(SCREENWIDTH/2 - SP_TIMEX, SP_TIMEY, cnt_time, true);
 
 	if (wbs->epsd < 3 || (wbs->epsd < 4 && singleplayer))
     {
-	V_DrawShadowedPatch(SCREENWIDTH/2 + SP_TIMEX, SP_TIMEY, par, DEH_String("WIPAR"));
+	V_DrawShadowedPatch(SCREENWIDTH/2 + SP_TIMEX, SP_TIMEY, par);
 	WI_drawTime(SCREENWIDTH - SP_TIMEX, SP_TIMEY, cnt_par, true);
     }
 
@@ -1578,7 +1562,7 @@ static void WI_drawStats(void)
         const int ttime = wbs->totaltimes / TICRATE;
         const boolean wide = (ttime > 61*59) || (SP_TIMEX + SHORT(total->width) >= SCREENWIDTH/4);
 
-        V_DrawShadowedPatch((SP_TIMEX), SP_TIMEY + 16, total, DEH_String("WIMSTT"));
+        V_DrawShadowedPatch((SP_TIMEX), SP_TIMEY + 16, total);
         // [crispy] choose x-position depending on width of time string
         WI_drawTime((wide ? SCREENWIDTH : SCREENWIDTH/2) - SP_TIMEX, SP_TIMEY + 16, ttime, false);
     }

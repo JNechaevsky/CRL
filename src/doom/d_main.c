@@ -414,7 +414,7 @@ static void D_Display (void)
             const int y = automapactive ? 4 : viewwindowy + 4;
 
             V_DrawShadowedPatch(viewwindowx + (scaledviewwidth - 68) / 2, y,
-                              W_CacheLumpName(m_pause, PU_CACHE), m_pause);
+                              W_CacheLumpName(m_pause, PU_CACHE));
         }
 
         if (crl_extended_hud)
@@ -679,7 +679,7 @@ void D_PageTicker (void)
 //
 void D_PageDrawer (void)
 {
-    V_DrawPatch (0, 0, W_CacheLumpName(pagename, PU_CACHE), pagename);
+    V_DrawPatch (0, 0, W_CacheLumpName(pagename, PU_CACHE));
 }
 
 
