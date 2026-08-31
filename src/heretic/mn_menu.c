@@ -3960,7 +3960,7 @@ void MN_DrTextA (const char *text, int x, int y, byte *table)
         else
         {
             p = W_CacheLumpNum(FontABaseLump + c - 33, PU_CACHE);
-            V_DrawShadowedPatchRavenOptional(x, y, p, "NULL"); // [JN] TODO - patch name
+            V_DrawShadowedPatchRavenOptional(x, y, p);
             x += SHORT(p->width) - 1;
         }
     }
@@ -4021,7 +4021,7 @@ void MN_DrTextACentered (const char *text, int y, byte *table)
         else
         {
             p = W_CacheLumpNum(FontABaseLump + c - 33, PU_CACHE);
-            V_DrawShadowedPatchRavenOptional(cx, y, p, "NULL"); // [JN] TODO - patch name
+            V_DrawShadowedPatchRavenOptional(cx, y, p);
             cx += SHORT(p->width) - 1;
         }
     }
@@ -4056,7 +4056,7 @@ void MN_DrTextACritical (const char *text1, const char *text2, int y, byte *tabl
         else
         {
             p = W_CacheLumpNum(FontABaseLump + c - 33, PU_CACHE);
-            V_DrawShadowedPatchRavenOptional(cx1, y, p, "NULL"); // [JN] TODO - patch name
+            V_DrawShadowedPatchRavenOptional(cx1, y, p);
             cx1 += SHORT(p->width) - 1;
         }
     }
@@ -4070,7 +4070,7 @@ void MN_DrTextACritical (const char *text1, const char *text2, int y, byte *tabl
         else
         {
             p = W_CacheLumpNum(FontABaseLump + c - 33, PU_CACHE);
-            V_DrawShadowedPatchRavenOptional(cx2, y+10, p, "NULL"); // [JN] TODO - patch name
+            V_DrawShadowedPatchRavenOptional(cx2, y+10, p);
             cx2 += SHORT(p->width) - 1;
         }
     }
@@ -4104,7 +4104,7 @@ void MN_DrTextB(const char *text, int x, int y, byte *table)
         else
         {
             p = W_CacheLumpNum(FontBBaseLump + c - 33, PU_CACHE);
-            V_DrawShadowedPatchRavenOptional(x, y, p, "NULL"); // [JN] TODO - patch name
+            V_DrawShadowedPatchRavenOptional(x, y, p);
             x += SHORT(p->width) - 1;
         }
     }
@@ -4446,7 +4446,7 @@ void MN_Drawer(void)
                 y = CurrentMenu->y + (CurrentItPos * ITEM_HEIGHT) + SELECTOR_YOFFSET;
                 selName = DEH_String(MenuTime & 16 ? "M_SLCTR1" : "M_SLCTR2");
                 V_DrawShadowedPatchRavenOptional(x + SELECTOR_XOFFSET, y,
-                            W_CacheLumpName(selName, PU_CACHE), selName);
+                            W_CacheLumpName(selName, PU_CACHE));
             }
         }
     }
@@ -4463,10 +4463,10 @@ static void DrawMainMenu(void)
     int frame;
 
     frame = (MenuTime / 3) % 18;
-    V_DrawPatch(88, 0, W_CacheLumpName(DEH_String("M_HTIC"), PU_CACHE), "M_HTIC");
+    V_DrawPatch(88, 0, W_CacheLumpName(DEH_String("M_HTIC"), PU_CACHE));
     V_DrawPatch(40, 10, W_CacheLumpNum(SkullBaseLump + (17 - frame),
-                                       PU_CACHE), "NULL"); // [JN] TODO - patch name
-    V_DrawPatch(232, 10, W_CacheLumpNum(SkullBaseLump + frame, PU_CACHE), "NULL"); // [JN] TODO - patch name
+                                       PU_CACHE));
+    V_DrawPatch(232, 10, W_CacheLumpNum(SkullBaseLump + frame, PU_CACHE));
 }
 
 //---------------------------------------------------------------------------
@@ -4720,25 +4720,25 @@ static void DrawSavePreviewBorder(int x, int y, int w, int h)
     // [PN] Tile top/bottom without overshooting when w is not divisible by 16.
     for (int i = 0; i + 16 < w; i += 16)
     {
-        V_DrawPatch(x + i, y - 4, patch_top, "BORDT");
-        V_DrawPatch(x + i, y + h, patch_bottom, "BORDB");
+        V_DrawPatch(x + i, y - 4, patch_top);
+        V_DrawPatch(x + i, y + h, patch_bottom);
     }
-    V_DrawPatch(x + ((w > 16) ? (w - 16) : 0), y - 4, patch_top, "BORDT");
-    V_DrawPatch(x + ((w > 16) ? (w - 16) : 0), y + h, patch_bottom, "BORDB");
+    V_DrawPatch(x + ((w > 16) ? (w - 16) : 0), y - 4, patch_top);
+    V_DrawPatch(x + ((w > 16) ? (w - 16) : 0), y + h, patch_bottom);
 
     // [PN] Tile left/right without overshooting when h is not divisible by 16.
     for (int i = 0; i + 16 < h; i += 16)
     {
-        V_DrawPatch(x - 4, y + i, patch_left, "BORDL");
-        V_DrawPatch(x + w, y + i, patch_right, "BORDR");
+        V_DrawPatch(x - 4, y + i, patch_left);
+        V_DrawPatch(x + w, y + i, patch_right);
     }
-    V_DrawPatch(x - 4, y + ((h > 16) ? (h - 16) : 0), patch_left, "BORDL");
-    V_DrawPatch(x + w, y + ((h > 16) ? (h - 16) : 0), patch_right, "BORDR");
+    V_DrawPatch(x - 4, y + ((h > 16) ? (h - 16) : 0), patch_left);
+    V_DrawPatch(x + w, y + ((h > 16) ? (h - 16) : 0), patch_right);
 
-    V_DrawPatch(x - 4, y - 4, patch_tl, "BORDTL");
-    V_DrawPatch(x + w, y - 4, patch_tr, "BORDTR");
-    V_DrawPatch(x - 4, y + h, patch_bl, "BORDBL");
-    V_DrawPatch(x + w, y + h, patch_br, "BORDBR");
+    V_DrawPatch(x - 4, y - 4, patch_tl);
+    V_DrawPatch(x + w, y - 4, patch_tr);
+    V_DrawPatch(x - 4, y + h, patch_bl);
+    V_DrawPatch(x + w, y + h, patch_br);
 }
 
 // [PN] Draw selected slot thumbnail or black fallback, then frame it.
@@ -4836,7 +4836,7 @@ static void DrawFileSlots(Menu_t * menu)
     {
         // [JN] Highlight selected item (CurrentItPos == i) or apply fading effect.
         dp_translation = (crl_menu_highlight && CurrentItPos == i) ? cr[CR_MENU_BRIGHT2] : NULL;
-        V_DrawShadowedPatchRavenOptional(x, y, W_CacheLumpName(DEH_String("M_FSLOT"), PU_CACHE), "M_FSLOT");
+        V_DrawShadowedPatchRavenOptional(x, y, W_CacheLumpName(DEH_String("M_FSLOT"), PU_CACHE));
         dp_translation = NULL;
 
         if (SlotStatus[i])
@@ -6443,13 +6443,12 @@ static void DrawSlider(int item, int width, int slot, boolean bigspacing, int it
         dp_translation = cr[CR_MENU_BRIGHT2];
     }
 
-    V_DrawShadowedPatchRavenOptional(x - 32, y, W_CacheLumpName(DEH_String("M_SLDLT"), PU_CACHE), "M_SLDLT");
+    V_DrawShadowedPatchRavenOptional(x - 32, y, W_CacheLumpName(DEH_String("M_SLDLT"), PU_CACHE));
     for (x2 = x, count = width; count--; x2 += 8)
     {
-        V_DrawShadowedPatchRavenOptional(x2, y, W_CacheLumpName(DEH_String(count & 1 ? "M_SLDMD1" : "M_SLDMD2"), PU_CACHE),
-                                                      count & 1 ? "M_SLDMD1" : "M_SLDMD2");
+        V_DrawShadowedPatchRavenOptional(x2, y, W_CacheLumpName(DEH_String(count & 1 ? "M_SLDMD1" : "M_SLDMD2"), PU_CACHE));
     }
-    V_DrawShadowedPatchRavenOptional(x2, y, W_CacheLumpName(DEH_String("M_SLDRT"), PU_CACHE), "M_SLDRT");
+    V_DrawShadowedPatchRavenOptional(x2, y, W_CacheLumpName(DEH_String("M_SLDRT"), PU_CACHE));
 
     // [JN] Prevent gem go out of slider bounds.
     if (slot > width - 1)
@@ -6458,7 +6457,7 @@ static void DrawSlider(int item, int width, int slot, boolean bigspacing, int it
     }
 
     V_DrawPatch(x + 4 + slot * 8, y + 7,
-                W_CacheLumpName(DEH_String("M_SLDKB"), PU_CACHE), "M_SLDKB");
+                W_CacheLumpName(DEH_String("M_SLDKB"), PU_CACHE));
 
     dp_translation = NULL;
 }
