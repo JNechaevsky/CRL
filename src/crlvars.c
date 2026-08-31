@@ -52,6 +52,7 @@ int crl_text_shadows = 0;
 
 // Game modes
 int crl_spectating = 0;
+int crl_sneaking = 0;
 int crl_freeze = 0;
 int crl_game_speed = 100;
 

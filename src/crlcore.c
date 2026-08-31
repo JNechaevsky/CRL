@@ -161,6 +161,11 @@ void CRL_InitHOMColors (void)
     W_ReleaseLumpName("PLAYPAL");
 }
 
+// [PN] The plane provenance table lives in .bss on purpose: it is 512 KB, far
+// too much of the limited zone for a debug aid, and both the marking and the
+// drawing paths assume the table is always there.
+static void *crl_plane_surface[SCREENAREA];
+
 // -----------------------------------------------------------------------------
 // CRL_Init
 // Initializes things.
@@ -171,8 +176,8 @@ void CRL_Init (void)
     unsigned char *const playpal = W_CacheLumpName("PLAYPAL", PU_STATIC);
 
     // Make plane surface
-    _planesize = SCREENAREA * sizeof(*CRLPlaneSurface);
-    CRLPlaneSurface = Z_Malloc(_planesize, PU_STATIC, NULL);
+    CRLPlaneSurface = crl_plane_surface;
+    _planesize = sizeof(crl_plane_surface);
     memset(CRLPlaneSurface, 0, _planesize);
 
     // [JN] Initialize HOM multicolors.
@@ -379,36 +384,21 @@ static int CRL_ColorizeThisPlane (const CRLPlaneData_t *__pl)
 }
 
 // -----------------------------------------------------------------------------
-// CRL_DrawVisPlanes
-//  Draw visplanes (underlay or overlay).
+// CRL_VisPlanePass
+//  [PN] Walks a plane-per-pixel table and colors or outlines the regions it
+//  holds. Split out of CRL_DrawVisPlanes to let another table, such as the one
+//  of the planes Sneaking mode refuses to draw, use the same rules.
 // -----------------------------------------------------------------------------
 
-void CRL_DrawVisPlanes (int __over)
+static void CRL_VisPlanePass (void **__surface, int isbord, int __isseg)
 {
-    int isover, x, y, i, isbord, c;
-    void* is;
+    int x, y, i, c;
+    void *is;
     CRLPlaneData_t pd;
+    CRLSegData_t sd;
 
-    // Get visplane drawing mode
-
-    // Drawing nothing
-    if (crl_visplanes_drawing == 0)
-    {
-        return;
-    }
-
-    // Overlay but not overlaying?
-    isover = (crl_visplanes_drawing == 2 || crl_visplanes_drawing == 4);
-    if (__over != isover)
-    {
-        return;
-    }
-
-    // Border colors
-    isbord = (crl_visplanes_drawing == 3 || crl_visplanes_drawing == 4);
-
-    // Go through all pixels and draw visplane if one is there
     memset(&pd, 0, sizeof(pd));
+    memset(&sd, 0, sizeof(sd));
     for (i = 0, x = 0, y = 0; i < SCREENAREA; i++, x++)
     {
         // Increase y
@@ -419,7 +409,7 @@ void CRL_DrawVisPlanes (int __over)
         }
 
         // Get plane drawn here
-        if (!(is = CRLPlaneSurface[i]))
+        if (!(is = __surface[i]))
         {
             continue;
         }
@@ -427,21 +417,71 @@ void CRL_DrawVisPlanes (int __over)
         // Border check
         if (isbord)
             if (x > 0 && x < SCREENWIDTH - 1 && y > 0 && y < SCREENHEIGHT - 1
-                && (is == CRLPlaneSurface[i - 1] &&
-                is == CRLPlaneSurface[i + 1] &&
-                is == CRLPlaneSurface[i - SCREENWIDTH] &&
-                is == CRLPlaneSurface[i + SCREENWIDTH]))
+                && (is == __surface[i - 1] &&
+                is == __surface[i + 1] &&
+                is == __surface[i - SCREENWIDTH] &&
+                is == __surface[i + SCREENWIDTH]))
             continue;
 
-        // Get plane identity
-        GAME_IdentifyPlane(is, &pd);
+        // [PN] Color a seg the same way, so a refused wall
+        // and the surfaces it bounded share one color.
+        if (__isseg)
+        {
+            GAME_IdentifySeg(is, &sd);
+            c = _vptable[sd.id % NUMPLANEBORDERCOLORS];
+        }
+        else
+        {
+            // Get plane identity
+            GAME_IdentifyPlane(is, &pd);
 
-        // Color the plane
-        c = CRL_ColorizeThisPlane(&pd);
+            // Color the plane
+            c = CRL_ColorizeThisPlane(&pd);
+        }
 
         // Draw plane colors
         CRLSurface[i] = c;
     }
+}
+
+// -----------------------------------------------------------------------------
+// CRL_DrawPlaneBorders
+//  [PN] Outlines the regions of a plane-per-pixel table, whatever the
+//  crl_visplanes_drawing setting says. Used by Sneaking mode to make the parts
+//  of the world that have not been rendered yet readable as shapes; __isseg
+//  tells it that the table holds segs instead of visplanes.
+// -----------------------------------------------------------------------------
+
+void CRL_DrawPlaneBorders (void **__surface, int __isseg)
+{
+    CRL_VisPlanePass(__surface, 1, __isseg);
+}
+
+// -----------------------------------------------------------------------------
+// CRL_DrawVisPlanes
+//  Draw visplanes (underlay or overlay).
+// -----------------------------------------------------------------------------
+
+void CRL_DrawVisPlanes (int __over)
+{
+    // Get visplane drawing mode
+
+    // Drawing nothing
+    if (crl_visplanes_drawing == 0)
+    {
+        return;
+    }
+
+    // Overlay but not overlaying?
+    const int isover = (crl_visplanes_drawing == 2 || crl_visplanes_drawing == 4);
+    if (__over != isover)
+    {
+        return;
+    }
+
+    // Border colors
+    CRL_VisPlanePass(CRLPlaneSurface,
+                     crl_visplanes_drawing == 3 || crl_visplanes_drawing == 4, 0);
 }
 
 // -----------------------------------------------------------------------------

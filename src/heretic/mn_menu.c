@@ -694,6 +694,7 @@ static void CRL_ClearPLN (int option);
 static void CRL_ClearALL (int option);
 static void DrawCRLPanel_2 (void);
 static void CRL_Spectating (int option);
+static void CRL_Sneaking (int option);
 static void CRL_Freeze (int option);
 static void CRL_Buddha (int option);
 static void CRL_NoTarget (int option);
@@ -1185,15 +1186,6 @@ static char *const DefSkillName[5] =
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLMainItems[] = {
-    /*
-    {ITT_LRFUNC1, "SPECTATOR MODE",       CRL_Spectating,    0, MENU_NONE},
-    {ITT_LRFUNC1, "FREEZE MODE",          CRL_Freeze,        0, MENU_NONE},
-    {ITT_LRFUNC1, "BUDDHA MODE",          CRL_Buddha,        0, MENU_NONE},
-    {ITT_LRFUNC1, "NO TARGET MODE",       CRL_NoTarget,      0, MENU_NONE},
-    {ITT_LRFUNC1, "NO MOMENTUM MODE",     CRL_NoMomentum,    0, MENU_NONE},
-    {ITT_LRFUNC1, "GAME SPEED",           CRL_GameSpeed,     0, MENU_NONE},
-    {ITT_EMPTY,   NULL,                   NULL,              0, MENU_NONE},
-    */
     {ITT_SETMENU, "VIDEO OPTIONS",        NULL,              0, MENU_CRLVIDEO},
     {ITT_SETMENU, "DISPLAY OPTIONS",      NULL,              0, MENU_CRLDISPLAY},
     {ITT_SETMENU, "SOUND OPTIONS",        NULL,              0, MENU_CRLSOUND},
@@ -1219,55 +1211,6 @@ static Menu_t CRLMain = {
 static void DrawCRLMain (void)
 {
     MN_DrTextACentered ("OPTIONS", 10, cr[CR_YELLOW]);
-}
-
-static void CRL_Spectating (int option)
-{
-    crl_spectating ^= 1;
-}
-
-static void CRL_Freeze (int option)
-{
-    if (!singleplayer)
-    {
-        return;
-    }
-    crl_freeze ^= 1;
-}
-
-static void CRL_Buddha (int option)
-{
-    if (!singleplayer)
-    {
-        return;
-    }
-
-    player->cheats ^= CF_BUDDHA;
-}
-
-static void CRL_NoTarget (int choice)
-{
-    if (!singleplayer)
-    {
-        return;
-    }
-
-    player->cheats ^= CF_NOTARGET;
-}
-
-static void CRL_NoMomentum (int choice)
-{
-    if (!singleplayer)
-    {
-        return;
-    }
-
-    player->cheats ^= CF_NOMOMENTUM;
-}
-
-static void CRL_GameSpeed (int choice)
-{
-    G_CRL_ChangeGameSpeed(choice == 0 ? -1 : 1, false);
 }
 
 // -----------------------------------------------------------------------------
@@ -3736,12 +3679,12 @@ static void CRL_ClearALL (int option)
 
 static MenuItem_t CRLPanelItems_2[] = {
     { ITT_LRFUNC1, "SPECTATOR MODE",         CRL_Spectating, 0, MENU_NONE },
+    { ITT_LRFUNC1, "SNEAKING MODE",          CRL_Sneaking,   0, MENU_NONE },
     { ITT_LRFUNC1, "FREEZE MODE",            CRL_Freeze,     0, MENU_NONE },
     { ITT_LRFUNC1, "BUDDHA MODE",            CRL_Buddha,     0, MENU_NONE },
     { ITT_LRFUNC1, "NO TARGET MODE",         CRL_NoTarget,   0, MENU_NONE },
     { ITT_LRFUNC1, "NO MOMENTUM MODE",       CRL_NoMomentum, 0, MENU_NONE },
     { ITT_LRFUNC1, "GAME SPEED",             CRL_GameSpeed,  0, MENU_NONE },
-    { ITT_EMPTY,   "",                       NULL,           0, MENU_NONE },
     { ITT_EMPTY,   "",                       NULL,           0, MENU_NONE },
     { ITT_EMPTY,   "",                       NULL,           0, MENU_NONE },
     { ITT_EMPTY,   "",                       NULL,           0, MENU_NONE },
@@ -3775,41 +3718,104 @@ static void DrawCRLPanel_2 (void)
     MN_DrTextA(str, M_ItemRightAlign(str), 20,
                M_Item_Glow(0, crl_spectating ? GLOW_GREEN : GLOW_DARKRED));
 
+    // Sneaking
+    sprintf(str, crl_sneaking ? "ON" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 30,
+                M_Item_Glow(1, crl_sneaking ? GLOW_GREEN : GLOW_DARKRED));
+
     // Freeze
     sprintf(str, !singleplayer ? "N/A" : crl_freeze ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 30,
-                 M_Item_Glow(1, !singleplayer ? GLOW_DARKRED :
+    MN_DrTextA(str, M_ItemRightAlign(str), 40,
+                 M_Item_Glow(2, !singleplayer ? GLOW_DARKRED :
                              crl_freeze ? GLOW_GREEN : GLOW_DARKRED));
 
     // Buddha
     sprintf(str, !singleplayer ? "N/A" :
             player->cheats & CF_BUDDHA ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 40,
-                 M_Item_Glow(2, !singleplayer ? GLOW_DARKRED :
+    MN_DrTextA(str, M_ItemRightAlign(str), 50,
+                 M_Item_Glow(3, !singleplayer ? GLOW_DARKRED :
                              player->cheats & CF_BUDDHA ? GLOW_GREEN : GLOW_DARKRED));
 
     // No target
     sprintf(str, !singleplayer ? "N/A" :
             player->cheats & CF_NOTARGET ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 50,
-                 M_Item_Glow(3, !singleplayer ? GLOW_DARKRED :
+    MN_DrTextA(str, M_ItemRightAlign(str), 60,
+                 M_Item_Glow(4, !singleplayer ? GLOW_DARKRED :
                              player->cheats & CF_NOTARGET ? GLOW_GREEN : GLOW_DARKRED));
 
     // No momentum
     sprintf(str, !singleplayer ? "N/A" :
             player->cheats & CF_NOMOMENTUM ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 60, 
-                 M_Item_Glow(4, !singleplayer ? GLOW_DARKRED :
+    MN_DrTextA(str, M_ItemRightAlign(str), 70,
+                 M_Item_Glow(5, !singleplayer ? GLOW_DARKRED :
                              player->cheats & CF_NOMOMENTUM ? GLOW_GREEN : GLOW_DARKRED));
 
     // Game speed
     sprintf(str, netgame ? "N/A" : "%d%%", crl_game_speed);
-    MN_DrTextA(str, M_ItemRightAlign(str), 70,
-                M_Item_Glow(5, netgame || crl_game_speed == 100 ? GLOW_DARKRED :
+    MN_DrTextA(str, M_ItemRightAlign(str), 80,
+                M_Item_Glow(6, netgame || crl_game_speed == 100 ? GLOW_DARKRED :
                             crl_game_speed < 100 ? GLOW_YELLOW : GLOW_GREEN));
 
     // < Scroll pages >
     M_DrawScrollPages(CRL_MENU_LEFTOFFSET, 170, 15, "2/2");
+}
+
+static void CRL_Spectating (int option)
+{
+    crl_spectating ^= 1;
+}
+
+static void CRL_Freeze (int option)
+{
+    if (!singleplayer)
+    {
+        return;
+    }
+    crl_freeze ^= 1;
+}
+
+static void CRL_Sneaking (int option)
+{
+    // [PN] Sneaking is visual only, so it works in any game mode.
+    crl_sneaking ^= 1;
+
+    // [PN] Take a new capture of what has been seen so far.
+    CRL_InvalidateSneak();
+}
+
+static void CRL_Buddha (int option)
+{
+    if (!singleplayer)
+    {
+        return;
+    }
+
+    player->cheats ^= CF_BUDDHA;
+}
+
+static void CRL_NoTarget (int choice)
+{
+    if (!singleplayer)
+    {
+        return;
+    }
+
+    player->cheats ^= CF_NOTARGET;
+}
+
+static void CRL_NoMomentum (int choice)
+{
+    if (!singleplayer)
+    {
+        return;
+    }
+
+    player->cheats ^= CF_NOMOMENTUM;
+}
+
+static void CRL_GameSpeed (int choice)
+{
+    G_CRL_ChangeGameSpeed(choice == 0 ? -1 : 1, false);
 }
 
 static void M_ScrollPanel (int option)
