@@ -68,12 +68,19 @@ boolean CRL_SneakFrameBegin (void)
     {
         // [PN] The mode is not game state, so its memory goes to the C heap
         // and not to the zone, which the port keeps limited as in DOS.
-        free(crl_sneak_marks);
-        free(crl_sneak_sectors);
+        // Released only when there is something to release: this branch
+        // runs on every frame the mode is off, and by then the tables are gone
+        // already. The pointers are cleared below for the same reason, or the
+        // next frame would free them a second time.
+        if (crl_sneak_marks != NULL || crl_sneak_sectors != NULL)
+        {
+            free(crl_sneak_marks);
+            free(crl_sneak_sectors);
 
-        crl_sneak_marks = NULL;
-        crl_sneak_sectors = NULL;
-        crl_sneak_numsegs = crl_sneak_numsectors = 0;
+            crl_sneak_marks = NULL;
+            crl_sneak_sectors = NULL;
+            crl_sneak_numsegs = crl_sneak_numsectors = 0;
+        }
 
         return false;
     }
