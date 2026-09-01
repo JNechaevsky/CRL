@@ -164,6 +164,7 @@ extern void CRL_DrawPlaneBorders (void **__surface, int __isseg);
 extern void CRL_CountPlane (void* __key, int __chorf, int __id);
 extern void CRL_GetHOMMultiColor (void);
 extern int  CRL_homcolor;
+extern int  CRL_sneak_homcolor;
 
 extern void GAME_IdentifyPlane (void* __what, CRLPlaneData_t* __info);
 extern void GAME_IdentifySeg (void* __what, CRLSegData_t* __info);

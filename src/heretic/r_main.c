@@ -817,7 +817,7 @@ void R_RenderPlayerView(player_t * player)
         {
             V_DrawFilledBox(viewwindowx, viewwindowy,
                             scaledviewwidth, viewheight,
-                            sneak_clear ? 0 : CRL_homcolor);    // [JN] TODO - optional different HOM for sneaking?
+                            sneak_clear ? CRL_sneak_homcolor : CRL_homcolor);
         }
 
         R_ClearClipSegs();

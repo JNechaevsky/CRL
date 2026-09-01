@@ -824,6 +824,7 @@ static void M_CRL_ClearALL (int choice);
 static void M_DrawCRL_Panel_2 (void);
 static void M_CRL_Spectating (int choice);
 static void M_CRL_Sneaking (int choice);
+static void M_CRL_Sneaking_Color (int choice);
 static void M_CRL_Freeze (int choice);
 static void M_CRL_Buddha (int choice);
 static void M_CRL_NoTarget (int choice);
@@ -3799,12 +3800,12 @@ static menuitem_t CRLMenu_Panel_2[]=
 {
     { M_MUL1, "SPECTATOR MODE",       M_CRL_Spectating,     's'},
     { M_MUL1, "SNEAKING MODE",        M_CRL_Sneaking,       's'},
+    { M_MUL1, "- FILL HOM WITH",      M_CRL_Sneaking_Color, 'f'},
     { M_MUL1, "FREEZE MODE",          M_CRL_Freeze,         'f'},
     { M_MUL1, "BUDDHA MODE",          M_CRL_Buddha,         'f'},
     { M_MUL1, "NO TARGET MODE",       M_CRL_NoTarget,       'n'},
     { M_MUL1, "NO MOMENTUM MODE",     M_CRL_NoMomentum,     'n'},
     { M_MUL1, "GAME SPEED",           M_CRL_GameSpeed,      'g'},
-    { M_SKIP, "", 0, '\0'},
     { M_SKIP, "", 0, '\0'},
     { M_SKIP, "", 0, '\0'},
     { M_SKIP, "", 0, '\0'},
@@ -3822,7 +3823,7 @@ static menu_t CRLDef_Panel_2 =
     CRLMenu_Panel_2,
     M_DrawCRL_Panel_2,
     CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
-    0,
+    15,
     true, false, true,
 };
 
@@ -3844,38 +3845,44 @@ static void M_DrawCRL_Panel_2 (void)
     M_WriteText (M_ItemRightAlign(str), 25, str,
                  M_Item_Glow(1, crl_sneaking ? GLOW_GREEN : GLOW_DARKRED));
 
+    // - Fill HOM with
+    sprintf(str, crl_sneaking_hom_effect == 1 ? "MULTICOLOR 1" :
+                 crl_sneaking_hom_effect == 2 ? "MULTICOLOR 2" : "BLACK");
+    M_WriteText (M_ItemRightAlign(str), 34, str,
+                 M_Item_Glow(2, crl_sneaking_hom_effect ? GLOW_GREEN : GLOW_DARKRED));
+
     // Freeze
     sprintf(str, !singleplayer ? "N/A" :
             crl_freeze ? "ON" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 34, str,
-                 M_Item_Glow(2, !singleplayer ? GLOW_DARKRED :
+    M_WriteText (M_ItemRightAlign(str), 43, str,
+                 M_Item_Glow(3, !singleplayer ? GLOW_DARKRED :
                              crl_freeze ? GLOW_GREEN : GLOW_DARKRED));
 
     // Buddha
     sprintf(str, !singleplayer ? "N/A" :
             player->cheats & CF_BUDDHA ? "ON" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 43, str,
-                 M_Item_Glow(3, !singleplayer ? GLOW_DARKRED :
+    M_WriteText (M_ItemRightAlign(str), 52, str,
+                 M_Item_Glow(4, !singleplayer ? GLOW_DARKRED :
                              player->cheats & CF_BUDDHA ? GLOW_GREEN : GLOW_DARKRED));
 
     // No target
     sprintf(str, !singleplayer ? "N/A" :
             player->cheats & CF_NOTARGET ? "ON" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 52, str,
-                 M_Item_Glow(4, !singleplayer ? GLOW_DARKRED :
+    M_WriteText (M_ItemRightAlign(str), 61, str,
+                 M_Item_Glow(5, !singleplayer ? GLOW_DARKRED :
                              player->cheats & CF_NOTARGET ? GLOW_GREEN : GLOW_DARKRED));
 
     // No momentum
     sprintf(str, !singleplayer ? "N/A" :
             player->cheats & CF_NOMOMENTUM ? "ON" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 61, str,
-                 M_Item_Glow(5, !singleplayer ? GLOW_DARKRED :
+    M_WriteText (M_ItemRightAlign(str), 70, str,
+                 M_Item_Glow(6, !singleplayer ? GLOW_DARKRED :
                              player->cheats & CF_NOMOMENTUM ? GLOW_GREEN : GLOW_DARKRED));
 
     // Game speed
     sprintf(str, netgame ? "N/A" : "%d%%", crl_game_speed);
-    M_WriteText (M_ItemRightAlign(str), 70, str,
-                 M_Item_Glow(6, netgame || crl_game_speed == 100 ? GLOW_DARKRED :
+    M_WriteText (M_ItemRightAlign(str), 79, str,
+                 M_Item_Glow(7, netgame || crl_game_speed == 100 ? GLOW_DARKRED :
                              crl_game_speed < 100 ? GLOW_YELLOW : GLOW_GREEN));
 
     // < Scroll pages >
@@ -3894,6 +3901,12 @@ static void M_CRL_Sneaking (int choice)
 
     // [PN] Take a new capture of what has been seen so far.
     CRL_InvalidateSneak();
+}
+
+static void M_CRL_Sneaking_Color (int choice)
+{
+    crl_sneaking_hom_effect = M_INT_Slider(crl_sneaking_hom_effect, 0, 2, choice, false);
+    CRL_InitHOMColors();
 }
 
 static void M_CRL_Freeze (int choice)
@@ -3947,7 +3960,7 @@ static void M_ScrollPanel (int choice)
          if (currentMenu == &CRLDef_Panel_1) { M_SetupNextMenu(&CRLDef_Panel_2); }
     else if (currentMenu == &CRLDef_Panel_2) { M_SetupNextMenu(&CRLDef_Panel_1); }
 
-    itemOn = 14;
+    itemOn = 15;
 }
 
 // =============================================================================

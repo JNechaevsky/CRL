@@ -100,39 +100,49 @@ boolean savemenuactive = false;
 //
 // =============================================================================
 
+// [PN] The plane provenance table lives in .bss on purpose: it is 512 KB, far
+// too much of the limited zone for a debug aid, and both the marking and the
+// drawing paths assume the table is always there.
+static void *crl_plane_surface[SCREENAREA];
+
 // VP color table.
 #define NUMPLANEBORDERCOLORS 16
 static int _vptable[NUMPLANEBORDERCOLORS];
 
 // HOM color table.
 #define HOMCOUNT 256
+
+// Colors to use for normal HOM
 static int _homtable[HOMCOUNT];
-int CRL_homcolor;  // Color to use
+int CRL_homcolor;
+
+// Colors to use for HOM in sneaking mode
+static int _sneak_homtable[HOMCOUNT];
+int CRL_sneak_homcolor;
 
 
 // -----------------------------------------------------------------------------
 // CRL_InitHOMColors
 // -----------------------------------------------------------------------------
 
-void CRL_InitHOMColors (void)
+static void CRL_FillHOMTable(int *table, int effect, byte *const playpal)
 {
     int i;
-    unsigned char *const playpal = W_CacheLumpName("PLAYPAL", PU_STATIC);
 
-    if (crl_hom_effect == 1)
+    if (effect == 1)
     {
         // [JN] Initialize HOM (RGBY) multi colors, but prevent
         // using too bright values by multiplying by 3, not by 4.
-        for (i = 0; i < 64 ; i++)
+        for (i = 0; i < 64; i++)
         {
-            _homtable[i]     = V_GetPaletteIndex(playpal, i*3,   0,   0);
-            _homtable[i+64]  = V_GetPaletteIndex(playpal,   0, i*3,   0);
-            _homtable[i+128] = V_GetPaletteIndex(playpal,   0,   0, i*3);
-            _homtable[i+192] = V_GetPaletteIndex(playpal, i*3, i*3,   0);
+            table[i]       = V_GetPaletteIndex(playpal, i*3,   0,   0);
+            table[i + 64]  = V_GetPaletteIndex(playpal,   0, i*3,   0);
+            table[i + 128] = V_GetPaletteIndex(playpal,   0,   0, i*3);
+            table[i + 192] = V_GetPaletteIndex(playpal, i*3, i*3,   0);
         }
     }
     else
-    if (crl_hom_effect == 2)
+    if (effect == 2)
     {
         // [JN] Rainbow colors, bright and vibrant.
         // 6 rainbow colors: Red, Yellow, Green, Cyan, Blue, Magenta.
@@ -153,18 +163,28 @@ void CRL_InitHOMColors (void)
                 default: r = 255;       g = 0;         b = 0;         break;  // Shouldn't happen
             }
 
-            _homtable[i] = V_GetPaletteIndex(playpal, r, g, b);
+            table[i] = V_GetPaletteIndex(playpal, r, g, b);
         }
     }
-
-    
-    W_ReleaseLumpName("PLAYPAL");
+    else
+    {
+        // [JN] Fill with black color.
+        for (i = 0; i < 256; i++)
+        {
+            table[i] = V_GetPaletteIndex(playpal, 0, 0, 0);
+        }
+    }
 }
 
-// [PN] The plane provenance table lives in .bss on purpose: it is 512 KB, far
-// too much of the limited zone for a debug aid, and both the marking and the
-// drawing paths assume the table is always there.
-static void *crl_plane_surface[SCREENAREA];
+void CRL_InitHOMColors(void)
+{
+    byte *const playpal = W_CacheLumpName("PLAYPAL", PU_STATIC);
+
+    CRL_FillHOMTable(_homtable, crl_hom_effect, playpal);
+    CRL_FillHOMTable(_sneak_homtable, crl_sneaking_hom_effect, playpal);
+
+    W_ReleaseLumpName("PLAYPAL");
+}
 
 // -----------------------------------------------------------------------------
 // CRL_Init
@@ -521,6 +541,7 @@ void CRL_GetHOMMultiColor (void)
     static int tic;
 
     CRL_homcolor = _homtable[(++tic) & (HOMCOUNT - 1)];
+    CRL_sneak_homcolor = _sneak_homtable[(++tic) & (HOMCOUNT - 1)];
 }
 
 
