@@ -55,6 +55,7 @@ add_library(doom STATIC
             r_main.c
             r_plane.c
             r_segs.c
+            r_sneak.c
             r_things.c
             s_sound.c       s_sound.h
             sounds.c        sounds.h
