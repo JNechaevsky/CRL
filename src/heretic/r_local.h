@@ -369,8 +369,8 @@ extern void R_InitTranslationTables(void);
 extern boolean CRL_SneakFrameBegin (void);
 extern void    CRL_SneakFrameEnd   (void);
 extern void    CRL_SneakMaskedEnd  (void);
-extern boolean CRL_SneakAllowWall  (const seg_t *seg);
-extern boolean CRL_SneakAllowSector (const sector_t *sector, boolean ceiling);
+extern boolean CRL_SneakAllowWall  (const seg_t *const seg);
+extern boolean CRL_SneakAllowSector (const sector_t *const sector, boolean ceiling);
 extern void    CRL_SneakHideSpan (void *plane, int x, int __top, int __bottom);
 extern void    CRL_SneakHideWall (void *seg, int x, int __top, int __bottom);
 
