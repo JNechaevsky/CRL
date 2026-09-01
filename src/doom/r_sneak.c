@@ -15,6 +15,7 @@
 //
 
 
+#include <stddef.h>     // ptrdiff_t
 #include <stdlib.h>     // malloc, free
 #include "doomstat.h"
 #include "r_local.h"
