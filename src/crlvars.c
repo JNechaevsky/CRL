@@ -52,6 +52,8 @@ int crl_text_shadows = 0;
 
 // Game modes
 int crl_spectating = 0;
+int crl_sneaking = 0;
+int crl_sneaking_hom_effect = 0;
 int crl_freeze = 0;
 int crl_game_speed = 100;
 
@@ -166,6 +168,7 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_text_shadows",               &crl_text_shadows);
 
     // Game modes
+    M_BindIntVariable("crl_sneaking_hom_effect",        &crl_sneaking_hom_effect);
     M_BindIntVariable("crl_game_speed",                 &crl_game_speed);
 
     // Rewind

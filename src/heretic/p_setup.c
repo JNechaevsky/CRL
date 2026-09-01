@@ -733,6 +733,7 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
         if (lastlevel != gamemap || lastepisode != gameepisode)
         {
             CRL_Clear_ALL_MAX();
+            CRL_InvalidateSneak(); // [PN] What was seen belongs to the old map.
             lastlevel = gamemap;
             lastepisode = gameepisode;
         }

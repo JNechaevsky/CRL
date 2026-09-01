@@ -883,7 +883,6 @@ static void R_SetupFrame (player_t* player)
 }
 
 
-
 //
 // R_RenderView
 //
@@ -906,10 +905,15 @@ void R_RenderPlayerView (player_t* player)
 		
 		// Clear the view buffer
 		// [JN] CRL - allow to choose HOM effect.
-		if (crl_hom_effect)
+		// [PN] Sneaking asks for the same clear: what the mode does not allow
+		// to draw would otherwise keep the previous frame in its pixels.
+		const boolean sneak_clear = CRL_SneakFrameBegin();
+
+		if (crl_hom_effect || sneak_clear)
 		{
 			V_DrawFilledBox(viewwindowx, viewwindowy,
-							scaledviewwidth, viewheight, CRL_homcolor);
+							scaledviewwidth, viewheight,
+							sneak_clear ? CRL_sneak_homcolor : CRL_homcolor);
 		}
 
 		// Clear buffers.
@@ -936,6 +940,9 @@ void R_RenderPlayerView (player_t* player)
 		// RestlessRodent -- Draw Visplanes
 		R_DrawPlanes ();
 		CRL_DrawVisPlanes(0);
+
+		// [PN] CRL - Sneaking mode stops gating here, sprites are not affected
+		CRL_SneakFrameEnd ();
 		
 		// Check for new console commands.
 		NetUpdate ();
@@ -943,6 +950,9 @@ void R_RenderPlayerView (player_t* player)
 		// [crispy] draw fuzz effect independent of rendering frame rate
 		R_SetFuzzPosDraw();
 		R_DrawMasked ();
+
+		// [PN] CRL - Sneaking mode: recording ends with the masked pass
+		CRL_SneakMaskedEnd ();
 
 		// Check for new console commands.
 		NetUpdate ();

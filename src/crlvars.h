@@ -52,6 +52,8 @@ extern int crl_text_shadows;
 
 // Game modes
 extern int crl_spectating;
+extern int crl_sneaking;
+extern int crl_sneaking_hom_effect;
 extern int crl_freeze;
 extern int crl_game_speed;
 

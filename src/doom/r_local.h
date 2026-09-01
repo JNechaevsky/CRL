@@ -582,6 +582,16 @@ extern lighttable_t *ds_colormap;
 // GhostlyDeath -- CRL
 extern visplane_t   *dc_visplaneused;
 
+// [PN] Sneaking mode: only the walls and the sector surfaces (ceilings and floors)
+// that were drawn in the captured frame may draw from then on; sprites are not affected.
+extern boolean CRL_SneakFrameBegin (void);
+extern void    CRL_SneakFrameEnd   (void);
+extern void    CRL_SneakMaskedEnd  (void);
+extern boolean CRL_SneakAllowWall  (const seg_t *const seg);
+extern boolean CRL_SneakAllowSector (const sector_t *const sector, boolean ceiling);
+extern void    CRL_SneakHideSpan (void *plane, int x, int __top, int __bottom);
+extern void    CRL_SneakHideWall (void *seg, int x, int __top, int __bottom);
+
 // -----------------------------------------------------------------------------
 // R_MAIN
 // -----------------------------------------------------------------------------

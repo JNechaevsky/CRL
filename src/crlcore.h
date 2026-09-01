@@ -160,9 +160,11 @@ extern void CRL_Init (void);
 extern void CRL_ChangeFrame (int __err);
 extern void CRL_MarkPixelP (void** __surface, void* __what, void* __drawp);
 extern void CRL_DrawVisPlanes (int __over);
+extern void CRL_DrawPlaneBorders (void **__surface, int __isseg);
 extern void CRL_CountPlane (void* __key, int __chorf, int __id);
 extern void CRL_GetHOMMultiColor (void);
 extern int  CRL_homcolor;
+extern int  CRL_sneak_homcolor;
 
 extern void GAME_IdentifyPlane (void* __what, CRLPlaneData_t* __info);
 extern void GAME_IdentifySeg (void* __what, CRLSegData_t* __info);
@@ -225,6 +227,9 @@ extern void CRL_printf (const char *message, const boolean critical);
 
 extern void CRL_WidgetsDrawer (void);
 extern void CRL_ReloadPalette (void);
+
+// [PN] Drop what Sneaking mode remembers about the level being left.
+extern void CRL_InvalidateSneak (void);
 
 extern int  CRL_lineanims_counter;
 extern int  CRL_plats_counter;

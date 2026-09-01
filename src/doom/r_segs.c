@@ -268,6 +268,9 @@ R_RenderMaskedSegRange
         // [JN] CRL - check if column possibly have a Medusa.
         if(medusa_indicator((byte*) col + 3, texnum, curline->linedef))
         {
+            // [PN] CRL - Sneaking mode. No outline here: the refused opening
+            // does not tell where the midtexture itself begins and ends.
+            if (CRL_SneakAllowWall (curline))
             R_DrawMaskedColumn (col);
         }
 	    maskedtexturecol[dc_x] = INT_MAX;  // [JN] 32-bit integer math
@@ -321,8 +324,17 @@ static void R_RenderSegLoop (void)
 
 	    if (r_top <= r_bottom)
 	    {
+		// [PN] CRL - Sneaking mode: either the span is drawn,
+		// or its shape is remembered to be outlined.
+		if (CRL_SneakAllowSector (ds_p->curline->frontsector, true))
+		{
 		ceilingplane->top[rw_x] = r_top;
 		ceilingplane->bottom[rw_x] = r_bottom;
+		}
+		else
+		{
+		CRL_SneakHideSpan (ceilingplane, rw_x, r_top, r_bottom);
+		}
 	    }
 	}
 		
@@ -339,8 +351,17 @@ static void R_RenderSegLoop (void)
 		r_top = ceilingclip[rw_x]+1;
 	    if (r_top <= r_bottom)
 	    {
+		// [PN] Sneaking mode: either the span is drawn,
+		// or its shape is remembered to be outlined.
+		if (CRL_SneakAllowSector (ds_p->curline->frontsector, false))
+		{
 		floorplane->top[rw_x] = r_top;
 		floorplane->bottom[rw_x] = r_bottom;
+		}
+		else
+		{
+		CRL_SneakHideSpan (floorplane, rw_x, r_top, r_bottom);
+		}
 	    }
 	}
 	
@@ -377,7 +398,11 @@ static void R_RenderSegLoop (void)
 	    dc_yh = yh;
 	    dc_texturemid = rw_midtexturemid;
 	    dc_source = R_GetColumn(midtexture,texturecolumn);
+	    // [PN] CRL - Sneaking mode: draw the wall, or remember its shape.
+	    if (CRL_SneakAllowWall (ds_p->curline))
 	    colfunc ();
+	    else
+	    CRL_SneakHideWall (ds_p->curline, rw_x, dc_yl, dc_yh);
 	    ceilingclip[rw_x] = viewheight;
 	    floorclip[rw_x] = -1;
 	}
@@ -399,7 +424,11 @@ static void R_RenderSegLoop (void)
 		    dc_yh = mid;
 		    dc_texturemid = rw_toptexturemid;
 		    dc_source = R_GetColumn(toptexture,texturecolumn);
+		    // [PN] CRL - Sneaking mode: draw the wall, or remember its shape.
+		    if (CRL_SneakAllowWall (ds_p->curline))
 		    colfunc ();
+		    else
+		    CRL_SneakHideWall (ds_p->curline, rw_x, dc_yl, dc_yh);
 		    ceilingclip[rw_x] = mid;
 		}
 		else
@@ -429,7 +458,11 @@ static void R_RenderSegLoop (void)
 		    dc_texturemid = rw_bottomtexturemid;
 		    dc_source = R_GetColumn(bottomtexture,
 					    texturecolumn);
+		    // [PN] CRL - Sneaking mode: draw the wall, or remember its shape.
+		    if (CRL_SneakAllowWall (ds_p->curline))
 		    colfunc ();
+		    else
+		    CRL_SneakHideWall (ds_p->curline, rw_x, dc_yl, dc_yh);
 		    floorclip[rw_x] = mid;
 		}
 		else

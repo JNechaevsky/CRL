@@ -809,10 +809,15 @@ void R_RenderPlayerView(player_t * player)
 
 		// Clear the view buffer
         // [JN] CRL - allow to choose HOM effect.
-        if (crl_hom_effect)
+        // [PN] Sneaking asks for the same clear; what it refuses is filled
+        // with black rather than the HOM cycling, so it reads as "not there".
+        const boolean sneak_clear = CRL_SneakFrameBegin();
+
+        if (crl_hom_effect || sneak_clear)
         {
             V_DrawFilledBox(viewwindowx, viewwindowy,
-                            scaledviewwidth, viewheight, CRL_homcolor);
+                            scaledviewwidth, viewheight,
+                            sneak_clear ? CRL_sneak_homcolor : CRL_homcolor);
         }
 
         R_ClearClipSegs();
@@ -828,8 +833,16 @@ void R_RenderPlayerView(player_t * player)
         NetUpdate();                // check for new console commands
         R_DrawPlanes();
         CRL_DrawVisPlanes(0);
+
+        // [PN] CRL - Sneaking mode: outlines of what the mode refused
+        CRL_SneakFrameEnd ();
+
         NetUpdate();                // check for new console commands
         R_DrawMasked();
+
+        // [PN] CRL - Sneaking mode: recording ends with the masked pass
+        CRL_SneakMaskedEnd ();
+
         NetUpdate();                // check for new console commands
 
         js = -1;                    // No errors, set jump to negative for OK
