@@ -644,6 +644,7 @@ static void M_Bind_SpectatorMode (int choice);
 static void M_Bind_CameraUp (int choice);
 static void M_Bind_CameraDown (int choice);
 static void M_Bind_CameraMoveTo (int choice);
+static void M_Bind_SneakingMode (int choice);
 static void M_Bind_FreezeMode (int choice);
 static void M_Bind_BuddhaMode (int choice);
 static void M_Bind_NotargetMode (int choice);
@@ -2105,6 +2106,7 @@ static menuitem_t CRLMenu_Keybinds_2[]=
     { M_SWTC, "- MOVE CAMERA UP",      M_Bind_CameraUp,       'm' },
     { M_SWTC, "- MOVE CAMERA DOWN",    M_Bind_CameraDown,     'm' },
     { M_SWTC, "- GO TO CAMERA COORDS", M_Bind_CameraMoveTo,   'm' },
+    { M_SWTC, "SNEAKING MODE",         M_Bind_SneakingMode,   's' },
     { M_SWTC, "FREEZE MODE",           M_Bind_FreezeMode,     'f' },
     { M_SWTC, "BUDDHA MODE",           M_Bind_BuddhaMode,     'b' },
 };
@@ -2145,8 +2147,9 @@ static void M_DrawCRL_Keybinds_2 (void)
     M_DrawBindKey(11, 115, key_crl_cameraup, key_crl_cameraup2);
     M_DrawBindKey(12, 124, key_crl_cameradown, key_crl_cameradown2);
     M_DrawBindKey(13, 133, key_crl_cameramoveto, key_crl_cameramoveto2);
-    M_DrawBindKey(14, 142, key_crl_freeze, key_crl_freeze2);
-    M_DrawBindKey(15, 151, key_crl_buddha, key_crl_buddha2);
+    M_DrawBindKey(14, 142, key_crl_sneaking, key_crl_sneaking2);
+    M_DrawBindKey(15, 151, key_crl_freeze, key_crl_freeze2);
+    M_DrawBindKey(16, 160, key_crl_buddha, key_crl_buddha2);
 
     M_DrawBindFooter("2", true);
 }
@@ -2164,8 +2167,9 @@ static void M_Bind_SpectatorMode (int choice)     { M_StartBind(209); } // key_c
 static void M_Bind_CameraUp (int choice)          { M_StartBind(210); } // key_crl_cameraup
 static void M_Bind_CameraDown (int choice)        { M_StartBind(211); } // key_crl_cameradown
 static void M_Bind_CameraMoveTo (int choice)      { M_StartBind(212); } // key_crl_cameramoveto
-static void M_Bind_FreezeMode (int choice)        { M_StartBind(213); } // key_crl_freeze
-static void M_Bind_BuddhaMode (int choice)        { M_StartBind(214); } // key_crl_buddha
+static void M_Bind_SneakingMode (int choice)      { M_StartBind(213); } // key_crl_sneaking
+static void M_Bind_FreezeMode (int choice)        { M_StartBind(214); } // key_crl_freeze
+static void M_Bind_BuddhaMode (int choice)        { M_StartBind(215); } // key_crl_buddha
 
 // -----------------------------------------------------------------------------
 // Keybinds 3
@@ -7052,8 +7056,9 @@ static const KeyBindEntry_t keybinds[] =
     KEYBIND_ENTRY(210, &CRLDef_Keybinds_2, 11, key_crl_cameraup,     key_crl_cameraup2,     0,   0, KBS_GLOBAL),
     KEYBIND_ENTRY(211, &CRLDef_Keybinds_2, 12, key_crl_cameradown,   key_crl_cameradown2,   0,   0, KBS_GLOBAL),
     KEYBIND_ENTRY(212, &CRLDef_Keybinds_2, 13, key_crl_cameramoveto, key_crl_cameramoveto2, 0,   0, KBS_GLOBAL),
-    KEYBIND_ENTRY(213, &CRLDef_Keybinds_2, 14, key_crl_freeze,       key_crl_freeze2,       0,   0, KBS_GLOBAL),
-    KEYBIND_ENTRY(214, &CRLDef_Keybinds_2, 15, key_crl_buddha,       key_crl_buddha2,       0,   0, KBS_GLOBAL),
+    KEYBIND_ENTRY(213, &CRLDef_Keybinds_2, 14, key_crl_sneaking,     key_crl_sneaking2,     0,   0, KBS_GLOBAL),
+    KEYBIND_ENTRY(214, &CRLDef_Keybinds_2, 15, key_crl_freeze,       key_crl_freeze2,       0,   0, KBS_GLOBAL),
+    KEYBIND_ENTRY(215, &CRLDef_Keybinds_2, 16, key_crl_buddha,       key_crl_buddha2,       0,   0, KBS_GLOBAL),
 
     // Page 3
     KEYBIND_ENTRY(300, &CRLDef_Keybinds_3, 0,  key_crl_notarget,   key_crl_notarget2,   0,            0, KBS_GLOBAL),

@@ -389,6 +389,7 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_KEYBIND(key_crl_cameraup, key_crl_cameraup2),
     CONFIG_VARIABLE_KEYBIND(key_crl_cameradown, key_crl_cameradown2),
     CONFIG_VARIABLE_KEYBIND(key_crl_cameramoveto, key_crl_cameramoveto2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_sneaking, key_crl_sneaking2),
     CONFIG_VARIABLE_KEYBIND(key_crl_freeze, key_crl_freeze2),
     CONFIG_VARIABLE_KEYBIND(key_crl_buddha, key_crl_buddha2),
     CONFIG_VARIABLE_KEYBIND(key_crl_notarget, key_crl_notarget2),

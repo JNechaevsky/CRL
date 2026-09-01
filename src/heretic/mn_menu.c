@@ -493,6 +493,7 @@ static void M_Bind_CameraDown (int option);
 static void M_Bind_CameraMoveTo (int option);
 
 static void DrawCRLKbd4 (void);
+static void M_Bind_SneakingMode (int option);
 static void M_Bind_FreezeMode (int option);
 static void M_Bind_BuddhaMode (int option);
 static void M_Bind_NotargetMode (int option);
@@ -2008,6 +2009,7 @@ static void M_Bind_CameraMoveTo (int option)      { M_StartBind(312); } // key_c
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLKbsBinds4Items[] = {
+    { ITT_EFUNC, "SNEAKING MODE",           M_Bind_SneakingMode,   0, MENU_NONE },
     { ITT_EFUNC, "FREEZE MODE",             M_Bind_FreezeMode,     0, MENU_NONE },
     { ITT_EFUNC, "BUDDHA MODE",             M_Bind_BuddhaMode,     0, MENU_NONE },
     { ITT_EFUNC, "NO TARGET MODE",          M_Bind_NotargetMode,   0, MENU_NONE },
@@ -2039,36 +2041,38 @@ static void DrawCRLKbd4 (void)
 
     MN_DrTextACentered("GAME MODES", 10, cr[CR_YELLOW]);
 
-    M_DrawBindKey(0, 20, key_crl_freeze, key_crl_freeze2);
-    M_DrawBindKey(1, 30, key_crl_buddha, key_crl_buddha2);
-    M_DrawBindKey(2, 40, key_crl_notarget, key_crl_notarget2);
-    M_DrawBindKey(3, 50, key_crl_nomomentum, key_crl_nomomentum2);
+    M_DrawBindKey(0, 20, key_crl_sneaking, key_crl_sneaking2);
+    M_DrawBindKey(1, 30, key_crl_freeze, key_crl_freeze2);
+    M_DrawBindKey(2, 40, key_crl_buddha, key_crl_buddha2);
+    M_DrawBindKey(3, 50, key_crl_notarget, key_crl_notarget2);
+    M_DrawBindKey(4, 60, key_crl_nomomentum, key_crl_nomomentum2);
 
-    MN_DrTextACentered("ADVANCED MOVEMENT", 60, cr[CR_YELLOW]);
+    MN_DrTextACentered("ADVANCED MOVEMENT", 70, cr[CR_YELLOW]);
 
-    M_DrawBindKey(5, 70, key_crl_autorun, key_crl_autorun2);
-    M_DrawBindKey(6, 80, key_crl_mlook, key_crl_mlook2);
-    M_DrawBindKey(7, 90, key_crl_novert, key_crl_novert2);
-    M_DrawBindKey(8, 100, key_crl_vilebomb, key_crl_vilebomb2);
-    M_DrawBindKey(9, 110, key_crl_vilefly, key_crl_vilefly2);
+    M_DrawBindKey(6, 80, key_crl_autorun, key_crl_autorun2);
+    M_DrawBindKey(7, 90, key_crl_mlook, key_crl_mlook2);
+    M_DrawBindKey(8, 100, key_crl_novert, key_crl_novert2);
+    M_DrawBindKey(9, 110, key_crl_vilebomb, key_crl_vilebomb2);
+    M_DrawBindKey(10, 120, key_crl_vilefly, key_crl_vilefly2);
 
-    MN_DrTextACentered("CHEAT SHORTCUTS", 120, cr[CR_YELLOW]);
+    MN_DrTextACentered("CHEAT SHORTCUTS", 130, cr[CR_YELLOW]);
 
-    M_DrawBindKey(11, 130, key_crl_iddqd, key_crl_iddqd2);
+    M_DrawBindKey(12, 140, key_crl_iddqd, key_crl_iddqd2);
 
     M_DrawBindFooter("4/10");
 }
 
-static void M_Bind_FreezeMode (int option)     { M_StartBind(400); } // key_crl_freeze
-static void M_Bind_BuddhaMode (int option)     { M_StartBind(401); } // key_crl_buddha
-static void M_Bind_NotargetMode (int option)   { M_StartBind(402); } // key_crl_notarget
-static void M_Bind_NomomentumMode (int option) { M_StartBind(403); } // key_crl_nomomentum
-static void M_Bind_AlwaysRun (int option)      { M_StartBind(404); } // key_crl_autorun
-static void M_Bind_MouseLook (int option)      { M_StartBind(405); } // key_crl_mlook
-static void M_Bind_NoVert (int option)         { M_StartBind(406); } // key_crl_novert
-static void M_Bind_VileBomb (int option)       { M_StartBind(407); } // key_crl_vilebomb
-static void M_Bind_VileFly (int option)        { M_StartBind(408); } // key_crl_vilefly
-static void M_Bind_IDDQD (int option)          { M_StartBind(409); } // key_crl_iddqd
+static void M_Bind_SneakingMode (int option)   { M_StartBind(400); } // key_crl_sneaking
+static void M_Bind_FreezeMode (int option)     { M_StartBind(401); } // key_crl_freeze
+static void M_Bind_BuddhaMode (int option)     { M_StartBind(402); } // key_crl_buddha
+static void M_Bind_NotargetMode (int option)   { M_StartBind(403); } // key_crl_notarget
+static void M_Bind_NomomentumMode (int option) { M_StartBind(404); } // key_crl_nomomentum
+static void M_Bind_AlwaysRun (int option)      { M_StartBind(405); } // key_crl_autorun
+static void M_Bind_MouseLook (int option)      { M_StartBind(406); } // key_crl_mlook
+static void M_Bind_NoVert (int option)         { M_StartBind(407); } // key_crl_novert
+static void M_Bind_VileBomb (int option)       { M_StartBind(408); } // key_crl_vilebomb
+static void M_Bind_VileFly (int option)        { M_StartBind(409); } // key_crl_vilefly
+static void M_Bind_IDDQD (int option)          { M_StartBind(410); } // key_crl_iddqd
 
 // -----------------------------------------------------------------------------
 // Keybinds 5
@@ -6713,16 +6717,17 @@ static const KeyBindEntry_t keybinds[] =
     KEYBIND_ENTRY(312, &CRLKbdBinds3, 13, key_crl_cameramoveto,key_crl_cameramoveto2,0,    0, KBS_GLOBAL),
 
     // Page 4
-    KEYBIND_ENTRY(400, &CRLKbdBinds4, 0,  key_crl_freeze,      key_crl_freeze2,      0,            0, KBS_GLOBAL),
-    KEYBIND_ENTRY(401, &CRLKbdBinds4, 1,  key_crl_buddha,      key_crl_buddha2,      0,            0, KBS_GLOBAL),
-    KEYBIND_ENTRY(402, &CRLKbdBinds4, 2,  key_crl_notarget,    key_crl_notarget2,    0,            0, KBS_GLOBAL),
-    KEYBIND_ENTRY(403, &CRLKbdBinds4, 3,  key_crl_nomomentum,  key_crl_nomomentum2,  0,            0, KBS_GLOBAL),
-    KEYBIND_ENTRY(404, &CRLKbdBinds4, 5,  key_crl_autorun,     key_crl_autorun2,     KEY_CAPSLOCK, 0, KBS_GLOBAL),
-    KEYBIND_ENTRY(405, &CRLKbdBinds4, 6,  key_crl_mlook,       key_crl_mlook2,       0,            0, KBS_GLOBAL),
-    KEYBIND_ENTRY(406, &CRLKbdBinds4, 7,  key_crl_novert,      key_crl_novert2,      0,            0, KBS_GLOBAL),
-    KEYBIND_ENTRY(407, &CRLKbdBinds4, 8,  key_crl_vilebomb,    key_crl_vilebomb2,    0,            0, KBS_GLOBAL),
-    KEYBIND_ENTRY(408, &CRLKbdBinds4, 9,  key_crl_vilefly,     key_crl_vilefly2,     0,            0, KBS_GLOBAL),
-    KEYBIND_ENTRY(409, &CRLKbdBinds4, 11, key_crl_iddqd,       key_crl_iddqd2,       0,            0, KBS_GLOBAL),
+    KEYBIND_ENTRY(400, &CRLKbdBinds4, 0,  key_crl_sneaking,    key_crl_sneaking2,    0,            0, KBS_GLOBAL),
+    KEYBIND_ENTRY(401, &CRLKbdBinds4, 1,  key_crl_freeze,      key_crl_freeze2,      0,            0, KBS_GLOBAL),
+    KEYBIND_ENTRY(402, &CRLKbdBinds4, 2,  key_crl_buddha,      key_crl_buddha2,      0,            0, KBS_GLOBAL),
+    KEYBIND_ENTRY(403, &CRLKbdBinds4, 3,  key_crl_notarget,    key_crl_notarget2,    0,            0, KBS_GLOBAL),
+    KEYBIND_ENTRY(404, &CRLKbdBinds4, 4,  key_crl_nomomentum,  key_crl_nomomentum2,  0,            0, KBS_GLOBAL),
+    KEYBIND_ENTRY(405, &CRLKbdBinds4, 6,  key_crl_autorun,     key_crl_autorun2,     KEY_CAPSLOCK, 0, KBS_GLOBAL),
+    KEYBIND_ENTRY(406, &CRLKbdBinds4, 7,  key_crl_mlook,       key_crl_mlook2,       0,            0, KBS_GLOBAL),
+    KEYBIND_ENTRY(407, &CRLKbdBinds4, 8,  key_crl_novert,      key_crl_novert2,      0,            0, KBS_GLOBAL),
+    KEYBIND_ENTRY(408, &CRLKbdBinds4, 9,  key_crl_vilebomb,    key_crl_vilebomb2,    0,            0, KBS_GLOBAL),
+    KEYBIND_ENTRY(409, &CRLKbdBinds4, 10, key_crl_vilefly,     key_crl_vilefly2,     0,            0, KBS_GLOBAL),
+    KEYBIND_ENTRY(410, &CRLKbdBinds4, 12, key_crl_iddqd,       key_crl_iddqd2,       0,            0, KBS_GLOBAL),
 
     // Page 5
     KEYBIND_ENTRY(501, &CRLKbdBinds5, 0,  key_crl_idkfa,  key_crl_idkfa2,   0,   0, KBS_GLOBAL),

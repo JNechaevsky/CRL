@@ -92,6 +92,7 @@ int key_crl_spectator    = 0; int key_crl_spectator2    = 0;
 int key_crl_cameraup     = 0; int key_crl_cameraup2     = 0;
 int key_crl_cameradown   = 0; int key_crl_cameradown2   = 0;
 int key_crl_cameramoveto = 0; int key_crl_cameramoveto2 = 0;
+int key_crl_sneaking     = 0; int key_crl_sneaking2     = 0;
 int key_crl_freeze       = 0; int key_crl_freeze2       = 0;
 int key_crl_buddha       = 0; int key_crl_buddha2       = 0;
 int key_crl_notarget     = 0; int key_crl_notarget2     = 0;
@@ -342,6 +343,7 @@ void M_BindControls (void)
     M_BindIntVariableKeybind("key_crl_cameraup",     &key_crl_cameraup,     "key_crl_cameraup2",     &key_crl_cameraup2);
     M_BindIntVariableKeybind("key_crl_cameradown",   &key_crl_cameradown,   "key_crl_cameradown2",   &key_crl_cameradown2);
     M_BindIntVariableKeybind("key_crl_cameramoveto", &key_crl_cameramoveto, "key_crl_cameramoveto2", &key_crl_cameramoveto2);
+    M_BindIntVariableKeybind("key_crl_sneaking",     &key_crl_sneaking,     "key_crl_sneaking2",     &key_crl_sneaking2);
     M_BindIntVariableKeybind("key_crl_freeze",       &key_crl_freeze,       "key_crl_freeze2",       &key_crl_freeze2);
     M_BindIntVariableKeybind("key_crl_buddha",       &key_crl_buddha,       "key_crl_buddha2",       &key_crl_buddha2);
     M_BindIntVariableKeybind("key_crl_notarget",     &key_crl_notarget,     "key_crl_notarget2",     &key_crl_notarget2);

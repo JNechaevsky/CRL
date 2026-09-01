@@ -1736,6 +1736,14 @@ boolean G_Responder(event_t * ev)
                 else
                     CRL_ReloadPalette();
             }
+            // [JN] CRL - Toggle sneaking mode.
+            if (ev->data1 == key_crl_sneaking || ev->data1 == key_crl_sneaking2)
+            {
+                crl_sneaking ^= 1;
+                CT_SetMessage(plr, crl_sneaking ?
+                              CRL_SNEAKING_ON : CRL_SNEAKING_OFF, false, NULL);
+                CRL_InvalidateSneak();
+            }
             // [JN] CRL - Toggle freeze mode.
             if (ev->data1 == key_crl_freeze || ev->data1 == key_crl_freeze2)
             {

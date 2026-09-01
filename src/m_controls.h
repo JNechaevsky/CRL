@@ -79,6 +79,7 @@ extern int key_crl_spectator, key_crl_spectator2;
 extern int key_crl_cameraup, key_crl_cameraup2;
 extern int key_crl_cameradown, key_crl_cameradown2;
 extern int key_crl_cameramoveto, key_crl_cameramoveto2;
+extern int key_crl_sneaking, key_crl_sneaking2;
 extern int key_crl_freeze, key_crl_freeze2;
 extern int key_crl_buddha, key_crl_buddha2;
 extern int key_crl_notarget, key_crl_notarget2;
