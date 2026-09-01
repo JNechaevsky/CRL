@@ -3361,7 +3361,7 @@ static void M_DrawCRL_Misc_1 (void)
     else
     {
         // < Scroll pages >
-        M_DrawScrollPages(CRL_MENU_LEFTOFFSET_BIG, 142, 15, "1/2");
+        M_DrawScrollPages(CRL_MENU_LEFTOFFSET_BIG, 142, 14, "1/2");
     }
 }
 
@@ -3522,7 +3522,7 @@ static void M_DrawCRL_Misc_2 (void)
     }
 
     // < Scroll pages >
-    M_DrawScrollPages(CRL_MENU_LEFTOFFSET_BIG, 142, 15, "2/2");
+    M_DrawScrollPages(CRL_MENU_LEFTOFFSET_BIG, 142, 14, "2/2");
 }
 
 static void M_CRL_Misc_RewindEnable (int choice)
