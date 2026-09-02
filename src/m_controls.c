@@ -173,6 +173,7 @@ int key_crl_map_rotate   = 'r';            int key_crl_map_rotate2   = 0;
 int key_crl_map_overlay  = 'o';            int key_crl_map_overlay2  = 0;
 int key_crl_map_mousepan = 0;              int key_crl_map_mousepan2 = 0;
 int key_crl_map_sndprop  = 'p';            int key_crl_map_sndprop2  = 0;
+int key_crl_map_teleport = 't';            int key_crl_map_teleport2 = 0;
 int key_map_grid         = 'g';            int key_map_grid2         = 0;
 int key_map_mark         = 'm';            int key_map_mark2         = 0;
 int key_map_clearmark    = 'c';            int key_map_clearmark2    = 0;
@@ -404,6 +405,7 @@ void M_BindControls (void)
     M_BindIntVariableKeybind("key_crl_map_overlay",  &key_crl_map_overlay,  "key_crl_map_overlay2",  &key_crl_map_overlay2);
     M_BindIntVariableKeybind("key_crl_map_mousepan", &key_crl_map_mousepan, "key_crl_map_mousepan2", &key_crl_map_mousepan2);
     M_BindIntVariableKeybind("key_crl_map_sndprop",  &key_crl_map_sndprop,  "key_crl_map_sndprop2",  &key_crl_map_sndprop2);
+    M_BindIntVariableKeybind("key_crl_map_teleport", &key_crl_map_teleport, "key_crl_map_teleport2", &key_crl_map_teleport2);
     M_BindIntVariableKeybind("key_map_grid",         &key_map_grid,         "key_map_grid2",         &key_map_grid2);
     M_BindIntVariableKeybind("key_map_mark",         &key_map_mark,         "key_map_mark2",         &key_map_mark2);
     M_BindIntVariableKeybind("key_map_clearmark",    &key_map_clearmark,    "key_map_clearmark2",    &key_map_clearmark2);

@@ -159,6 +159,7 @@ extern int key_crl_map_rotate, key_crl_map_rotate2;
 extern int key_crl_map_overlay, key_crl_map_overlay2;
 extern int key_crl_map_mousepan, key_crl_map_mousepan2;
 extern int key_crl_map_sndprop, key_crl_map_sndprop2;
+extern int key_crl_map_teleport, key_crl_map_teleport2;
 extern int key_map_grid, key_map_grid2;
 extern int key_map_mark, key_map_mark2;
 extern int key_map_clearmark, key_map_clearmark2;

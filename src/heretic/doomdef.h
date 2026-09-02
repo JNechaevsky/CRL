@@ -582,6 +582,7 @@ extern int GetWeaponAmmo[NUMWEAPONS];
 extern boolean demorecording;
 extern boolean demoplayback;
 extern boolean demoextend;      // allow demos to persist through exit/respawn
+extern boolean netdemo;
 extern int skytexture;
 
 // Truncate angleturn in ticcmds to nearest 256.

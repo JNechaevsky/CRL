@@ -1140,6 +1140,51 @@ boolean AM_Responder (const event_t *ev)
                 CT_SetMessage(plr, CRL_AUTOMAPSNDPROP_OFF, false, NULL);
             }
         }
+        else if (key == key_crl_map_teleport || key == key_crl_map_teleport2)
+        {
+            // [JN] CRL - Move to automap crosshair position.
+            if (demorecording)
+            {
+                CT_SetMessage(plr, CRL_MAPTELEPORT_NA_R, false, NULL);
+            }
+            
+            if (am_followplayer)
+            {
+                // [JN] No cursor in follow mode, so inform that teleport is not possible.
+                CT_SetMessage(plr, CRL_MAPTELEPORT_NA_F, false, NULL);
+            }
+            else
+            {
+                // [JN] If teleporting while demo playpack, return controls to the player.
+                if (demoplayback)
+                {
+                    usergame = true;
+                    demoplayback = false; 
+                    netdemo = false;
+                    netgame = false;
+                }
+
+                // [PN] The center of the window, in world coordinates.
+                const fixed_t x = (fixed_t) ((m_x + (m_w >> 1)) << FRACTOMAPBITS);
+                const fixed_t y = (fixed_t) ((m_y + (m_h >> 1)) << FRACTOMAPBITS);
+
+                // [PN] Unlike a plain assignment, this refuses a spot the player
+                // does not fit into and takes the heights of the new sector.
+                if (P_TeleportMove (plr->mo, x, y))
+                {
+                    // [PN] Land on the floor and leave no momentum behind.
+                    plr->mo->z = plr->mo->floorz;
+                    plr->viewz = plr->mo->z + plr->viewheight;
+                    plr->mo->momx = plr->mo->momy = plr->mo->momz = 0;
+                    plr->mo->angle = viewangle;
+                    plr->mo->interp = -1;  // [PN] Do not slide the view.
+                }
+                else
+                {
+                    CT_SetMessage(plr, CRL_MAPTELEPORT_NA_S, false, NULL);
+                }
+            }
+        }
         else
         {
             rc = false;
@@ -2509,9 +2554,9 @@ static void AM_drawkeys (void)
 
 static void AM_drawCrosshair (void)
 {
-    // [JN] Simplify: (f_w*(f_h+1))/2) = (320 * (200 - 42 + 1) / 2) = 25440.
-    // Color is always same, so macro can be used here safely.
-    I_VideoBuffer[25440] = PL_WHITE; // single point for now
+    // [PN] The crosshair is a single point in the middle of the window.
+    // The same point the teleport reads the coordinates from.
+    I_VideoBuffer[(f_y + (f_h >> 1)) * SCREENWIDTH + (f_x + (f_w >> 1))] = PL_WHITE; // single point for now
 }
 
 /*
