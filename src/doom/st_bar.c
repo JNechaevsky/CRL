@@ -837,7 +837,7 @@ boolean ST_Responder (event_t *ev)
         }
         // [PN] The word is typed and the digits are still coming in: show what
         // this game mode numbers the current and the next level, so it is clear
-        // what to type. The episode argument is not read in the "MAP" case.
+        // what to type.
         else if (!netgame && cheat_clev.chars_read >= cheat_clev.sequence_len)
         {
             static char msg[40];
@@ -845,19 +845,19 @@ boolean ST_Responder (event_t *ev)
 
             if (G_NextLevel(&epsd, &map))
             {
-                M_snprintf(msg, sizeof(msg), gamemode == commercial ?
-                           "CURRENT: MAP%02d, NEXT: MAP%02d" :
-                           "CURRENT: E%dM%d, NEXT: E%dM%d",
-                           gameepisode, gamemap, epsd, map);
-            }
-            else
-            {
-                M_snprintf(msg, sizeof(msg), gamemode == commercial ?
-                           "CURRENT: MAP%02d" : "CURRENT: E%dM%d",
-                           gameepisode, gamemap);
-            }
+                if (gamemode == commercial)
+                {
+                    M_snprintf(msg, sizeof(msg), "CURRENT: MAP%02d, NEXT: MAP%02d",
+                               gamemap, map);
+                }
+                else
+                {
+                    M_snprintf(msg, sizeof(msg), "CURRENT: E%dM%d, NEXT: E%dM%d",
+                               gameepisode, gamemap, epsd, map);
+                }
 
-            CRL_SetMessage(plyr, msg, false, NULL);
+                CRL_SetMessage(plyr, msg, false, NULL);
+            }
         }
 
         // [PN] The shield raised by "id" lasts two seconds, and a slow typist
