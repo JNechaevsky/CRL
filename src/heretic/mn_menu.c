@@ -6783,7 +6783,7 @@ static const KeyBindEntry_t keybinds[] =
     KEYBIND_ENTRY(806, &CRLKbdBinds8, 6,  key_crl_map_overlay,  key_crl_map_overlay2,  'o',          0, KBS_AUTOMAP_ONLY),
     KEYBIND_ENTRY(807, &CRLKbdBinds8, 7,  key_crl_map_mousepan, key_crl_map_mousepan2, 0,            0, KBS_AUTOMAP_ONLY),
     KEYBIND_ENTRY(808, &CRLKbdBinds8, 8,  key_crl_map_sndprop,  key_crl_map_sndprop2,  'p',          0, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(809, &CRLKbdBinds8, 9,  key_crl_map_teleport, key_crl_map_teleport2, 't',          0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(809, &CRLKbdBinds8, 9,  key_crl_map_teleport, key_crl_map_teleport2, 0,            0, KBS_AUTOMAP_ONLY),
     KEYBIND_ENTRY(810, &CRLKbdBinds8, 10, key_map_grid,         key_map_grid2,         'g',          0, KBS_AUTOMAP_ONLY),
     KEYBIND_ENTRY(811, &CRLKbdBinds8, 11, key_map_mark,         key_map_mark2,         'm',          0, KBS_AUTOMAP_ONLY),
     KEYBIND_ENTRY(812, &CRLKbdBinds8, 12, key_map_clearmark,    key_map_clearmark2,    'c',          0, KBS_AUTOMAP_ONLY),

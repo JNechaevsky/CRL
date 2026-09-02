@@ -173,7 +173,7 @@ int key_crl_map_rotate   = 'r';            int key_crl_map_rotate2   = 0;
 int key_crl_map_overlay  = 'o';            int key_crl_map_overlay2  = 0;
 int key_crl_map_mousepan = 0;              int key_crl_map_mousepan2 = 0;
 int key_crl_map_sndprop  = 'p';            int key_crl_map_sndprop2  = 0;
-int key_crl_map_teleport = 't';            int key_crl_map_teleport2 = 0;
+int key_crl_map_teleport = 0;              int key_crl_map_teleport2 = 0;
 int key_map_grid         = 'g';            int key_map_grid2         = 0;
 int key_map_mark         = 'm';            int key_map_mark2         = 0;
 int key_map_clearmark    = 'c';            int key_map_clearmark2    = 0;
