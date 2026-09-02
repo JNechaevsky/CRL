@@ -932,6 +932,9 @@ void MN_DrTextACritical (const char *text1, const char *text2, int y, byte *tabl
 void MN_DrTextB(const char *text, int x, int y, byte *table);
 int MN_TextBWidth(const char *text);
 
+// [PN] The level the "next level" item warps to, without warping.
+int G_NextLevel(int *epsd, int *map);
+
 #include "sounds.h"
 
 #endif // __DOOMDEF__
