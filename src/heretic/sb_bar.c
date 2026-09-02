@@ -295,6 +295,7 @@ void SB_Ticker(void)
 
     CRLWidgets.x = CPlayer->mo->x;
     CRLWidgets.y = CPlayer->mo->y;
+    CRLWidgets.z = CPlayer->mo->z;
     CRLWidgets.ang = CPlayer->mo->angle;
 
     // Do red-/gold-shifts from damage/items

@@ -533,10 +533,14 @@ void CRL_StatDrawer (void)
         fontfunc(0, 34, "Y:", cr[CR_GRAY]);
         CRL_FixedToString(CRLWidgets.y, str, sizeof(str));
         fontfunc(16, 34, str, cr[CR_GREEN]);
-        
-        fontfunc(0, 43, "ANG:", cr[CR_GRAY]);
+
+        fontfunc(0, 43, "Z:", cr[CR_GRAY]);
+        CRL_FixedToString(CRLWidgets.z, str, sizeof(str));
+        fontfunc(16, 43, str, cr[CR_GREEN]);
+
+        fontfunc(0, 52, "ANG:", cr[CR_GRAY]);
         CRL_AngleToString(CRLWidgets.ang, str, sizeof(str));
-        fontfunc(xx, 43, str, cr[CR_GREEN]);
+        fontfunc(xx, 52, str, cr[CR_GREEN]);
     }
 
     if (crl_widget_playstate)
@@ -549,9 +553,9 @@ void CRL_StatDrawer (void)
         {
             char brn[32];
 
-            fontfunc(0, 57, "BRN:", CRL_StatColor_Str(CRL_brain_counter, 32));
+            fontfunc(0, 61, "BRN:", CRL_StatColor_Str(CRL_brain_counter, 32));
             M_snprintf(brn, 16, "%d/32", CRL_brain_counter);
-            fontfunc(xx, 57, brn, CRL_StatColor_Val(CRL_brain_counter, 32));
+            fontfunc(xx, 61, brn, CRL_StatColor_Val(CRL_brain_counter, 32));
         }
 
         // Slightly shift remaining widgets down if no BRN 
@@ -567,9 +571,9 @@ void CRL_StatDrawer (void)
         {
             char btn[32];
 
-            fontfunc(0, 66+yy1, "BTN:", CRL_StatColor_Str(CRL_buttons_counter, 16));
+            fontfunc(0, 70+yy1, "BTN:", CRL_StatColor_Str(CRL_buttons_counter, 16));
             M_snprintf(btn, 16, "%d/16", CRL_buttons_counter);
-            fontfunc(xx, 66+yy1, btn, CRL_StatColor_Val(CRL_buttons_counter, 16));
+            fontfunc(xx, 70+yy1, btn, CRL_StatColor_Val(CRL_buttons_counter, 16));
         }
 
         // Plats (30 max)
@@ -578,9 +582,9 @@ void CRL_StatDrawer (void)
         {
             char plt[32];
 
-            fontfunc(0, 75+yy1, "PLT:", CRL_StatColor_Str(CRL_plats_counter, CRL_MaxPlats));
+            fontfunc(0, 79+yy1, "PLT:", CRL_StatColor_Str(CRL_plats_counter, CRL_MaxPlats));
             M_snprintf(plt, 16, "%d/%d", CRL_plats_counter, CRL_MaxPlats);
-            fontfunc(xx, 75+yy1, plt, CRL_StatColor_Val(CRL_plats_counter, CRL_MaxPlats));
+            fontfunc(xx, 79+yy1, plt, CRL_StatColor_Val(CRL_plats_counter, CRL_MaxPlats));
         }
 
         // Animated lines (64 max)
@@ -589,9 +593,9 @@ void CRL_StatDrawer (void)
         {
             char ani[32];
 
-            fontfunc(0, 84+yy1, "ANI:", CRL_StatColor_Str(CRL_lineanims_counter, CRL_MaxAnims));
+            fontfunc(0, 88+yy1, "ANI:", CRL_StatColor_Str(CRL_lineanims_counter, CRL_MaxAnims));
             M_snprintf(ani, 16, "%d/%d", CRL_lineanims_counter, CRL_MaxAnims);
-            fontfunc(xx, 84+yy1, ani, CRL_StatColor_Val(CRL_lineanims_counter, CRL_MaxAnims));
+            fontfunc(xx, 88+yy1, ani, CRL_StatColor_Val(CRL_lineanims_counter, CRL_MaxAnims));
         }
     }
 

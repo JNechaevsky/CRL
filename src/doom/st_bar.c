@@ -1233,6 +1233,7 @@ void ST_Ticker (void)
 
     CRLWidgets.x = plyr->mo->x;
     CRLWidgets.y = plyr->mo->y;
+    CRLWidgets.z = plyr->mo->z;
     CRLWidgets.ang = plyr->mo->angle;
 
     if (deathmatch)

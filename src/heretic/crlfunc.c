@@ -496,25 +496,29 @@ void CRL_StatDrawer (void)
     if (crl_widget_coords == 1
     || (crl_widget_coords == 2 && automapactive))
     {
-        char x[8] = {0};
-        char y[8] = {0};
         char str[128];
-        int coord_x_width;
+        int cur_x = 0;
 
-        M_snprintf(x, 8, "X: ");
-        fontfunc(x, 0, 30, cr[CR_GRAY]);
+        // Line 1: X and Y
+        fontfunc("X: ", 0, 30, cr[CR_GRAY]);
         CRL_FixedToString(CRLWidgets.x, str, sizeof(str));
-        coord_x_width = widthfunc(str);
-        fontfunc(str, widthfunc(x), 30, cr[CR_GREEN]);
+        cur_x = widthfunc("X: ") + widthfunc(str);
+        fontfunc(str, widthfunc("X: "), 30, cr[CR_GREEN]);
 
-        M_snprintf(y, 8, " Y: ");
-        fontfunc(y, widthfunc(x) + coord_x_width, 30, cr[CR_GRAY]);
+        fontfunc(" Y: ", cur_x, 30, cr[CR_GRAY]);
         CRL_FixedToString(CRLWidgets.y, str, sizeof(str));
-        fontfunc(str, widthfunc(x) + coord_x_width + widthfunc(y), 30, cr[CR_GREEN]);
+        fontfunc(str, cur_x + widthfunc(" Y: "), 30, cr[CR_GREEN]);
 
-        fontfunc("ANG:", 0, 40, cr[CR_GRAY]);
+        // Line 2: Z and ANG
+        cur_x = 0;
+        fontfunc("Z: ", 0, 40, cr[CR_GRAY]);
+        CRL_FixedToString(CRLWidgets.z, str, sizeof(str));
+        cur_x = widthfunc("Z: ") + widthfunc(str);
+        fontfunc(str, widthfunc("Z: "), 40, cr[CR_GREEN]);
+
+        fontfunc(" ANG: ", cur_x, 40, cr[CR_GRAY]);
         CRL_AngleToString(CRLWidgets.ang, str, sizeof(str));
-        fontfunc(str, xx, 40, cr[CR_GREEN]);
+        fontfunc(str, cur_x + widthfunc(" ANG: "), 40, cr[CR_GREEN]);
     }
 
     if (crl_widget_playstate)
