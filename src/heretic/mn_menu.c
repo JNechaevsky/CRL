@@ -3734,7 +3734,9 @@ static void DrawCRLPanel_2 (void)
 
     // - Fill HOM with
     sprintf(str, crl_sneaking_hom_effect == 1 ? "MULTICOLOR 1" :
-                 crl_sneaking_hom_effect == 2 ? "MULTICOLOR 2" : "BLACK");
+                 crl_sneaking_hom_effect == 2 ? "MULTICOLOR 2" :
+                 crl_sneaking_hom_effect == 3 ? "WHITE" :
+                 crl_sneaking_hom_effect == 4 ? "GRAY" : "BLACK");
     MN_DrTextA(str, M_ItemRightAlign(str), 40,
                 M_Item_Glow(2, crl_sneaking_hom_effect ? GLOW_GREEN : GLOW_DARKRED));
 
@@ -3800,7 +3802,7 @@ static void CRL_Sneaking (int option)
 
 static void CRL_Sneaking_Color (int choice)
 {
-    crl_sneaking_hom_effect = M_INT_Slider(crl_sneaking_hom_effect, 0, 2, choice, false);
+    crl_sneaking_hom_effect = M_INT_Slider(crl_sneaking_hom_effect, 0, 4, choice, false);
     CRL_InitHOMColors();
 }
 

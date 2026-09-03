@@ -141,8 +141,7 @@ static void CRL_FillHOMTable(int *table, int effect, byte *const playpal)
             table[i + 192] = V_GetPaletteIndex(playpal, i*3, i*3,   0);
         }
     }
-    else
-    if (effect == 2)
+    else if (effect == 2)
     {
         // [JN] Rainbow colors, bright and vibrant.
         // 6 rainbow colors: Red, Yellow, Green, Cyan, Blue, Magenta.
@@ -166,13 +165,23 @@ static void CRL_FillHOMTable(int *table, int effect, byte *const playpal)
             table[i] = V_GetPaletteIndex(playpal, r, g, b);
         }
     }
+    else if (effect == 3)
+    {
+        // [JN] Fill with static white color.
+        for (i = 0; i < 256; i++)
+            table[i] = V_GetPaletteIndex(playpal, 255, 255, 255);
+    }
+    else if (effect == 4)
+    {
+        // [JN] Fill with static gray color.
+        for (i = 0; i < 256; i++)
+            table[i] = V_GetPaletteIndex(playpal, 128, 128, 128);
+    }
     else
     {
-        // [JN] Fill with black color.
+        // [JN] Fill with static black color.
         for (i = 0; i < 256; i++)
-        {
             table[i] = V_GetPaletteIndex(playpal, 0, 0, 0);
-        }
     }
 }
 
