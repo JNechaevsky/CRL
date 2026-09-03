@@ -813,7 +813,14 @@ void R_RenderPlayerView(player_t * player)
         // with black rather than the HOM cycling, so it reads as "not there".
         const boolean sneak_clear = CRL_SneakFrameBegin();
 
-        if (crl_hom_effect || sneak_clear)
+        // [PN] SHIMMER borrows the Doom trick: the window of three tics ago
+        // goes under the frame instead of a color, so what stays uncovered shows
+        // an old image. Sneaking still wants the plain clear to paint black.
+        if (crl_hom_effect == 3 && !sneak_clear)
+        {
+            CRL_HomShimmer(viewwindowx, viewwindowy, scaledviewwidth, viewheight);
+        }
+        else if (crl_hom_effect || sneak_clear)
         {
             V_DrawFilledBox(viewwindowx, viewwindowy,
                             scaledviewwidth, viewheight,

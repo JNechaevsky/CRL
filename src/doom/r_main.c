@@ -909,7 +909,15 @@ void R_RenderPlayerView (player_t* player)
 		// to draw would otherwise keep the previous frame in its pixels.
 		const boolean sneak_clear = CRL_SneakFrameBegin();
 
-		if (crl_hom_effect || sneak_clear)
+		// [PN] SHIMMER fills with no color at all: it lays the window of
+		// three tics ago under the frame instead, so what stays uncovered shows
+		// an old image, as in DOS. Sneaking still wants the plain clear, or the
+		// walls it hides would keep ghosting through.
+		if (crl_hom_effect == 3 && !sneak_clear)
+		{
+			CRL_HomShimmer(viewwindowx, viewwindowy, scaledviewwidth, viewheight);
+		}
+		else if (crl_hom_effect || sneak_clear)
 		{
 			V_DrawFilledBox(viewwindowx, viewwindowy,
 							scaledviewwidth, viewheight,

@@ -164,6 +164,7 @@ extern void CRL_DrawVisPlanes (int __over);
 extern void CRL_DrawPlaneBorders (void **__surface, int __isseg);
 extern void CRL_CountPlane (void* __key, int __chorf, int __id);
 extern void CRL_GetHOMMultiColor (void);
+extern void CRL_HomShimmer (int x, int y, int w, int h);
 extern int  CRL_homcolor;
 extern int  CRL_sneak_homcolor;
 

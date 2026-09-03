@@ -120,6 +120,16 @@ int CRL_homcolor;
 static int _sneak_homtable[HOMCOUNT];
 int CRL_sneak_homcolor;
 
+// [PN] How many images of the view window the shimmer HOM keeps.
+#define CRL_HOM_HISTORY 4
+
+// [PN] In DOS the four planes were refreshed one in four, so a hole showed the
+// frame that used to lie there and got a new leftover every tic. Ours is one
+// buffer and nothing is left behind in it, so we keep the recent window images
+// ourselves. Not in the zone, like the plane surface above.
+static byte         crl_hom_snap[CRL_HOM_HISTORY][SCREENAREA];
+static unsigned int crl_hom_snap_tic;
+
 
 // -----------------------------------------------------------------------------
 // CRL_InitHOMColors
@@ -192,7 +202,46 @@ void CRL_InitHOMColors(void)
     CRL_FillHOMTable(_homtable, crl_hom_effect, playpal);
     CRL_FillHOMTable(_sneak_homtable, crl_sneaking_hom_effect, playpal);
 
+    // [PN] Leftovers of another level have nothing to show here.
+    memset(crl_hom_snap, 0, sizeof(crl_hom_snap));
+
     W_ReleaseLumpName("PLAYPAL");
+}
+
+// -----------------------------------------------------------------------------
+// CRL_HomShimmer
+//  [PN] Called at the start of a frame in place of the flat HOM fill: takes the
+//  window as it stands into the record of this tic and puts the window of three
+//  tics ago in its place, so whatever the renderer skips shows a leftover of
+//  another generation. The clock is game tics, not frames, so the pace of the
+//  shimmer stays the pace of the game at any frame rate we manage to draw at.
+// -----------------------------------------------------------------------------
+
+void CRL_HomShimmer (int x, int y, int w, int h)
+{
+    const unsigned int slot  = crl_hom_snap_tic % CRL_HOM_HISTORY;
+    const unsigned int prior = (crl_hom_snap_tic + 1) % CRL_HOM_HISTORY;
+    byte *const        keep  = crl_hom_snap[slot];
+    byte *const        back  = crl_hom_snap[prior];
+
+    // [PN] The window is the renderer's business, keep the copy inside ours.
+    x = BETWEEN(0, SCREENWIDTH  - 1, x);
+    y = BETWEEN(0, SCREENHEIGHT - 1, y);
+    w = BETWEEN(0, SCREENWIDTH  - x, w);
+    h = BETWEEN(0, SCREENHEIGHT - y, h);
+
+    if (w == 0 || h == 0)
+    {
+        return;
+    }
+
+    for (int i = 0; i < h; i++)
+    {
+        const int off = (y + i) * SCREENWIDTH + x;
+
+        memcpy(keep + off, I_VideoBuffer + off, w);
+        memcpy(I_VideoBuffer + off, back + off, w);
+    }
 }
 
 // -----------------------------------------------------------------------------
@@ -551,6 +600,10 @@ void CRL_GetHOMMultiColor (void)
 
     CRL_homcolor = _homtable[(++tic) & (HOMCOUNT - 1)];
     CRL_sneak_homcolor = _sneak_homtable[(++tic) & (HOMCOUNT - 1)];
+
+    // [PN] One step per game tic: the shimmer HOM is indexed by this counter,
+    // and not by the frames we happen to draw.
+    ++crl_hom_snap_tic;
 }
 
 
