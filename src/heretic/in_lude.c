@@ -23,6 +23,7 @@
 ========================
 */
 
+#include <ctype.h>
 #include "d_loop.h"
 #include "doomdef.h"
 #include "deh_str.h"
