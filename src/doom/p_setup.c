@@ -593,7 +593,7 @@ static void P_LoadLineDefs (int lump)
 	    char  badline[11];
 	    char *string;
         
-	    sprintf(badspec, "%d", ld->special);
+	    sprintf(badspec, "%d", (unsigned short) ld->special);
 	    sprintf(badline, "%d", i);
 	    string = M_StringJoin("Unknown special ", badspec, " at line ", badline, NULL);
 	    CRL_printf(string, false);
