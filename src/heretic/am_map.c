@@ -324,6 +324,9 @@ static int64_t m_paninc_frac_x = 0;
 static int64_t m_paninc_frac_y = 0;
 static int64_t mouse_pan_frac_x = 0;
 static int64_t mouse_pan_frac_y = 0;
+// [PN] Sub-pixel accumulators (1/32 px), so slow motion isn't truncated away.
+static int64_t mouse_pan_sub_x = 0;
+static int64_t mouse_pan_sub_y = 0;
 
 static boolean stopped = true;
 
@@ -683,6 +686,21 @@ static void AM_MousePanning (void)
     if (!(step_x | step_y))
         return;
 
+    // [PN] Convert the screen-space step into map axes in rotate mode.
+    // Rotating at full fixed precision and rounding to nearest: rotating
+    // the tiny raw per-event deltas collapsed direction onto world axes
+    // (the diagonal drift).
+    if (crl_automap_rotate)
+    {
+        int64_t fx = step_x << FRACBITS;
+        int64_t fy = step_y << FRACBITS;
+
+        AM_rotate(&fx, &fy, 0 - mapangle);
+
+        step_x = (fx + FRACUNIT / 2) >> FRACBITS;
+        step_y = (fy + FRACUNIT / 2) >> FRACBITS;
+    }
+
     const int32_t center_x = m_x + (m_w >> 1) + FTOM(step_x);
     const int32_t center_y = m_y + (m_h >> 1) + FTOM(step_y);
 
@@ -740,6 +758,7 @@ static void AM_initVariables (void)
     mousewheelzoom = false; // [crispy]
     mouse_pan_x = mouse_pan_y = 0;
     mouse_pan_frac_x = mouse_pan_frac_y = 0;
+    mouse_pan_sub_x = mouse_pan_sub_y = 0;
 
     m_w = FTOM(f_w);
     m_h = FTOM(f_h);
@@ -1230,24 +1249,21 @@ boolean AM_Responder (const event_t *ev)
         else // [PN] Move the map window by using the mouse
         if (!am_followplayer && crl_automap_mouse_pan && (ev->data2 || ev->data3))
         {
-            int dx = ev->data2;
-            int dy = ev->data3;
+            // [PN] Accumulate raw screen-space movement with a sub-pixel
+            // carry: slow, smooth motion used to floor to 0 through the
+            // per-event >> 5. Rotate-mode conversion into map axes happens
+            // at consumption, in AM_MousePanning().
+            mouse_pan_sub_x += (int64_t) ev->data2 * mouseSensitivity;
+            mouse_pan_sub_y += (int64_t) ev->data3 * mouseSensitivity;
 
-            // Rotate pan direction if automap is in rotate mode
-            if (crl_automap_rotate)
-            {
-                int64_t incx = dx;
-                int64_t incy = dy;
-                AM_rotate(&incx, &incy, 0 - mapangle);
-                dx = (int)incx;
-                dy = (int)incy;
-            }
+            const int pan_x = (int) (mouse_pan_sub_x >> 5);
+            const int pan_y = (int) (mouse_pan_sub_y >> 5);
 
-            // Accumulate mouse movement into pan buffer,
-            // scaled by resolution and sensitivity.
-            // The >> 5 keeps movement smooth across wide FPS ranges and DPI setups.
-            mouse_pan_x += (dx * mouseSensitivity) >> 5;
-            mouse_pan_y += (dy * mouseSensitivity) >> 5;
+            mouse_pan_sub_x -= (int64_t) pan_x << 5;
+            mouse_pan_sub_y -= (int64_t) pan_y << 5;
+
+            mouse_pan_x += pan_x;
+            mouse_pan_y += pan_y;
 
             rc = true;
         }
