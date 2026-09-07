@@ -556,6 +556,7 @@ static void M_Bind_OverlayMode (int option);
 static void M_Bind_PanMode (int option);
 static void M_Bind_SndPropMode (int option);
 static void M_Bind_AM_Teleport (int option);
+static void M_Bind_AM_Highlight (int choice);
 static void M_Bind_ToggleGrid (int option);
 static void M_Bind_AddMark (int option);
 static void M_Bind_ClearMarks (int option);
@@ -2274,19 +2275,20 @@ static void M_Bind_Morph (int option)        { M_StartBind(709); } // key_arti_m
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLKbsBinds8Items[] = {
-    { ITT_EFUNC, "TOGGLE MAP",             M_Bind_ToggleMap,   0, MENU_NONE },
-    { ITT_EFUNC, "ZOOM IN",                M_Bind_ZoomIn,      0, MENU_NONE },
-    { ITT_EFUNC, "ZOOM OUT",               M_Bind_ZoomOut,     0, MENU_NONE },
-    { ITT_EFUNC, "MAXIMUM ZOOM OUT",       M_Bind_MaxZoom,     0, MENU_NONE },
-    { ITT_EFUNC, "FOLLOW MODE",            M_Bind_FollowMode,  0, MENU_NONE },
-    { ITT_EFUNC, "ROTATE MODE",            M_Bind_RotateMode,  0, MENU_NONE },
-    { ITT_EFUNC, "OVERLAY MODE",           M_Bind_OverlayMode, 0, MENU_NONE },
-    { ITT_EFUNC, "MOUSE PANNING MODE",     M_Bind_PanMode,     0, MENU_NONE },
-    { ITT_EFUNC, "SOUND PROPAGATION MODE", M_Bind_SndPropMode, 0, MENU_NONE },
-    { ITT_EFUNC, "TELEPORT TO CROSSHAIR",  M_Bind_AM_Teleport, 0, MENU_NONE },
-    { ITT_EFUNC, "TOGGLE GRID",            M_Bind_ToggleGrid,  0, MENU_NONE },
-    { ITT_EFUNC, "MARK LOCATION",          M_Bind_AddMark,     0, MENU_NONE },
-    { ITT_EFUNC, "CLEAR ALL MARKS",        M_Bind_ClearMarks,  0, MENU_NONE }
+    { ITT_EFUNC, "TOGGLE MAP",             M_Bind_ToggleMap,    0, MENU_NONE },
+    { ITT_EFUNC, "ZOOM IN",                M_Bind_ZoomIn,       0, MENU_NONE },
+    { ITT_EFUNC, "ZOOM OUT",               M_Bind_ZoomOut,      0, MENU_NONE },
+    { ITT_EFUNC, "MAXIMUM ZOOM OUT",       M_Bind_MaxZoom,      0, MENU_NONE },
+    { ITT_EFUNC, "FOLLOW MODE",            M_Bind_FollowMode,   0, MENU_NONE },
+    { ITT_EFUNC, "ROTATE MODE",            M_Bind_RotateMode,   0, MENU_NONE },
+    { ITT_EFUNC, "OVERLAY MODE",           M_Bind_OverlayMode,  0, MENU_NONE },
+    { ITT_EFUNC, "MOUSE PANNING MODE",     M_Bind_PanMode,      0, MENU_NONE },
+    { ITT_EFUNC, "SOUND PROPAGATION MODE", M_Bind_SndPropMode,  0, MENU_NONE },
+    { ITT_EFUNC, "TELEPORT TO CROSSHAIR",  M_Bind_AM_Teleport,  0, MENU_NONE },
+    { ITT_EFUNC, "HIGHLIGHT BY TAG",       M_Bind_AM_Highlight, 0, MENU_NONE },
+    { ITT_EFUNC, "TOGGLE GRID",            M_Bind_ToggleGrid,   0, MENU_NONE },
+    { ITT_EFUNC, "MARK LOCATION",          M_Bind_AddMark,      0, MENU_NONE },
+    { ITT_EFUNC, "CLEAR ALL MARKS",        M_Bind_ClearMarks,   0, MENU_NONE }
 };
 
 static Menu_t CRLKbdBinds8 = {
@@ -2316,26 +2318,28 @@ static void DrawCRLKbd8 (void)
     M_DrawBindKey(7, 90, key_crl_map_mousepan, key_crl_map_mousepan2);
     M_DrawBindKey(8, 100, key_crl_map_sndprop, key_crl_map_sndprop2);
     M_DrawBindKey(9, 110, key_crl_map_teleport, key_crl_map_teleport2);
-    M_DrawBindKey(10, 120, key_map_grid, key_map_grid2);
-    M_DrawBindKey(11, 130, key_map_mark, key_map_mark2);
-    M_DrawBindKey(12, 140, key_map_clearmark, key_map_clearmark2);
+    M_DrawBindKey(10, 120, key_crl_map_highlight, key_crl_map_highlight2);
+    M_DrawBindKey(11, 130, key_map_grid, key_map_grid2);
+    M_DrawBindKey(12, 140, key_map_mark, key_map_mark2);
+    M_DrawBindKey(13, 150, key_map_clearmark, key_map_clearmark2);
 
     M_DrawBindFooter("8/10");
 }
 
-static void M_Bind_ToggleMap (int option)   { M_StartBind(800); } // key_map_toggle
-static void M_Bind_ZoomIn (int option)      { M_StartBind(801); } // key_map_zoomin
-static void M_Bind_ZoomOut (int option)     { M_StartBind(802); } // key_map_zoomout
-static void M_Bind_MaxZoom (int option)     { M_StartBind(803); } // key_map_maxzoom
-static void M_Bind_FollowMode (int option)  { M_StartBind(804); } // key_map_follow
-static void M_Bind_RotateMode (int option)  { M_StartBind(805); } // key_crl_map_rotate
-static void M_Bind_OverlayMode (int option) { M_StartBind(806); } // key_crl_map_overlay
-static void M_Bind_PanMode (int option)     { M_StartBind(807); } // key_crl_map_mousepan
-static void M_Bind_SndPropMode (int option) { M_StartBind(808); } // key_crl_map_sndprop
-static void M_Bind_AM_Teleport (int option) { M_StartBind(809); } // key_crl_map_teleport
-static void M_Bind_ToggleGrid (int option)  { M_StartBind(810); } // key_map_grid
-static void M_Bind_AddMark (int option)     { M_StartBind(811); } // key_map_mark
-static void M_Bind_ClearMarks (int option)  { M_StartBind(812); } // key_map_clearmark
+static void M_Bind_ToggleMap (int option)    { M_StartBind(800); } // key_map_toggle
+static void M_Bind_ZoomIn (int option)       { M_StartBind(801); } // key_map_zoomin
+static void M_Bind_ZoomOut (int option)      { M_StartBind(802); } // key_map_zoomout
+static void M_Bind_MaxZoom (int option)      { M_StartBind(803); } // key_map_maxzoom
+static void M_Bind_FollowMode (int option)   { M_StartBind(804); } // key_map_follow
+static void M_Bind_RotateMode (int option)   { M_StartBind(805); } // key_crl_map_rotate
+static void M_Bind_OverlayMode (int option)  { M_StartBind(806); } // key_crl_map_overlay
+static void M_Bind_PanMode (int option)      { M_StartBind(807); } // key_crl_map_mousepan
+static void M_Bind_SndPropMode (int option)  { M_StartBind(808); } // key_crl_map_sndprop
+static void M_Bind_AM_Teleport (int option)  { M_StartBind(809); } // key_crl_map_teleport
+static void M_Bind_AM_Highlight (int option) { M_StartBind(810); } // key_crl_map_highlight
+static void M_Bind_ToggleGrid (int option)   { M_StartBind(811); } // key_map_grid
+static void M_Bind_AddMark (int option)      { M_StartBind(812); } // key_map_mark
+static void M_Bind_ClearMarks (int option)   { M_StartBind(813); } // key_map_clearmark
 
 // -----------------------------------------------------------------------------
 // Keybinds 9
@@ -6789,19 +6793,20 @@ static const KeyBindEntry_t keybinds[] =
     KEYBIND_ENTRY(709, &CRLKbdBinds7, 9, key_arti_morph,        key_arti_morph2,        0,   0, KBS_GLOBAL),
 
     // Page 8
-    KEYBIND_ENTRY(800, &CRLKbdBinds8, 0,  key_map_toggle,       key_map_toggle2,       KEY_TAB,      0, KBS_GLOBAL),
-    KEYBIND_ENTRY(801, &CRLKbdBinds8, 1,  key_map_zoomin,       key_map_zoomin2,       '=',  KEYP_PLUS, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(802, &CRLKbdBinds8, 2,  key_map_zoomout,      key_map_zoomout2,      '-', KEYP_MINUS, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(803, &CRLKbdBinds8, 3,  key_map_maxzoom,      key_map_maxzoom2,      '0',          0, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(804, &CRLKbdBinds8, 4,  key_map_follow,       key_map_follow2,       'f',          0, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(805, &CRLKbdBinds8, 5,  key_crl_map_rotate,   key_crl_map_rotate2,   'r',          0, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(806, &CRLKbdBinds8, 6,  key_crl_map_overlay,  key_crl_map_overlay2,  'o',          0, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(807, &CRLKbdBinds8, 7,  key_crl_map_mousepan, key_crl_map_mousepan2, 0,            0, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(808, &CRLKbdBinds8, 8,  key_crl_map_sndprop,  key_crl_map_sndprop2,  'p',          0, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(809, &CRLKbdBinds8, 9,  key_crl_map_teleport, key_crl_map_teleport2, 0,            0, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(810, &CRLKbdBinds8, 10, key_map_grid,         key_map_grid2,         'g',          0, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(811, &CRLKbdBinds8, 11, key_map_mark,         key_map_mark2,         'm',          0, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(812, &CRLKbdBinds8, 12, key_map_clearmark,    key_map_clearmark2,    'c',          0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(800, &CRLKbdBinds8, 0,  key_map_toggle,        key_map_toggle2,        KEY_TAB,      0, KBS_GLOBAL),
+    KEYBIND_ENTRY(801, &CRLKbdBinds8, 1,  key_map_zoomin,        key_map_zoomin2,        '=',  KEYP_PLUS, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(802, &CRLKbdBinds8, 2,  key_map_zoomout,       key_map_zoomout2,       '-', KEYP_MINUS, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(803, &CRLKbdBinds8, 3,  key_map_maxzoom,       key_map_maxzoom2,       '0',          0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(804, &CRLKbdBinds8, 4,  key_map_follow,        key_map_follow2,        'f',          0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(805, &CRLKbdBinds8, 5,  key_crl_map_rotate,    key_crl_map_rotate2,    'r',          0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(806, &CRLKbdBinds8, 6,  key_crl_map_overlay,   key_crl_map_overlay2,   'o',          0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(807, &CRLKbdBinds8, 7,  key_crl_map_mousepan,  key_crl_map_mousepan2,  0,            0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(808, &CRLKbdBinds8, 8,  key_crl_map_sndprop,   key_crl_map_sndprop2,   'p',          0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(809, &CRLKbdBinds8, 9,  key_crl_map_teleport,  key_crl_map_teleport2,  0,            0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(810, &CRLKbdBinds8, 10, key_crl_map_highlight, key_crl_map_highlight2, 'h',          0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(811, &CRLKbdBinds8, 11, key_map_grid,          key_map_grid2,          'g',          0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(812, &CRLKbdBinds8, 12, key_map_mark,          key_map_mark2,          'm',          0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(813, &CRLKbdBinds8, 13, key_map_clearmark,     key_map_clearmark2,     'c',          0, KBS_AUTOMAP_ONLY),
 
     // Page 9
     KEYBIND_ENTRY(900, &CRLKbdBinds9, 0,  key_menu_help,     key_menu_help2,     KEY_F1,  0, KBS_GLOBAL),

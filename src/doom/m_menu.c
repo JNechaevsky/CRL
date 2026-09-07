@@ -698,6 +698,7 @@ static void M_Bind_OverlayMode (int choice);
 static void M_Bind_PanMode (int choice);
 static void M_Bind_SndPropMode (int choice);
 static void M_Bind_AM_Teleport (int choice);
+static void M_Bind_AM_Highlight (int choice);
 static void M_Bind_ToggleGrid (int choice);
 static void M_Bind_AddMark (int choice);
 static void M_Bind_ClearMarks (int choice);
@@ -2392,6 +2393,7 @@ static menuitem_t CRLMenu_Keybinds_6[]=
     { M_SWTC, "MOUSE PANNING MODE",     M_Bind_PanMode,      'm' },
     { M_SWTC, "SOUND PROPAGATION MODE", M_Bind_SndPropMode,  's' },
     { M_SWTC, "TELEPORT TO CROSSHAIR",  M_Bind_AM_Teleport,  't' },
+    { M_SWTC, "HIGHLIGHT BY TAG",       M_Bind_AM_Highlight, 'h' },
     { M_SWTC, "TOGGLE GRID",            M_Bind_ToggleGrid,   't' },
     { M_SWTC, "MARK LOCATION",          M_Bind_AddMark,      'm' },
     { M_SWTC, "CLEAR ALL MARKS",        M_Bind_ClearMarks,   'c' },
@@ -2427,26 +2429,28 @@ static void M_DrawCRL_Keybinds_6 (void)
     M_DrawBindKey(7, 79, key_crl_map_mousepan, key_crl_map_mousepan2);
     M_DrawBindKey(8, 88, key_crl_map_sndprop, key_crl_map_sndprop2);
     M_DrawBindKey(9, 97, key_crl_map_teleport, key_crl_map_teleport2);
-    M_DrawBindKey(10, 106, key_map_grid, key_map_grid2);
-    M_DrawBindKey(11, 115, key_map_mark, key_map_mark2);
-    M_DrawBindKey(12, 124, key_map_clearmark, key_map_clearmark2);
+    M_DrawBindKey(10, 106, key_crl_map_highlight, key_crl_map_highlight2);
+    M_DrawBindKey(12, 115, key_map_grid, key_map_grid2);
+    M_DrawBindKey(12, 124, key_map_mark, key_map_mark2);
+    M_DrawBindKey(13, 133, key_map_clearmark, key_map_clearmark2);
 
     M_DrawBindFooter("6", true);
 }
 
-static void M_Bind_ToggleMap (int choice)   { M_StartBind(600); } // key_map_toggle
-static void M_Bind_ZoomIn (int choice)      { M_StartBind(601); } // key_map_zoomin
-static void M_Bind_ZoomOut (int choice)     { M_StartBind(602); } // key_map_zoomout
-static void M_Bind_MaxZoom (int choice)     { M_StartBind(603); } // key_map_maxzoom
-static void M_Bind_FollowMode (int choice)  { M_StartBind(604); } // key_map_follow
-static void M_Bind_RotateMode (int choice)  { M_StartBind(605); } // key_crl_map_rotate
-static void M_Bind_OverlayMode (int choice) { M_StartBind(606); } // key_crl_map_overlay
-static void M_Bind_PanMode (int choice)     { M_StartBind(607); } // key_crl_map_mousepan
-static void M_Bind_SndPropMode (int choice) { M_StartBind(608); } // key_crl_map_sndprop
-static void M_Bind_AM_Teleport (int choice) { M_StartBind(609); } // key_crl_map_teleport
-static void M_Bind_ToggleGrid (int choice)  { M_StartBind(610); } // key_map_grid
-static void M_Bind_AddMark (int choice)     { M_StartBind(611); } // key_map_mark
-static void M_Bind_ClearMarks (int choice)  { M_StartBind(612); } // key_map_clearmark
+static void M_Bind_ToggleMap (int choice)    { M_StartBind(600); } // key_map_toggle
+static void M_Bind_ZoomIn (int choice)       { M_StartBind(601); } // key_map_zoomin
+static void M_Bind_ZoomOut (int choice)      { M_StartBind(602); } // key_map_zoomout
+static void M_Bind_MaxZoom (int choice)      { M_StartBind(603); } // key_map_maxzoom
+static void M_Bind_FollowMode (int choice)   { M_StartBind(604); } // key_map_follow
+static void M_Bind_RotateMode (int choice)   { M_StartBind(605); } // key_crl_map_rotate
+static void M_Bind_OverlayMode (int choice)  { M_StartBind(606); } // key_crl_map_overlay
+static void M_Bind_PanMode (int choice)      { M_StartBind(607); } // key_crl_map_mousepan
+static void M_Bind_SndPropMode (int choice)  { M_StartBind(608); } // key_crl_map_sndprop
+static void M_Bind_AM_Teleport (int choice)  { M_StartBind(609); } // key_crl_map_teleport
+static void M_Bind_AM_Highlight (int choice) { M_StartBind(610); } // key_crl_map_highlight
+static void M_Bind_ToggleGrid (int choice)   { M_StartBind(611); } // key_map_grid
+static void M_Bind_AddMark (int choice)      { M_StartBind(612); } // key_map_mark
+static void M_Bind_ClearMarks (int choice)   { M_StartBind(613); } // key_map_clearmark
 
 // -----------------------------------------------------------------------------
 // Keybinds 7
@@ -7118,19 +7122,20 @@ static const KeyBindEntry_t keybinds[] =
     KEYBIND_ENTRY(509, &CRLDef_Keybinds_5, 9, key_nextweapon, key_nextweapon2, 0,   0, KBS_GLOBAL),
 
     // Page 6
-    KEYBIND_ENTRY(600, &CRLDef_Keybinds_6, 0,  key_map_toggle,       key_map_toggle2,       KEY_TAB,      0, KBS_GLOBAL),
-    KEYBIND_ENTRY(601, &CRLDef_Keybinds_6, 1,  key_map_zoomin,       key_map_zoomin2,       '=',  KEYP_PLUS, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(602, &CRLDef_Keybinds_6, 2,  key_map_zoomout,      key_map_zoomout2,      '-', KEYP_MINUS, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(603, &CRLDef_Keybinds_6, 3,  key_map_maxzoom,      key_map_maxzoom2,      '0',          0, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(604, &CRLDef_Keybinds_6, 4,  key_map_follow,       key_map_follow2,       'f',          0, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(605, &CRLDef_Keybinds_6, 5,  key_crl_map_rotate,   key_crl_map_rotate2,   'r',          0, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(606, &CRLDef_Keybinds_6, 6,  key_crl_map_overlay,  key_crl_map_overlay2,  'o',          0, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(607, &CRLDef_Keybinds_6, 7,  key_crl_map_mousepan, key_crl_map_mousepan2, 0,            0, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(608, &CRLDef_Keybinds_6, 8,  key_crl_map_sndprop,  key_crl_map_sndprop2,  'p',          0, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(609, &CRLDef_Keybinds_6, 9,  key_crl_map_teleport, key_crl_map_teleport2, 0,            0, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(610, &CRLDef_Keybinds_6, 10, key_map_grid,         key_map_grid2,         'g',          0, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(611, &CRLDef_Keybinds_6, 11, key_map_mark,         key_map_mark2,         'm',          0, KBS_AUTOMAP_ONLY),
-    KEYBIND_ENTRY(612, &CRLDef_Keybinds_6, 12, key_map_clearmark,    key_map_clearmark2,    'c',          0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(600, &CRLDef_Keybinds_6, 0,  key_map_toggle,        key_map_toggle2,        KEY_TAB,      0, KBS_GLOBAL),
+    KEYBIND_ENTRY(601, &CRLDef_Keybinds_6, 1,  key_map_zoomin,        key_map_zoomin2,        '=',  KEYP_PLUS, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(602, &CRLDef_Keybinds_6, 2,  key_map_zoomout,       key_map_zoomout2,       '-', KEYP_MINUS, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(603, &CRLDef_Keybinds_6, 3,  key_map_maxzoom,       key_map_maxzoom2,       '0',          0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(604, &CRLDef_Keybinds_6, 4,  key_map_follow,        key_map_follow2,        'f',          0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(605, &CRLDef_Keybinds_6, 5,  key_crl_map_rotate,    key_crl_map_rotate2,    'r',          0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(606, &CRLDef_Keybinds_6, 6,  key_crl_map_overlay,   key_crl_map_overlay2,   'o',          0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(607, &CRLDef_Keybinds_6, 7,  key_crl_map_mousepan,  key_crl_map_mousepan2,  0,            0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(608, &CRLDef_Keybinds_6, 8,  key_crl_map_sndprop,   key_crl_map_sndprop2,   'p',          0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(609, &CRLDef_Keybinds_6, 9,  key_crl_map_teleport,  key_crl_map_teleport2,  0,            0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(610, &CRLDef_Keybinds_6, 10, key_crl_map_highlight, key_crl_map_highlight2, 'h',          0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(611, &CRLDef_Keybinds_6, 11, key_map_grid,          key_map_grid2,          'g',          0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(612, &CRLDef_Keybinds_6, 12, key_map_mark,          key_map_mark2,          'm',          0, KBS_AUTOMAP_ONLY),
+    KEYBIND_ENTRY(613, &CRLDef_Keybinds_6, 13, key_map_clearmark,     key_map_clearmark2,     'c',          0, KBS_AUTOMAP_ONLY),
 
     // Page 7
     KEYBIND_ENTRY(700, &CRLDef_Keybinds_7, 0,  key_menu_help,     key_menu_help2,     KEY_F1,  0, KBS_GLOBAL),

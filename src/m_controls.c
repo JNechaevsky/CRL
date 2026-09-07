@@ -164,19 +164,20 @@ int key_arti_all             = KEY_BACKSPACE; int key_arti_all2    = 0;
 
 // Automap
 
-int key_map_toggle       = KEY_TAB;        int key_map_toggle2       = 0;
-int key_map_zoomin       = '=';            int key_map_zoomin2       = KEYP_PLUS;
-int key_map_zoomout      = '-';            int key_map_zoomout2      = KEYP_MINUS;
-int key_map_maxzoom      = '0';            int key_map_maxzoom2      = 0;
-int key_map_follow       = 'f';            int key_map_follow2       = 0;
-int key_crl_map_rotate   = 'r';            int key_crl_map_rotate2   = 0;
-int key_crl_map_overlay  = 'o';            int key_crl_map_overlay2  = 0;
-int key_crl_map_mousepan = 0;              int key_crl_map_mousepan2 = 0;
-int key_crl_map_sndprop  = 'p';            int key_crl_map_sndprop2  = 0;
-int key_crl_map_teleport = 0;              int key_crl_map_teleport2 = 0;
-int key_map_grid         = 'g';            int key_map_grid2         = 0;
-int key_map_mark         = 'm';            int key_map_mark2         = 0;
-int key_map_clearmark    = 'c';            int key_map_clearmark2    = 0;
+int key_map_toggle        = KEY_TAB;        int key_map_toggle2        = 0;
+int key_map_zoomin        = '=';            int key_map_zoomin2        = KEYP_PLUS;
+int key_map_zoomout       = '-';            int key_map_zoomout2       = KEYP_MINUS;
+int key_map_maxzoom       = '0';            int key_map_maxzoom2       = 0;
+int key_map_follow        = 'f';            int key_map_follow2        = 0;
+int key_crl_map_rotate    = 'r';            int key_crl_map_rotate2    = 0;
+int key_crl_map_overlay   = 'o';            int key_crl_map_overlay2   = 0;
+int key_crl_map_mousepan  = 0;              int key_crl_map_mousepan2  = 0;
+int key_crl_map_sndprop   = 'p';            int key_crl_map_sndprop2   = 0;
+int key_crl_map_teleport  = 0;              int key_crl_map_teleport2  = 0;
+int key_crl_map_highlight = 'h';            int key_crl_map_highlight2 = 0;
+int key_map_grid          = 'g';            int key_map_grid2          = 0;
+int key_map_mark          = 'm';            int key_map_mark2          = 0;
+int key_map_clearmark     = 'c';            int key_map_clearmark2     = 0;
 int key_map_north     = KEY_UPARROW;
 int key_map_south     = KEY_DOWNARROW;
 int key_map_east      = KEY_RIGHTARROW;
@@ -396,19 +397,20 @@ void M_BindControls (void)
 
     // Automap
 
-    M_BindIntVariableKeybind("key_map_toggle",       &key_map_toggle,       "key_map_toggle2",       &key_map_toggle2);
-    M_BindIntVariableKeybind("key_map_zoomin",       &key_map_zoomin,       "key_map_zoomin2",       &key_map_zoomin2);
-    M_BindIntVariableKeybind("key_map_zoomout",      &key_map_zoomout,      "key_map_zoomout2",      &key_map_zoomout2);
-    M_BindIntVariableKeybind("key_map_maxzoom",      &key_map_maxzoom,      "key_map_maxzoom2",      &key_map_maxzoom2);
-    M_BindIntVariableKeybind("key_map_follow",       &key_map_follow,       "key_map_follow2",       &key_map_follow2);
-    M_BindIntVariableKeybind("key_crl_map_rotate",   &key_crl_map_rotate,   "key_crl_map_rotate2",   &key_crl_map_rotate2);
-    M_BindIntVariableKeybind("key_crl_map_overlay",  &key_crl_map_overlay,  "key_crl_map_overlay2",  &key_crl_map_overlay2);
-    M_BindIntVariableKeybind("key_crl_map_mousepan", &key_crl_map_mousepan, "key_crl_map_mousepan2", &key_crl_map_mousepan2);
-    M_BindIntVariableKeybind("key_crl_map_sndprop",  &key_crl_map_sndprop,  "key_crl_map_sndprop2",  &key_crl_map_sndprop2);
-    M_BindIntVariableKeybind("key_crl_map_teleport", &key_crl_map_teleport, "key_crl_map_teleport2", &key_crl_map_teleport2);
-    M_BindIntVariableKeybind("key_map_grid",         &key_map_grid,         "key_map_grid2",         &key_map_grid2);
-    M_BindIntVariableKeybind("key_map_mark",         &key_map_mark,         "key_map_mark2",         &key_map_mark2);
-    M_BindIntVariableKeybind("key_map_clearmark",    &key_map_clearmark,    "key_map_clearmark2",    &key_map_clearmark2);
+    M_BindIntVariableKeybind("key_map_toggle",        &key_map_toggle,        "key_map_toggle2",        &key_map_toggle2);
+    M_BindIntVariableKeybind("key_map_zoomin",        &key_map_zoomin,        "key_map_zoomin2",        &key_map_zoomin2);
+    M_BindIntVariableKeybind("key_map_zoomout",       &key_map_zoomout,       "key_map_zoomout2",       &key_map_zoomout2);
+    M_BindIntVariableKeybind("key_map_maxzoom",       &key_map_maxzoom,       "key_map_maxzoom2",       &key_map_maxzoom2);
+    M_BindIntVariableKeybind("key_map_follow",        &key_map_follow,        "key_map_follow2",        &key_map_follow2);
+    M_BindIntVariableKeybind("key_crl_map_rotate",    &key_crl_map_rotate,    "key_crl_map_rotate2",    &key_crl_map_rotate2);
+    M_BindIntVariableKeybind("key_crl_map_overlay",   &key_crl_map_overlay,   "key_crl_map_overlay2",   &key_crl_map_overlay2);
+    M_BindIntVariableKeybind("key_crl_map_mousepan",  &key_crl_map_mousepan,  "key_crl_map_mousepan2",  &key_crl_map_mousepan2);
+    M_BindIntVariableKeybind("key_crl_map_sndprop",   &key_crl_map_sndprop,   "key_crl_map_sndprop2",   &key_crl_map_sndprop2);
+    M_BindIntVariableKeybind("key_crl_map_teleport",  &key_crl_map_teleport,  "key_crl_map_teleport2",  &key_crl_map_teleport2);
+    M_BindIntVariableKeybind("key_crl_map_highlight", &key_crl_map_highlight, "key_crl_map_highlight2", &key_crl_map_highlight2);
+    M_BindIntVariableKeybind("key_map_grid",          &key_map_grid,          "key_map_grid2",          &key_map_grid2);
+    M_BindIntVariableKeybind("key_map_mark",          &key_map_mark,          "key_map_mark2",          &key_map_mark2);
+    M_BindIntVariableKeybind("key_map_clearmark",     &key_map_clearmark,     "key_map_clearmark2",     &key_map_clearmark2);
     M_BindIntVariable("key_map_north", &key_map_north);
     M_BindIntVariable("key_map_south", &key_map_south);
     M_BindIntVariable("key_map_east",  &key_map_east);
