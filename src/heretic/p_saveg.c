@@ -2326,7 +2326,7 @@ void P_ArchiveAutomap (void)
         SV_WriteLongLong(markpoints[i].y);
     }
 
-    SV_WriteLong(am_grid);
+    SV_WriteLong(crl_automap_grid);
 
 }
 
@@ -2358,7 +2358,7 @@ void P_UnArchiveAutomap (void)
         markpoints[i].y = SV_ReadLongLong();
     }
 
-    am_grid = SV_ReadLong();
+    crl_automap_grid = SV_ReadLong();
 
 }
 

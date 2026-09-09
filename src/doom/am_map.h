@@ -40,7 +40,6 @@ typedef struct
 
 extern int followplayer;
 extern int iddt_cheating;
-extern int grid;
 extern int64_t m_x, m_y;
 extern mpoint_t markpoints[AM_NUMMARKPOINTS];
 extern int markpointnum;

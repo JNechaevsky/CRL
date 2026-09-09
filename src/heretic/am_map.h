@@ -32,7 +32,6 @@ extern fixed_t AM_UnArchiveScaleMtof (void);
 
 extern int am_followplayer;
 extern int ravmap_cheating;
-extern int am_grid;
 extern angle_t mapangle;
 
 #define AM_NUMMARKPOINTS 10
@@ -90,10 +89,4 @@ extern void AM_Stop (void);
 #define GREENKEY        220
 
 
-
 #endif
-
-
-
-
-

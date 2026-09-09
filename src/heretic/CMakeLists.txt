@@ -25,6 +25,7 @@ add_library(heretic STATIC
             mn_menu.c
                                 p_action.h
             p_ceilng.c
+            p_blocktrail.c  p_blocktrail.h
             p_doors.c
             p_enemy.c
             p_floor.c

@@ -32,6 +32,7 @@
 #include "m_misc.h"
 
 #include "crlcore.h"
+#include "p_blocktrail.h" // [PN] automap block trail hooks
 
 
 //
@@ -479,6 +480,8 @@ P_BlockLinesIterator
     {
 	return true;
     }
+
+    P_TrailTouch(x, y); // [PN] automap block trail
     
     offset = y*bmapwidth+x;
 	
@@ -518,6 +521,8 @@ P_BlockThingsIterator
     {
         return true;
     }
+
+    P_TrailTouch(x, y); // [PN] automap block trail
 
     LINKED_LIST_CHECK_NO_CYCLE(mobj_t, blocklinks[y*bmapwidth+x], bnext);
 
@@ -609,6 +614,7 @@ PIT_AddLineIntercepts (line_t* ld)
 	&& frac < FRACUNIT
 	&& !ld->backsector)
     {
+	P_TrailStopHere(frac);	// [PN] automap block trail
 	return false;	// stop checking
     }
     
@@ -623,6 +629,7 @@ PIT_AddLineIntercepts (line_t* ld)
     {
         if (safe_intercept)
         {
+            P_TrailStopHere(frac); // [PN] automap block trail
             // [JN] CRL - it's a safe trace, don't go
             // any farther and don't inkove overflow.
             return false;
@@ -792,7 +799,7 @@ P_TraverseIntercepts
 #endif
 
         if ( !func (in) )
-	    return false;	// don't bother going farther
+	    return P_TrailStopFalse(dist);	// [PN] don't bother going farther
 
 	in->frac = INT_MAX;
     }
@@ -928,8 +935,31 @@ static void InterceptsOverrun(int num_intercepts, const intercept_t *const inter
 // Returns true if the traverser function returns true
 // for all lines.
 //
+
+static boolean P_PathTraverseInner (fixed_t, fixed_t, fixed_t, fixed_t,
+                                    int, boolean (*)(intercept_t *));
+
+// [PN] Thin wrapper: brackets the vanilla body with the automap block-trail
+// begin/finish so that the original function below stays byte-identical
+// apart from its name.
 boolean
 P_PathTraverse
+( fixed_t		x1,
+  fixed_t		y1,
+  fixed_t		x2,
+  fixed_t		y2,
+  int			flags,
+  boolean (*trav) (intercept_t *))
+{
+    const boolean result = P_PathTraverseInner (x1, y1, x2, y2, flags, trav);
+
+    P_TrailFinish (trace.x, trace.y, trace.dx, trace.dy); // [PN] block trail
+
+    return result;
+}
+
+static boolean
+P_PathTraverseInner
 ( fixed_t		x1,
   fixed_t		y1,
   fixed_t		x2,
@@ -959,6 +989,8 @@ P_PathTraverse
     int		count;
 		
     earlyout = (flags & PT_EARLYOUT) != 0;
+
+    P_TrailBegin(); // [PN] automap block trail
 		
     validcount++;
     intercept_p = intercepts;

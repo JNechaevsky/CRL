@@ -41,6 +41,7 @@
 
 #include "crlcore.h"
 #include "crlvars.h"
+#include "p_blocktrail.h" // [PN] blocktouch for the block-trail grid overlay
 
 vertex_t KeyPoints[NUM_KEY_TYPES];
 
@@ -264,7 +265,6 @@ const char *LevelNames[] = {
 boolean     automapactive = false;
 
 int ravmap_cheating = 0;
-int am_grid = 0;
 
 // location of window on screen
 static int  f_x;
@@ -1357,9 +1357,9 @@ boolean AM_Responder (const event_t *ev)
         }
         else if (key == key_map_grid || key == key_map_grid2)
         {
-            am_grid = !am_grid;
+            crl_automap_grid = !crl_automap_grid;
 
-            CT_SetMessage(plr, am_grid ?
+            CT_SetMessage(plr, crl_automap_grid ?
                            AMSTR_GRIDON : AMSTR_GRIDOFF, false, NULL);
         }
         else if (key == key_map_mark || key == key_map_mark2)
@@ -2182,6 +2182,13 @@ static void AM_drawMline (mline_t *ml, int color)
     }
 }
 
+// [PN] Block-trail drawing: the touched-cell set only changes with leveltime,
+// so it is rescanned once per TIC into this small list; AM_drawGrid then just
+// walks the list at frame rate. Overflow cells are simply skipped for a tic.
+#define AM_TOUCHED_MAX 2048
+static struct { int16_t x, y; } touched_blocks[AM_TOUCHED_MAX];
+static int touched_count;
+
 // -----------------------------------------------------------------------------
 // AM_drawGrid
 // Draws flat (floor/ceiling tile) aligned grid lines.
@@ -2266,6 +2273,75 @@ static void AM_drawGrid (void)
             AM_rotatePoint(&ml.b);
         }
         AM_drawMline(&ml, GRIDCOLORS);
+    }
+
+    // [PN] White overlay on blockmap cells the game queried within the last
+    // few tics (stamped in P_BlockLines/ThingsIterator). Uses the grid's own
+    // rotation convention so cells stay aligned with the grid lines.
+    if (crl_automap_blocks && blocktouch && bmapwidth > 0 && bmapheight > 0)
+    {
+        const int64_t orgx = bmaporgx >> FRACTOMAPBITS;
+        const int64_t orgy = bmaporgy >> FRACTOMAPBITS;
+        // Top-left corner of the visible window, with the rotation margin the
+        // grid loops apply (start -= m_h/2 for x, m_w/2 for y).
+        const int64_t win_x = m_x - (crl_automap_rotate ? m_h / 2 : 0);
+        const int64_t win_y = m_y - (crl_automap_rotate ? m_w / 2 : 0);
+        // Full span covered by the grid in each direction under rotation.
+        const int64_t rng_x = m_w + (crl_automap_rotate ? m_h : 0);
+        const int64_t rng_y = m_h + (crl_automap_rotate ? m_w : 0);
+        int i;
+
+        // Rescan the stamps once per tic, not once per frame.
+        if (leveltime > oldleveltime)
+        {
+            const int blockcount = bmapwidth * bmapheight;
+
+            touched_count = 0;
+
+            for (i = 0; i < blockcount && touched_count < AM_TOUCHED_MAX; i++)
+            {
+                if ((int) blocktouch[i] - (int) leveltime > 0)
+                {
+                    touched_blocks[touched_count].x = (int16_t) (i % bmapwidth);
+                    touched_blocks[touched_count].y = (int16_t) (i / bmapwidth);
+                    touched_count++;
+                }
+            }
+        }
+
+        for (i = 0 ; i < touched_count ; i++)
+        {
+            const int64_t x0 = orgx + (int64_t) touched_blocks[i].x * gridsize;
+            const int64_t y0 = orgy + (int64_t) touched_blocks[i].y * gridsize;
+            const int64_t x1 = x0 + gridsize;
+            const int64_t y1 = y0 + gridsize;
+
+            if (x1 < win_x || x0 > win_x + rng_x
+            ||  y1 < win_y || y0 > win_y + rng_y)
+            {
+                continue;   // outside the drawn grid extent
+            }
+
+            ml.a.x = x0; ml.a.y = y0;
+            ml.b.x = x1; ml.b.y = y0;
+            if (crl_automap_rotate) { AM_rotatePoint(&ml.a); AM_rotatePoint(&ml.b); }
+            AM_drawMline(&ml, PL_WHITE);
+
+            ml.a.x = x1; ml.a.y = y0;
+            ml.b.x = x1; ml.b.y = y1;
+            if (crl_automap_rotate) { AM_rotatePoint(&ml.a); AM_rotatePoint(&ml.b); }
+            AM_drawMline(&ml, PL_WHITE);
+
+            ml.a.x = x1; ml.a.y = y1;
+            ml.b.x = x0; ml.b.y = y1;
+            if (crl_automap_rotate) { AM_rotatePoint(&ml.a); AM_rotatePoint(&ml.b); }
+            AM_drawMline(&ml, PL_WHITE);
+
+            ml.a.x = x0; ml.a.y = y1;
+            ml.b.x = x0; ml.b.y = y0;
+            if (crl_automap_rotate) { AM_rotatePoint(&ml.a); AM_rotatePoint(&ml.b); }
+            AM_drawMline(&ml, PL_WHITE);
+        }
     }
 }
 
@@ -2988,7 +3064,7 @@ void AM_Drawer (void)
         AM_shadeBackground();
     }
 
-    if (am_grid)
+    if (crl_automap_grid)
     {
         AM_drawGrid();
     }

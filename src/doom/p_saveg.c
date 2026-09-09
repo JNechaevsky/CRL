@@ -2427,7 +2427,7 @@ void P_ArchiveAutomap (void)
         saveg_write64(markpoints[i].y);
     }
 
-    saveg_write32(grid);
+    saveg_write32(crl_automap_grid);
 }
 
 // -----------------------------------------------------------------------------
@@ -2528,5 +2528,5 @@ void P_UnArchiveAutomap (void)
         markpoints[i].y = saveg_read64();
     }
 
-    grid = saveg_read32();
+    crl_automap_grid = saveg_read32();
 }

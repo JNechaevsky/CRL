@@ -35,6 +35,7 @@
 #include "crlcore.h"
 #include "crlvars.h"
 #include "crlfunc.h"
+#include "p_blocktrail.h" // [PN] P_TrailAlloc
 
 
 void P_SpawnMapThing(mapthing_t * mthing);
@@ -518,6 +519,8 @@ static void P_LoadBlockMap(int lump)
     count = sizeof(*blocklinks) * bmapwidth * bmapheight;
     blocklinks = Z_Malloc(count, PU_LEVEL, 0);
     memset(blocklinks, 0, count);
+
+    P_TrailAlloc(); // [PN] automap block trail
 }
 
 
