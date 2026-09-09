@@ -76,6 +76,11 @@
 #define GRIDCOLORS       (GRAYS + GRAYSRANGE/2)
 #define XHAIRCOLORS      GRAYS
 
+
+// [PN] Store all automap colors by classic PLAYPAL index.
+// Values are remapped to the active palette in AM_Init.
+static int automap_colors[256];
+
 // [JN] Make wall colors of secret sectors palette-independent.
 static int secretwallcolors;
 static int foundsecretwallcolors;
@@ -323,6 +328,26 @@ void AM_Init (void)
     foundsecretwallcolors = V_GetPaletteIndex(playpal, 119, 255, 111);
     sndpropwallcolors = V_GetPaletteIndex(playpal, 64, 255, 64);
     highlightwallcolors = V_GetPaletteIndex(playpal, 207, 0, 207); 
+
+    // [PN] Initialize automap color lookup table.
+    for (int i = 0; i < 256; ++i)
+    {
+        automap_colors[i] = i;
+    }
+
+    // [JN] Make "Remaster" color scheme palette-independendt from PLAYPAL indexes.
+    automap_colors[64]  = V_GetPaletteIndex(playpal, 191, 123,  75);
+    automap_colors[72]  = V_GetPaletteIndex(playpal, 119,  79,  43);
+    automap_colors[96]  = V_GetPaletteIndex(playpal, 131, 131, 131);
+    automap_colors[104] = V_GetPaletteIndex(playpal,  79,  79,  79);
+    automap_colors[112] = V_GetPaletteIndex(playpal, 119, 255, 111);
+    automap_colors[120] = V_GetPaletteIndex(playpal,  63, 131,  47);
+    automap_colors[160] = V_GetPaletteIndex(playpal, 255, 255, 115);
+    automap_colors[176] = V_GetPaletteIndex(playpal, 255,   1,   1);
+    automap_colors[184] = V_GetPaletteIndex(playpal, 155,   1,   1);
+    automap_colors[195] = V_GetPaletteIndex(playpal, 143, 143, 255);
+    automap_colors[200] = V_GetPaletteIndex(playpal,   1,   1, 255);
+    automap_colors[252] = V_GetPaletteIndex(playpal, 255,   1, 255);
 
     W_ReleaseLumpName("PLAYPAL");
 
@@ -1924,6 +1949,7 @@ static void AM_drawWalls (void)
 
     for (int i = 0 ; i < numlines ; i++)
     {
+        line_t *line = &lines[i];
         l.a.x = lines[i].v1->x >> FRACTOMAPBITS;
         l.a.y = lines[i].v1->y >> FRACTOMAPBITS;
         l.b.x = lines[i].v2->x >> FRACTOMAPBITS;
@@ -1935,7 +1961,7 @@ static void AM_drawWalls (void)
             AM_rotatePoint(&l.b);
         }
 
-        // [JN] CRL - Sound propagation mode﻿ for automap.
+        // [JN] CRL - Sound propagation mode for automap.
         if (crl_automap_sndprop && lines[i].sndprop_tics)
         {
             AM_drawMline(&l, sndpropwallcolors);
@@ -1949,72 +1975,202 @@ static void AM_drawWalls (void)
                 continue;
             }
 
-            if (!lines[i].backsector)
+            // [JN] Automap color scheme:
+            switch (crl_automap_scheme)
             {
-                // [JN] CRL - mark secret sectors.
-                if (crl_automap_secrets > 1 && lines[i].frontsector->special == 9)
+                case 1:
                 {
-                    AM_drawMline(&l, secretwallcolors);
+                    if (iddt_cheating || (line->flags & ML_MAPPED))
+                    {
+                        // [JN] One sided wall
+                        if (!line->backsector)
+                        {
+                            // [JN] Highlight death exit sectors
+                            if (line->frontsector->special == 11)
+                            {
+                                AM_drawMline(&l, automap_colors[195]);
+                            }
+                            // [JN] Highlight secret sectors
+                            else if (crl_automap_secrets > 1 && line->frontsector->special == 9)
+                            {
+                                AM_drawMline(&l, automap_colors[252]);
+                            }
+                            // [plums] show revealed secrets
+                            else if (crl_automap_secrets && line->frontsector->oldspecial == 9)
+                            {
+                                AM_drawMline(&l,automap_colors[112]);
+                            }
+                            else
+                            {
+                                AM_drawMline(&l, automap_colors[184]);
+                            }
+                        }
+                        else
+                        {
+                            // [JN] Highlight death exit sectors
+                            if (line->frontsector->special == 11
+                            ||  line->backsector->special == 1)
+                            {
+                                AM_drawMline(&l, automap_colors[195]);
+                            }
+                            // [JN] Secret door
+                            else if (line->flags & ML_SECRET)
+                            {
+                                AM_drawMline(&l, automap_colors[184]);
+                            }
+                            // [JN] Highlight secret sectors
+                            else if (crl_automap_secrets > 1
+                            && (line->frontsector->special == 9
+                            ||  line->backsector->special == 9))
+                            {
+                                AM_drawMline(&l, automap_colors[252]);
+                            }
+                            // [plums] show revealed secrets
+                            else if (crl_automap_secrets
+                            && (line->frontsector->oldspecial == 9
+                            ||  line->backsector->oldspecial == 9))
+                            {
+                                AM_drawMline(&l, automap_colors[112]);
+                            }
+                            // [JN] Various Doors
+                            else
+                            if (line->special == 1   || line->special == 31
+                            ||  line->special == 117 || line->special == 118)
+                            {
+                                AM_drawMline(&l, automap_colors[81]);
+                            }
+                            // [JN] Various teleporters
+                            else
+                            if (line->special == 39  || line->special == 97
+                            ||  line->special == 125 || line->special == 126)
+                            {
+                                AM_drawMline(&l, automap_colors[120]);
+                            }
+                            // [JN] BLUE locked doors
+                            else
+                            if (line->special == 26 || line->special == 32
+                            ||  line->special == 99 || line->special == 133)
+                            {
+                                AM_drawMline(&l, automap_colors[200]);
+                            }
+                            // [JN] RED locked doors
+                            else
+                            if (line->special == 28  || line->special == 33
+                            ||  line->special == 134 || line->special == 135)
+                            {
+                                AM_drawMline(&l, automap_colors[176]);
+                            }
+                            // [JN] YELLOW locked doors
+                            else
+                            if (line->special == 27  || line->special == 34
+                            ||  line->special == 136 || line->special == 137)
+                            {
+                                AM_drawMline(&l, automap_colors[160]);
+                            }
+                            // [JN] Floor level change
+                            else if (line->backsector->floorheight != line->frontsector->floorheight) 
+                            {
+                                AM_drawMline(&l, automap_colors[72]);
+                            }
+                            // [JN] Ceiling level change
+                            else if (line->backsector->ceilingheight != line->frontsector->ceilingheight) 
+                            {
+                                AM_drawMline(&l, automap_colors[64]);
+                            }
+                            // [JN] IDDT visible lines
+                            else if (iddt_cheating)
+                            {
+                                AM_drawMline(&l, automap_colors[96]);
+                            }
+                        }
+                        // [JN] Exit (can be one-sided or two-sided)
+                        if (line->special == 11 || line->special == 51
+                        ||  line->special == 52 || line->special == 124)
+                        {
+                            AM_drawMline(&l, automap_colors[195]);
+                        }
+                    }
+                    // [JN] Computermap visible lines
+                    else if (plr->powers[pw_allmap])
+                    {
+                        if (!(line->flags & ML_DONTDRAW))
+                            AM_drawMline(&l, automap_colors[104]);
+                    }
                 }
-                // [plums] show revealed secrets
-                else if (crl_automap_secrets && lines[i].frontsector->oldspecial == 9)
+                break;
+
+                // Default (vanilla)
+                default:
                 {
-                    AM_drawMline(&l, foundsecretwallcolors);
+                    if (!line->backsector)
+                    {
+                        // [JN] CRL - mark secret sectors.
+                        if (crl_automap_secrets > 1 && line->frontsector->special == 9)
+                        {
+                            AM_drawMline(&l, secretwallcolors);
+                        }
+                        // [plums] show revealed secrets
+                        else if (crl_automap_secrets && line->frontsector->oldspecial == 9)
+                        {
+                            AM_drawMline(&l, foundsecretwallcolors);
+                        }
+                        else
+                        {
+                            AM_drawMline(&l, WALLCOLORS);
+                        }
+                    }
+                    else
+                    {
+                        if (line->special == 39)
+                        { // teleporters
+                            AM_drawMline(&l, WALLCOLORS+WALLRANGE/2);
+                        }
+                        else
+                        if (line->flags & ML_SECRET) // secret door
+                        {
+                            // [JN] Note: this means "don't map as two sided".
+                            AM_drawMline(&l, WALLCOLORS);
+                        }
+                        // [JN] CRL - mark secret sectors.
+                        else
+                        if (crl_automap_secrets > 1
+                        && (line->frontsector->special == 9
+                        ||  line->backsector->special == 9))
+                        {
+                            AM_drawMline(&l, secretwallcolors);
+                        }
+                        // [plums] show revealed secrets
+                        else if (crl_automap_secrets
+                        && (line->frontsector->oldspecial == 9
+                        ||  line->backsector->oldspecial == 9))
+                        {
+                            AM_drawMline(&l, foundsecretwallcolors);
+                        }
+                        else
+                        if (line->backsector->floorheight
+			            !=  line->frontsector->floorheight)
+                        {
+                            AM_drawMline(&l, FDWALLCOLORS); // floor level change
+                        }
+                        else
+                        if (line->backsector->ceilingheight
+                        !=  line->frontsector->ceilingheight)
+                        {
+                            AM_drawMline(&l, CDWALLCOLORS); // ceiling level change
+                        }
+                        else
+                        if (iddt_cheating)
+                        {
+                            AM_drawMline(&l, TSWALLCOLORS);
+                        }
+                    }
                 }
-                else
-                {
-                    AM_drawMline(&l, WALLCOLORS);
-                }
-            }
-            else
-            {
-                if (lines[i].special == 39)
-                { // teleporters
-                    AM_drawMline(&l, WALLCOLORS+WALLRANGE/2);
-                }
-                else
-                if (lines[i].flags & ML_SECRET) // secret door
-                {
-                    // [JN] Note: this means "don't map as two sided".
-                    AM_drawMline(&l, WALLCOLORS);
-                }
-                // [JN] CRL - mark secret sectors.
-                else
-                if (crl_automap_secrets > 1
-                && (lines[i].frontsector->special == 9
-                ||  lines[i].backsector->special == 9))
-                {
-                    AM_drawMline(&l, secretwallcolors);
-                }
-                // [plums] show revealed secrets
-                else if (crl_automap_secrets
-                && (lines[i].frontsector->oldspecial == 9
-                ||  lines[i].backsector->oldspecial == 9))
-                {
-                    AM_drawMline(&l, foundsecretwallcolors);
-                }
-                else
-                if (lines[i].backsector->floorheight
-			    !=  lines[i].frontsector->floorheight)
-                {
-                    AM_drawMline(&l, FDWALLCOLORS); // floor level change
-                }
-                else
-                if (lines[i].backsector->ceilingheight
-                !=  lines[i].frontsector->ceilingheight)
-                {
-                    AM_drawMline(&l, CDWALLCOLORS); // ceiling level change
-                }
-                else
-                if (iddt_cheating)
-                {
-                    AM_drawMline(&l, TSWALLCOLORS);
-                }
+                break;
             }
         }
         else if (plr->powers[pw_allmap])
         {
-            if (!(lines[i].flags & ML_DONTDRAW))
+            if (!(line->flags & ML_DONTDRAW))
             {
                 AM_drawMline(&l, GRAYS+3);
             }
