@@ -2884,7 +2884,8 @@ static void DrawCRLAutomap (void)
     MN_DrTextACentered("GRID", 110, cr[CR_YELLOW]);
 
     // Draw grid
-    sprintf(str, crl_automap_grid ? "ON" : "OFF");
+    sprintf(str, crl_automap_grid == 1 ? "SOLID" :
+                 crl_automap_grid == 2 ? "TRANSLUCENT" : "OFF");
     MN_DrTextA(str, M_ItemRightAlign(str), 120,
                M_Item_Glow(10, crl_automap_grid ? GLOW_GREEN : GLOW_DARKRED));
 
@@ -2897,7 +2898,8 @@ static void DrawCRLAutomap (void)
 
 static void CRL_Automap_Grid (int choice)
 {
-    crl_automap_grid ^= 1;
+    crl_automap_grid = M_INT_Slider(crl_automap_grid, 0, 2, choice, false);
+    AM_initGridDrawFunc();
 }
 
 static void CRL_Automap_Blockmap (int choice)

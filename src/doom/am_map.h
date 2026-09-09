@@ -46,6 +46,7 @@ extern int markpointnum;
 extern angle_t mapangle;
 
 extern void AM_Init (void);
+extern void AM_initGridDrawFunc (void);
 extern fixed_t AM_UnArchiveScaleMtof (void);
 extern void AM_ArchiveScaleMtof (fixed_t scale);
 

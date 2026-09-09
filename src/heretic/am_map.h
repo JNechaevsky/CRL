@@ -44,6 +44,7 @@ extern const char *LevelNames[];
 
 extern void AM_ArchiveScaleMtof (fixed_t scale);
 extern void AM_Init (void);
+extern void AM_initGridDrawFunc (void);
 extern void AM_initOverlayMode (void);
 extern void AM_SetMapCenter (fixed_t x, fixed_t y);
 extern void AM_Start (void);

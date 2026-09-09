@@ -132,6 +132,11 @@ typedef struct
     mpoint_t a, b;
 } mline_t;
 
+// [JN] Solid or translucent grid drawing.
+static void (*AM_drawMlineFunc)(mline_t *const ml, int color);
+static void   AM_drawMline (mline_t *const ml, int color);
+static void   AM_drawMline_Trans (mline_t *const ml, int color);
+
 // -----------------------------------------------------------------------------
 // [PN] Tag highlight ("tag finder"), adapted from dsda-doom. Sector mode
 // keys off sec->tag, line mode off line->tag (CRL line_t has no action args).
@@ -400,6 +405,20 @@ void AM_Init (void)
     {
         marknums[i] = W_CacheLumpNum(startLump + i, PU_STATIC);
     }
+
+    // [JN] Initialize grid drawing function.
+    AM_initGridDrawFunc();
+}
+
+// -----------------------------------------------------------------------------
+// AM_initGridDrawFunc
+//  [JN/PN] Optional 50%-translucent grid over the map background.
+// -----------------------------------------------------------------------------
+
+void AM_initGridDrawFunc (void)
+{
+    AM_drawMlineFunc = (crl_automap_grid == 2)
+                     ? AM_drawMline_Trans : AM_drawMline;
 }
 
 // -----------------------------------------------------------------------------
@@ -2171,7 +2190,7 @@ void DrawWuLine(int X0, int Y0, int X1, int Y1, byte * BaseColor,
 // Clip lines, draw visible parts of lines.
 // -----------------------------------------------------------------------------
 
-static void AM_drawMline (mline_t *ml, int color)
+static void AM_drawMline (mline_t *const ml, int color)
 {
     static fline_t fl;
 
@@ -2179,6 +2198,72 @@ static void AM_drawMline (mline_t *ml, int color)
     {
         // draws it on frame buffer using fb coords
         AM_drawFline(&fl, color);
+    }
+}
+
+// -----------------------------------------------------------------------------
+// AM_drawMline_Trans
+//  [PN] Same as AM_drawMline but every pixel is 50%-blended with what is
+//  already on screen, using the tintmap LUT built in R_InitTintMap().
+// -----------------------------------------------------------------------------
+
+static void AM_drawMline_Trans (mline_t *const ml, int color)
+{
+    static fline_t fl;
+
+    if (AM_clipMline(ml, &fl))
+    {
+        int x  = fl.a.x;
+        int y  = fl.a.y;
+        int dx = fl.b.x - x;
+        int dy = fl.b.y - y;
+        int ax = 2 * (dx < 0 ? -dx : dx);
+        int ay = 2 * (dy < 0 ? -dy : dy);
+        int sx = dx < 0 ? -1 : 1;
+        int sy = dy < 0 ? -1 : 1;
+        int d  = ax > ay ? ay - ax / 2 : ax - ay / 2;
+        int guard = (ax > ay ? ax : ay) / 2 + 2; // [PN] hard step cap
+
+        // [PN] Same off-frame guard as AM_drawFline (quietly): rotated grid
+        // lines can sneak past AM_clipMline with out-of-bounds endpoints.
+        if (x < 0 || x >= f_w || y < 0 || y >= f_h
+        ||  fl.b.x < 0 || fl.b.x >= f_w || fl.b.y < 0 || fl.b.y >= f_h)
+        {
+            return;
+        }
+
+        while (guard-- > 0)
+        {
+            const int idx = y * f_w + x;
+
+            I_VideoBuffer[idx] = tintmap[(I_VideoBuffer[idx] << 8) + color];
+
+            if (x == fl.b.x && y == fl.b.y)
+            {
+                return;
+            }
+
+            if (ax > ay)
+            {
+                if (d >= 0)
+                {
+                    y += sy;
+                    d -= ax;
+                }
+                x += sx;
+                d += ay;
+            }
+            else
+            {
+                if (d >= 0)
+                {
+                    x += sx;
+                    d -= ay;
+                }
+                y += sy;
+                d += ax;
+            }
+        }
     }
 }
 
@@ -2235,7 +2320,7 @@ static void AM_drawGrid (void)
             AM_rotatePoint(&ml.a);
             AM_rotatePoint(&ml.b);
         }
-        AM_drawMline(&ml, GRIDCOLORS);
+        AM_drawMlineFunc(&ml, GRIDCOLORS);
     }
 
     // Figure out start of horizontal gridlines
@@ -2272,7 +2357,7 @@ static void AM_drawGrid (void)
             AM_rotatePoint(&ml.a);
             AM_rotatePoint(&ml.b);
         }
-        AM_drawMline(&ml, GRIDCOLORS);
+        AM_drawMlineFunc(&ml, GRIDCOLORS);
     }
 
     // [PN] White overlay on blockmap cells the game queried within the last
