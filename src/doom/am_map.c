@@ -81,6 +81,8 @@
 // Values are remapped to the active palette in AM_Init.
 static int automap_colors[256];
 
+static boolean blinking_line;
+
 // [JN] Make wall colors of secret sectors palette-independent.
 static int secretwallcolors;
 static int foundsecretwallcolors;
@@ -321,7 +323,7 @@ angle_t mapangle;
 
 void AM_Init (void)
 {
-    unsigned char *playpal = W_CacheLumpName("PLAYPAL", PU_STATIC);
+    byte *const playpal = W_CacheLumpName("PLAYPAL", PU_STATIC);
 
     // [JN] Find closest to magenta and green colors.
     secretwallcolors = V_GetPaletteIndex(playpal, 255, 0, 255);
@@ -343,10 +345,12 @@ void AM_Init (void)
     automap_colors[112] = V_GetPaletteIndex(playpal, 119, 255, 111);
     automap_colors[120] = V_GetPaletteIndex(playpal,  63, 131,  47);
     automap_colors[160] = V_GetPaletteIndex(playpal, 255, 255, 115);
+    automap_colors[165] = V_GetPaletteIndex(playpal, 155,  91,  19);
     automap_colors[176] = V_GetPaletteIndex(playpal, 255,   1,   1);
     automap_colors[184] = V_GetPaletteIndex(playpal, 155,   1,   1);
     automap_colors[195] = V_GetPaletteIndex(playpal, 143, 143, 255);
     automap_colors[200] = V_GetPaletteIndex(playpal,   1,   1, 255);
+    automap_colors[206] = V_GetPaletteIndex(playpal,   1,   1, 107);
     automap_colors[252] = V_GetPaletteIndex(playpal, 255,   1, 255);
 
     W_ReleaseLumpName("PLAYPAL");
@@ -1554,6 +1558,9 @@ void AM_Ticker (void)
     {
         arrow_color_direction = false;
     }
+
+    // [JN] Framerate independendt ticker for blinking lines.
+    blinking_line = (crl_automap_blink && (gametic % 20) < 10);
 }
 
 // -----------------------------------------------------------------------------
@@ -2166,6 +2173,31 @@ static void AM_drawWalls (void)
                     }
                 }
                 break;
+            }
+
+            // [JN] Blinking locked doors
+            if (crl_automap_blink)
+            {
+                // [JN] BLUE locked doors
+                if (line->special == 26 || line->special == 32
+                ||  line->special == 99 || line->special == 133)
+                {
+                    AM_drawMline(&l, blinking_line ? automap_colors[206] : automap_colors[200]);
+                }
+                // [JN] RED locked doors
+                else
+                if (line->special == 28  || line->special == 33
+                ||  line->special == 134 || line->special == 135)
+                {
+                    AM_drawMline(&l, blinking_line ? automap_colors[184] : automap_colors[176]);
+                }
+                // [JN] YELLOW locked doors
+                else
+                if (line->special == 27  || line->special == 34
+                ||  line->special == 136 || line->special == 137)
+                {
+                    AM_drawMline(&l, blinking_line ? automap_colors[165] : automap_colors[160]);
+                }
             }
         }
         else if (plr->powers[pw_allmap])

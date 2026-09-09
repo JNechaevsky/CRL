@@ -90,6 +90,7 @@ extern int crl_automap_textured_bg;
 extern int crl_automap_scroll_bg;
 extern int crl_automap_mode;
 extern int crl_automap_secrets;
+extern int crl_automap_blink;
 extern int crl_automap_rotate;
 extern int crl_automap_overlay;
 extern int crl_automap_shading;

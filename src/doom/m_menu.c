@@ -764,6 +764,7 @@ static void M_CRL_Widget_Health (int choice);
 static void M_ChooseCRL_Automap (int choice);
 static void M_DrawCRL_Automap (void);
 static void M_CRL_Automap_Colors (int choice);
+static void M_CRL_Automap_Blink (int choice);
 static void M_CRL_Automap_Rotate (int choice);
 static void M_CRL_Automap_Overlay (int choice);
 static void M_CRL_Automap_Shading (int choice);
@@ -2950,6 +2951,7 @@ static void M_CRL_Widget_Health (int choice)
 static menuitem_t CRLMenu_Automap[]=
 {
     { M_MUL2, "COLOR SCHEME",           M_CRL_Automap_Colors,    'c' },
+    { M_MUL2, "BLINKING LOCKED DOORS",  M_CRL_Automap_Blink,     'b' },
     { M_MUL2, "ROTATE MODE",            M_CRL_Automap_Rotate,    'r' },
     { M_MUL2, "OVERLAY MODE",           M_CRL_Automap_Overlay,   'o' },
     { M_MUL1, "OVERLAY SHADING LEVEL",  M_CRL_Automap_Shading,   'o' },
@@ -2986,49 +2988,59 @@ static void M_DrawCRL_Automap (void)
     M_WriteText (M_ItemRightAlign(str), 16, str,
                  M_Item_Glow(0, crl_automap_scheme ? GLOW_GREEN : GLOW_DARKRED));
 
+    // Blinking locked doors
+    sprintf(str, crl_automap_blink ? "ON" : "OFF");
+    M_WriteText (M_ItemRightAlign(str), 25, str,
+                 M_Item_Glow(1, crl_automap_blink ? GLOW_GREEN : GLOW_DARKRED));
+
     // Rotate mode
     sprintf(str, crl_automap_rotate ? "ON" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 25, str,
-                 M_Item_Glow(1, crl_automap_rotate ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (M_ItemRightAlign(str), 34, str,
+                 M_Item_Glow(2, crl_automap_rotate ? GLOW_GREEN : GLOW_DARKRED));
 
     // Overlay mode
     sprintf(str, crl_automap_overlay ? "ON" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 34, str,
-                 M_Item_Glow(2, crl_automap_overlay ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (M_ItemRightAlign(str), 43, str,
+                 M_Item_Glow(3, crl_automap_overlay ? GLOW_GREEN : GLOW_DARKRED));
 
     // Overlay shading level
     sprintf(str,"%d", crl_automap_shading);
-    M_WriteText (M_ItemRightAlign(str), 43, str,
-                 M_Item_Glow(3, !crl_automap_overlay ? GLOW_DARKRED :
+    M_WriteText (M_ItemRightAlign(str), 52, str,
+                 M_Item_Glow(4, !crl_automap_overlay ? GLOW_DARKRED :
                                  crl_automap_shading ==  0 ? GLOW_RED :
                                  crl_automap_shading == 12 ? GLOW_YELLOW : GLOW_GREEN));
 
     // Mouse panning mode
     sprintf(str, crl_automap_mouse_pan ? "ON" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 52, str,
-                 M_Item_Glow(4, crl_automap_mouse_pan ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (M_ItemRightAlign(str), 61, str,
+                 M_Item_Glow(5, crl_automap_mouse_pan ? GLOW_GREEN : GLOW_DARKRED));
 
     // Drawing mode
     sprintf(str, crl_automap_mode == 1 ? "FLOOR VISPLANES" :
                  crl_automap_mode == 2 ? "CEILING VISPLANES" : "NORMAL");
-    M_WriteText (M_ItemRightAlign(str), 61, str,
-                 M_Item_Glow(5, crl_automap_mode ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (M_ItemRightAlign(str), 70, str,
+                 M_Item_Glow(6, crl_automap_mode ? GLOW_GREEN : GLOW_DARKRED));
 
     // Mark secret sectors
     sprintf(str, crl_automap_secrets == 1 ? "REVEALED" :
                  crl_automap_secrets == 2 ? "ALWAYS" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 70, str,
-                 M_Item_Glow(6, crl_automap_secrets ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (M_ItemRightAlign(str), 79, str,
+                 M_Item_Glow(7, crl_automap_secrets ? GLOW_GREEN : GLOW_DARKRED));
 
     // Sound propagation mode
     sprintf(str, crl_automap_sndprop ? "ON" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 79, str,
-                 M_Item_Glow(7, crl_automap_sndprop ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (M_ItemRightAlign(str), 88, str,
+                 M_Item_Glow(8, crl_automap_sndprop ? GLOW_GREEN : GLOW_DARKRED));
 }
 
 static void M_CRL_Automap_Colors (int choice)
 {
     crl_automap_scheme ^= 1;
+}
+
+static void M_CRL_Automap_Blink (int choice)
+{
+    crl_automap_blink ^= 1;
 }
 
 static void M_CRL_Automap_Rotate (int choice)
