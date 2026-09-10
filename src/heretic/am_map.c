@@ -417,7 +417,7 @@ void AM_Init (void)
 
 void AM_initGridDrawFunc (void)
 {
-    AM_drawMlineFunc = (crl_automap_grid == 2)
+    AM_drawMlineFunc = crl_automap_gridtrans
                      ? AM_drawMline_Trans : AM_drawMline;
 }
 

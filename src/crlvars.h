@@ -98,6 +98,7 @@ extern int crl_automap_mouse_pan;
 extern int crl_automap_sndprop;
 extern int crl_automap_bbox;
 extern int crl_automap_grid;
+extern int crl_automap_gridtrans;
 extern int crl_automap_blocks;
 
 // Gameplay features

@@ -98,6 +98,7 @@ int crl_automap_mouse_pan = 0;
 int crl_automap_sndprop = 0;
 int crl_automap_bbox = 0;
 int crl_automap_grid = 0;
+int crl_automap_gridtrans = 0;
 int crl_automap_blocks = 0;
 
 // Gameplay features
@@ -217,6 +218,7 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_automap_sndprop",            &crl_automap_sndprop);
     M_BindIntVariable("crl_automap_bbox",               &crl_automap_bbox);
     M_BindIntVariable("crl_automap_grid",               &crl_automap_grid);
+    M_BindIntVariable("crl_automap_gridtrans",          &crl_automap_gridtrans);
     M_BindIntVariable("crl_automap_blocks",             &crl_automap_blocks);
 
     // Gameplay features
