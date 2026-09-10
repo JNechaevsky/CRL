@@ -422,6 +422,7 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_KEYBIND(key_crl_idclip, key_crl_idclip2),
     CONFIG_VARIABLE_KEYBIND(key_crl_iddt, key_crl_iddt2),
     CONFIG_VARIABLE_KEYBIND(key_crl_mdk, key_crl_mdk2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_spechits, key_crl_spechits2),
 
     // Weapons
     CONFIG_VARIABLE_KEYBIND(key_weapon1, key_weapon1_2),

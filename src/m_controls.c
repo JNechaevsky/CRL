@@ -121,12 +121,13 @@ int key_crl_clear_all_max  = 0;   int key_crl_clear_all_max2   = 0;
 
 // Cheat shortcuts
 
-int key_crl_iddqd  = 0; int key_crl_iddqd2  = 0;
-int key_crl_idkfa  = 0; int key_crl_idkfa2  = 0;
-int key_crl_idfa   = 0; int key_crl_idfa2   = 0;
-int key_crl_idclip = 0; int key_crl_idclip2 = 0;
-int key_crl_iddt   = 0; int key_crl_iddt2   = 0;
-int key_crl_mdk    = 0; int key_crl_mdk2    = 0;
+int key_crl_iddqd    = 0; int key_crl_iddqd2    = 0;
+int key_crl_idkfa    = 0; int key_crl_idkfa2    = 0;
+int key_crl_idfa     = 0; int key_crl_idfa2     = 0;
+int key_crl_idclip   = 0; int key_crl_idclip2   = 0;
+int key_crl_iddt     = 0; int key_crl_iddt2     = 0;
+int key_crl_mdk      = 0; int key_crl_mdk2      = 0;
+int key_crl_spechits = 0; int key_crl_spechits2 = 0;
 
 // Weapons
 
@@ -375,12 +376,13 @@ void M_BindControls (void)
 
     // Cheat shortcuts
 
-    M_BindIntVariableKeybind("key_crl_iddqd",  &key_crl_iddqd,  "key_crl_iddqd2",  &key_crl_iddqd2);
-    M_BindIntVariableKeybind("key_crl_idkfa",  &key_crl_idkfa,  "key_crl_idkfa2",  &key_crl_idkfa2);
-    M_BindIntVariableKeybind("key_crl_idfa",   &key_crl_idfa,   "key_crl_idfa2",   &key_crl_idfa2);
-    M_BindIntVariableKeybind("key_crl_idclip", &key_crl_idclip, "key_crl_idclip2", &key_crl_idclip2);
-    M_BindIntVariableKeybind("key_crl_iddt",   &key_crl_iddt,   "key_crl_iddt2",   &key_crl_iddt2);
-    M_BindIntVariableKeybind("key_crl_mdk",    &key_crl_mdk,    "key_crl_mdk2",    &key_crl_mdk2);
+    M_BindIntVariableKeybind("key_crl_iddqd",    &key_crl_iddqd,    "key_crl_iddqd2",    &key_crl_iddqd2);
+    M_BindIntVariableKeybind("key_crl_idkfa",    &key_crl_idkfa,    "key_crl_idkfa2",    &key_crl_idkfa2);
+    M_BindIntVariableKeybind("key_crl_idfa",     &key_crl_idfa,     "key_crl_idfa2",     &key_crl_idfa2);
+    M_BindIntVariableKeybind("key_crl_idclip",   &key_crl_idclip,   "key_crl_idclip2",   &key_crl_idclip2);
+    M_BindIntVariableKeybind("key_crl_iddt",     &key_crl_iddt,     "key_crl_iddt2",     &key_crl_iddt2);
+    M_BindIntVariableKeybind("key_crl_mdk",      &key_crl_mdk,      "key_crl_mdk2",      &key_crl_mdk2);
+    M_BindIntVariableKeybind("key_crl_spechits", &key_crl_spechits, "key_crl_spechits2", &key_crl_spechits2);
 
     // Weapons
 

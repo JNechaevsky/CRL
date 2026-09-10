@@ -1550,6 +1550,24 @@ boolean G_Responder (event_t* ev)
         ST_cheat_MDK();
     }
 
+    // [JN] CRL - Crispy Doom's "spechits" cheat.
+    if (ev->data1 == key_crl_spechits || ev->data1 == key_crl_spechits2)
+    {
+        // Allow SPECHITS only in single player game, otherwise desyncs may occur.
+        if (demorecording || demoplayback || netgame)
+        {
+            CRL_SetMessage(plr,
+                demorecording ? CRL_SPECHITS_NA_R :
+                demoplayback  ? CRL_SPECHITS_NA_P :
+                /* netgame */   CRL_SPECHITS_NA_N,
+                false, NULL);
+
+            return true;
+        }
+
+        ST_cheat_spechits();
+    }
+
     // [JN] CRL - Toggle static engine limits.
     if (ev->data1 == key_crl_limits)
     {

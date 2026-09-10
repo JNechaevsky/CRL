@@ -113,6 +113,7 @@ extern int key_crl_idfa, key_crl_idfa2;
 extern int key_crl_idclip, key_crl_idclip2;
 extern int key_crl_iddt, key_crl_iddt2;
 extern int key_crl_mdk, key_crl_mdk2;
+extern int key_crl_spechits, key_crl_spechits2;
 
 // Weapons
 

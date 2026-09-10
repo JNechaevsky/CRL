@@ -54,6 +54,7 @@ void ST_Start (void);
 void ST_Init (void);
 
 extern void ST_cheat_MDK (void);
+extern void ST_cheat_spechits (void);
 
 extern cheatseq_t cheat_mus;
 extern cheatseq_t cheat_god;

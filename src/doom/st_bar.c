@@ -143,6 +143,7 @@ static cheatseq_t cheat_freeze = CHEAT("freeze", 0);
 static cheatseq_t cheat_notarget = CHEAT("notarget", 0);
 static cheatseq_t cheat_buddha = CHEAT("buddha", 0);
 static cheatseq_t cheat_mdk = CHEAT("mdk", 0);
+static cheatseq_t cheat_spechits = CHEAT("spechits", 0);
 
 cheatseq_t cheat_powerup[7] =
 {
@@ -426,6 +427,102 @@ void ST_cheat_MDK (void)
         // No target found, just inform.
         CRL_SetMessage(plyr, "TARGET NOT FOUND", false, NULL);
     }
+}
+
+// -----------------------------------------------------------------------------
+// ST_cheat_spechits
+// [crispy] trigger all special lines available on the map
+// -----------------------------------------------------------------------------
+
+void ST_cheat_spechits (void)
+{
+    static char msg[52];
+    int i, speciallines = 0;
+    boolean origcards[NUMCARDS];
+    line_t dummy;
+
+    // [crispy] temporarily give all keys
+    for (i = 0; i < NUMCARDS; i++)
+    {
+        origcards[i] = plyr->cards[i];
+        plyr->cards[i] = true;
+    }
+
+    for (i = 0; i < numlines; i++)
+    {
+        if (lines[i].special)
+        {
+            // [crispy] do not trigger level exit switches/lines or teleporters
+            if (lines[i].special == 11 || lines[i].special == 51  ||
+                lines[i].special == 52 || lines[i].special == 124 ||
+                lines[i].special == 39 || lines[i].special == 97)
+            {
+                continue;
+            }
+
+            // [crispy] special without tag --> DR linedef type
+            // do not change door direction if it is already moving
+            if (lines[i].tag == 0 &&
+                lines[i].sidenum[1] != -1 /* NO_INDEX */ &&
+                sides[lines[i].sidenum[1]].sector->specialdata)
+            {
+                continue;
+            }
+
+            P_CrossSpecialLine(i, 0, plyr->mo);
+            P_ShootSpecialLine(plyr->mo, &lines[i]);
+            P_UseSpecialLine(plyr->mo, &lines[i], 0);
+
+            speciallines++;
+            }
+    }
+
+    for (i = 0; i < NUMCARDS; i++)
+    {
+        plyr->cards[i] = origcards[i];
+    }
+
+    // [crispy] trigger tag 666/667 events
+    dummy.tag = 666;
+    if (gamemode == commercial)
+    {
+        if (gamemap == 7 /* P_CheckMapTag666() */)
+        {
+            // Mancubi
+            speciallines += EV_DoFloor(&dummy, lowerFloorToLowest);
+
+            // Arachnotrons
+            dummy.tag = 667;
+            speciallines += EV_DoFloor(&dummy, raiseToTexture);
+            dummy.tag = 666;
+        }
+    }
+    else
+    {
+        if (gameepisode == 1)
+            // Barons of Hell
+            speciallines += EV_DoFloor(&dummy, lowerFloorToLowest);
+        else
+        if (gameepisode == 4)
+        {
+            if (gamemap == 6)
+            // Cyberdemons
+            speciallines += EV_DoDoor(&dummy, vld_blazeOpen);
+            else
+            if (gamemap == 8)
+            // Spider Masterminds
+            speciallines += EV_DoFloor(&dummy, lowerFloorToLowest);
+        }
+    }
+
+    // Keens (no matter which level they are on)
+    // this call will be ignored if the tagged sector is already moving
+    // so actions triggered in the condition above will have precedence
+    speciallines += EV_DoDoor(&dummy, vld_open);
+
+    M_snprintf(msg, sizeof(msg), "%d SPECIAL LINE%s TRIGGERED",
+            speciallines, (speciallines == 1) ? "" : "S");
+    CRL_SetMessage(plyr, msg, false, NULL);
 }
 
 // -----------------------------------------------------------------------------
@@ -739,6 +836,12 @@ boolean ST_Responder (event_t *ev)
             else if (cht_CheckCheatSP(&cheat_mdk, ev->data2))
             {
                 ST_cheat_MDK();
+                plyr->cheatTics = 1;
+            }
+            // [crispy] implement Crispy Doom's "spechits" cheat
+            else if (cht_CheckCheatSP(&cheat_spechits, ev->data2))
+            {
+                ST_cheat_spechits();
                 plyr->cheatTics = 1;
             }
         }
