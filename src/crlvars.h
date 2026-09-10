@@ -96,6 +96,7 @@ extern int crl_automap_overlay;
 extern int crl_automap_shading;
 extern int crl_automap_mouse_pan;
 extern int crl_automap_sndprop;
+extern int crl_automap_bbox;
 extern int crl_automap_grid;
 extern int crl_automap_blocks;
 

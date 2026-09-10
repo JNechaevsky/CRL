@@ -773,6 +773,7 @@ static void M_CRL_Automap_Pan (int choice);
 static void M_CRL_Automap_Drawing (int choice);
 static void M_CRL_Automap_Secrets (int choice);
 static void M_CRL_Automap_SndProp (int choice);
+static void M_CRL_Automap_BBox (int choice);
 static void M_CRL_Automap_Grid (int choice);
 static void M_CRL_Automap_Blockmap (int choice);
 
@@ -2953,18 +2954,19 @@ static void M_CRL_Widget_Health (int choice)
 
 static menuitem_t CRLMenu_Automap[]=
 {
-    { M_MUL2, "COLOR SCHEME",            M_CRL_Automap_Colors,   'c' },
-    { M_MUL2, "BLINKING LOCKED DOORS",   M_CRL_Automap_Blink,    'b' },
-    { M_MUL2, "ROTATE MODE",             M_CRL_Automap_Rotate,   'r' },
-    { M_MUL2, "OVERLAY MODE",            M_CRL_Automap_Overlay,  'o' },
-    { M_MUL1, "OVERLAY SHADING LEVEL",   M_CRL_Automap_Shading,  'o' },
-    { M_MUL2, "MOUSE PANNING MODE",      M_CRL_Automap_Pan,      'm' },
-    { M_MUL2, "DRAWING MODE",            M_CRL_Automap_Drawing,  'd' },
-    { M_MUL2, "MARK SECRET SECTORS",     M_CRL_Automap_Secrets,  'm' },
-    { M_MUL2, "SOUND PROPAGATION MODE",  M_CRL_Automap_SndProp,  's' },
+    { M_MUL2, "COLOR SCHEME",             M_CRL_Automap_Colors,   'c' },
+    { M_MUL2, "BLINKING LOCKED DOORS",    M_CRL_Automap_Blink,    'b' },
+    { M_MUL2, "ROTATE MODE",              M_CRL_Automap_Rotate,   'r' },
+    { M_MUL2, "OVERLAY MODE",             M_CRL_Automap_Overlay,  'o' },
+    { M_MUL1, "OVERLAY SHADING LEVEL",    M_CRL_Automap_Shading,  'o' },
+    { M_MUL2, "MOUSE PANNING MODE",       M_CRL_Automap_Pan,      'm' },
+    { M_MUL2, "DRAWING MODE",             M_CRL_Automap_Drawing,  'd' },
+    { M_MUL2, "MARK SECRET SECTORS",      M_CRL_Automap_Secrets,  'm' },
+    { M_MUL2, "SOUND PROPAGATION MODE",   M_CRL_Automap_SndProp,  's' },
+    { M_MUL2, "IDDT THINGS BOUNDING BOX", M_CRL_Automap_BBox,     'i' },
     { M_SKIP, "", 0, '\0' },
-    { M_MUL2, "DRAW GRID",               M_CRL_Automap_Grid,     'g' },
-    { M_MUL2, "BLOCKMAP ACTIVITY TRAIL", M_CRL_Automap_Blockmap, 'b' },
+    { M_MUL2, "DRAW GRID",                M_CRL_Automap_Grid,     'g' },
+    { M_MUL2, "BLOCKMAP ACTIVITY TRAIL",  M_CRL_Automap_Blockmap, 'b' },
 };
 
 static menu_t CRLDef_Automap =
@@ -3038,18 +3040,23 @@ static void M_DrawCRL_Automap (void)
     M_WriteText (M_ItemRightAlign(str), 88, str,
                  M_Item_Glow(8, crl_automap_sndprop ? GLOW_GREEN : GLOW_DARKRED));
 
-    M_WriteTextCentered(97, "GRID", cr[CR_YELLOW]);
+    // IDDT things bounding box
+    sprintf(str, crl_automap_bbox ? "ON" : "OFF");
+    M_WriteText (M_ItemRightAlign(str), 97, str,
+                 M_Item_Glow(9, crl_automap_sndprop ? GLOW_GREEN : GLOW_DARKRED));
+
+    M_WriteTextCentered(106, "GRID", cr[CR_YELLOW]);
 
     // Draw grid
     sprintf(str, crl_automap_grid == 1 ? "SOLID" :
                  crl_automap_grid == 2 ? "TRANSLUCENT" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 106, str,
-                 M_Item_Glow(10, crl_automap_grid ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (M_ItemRightAlign(str), 115, str,
+                 M_Item_Glow(11, crl_automap_grid ? GLOW_GREEN : GLOW_DARKRED));
 
     // Blockmap activity trail
     sprintf(str, crl_automap_blocks ? "ON" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 115, str,
-                 M_Item_Glow(11, !crl_automap_grid ? GLOW_DARKRED :
+    M_WriteText (M_ItemRightAlign(str), 124, str,
+                 M_Item_Glow(12, !crl_automap_grid ? GLOW_DARKRED :
                                   crl_automap_blocks ? GLOW_GREEN : GLOW_DARKRED));
 }
 
@@ -3107,6 +3114,11 @@ static void M_CRL_Automap_Secrets (int choice)
 static void M_CRL_Automap_SndProp (int choice)
 {
     crl_automap_sndprop ^= 1;
+}
+
+static void M_CRL_Automap_BBox (int choice)
+{
+    crl_automap_bbox ^= 1;
 }
 
 // -----------------------------------------------------------------------------

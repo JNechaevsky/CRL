@@ -2785,6 +2785,44 @@ static void AM_drawPlayers (void)
 }
 
 // -----------------------------------------------------------------------------
+// AM_drawThingBBox
+//  [JN] Draws the XY bounding box (square) of a thing's radius on the automap.
+// -----------------------------------------------------------------------------
+
+static void AM_drawThingBBox (fixed_t x, fixed_t y, fixed_t radius, int color)
+{
+    mline_t l;
+    const fixed_t x1 = x - radius;
+    const fixed_t y1 = y - radius;
+    const fixed_t x2 = x + radius;
+    const fixed_t y2 = y + radius;
+
+    // top
+    l.a.x = x1; l.a.y = y1;
+    l.b.x = x2; l.b.y = y1;
+    if (crl_automap_rotate) { AM_rotatePoint(&l.a); AM_rotatePoint(&l.b); }
+    AM_drawMline(&l, color);
+
+    // right
+    l.a.x = x2; l.a.y = y1;
+    l.b.x = x2; l.b.y = y2;
+    if (crl_automap_rotate) { AM_rotatePoint(&l.a); AM_rotatePoint(&l.b); }
+    AM_drawMline(&l, color);
+
+    // bottom
+    l.a.x = x2; l.a.y = y2;
+    l.b.x = x1; l.b.y = y2;
+    if (crl_automap_rotate) { AM_rotatePoint(&l.a); AM_rotatePoint(&l.b); }
+    AM_drawMline(&l, color);
+
+    // left
+    l.a.x = x1; l.a.y = y2;
+    l.b.x = x1; l.b.y = y1;
+    if (crl_automap_rotate) { AM_rotatePoint(&l.a); AM_rotatePoint(&l.b); }
+    AM_drawMline(&l, color);
+}
+
+// -----------------------------------------------------------------------------
 // AM_drawThings
 // Draws the things on the automap in double IDDT cheat mode.
 // -----------------------------------------------------------------------------
@@ -2807,7 +2845,8 @@ static void AM_drawThings (void)
             const fixed_t actualradius = t->radius >> FRACTOMAPBITS;
                 
             // [crispy] do not draw an extra triangle for the player
-            if (t == plr->mo)
+            // [JN] ... unless we are showing bounding box.
+            if (t == plr->mo && !crl_automap_bbox)
             {
                 t = t->snext;
                 continue;
@@ -2826,6 +2865,10 @@ static void AM_drawThings (void)
                 pt.y = t->y >> FRACTOMAPBITS;
                 actualangle = t->angle;
             }
+
+            // [JN] Keep the unrotated center for the radius square,
+            // so AM_drawThingBBox can rotate its four corners itself.
+            const mpoint_t pt_unrot = pt;
 
             // [JN] Keep things static in Spectator + rotate mode.
             if (crl_spectating && crl_automap_rotate)
@@ -2857,17 +2900,27 @@ static void AM_drawThings (void)
                     color = iddt_reds_inactive;
                 }
 
+                // [JN] Compute the final thing color once, so the triangle
+                // and the optional radius square share it.
+                const int thingcolor =
+                    // Monsters
+                    t->flags & MF_COUNTKILL ? (t->health > 0 ? color : 15) :
+                    // Explosive pod (does not have a MF_COUNTKILL flag)
+                    t->type == MT_POD ? 141 :
+                    // Countable items
+                    t->flags & MF_COUNTITEM ? 224 :
+                    // Everything else
+                    THINGCOLORS;
+
                 AM_drawLineCharacter(thintriangle_guy, NUMTHINTRIANGLEGUYLINES,
-                                     actualradius, actualangle,
-                                     // Monsters
-                                     t->flags & MF_COUNTKILL ? (t->health > 0 ? color : 15) :
-                                     // Explosive pod (does not have a MF_COUNTKILL flag)
-                                     t->type == MT_POD ? 141 :
-                                     // Countable items
-                                     t->flags & MF_COUNTITEM ? 224 :
-                                     // Everything else
-                                     THINGCOLORS,
+                                     actualradius, actualangle, thingcolor,
                                      pt.x, pt.y);
+
+                // [JN] Draw the actor's radius as a square (bbox).
+                if (crl_automap_bbox)
+                {
+                    AM_drawThingBBox(pt_unrot.x, pt_unrot.y, actualradius, thingcolor);
+                }
             }
 
             t = t->snext;

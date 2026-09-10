@@ -96,6 +96,7 @@ int crl_automap_overlay = 0;
 int crl_automap_shading = 0;
 int crl_automap_mouse_pan = 0;
 int crl_automap_sndprop = 0;
+int crl_automap_bbox = 0;
 int crl_automap_grid = 0;
 int crl_automap_blocks = 0;
 
@@ -214,6 +215,7 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_automap_shading",            &crl_automap_shading);
     M_BindIntVariable("crl_automap_mouse_pan",          &crl_automap_mouse_pan);
     M_BindIntVariable("crl_automap_sndprop",            &crl_automap_sndprop);
+    M_BindIntVariable("crl_automap_bbox",               &crl_automap_bbox);
     M_BindIntVariable("crl_automap_grid",               &crl_automap_grid);
     M_BindIntVariable("crl_automap_blocks",             &crl_automap_blocks);
 

@@ -641,6 +641,7 @@ static void CRL_Automap_Shading (int option);
 static void CRL_Automap_Pan (int option);
 static void CRL_Automap_Secrets (int option);
 static void CRL_Automap_SndProp (int option);
+static void CRL_Automap_BBox (int option);
 static void CRL_Automap_Grid (int option);
 static void CRL_Automap_Blockmap (int option);
 
@@ -2804,18 +2805,19 @@ static void CRL_Widget_Health (int option)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLAutomapItems[] = {
-    { ITT_LRFUNC2, "LINE ANTIALIASING",       CRL_Automap_Antialias,  0, MENU_NONE },
-    { ITT_LRFUNC2, "BACKGROUND STYLE",        CRL_Automap_TexturedBg, 0, MENU_NONE },
-    { ITT_LRFUNC2, "SCROLL BACKGROUND"  ,     CRL_Automap_ScrollBg,   0, MENU_NONE },
-    { ITT_LRFUNC2, "ROTATE MODE",             CRL_Automap_Rotate,     0, MENU_NONE },
-    { ITT_LRFUNC2, "OVERLAY MODE",            CRL_Automap_Overlay,    0, MENU_NONE },
-    { ITT_LRFUNC1, "OVERLAY SHADING LEVEL",   CRL_Automap_Shading,    0, MENU_NONE },
-    { ITT_LRFUNC1, "MOUSE PANNING MODE",      CRL_Automap_Pan,        0, MENU_NONE },
-    { ITT_LRFUNC2, "MARK SECRET SECTORS",     CRL_Automap_Secrets,    0, MENU_NONE },
-    { ITT_LRFUNC2, "SOUND PROPAGATION MODE",  CRL_Automap_SndProp,    0, MENU_NONE },
-    { ITT_EMPTY, NULL,                        NULL,                   0, MENU_NONE },
-    { ITT_LRFUNC2, "DRAW GRID",               CRL_Automap_Grid,       0, MENU_NONE },
-    { ITT_LRFUNC2, "BLOCKMAP ACTIVITY TRAIL", CRL_Automap_Blockmap,   0, MENU_NONE },
+    { ITT_LRFUNC2, "LINE ANTIALIASING",        CRL_Automap_Antialias,  0, MENU_NONE },
+    { ITT_LRFUNC2, "BACKGROUND STYLE",         CRL_Automap_TexturedBg, 0, MENU_NONE },
+    { ITT_LRFUNC2, "SCROLL BACKGROUND"  ,      CRL_Automap_ScrollBg,   0, MENU_NONE },
+    { ITT_LRFUNC2, "ROTATE MODE",              CRL_Automap_Rotate,     0, MENU_NONE },
+    { ITT_LRFUNC2, "OVERLAY MODE",             CRL_Automap_Overlay,    0, MENU_NONE },
+    { ITT_LRFUNC1, "OVERLAY SHADING LEVEL",    CRL_Automap_Shading,    0, MENU_NONE },
+    { ITT_LRFUNC1, "MOUSE PANNING MODE",       CRL_Automap_Pan,        0, MENU_NONE },
+    { ITT_LRFUNC2, "MARK SECRET SECTORS",      CRL_Automap_Secrets,    0, MENU_NONE },
+    { ITT_LRFUNC2, "SOUND PROPAGATION MODE",   CRL_Automap_SndProp,    0, MENU_NONE },
+    { ITT_LRFUNC2, "IDDT THINGS BOUNDING BOX", CRL_Automap_BBox,       0, MENU_NONE },
+    { ITT_EMPTY, NULL,                         NULL,                   0, MENU_NONE },
+    { ITT_LRFUNC2, "DRAW GRID",                CRL_Automap_Grid,       0, MENU_NONE },
+    { ITT_LRFUNC2, "BLOCKMAP ACTIVITY TRAIL",  CRL_Automap_Blockmap,   0, MENU_NONE },
 };
 
 static Menu_t CRLAutomap = {
@@ -2881,18 +2883,23 @@ static void DrawCRLAutomap (void)
     MN_DrTextA(str, M_ItemRightAlign(str), 100,
                M_Item_Glow(8, crl_automap_sndprop ? GLOW_GREEN : GLOW_DARKRED));
 
-    MN_DrTextACentered("GRID", 110, cr[CR_YELLOW]);
+    // IDDT things bounding box
+    sprintf(str, crl_automap_bbox ? "ON" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 110,
+               M_Item_Glow(9, crl_automap_bbox ? GLOW_GREEN : GLOW_DARKRED));
+
+    MN_DrTextACentered("GRID", 120, cr[CR_YELLOW]);
 
     // Draw grid
     sprintf(str, crl_automap_grid == 1 ? "SOLID" :
                  crl_automap_grid == 2 ? "TRANSLUCENT" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 120,
-               M_Item_Glow(10, crl_automap_grid ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 130,
+               M_Item_Glow(11, crl_automap_grid ? GLOW_GREEN : GLOW_DARKRED));
 
     // Blockmap activity trail
     sprintf(str, crl_automap_blocks ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 130,
-               M_Item_Glow(11, !crl_automap_grid ? GLOW_DARKRED :
+    MN_DrTextA(str, M_ItemRightAlign(str), 140,
+               M_Item_Glow(12, !crl_automap_grid ? GLOW_DARKRED :
                                 crl_automap_blocks ? GLOW_GREEN : GLOW_DARKRED));
 }
 
@@ -2953,6 +2960,11 @@ static void CRL_Automap_Secrets (int option)
 static void CRL_Automap_SndProp (int option)
 {
     crl_automap_sndprop ^= 1;
+}
+
+static void CRL_Automap_BBox (int option)
+{
+    crl_automap_bbox ^= 1;
 }
 
 // -----------------------------------------------------------------------------
