@@ -212,7 +212,7 @@ static void R_InitSpriteDefs (const char **namelist)
             const int frame    = lname[4] - 'A';
             const int rotation = lname[5] - '0';
 
-            const int patched = modifiedgame ? W_GetNumForName(lname) : l;
+            const int patched = (gameversion > exe_doom_1_2 && modifiedgame) ? W_GetNumForName(lname) : l;
 
             R_InstallSpriteLump(patched, frame, rotation, false);
 
