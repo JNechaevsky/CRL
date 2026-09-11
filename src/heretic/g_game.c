@@ -3285,6 +3285,7 @@ void G_DoSaveGame(void)
     P_ArchiveSpecials();
     SV_WriteSaveGameEOF();
 
+    // [JN] Write KIS kills counter.
     SV_WriteLong(totalkilled);
 
     // [JN] Write total level times

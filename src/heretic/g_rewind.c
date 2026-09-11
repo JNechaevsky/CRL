@@ -315,6 +315,7 @@ static keyframe_t *SaveFullKeyframe(void)
     P_ArchiveSpecials();
     SV_WriteSaveGameEOF();
 
+    SV_WriteLong(totalkilled);
     SV_WriteByte(totalleveltimes >> 16);
     SV_WriteByte(totalleveltimes >> 8);
     SV_WriteByte(totalleveltimes);
@@ -449,6 +450,8 @@ static boolean LoadFullKeyframe(const keyframe_t *keyframe)
         SV_Close();
         I_Error("Bad rewind key frame");
     }
+
+    totalkilled = SV_ReadLong();
 
     d = SV_ReadByte();
     e = SV_ReadByte();

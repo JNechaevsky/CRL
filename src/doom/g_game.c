@@ -2652,8 +2652,8 @@ void G_DoLoadGame (void)
     if (!P_ReadSaveGameEOF())
 	I_Error ("Bad savegame");
 
+    // [JN] Restore KIS kills counter.
     P_UnArchiveTotalKills ();
-
     // [JN] Restore total level times.
     P_UnArchiveTotalTimes ();
     // [plums] Restore old sector specials.
@@ -2760,6 +2760,7 @@ void G_DoSaveGame (void)
         CRL_SetMessageCritical("G_DoSaveGame:", message, MESSAGETICS);
     }
 
+    // [JN] Write KIS kills counter.
     P_ArchiveTotalKills ();
 
     // [JN] Write total level times after EOF terminator

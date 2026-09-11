@@ -281,6 +281,7 @@ static keyframe_t *SaveFullKeyframe(void)
     P_ArchiveThinkers();
     P_ArchiveSpecials();
     P_WriteSaveGameEOF();
+    P_ArchiveTotalKills();
     P_ArchiveTotalTimes();
     P_ArchiveOldSpecials();
     P_ArchiveAutomap();
@@ -363,6 +364,7 @@ static boolean LoadFullKeyframe(const keyframe_t *keyframe)
         I_Error("Bad rewind key frame");
     }
 
+    P_UnArchiveTotalKills();
     P_UnArchiveTotalTimes();
     P_UnArchiveOldSpecials();
     P_UnArchiveAutomap();
