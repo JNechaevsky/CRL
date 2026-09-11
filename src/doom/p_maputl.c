@@ -698,6 +698,7 @@ PIT_CompatAddLineIntercepts(line_t *const ld)
         return false; // stop checking
     }
 
+    check_intercept(); // [PN] remove INTERCEPTS limit
     intercept_p->frac = frac;
     intercept_p->isaline = true;
     intercept_p->d.line = ld;
