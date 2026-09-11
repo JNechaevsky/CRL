@@ -1354,18 +1354,6 @@ boolean AM_Responder (const event_t *ev)
                 CRL_SetMessage(plr, DEH_String(CRL_AUTOMAPSNDPROP_OFF), false, NULL);
             }
         }
-        else if (key == key_crl_map_highlight || key == key_crl_map_highlight2)
-        {
-            // [PN] CRL - Sector/line tag highlight ("tag finder").
-            if (iddt_cheating)
-            {
-                AM_HighlightByTag();
-            }
-            else
-            {
-                CRL_SetMessage (plr, "HIGHLIGHT REQUIRES IDDT", false, NULL);
-            }
-        }
         else if (key == key_crl_map_teleport || key == key_crl_map_teleport2)
         {
             // [JN] CRL - Move to automap crosshair position.
@@ -1410,6 +1398,11 @@ boolean AM_Responder (const event_t *ev)
                     CRL_SetMessage(plr, CRL_MAPTELEPORT_NA_S, false, NULL);
                 }
             }
+        }
+        else if (key == key_crl_map_highlight || key == key_crl_map_highlight2)
+        {
+            // [PN] CRL - Sector/line tag highlight ("tag finder").
+            AM_HighlightByTag();
         }
         else
         {

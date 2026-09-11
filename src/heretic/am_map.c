@@ -1484,14 +1484,7 @@ boolean AM_Responder (const event_t *ev)
         else if (key == key_crl_map_highlight || key == key_crl_map_highlight2)
         {
             // [PN] CRL - Sector/line tag highlight ("tag finder").
-            if (ravmap_cheating)
-            {
-                AM_HighlightByTag();
-            }
-            else
-            {
-                CT_SetMessage(plr, "HIGHLIGHT REQUIRES IDDT", false, NULL);
-            }
+            AM_HighlightByTag();
         }
         else
         {
