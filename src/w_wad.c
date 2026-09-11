@@ -390,6 +390,40 @@ void W_ReadLump(lumpindex_t lump, void *dest)
     }
 }
 
+// [PN] Read the first n bytes of a lump into dest WITHOUT caching it in the
+// zone. Intended for peeking at headers/signatures, so callers don't have to
+// round-trip a whole (possibly large) lump through the purgeable cache just
+// to inspect a few bytes. Returns the number of bytes copied (0 if the lump
+// is missing or empty).
+size_t W_ReadLumpRange(lumpindex_t lump, void *dest, size_t n)
+{
+    const lumpinfo_t *l;
+
+    if ((unsigned)lump >= numlumps)
+    {
+        return 0;
+    }
+
+    l = lumpinfo[lump];
+
+    if (l->size <= 0)
+    {
+        return 0;
+    }
+
+    if (n > (size_t)l->size)
+    {
+        n = (size_t)l->size;
+    }
+
+    if (W_Read(l->wad_file, l->position, dest, n) < n)
+    {
+        return 0;
+    }
+
+    return n;
+}
+
 
 
 

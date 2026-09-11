@@ -80,6 +80,7 @@ int W_CheckMultipleLumps (char *name);
 
 int W_LumpLength(lumpindex_t lump);
 void W_ReadLump(lumpindex_t lump, void *dest);
+size_t W_ReadLumpRange(lumpindex_t lump, void *dest, size_t n);
 
 void *W_CacheLumpNum(lumpindex_t lumpnum, int tag);
 void *W_CacheLumpName(const char *name, int tag);

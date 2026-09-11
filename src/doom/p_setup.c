@@ -1001,7 +1001,7 @@ static void P_LoadReject(int lumpnum)
 
 static void P_CheckMapFormat (int lumpnum)
 {
-    const byte *nodes_frmt = NULL;
+    byte nodes_frmt[4];
     int b;
 
     if ((b = lumpnum+ML_BLOCKMAP+1) < numlumps
@@ -1010,26 +1010,21 @@ static void P_CheckMapFormat (int lumpnum)
         I_Error ("Maps in Hexen formap are not supported.");
     }
 
-    if (!((b = lumpnum+ML_NODES) < numlumps
-    && (nodes_frmt = W_CacheLumpNum(b, PU_CACHE))
-    && W_LumpLength(b) > 0))
+    // [PN] Peek the nodes signature directly, without caching the whole
+    // (possibly large) lump into the purgeable zone just to read 4 bytes.
+    b = lumpnum+ML_NODES;
+
+    if (b < numlumps && W_ReadLumpRange(b, nodes_frmt, sizeof(nodes_frmt))
+    == sizeof(nodes_frmt))
+    {
+        if (!memcmp(nodes_frmt, "XNOD", 4) || !memcmp(nodes_frmt, "ZNOD", 4))
+        {
+            I_Error ("ZDBSP nodes are not supported.");
+        }
+    }
+    else
     {
         printf("(no nodes on map) ");
-    }
-    else
-    if (!memcmp(nodes_frmt, "XNOD", 4))
-    {
-        I_Error ("ZDBSP nodes are not supported.");
-    }
-    else
-    if (!memcmp(nodes_frmt, "ZNOD", 4))
-    {
-        I_Error ("ZDBSP nodes are not supported.");
-    }
-
-    if (nodes_frmt)
-    {
-        W_ReleaseLumpNum(b);
     }
 }
 
