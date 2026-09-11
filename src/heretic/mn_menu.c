@@ -504,13 +504,14 @@ static void M_Bind_NoVert (int option);
 static void M_Bind_VileBomb (int option);
 static void M_Bind_VileFly (int option);
 static void M_Bind_IDDQD (int option);
+static void M_Bind_IDKFA (int option);
 
 static void DrawCRLKbd5 (void);
-static void M_Bind_IDKFA (int option);
 static void M_Bind_IDFA (int option);
 static void M_Bind_IDCLIP (int option);
 static void M_Bind_IDDT (int option);
 static void M_Bind_MDK (int option);
+static void M_Bind_Spechits (int option);
 static void M_Bind_Weapon1 (int option);
 static void M_Bind_Weapon2 (int option);
 static void M_Bind_Weapon3 (int option);
@@ -2028,6 +2029,7 @@ static MenuItem_t CRLKbsBinds4Items[] = {
     { ITT_EFUNC, "ARCH-VILE JUMP (HOLD)",   M_Bind_VileFly,        0, MENU_NONE },
     { ITT_EMPTY, NULL,                      NULL,                  0, MENU_NONE },
     { ITT_EFUNC, "IDDQD",                   M_Bind_IDDQD,          0, MENU_NONE },
+    { ITT_EFUNC, "IDKFA",                   M_Bind_IDKFA,          0, MENU_NONE },
 };
 
 static Menu_t CRLKbdBinds4 = {
@@ -2064,6 +2066,7 @@ static void DrawCRLKbd4 (void)
     MN_DrTextACentered("CHEAT SHORTCUTS", 130, cr[CR_YELLOW]);
 
     M_DrawBindKey(12, 140, key_crl_iddqd, key_crl_iddqd2);
+    M_DrawBindKey(13, 150, key_crl_idkfa, key_crl_idkfa2);
 
     M_DrawBindFooter("4/10");
 }
@@ -2079,17 +2082,18 @@ static void M_Bind_NoVert (int option)         { M_StartBind(407); } // key_crl_
 static void M_Bind_VileBomb (int option)       { M_StartBind(408); } // key_crl_vilebomb
 static void M_Bind_VileFly (int option)        { M_StartBind(409); } // key_crl_vilefly
 static void M_Bind_IDDQD (int option)          { M_StartBind(410); } // key_crl_iddqd
+static void M_Bind_IDKFA (int option)          { M_StartBind(411); } // key_crl_idkfa
 
 // -----------------------------------------------------------------------------
 // Keybinds 5
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLKbsBinds5Items[] = {
-    { ITT_EFUNC, "IDKFA",           M_Bind_IDKFA,      0, MENU_NONE },
     { ITT_EFUNC, "IDFA",            M_Bind_IDFA,       0, MENU_NONE },
     { ITT_EFUNC, "IDCLIP",          M_Bind_IDCLIP,     0, MENU_NONE },
     { ITT_EFUNC, "IDDT",            M_Bind_IDDT,       0, MENU_NONE },
     { ITT_EFUNC, "MDK",             M_Bind_MDK,        0, MENU_NONE },
+    { ITT_EFUNC, "SPECHITS",        M_Bind_Spechits,   0, MENU_NONE },
     { ITT_EMPTY, NULL,              NULL,              0, MENU_NONE },
     { ITT_EFUNC, "WEAPON 1",        M_Bind_Weapon1,    0, MENU_NONE },
     { ITT_EFUNC, "WEAPON 2",        M_Bind_Weapon2,    0, MENU_NONE },
@@ -2119,11 +2123,11 @@ static void DrawCRLKbd5 (void)
 
     MN_DrTextACentered("CHEAT CODES", 10, cr[CR_YELLOW]);
 
-    M_DrawBindKey(0, 20, key_crl_idkfa, key_crl_idkfa2);
-    M_DrawBindKey(1, 30, key_crl_idfa, key_crl_idfa2);
-    M_DrawBindKey(2, 40, key_crl_idclip, key_crl_idclip2);
-    M_DrawBindKey(3, 50, key_crl_iddt, key_crl_iddt2);
-    M_DrawBindKey(4, 60, key_crl_mdk, key_crl_mdk2);
+    M_DrawBindKey(0, 20, key_crl_idfa, key_crl_idfa2);
+    M_DrawBindKey(1, 30, key_crl_idclip, key_crl_idclip2);
+    M_DrawBindKey(2, 40, key_crl_iddt, key_crl_iddt2);
+    M_DrawBindKey(3, 50, key_crl_mdk, key_crl_mdk2);
+    M_DrawBindKey(4, 60, key_crl_spechits, key_crl_spechits2);
 
     MN_DrTextACentered("WEAPONS", 70, cr[CR_YELLOW]);
 
@@ -2140,20 +2144,20 @@ static void DrawCRLKbd5 (void)
     M_DrawBindFooter("5/10");
 }
 
-static void M_Bind_IDKFA (int option)      { M_StartBind(501); } // key_crl_idkfa
 static void M_Bind_IDFA (int option)       { M_StartBind(502); } // key_crl_idfa
 static void M_Bind_IDCLIP (int option)     { M_StartBind(503); } // key_crl_idclip
 static void M_Bind_IDDT (int option)       { M_StartBind(504); } // key_crl_iddt
 static void M_Bind_MDK (int option)        { M_StartBind(505); } // key_crl_mdk
-static void M_Bind_Weapon1 (int option)    { M_StartBind(506); } // key_weapon1
-static void M_Bind_Weapon2 (int option)    { M_StartBind(507); } // key_weapon2
-static void M_Bind_Weapon3 (int option)    { M_StartBind(508); } // key_weapon3
-static void M_Bind_Weapon4 (int option)    { M_StartBind(509); } // key_weapon4
-static void M_Bind_Weapon5 (int option)    { M_StartBind(510); } // key_weapon5
-static void M_Bind_Weapon6 (int option)    { M_StartBind(511); } // key_weapon6
-static void M_Bind_Weapon7 (int option)    { M_StartBind(512); } // key_weapon7
-static void M_Bind_PrevWeapon (int option) { M_StartBind(513); } // key_prevweapon
-static void M_Bind_NextWeapon (int option) { M_StartBind(514); } // key_nextweapon
+static void M_Bind_Spechits (int option)   { M_StartBind(506); } // key_crl_spechits
+static void M_Bind_Weapon1 (int option)    { M_StartBind(507); } // key_weapon1
+static void M_Bind_Weapon2 (int option)    { M_StartBind(508); } // key_weapon2
+static void M_Bind_Weapon3 (int option)    { M_StartBind(509); } // key_weapon3
+static void M_Bind_Weapon4 (int option)    { M_StartBind(510); } // key_weapon4
+static void M_Bind_Weapon5 (int option)    { M_StartBind(511); } // key_weapon5
+static void M_Bind_Weapon6 (int option)    { M_StartBind(512); } // key_weapon6
+static void M_Bind_Weapon7 (int option)    { M_StartBind(513); } // key_weapon7
+static void M_Bind_PrevWeapon (int option) { M_StartBind(514); } // key_prevweapon
+static void M_Bind_NextWeapon (int option) { M_StartBind(515); } // key_nextweapon
 
 // -----------------------------------------------------------------------------
 // Keybinds 6
@@ -2656,8 +2660,7 @@ static void DrawCRLWidgets (void)
     // Widgets font
     sprintf(str, crl_widget_font ? "DSDA" : "DEFAULT");
     MN_DrTextA(str, M_ItemRightAlign(str), 20,
-               M_Item_Glow(0, crl_widget_render == 1 ? GLOW_GREEN :
-                              crl_widget_render == 2 ? GLOW_DARKGREEN : GLOW_DARKRED));
+               M_Item_Glow(0, crl_widget_font ? GLOW_GREEN : GLOW_DARKRED));
 
     // Render counters
     sprintf(str, crl_widget_render == 1 ? "ON" :
@@ -6792,22 +6795,23 @@ static const KeyBindEntry_t keybinds[] =
     KEYBIND_ENTRY(408, &CRLKbdBinds4, 9,  key_crl_vilebomb,    key_crl_vilebomb2,    0,            0, KBS_GLOBAL),
     KEYBIND_ENTRY(409, &CRLKbdBinds4, 10, key_crl_vilefly,     key_crl_vilefly2,     0,            0, KBS_GLOBAL),
     KEYBIND_ENTRY(410, &CRLKbdBinds4, 12, key_crl_iddqd,       key_crl_iddqd2,       0,            0, KBS_GLOBAL),
+    KEYBIND_ENTRY(411, &CRLKbdBinds4, 13, key_crl_idkfa,       key_crl_idkfa2,       0,            0, KBS_GLOBAL),
 
     // Page 5
-    KEYBIND_ENTRY(501, &CRLKbdBinds5, 0,  key_crl_idkfa,  key_crl_idkfa2,   0,   0, KBS_GLOBAL),
-    KEYBIND_ENTRY(502, &CRLKbdBinds5, 1,  key_crl_idfa,   key_crl_idfa2,    0,   0, KBS_GLOBAL),
-    KEYBIND_ENTRY(503, &CRLKbdBinds5, 2,  key_crl_idclip, key_crl_idclip2,  0,   0, KBS_GLOBAL),
-    KEYBIND_ENTRY(504, &CRLKbdBinds5, 3,  key_crl_iddt,   key_crl_iddt2,    0,   0, KBS_GLOBAL),
-    KEYBIND_ENTRY(505, &CRLKbdBinds5, 4,  key_crl_mdk,    key_crl_mdk2,     0,   0, KBS_GLOBAL),
-    KEYBIND_ENTRY(506, &CRLKbdBinds5, 6,  key_weapon1,    key_weapon1_2,    '1', 0, KBS_GLOBAL),
-    KEYBIND_ENTRY(507, &CRLKbdBinds5, 7,  key_weapon2,    key_weapon2_2,    '2', 0, KBS_GLOBAL),
-    KEYBIND_ENTRY(508, &CRLKbdBinds5, 8,  key_weapon3,    key_weapon3_2,    '3', 0, KBS_GLOBAL),
-    KEYBIND_ENTRY(509, &CRLKbdBinds5, 9,  key_weapon4,    key_weapon4_2,    '4', 0, KBS_GLOBAL),
-    KEYBIND_ENTRY(510, &CRLKbdBinds5, 10, key_weapon5,    key_weapon5_2,    '5', 0, KBS_GLOBAL),
-    KEYBIND_ENTRY(511, &CRLKbdBinds5, 11, key_weapon6,    key_weapon6_2,    '6', 0, KBS_GLOBAL),
-    KEYBIND_ENTRY(512, &CRLKbdBinds5, 12, key_weapon7,    key_weapon7_2,    '7', 0, KBS_GLOBAL),
-    KEYBIND_ENTRY(513, &CRLKbdBinds5, 13, key_prevweapon, key_prevweapon2,  0,   0, KBS_GLOBAL),
-    KEYBIND_ENTRY(514, &CRLKbdBinds5, 14, key_nextweapon, key_nextweapon2,  0,   0, KBS_GLOBAL),
+    KEYBIND_ENTRY(502, &CRLKbdBinds5, 0,  key_crl_idfa,     key_crl_idfa2,     0,   0, KBS_GLOBAL),
+    KEYBIND_ENTRY(503, &CRLKbdBinds5, 1,  key_crl_idclip,   key_crl_idclip2,   0,   0, KBS_GLOBAL),
+    KEYBIND_ENTRY(504, &CRLKbdBinds5, 2,  key_crl_iddt,     key_crl_iddt2,     0,   0, KBS_GLOBAL),
+    KEYBIND_ENTRY(505, &CRLKbdBinds5, 3,  key_crl_mdk,      key_crl_mdk2,      0,   0, KBS_GLOBAL),
+    KEYBIND_ENTRY(506, &CRLKbdBinds5, 4,  key_crl_spechits, key_crl_spechits2, 0,   0, KBS_GLOBAL),
+    KEYBIND_ENTRY(507, &CRLKbdBinds5, 6,  key_weapon1,      key_weapon1_2,     '1', 0, KBS_GLOBAL),
+    KEYBIND_ENTRY(508, &CRLKbdBinds5, 7,  key_weapon2,      key_weapon2_2,     '2', 0, KBS_GLOBAL),
+    KEYBIND_ENTRY(509, &CRLKbdBinds5, 8,  key_weapon3,      key_weapon3_2,     '3', 0, KBS_GLOBAL),
+    KEYBIND_ENTRY(510, &CRLKbdBinds5, 9,  key_weapon4,      key_weapon4_2,     '4', 0, KBS_GLOBAL),
+    KEYBIND_ENTRY(511, &CRLKbdBinds5, 10, key_weapon5,      key_weapon5_2,     '5', 0, KBS_GLOBAL),
+    KEYBIND_ENTRY(512, &CRLKbdBinds5, 11, key_weapon6,      key_weapon6_2,     '6', 0, KBS_GLOBAL),
+    KEYBIND_ENTRY(513, &CRLKbdBinds5, 12, key_weapon7,      key_weapon7_2,     '7', 0, KBS_GLOBAL),
+    KEYBIND_ENTRY(514, &CRLKbdBinds5, 13, key_prevweapon,   key_prevweapon2,   0,   0, KBS_GLOBAL),
+    KEYBIND_ENTRY(515, &CRLKbdBinds5, 14, key_nextweapon,   key_nextweapon2,   0,   0, KBS_GLOBAL),
 
     // Page 6
     KEYBIND_ENTRY(600, &CRLKbdBinds6, 0, key_crl_menu,           key_crl_menu2,           '`', 0, KBS_GLOBAL),
