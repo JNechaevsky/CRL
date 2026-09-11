@@ -287,7 +287,7 @@ void SB_Ticker(void)
     // [JN] Update CRL_Widgets_t data.
     CPlayer = &players[displayplayer];
 
-    CRLWidgets.kills = CPlayer->killcount;
+    CRLWidgets.kills = totalkilled;
     CRLWidgets.totalkills = totalkills;
     CRLWidgets.items = CPlayer->itemcount;
     CRLWidgets.totalitems = totalitems;

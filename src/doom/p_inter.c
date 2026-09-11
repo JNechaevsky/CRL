@@ -685,7 +685,10 @@ P_KillMobj
     {
 	// count for intermission
 	if (target->flags & MF_COUNTKILL)
+	{
 	    source->player->killcount++;	
+	    totalkilled++;
+	}
 
 	if (target->player)
 	    source->player->frags[target->player-players]++;
@@ -695,6 +698,7 @@ P_KillMobj
 	// count all monster deaths,
 	// even those caused by other monsters
 	players[0].killcount++;
+        totalkilled++;
     }
     
     if (target->player)

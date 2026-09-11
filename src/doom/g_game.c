@@ -117,6 +117,7 @@ int             consoleplayer;          // player taking events and displaying
 int             displayplayer;          // view being displayed 
 int             levelstarttic;          // gametic at level start 
 int             totalkills, totalitems, totalsecret;    // for intermission 
+int             totalkilled;            // [JN] Kills counter for KIS widget with DSDA rules.
 int             totalleveltimes;        // [crispy] CPhipps - total time for all completed levels
 int             demostarttic;           // [crispy] fix revenant internal demo bug
  
@@ -2651,6 +2652,8 @@ void G_DoLoadGame (void)
     if (!P_ReadSaveGameEOF())
 	I_Error ("Bad savegame");
 
+    P_UnArchiveTotalKills ();
+
     // [JN] Restore total level times.
     P_UnArchiveTotalTimes ();
     // [plums] Restore old sector specials.
@@ -2756,6 +2759,8 @@ void G_DoSaveGame (void)
         CRL_printf(message, true);
         CRL_SetMessageCritical("G_DoSaveGame:", message, MESSAGETICS);
     }
+
+    P_ArchiveTotalKills ();
 
     // [JN] Write total level times after EOF terminator
     // to keep compatibility with vanilla save games.

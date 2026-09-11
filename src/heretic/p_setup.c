@@ -640,6 +640,8 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
         players[i].killcount = players[i].secretcount
             = players[i].itemcount = 0;
     }
+    totalkilled = 0;
+
     players[consoleplayer].viewz = 1;   // will be set by player think
 
     S_Start();                  // make sure all sounds are stopped before Z_FreeTags

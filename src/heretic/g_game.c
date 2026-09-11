@@ -112,6 +112,7 @@ int consoleplayer;              // player taking events and displaying
 int displayplayer;              // view being displayed
 int levelstarttic;              // gametic at level start
 int totalkills, totalitems, totalsecret;        // for intermission
+int totalkilled;                 // [JN] Kills counter for KIS widget with DSDA rules.
 int totaltimes, totalleveltimes; // [crispy] CPhipps - total time for all completed levels
 
 boolean finalintermission; // [crispy] track intermission at end of episode
@@ -2614,6 +2615,8 @@ void G_DoLoadGame(void)
         I_Error("Bad savegame");
     }
 
+    totalkilled = SV_ReadLong();
+
     // [JN] Create total level time
     const int d = SV_ReadByte();
     const int e = SV_ReadByte();
@@ -3281,6 +3284,8 @@ void G_DoSaveGame(void)
     P_ArchiveThinkers();
     P_ArchiveSpecials();
     SV_WriteSaveGameEOF();
+
+    SV_WriteLong(totalkilled);
 
     // [JN] Write total level times
     SV_WriteByte(totalleveltimes >> 16);

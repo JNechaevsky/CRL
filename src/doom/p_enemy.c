@@ -1264,6 +1264,7 @@ void A_VileChase (mobj_t* actor)
 		    corpsehit->flags = info->flags;
 		    corpsehit->health = info->spawnhealth;
 		    corpsehit->target = NULL;
+		    totalkilled--;
 
 		    return;
 		}

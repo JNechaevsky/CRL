@@ -2265,6 +2265,20 @@ void P_UnArchiveSpecials (void)
 }
 
 // -----------------------------------------------------------------------------
+// [JN] Save and restote total kills.
+// -----------------------------------------------------------------------------
+
+void P_ArchiveTotalKills (void)
+{
+    saveg_write32(totalkilled);
+}
+
+void P_UnArchiveTotalKills (void)
+{
+    totalkilled = saveg_read32();
+}
+
+// -----------------------------------------------------------------------------
 // [JN] Save and restote total level times for intermission screen.
 // -----------------------------------------------------------------------------
 

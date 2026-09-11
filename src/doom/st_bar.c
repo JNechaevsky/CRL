@@ -1327,7 +1327,7 @@ void ST_Ticker (void)
     st_oldhealth = plyr->health;
 
     // [JN] Update CRL_Widgets_t data.
-    CRLWidgets.kills = plyr->killcount;
+    CRLWidgets.kills = totalkilled;
     CRLWidgets.totalkills = totalkills;
     CRLWidgets.items = plyr->itemcount;
     CRLWidgets.totalitems = totalitems;

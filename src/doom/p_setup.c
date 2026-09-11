@@ -1056,6 +1056,7 @@ P_SetupLevel
 	players[i].killcount = players[i].secretcount 
 	    = players[i].itemcount = 0;
     }
+    totalkilled = 0;
 
     // Initial height of PointOfView
     // will be set by player think.
