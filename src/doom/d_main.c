@@ -80,6 +80,7 @@
 
 #include "icon.c"
 #include "deh_doom12.c"
+#include "deh_french.c"
 #include "d_main.h"
 #include "crlcore.h"
 #include "crlvars.h"
@@ -1490,39 +1491,15 @@ static void LoadIwadDeh(void)
         free(chex_deh);
     }
 
+    // [JN] CRL - French DeHackEd patch is now embedded in the executable, so no
+    // external file is ever searched for: feed the buffer straight to
+    // the parser from deh_french.c to DEH_LoadMemory().
     if (IsFrenchIWAD())
     {
-        char *french_deh = NULL;
-        char *dirname;
-
-        // Look for french.deh in the same directory as the IWAD file.
-        dirname = M_DirName(iwadfile);
-        french_deh = M_StringJoin(dirname, DIR_SEPARATOR_S, "french.deh", NULL);
-        printf("French version\n");
-        free(dirname);
-
-        // If the dehacked patch isn't found, try searching the WAD
-        // search path instead.  We might find it...
-        if (!M_FileExists(french_deh))
+        if (!DEH_LoadMemory(french_embedded, sizeof(french_embedded), "french.deh"))
         {
-            free(french_deh);
-            french_deh = D_FindWADByName("french.deh");
+            I_Error("Failed to load embedded french patch needed for emulating French doom2.exe.");
         }
-
-        // Still not found?
-        if (french_deh == NULL)
-        {
-            I_Error("Unable to find French Doom II dehacked file\n"
-                    "(french.deh).  The dehacked file is required in order to\n"
-                    "emulate French doom2.exe correctly.  It can be found in\n"
-                    "your nearest /idgames repository mirror at:\n\n"
-                    "   utils/exe_edit/patches/french.zip");
-        } else if (!DEH_LoadFile(french_deh))
-        {
-            I_Error("Failed to load french.deh needed for emulating French\n"
-                    "doom2.exe.");
-        }
-        free(french_deh);
     }
 
     // Doom 1.2 needs a separate Dehacked patch which must be downloaded and
