@@ -23,7 +23,6 @@ You may do anything you want with this file.
 
 #include "doomtype.h"  // byte
 
-
 static const byte french_embedded[]  = {
     80,97,116,99,104,32,70,105,108,101,32,102,111,114,32,68,
     101,72,97,99,107,69,100,32,118,51,46,48,10,10,35,10,

@@ -36,6 +36,9 @@
 #endif
 
 #include "deh_main.h"
+#include "dehfile_chex.c"
+#include "dehfile_french.c"
+#include "dehfile_doom12.c"
 #include "doomkeys.h"
 #include "doomstat.h"
 
@@ -79,8 +82,6 @@
 #include "v_trans.h"
 
 #include "icon.c"
-#include "deh_doom12.c"
-#include "deh_french.c"
 #include "d_main.h"
 #include "crlcore.h"
 #include "crlvars.h"
@@ -1456,44 +1457,18 @@ static void LoadIwadDeh(void)
         }
     }
 
-    // Chex Quest needs a separate Dehacked patch which must be downloaded
-    // and installed next to the IWAD.
+    // [PN/JN] CRL - DeHackEd patches are now embedded in the executable, so no
+    // external files are ever searched for: the buffers from deh_chex.c,
+    // deh_french.c and deh_doom12.c are fed straight to DEH_LoadMemory().
+
     if (gameversion == exe_chex)
     {
-        char *chex_deh = NULL;
-        char *dirname;
-
-        // Look for chex.deh in the same directory as the IWAD file.
-        dirname = M_DirName(iwadfile);
-        chex_deh = M_StringJoin(dirname, DIR_SEPARATOR_S, "chex.deh", NULL);
-        free(dirname);
-
-        // If the dehacked patch isn't found, try searching the WAD
-        // search path instead.  We might find it...
-        if (!M_FileExists(chex_deh))
+        if (!DEH_LoadMemory(chex_embedded, sizeof(chex_embedded), "chex.deh"))
         {
-            free(chex_deh);
-            chex_deh = D_FindWADByName("chex.deh");
+            I_Error("Failed to load embedded Chex patch needed for emulating chex.exe.");
         }
-
-        // Still not found?
-        if (chex_deh == NULL)
-        {
-            I_Error("Unable to find Chex Quest dehacked file (chex.deh).\n"
-                    "The dehacked file is required in order to emulate\n"
-                    "chex.exe correctly.  It can be found in your nearest\n"
-                    "/idgames repository mirror at:\n\n"
-                    "   themes/chex/chexdeh.zip");
-        } else if (!DEH_LoadFile(chex_deh))
-        {
-            I_Error("Failed to load chex.deh needed for emulating chex.exe.");
-        }
-        free(chex_deh);
     }
 
-    // [JN] CRL - French DeHackEd patch is now embedded in the executable, so no
-    // external file is ever searched for: feed the buffer straight to
-    // the parser from deh_french.c to DEH_LoadMemory().
     if (IsFrenchIWAD())
     {
         if (!DEH_LoadMemory(french_embedded, sizeof(french_embedded), "french.deh"))
@@ -1502,11 +1477,6 @@ static void LoadIwadDeh(void)
         }
     }
 
-    // Doom 1.2 needs a separate Dehacked patch which must be downloaded and
-    // installed next to the IWAD.
-    // [PN] CRL - DeHackEd patch is now embedded in the executable, so no
-    // external file is ever searched for: feed the buffer straight to
-    // the parser from deh_doom12.c to DEH_LoadMemory().
     if (gameversion == exe_doom_1_2)
     {
         if (!DEH_LoadMemory(doom12_embedded, sizeof(doom12_embedded), "doom12.deh"))
