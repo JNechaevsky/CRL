@@ -1465,7 +1465,7 @@ static void LoadIwadDeh(void)
     {
         if (!DEH_LoadMemory(chex_embedded, sizeof(chex_embedded), "chex.deh"))
         {
-            I_Error("Failed to load embedded Chex patch needed for emulating chex.exe.");
+            I_Error("Failed to load embedded chex.deh needed for emulating chex.exe.");
         }
     }
 
@@ -1473,7 +1473,7 @@ static void LoadIwadDeh(void)
     {
         if (!DEH_LoadMemory(french_embedded, sizeof(french_embedded), "french.deh"))
         {
-            I_Error("Failed to load embedded french patch needed for emulating French doom2.exe.");
+            I_Error("Failed to load embedded french.deh needed for emulating French doom2.exe.");
         }
     }
 
@@ -1481,7 +1481,7 @@ static void LoadIwadDeh(void)
     {
         if (!DEH_LoadMemory(doom12_embedded, sizeof(doom12_embedded), "doom12.deh"))
         {
-            I_Error("Failed to load embedded doom12 patch needed for emulating v1.2.");
+            I_Error("Failed to load embedded doom12.deh needed for emulating v1.2.");
         }
     }
 }

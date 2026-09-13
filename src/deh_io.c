@@ -231,7 +231,7 @@ int DEH_GetChar(deh_context_t *context)
                     break;
 
                 case DEH_INPUT_LUMP:
-                case DEH_INPUT_MEMORY:   // [PN]
+                case DEH_INPUT_MEMORY:   // [PN] same buffer reader
                     --context->input_buffer_pos;
                     break;
             }
