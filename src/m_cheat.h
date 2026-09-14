@@ -23,6 +23,8 @@
 #ifndef __M_CHEAT__
 #define __M_CHEAT__
 
+#include <stddef.h> // size_t
+
 //
 // CHEAT SEQUENCE PACKAGE
 //
