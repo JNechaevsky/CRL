@@ -3009,7 +3009,7 @@ static void M_DrawCRL_Automap (void)
     // IDDT things bounding box
     sprintf(str, crl_automap_bbox ? "ON" : "OFF");
     M_WriteText (M_ItemRightAlign(str), 88, str,
-                 M_Item_Glow(8, crl_automap_sndprop ? GLOW_GREEN : GLOW_DARKRED));
+                 M_Item_Glow(8, crl_automap_bbox ? GLOW_GREEN : GLOW_DARKRED));
 
     M_WriteTextCentered(97, "GRID", cr[CR_YELLOW]);
 
