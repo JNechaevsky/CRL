@@ -708,6 +708,7 @@ static void CRL_Buddha (int option);
 static void CRL_NoTarget (int option);
 static void CRL_NoMomentum (int option);
 static void CRL_GameSpeed (int option);
+static void CRL_SEG_Drawing (int option);
 static void CRL_PLN_Drawing (int option);
 
 static void M_ScrollPanel (int option);
@@ -3732,8 +3733,8 @@ static MenuItem_t CRLPanelItems_2[] = {
     { ITT_LRFUNC1, "NO MOMENTUM MODE",       CRL_NoMomentum,     0, MENU_NONE },
     { ITT_LRFUNC1, "GAME SPEED",             CRL_GameSpeed,      0, MENU_NONE },
     { ITT_EMPTY,   "",                       NULL,               0, MENU_NONE },
-    { ITT_LRFUNC2, "VISPLANES DRAWING",      CRL_PLN_Drawing,    0, MENU_NONE },
-    { ITT_EMPTY,   "",                       NULL,               0, MENU_NONE },
+    { ITT_LRFUNC2, "WALLS DRAWING",          CRL_SEG_Drawing,    0, MENU_NONE },
+    { ITT_LRFUNC2, "PLANES DRAWING",         CRL_PLN_Drawing,    0, MENU_NONE },
     { ITT_EMPTY,   "",                       NULL,               0, MENU_NONE },
     { ITT_EMPTY,   "",                       NULL,               0, MENU_NONE },
     { ITT_EMPTY,   "",                       NULL,               0, MENU_NONE },
@@ -3809,12 +3810,19 @@ static void DrawCRLPanel_2 (void)
                 M_Item_Glow(7, netgame || crl_game_speed == 100 ? GLOW_DARKRED :
                             crl_game_speed < 100 ? GLOW_YELLOW : GLOW_GREEN));
 
-    // Visplanes drawing
-    sprintf(str, crl_pln_drawing == 1 ? "BORDER" :
-                 crl_pln_drawing == 2 ? "FILL" : "DEFAULT");
+    MN_DrTextACentered("DRAWING MODES", 100, cr[CR_YELLOW]);
+
+    // Walls drawing
+    sprintf(str, crl_seg_drawing == 1 ? "OUTLINE" :
+                 crl_seg_drawing == 2 ? "FILL" : "NORMAL");
     MN_DrTextA(str, M_ItemRightAlign(str), 110,
-               M_Item_Glow(9, crl_pln_drawing ? GLOW_GREEN : GLOW_DARKRED));
-    
+               M_Item_Glow(9, crl_seg_drawing ? GLOW_GREEN : GLOW_DARKRED));
+
+    // Visplanes drawing
+    sprintf(str, crl_pln_drawing == 1 ? "OUTLINE" :
+                 crl_pln_drawing == 2 ? "FILL" : "NORMAL");
+    MN_DrTextA(str, M_ItemRightAlign(str), 120,
+               M_Item_Glow(10, crl_pln_drawing ? GLOW_GREEN : GLOW_DARKRED));
 
     // < Scroll pages >
     M_DrawScrollPages(CRL_MENU_LEFTOFFSET, 170, 15, "2/2");
@@ -3882,6 +3890,11 @@ static void CRL_NoMomentum (int choice)
 static void CRL_GameSpeed (int choice)
 {
     G_CRL_ChangeGameSpeed(choice == 0 ? -1 : 1, false);
+}
+
+static void CRL_SEG_Drawing (int option)
+{
+    crl_seg_drawing = M_INT_Slider(crl_seg_drawing, 0, 2, option, false);
 }
 
 static void CRL_PLN_Drawing (int option)

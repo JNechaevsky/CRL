@@ -592,6 +592,9 @@ extern boolean CRL_SneakAllowSector (const sector_t *const sector, boolean ceili
 extern void    CRL_SneakHideSpan (void *plane, int x, int __top, int __bottom);
 extern void    CRL_SneakHideWall (void *seg, int x, int __top, int __bottom);
 
+// [PN] Record a wall the renderer drew, for the crl_seg_drawing pass.
+extern void    CRL_RecordSegSpan (void *seg, int x, int __top, int __bottom);
+
 // -----------------------------------------------------------------------------
 // R_MAIN
 // -----------------------------------------------------------------------------

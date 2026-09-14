@@ -114,6 +114,9 @@ extern uint8_t* CRLSurface;
 // Visplane surface.
 extern void** CRLPlaneSurface;
 
+// [PN] Seg (wall) surface, laid out like the plane one, for crl_seg_drawing.
+extern void** CRLSegSurface;
+
 // [JN] Widgets data. 
 typedef struct CRL_Widgets_s
 {
@@ -162,6 +165,7 @@ extern void CRL_ChangeFrame (int __err);
 extern void CRL_MarkPixelP (void** __surface, void* __what, void* __drawp);
 extern void CRL_DrawVisPlanes (void);
 extern void CRL_DrawPlaneBorders (void **__surface, int __isseg);
+extern void CRL_DrawSegs (void);
 extern void CRL_CountPlane (void* __key, int __chorf, int __id);
 extern void CRL_GetHOMMultiColor (void);
 extern void CRL_HomShimmer (int x, int y, int w, int h);

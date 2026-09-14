@@ -194,6 +194,20 @@ void CRL_SneakHideWall (void *seg, int x, int __top, int __bottom)
     CRL_SneakHide(crl_sneak_hidden_segs, seg, x, __top, __bottom);
 }
 
+// [PN] A wall the renderer actually drew: remember which seg covers these
+// pixels, so the CRL_DrawSegs pass driven by crl_seg_drawing can outline
+// (border) or fill it later. Same view-window span math as the sneak outline,
+// but into the shared CRLSegSurface table rather than the sneak-hidden one.
+void CRL_RecordSegSpan (void *seg, int x, int __top, int __bottom)
+{
+    if (!crl_seg_drawing)
+    {
+        return;
+    }
+
+    CRL_SneakHide(CRLSegSurface, seg, x, __top, __bottom);
+}
+
 // [PN] Position of a seg within the level, or -1 when it is not one of them.
 static int CRL_SneakSegIndex (const seg_t *const seg)
 {

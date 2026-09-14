@@ -56,6 +56,9 @@ static void*   _planelist[MAXCOUNTPLANES];
 static size_t  _planesize;
 static int     _numplanes;
 
+// [PN] Byte size of the seg provenance table, used to clear it each frame.
+static size_t  _segsurface_size;
+
 #define DARKSHADE 8
 #define DARKMASK  7
 
@@ -104,6 +107,11 @@ boolean savemenuactive = false;
 // too much of the limited zone for a debug aid, and both the marking and the
 // drawing paths assume the table is always there.
 static void *crl_plane_surface[SCREENAREA];
+
+// [PN] The seg (wall) provenance table for crl_seg_drawing, laid out exactly
+// like the plane one: one slot per screen pixel, holding the seg drawn there.
+// Also in .bss for the same reason.
+static void *crl_seg_surface[SCREENAREA];
 
 // VP color table.
 #define NUMPLANEBORDERCOLORS 16
@@ -258,6 +266,11 @@ void CRL_Init (void)
     _planesize = sizeof(crl_plane_surface);
     memset(CRLPlaneSurface, 0, _planesize);
 
+    // [PN] Make seg surface, mirroring the plane one for crl_seg_drawing.
+    CRLSegSurface = crl_seg_surface;
+    _segsurface_size = sizeof(crl_seg_surface);
+    memset(CRLSegSurface, 0, _segsurface_size);
+
     // [JN] Initialize HOM multicolors.
     CRL_InitHOMColors();
 
@@ -339,8 +352,9 @@ void CRL_SetStaticLimits (char *name)
 //  @param __err Frame error, 0 starts, < 0 ends OK, else renderer crashed.
 // -----------------------------------------------------------------------------
 
-uint8_t* CRLSurface = NULL;
-void**   CRLPlaneSurface = NULL;
+uint8_t *CRLSurface = NULL;
+void   **CRLPlaneSurface = NULL;
+void   **CRLSegSurface = NULL;
 
 static int _frame;
 static int _pulse;
@@ -364,6 +378,9 @@ void CRL_ChangeFrame (int __err)
 
         // Clear old plane surface
         memset(CRLPlaneSurface, 0, _planesize);
+
+        // [PN] Clear old seg surface as well, for crl_seg_drawing.
+        memset(CRLSegSurface, 0, _segsurface_size);
 
         // Plane set
         memset(_planelist, 0, sizeof(_planelist));
@@ -552,6 +569,25 @@ void CRL_DrawVisPlanes (void)
 
     // Border colors
     CRL_VisPlanePass(CRLPlaneSurface, crl_pln_drawing == 1, 0);
+}
+
+// -----------------------------------------------------------------------------
+// CRL_DrawSegs
+//  [PN] Draw the walls (fill or border), the same way CRL_DrawVisPlanes draws
+//  the visplanes. crl_seg_drawing: 0 nothing, 1 outline, 2 fill. The segs are
+//  collected per pixel in CRLSegSurface during the wall pass.
+// -----------------------------------------------------------------------------
+
+void CRL_DrawSegs (void)
+{
+    // Not drawing anything
+    if (!crl_seg_drawing)
+    {
+        return;
+    }
+
+    // Border colors, over the seg provenance table
+    CRL_VisPlanePass(CRLSegSurface, crl_seg_drawing == 1, 1);
 }
 
 // -----------------------------------------------------------------------------

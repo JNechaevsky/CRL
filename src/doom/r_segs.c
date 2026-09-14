@@ -400,7 +400,11 @@ static void R_RenderSegLoop (void)
 	    dc_source = R_GetColumn(midtexture,texturecolumn);
 	    // [PN] CRL - Sneaking mode: draw the wall, or remember its shape.
 	    if (CRL_SneakAllowWall (ds_p->curline))
+	    {
 	    colfunc ();
+	    // [PN] crl_seg_drawing: remember the wall that was drawn.
+	    CRL_RecordSegSpan (ds_p->curline, rw_x, dc_yl, dc_yh);
+	    }
 	    else
 	    CRL_SneakHideWall (ds_p->curline, rw_x, dc_yl, dc_yh);
 	    ceilingclip[rw_x] = viewheight;
@@ -426,7 +430,11 @@ static void R_RenderSegLoop (void)
 		    dc_source = R_GetColumn(toptexture,texturecolumn);
 		    // [PN] CRL - Sneaking mode: draw the wall, or remember its shape.
 		    if (CRL_SneakAllowWall (ds_p->curline))
+		    {
 		    colfunc ();
+		    // [PN] crl_seg_drawing: remember the wall that was drawn.
+		    CRL_RecordSegSpan (ds_p->curline, rw_x, dc_yl, dc_yh);
+		    }
 		    else
 		    CRL_SneakHideWall (ds_p->curline, rw_x, dc_yl, dc_yh);
 		    ceilingclip[rw_x] = mid;
@@ -460,7 +468,11 @@ static void R_RenderSegLoop (void)
 					    texturecolumn);
 		    // [PN] CRL - Sneaking mode: draw the wall, or remember its shape.
 		    if (CRL_SneakAllowWall (ds_p->curline))
+		    {
 		    colfunc ();
+		    // [PN] crl_seg_drawing: remember the wall that was drawn.
+		    CRL_RecordSegSpan (ds_p->curline, rw_x, dc_yl, dc_yh);
+		    }
 		    else
 		    CRL_SneakHideWall (ds_p->curline, rw_x, dc_yl, dc_yh);
 		    floorclip[rw_x] = mid;

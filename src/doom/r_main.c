@@ -950,6 +950,9 @@ void R_RenderPlayerView (player_t* player)
 		// RestlessRodent -- Draw Visplanes
 		CRL_DrawVisPlanes();
 
+		// [PN] CRL - Draw the walls (crl_seg_drawing): outline or fill them.
+		CRL_DrawSegs();
+
 		// [PN] CRL - Sneaking mode stops gating here, sprites are not affected
 		CRL_SneakFrameEnd ();
 		

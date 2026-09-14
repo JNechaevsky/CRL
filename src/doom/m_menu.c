@@ -839,6 +839,7 @@ static void M_CRL_Buddha (int choice);
 static void M_CRL_NoTarget (int choice);
 static void M_CRL_NoMomentum (int choice);
 static void M_CRL_GameSpeed (int choice);
+static void M_CRL_SEG_Drawing (int choice);
 static void M_CRL_PLN_Drawing (int choice);
 
 static void M_ScrollPanel (int choice);
@@ -3864,17 +3865,17 @@ static void M_CRL_ClearALL (int choice)
 
 static menuitem_t CRLMenu_Panel_2[]=
 {
-    { M_MUL1, "SPECTATOR MODE",       M_CRL_Spectating,     's' },
-    { M_MUL1, "SNEAKING MODE",        M_CRL_Sneaking,       's' },
-    { M_MUL1, "- FILL HOM WITH",      M_CRL_Sneaking_Color, 'f' },
-    { M_MUL1, "FREEZE MODE",          M_CRL_Freeze,         'f' },
-    { M_MUL1, "BUDDHA MODE",          M_CRL_Buddha,         'f' },
-    { M_MUL1, "NO TARGET MODE",       M_CRL_NoTarget,       'n' },
-    { M_MUL1, "NO MOMENTUM MODE",     M_CRL_NoMomentum,     'n' },
-    { M_MUL1, "GAME SPEED",           M_CRL_GameSpeed,      'g' },
+    { M_MUL1, "SPECTATOR MODE",   M_CRL_Spectating,     's' },
+    { M_MUL1, "SNEAKING MODE",    M_CRL_Sneaking,       's' },
+    { M_MUL1, "- FILL HOM WITH",  M_CRL_Sneaking_Color, 'f' },
+    { M_MUL1, "FREEZE MODE",      M_CRL_Freeze,         'f' },
+    { M_MUL1, "BUDDHA MODE",      M_CRL_Buddha,         'f' },
+    { M_MUL1, "NO TARGET MODE",   M_CRL_NoTarget,       'n' },
+    { M_MUL1, "NO MOMENTUM MODE", M_CRL_NoMomentum,     'n' },
+    { M_MUL1, "GAME SPEED",       M_CRL_GameSpeed,      'g' },
     { M_SKIP, "", 0, '\0'},
-    { M_MUL2, "VISPLANES DRAWING",    M_CRL_PLN_Drawing,    'v' },
-    { M_SKIP, "", 0, '\0'},
+    { M_MUL2, "WALLS DRAWING",    M_CRL_SEG_Drawing,    'e' },
+    { M_MUL2, "PLANES DRAWING",   M_CRL_PLN_Drawing,    'v' },
     { M_SKIP, "", 0, '\0'},
     { M_SKIP, "", 0, '\0'},
     { M_SKIP, "", 0, '\0'},
@@ -3955,12 +3956,17 @@ static void M_DrawCRL_Panel_2 (void)
 
     M_WriteTextCentered(88, "DRAWING MODES", cr[CR_YELLOW]);
 
-    // Visplanes drawing
-    sprintf(str, crl_pln_drawing == 1 ? "BORDER" :
-                 crl_pln_drawing == 2 ? "FILL" : "DEFAULT");
+    // Walls drawing
+    sprintf(str, crl_seg_drawing == 1 ? "OUTLINE" :
+                 crl_seg_drawing == 2 ? "FILL" : "NORMAL");
     M_WriteText (M_ItemRightAlign(str), 97, str,
-                 M_Item_Glow(9, crl_pln_drawing ? GLOW_GREEN : GLOW_DARKRED));
+                 M_Item_Glow(9, crl_seg_drawing ? GLOW_GREEN : GLOW_DARKRED));
 
+    // Planes drawing
+    sprintf(str, crl_pln_drawing == 1 ? "OUTLINE" :
+                 crl_pln_drawing == 2 ? "FILL" : "NORMAL");
+    M_WriteText (M_ItemRightAlign(str), 106, str,
+                 M_Item_Glow(10, crl_pln_drawing ? GLOW_GREEN : GLOW_DARKRED));
 
     // < Scroll pages >
     M_DrawScrollPages(CRL_MENU_LEFTOFFSET, 151, 15, "2/2");
@@ -4030,6 +4036,11 @@ static void M_CRL_NoMomentum (int choice)
 static void M_CRL_GameSpeed (int choice)
 {
     G_CRL_ChangeGameSpeed(choice == 0 ? -1 : 1, false);
+}
+
+static void M_CRL_SEG_Drawing (int choice)
+{
+    crl_seg_drawing = M_INT_Slider(crl_seg_drawing, 0, 2, choice, false);
 }
 
 static void M_CRL_PLN_Drawing (int choice)
