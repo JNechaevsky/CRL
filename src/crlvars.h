@@ -56,10 +56,6 @@ extern int crl_sneaking_hom_effect;
 extern int crl_freeze;
 extern int crl_game_speed;
 
-// Drawing modes
-extern int crl_seg_drawing;
-extern int crl_pln_drawing;
-
 // Rewind
 extern int crl_rewind_enable;
 extern int crl_rewind_interval;
@@ -134,6 +130,10 @@ extern int crl_menu_highlight;
 extern int crl_menu_esc_key;
 extern int crl_confirm_quit;
 extern int crl_menu_cap_fps;
+
+// Drawing modes
+extern int crl_seg_drawing;
+extern int crl_pln_drawing;
 
 // Limits and Warnings
 extern int crl_unknown_linedefs;

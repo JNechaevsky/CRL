@@ -56,10 +56,6 @@ int crl_sneaking_hom_effect = 0;
 int crl_freeze = 0;
 int crl_game_speed = 100;
 
-// Drawing modes
-int crl_seg_drawing = 0;
-int crl_pln_drawing = 0;
-
 // Rewind
 int crl_rewind_enable = 1;
 int crl_rewind_interval = 1;
@@ -135,6 +131,10 @@ int crl_menu_esc_key = 0;
 int crl_confirm_quit = 1;
 int crl_menu_cap_fps = 0;
 
+// Drawing modes
+int crl_seg_drawing = 0;
+int crl_pln_drawing = 0;
+
 // Static limits
 int crl_unknown_linedefs = 1;
 int crl_vanilla_limits = 1;
@@ -178,10 +178,6 @@ void CRL_BindVariables (void)
     // Game modes
     M_BindIntVariable("crl_sneaking_hom_effect",        &crl_sneaking_hom_effect);
     M_BindIntVariable("crl_game_speed",                 &crl_game_speed);
-
-    // Drawing modes
-    M_BindIntVariable("crl_seg_drawing",                &crl_seg_drawing);
-    M_BindIntVariable("crl_pln_drawing",                &crl_pln_drawing);
 
     // Rewind
     M_BindIntVariable("crl_rewind_enable",              &crl_rewind_enable);
@@ -257,6 +253,10 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_menu_esc_key",               &crl_menu_esc_key);
     M_BindIntVariable("crl_confirm_quit",               &crl_confirm_quit);
     M_BindIntVariable("crl_menu_cap_fps",               &crl_menu_cap_fps);
+
+    // Drawing modes
+    M_BindIntVariable("crl_seg_drawing",                &crl_seg_drawing);
+    M_BindIntVariable("crl_pln_drawing",                &crl_pln_drawing);
 
     // Limits and Warnings
     M_BindIntVariable("crl_unknown_linedefs",           &crl_unknown_linedefs);

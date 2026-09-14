@@ -284,6 +284,7 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(show_endoom),
     CONFIG_VARIABLE_INT(show_diskicon),
     CONFIG_VARIABLE_INT(graphical_startup),
+    CONFIG_VARIABLE_COMMENT(""),
 
     // Display options
     CONFIG_VARIABLE_COMMENT("Display options"),
@@ -298,10 +299,6 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(crl_msg_critical),
     CONFIG_VARIABLE_INT(crl_text_shadows),
     CONFIG_VARIABLE_COMMENT(""),
-
-    // Drawing modes
-    CONFIG_VARIABLE_INT(crl_seg_drawing),
-    CONFIG_VARIABLE_INT(crl_pln_drawing),
 
     //
     // Sound and Music
@@ -686,8 +683,13 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(crl_menu_cap_fps),
     CONFIG_VARIABLE_COMMENT(""),
 
-    // Static limits
+    // Drawing modes
+    CONFIG_VARIABLE_COMMENT("Drawing modes"),
+    CONFIG_VARIABLE_INT(crl_seg_drawing),
+    CONFIG_VARIABLE_INT(crl_pln_drawing),
+    CONFIG_VARIABLE_COMMENT(""),
 
+    // Static limits
     CONFIG_VARIABLE_COMMENT("Static engine limits"),
     CONFIG_VARIABLE_INT(crl_unknown_linedefs),
     CONFIG_VARIABLE_INT(vanilla_savegame_limit),
