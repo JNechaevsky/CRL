@@ -41,22 +41,19 @@
 #include "p_blocktrail.h" // [PN] blocktouch for the block-trail grid overlay
 
 
-#define MAYBEBLAND(x) (blandcolor == 0 ? (x) : 0)
-#define LIMRANGE(x) (blandcolor == 0 ? (x) : 1)
-
 // For use if I do walls with outsides/insides
-#define REDS        MAYBEBLAND(176)
-#define REDRANGE    LIMRANGE(16)
-#define GREENS      MAYBEBLAND(112)
-#define GREENRANGE  LIMRANGE(16)
-#define GRAYS       MAYBEBLAND(96)
-#define GRAYSRANGE  LIMRANGE(16)
-#define BROWNS      MAYBEBLAND(64)
-#define BROWNRANGE  LIMRANGE(16)
-#define YELLOWS     MAYBEBLAND(231)
-#define YELLOWRANGE LIMRANGE(1)
-#define BLACK       MAYBEBLAND(0)
-#define WHITE       MAYBEBLAND(209)
+#define REDS        176
+#define REDRANGE    16
+#define GREENS      112
+#define GREENRANGE  16
+#define GRAYS       96
+#define GRAYSRANGE  16
+#define BROWNS      64
+#define BROWNRANGE  16
+#define YELLOWS     231
+#define YELLOWRANGE 1
+#define BLACK       0
+#define WHITE       209
 
 // Automap colors
 #define BACKGROUND       BLACK
@@ -164,9 +161,6 @@ typedef struct
 {
     mpoint_t a, b;
 } mline_t;
-
-// RestlessRodent -- Bland color drawing
-static boolean blandcolor = false;
 
 // [JN] Solid or translucent grid drawing.
 static void (*AM_drawMlineFunc)(mline_t *const ml, int color);
@@ -2821,39 +2815,8 @@ static void AM_drawCrosshair (void)
 }
 
 // -----------------------------------------------------------------------------
-// AM_CRLFLine
-// -----------------------------------------------------------------------------
-
-static void AM_CRLFLine (int __col, int __x1, int __y1, int __x2, int __y2)
-{
-	fline_t mt = {{__x1 >> FRACTOMAPBITS, __y1 >> FRACTOMAPBITS},
-                  {__x2 >> FRACTOMAPBITS, __y2 >> FRACTOMAPBITS}};
-
-	AM_drawFline(&mt, __col);
-}
-
-// -----------------------------------------------------------------------------
-// AM_CRLMLine
-// -----------------------------------------------------------------------------
-
-static void AM_CRLMLine (int __col, int __x1, int __y1, int __x2, int __y2)
-{
-	mline_t mt = {{__x1 >> FRACTOMAPBITS, __y1 >> FRACTOMAPBITS},
-                  {__x2 >> FRACTOMAPBITS, __y2 >> FRACTOMAPBITS}};
-
-    // [JN] Rotate rendered visplanes as well.
-    if (crl_automap_rotate)
-    {
-        AM_rotatePoint(&mt.a);
-        AM_rotatePoint(&mt.b);
-    }
-
-	AM_drawMline(&mt, __col);
-}
-
-// -----------------------------------------------------------------------------
 // AM_DrawHighlights
-//  [PN] Draw the tag-highlight connectors (AM_CRLMLine handles rotation).
+//  [PN] Draw the tag-highlight connectors.
 // -----------------------------------------------------------------------------
 
 static void AM_DrawHighlights (void)
@@ -2861,8 +2824,16 @@ static void AM_DrawHighlights (void)
     for (int i = 0; i < highlight.connection_count; ++i)
     {
         const hlconn_t *const c = &highlight.connections[i];
+        mline_t ml = { { c->ax >> FRACTOMAPBITS, c->ay >> FRACTOMAPBITS },
+                       { c->bx >> FRACTOMAPBITS, c->by >> FRACTOMAPBITS } };
 
-        AM_CRLMLine(highlightwallcolors, c->ax, c->ay, c->bx, c->by);
+        if (crl_automap_rotate)
+        {
+            AM_rotatePoint(&ml.a);
+            AM_rotatePoint(&ml.b);
+        }
+
+        AM_drawMline(&ml, highlightwallcolors);
     }
 }
 
@@ -2938,18 +2909,6 @@ void AM_Drawer (void)
         }
     }
 
-    // RestlessRodent -- Force bland if > 0 ? 
-    // Because the normal colors could screw with the
-    // very bright and shiny CRL colors
-	if (automapactive == 2 && crl_automap_mode)
-    {
-		blandcolor = true;
-    }
-	else
-    {
-		blandcolor = false;
-    }
-
 	if (automapactive == 1 && !crl_automap_overlay)
     {
 		AM_clearFB();
@@ -2967,8 +2926,6 @@ void AM_Drawer (void)
 
     AM_drawWalls();
 
-    // [JN] CRL - always colorize automap with given drawing mode.
-    CRL_DrawMap(AM_CRLFLine, AM_CRLMLine);
 
     // [PN] Tag highlight connectors, below the player arrow.
     AM_DrawHighlights();

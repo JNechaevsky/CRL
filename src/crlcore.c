@@ -56,6 +56,9 @@ static void*   _planelist[MAXCOUNTPLANES];
 static size_t  _planesize;
 static int     _numplanes;
 
+// [PN] Byte size of the seg provenance table, used to clear it each frame.
+static size_t  _segsurface_size;
+
 #define DARKSHADE 8
 #define DARKMASK  7
 
@@ -104,6 +107,11 @@ boolean savemenuactive = false;
 // too much of the limited zone for a debug aid, and both the marking and the
 // drawing paths assume the table is always there.
 static void *crl_plane_surface[SCREENAREA];
+
+// [PN] The seg (wall) provenance table for crl_seg_drawing, laid out exactly
+// like the plane one: one slot per screen pixel, holding the seg drawn there.
+// Also in .bss for the same reason.
+static void *crl_seg_surface[SCREENAREA];
 
 // VP color table.
 #define NUMPLANEBORDERCOLORS 16
@@ -258,6 +266,11 @@ void CRL_Init (void)
     _planesize = sizeof(crl_plane_surface);
     memset(CRLPlaneSurface, 0, _planesize);
 
+    // [PN] Make seg surface, mirroring the plane one for crl_seg_drawing.
+    CRLSegSurface = crl_seg_surface;
+    _segsurface_size = sizeof(crl_seg_surface);
+    memset(CRLSegSurface, 0, _segsurface_size);
+
     // [JN] Initialize HOM multicolors.
     CRL_InitHOMColors();
 
@@ -339,8 +352,9 @@ void CRL_SetStaticLimits (char *name)
 //  @param __err Frame error, 0 starts, < 0 ends OK, else renderer crashed.
 // -----------------------------------------------------------------------------
 
-uint8_t* CRLSurface = NULL;
-void**   CRLPlaneSurface = NULL;
+uint8_t *CRLSurface = NULL;
+void   **CRLPlaneSurface = NULL;
+void   **CRLSegSurface = NULL;
 
 static int _frame;
 static int _pulse;
@@ -364,6 +378,9 @@ void CRL_ChangeFrame (int __err)
 
         // Clear old plane surface
         memset(CRLPlaneSurface, 0, _planesize);
+
+        // [PN] Clear old seg surface as well, for crl_seg_drawing.
+        memset(CRLSegSurface, 0, _segsurface_size);
 
         // Plane set
         memset(_planelist, 0, sizeof(_planelist));
@@ -525,7 +542,7 @@ static void CRL_VisPlanePass (void **__surface, int isbord, int __isseg)
 // -----------------------------------------------------------------------------
 // CRL_DrawPlaneBorders
 //  [PN] Outlines the regions of a plane-per-pixel table, whatever the
-//  crl_visplanes_drawing setting says. Used by Sneaking mode to make the parts
+//  crl_pln_drawing setting says. Used by Sneaking mode to make the parts
 //  of the world that have not been rendered yet readable as shapes; __isseg
 //  tells it that the table holds segs instead of visplanes.
 // -----------------------------------------------------------------------------
@@ -537,29 +554,38 @@ void CRL_DrawPlaneBorders (void **__surface, int __isseg)
 
 // -----------------------------------------------------------------------------
 // CRL_DrawVisPlanes
-//  Draw visplanes (underlay or overlay).
+//  Get visplane drawing mode and draw (outline or fill).
 // -----------------------------------------------------------------------------
 
-void CRL_DrawVisPlanes (int __over)
+void CRL_DrawVisPlanes (void)
 {
-    // Get visplane drawing mode
-
     // Drawing nothing
-    if (crl_visplanes_drawing == 0)
-    {
-        return;
-    }
-
-    // Overlay but not overlaying?
-    const int isover = (crl_visplanes_drawing == 2 || crl_visplanes_drawing == 4);
-    if (__over != isover)
+    if (!crl_pln_drawing)
     {
         return;
     }
 
     // Border colors
-    CRL_VisPlanePass(CRLPlaneSurface,
-                     crl_visplanes_drawing == 3 || crl_visplanes_drawing == 4, 0);
+    CRL_VisPlanePass(CRLPlaneSurface, crl_pln_drawing == 1, 0);
+}
+
+// -----------------------------------------------------------------------------
+// CRL_DrawSegs
+//  [PN] Draw the walls (outline or fill), the same way CRL_DrawVisPlanes draws
+//  the visplanes. The segs are collected per pixel in CRLSegSurface during the
+//  wall pass.
+// -----------------------------------------------------------------------------
+
+void CRL_DrawSegs (void)
+{
+    // Not drawing anything
+    if (!crl_seg_drawing)
+    {
+        return;
+    }
+
+    // Border colors, over the seg provenance table
+    CRL_VisPlanePass(CRLSegSurface, crl_seg_drawing == 1, 1);
 }
 
 // -----------------------------------------------------------------------------
@@ -604,79 +630,6 @@ void CRL_GetHOMMultiColor (void)
     // [PN] One step per game tic: the shimmer HOM is indexed by this counter,
     // and not by the frames we happen to draw.
     ++crl_hom_snap_tic;
-}
-
-
-// =============================================================================
-//
-//                                 Automap
-//
-// =============================================================================
-
-
-// -----------------------------------------------------------------------------
-// CRL_DrawMap
-//  Draws the automap.
-//  @param __fl Normal line.
-//  @param __ml Map line.
-// -----------------------------------------------------------------------------
-
-void CRL_DrawMap(void (*__fl)(int, int, int, int, int),
-                 void (*__ml)(int, int, int, int, int))
-{
-    int i, c, j;
-    CRLPlaneData_t pd;
-    CRLSegData_t sd;
-    CRLSubData_t ud;
-
-    // Visplane emitting segs
-    if (crl_automap_mode == 1 || crl_automap_mode == 2)
-    {
-        // Go through all planes
-        for (i = 0; i < _numplanes; i++)
-        {
-            // Identify this plane
-            GAME_IdentifyPlane(_planelist[i], &pd);
-
-            // Floor/ceiling mismatch
-            if ((!!(crl_automap_mode == 1)) != (!!pd.onfloor))
-            {
-                continue;
-            }
-
-            // Color the plane
-            c = CRL_ColorizeThisPlane(&pd);
-
-            // Has an emitting line
-            if (pd.emitline)
-            {
-                // Identify it
-                GAME_IdentifySeg(pd.emitline, &sd);
-
-                // Draw its position as some color
-                __ml(c, sd.coords[0], sd.coords[1],
-                     sd.coords[2], sd.coords[3]);
-            }
-            // Has an emitting subsector, but no line
-            else if (pd.emitsub)
-            {
-                // ID it
-                GAME_IdentifySubSector(pd.emitsub, &ud);
-
-                // Draw the subsector seg lines, the non implicit edges that
-                // is.
-                for (j = 0; j < ud.numlines; j++)
-                {
-                    // Id seg
-                    GAME_IdentifySeg(ud.lines[j], &sd);
-
-                    // Draw it
-                    __ml(c, sd.coords[0], sd.coords[1],
-                        sd.coords[2], sd.coords[3]);
-                }
-            }
-        }
-    }
 }
 
 

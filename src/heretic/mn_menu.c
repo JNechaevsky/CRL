@@ -426,8 +426,6 @@ static void CRL_LimitFPS (int option);
 static void CRL_VSync (int option);
 static void CRL_ShowFPS (int option);
 static void CRL_PixelScaling (int option);
-static void CRL_VisplanesDraw (int option);
-static void CRL_HOMDraw (int option);
 static void CRL_Gamma (int option);
 static void CRL_MenuBgShading (int option);
 static void CRL_LevelBrightness (int option);
@@ -699,6 +697,7 @@ static void CRL_ClearOPN (int option);
 static void CRL_MoveToPLN (int option);
 static void CRL_ClearPLN (int option);
 static void CRL_ClearALL (int option);
+
 static void DrawCRLPanel_2 (void);
 static void CRL_Spectating (int option);
 static void CRL_Sneaking (int option);
@@ -708,6 +707,9 @@ static void CRL_Buddha (int option);
 static void CRL_NoTarget (int option);
 static void CRL_NoMomentum (int option);
 static void CRL_GameSpeed (int option);
+static void CRL_SEG_Drawing (int option);
+static void CRL_PLN_Drawing (int option);
+static void CRL_HOM_Drawing (int choice);
 
 static void M_ScrollPanel (int option);
 
@@ -1231,8 +1233,6 @@ static MenuItem_t CRLVideoItems[] = {
     { ITT_LRFUNC2, "ENABLE VSYNC",        CRL_VSync,         0, MENU_NONE },
     { ITT_LRFUNC2, "SHOW FPS COUNTER",    CRL_ShowFPS,       0, MENU_NONE },
     { ITT_LRFUNC2, "PIXEL SCALING",       CRL_PixelScaling,  0, MENU_NONE },
-    { ITT_LRFUNC2, "VISPLANES DRAWING",   CRL_VisplanesDraw, 0, MENU_NONE },
-    { ITT_LRFUNC1, "HOM EFFECT",          CRL_HOMDraw,       0, MENU_NONE },
     { ITT_EMPTY,   NULL,                  NULL,              0, MENU_NONE },
     { ITT_LRFUNC2, "GRAPHICAL STARTUP",   CRL_GfxStartup,    0, MENU_NONE },
     { ITT_LRFUNC2, "SCREEN WIPE EFFECT",  CRL_ScreenWipe,    0, MENU_NONE },
@@ -1286,45 +1286,30 @@ static void DrawCRLVideo (void)
     MN_DrTextA(str, M_ItemRightAlign(str), 60,
                M_Item_Glow(4, smooth_scaling ? GLOW_GREEN : GLOW_DARKRED));
 
-    // Visplanes drawing
-    sprintf(str, crl_visplanes_drawing == 0 ? "NORMAL" :
-                 crl_visplanes_drawing == 1 ? "FILL" :
-                 crl_visplanes_drawing == 2 ? "OVERFILL" :
-                 crl_visplanes_drawing == 3 ? "BORDER" : "OVERBORDER");
-    MN_DrTextA(str, M_ItemRightAlign(str), 70,
-               M_Item_Glow(5, crl_visplanes_drawing ? GLOW_GREEN : GLOW_DARKRED));
-    
-    // HOM effect
-    sprintf(str, crl_hom_effect == 1 ? "MULTICOLOR 1" :
-                 crl_hom_effect == 2 ? "MULTICOLOR 2" :
-                 crl_hom_effect == 3 ? "SHIMMER" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 80,
-               M_Item_Glow(6, crl_hom_effect ? GLOW_GREEN : GLOW_DARKRED));
-
-    MN_DrTextACentered("MISCELLANEOUS", 90, cr[CR_YELLOW]);
+    MN_DrTextACentered("MISCELLANEOUS", 70, cr[CR_YELLOW]);
 
     // Graphical startup
     sprintf(str, graphical_startup == 1 ? "FAST" :
                  graphical_startup == 2 ? "SLOW" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 100,
-               M_Item_Glow(8, graphical_startup == 1 ? GLOW_DARKRED :
+    MN_DrTextA(str, M_ItemRightAlign(str), 80,
+               M_Item_Glow(6, graphical_startup == 1 ? GLOW_DARKRED :
                               graphical_startup == 2 ? GLOW_YELLOW : GLOW_GREEN));
 
     // Screen wipe effect
     sprintf(str, crl_screenwipe == 1 ? "CROSSFADE" :
                  crl_screenwipe == 2 ? "MELT" :
                  crl_screenwipe == 3 ? "FAST MELT": "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 110,
-               M_Item_Glow(9, crl_screenwipe == 1 ? GLOW_GREEN :
+    MN_DrTextA(str, M_ItemRightAlign(str), 90,
+               M_Item_Glow(7, crl_screenwipe == 1 ? GLOW_GREEN :
                               crl_screenwipe == 2 ? GLOW_YELLOW :
                               crl_screenwipe == 3 ? GLOW_ORANGE : GLOW_DARKRED));
 
     // Show ENDTEXT screen
     sprintf(str, show_endoom == 1 ? "ALWAYS" :
                  show_endoom == 2 ? "PWAD ONLY" : "NEVER");
-    MN_DrTextA(str, M_ItemRightAlign(str), 120,
-               M_Item_Glow(10, show_endoom == 1 ? GLOW_DARKRED :
-                               show_endoom == 2 ? GLOW_YELLOW : GLOW_GREEN));
+    MN_DrTextA(str, M_ItemRightAlign(str), 100,
+               M_Item_Glow(8, show_endoom == 1 ? GLOW_DARKRED :
+                              show_endoom == 2 ? GLOW_YELLOW : GLOW_GREEN));
 }
 
 static void CRL_UncappedFPS (int option)
@@ -1376,17 +1361,6 @@ static void CRL_PixelScaling (int choice)
 {
     smooth_scaling ^= 1;
     I_TogglePixelScaling();
-}
-
-static void CRL_VisplanesDraw (int option)
-{
-    crl_visplanes_drawing = M_INT_Slider(crl_visplanes_drawing, 0, 4, option, false);
-}
-
-static void CRL_HOMDraw (int option)
-{
-    crl_hom_effect = M_INT_Slider(crl_hom_effect, 0, 3, option, false);
-    CRL_InitHOMColors();
 }
 
 static void CRL_GfxStartup (int option)
@@ -3736,22 +3710,22 @@ static void CRL_ClearALL (int option)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLPanelItems_2[] = {
-    { ITT_LRFUNC1, "SPECTATOR MODE",         CRL_Spectating, 0, MENU_NONE },
-    { ITT_LRFUNC1, "SNEAKING MODE",          CRL_Sneaking,   0, MENU_NONE },
+    { ITT_LRFUNC1, "SPECTATOR MODE",         CRL_Spectating,     0, MENU_NONE },
+    { ITT_LRFUNC1, "SNEAKING MODE",          CRL_Sneaking,       0, MENU_NONE },
     { ITT_LRFUNC2, "- FILL HOM WITH",        CRL_Sneaking_Color, 0, MENU_NONE },
-    { ITT_LRFUNC1, "FREEZE MODE",            CRL_Freeze,     0, MENU_NONE },
-    { ITT_LRFUNC1, "BUDDHA MODE",            CRL_Buddha,     0, MENU_NONE },
-    { ITT_LRFUNC1, "NO TARGET MODE",         CRL_NoTarget,   0, MENU_NONE },
-    { ITT_LRFUNC1, "NO MOMENTUM MODE",       CRL_NoMomentum, 0, MENU_NONE },
-    { ITT_LRFUNC1, "GAME SPEED",             CRL_GameSpeed,  0, MENU_NONE },
-    { ITT_EMPTY,   "",                       NULL,           0, MENU_NONE },
-    { ITT_EMPTY,   "",                       NULL,           0, MENU_NONE },
-    { ITT_EMPTY,   "",                       NULL,           0, MENU_NONE },
-    { ITT_EMPTY,   "",                       NULL,           0, MENU_NONE },
-    { ITT_EMPTY,   "",                       NULL,           0, MENU_NONE },
-    { ITT_EMPTY,   "",                       NULL,           0, MENU_NONE },
-    { ITT_EMPTY,   "",                       NULL,           0, MENU_NONE },
-    { ITT_LRFUNC2, "", /* < SCROLL PAGES >*/ M_ScrollPanel,  0, MENU_NONE },
+    { ITT_LRFUNC1, "FREEZE MODE",            CRL_Freeze,         0, MENU_NONE },
+    { ITT_LRFUNC1, "BUDDHA MODE",            CRL_Buddha,         0, MENU_NONE },
+    { ITT_LRFUNC1, "NO TARGET MODE",         CRL_NoTarget,       0, MENU_NONE },
+    { ITT_LRFUNC1, "NO MOMENTUM MODE",       CRL_NoMomentum,     0, MENU_NONE },
+    { ITT_LRFUNC1, "GAME SPEED",             CRL_GameSpeed,      0, MENU_NONE },
+    { ITT_EMPTY,   "",                       NULL,               0, MENU_NONE },
+    { ITT_LRFUNC2, "WALLS DRAWING",          CRL_SEG_Drawing,    0, MENU_NONE },
+    { ITT_LRFUNC2, "PLANES DRAWING",         CRL_PLN_Drawing,    0, MENU_NONE },
+    { ITT_LRFUNC2, "HOM EFFECT",             CRL_HOM_Drawing,    0, MENU_NONE },
+    { ITT_EMPTY,   "",                       NULL,               0, MENU_NONE },
+    { ITT_EMPTY,   "",                       NULL,               0, MENU_NONE },
+    { ITT_EMPTY,   "",                       NULL,               0, MENU_NONE },
+    { ITT_LRFUNC2, "", /* < SCROLL PAGES >*/ M_ScrollPanel,      0, MENU_NONE },
 };
 
 static Menu_t CRLPanel_2 = {
@@ -3822,6 +3796,27 @@ static void DrawCRLPanel_2 (void)
                 M_Item_Glow(7, netgame || crl_game_speed == 100 ? GLOW_DARKRED :
                             crl_game_speed < 100 ? GLOW_YELLOW : GLOW_GREEN));
 
+    MN_DrTextACentered("DRAWING MODES", 100, cr[CR_YELLOW]);
+
+    // Walls drawing
+    sprintf(str, crl_seg_drawing == 1 ? "OUTLINE" :
+                 crl_seg_drawing == 2 ? "FILL" : "NORMAL");
+    MN_DrTextA(str, M_ItemRightAlign(str), 110,
+               M_Item_Glow(9, crl_seg_drawing ? GLOW_GREEN : GLOW_DARKRED));
+
+    // Visplanes drawing
+    sprintf(str, crl_pln_drawing == 1 ? "OUTLINE" :
+                 crl_pln_drawing == 2 ? "FILL" : "NORMAL");
+    MN_DrTextA(str, M_ItemRightAlign(str), 120,
+               M_Item_Glow(10, crl_pln_drawing ? GLOW_GREEN : GLOW_DARKRED));
+
+    // HOM effect
+    sprintf(str, crl_hom_effect == 1 ? "MULTICOLOR 1" :
+                 crl_hom_effect == 2 ? "MULTICOLOR 2" :
+                 crl_hom_effect == 3 ? "SHIMMER" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 130,
+               M_Item_Glow(11, crl_hom_effect ? GLOW_GREEN : GLOW_DARKRED));
+
     // < Scroll pages >
     M_DrawScrollPages(CRL_MENU_LEFTOFFSET, 170, 15, "2/2");
 }
@@ -3888,6 +3883,22 @@ static void CRL_NoMomentum (int choice)
 static void CRL_GameSpeed (int choice)
 {
     G_CRL_ChangeGameSpeed(choice == 0 ? -1 : 1, false);
+}
+
+static void CRL_SEG_Drawing (int option)
+{
+    crl_seg_drawing = M_INT_Slider(crl_seg_drawing, 0, 2, option, false);
+}
+
+static void CRL_PLN_Drawing (int option)
+{
+    crl_pln_drawing = M_INT_Slider(crl_pln_drawing, 0, 2, option, false);
+}
+
+static void CRL_HOM_Drawing (int option)
+{
+    crl_hom_effect = M_INT_Slider(crl_hom_effect, 0, 3, option, false);
+    CRL_InitHOMColors();
 }
 
 static void M_ScrollPanel (int option)

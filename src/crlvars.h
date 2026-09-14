@@ -40,8 +40,6 @@ extern int crl_uncapped_fps;
 extern int crl_fpslimit;
 extern int crl_vsync;
 extern int crl_showfps;
-extern int crl_visplanes_drawing;
-extern int crl_hom_effect;
 extern int crl_gamma;
 extern int crl_menu_shading;
 extern int crl_level_brightness;
@@ -88,7 +86,6 @@ extern int crl_automap_scheme;
 extern int crl_automap_antialias;
 extern int crl_automap_textured_bg;
 extern int crl_automap_scroll_bg;
-extern int crl_automap_mode;
 extern int crl_automap_secrets;
 extern int crl_automap_blink;
 extern int crl_automap_rotate;
@@ -131,6 +128,11 @@ extern int crl_menu_highlight;
 extern int crl_menu_esc_key;
 extern int crl_confirm_quit;
 extern int crl_menu_cap_fps;
+
+// Drawing modes
+extern int crl_seg_drawing;
+extern int crl_pln_drawing;
+extern int crl_hom_effect;
 
 // Limits and Warnings
 extern int crl_unknown_linedefs;
