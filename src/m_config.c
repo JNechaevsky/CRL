@@ -609,7 +609,7 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(crl_widget_font),
     CONFIG_VARIABLE_INT(crl_widget_playstate),
     CONFIG_VARIABLE_INT(crl_widget_render),
-    CONFIG_VARIABLE_INT(crl_widget_maxvp),
+    CONFIG_VARIABLE_INT(crl_widget_maxblink),
     CONFIG_VARIABLE_INT(crl_widget_kis),
     CONFIG_VARIABLE_INT(crl_widget_kis_format),
     CONFIG_VARIABLE_INT(crl_widget_kis_items),

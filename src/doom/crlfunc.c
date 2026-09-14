@@ -661,7 +661,7 @@ void CRL_StatDrawer (void)
             byte *const label_color = current_overflow ? flash_gray : cr[CR_GRAY];
             byte *const val_color   = current_overflow ? flash_red : cr[CR_GREEN];
             byte *const max_color   = current_overflow ? flash_red :
-                                         (max_overflow ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
+                                         (max_overflow ? CRL_Colorize_MAX(crl_widget_maxblink) : cr[CR_GREEN]);
 
             fontfunc(0, items[i].y + yy, items[i].label, label_color);
             fontfunc(xx, items[i].y + yy, val_str, val_color);

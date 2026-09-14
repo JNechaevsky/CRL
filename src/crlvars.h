@@ -66,7 +66,7 @@ extern int crl_extended_hud;
 extern int crl_widget_font;
 extern int crl_widget_playstate;
 extern int crl_widget_render;
-extern int crl_widget_maxvp;
+extern int crl_widget_maxblink;
 extern int crl_widget_kis;
 extern int crl_widget_kis_format;
 extern int crl_widget_kis_items;

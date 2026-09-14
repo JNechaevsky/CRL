@@ -66,7 +66,7 @@ int crl_extended_hud = 1;
 int crl_widget_font = 1;
 int crl_widget_playstate = 2;
 int crl_widget_render = 1;
-int crl_widget_maxvp = 0;
+int crl_widget_maxblink = 1;
 int crl_widget_kis = 0;
 int crl_widget_kis_format = 0;
 int crl_widget_kis_items = 1;
@@ -188,7 +188,7 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_widget_font",                &crl_widget_font);
     M_BindIntVariable("crl_widget_playstate",           &crl_widget_playstate);
     M_BindIntVariable("crl_widget_render",              &crl_widget_render);
-    M_BindIntVariable("crl_widget_maxvp",               &crl_widget_maxvp);
+    M_BindIntVariable("crl_widget_maxblink",            &crl_widget_maxblink);
     M_BindIntVariable("crl_widget_kis",                 &crl_widget_kis);
     M_BindIntVariable("crl_widget_kis_format",          &crl_widget_kis_format);
     M_BindIntVariable("crl_widget_kis_items",           &crl_widget_kis_items);

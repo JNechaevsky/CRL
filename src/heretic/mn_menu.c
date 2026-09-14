@@ -2644,11 +2644,11 @@ static void DrawCRLWidgets (void)
                               crl_widget_render == 2 ? GLOW_DARKGREEN : GLOW_DARKRED));
 
     // MAX overflow style
-    sprintf(str, crl_widget_maxvp == 1 ? "BLINKING 1" :
-                 crl_widget_maxvp == 2 ? "BLINKING 2" : "STATIC");
+    sprintf(str, crl_widget_maxblink == 1 ? "BLINKING 1" :
+                 crl_widget_maxblink == 2 ? "BLINKING 2" : "STATIC");
     MN_DrTextA(str, M_ItemRightAlign(str), 40,
-               M_Item_Glow(2, crl_widget_maxvp == 1 ? (gametic &  8 ? GLOW_YELLOW : GLOW_GREEN) :
-                              crl_widget_maxvp == 2 ? (gametic & 16 ? GLOW_YELLOW : GLOW_GREEN) : GLOW_YELLOW));
+               M_Item_Glow(2, crl_widget_maxblink == 1 ? (gametic &  8 ? GLOW_YELLOW : GLOW_GREEN) :
+                              crl_widget_maxblink == 2 ? (gametic & 16 ? GLOW_YELLOW : GLOW_GREEN) : GLOW_YELLOW));
 
     // Playstate counters
     sprintf(str, crl_widget_playstate == 1 ? "ON" :
@@ -2724,7 +2724,7 @@ static void CRL_Widget_Render (int option)
 
 static void CRL_Widget_MAX (int option)
 {
-    crl_widget_maxvp = M_INT_Slider(crl_widget_maxvp, 0, 2, option, false);
+    crl_widget_maxblink = M_INT_Slider(crl_widget_maxblink, 0, 2, option, false);
 }
 
 static void CRL_Widget_Playstate (int option)
@@ -3671,7 +3671,7 @@ static void DrawCRLPanel_1 (void)
         byte *const label_color = is_overflow ? flash_gray : cr[CR_GRAY];
         byte *const val_color   = is_overflow ? flash_red : cr[CR_GREEN];
         byte *const max_color   = is_overflow ? flash_red :
-                                 (items[i].max_count >= items[i].limit ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
+                                 (items[i].max_count >= items[i].limit ? CRL_Colorize_MAX(crl_widget_maxblink) : cr[CR_GREEN]);
 
         MN_DrTextA(items[i].label, x, items[i].y, label_color);
         MN_DrTextA(val_str, x + x2, items[i].y, val_color);

@@ -1589,12 +1589,12 @@ static void M_DrawCRL_Display (void)
     // Messages enabled
     sprintf(str, showMessages ? "ON" : "OFF");
     M_WriteText (M_ItemRightAlign(str), 79, str, 
-                 M_Item_Glow(6, showMessages ? GLOW_GREEN : GLOW_DARKRED));
+                 M_Item_Glow(6, showMessages ? GLOW_DARKRED : GLOW_YELLOW));
 
     // Critical message style
     sprintf(str, crl_msg_critical ? "BLINKING" : "STATIC");
     M_WriteText (M_ItemRightAlign(str), 88, str,
-                 M_Item_Glow(7, crl_msg_critical ? GLOW_GREEN : GLOW_DARKRED));
+                 M_Item_Glow(7, crl_msg_critical ? GLOW_DARKRED : GLOW_YELLOW));
     // Show nice preview-reminder :)
     if (itemOn == 7)
     {
@@ -2770,7 +2770,7 @@ static void M_DrawCRL_Widgets (void)
     // Widgets font
     sprintf(str, crl_widget_font ? "DSDA" : "DEFAULT");
     M_WriteText (M_ItemRightAlign(str), 16, str,
-                 M_Item_Glow(0, crl_widget_font ? GLOW_GREEN : GLOW_DARKRED));
+                 M_Item_Glow(0, crl_widget_font ? GLOW_DARKRED : GLOW_GREEN));
 
     // Rendering counters
     sprintf(str, crl_widget_render == 1 ? "ON" :
@@ -2780,11 +2780,11 @@ static void M_DrawCRL_Widgets (void)
                                 crl_widget_render == 2 ? GLOW_DARKGREEN : GLOW_DARKRED));
 
     // MAX overflow style
-    sprintf(str, crl_widget_maxvp == 1 ? "BLINKING 1" :
-                 crl_widget_maxvp == 2 ? "BLINKING 2" : "STATIC");
+    sprintf(str, crl_widget_maxblink == 1 ? "BLINKING 1" :
+                 crl_widget_maxblink == 2 ? "BLINKING 2" : "STATIC");
     M_WriteText (M_ItemRightAlign(str), 34, str,
-                 M_Item_Glow(2, crl_widget_maxvp == 1 ? (gametic &  8 ? GLOW_YELLOW : GLOW_GREEN) :
-                                crl_widget_maxvp == 2 ? (gametic & 16 ? GLOW_YELLOW : GLOW_GREEN) : GLOW_YELLOW));
+                 M_Item_Glow(2, crl_widget_maxblink == 1 ? (gametic &  8 ? GLOW_YELLOW : GLOW_GREEN) :
+                                crl_widget_maxblink == 2 ? (gametic & 16 ? GLOW_YELLOW : GLOW_GREEN) : GLOW_YELLOW));
 
     // Playstate counters
     sprintf(str, crl_widget_playstate == 1 ? "ON" :
@@ -2809,7 +2809,8 @@ static void M_DrawCRL_Widgets (void)
     sprintf(str, crl_widget_kis_items == 1 ? "ON" :
                  crl_widget_kis_items == 2 ? "AUTOMAP" : "OFF");
     M_WriteText (M_ItemRightAlign(str), 70, str,
-                 M_Item_Glow(6, crl_widget_kis_items ? GLOW_GREEN : GLOW_DARKRED));
+                 M_Item_Glow(6, !crl_widget_kis ? GLOW_DARKRED :
+                                 crl_widget_kis_items ? GLOW_GREEN : GLOW_DARKRED));
 
     // Level/DM timer
     sprintf(str, crl_widget_time == 1 ? "ALWAYS / NO CS"  :
@@ -2828,7 +2829,8 @@ static void M_DrawCRL_Widgets (void)
     // Show fractions
     sprintf(str, crl_widget_coordsfrac ? "ON" : "OFF");
     M_WriteText (M_ItemRightAlign(str), 97, str,
-                 M_Item_Glow(9, crl_widget_coordsfrac ? GLOW_GREEN : GLOW_DARKRED));
+                 M_Item_Glow(9, !crl_widget_coords ? GLOW_DARKRED :
+                                 crl_widget_coordsfrac ? GLOW_GREEN : GLOW_DARKRED));
 
     // Player speed
     sprintf(str, crl_widget_speed ? "ON" : "OFF");
@@ -2868,7 +2870,7 @@ static void M_CRL_Widget_Render (int choice)
 
 static void M_CRL_Widget_MAX (int choice)
 {
-    crl_widget_maxvp = M_INT_Slider(crl_widget_maxvp, 0, 2, choice, false);
+    crl_widget_maxblink = M_INT_Slider(crl_widget_maxblink, 0, 2, choice, false);
 }
 
 static void M_CRL_Widget_Playstate (int choice)
@@ -3798,7 +3800,7 @@ static void M_DrawCRL_Panel_1 (void)
         byte *const label_color = is_overflow ? flash_gray : cr[CR_GRAY];
         byte *const val_color   = is_overflow ? flash_red : cr[CR_GREEN];
         byte *const max_color   = is_overflow ? flash_red :
-                                 (items[i].max_count >= items[i].limit ? CRL_Colorize_MAX(crl_widget_maxvp) : cr[CR_GREEN]);
+                                 (items[i].max_count >= items[i].limit ? CRL_Colorize_MAX(crl_widget_maxblink) : cr[CR_GREEN]);
 
         M_WriteText(x, items[i].y, items[i].label, label_color);
         M_WriteText(x + x2, items[i].y, val_str, val_color);
