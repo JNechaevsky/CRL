@@ -2821,39 +2821,8 @@ static void AM_drawCrosshair (void)
 }
 
 // -----------------------------------------------------------------------------
-// AM_CRLFLine
-// -----------------------------------------------------------------------------
-
-static void AM_CRLFLine (int __col, int __x1, int __y1, int __x2, int __y2)
-{
-	fline_t mt = {{__x1 >> FRACTOMAPBITS, __y1 >> FRACTOMAPBITS},
-                  {__x2 >> FRACTOMAPBITS, __y2 >> FRACTOMAPBITS}};
-
-	AM_drawFline(&mt, __col);
-}
-
-// -----------------------------------------------------------------------------
-// AM_CRLMLine
-// -----------------------------------------------------------------------------
-
-static void AM_CRLMLine (int __col, int __x1, int __y1, int __x2, int __y2)
-{
-	mline_t mt = {{__x1 >> FRACTOMAPBITS, __y1 >> FRACTOMAPBITS},
-                  {__x2 >> FRACTOMAPBITS, __y2 >> FRACTOMAPBITS}};
-
-    // [JN] Rotate rendered visplanes as well.
-    if (crl_automap_rotate)
-    {
-        AM_rotatePoint(&mt.a);
-        AM_rotatePoint(&mt.b);
-    }
-
-	AM_drawMline(&mt, __col);
-}
-
-// -----------------------------------------------------------------------------
 // AM_DrawHighlights
-//  [PN] Draw the tag-highlight connectors (AM_CRLMLine handles rotation).
+//  [PN] Draw the tag-highlight connectors.
 // -----------------------------------------------------------------------------
 
 static void AM_DrawHighlights (void)
@@ -2861,8 +2830,16 @@ static void AM_DrawHighlights (void)
     for (int i = 0; i < highlight.connection_count; ++i)
     {
         const hlconn_t *const c = &highlight.connections[i];
+        mline_t ml = { { c->ax >> FRACTOMAPBITS, c->ay >> FRACTOMAPBITS },
+                       { c->bx >> FRACTOMAPBITS, c->by >> FRACTOMAPBITS } };
 
-        AM_CRLMLine(highlightwallcolors, c->ax, c->ay, c->bx, c->by);
+        if (crl_automap_rotate)
+        {
+            AM_rotatePoint(&ml.a);
+            AM_rotatePoint(&ml.b);
+        }
+
+        AM_drawMline(&ml, highlightwallcolors);
     }
 }
 
@@ -2968,7 +2945,7 @@ void AM_Drawer (void)
     AM_drawWalls();
 
     // [JN] CRL - always colorize automap with given drawing mode.
-    CRL_DrawMap(AM_CRLFLine, AM_CRLMLine);
+    // CRL_DrawMap(AM_CRLFLine, AM_CRLMLine);
 
     // [PN] Tag highlight connectors, below the player arrow.
     AM_DrawHighlights();

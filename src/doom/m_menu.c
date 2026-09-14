@@ -589,7 +589,6 @@ static void M_CRL_LimitFPS (int choice);
 static void M_CRL_VSync (int choice);
 static void M_CRL_ShowFPS (int choice);
 static void M_CRL_PixelScaling (int choice);
-static void M_CRL_VisplanesDraw (int choice);
 static void M_CRL_HOMDraw (int choice);
 static void M_CRL_ScreenWipe (int choice);
 static void M_CRL_ShowENDOOM (int choice);
@@ -830,6 +829,7 @@ static void M_CRL_ClearOPN (int choice);
 static void M_CRL_MoveToPLN (int choice);
 static void M_CRL_ClearPLN (int choice);
 static void M_CRL_ClearALL (int choice);
+
 static void M_DrawCRL_Panel_2 (void);
 static void M_CRL_Spectating (int choice);
 static void M_CRL_Sneaking (int choice);
@@ -839,6 +839,7 @@ static void M_CRL_Buddha (int choice);
 static void M_CRL_NoTarget (int choice);
 static void M_CRL_NoMomentum (int choice);
 static void M_CRL_GameSpeed (int choice);
+static void M_CRL_PLN_Drawing (int choice);
 
 static void M_ScrollPanel (int choice);
 
@@ -1386,7 +1387,6 @@ static menuitem_t CRLMenu_Video[]=
     { M_MUL1, "ENABLE VSYNC",       M_CRL_VSync,         'e' },
     { M_MUL1, "SHOW FPS COUNTER",   M_CRL_ShowFPS,       's' },
     { M_MUL1, "PIXEL SCALING",      M_CRL_PixelScaling,  'p' },
-    { M_MUL2, "VISPLANES DRAWING",  M_CRL_VisplanesDraw, 'v' },
     { M_MUL1, "HOM EFFECT",         M_CRL_HOMDraw,       'h' },
     { M_SKIP, "", 0, '\0'},                              
     { M_MUL2, "SCREEN WIPE EFFECT", M_CRL_ScreenWipe,    's' },
@@ -1448,37 +1448,29 @@ static void M_DrawCRL_Video (void)
     M_WriteText (M_ItemRightAlign(str), 52, str, 
                  M_Item_Glow(4, smooth_scaling ? GLOW_GREEN : GLOW_DARKRED));
 
-    // Visplanes drawing mode
-    sprintf(str, crl_visplanes_drawing == 0 ? "NORMAL" :
-                 crl_visplanes_drawing == 1 ? "FILL" :
-                 crl_visplanes_drawing == 2 ? "OVERFILL" :
-                 crl_visplanes_drawing == 3 ? "BORDER" : "OVERBORDER");
-    M_WriteText (M_ItemRightAlign(str), 61, str,
-                 M_Item_Glow(5, crl_visplanes_drawing ? GLOW_GREEN : GLOW_DARKRED));
-
     // HOM effect
     sprintf(str, crl_hom_effect == 1 ? "MULTICOLOR 1" :
                  crl_hom_effect == 2 ? "MULTICOLOR 2" :
                  crl_hom_effect == 3 ? "SHIMMER" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 70, str,
-                 M_Item_Glow(6, crl_hom_effect ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (M_ItemRightAlign(str), 61, str,
+                 M_Item_Glow(5, crl_hom_effect ? GLOW_GREEN : GLOW_DARKRED));
 
-    M_WriteTextCentered(79, "MISCELLANEOUS", cr[CR_YELLOW]);
+    M_WriteTextCentered(70, "MISCELLANEOUS", cr[CR_YELLOW]);
 
     // Screen wipe effect
     sprintf(str, crl_screenwipe == 1 ? "MELT" :
                  crl_screenwipe == 2 ? "FAST MELT" :
                  crl_screenwipe == 3 ? "CROSSFADE" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 88, str,
-                 M_Item_Glow(8, crl_screenwipe == 1 ? GLOW_DARKRED :
+    M_WriteText (M_ItemRightAlign(str), 79, str,
+                 M_Item_Glow(7, crl_screenwipe == 1 ? GLOW_DARKRED :
                                 crl_screenwipe == 2 ? GLOW_YELLOW :
                                 crl_screenwipe == 3 ? GLOW_ORANGE : GLOW_GREEN));
 
     // Screen ENDOOM screen
     sprintf(str, show_endoom == 1 ? "ALWAYS" :
                  show_endoom == 2 ? "PWAD ONLY" : "NEVER");
-    M_WriteText (M_ItemRightAlign(str), 97, str, 
-                 M_Item_Glow(9, show_endoom == 1 ? GLOW_DARKRED :
+    M_WriteText (M_ItemRightAlign(str), 88, str, 
+                 M_Item_Glow(8, show_endoom == 1 ? GLOW_DARKRED :
                                 show_endoom == 2 ? GLOW_YELLOW : GLOW_GREEN));
 }
 
@@ -1532,11 +1524,6 @@ static void M_CRL_PixelScaling (int choice)
 {
     smooth_scaling ^= 1;
     I_TogglePixelScaling();
-}
-
-static void M_CRL_VisplanesDraw (int choice)
-{
-    crl_visplanes_drawing = M_INT_Slider(crl_visplanes_drawing, 0, 4, choice, false);
 }
 
 static void M_CRL_HOMDraw (int choice)
@@ -3877,22 +3864,22 @@ static void M_CRL_ClearALL (int choice)
 
 static menuitem_t CRLMenu_Panel_2[]=
 {
-    { M_MUL1, "SPECTATOR MODE",       M_CRL_Spectating,     's'},
-    { M_MUL1, "SNEAKING MODE",        M_CRL_Sneaking,       's'},
-    { M_MUL1, "- FILL HOM WITH",      M_CRL_Sneaking_Color, 'f'},
-    { M_MUL1, "FREEZE MODE",          M_CRL_Freeze,         'f'},
-    { M_MUL1, "BUDDHA MODE",          M_CRL_Buddha,         'f'},
-    { M_MUL1, "NO TARGET MODE",       M_CRL_NoTarget,       'n'},
-    { M_MUL1, "NO MOMENTUM MODE",     M_CRL_NoMomentum,     'n'},
-    { M_MUL1, "GAME SPEED",           M_CRL_GameSpeed,      'g'},
+    { M_MUL1, "SPECTATOR MODE",       M_CRL_Spectating,     's' },
+    { M_MUL1, "SNEAKING MODE",        M_CRL_Sneaking,       's' },
+    { M_MUL1, "- FILL HOM WITH",      M_CRL_Sneaking_Color, 'f' },
+    { M_MUL1, "FREEZE MODE",          M_CRL_Freeze,         'f' },
+    { M_MUL1, "BUDDHA MODE",          M_CRL_Buddha,         'f' },
+    { M_MUL1, "NO TARGET MODE",       M_CRL_NoTarget,       'n' },
+    { M_MUL1, "NO MOMENTUM MODE",     M_CRL_NoMomentum,     'n' },
+    { M_MUL1, "GAME SPEED",           M_CRL_GameSpeed,      'g' },
+    { M_SKIP, "", 0, '\0'},
+    { M_MUL2, "VISPLANES DRAWING",    M_CRL_PLN_Drawing,    'v' },
     { M_SKIP, "", 0, '\0'},
     { M_SKIP, "", 0, '\0'},
     { M_SKIP, "", 0, '\0'},
     { M_SKIP, "", 0, '\0'},
     { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'},
-    { M_MUL2, "", /* < SCROLL PAGES >*/    M_ScrollPanel,      's' },
+    { M_MUL2, "", /* < SCROLL PAGES >*/    M_ScrollPanel,   's' },
 };
 
 static menu_t CRLDef_Panel_2 =
@@ -3966,6 +3953,15 @@ static void M_DrawCRL_Panel_2 (void)
                  M_Item_Glow(7, netgame || crl_game_speed == 100 ? GLOW_DARKRED :
                              crl_game_speed < 100 ? GLOW_YELLOW : GLOW_GREEN));
 
+    M_WriteTextCentered(88, "DRAWING MODES", cr[CR_YELLOW]);
+
+    // Visplanes drawing
+    sprintf(str, crl_pln_drawing == 1 ? "BORDER" :
+                 crl_pln_drawing == 2 ? "FILL" : "DEFAULT");
+    M_WriteText (M_ItemRightAlign(str), 97, str,
+                 M_Item_Glow(9, crl_pln_drawing ? GLOW_GREEN : GLOW_DARKRED));
+
+
     // < Scroll pages >
     M_DrawScrollPages(CRL_MENU_LEFTOFFSET, 151, 15, "2/2");
 }
@@ -4034,6 +4030,11 @@ static void M_CRL_NoMomentum (int choice)
 static void M_CRL_GameSpeed (int choice)
 {
     G_CRL_ChangeGameSpeed(choice == 0 ? -1 : 1, false);
+}
+
+static void M_CRL_PLN_Drawing (int choice)
+{
+    crl_pln_drawing = M_INT_Slider(crl_pln_drawing, 0, 2, choice, false);
 }
 
 static void M_ScrollPanel (int choice)

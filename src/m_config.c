@@ -279,7 +279,6 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(crl_vsync),
     CONFIG_VARIABLE_INT(crl_showfps),
     CONFIG_VARIABLE_INT(smooth_scaling),
-    CONFIG_VARIABLE_INT(crl_visplanes_drawing),
     CONFIG_VARIABLE_INT(crl_hom_effect),
     CONFIG_VARIABLE_INT(crl_screenwipe),
     CONFIG_VARIABLE_INT(show_endoom),
@@ -299,6 +298,10 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(crl_msg_critical),
     CONFIG_VARIABLE_INT(crl_text_shadows),
     CONFIG_VARIABLE_COMMENT(""),
+
+    // Drawing modes
+    CONFIG_VARIABLE_INT(crl_seg_drawing),
+    CONFIG_VARIABLE_INT(crl_pln_drawing),
 
     //
     // Sound and Music

@@ -525,7 +525,7 @@ static void CRL_VisPlanePass (void **__surface, int isbord, int __isseg)
 // -----------------------------------------------------------------------------
 // CRL_DrawPlaneBorders
 //  [PN] Outlines the regions of a plane-per-pixel table, whatever the
-//  crl_visplanes_drawing setting says. Used by Sneaking mode to make the parts
+//  crl_pln_drawing setting says. Used by Sneaking mode to make the parts
 //  of the world that have not been rendered yet readable as shapes; __isseg
 //  tells it that the table holds segs instead of visplanes.
 // -----------------------------------------------------------------------------
@@ -537,29 +537,21 @@ void CRL_DrawPlaneBorders (void **__surface, int __isseg)
 
 // -----------------------------------------------------------------------------
 // CRL_DrawVisPlanes
-//  Draw visplanes (underlay or overlay).
+//  Draw visplanes (fill or border).
 // -----------------------------------------------------------------------------
 
-void CRL_DrawVisPlanes (int __over)
+void CRL_DrawVisPlanes (void)
 {
     // Get visplane drawing mode
 
     // Drawing nothing
-    if (crl_visplanes_drawing == 0)
-    {
-        return;
-    }
-
-    // Overlay but not overlaying?
-    const int isover = (crl_visplanes_drawing == 2 || crl_visplanes_drawing == 4);
-    if (__over != isover)
+    if (!crl_pln_drawing)
     {
         return;
     }
 
     // Border colors
-    CRL_VisPlanePass(CRLPlaneSurface,
-                     crl_visplanes_drawing == 3 || crl_visplanes_drawing == 4, 0);
+    CRL_VisPlanePass(CRLPlaneSurface, crl_pln_drawing == 1, 0);
 }
 
 // -----------------------------------------------------------------------------

@@ -839,7 +839,8 @@ void R_RenderPlayerView(player_t * player)
         R_RenderBSPNode(numnodes - 1);      // the head node is the last node output
         NetUpdate();                // check for new console commands
         R_DrawPlanes();
-        CRL_DrawVisPlanes(0);
+        // RestlessRodent -- Draw Visplanes
+        CRL_DrawVisPlanes();
 
         // [PN] CRL - Sneaking mode: outlines of what the mode refused
         CRL_SneakFrameEnd ();

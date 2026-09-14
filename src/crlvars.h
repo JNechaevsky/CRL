@@ -40,7 +40,6 @@ extern int crl_uncapped_fps;
 extern int crl_fpslimit;
 extern int crl_vsync;
 extern int crl_showfps;
-extern int crl_visplanes_drawing;
 extern int crl_hom_effect;
 extern int crl_gamma;
 extern int crl_menu_shading;
@@ -56,6 +55,10 @@ extern int crl_sneaking;
 extern int crl_sneaking_hom_effect;
 extern int crl_freeze;
 extern int crl_game_speed;
+
+// Drawing modes
+extern int crl_seg_drawing;
+extern int crl_pln_drawing;
 
 // Rewind
 extern int crl_rewind_enable;

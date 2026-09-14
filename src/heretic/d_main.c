@@ -307,9 +307,6 @@ static void D_Display(void)
                 if (automapactive)
                 AM_Drawer();
 
-                // RestlessRodent -- draw visplanes if overlayed
-                CRL_DrawVisPlanes(1);
-
                 // RestlessRodent -- CRL Stats
                 CRL_StatDrawer();
 
