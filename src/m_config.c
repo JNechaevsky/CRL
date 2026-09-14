@@ -279,7 +279,6 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(crl_vsync),
     CONFIG_VARIABLE_INT(crl_showfps),
     CONFIG_VARIABLE_INT(smooth_scaling),
-    CONFIG_VARIABLE_INT(crl_hom_effect),
     CONFIG_VARIABLE_INT(crl_screenwipe),
     CONFIG_VARIABLE_INT(show_endoom),
     CONFIG_VARIABLE_INT(show_diskicon),
@@ -628,7 +627,6 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_INT(crl_automap_antialias),
     CONFIG_VARIABLE_INT(crl_automap_textured_bg),
     CONFIG_VARIABLE_INT(crl_automap_scroll_bg),
-    CONFIG_VARIABLE_INT(crl_automap_mode),
     CONFIG_VARIABLE_INT(crl_automap_secrets),
     CONFIG_VARIABLE_INT(crl_automap_blink),
     CONFIG_VARIABLE_INT(crl_automap_rotate),
@@ -687,6 +685,7 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_COMMENT("Drawing modes"),
     CONFIG_VARIABLE_INT(crl_seg_drawing),
     CONFIG_VARIABLE_INT(crl_pln_drawing),
+    CONFIG_VARIABLE_INT(crl_hom_effect),
     CONFIG_VARIABLE_COMMENT(""),
 
     // Static limits

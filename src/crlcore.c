@@ -554,13 +554,11 @@ void CRL_DrawPlaneBorders (void **__surface, int __isseg)
 
 // -----------------------------------------------------------------------------
 // CRL_DrawVisPlanes
-//  Draw visplanes (fill or border).
+//  Get visplane drawing mode and draw (outline or fill).
 // -----------------------------------------------------------------------------
 
 void CRL_DrawVisPlanes (void)
 {
-    // Get visplane drawing mode
-
     // Drawing nothing
     if (!crl_pln_drawing)
     {
@@ -573,9 +571,9 @@ void CRL_DrawVisPlanes (void)
 
 // -----------------------------------------------------------------------------
 // CRL_DrawSegs
-//  [PN] Draw the walls (fill or border), the same way CRL_DrawVisPlanes draws
-//  the visplanes. crl_seg_drawing: 0 nothing, 1 outline, 2 fill. The segs are
-//  collected per pixel in CRLSegSurface during the wall pass.
+//  [PN] Draw the walls (outline or fill), the same way CRL_DrawVisPlanes draws
+//  the visplanes. The segs are collected per pixel in CRLSegSurface during the
+//  wall pass.
 // -----------------------------------------------------------------------------
 
 void CRL_DrawSegs (void)
@@ -632,79 +630,6 @@ void CRL_GetHOMMultiColor (void)
     // [PN] One step per game tic: the shimmer HOM is indexed by this counter,
     // and not by the frames we happen to draw.
     ++crl_hom_snap_tic;
-}
-
-
-// =============================================================================
-//
-//                                 Automap
-//
-// =============================================================================
-
-
-// -----------------------------------------------------------------------------
-// CRL_DrawMap
-//  Draws the automap.
-//  @param __fl Normal line.
-//  @param __ml Map line.
-// -----------------------------------------------------------------------------
-
-void CRL_DrawMap(void (*__fl)(int, int, int, int, int),
-                 void (*__ml)(int, int, int, int, int))
-{
-    int i, c, j;
-    CRLPlaneData_t pd;
-    CRLSegData_t sd;
-    CRLSubData_t ud;
-
-    // Visplane emitting segs
-    if (crl_automap_mode == 1 || crl_automap_mode == 2)
-    {
-        // Go through all planes
-        for (i = 0; i < _numplanes; i++)
-        {
-            // Identify this plane
-            GAME_IdentifyPlane(_planelist[i], &pd);
-
-            // Floor/ceiling mismatch
-            if ((!!(crl_automap_mode == 1)) != (!!pd.onfloor))
-            {
-                continue;
-            }
-
-            // Color the plane
-            c = CRL_ColorizeThisPlane(&pd);
-
-            // Has an emitting line
-            if (pd.emitline)
-            {
-                // Identify it
-                GAME_IdentifySeg(pd.emitline, &sd);
-
-                // Draw its position as some color
-                __ml(c, sd.coords[0], sd.coords[1],
-                     sd.coords[2], sd.coords[3]);
-            }
-            // Has an emitting subsector, but no line
-            else if (pd.emitsub)
-            {
-                // ID it
-                GAME_IdentifySubSector(pd.emitsub, &ud);
-
-                // Draw the subsector seg lines, the non implicit edges that
-                // is.
-                for (j = 0; j < ud.numlines; j++)
-                {
-                    // Id seg
-                    GAME_IdentifySeg(ud.lines[j], &sd);
-
-                    // Draw it
-                    __ml(c, sd.coords[0], sd.coords[1],
-                        sd.coords[2], sd.coords[3]);
-                }
-            }
-        }
-    }
 }
 
 

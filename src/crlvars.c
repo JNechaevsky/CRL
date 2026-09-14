@@ -40,7 +40,6 @@ int crl_uncapped_fps = 0;
 int crl_fpslimit = 0;
 int crl_vsync = 1;
 int crl_showfps = 0;
-int crl_hom_effect = 2;
 int crl_gamma = 10;
 int crl_menu_shading = 12;
 int crl_level_brightness = 0;
@@ -87,7 +86,6 @@ int crl_automap_scheme = 0;
 int crl_automap_antialias = 1;
 int crl_automap_textured_bg = 1;
 int crl_automap_scroll_bg = 1;
-int crl_automap_mode = 0;
 int crl_automap_secrets = 0;
 int crl_automap_blink = 0;
 int crl_automap_rotate = 0;
@@ -134,6 +132,7 @@ int crl_menu_cap_fps = 0;
 // Drawing modes
 int crl_seg_drawing = 0;
 int crl_pln_drawing = 0;
+int crl_hom_effect = 2;
 
 // Static limits
 int crl_unknown_linedefs = 1;
@@ -166,7 +165,6 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_fpslimit",                   &crl_fpslimit);
     M_BindIntVariable("crl_vsync",                      &crl_vsync);
     M_BindIntVariable("crl_showfps",                    &crl_showfps);
-    M_BindIntVariable("crl_hom_effect",                 &crl_hom_effect);
     M_BindIntVariable("crl_gamma",                      &crl_gamma);
     M_BindIntVariable("crl_menu_shading",               &crl_menu_shading);
     M_BindIntVariable("crl_level_brightness",           &crl_level_brightness);
@@ -210,7 +208,6 @@ void CRL_BindVariables (void)
     M_BindIntVariable("crl_automap_antialias",          &crl_automap_antialias);
     M_BindIntVariable("crl_automap_textured_bg",        &crl_automap_textured_bg);
     M_BindIntVariable("crl_automap_scroll_bg",          &crl_automap_scroll_bg);
-    M_BindIntVariable("crl_automap_mode",               &crl_automap_mode);
     M_BindIntVariable("crl_automap_secrets",            &crl_automap_secrets);
     M_BindIntVariable("crl_automap_blink",              &crl_automap_blink);
     M_BindIntVariable("crl_automap_rotate",             &crl_automap_rotate);
@@ -257,6 +254,7 @@ void CRL_BindVariables (void)
     // Drawing modes
     M_BindIntVariable("crl_seg_drawing",                &crl_seg_drawing);
     M_BindIntVariable("crl_pln_drawing",                &crl_pln_drawing);
+    M_BindIntVariable("crl_hom_effect",                 &crl_hom_effect);
 
     // Limits and Warnings
     M_BindIntVariable("crl_unknown_linedefs",           &crl_unknown_linedefs);

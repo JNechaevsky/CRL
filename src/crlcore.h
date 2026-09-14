@@ -177,13 +177,6 @@ extern void GAME_IdentifySeg (void* __what, CRLSegData_t* __info);
 extern void GAME_IdentifySubSector (void* __what, CRLSubData_t* __info);
 
 //
-// Automap
-//
-
-extern void CRL_DrawMap(void (*__fl)(int, int, int, int, int),
-                        void (*__ml)(int, int, int, int, int));
-
-//
 // Spectator Mode
 //
 
