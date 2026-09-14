@@ -223,16 +223,29 @@ void CRL_InitHOMColors(void)
 //  tics ago in its place, so whatever the renderer skips shows a leftover of
 //  another generation. The clock is game tics, not frames, so the pace of the
 //  shimmer stays the pace of the game at any frame rate we manage to draw at.
+//
+//  The snapshot into the ring is latched to the tic: it is taken only once the
+//  first frame a tic is seen for. Drawing the same tic on several frames (any
+//  frame rate above 35, and especially the ~1.7 frames per tic around 60 Hz)
+//  would otherwise re-save the already-swapped front buffer back into its own
+//  slot, feeding the delay line into itself until the leftover converges and
+//  the shimmer dies out. So on a repeat frame we only re-apply the old window.
 // -----------------------------------------------------------------------------
 
 void CRL_HomShimmer (int x, int y, int w, int h)
 {
+    // The tic this window was last captured for, so we snapshot once a tic.
+    static unsigned int last_snap_tic;
+
     const unsigned int slot  = crl_hom_snap_tic % CRL_HOM_HISTORY;
     const unsigned int prior = (crl_hom_snap_tic + 1) % CRL_HOM_HISTORY;
     byte *const        keep  = crl_hom_snap[slot];
     byte *const        back  = crl_hom_snap[prior];
 
-    // [PN] The window is the renderer's business, keep the copy inside ours.
+    // Only a new tic may overwrite the history; repeat frames re-apply it.
+    const boolean      fresh = (crl_hom_snap_tic != last_snap_tic);
+
+    // The window is the renderer's business, keep the copy inside ours.
     x = BETWEEN(0, SCREENWIDTH  - 1, x);
     y = BETWEEN(0, SCREENHEIGHT - 1, y);
     w = BETWEEN(0, SCREENWIDTH  - x, w);
@@ -247,8 +260,17 @@ void CRL_HomShimmer (int x, int y, int w, int h)
     {
         const int off = (y + i) * SCREENWIDTH + x;
 
-        memcpy(keep + off, I_VideoBuffer + off, w);
+        // Latch the save: one snapshot per tic, never from our own swap.
+        if (fresh)
+        {
+            memcpy(keep + off, I_VideoBuffer + off, w);
+        }
         memcpy(I_VideoBuffer + off, back + off, w);
+    }
+
+    if (fresh)
+    {
+        last_snap_tic = crl_hom_snap_tic;
     }
 }
 
