@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "doomdef.h"  // player_t, mobj_t, degenmobj_t
 #include "i_video.h"
 #include "v_patch.h"
 
