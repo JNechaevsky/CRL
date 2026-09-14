@@ -14,7 +14,7 @@ Several important code fragments were ported from [International Doom](https://g
 
 You can follow the official development thread on the [Doom World](https://www.doomworld.com/forum/topic/134756-chocorenderlimitscrl-16-september-7-2023/) forum.
 
-CRL is maintained by [Julia Nechaevskaya](https://jnechaevsky.github.io/author.html).
+CRL is maintained by [Julia Nechaevskaya](https://jnechaevsky.github.io/author.html) and Polina "Aura" N.
 
 ## Download
 

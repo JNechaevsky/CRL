@@ -3,6 +3,7 @@
 // Copyright(C) 2005-2014 Simon Howard
 // Copyright(C) 2011-2017 RestlessRodent
 // Copyright(C) 2018-2026 Julia Nechaevskaya
+// Copyright(C) 2024-2026 Polina "Aura" N.
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
