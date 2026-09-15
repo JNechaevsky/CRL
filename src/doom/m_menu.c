@@ -5291,81 +5291,70 @@ void M_WriteTextCentered (const int y, const char *string, byte *table)
 // -----------------------------------------------------------------------------
 // M_WriteTextCritical
 // [JN] Write a two line strings using the hu_font.
+// [PN] Strings wider than the screen are word-wrapped onto extra lines.
 // -----------------------------------------------------------------------------
+
+// [PN] Draw one string with word-wrapping; returns the y of the next free line.
+static int M_WriteCriticalLine (const char *const string, const int y)
+{
+    const char *ch = string;
+    char name[9];
+    int cx = 0;
+    int cy = y;
+
+    while (*ch)
+    {
+        int word_w = 0;
+        int i;
+
+        // Spaces advance the cursor, but are dropped when a wrap happens.
+        if (*ch == ' ')
+        {
+            cx += 4;
+            ch++;
+            continue;
+        }
+
+        // Measure the next word using the same metrics as M_StringWidth().
+        for (i = 0; ch[i] && ch[i] != ' '; i++)
+        {
+            int c = toupper(ch[i]) - HU_FONTSTART;
+            word_w += (c < 0 || c >= HU_FONTSIZE) ? 4 : SHORT (hu_font[c]->width);
+        }
+
+        if (cx + word_w > SCREENWIDTH && cx > 0)
+        {
+            cx = 0;
+            cy += 8;
+        }
+
+        // Draw the word character by character.
+        for (; *ch && *ch != ' '; ch++)
+        {
+            int c = toupper(*ch) - HU_FONTSTART;
+
+            if (c < 0 || c >= HU_FONTSIZE)
+            {
+                cx += 4;
+                continue;
+            }
+
+            // [JN] Construct proper patch name for possible error handling:
+            sprintf(name, "STCFN%03d", c + HU_FONTSTART);
+            V_DrawShadowedPatch(cx, cy, hu_font[c]);
+            cx += SHORT (hu_font[c]->width);
+        }
+    }
+
+    return cy + 8;
+}
 
 void M_WriteTextCritical (const int y, const char *string1, const char *string2, byte *table)
 {
-    const char*	ch1;
-    const char*	ch2;
-    int w, c, cx, cy;
-    char name[9];
-
-    ch1 = string1;
-    ch2 = string2;
-    cx = 0;
-    cy = y;
-
     dp_translation = table;
 
-    while (ch1)
-    {
-        c = *ch1++;
-
-        if (!c)
-        {
-            break;
-        }
-
-        c = toupper(c) - HU_FONTSTART;
-
-        if (c < 0 || c >= HU_FONTSIZE)
-        {
-            cx += 4;
-            continue;
-        }
-
-        w = SHORT (hu_font[c]->width);
-
-        if (cx + w > SCREENWIDTH)
-        {
-            break;
-        }
-
-        // [JN] Construct proper patch name for possible error handling:
-        sprintf(name, "STCFN%03d", c + HU_FONTSTART);
-        V_DrawShadowedPatch(cx, cy, hu_font[c]);
-        cx+=w;
-    }
-cx = 0;
-    while (ch2)
-    {
-        c = *ch2++;
-
-        if (!c)
-        {
-            break;
-        }
-
-        c = toupper(c) - HU_FONTSTART;
-
-        if (c < 0 || c >= HU_FONTSIZE)
-        {
-            cx += 4;
-            continue;
-        }
-
-        w = SHORT (hu_font[c]->width);
-
-        if (cx + w > SCREENWIDTH)
-        {
-            break;
-        }
-
-        // [JN] Construct proper patch name for possible error handling:
-        sprintf(name, "STCFN%03d", c + HU_FONTSTART);
-        V_DrawShadowedPatch(cx, cy+8, hu_font[c]);
-        cx+=w;
-    }
+    const int y2 = M_WriteCriticalLine (string1, y);
+    M_WriteCriticalLine (string2, y2);
 
     dp_translation = NULL;
 }

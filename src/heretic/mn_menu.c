@@ -4121,48 +4121,106 @@ void MN_DrTextACentered (const char *text, int y, byte *table)
 // -----------------------------------------------------------------------------
 // M_WriteTextCritical
 // [JN] Write a two line strings.
+// [PN] Strings wider than the screen are word-wrapped onto extra lines.
 // -----------------------------------------------------------------------------
+
+// [PN] Pixel width of one font A character, matching MN_TextAWidth().
+static int MN_CharAWidth (char ascii_index)
+{
+    char c = MN_CheckValidChar (ascii_index, small_font);
+
+    if (c < 33)
+    {
+        return 5;
+    }
+
+    const patch_t *const p = W_CacheLumpNum (FontABaseLump + c - 33, PU_CACHE);
+    return SHORT (p->width) - 1;
+}
+
+// [PN] Draw one critical string with word-wrapping; every wrapped line is
+// centered (Heretic style). Returns the y of the next free line.
+static int MN_DrTextACriticalLine (const char *text, int y)
+{
+    while (*text)
+    {
+        int i, line_end = 0, line_width = 0;
+        int cx, j;
+
+        // Spaces left over from a wrap are dropped.
+        while (*text == ' ')
+        {
+            text++;
+        }
+
+        // Greedily pack whole words that fit into the screen width.
+        i = 0;
+        while (text[i])
+        {
+            int spaces = 0;
+            int word_end = i;
+            int w = 0;
+
+            while (text[i] == ' ')
+            {
+                i++;
+                spaces++;
+            }
+
+            while (text[i] && text[i] != ' ')
+            {
+                w += MN_CharAWidth (text[i]);
+                i++;
+            }
+            word_end = i;
+
+            // The first word of a line is always accepted (an unbreakable
+            // word wider than the screen is drawn left-aligned below).
+            if (line_end > 0 && line_width + spaces * 5 + w > SCREENWIDTH)
+            {
+                break;
+            }
+
+            line_width += spaces * 5 + w;
+            line_end = word_end;
+        }
+
+        cx = 160 - line_width / 2;
+
+        if (cx < 0) // a single word wider than the screen: left-align and clip
+        {
+            cx = 0;
+        }
+
+        for (j = 0; j < line_end; j++)
+        {
+            char c = MN_CheckValidChar (text[j], small_font);
+            patch_t *p;
+
+            if (c < 33)
+            {
+                cx += 5;
+                continue;
+            }
+
+            p = W_CacheLumpNum (FontABaseLump + c - 33, PU_CACHE);
+            V_DrawShadowedPatchRavenOptional (cx, y, p);
+            cx += SHORT (p->width) - 1;
+        }
+
+        text += line_end;
+        y += 10;
+    }
+
+    return y;
+}
 
 void MN_DrTextACritical (const char *text1, const char *text2, int y, byte *table)
 {
-    char c;
-    int cx1, cx2;
-    patch_t *p;
-
-    cx1 = 160 - MN_TextAWidth(text1) / 2;
-    cx2 = 160 - MN_TextAWidth(text2) / 2;
-    
     dp_translation = table;
 
-    while ((c = *text1++) != 0)
-    {
-        c = MN_CheckValidChar(c, small_font); // [crispy] check for valid characters
-
-        if (c < 33)
-        {
-            cx1 += 5;
-        }
-        else
-        {
-            p = W_CacheLumpNum(FontABaseLump + c - 33, PU_CACHE);
-            V_DrawShadowedPatchRavenOptional(cx1, y, p);
-            cx1 += SHORT(p->width) - 1;
-        }
-    }
-
-    while ((c = *text2++) != 0)
-    {
-        if (c < 33)
-        {
-            cx2 += 5;
-        }
-        else
-        {
-            p = W_CacheLumpNum(FontABaseLump + c - 33, PU_CACHE);
-            V_DrawShadowedPatchRavenOptional(cx2, y+10, p);
-            cx2 += SHORT(p->width) - 1;
-        }
-    }
+    const int y2 = MN_DrTextACriticalLine (text1, y);
+    MN_DrTextACriticalLine (text2, y2);
 
     dp_translation = NULL;
 }
