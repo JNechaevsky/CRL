@@ -5155,7 +5155,6 @@ void M_WriteText (int x, int y, const char *string, byte *table)
 {
     const char*	ch;
     int w, c, cx, cy;
-    char name[9];
 
     ch = string;
     cx = x;
@@ -5204,8 +5203,6 @@ void M_WriteText (int x, int y, const char *string, byte *table)
             break;
         }
 
-        // [JN] Construct proper patch name for possible error handling:
-        sprintf(name, "STCFN%03d", c + HU_FONTSTART);
         V_DrawShadowedPatch(cx, cy, hu_font[c]);
         cx+=w;
     }
@@ -5223,7 +5220,6 @@ void M_WriteTextCentered (const int y, const char *string, byte *table)
     const char *ch;
     const int width = M_StringWidth(string);
     int w, c, cx, cy;
-    char name[9];
 
     ch = string;
     cx = SCREENWIDTH/2-width/2;
@@ -5278,9 +5274,7 @@ void M_WriteTextCentered (const int y, const char *string, byte *table)
         {
             break;
         }
-        
-        // [JN] Construct proper patch name for possible error handling:
-        sprintf(name, "STCFN%03d", c + HU_FONTSTART);
+
         V_DrawShadowedPatch(cx, cy, hu_font[c]);
         cx += w;
     }
@@ -5298,14 +5292,12 @@ void M_WriteTextCentered (const int y, const char *string, byte *table)
 static int M_WriteCriticalLine (const char *const string, const int y)
 {
     const char *ch = string;
-    char name[9];
     int cx = 0;
     int cy = y;
 
     while (*ch)
     {
         int word_w = 0;
-        int i;
 
         // Spaces advance the cursor, but are dropped when a wrap happens.
         if (*ch == ' ')
@@ -5316,9 +5308,9 @@ static int M_WriteCriticalLine (const char *const string, const int y)
         }
 
         // Measure the next word using the same metrics as M_StringWidth().
-        for (i = 0; ch[i] && ch[i] != ' '; i++)
+        for (int i = 0; ch[i] && ch[i] != ' '; i++)
         {
-            int c = toupper(ch[i]) - HU_FONTSTART;
+            const int c = toupper(ch[i]) - HU_FONTSTART;
             word_w += (c < 0 || c >= HU_FONTSIZE) ? 4 : SHORT (hu_font[c]->width);
         }
 
@@ -5331,7 +5323,7 @@ static int M_WriteCriticalLine (const char *const string, const int y)
         // Draw the word character by character.
         for (; *ch && *ch != ' '; ch++)
         {
-            int c = toupper(*ch) - HU_FONTSTART;
+            const int c = toupper(*ch) - HU_FONTSTART;
 
             if (c < 0 || c >= HU_FONTSIZE)
             {
@@ -5339,8 +5331,6 @@ static int M_WriteCriticalLine (const char *const string, const int y)
                 continue;
             }
 
-            // [JN] Construct proper patch name for possible error handling:
-            sprintf(name, "STCFN%03d", c + HU_FONTSTART);
             V_DrawShadowedPatch(cx, cy, hu_font[c]);
             cx += SHORT (hu_font[c]->width);
         }

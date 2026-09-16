@@ -426,20 +426,9 @@ boolean WI_Responder(const event_t* ev)
 static void WI_drawLF(void)
 {
     int y = WI_TITLEY;
-    char lvlname[17];
 
     if (gamemode != commercial || wbs->last < NUMCMAPS)
     {
-        // [JN] Construct proper patch name for possible error handling:
-        if (gamemode == commercial)
-        {
-            sprintf(lvlname, "CWILV%2.2d", wbs->last);
-        }
-        else
-        {
-            sprintf(lvlname, "WILV%d%d", wbs->epsd, wbs->last);
-        }
-
         // draw <LevelName> 
         V_DrawShadowedPatch((SCREENWIDTH - SHORT(lnames[wbs->last]->width))/2,
                     y, lnames[wbs->last]);
@@ -473,7 +462,6 @@ static void WI_drawLF(void)
 static void WI_drawEL(void)
 {
     int y = WI_TITLEY;
-    char lvlname[9];
 
     // draw "Entering"
     V_DrawShadowedPatch((SCREENWIDTH - SHORT(entering->width))/2,
@@ -482,16 +470,6 @@ static void WI_drawEL(void)
 
     // draw level
     y += (5*SHORT(lnames[wbs->next]->height))/4;
-
-    // [JN] Construct proper patch name for possible error handling:
-    if (gamemode == commercial)
-    {
-        sprintf(lvlname, "CWILV%2.2d", wbs->next);
-    }
-    else
-    {
-        sprintf(lvlname, "WILV%d%d", wbs->epsd, wbs->next);
-    }
 
     V_DrawShadowedPatch((SCREENWIDTH - SHORT(lnames[wbs->next]->width))/2,
 		y, 
@@ -535,8 +513,6 @@ WI_drawOnLnode
 
     if (fits && i<2)
     {
-	// [JN] Note: no bad patch error happening here in fact.
-	// If splat is drawing offscreen, "else" condition will be invoked.
 	V_DrawShadowedPatch(lnodes[wbs->epsd][n].x,
                     lnodes[wbs->epsd][n].y,
 		    c[i]);
@@ -642,7 +618,6 @@ static void WI_drawAnimatedBack(void)
 {
     int			i;
     anim_t*		a;
-    char		name[36];
 
     if (gamemode == commercial)
 	return;
@@ -655,8 +630,6 @@ static void WI_drawAnimatedBack(void)
     {
 	a = &anims[wbs->epsd][7];
 
-	// [JN] Construct proper patch name for possible error handling:
-	sprintf(name, "WIA10702");
 	V_DrawPatch(a->loc.x, a->loc.y, a->p[a->nanims - 1]);
     }
 
@@ -664,8 +637,6 @@ static void WI_drawAnimatedBack(void)
     {
 	a = &anims[wbs->epsd][i];
 
-	// [JN] Construct proper patch name for possible error handling:
-	sprintf(name, "WIA%d%.2d%.2d", wbs->epsd, i, a->ctr);
 	if (a->ctr >= 0)
 	    V_DrawPatch(a->loc.x, a->loc.y, a->p[a->ctr]);
     }
@@ -689,7 +660,6 @@ WI_drawNum
     int		fontwidth = SHORT(num[0]->width);
     int		neg;
     int		temp;
-    char	name[16];
 
     if (digits < 0)
     {
@@ -724,8 +694,6 @@ WI_drawNum
     while (digits--)
     {
 	x -= fontwidth;
-	// [JN] Construct proper patch name for possible error handling:
-	sprintf(name, "WINUM%d", n);
 	V_DrawShadowedPatch(x, y, num[ n % 10 ]);
 	n /= 10;
     }
@@ -1077,7 +1045,6 @@ static void WI_drawDeathmatchStats(void)
     int		x;
     int		y;
     int		w;
-    char	name[9];
 
     WI_slamBackground();
     
@@ -1101,9 +1068,6 @@ static void WI_drawDeathmatchStats(void)
     {
 	if (playeringame[i])
 	{
-	    // [JN] Construct proper patch name for possible error handling:
-	    sprintf(name, "STPB%d", i);
-
 	    V_DrawShadowedPatch(x-SHORT(p[i]->width)/2,
 			DM_MATRIXY - WI_SPACINGY,
 			p[i]);
@@ -1350,7 +1314,6 @@ static void WI_drawNetgameStats(void)
     int		x;
     int		y;
     int		pwidth = SHORT(percent->width);
-    char	name[9];
 
     WI_slamBackground();
     
@@ -1363,7 +1326,6 @@ static void WI_drawNetgameStats(void)
     V_DrawShadowedPatch(NG_STATSX+NG_SPACINGX-SHORT(kills->width),
 		NG_STATSY, kills);
 
-    // [JN] TODO - add support for French version ("WIOBJ").
     V_DrawShadowedPatch(NG_STATSX+2*NG_SPACINGX-SHORT(items->width),
 		NG_STATSY, items);
 
@@ -1384,8 +1346,6 @@ static void WI_drawNetgameStats(void)
 
 	x = NG_STATSX;
 
-	// [JN] Construct proper patch name for possible error handling:
-	sprintf(name, "STPB%d", i);
 	V_DrawShadowedPatch(x-SHORT(p[i]->width), y, p[i]);
 
 	if (i == me)
@@ -1541,7 +1501,6 @@ static void WI_drawStats(void)
     V_DrawShadowedPatch(SP_STATSX, SP_STATSY, kills);
     WI_drawPercent(SCREENWIDTH - SP_STATSX, SP_STATSY, cnt_kills[0]);
 
-    // [JN] TODO - add support for French version ("WIOBJ").
     V_DrawShadowedPatch(SP_STATSX, SP_STATSY+lh, items);
     WI_drawPercent(SCREENWIDTH - SP_STATSX, SP_STATSY+lh, cnt_items[0]);
 

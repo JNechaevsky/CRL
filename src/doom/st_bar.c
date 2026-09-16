@@ -1471,7 +1471,6 @@ static void ST_DrawBigNumber (int val, const int x, const int y, byte *table)
 {
     int oldval = val;
     int xpos = x;
-    char name[9];
 
     dp_translation = table;
 
@@ -1496,8 +1495,6 @@ static void ST_DrawBigNumber (int val, const int x, const int y, byte *table)
 
     if (val > 99)
     {
-        // [JN] Construct proper patch name for possible error handling:
-        sprintf(name, "STTNUM%d", val/100);
         V_DrawPatch(xpos - 4, y, tallnum[val / 100]);
     }
 
@@ -1506,16 +1503,12 @@ static void ST_DrawBigNumber (int val, const int x, const int y, byte *table)
 
     if (val > 9 || oldval > 99)
     {
-        // [JN] Construct proper patch name for possible error handling:
-        sprintf(name, "STTNUM%d", val/10);
         V_DrawPatch(xpos - 4, y, tallnum[val / 10]);
     }
 
     val = val % 10;
     xpos += 14;
 
-    // [JN] Construct proper patch name for possible error handling:
-    sprintf(name, "STTNUM%d", val);
     V_DrawPatch(xpos - 4, y, tallnum[val]);
     
     dp_translation = NULL;
@@ -1542,7 +1535,6 @@ static void ST_DrawSmallNumberY (int val, const int x, const int y)
 {
     int oldval = val;
     int xpos = x;
-    char name[9];
 
     if (val < 0)
     {
@@ -1555,8 +1547,6 @@ static void ST_DrawSmallNumberY (int val, const int x, const int y)
 
     if (val > 99)
     {
-        // [JN] Construct proper patch name for possible error handling:
-        sprintf(name, "STYSNUM%d", val/100);
         V_DrawPatch(xpos - 4, y, shortnum_y[val / 100]);
     }
 
@@ -1565,16 +1555,12 @@ static void ST_DrawSmallNumberY (int val, const int x, const int y)
 
     if (val > 9 || oldval > 99)
     {
-        // [JN] Construct proper patch name for possible error handling:
-        sprintf(name, "STYSNUM%d", val/10);
         V_DrawPatch(xpos - 4, y, shortnum_y[val / 10]);
     }
 
     val = val % 10;
     xpos += 4;
 
-    // [JN] Construct proper patch name for possible error handling:
-    sprintf(name, "STYSNUM%d", val);
     V_DrawPatch(xpos - 4, y, shortnum_y[val]);
 }
 
@@ -1585,8 +1571,6 @@ static void ST_DrawSmallNumberY (int val, const int x, const int y)
 
 static void ST_DrawSmallNumberG (int val, const int x, const int y)
 {
-    char name[9];
-
     if (val < 0)
     {
         val = 0;
@@ -1596,8 +1580,6 @@ static void ST_DrawSmallNumberG (int val, const int x, const int y)
         val = 9;
     }
 
-    // [JN] Construct proper patch name for possible error handling:
-    sprintf(name, "STGNUM%d", val);
     V_DrawPatch(x + 4, y, shortnum_g[val]);
 }
 
