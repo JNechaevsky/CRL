@@ -115,6 +115,17 @@ extern int key_crl_idclip, key_crl_idclip2;
 extern int key_crl_iddt, key_crl_iddt2;
 extern int key_crl_mdk, key_crl_mdk2;
 extern int key_crl_spechits, key_crl_spechits2;
+extern int key_crl_health, key_crl_health2;
+extern int key_crl_armor, key_crl_armor2;
+extern int key_crl_reshealth, key_crl_reshealth2;
+extern int key_crl_resarmor, key_crl_resarmor2;
+extern int key_crl_invul, key_crl_invul2;
+extern int key_crl_berserk, key_crl_berserk2;
+extern int key_crl_invis, key_crl_invis2;
+extern int key_crl_radsuit, key_crl_radsuit2;
+extern int key_crl_automap, key_crl_automap2;
+extern int key_crl_light, key_crl_light2;
+extern int key_crl_mypos, key_crl_mypos2;
 
 // Weapons
 

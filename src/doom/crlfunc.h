@@ -46,6 +46,9 @@ extern void CRL_Get_Render_MAX (CRL_Render_max_t *max);
 extern void CRL_MoveTo_Render_MAX (const CRL_Render_max_t *max);
 extern byte *const CRL_Colorize_MAX (int style);
 
+extern void CRL_FixedToString (fixed_t value, char *const buf, size_t buf_size);
+extern void CRL_AngleToString (angle_t value, char *const buf, size_t buf_size);
+
 // [PN] Render counters' values.
 extern void CRL_CounterValue_SPR (char *const value, size_t value_size);
 extern void CRL_CounterValue_SSG (char *const value, size_t value_size, char *const max, size_t max_size);
@@ -71,3 +74,9 @@ extern int CRL_invis_counter;
 extern int CRL_rad_counter;
 extern int CRL_amp_counter;
 
+// Powerup shortcuts.
+extern void CRL_Give_200_Health (void);
+extern void CRL_Give_200_Armor (void);
+extern void CRL_Reset_Health (void);
+extern void CRL_Reset_Armor (void);
+extern void CRL_Give_Powerup (const powertype_t power);

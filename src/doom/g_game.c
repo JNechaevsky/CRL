@@ -1570,6 +1570,69 @@ boolean G_Responder (event_t* ev)
         ST_cheat_spechits();
     }
 
+    // [JN] CRL - Cheat shortcuts.
+   if (ev->data1 == key_crl_health || ev->data1 == key_crl_health2)
+   {
+       CRL_Give_200_Health();
+   }
+   if (ev->data1 == key_crl_armor || ev->data1 == key_crl_armor2)
+   {
+       CRL_Give_200_Armor();
+   }
+   if (ev->data1 == key_crl_reshealth || ev->data1 == key_crl_reshealth2)
+   {
+       CRL_Reset_Health();
+   }
+   if (ev->data1 == key_crl_resarmor || ev->data1 == key_crl_resarmor2)
+   {
+       CRL_Reset_Armor();
+   }
+   if (ev->data1 == key_crl_invul || ev->data1 == key_crl_invul2)
+   {
+       CRL_Give_Powerup(pw_invulnerability);
+   }
+   if (ev->data1 == key_crl_berserk || ev->data1 == key_crl_berserk2)
+   {
+       CRL_Give_Powerup(pw_strength);
+   }
+   if (ev->data1 == key_crl_invis || ev->data1 == key_crl_invis2)
+   {
+       CRL_Give_Powerup(pw_invisibility);
+   }
+   if (ev->data1 == key_crl_radsuit || ev->data1 == key_crl_radsuit2)
+   {
+       CRL_Give_Powerup(pw_ironfeet);
+   }
+   if (ev->data1 == key_crl_automap || ev->data1 == key_crl_automap2)
+   {
+       CRL_Give_Powerup(pw_allmap);
+   }
+   if (ev->data1 == key_crl_light || ev->data1 == key_crl_light2)
+   {
+       CRL_Give_Powerup(pw_infrared);
+   }
+
+    if (ev->data1 == key_crl_mypos || ev->data1 == key_crl_mypos2)
+    {
+        static char buf[128];
+        static char buf_x[128];
+        static char buf_y[128];
+        static char buf_z[128];
+        static char buf_ang[128];
+
+        CRL_FixedToString(CRLWidgets.x, buf_x, sizeof(buf_x));
+        CRL_FixedToString(CRLWidgets.y, buf_y, sizeof(buf_y));
+        CRL_FixedToString(CRLWidgets.z, buf_z, sizeof(buf_z));
+        CRL_AngleToString(CRLWidgets.ang, buf_ang, sizeof(buf_ang));
+
+        M_snprintf(buf, sizeof(buf), "x = %s\r"
+                                     "y = %s\r"
+                                     "z = %s\r"
+                                     "ang = %s",
+                   buf_x, buf_y, buf_z, buf_ang);
+        CRL_SetMessage(plr, buf, false, NULL);
+    }
+
     // [JN] CRL - Toggle static engine limits.
     if (ev->data1 == key_crl_limits)
     {

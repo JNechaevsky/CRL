@@ -423,6 +423,17 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_KEYBIND(key_crl_iddt, key_crl_iddt2),
     CONFIG_VARIABLE_KEYBIND(key_crl_mdk, key_crl_mdk2),
     CONFIG_VARIABLE_KEYBIND(key_crl_spechits, key_crl_spechits2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_health, key_crl_health2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_armor, key_crl_armor2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_reshealth, key_crl_reshealth2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_resarmor, key_crl_resarmor2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_invul, key_crl_invul2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_berserk, key_crl_berserk2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_invis, key_crl_invis2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_radsuit, key_crl_radsuit2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_automap, key_crl_automap2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_light, key_crl_light2),
+    CONFIG_VARIABLE_KEYBIND(key_crl_mypos, key_crl_mypos2),
 
     // Weapons
     CONFIG_VARIABLE_KEYBIND(key_weapon1, key_weapon1_2),

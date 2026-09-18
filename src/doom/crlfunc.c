@@ -25,6 +25,7 @@
 #include "v_trans.h"
 #include "v_video.h"
 #include "doomstat.h"
+#include "d_englsh.h"
 #include "m_menu.h"
 #include "m_misc.h"
 #include "p_local.h"
@@ -369,7 +370,7 @@ byte *const CRL_Colorize_MAX (int style)
 //  [PN] Formats fixed_t value as string with fractional part (up to 5 digits).
 // -----------------------------------------------------------------------------
 
-static void CRL_FixedToString (fixed_t value, char *const buf, size_t buf_size)
+void CRL_FixedToString (fixed_t value, char *const buf, size_t buf_size)
 {
     const split_fixed_t val = SplitFixed(value);
     
@@ -389,7 +390,7 @@ static void CRL_FixedToString (fixed_t value, char *const buf, size_t buf_size)
 //  [PN] Formats angle_t value as string with fractional part (up to 3 digits).
 // -----------------------------------------------------------------------------
 
-static void CRL_AngleToString (angle_t value, char *const buf, size_t buf_size)
+void CRL_AngleToString (angle_t value, char *const buf, size_t buf_size)
 {
     const split_angle_t val = SplitAngle(value);
     
@@ -1039,4 +1040,116 @@ void CRL_DrawPlayerSpeed (void)
     fontfunc(x_val, 151, val, CRL_WidgetColor(widget_speed_val));
 
     dp_translucent = false;
+}
+
+// =============================================================================
+//
+//                              Powerup Shortcuts
+//
+// =============================================================================
+
+#define FULL_CHEAT_CHECK                                                    \
+                                                                            \
+player_t *const plr = &players[consoleplayer];                              \
+                                                                            \
+if (demorecording)                                                          \
+{                                                                           \
+    CRL_SetMessage(plr, CRL_POWERUP_NA_R, false, NULL);                     \
+    return;                                                                 \
+}                                                                           \
+if (demoplayback)                                                           \
+{                                                                           \
+    CRL_SetMessage(plr, CRL_POWERUP_NA_P, false, NULL);                     \
+    return;                                                                 \
+}                                                                           \
+if (netgame)                                                                \
+{                                                                           \
+    CRL_SetMessage(plr, CRL_POWERUP_NA_N, false, NULL);                     \
+    return;                                                                 \
+}
+
+void CRL_Give_200_Health (void)
+{
+    FULL_CHEAT_CHECK;
+    plr->health = plr->mo->health = 200;
+    CRL_SetMessage(plr, "200% HEALTH", false, NULL);
+}
+
+void CRL_Give_200_Armor (void)
+{
+    FULL_CHEAT_CHECK;
+    plr->armorpoints = 200;
+    plr->armortype = 2;
+    CRL_SetMessage(plr, "200% ARMOR", false, NULL);
+}
+
+void CRL_Reset_Health (void)
+{
+    FULL_CHEAT_CHECK;
+    plr->health = plr->mo->health = 100;
+    CRL_SetMessage(plr, "HEALTH RESET", false, NULL);
+}
+
+void CRL_Reset_Armor (void)
+{
+    FULL_CHEAT_CHECK;
+    plr->armorpoints = plr->armortype = 0;
+    CRL_SetMessage(plr, "ARMOR RESET", false, NULL);
+}
+
+void CRL_Give_Powerup (const powertype_t power)
+{
+    FULL_CHEAT_CHECK;
+
+    switch (power)
+    {
+        case pw_invulnerability:
+            plr->powers[pw_invulnerability] =
+            plr->powers[pw_invulnerability] ? 0 : INVULNTICS;
+            plr->fixedcolormap = plr->powers[pw_infrared] ? 1 :
+                                 plr->powers[pw_invulnerability] ? 32 : 0;
+            CRL_SetMessage(plr, plr->powers[pw_invulnerability] ?
+                            CRL_POWERUP_ON : CRL_POWERUP_OFF, false, NULL);
+            break;
+
+        case pw_strength:
+            plr->powers[pw_strength] =
+            plr->powers[pw_strength] ? 0 : 1;
+            CRL_SetMessage(plr, plr->powers[pw_strength] ?
+                            CRL_POWERUP_ON : CRL_POWERUP_OFF, false, NULL);
+            break;
+
+        case pw_invisibility:
+            plr->powers[pw_invisibility] =
+            plr->powers[pw_invisibility] ? 0 : INVISTICS;
+            plr->mo->flags ^= MF_SHADOW;
+            CRL_SetMessage(plr, plr->powers[pw_invisibility] ?
+                            CRL_POWERUP_ON : CRL_POWERUP_OFF, false, NULL);
+            break;
+
+        case pw_ironfeet:
+            plr->powers[pw_ironfeet] =
+            plr->powers[pw_ironfeet] ? 0 : IRONTICS;
+            CRL_SetMessage(plr, plr->powers[pw_ironfeet] ?
+                            CRL_POWERUP_ON : CRL_POWERUP_OFF, false, NULL);
+            break;
+
+        case pw_allmap:
+            plr->powers[pw_allmap] ^= 1;
+            CRL_SetMessage(plr, plr->powers[pw_allmap] ?
+                            CRL_POWERUP_ON : CRL_POWERUP_OFF, false, NULL);
+            break;
+
+        case pw_infrared:
+            plr->powers[pw_infrared] =
+            plr->powers[pw_infrared] ? 0 : INFRATICS;
+            plr->fixedcolormap = plr->powers[pw_invulnerability] ? 32 :
+                                 plr->powers[pw_infrared] ? 1 : 0;
+            CRL_SetMessage(plr, plr->powers[pw_infrared] ?
+                            CRL_POWERUP_ON : CRL_POWERUP_OFF, false, NULL);
+            break;
+
+        default:
+            break;
+    }
 }

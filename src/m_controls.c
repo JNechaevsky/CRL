@@ -122,13 +122,24 @@ int key_crl_clear_all_max  = 0;   int key_crl_clear_all_max2   = 0;
 
 // Cheat shortcuts
 
-int key_crl_iddqd    = 0; int key_crl_iddqd2    = 0;
-int key_crl_idkfa    = 0; int key_crl_idkfa2    = 0;
-int key_crl_idfa     = 0; int key_crl_idfa2     = 0;
-int key_crl_idclip   = 0; int key_crl_idclip2   = 0;
-int key_crl_iddt     = 0; int key_crl_iddt2     = 0;
-int key_crl_mdk      = 0; int key_crl_mdk2      = 0;
-int key_crl_spechits = 0; int key_crl_spechits2 = 0;
+int key_crl_iddqd     = 0; int key_crl_iddqd2     = 0;
+int key_crl_idkfa     = 0; int key_crl_idkfa2     = 0;
+int key_crl_idfa      = 0; int key_crl_idfa2      = 0;
+int key_crl_idclip    = 0; int key_crl_idclip2    = 0;
+int key_crl_iddt      = 0; int key_crl_iddt2      = 0;
+int key_crl_mdk       = 0; int key_crl_mdk2       = 0;
+int key_crl_spechits  = 0; int key_crl_spechits2  = 0;
+int key_crl_health    = 0; int key_crl_health2    = 0;
+int key_crl_armor     = 0; int key_crl_armor2     = 0;
+int key_crl_reshealth = 0; int key_crl_reshealth2 = 0;
+int key_crl_resarmor  = 0; int key_crl_resarmor2  = 0;
+int key_crl_invul     = 0; int key_crl_invul2     = 0;
+int key_crl_berserk   = 0; int key_crl_berserk2   = 0;
+int key_crl_invis     = 0; int key_crl_invis2     = 0;
+int key_crl_radsuit   = 0; int key_crl_radsuit2   = 0;
+int key_crl_automap   = 0; int key_crl_automap2   = 0;
+int key_crl_light     = 0; int key_crl_light2     = 0;
+int key_crl_mypos     = 0; int key_crl_mypos2     = 0;
 
 // Weapons
 
@@ -377,13 +388,24 @@ void M_BindControls (void)
 
     // Cheat shortcuts
 
-    M_BindIntVariableKeybind("key_crl_iddqd",    &key_crl_iddqd,    "key_crl_iddqd2",    &key_crl_iddqd2);
-    M_BindIntVariableKeybind("key_crl_idkfa",    &key_crl_idkfa,    "key_crl_idkfa2",    &key_crl_idkfa2);
-    M_BindIntVariableKeybind("key_crl_idfa",     &key_crl_idfa,     "key_crl_idfa2",     &key_crl_idfa2);
-    M_BindIntVariableKeybind("key_crl_idclip",   &key_crl_idclip,   "key_crl_idclip2",   &key_crl_idclip2);
-    M_BindIntVariableKeybind("key_crl_iddt",     &key_crl_iddt,     "key_crl_iddt2",     &key_crl_iddt2);
-    M_BindIntVariableKeybind("key_crl_mdk",      &key_crl_mdk,      "key_crl_mdk2",      &key_crl_mdk2);
-    M_BindIntVariableKeybind("key_crl_spechits", &key_crl_spechits, "key_crl_spechits2", &key_crl_spechits2);
+    M_BindIntVariableKeybind("key_crl_iddqd",     &key_crl_iddqd,     "key_crl_iddqd2",     &key_crl_iddqd2);
+    M_BindIntVariableKeybind("key_crl_idkfa",     &key_crl_idkfa,     "key_crl_idkfa2",     &key_crl_idkfa2);
+    M_BindIntVariableKeybind("key_crl_idfa",      &key_crl_idfa,      "key_crl_idfa2",      &key_crl_idfa2);
+    M_BindIntVariableKeybind("key_crl_idclip",    &key_crl_idclip,    "key_crl_idclip2",    &key_crl_idclip2);
+    M_BindIntVariableKeybind("key_crl_iddt",      &key_crl_iddt,      "key_crl_iddt2",      &key_crl_iddt2);
+    M_BindIntVariableKeybind("key_crl_mdk",       &key_crl_mdk,       "key_crl_mdk2",       &key_crl_mdk2);
+    M_BindIntVariableKeybind("key_crl_spechits",  &key_crl_spechits,  "key_crl_spechits2",  &key_crl_spechits2);
+    M_BindIntVariableKeybind("key_crl_health",    &key_crl_health,    "key_crl_health2",    &key_crl_health2);
+    M_BindIntVariableKeybind("key_crl_armor",     &key_crl_armor,     "key_crl_armor2",     &key_crl_armor2);
+    M_BindIntVariableKeybind("key_crl_reshealth", &key_crl_reshealth, "key_crl_reshealth2", &key_crl_reshealth2);
+    M_BindIntVariableKeybind("key_crl_resarmor",  &key_crl_resarmor,  "key_crl_resarmor2",  &key_crl_resarmor2);
+    M_BindIntVariableKeybind("key_crl_invul",     &key_crl_invul,     "key_crl_invul2",     &key_crl_invul2);
+    M_BindIntVariableKeybind("key_crl_berserk",   &key_crl_berserk,   "key_crl_berserk2",   &key_crl_berserk2);
+    M_BindIntVariableKeybind("key_crl_invis",     &key_crl_invis,     "key_crl_invis2",     &key_crl_invis2);
+    M_BindIntVariableKeybind("key_crl_radsuit",   &key_crl_radsuit,   "key_crl_radsuit2",   &key_crl_radsuit2);
+    M_BindIntVariableKeybind("key_crl_automap",   &key_crl_automap,   "key_crl_automap2",   &key_crl_automap2);
+    M_BindIntVariableKeybind("key_crl_light",     &key_crl_light,     "key_crl_light2",     &key_crl_light2);
+    M_BindIntVariableKeybind("key_crl_mypos",     &key_crl_mypos,     "key_crl_mypos2",     &key_crl_mypos2);
 
     // Weapons
 
