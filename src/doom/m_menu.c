@@ -2276,6 +2276,7 @@ static menuitem_t CRLMenu_Keybinds_4[]=
     { M_SWTC, "200% ARMOR",           M_Bind_ARMOR,     'a' },
     { M_SWTC, "RESET HEALTH",         M_Bind_RESHEALTH, 'r' },
     { M_SWTC, "RESET ARMOR",          M_Bind_RESARMOR,  'r' },
+    { M_SKIP, "", 0, '\0' },
     { M_SWTC, "INVULNERABILITY",      M_Bind_INVUL,     'i' },
     { M_SWTC, "BERSERK",              M_Bind_BERSERK,   'b' },
     { M_SWTC, "PARTIAL INVISIBILITY", M_Bind_INVIS,     'p' },
@@ -2303,19 +2304,22 @@ static void M_DrawCRL_Keybinds_4 (void)
 
     M_FillBackground();
 
-    M_WriteTextCentered(7, "POWERUP SHORTCUTS", cr[CR_YELLOW]);
+    M_WriteTextCentered(7, "HEALTH AND ARMOR", cr[CR_YELLOW]);
 
     M_DrawBindKey(0, 16, key_crl_health, key_crl_health2);
     M_DrawBindKey(1, 25, key_crl_armor, key_crl_armor2);
     M_DrawBindKey(2, 34, key_crl_reshealth, key_crl_reshealth2);
     M_DrawBindKey(3, 43, key_crl_resarmor, key_crl_armor2);
-    M_DrawBindKey(4, 52, key_crl_invul, key_crl_invul2);
-    M_DrawBindKey(5, 61, key_crl_berserk, key_crl_berserk2);
-    M_DrawBindKey(6, 70, key_crl_invis, key_crl_invis2);
-    M_DrawBindKey(7, 79, key_crl_radsuit, key_crl_radsuit2);
-    M_DrawBindKey(8, 88, key_crl_automap, key_crl_automap2);
-    M_DrawBindKey(9, 97, key_crl_light, key_crl_light2);
-    M_DrawBindKey(10, 106, key_crl_mypos, key_crl_mypos2);
+
+    M_WriteTextCentered(52, "POWERUP SHORTCUTS", cr[CR_YELLOW]);
+
+    M_DrawBindKey(5, 61, key_crl_invul, key_crl_invul2);
+    M_DrawBindKey(6, 70, key_crl_berserk, key_crl_berserk2);
+    M_DrawBindKey(7, 79, key_crl_invis, key_crl_invis2);
+    M_DrawBindKey(8, 88, key_crl_radsuit, key_crl_radsuit2);
+    M_DrawBindKey(9, 97, key_crl_automap, key_crl_automap2);
+    M_DrawBindKey(10, 106, key_crl_light, key_crl_light2);
+    M_DrawBindKey(11, 115, key_crl_mypos, key_crl_mypos2);
 
     M_DrawBindFooter("4", true);
 }
@@ -2324,13 +2328,13 @@ static void M_Bind_HEALTH (int choice)    { M_StartBind(400); } // key_crl_healt
 static void M_Bind_ARMOR (int choice)     { M_StartBind(401); } // key_crl_armor
 static void M_Bind_RESHEALTH (int choice) { M_StartBind(402); } // key_crl_reshealth
 static void M_Bind_RESARMOR (int choice)  { M_StartBind(403); } // key_crl_resarmor
-static void M_Bind_INVUL (int choice)     { M_StartBind(404); } // key_crl_invul
-static void M_Bind_BERSERK (int choice)   { M_StartBind(405); } // key_crl_berserk
-static void M_Bind_INVIS (int choice)     { M_StartBind(406); } // key_crl_invis
-static void M_Bind_RADSUIT (int choice)   { M_StartBind(407); } // key_crl_radsuit
-static void M_Bind_AUTOMAP (int choice)   { M_StartBind(408); } // key_crl_automap
-static void M_Bind_LIGHT (int choice)     { M_StartBind(409); } // key_crl_light
-static void M_Bind_MYPOS (int choice)     { M_StartBind(410); } // key_crl_mypos
+static void M_Bind_INVUL (int choice)     { M_StartBind(405); } // key_crl_invul
+static void M_Bind_BERSERK (int choice)   { M_StartBind(406); } // key_crl_berserk
+static void M_Bind_INVIS (int choice)     { M_StartBind(407); } // key_crl_invis
+static void M_Bind_RADSUIT (int choice)   { M_StartBind(408); } // key_crl_radsuit
+static void M_Bind_AUTOMAP (int choice)   { M_StartBind(409); } // key_crl_automap
+static void M_Bind_LIGHT (int choice)     { M_StartBind(410); } // key_crl_light
+static void M_Bind_MYPOS (int choice)     { M_StartBind(411); } // key_crl_mypos
 
 // -----------------------------------------------------------------------------
 // Keybinds 5
@@ -4148,13 +4152,13 @@ static menuitem_t CRLMenu_Panel_3[]=
     { M_MUL1, "200% ARMOR",           M_CRL_ARMOR,     'a' },
     { M_MUL2, "RESET HEALTH",         M_CRL_RESHEALTH, 'r' },
     { M_MUL2, "RESET ARMOR",          M_CRL_RESARMOR,  'r' },
+    { M_SKIP, "", 0, '\0'},
     { M_MUL1, "INVULNERABILITY",      M_CRL_INVUL,     'i' },
     { M_MUL1, "BERSERK",              M_CRL_BERSERK,   'b' },
     { M_MUL1, "PARTIAL INVISIBILITY", M_CRL_INVIS,     'p' },
     { M_MUL1, "RADIATION SUIT",       M_CRL_RADSUIT,   'r' },
     { M_MUL1, "COMPUTER AREA MAP",    M_CRL_AUTOMAP,   'c' },
     { M_MUL1, "LIGHT AMPLIFICATION",  M_CRL_LIGHT,     'l' },
-    { M_SKIP, "", 0, '\0'},
     { M_SKIP, "", 0, '\0'},
     { M_SKIP, "", 0, '\0'},
     { M_SKIP, "", 0, '\0'},
@@ -4180,37 +4184,39 @@ static void M_DrawCRL_Panel_3 (void)
 
     Panel_Cur = 2;
 
-    M_WriteTextCentered(7, "POWERUP SHORTCUTS", cr[CR_YELLOW]);
+    M_WriteTextCentered(7, "HEALTH AND ARMOR", cr[CR_YELLOW]);
+
+    M_WriteTextCentered(52, "POWERUP SHORTCUTS", cr[CR_YELLOW]);
 
     // Invulnerability
     sprintf(str, plr->powers[pw_invulnerability] ? "REMOVE" : "GET");
-    M_WriteText (M_ItemRightAlign(str), 52, str,
-                 M_Item_Glow(4, plr->powers[pw_invulnerability] ? GLOW_RED : GLOW_GREEN));
+    M_WriteText (M_ItemRightAlign(str), 61, str,
+                 M_Item_Glow(5, plr->powers[pw_invulnerability] ? GLOW_RED : GLOW_GREEN));
 
     // Berserk
     sprintf(str, plr->powers[pw_strength] ? "REMOVE" : "GET");
-    M_WriteText (M_ItemRightAlign(str), 61, str,
-                 M_Item_Glow(5, plr->powers[pw_strength] ? GLOW_RED : GLOW_GREEN));
+    M_WriteText (M_ItemRightAlign(str), 70, str,
+                 M_Item_Glow(6, plr->powers[pw_strength] ? GLOW_RED : GLOW_GREEN));
 
     // Partial invisibility
     sprintf(str, plr->powers[pw_invisibility] ? "REMOVE" : "GET");
-    M_WriteText (M_ItemRightAlign(str), 70, str,
-                 M_Item_Glow(6, plr->powers[pw_invisibility] ? GLOW_RED : GLOW_GREEN));
+    M_WriteText (M_ItemRightAlign(str), 79, str,
+                 M_Item_Glow(7, plr->powers[pw_invisibility] ? GLOW_RED : GLOW_GREEN));
 
     // Radiation suit
     sprintf(str, plr->powers[pw_ironfeet] ? "REMOVE" : "GET");
-    M_WriteText (M_ItemRightAlign(str), 79, str,
-                 M_Item_Glow(7, plr->powers[pw_ironfeet] ? GLOW_RED : GLOW_GREEN));
+    M_WriteText (M_ItemRightAlign(str), 88, str,
+                 M_Item_Glow(8, plr->powers[pw_ironfeet] ? GLOW_RED : GLOW_GREEN));
 
     // Computer area map
     sprintf(str, plr->powers[pw_allmap] ? "REMOVE" : "GET");
-    M_WriteText (M_ItemRightAlign(str), 88, str,
-                 M_Item_Glow(8, plr->powers[pw_allmap] ? GLOW_RED : GLOW_GREEN));
+    M_WriteText (M_ItemRightAlign(str), 97, str,
+                 M_Item_Glow(9, plr->powers[pw_allmap] ? GLOW_RED : GLOW_GREEN));
 
     // Light amplification
     sprintf(str, plr->powers[pw_infrared] ? "REMOVE" : "GET");
-    M_WriteText (M_ItemRightAlign(str), 97, str,
-                 M_Item_Glow(9, plr->powers[pw_infrared] ? GLOW_RED : GLOW_GREEN));
+    M_WriteText (M_ItemRightAlign(str), 106, str,
+                 M_Item_Glow(10, plr->powers[pw_infrared] ? GLOW_RED : GLOW_GREEN));
 
     // < Scroll pages >
     M_DrawScrollPages(CRL_MENU_LEFTOFFSET, 151, 15, "3/3");
@@ -7342,13 +7348,13 @@ static const KeyBindEntry_t keybinds[] =
     KEYBIND_ENTRY(401, &CRLDef_Keybinds_4, 1,  key_crl_armor,     key_crl_armor2,     0,   0, KBS_GLOBAL),
     KEYBIND_ENTRY(402, &CRLDef_Keybinds_4, 2,  key_crl_reshealth, key_crl_reshealth2, 0,   0, KBS_GLOBAL),
     KEYBIND_ENTRY(403, &CRLDef_Keybinds_4, 3,  key_crl_resarmor,  key_crl_resarmor2,  0,   0, KBS_GLOBAL),
-    KEYBIND_ENTRY(404, &CRLDef_Keybinds_4, 4,  key_crl_invul,     key_crl_invul2,     0,   0, KBS_GLOBAL),
-    KEYBIND_ENTRY(405, &CRLDef_Keybinds_4, 5,  key_crl_berserk,   key_crl_berserk2,   0,   0, KBS_GLOBAL),
-    KEYBIND_ENTRY(406, &CRLDef_Keybinds_4, 6,  key_crl_invis,     key_crl_invis2,     0,   0, KBS_GLOBAL),
-    KEYBIND_ENTRY(407, &CRLDef_Keybinds_4, 7,  key_crl_radsuit,   key_crl_radsuit2,   0,   0, KBS_GLOBAL),
-    KEYBIND_ENTRY(408, &CRLDef_Keybinds_4, 8,  key_crl_automap,   key_crl_automap2,   0,   0, KBS_GLOBAL),
-    KEYBIND_ENTRY(409, &CRLDef_Keybinds_4, 9,  key_crl_light,     key_crl_light2,     0,   0, KBS_GLOBAL),
-    KEYBIND_ENTRY(410, &CRLDef_Keybinds_4, 10, key_crl_mypos,     key_crl_mypos2,     0,   0, KBS_GLOBAL),
+    KEYBIND_ENTRY(405, &CRLDef_Keybinds_4, 5,  key_crl_invul,     key_crl_invul2,     0,   0, KBS_GLOBAL),
+    KEYBIND_ENTRY(406, &CRLDef_Keybinds_4, 6,  key_crl_berserk,   key_crl_berserk2,   0,   0, KBS_GLOBAL),
+    KEYBIND_ENTRY(407, &CRLDef_Keybinds_4, 7,  key_crl_invis,     key_crl_invis2,     0,   0, KBS_GLOBAL),
+    KEYBIND_ENTRY(408, &CRLDef_Keybinds_4, 8,  key_crl_radsuit,   key_crl_radsuit2,   0,   0, KBS_GLOBAL),
+    KEYBIND_ENTRY(409, &CRLDef_Keybinds_4, 9,  key_crl_automap,   key_crl_automap2,   0,   0, KBS_GLOBAL),
+    KEYBIND_ENTRY(410, &CRLDef_Keybinds_4, 10, key_crl_light,     key_crl_light2,     0,   0, KBS_GLOBAL),
+    KEYBIND_ENTRY(411, &CRLDef_Keybinds_4, 11, key_crl_mypos,     key_crl_mypos2,     0,   0, KBS_GLOBAL),
 
     // Page 5
     KEYBIND_ENTRY(500, &CRLDef_Keybinds_5, 0, key_crl_menu,           key_crl_menu2,           '`', 0, KBS_GLOBAL),
