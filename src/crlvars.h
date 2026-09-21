@@ -33,6 +33,7 @@ extern int screenshots_jpg_quality;
 
 // Compatibility
 extern int vanilla_savegame_limit;
+extern int vanilla_savegame_size;
 
 // System and video
 extern int crl_startup_delay;

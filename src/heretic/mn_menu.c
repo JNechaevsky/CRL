@@ -685,6 +685,7 @@ static void M_ScrollMisc (int option);
 static void DrawCRLLimits (void);
 static void CRL_UnknownLineWarning (int option);
 static void CRL_SaveSizeWarning (int option);
+static void CRL_SaveSizePrint (int option);
 static void CRL_Limits (int option);
 
 static void DrawCRLPanel_1 (void);
@@ -3507,6 +3508,7 @@ static void M_ScrollMisc (int option)
 static MenuItem_t CRLLimitsItems[] = {
     { ITT_LRFUNC1, "UNKNOWN LINE SPECIALS",   CRL_UnknownLineWarning, 0, MENU_NONE },
     { ITT_LRFUNC1, "SAVE GAME LIMIT WARNING", CRL_SaveSizeWarning,    0, MENU_NONE },
+    { ITT_LRFUNC1, "- PRINT SAVE GAME SIZE",  CRL_SaveSizePrint,      0, MENU_NONE },
     { ITT_EMPTY,   NULL,                      NULL,                   0, MENU_NONE },
     { ITT_LRFUNC1, "RENDER LIMITS LEVEL",     CRL_Limits,             0, MENU_NONE }
 };
@@ -3536,37 +3538,44 @@ static void DrawCRLLimits (void)
     MN_DrTextA(str, M_ItemRightAlign(str), 30,
                M_Item_Glow(1, vanilla_savegame_limit ? GLOW_GREEN : GLOW_DARKRED));
 
-    MN_DrTextACentered("ENGINE LIMITS", 40, cr[CR_YELLOW]);
+    // - Print save game size
+    sprintf(str, !vanilla_savegame_limit ? "N/A" :
+                  vanilla_savegame_size  ? "ON" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 40,
+               M_Item_Glow(2, !vanilla_savegame_limit ? GLOW_DARKRED :
+                               vanilla_savegame_size  ? GLOW_GREEN : GLOW_DARKRED));
+
+    MN_DrTextACentered("ENGINE LIMITS", 50, cr[CR_YELLOW]);
 
     // Level of the limits
     sprintf(str, crl_vanilla_limits ? "VANILLA" : "HERETIC-PLUS");
-    MN_DrTextA(str, M_ItemRightAlign(str), 50,
+    MN_DrTextA(str, M_ItemRightAlign(str), 60,
                M_Item_Glow(3, crl_vanilla_limits ? GLOW_RED : GLOW_GREEN));
 
-    MN_DrTextA("MAXVISPLANES",  CRL_MENU_LEFTOFFSET_SML + 16,  60, cr[CR_MENU_DARK2]);
-    MN_DrTextA("MAXDRAWSEGS",   CRL_MENU_LEFTOFFSET_SML + 16,  70, cr[CR_MENU_DARK2]);
-    MN_DrTextA("MAXVISSPRITES", CRL_MENU_LEFTOFFSET_SML + 16,  80, cr[CR_MENU_DARK2]);
-    MN_DrTextA("MAXOPENINGS",   CRL_MENU_LEFTOFFSET_SML + 16,  90, cr[CR_MENU_DARK2]);
-    MN_DrTextA("MAXPLATS",      CRL_MENU_LEFTOFFSET_SML + 16, 100, cr[CR_MENU_DARK2]);
-    MN_DrTextA("MAXLINEANIMS",  CRL_MENU_LEFTOFFSET_SML + 16, 110, cr[CR_MENU_DARK2]);
+    MN_DrTextA("MAXVISPLANES",  CRL_MENU_LEFTOFFSET_SML + 16,  70, cr[CR_MENU_DARK2]);
+    MN_DrTextA("MAXDRAWSEGS",   CRL_MENU_LEFTOFFSET_SML + 16,  80, cr[CR_MENU_DARK2]);
+    MN_DrTextA("MAXVISSPRITES", CRL_MENU_LEFTOFFSET_SML + 16,  90, cr[CR_MENU_DARK2]);
+    MN_DrTextA("MAXOPENINGS",   CRL_MENU_LEFTOFFSET_SML + 16, 100, cr[CR_MENU_DARK2]);
+    MN_DrTextA("MAXPLATS",      CRL_MENU_LEFTOFFSET_SML + 16, 110, cr[CR_MENU_DARK2]);
+    MN_DrTextA("MAXLINEANIMS",  CRL_MENU_LEFTOFFSET_SML + 16, 120, cr[CR_MENU_DARK2]);
 
     if (crl_vanilla_limits)
     {
-        MN_DrTextA("128",   CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("128"),   60, cr[CR_RED]);
-        MN_DrTextA("256",   CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("256"),   70, cr[CR_RED]);
-        MN_DrTextA("128",   CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("128"),   80, cr[CR_RED]);
-        MN_DrTextA("20480", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("20480"), 90, cr[CR_RED]);
-        MN_DrTextA("30",    CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("30"),   100, cr[CR_RED]);
-        MN_DrTextA("64",    CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("64"),   110, cr[CR_RED]);
+        MN_DrTextA("128",   CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("128"),    70, cr[CR_RED]);
+        MN_DrTextA("256",   CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("256"),    80, cr[CR_RED]);
+        MN_DrTextA("128",   CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("128"),    90, cr[CR_RED]);
+        MN_DrTextA("20480", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("20480"), 100, cr[CR_RED]);
+        MN_DrTextA("30",    CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("30"),    110, cr[CR_RED]);
+        MN_DrTextA("64",    CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("64"),    120, cr[CR_RED]);
     }
     else
     {
-        MN_DrTextA("1024",  CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("1024"),   60, cr[CR_GREEN]);
-        MN_DrTextA("2048",  CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("2048"),   70, cr[CR_GREEN]);
-        MN_DrTextA("1024",  CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("1024"),   80, cr[CR_GREEN]);
-        MN_DrTextA("65536", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("65536"),  90, cr[CR_GREEN]);
-        MN_DrTextA("7680",  CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("7680"),  100, cr[CR_GREEN]);
-        MN_DrTextA("16384", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("16384"), 110, cr[CR_GREEN]);
+        MN_DrTextA("1024",  CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("1024"),   70, cr[CR_GREEN]);
+        MN_DrTextA("2048",  CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("2048"),   80, cr[CR_GREEN]);
+        MN_DrTextA("1024",  CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("1024"),   90, cr[CR_GREEN]);
+        MN_DrTextA("65536", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("65536"), 100, cr[CR_GREEN]);
+        MN_DrTextA("7680",  CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("7680"),  110, cr[CR_GREEN]);
+        MN_DrTextA("16384", CRL_MENU_RIGHTOFFSET_SML - 16 - MN_TextAWidth("16384"), 120, cr[CR_GREEN]);
     }
 }
 
@@ -3578,6 +3587,14 @@ static void CRL_UnknownLineWarning (int choice)
 static void CRL_SaveSizeWarning (int option)
 {
     vanilla_savegame_limit ^= 1;
+}
+
+static void CRL_SaveSizePrint (int option)
+{
+    if (!vanilla_savegame_limit)
+        return;
+
+    vanilla_savegame_size ^= 1;
 }
 
 static void CRL_Limits (int option)

@@ -33,6 +33,7 @@ int screenshots_jpg_quality = 90;     // 1 ... 100
 
 // Compatibility
 int vanilla_savegame_limit = 1;
+int vanilla_savegame_size = 1;
 
 // System and video
 int crl_startup_delay = 35;
@@ -158,6 +159,7 @@ void CRL_BindVariables (void)
 
     // Compatibility
     M_BindIntVariable("vanilla_savegame_limit",         &vanilla_savegame_limit);
+    M_BindIntVariable("vanilla_savegame_size",          &vanilla_savegame_size);
 
     // System and video
     M_BindIntVariable("crl_startup_delay",              &crl_startup_delay);

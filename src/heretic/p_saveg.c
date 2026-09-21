@@ -241,7 +241,8 @@ void SV_WriteSaveGameEOF(void)
      && ftell(SaveGameFP) > SAVEGAMESIZE)
     {
         // [JN] CRL - print a warnings instead of quit with an error.
-        CRL_SetMessageCritical("\r", "SAVEGAME OVERFLOW (VANILLA CRASHES HERE)", MESSAGETICS);
+        CRL_SetMessageCritical(vanilla_savegame_size ? "\r" : "SV[CLOSE:",
+                               "SAVEGAME OVERFLOW (VANILLA CRASHES HERE)", MESSAGETICS);
     }
 }
 

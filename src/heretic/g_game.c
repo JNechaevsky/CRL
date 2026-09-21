@@ -3312,7 +3312,7 @@ void G_DoSaveGame(void)
     savedescription[0] = 0;
     M_StringCopy(savename, filename, sizeof(savename));
 
-    if (vanilla_savegame_limit)
+    if (vanilla_savegame_limit && vanilla_savegame_size)
     {
         // [JN] CRL - report how full the save is against the vanilla SAVEGAMESIZE limit.
         // If save game limit warning is disabled, then regular message will be used.
@@ -3322,11 +3322,8 @@ void G_DoSaveGame(void)
                    DEH_String(TXT_GAMESAVED), savegamelength, SAVEGAMESIZE);
         CT_SetMessage(&players[consoleplayer], savemsg, true, NULL);
 
-        // Also print to console. Red on overflow, normal (not yellow) otherwise.
-        if (savegamelength > SAVEGAMESIZE)
+        // Also print to console. Red on overflow, yellow otherwise.
         CRL_printf(savemsg, savegamelength > SAVEGAMESIZE);
-        else
-        printf(savemsg, savegamelength > SAVEGAMESIZE);
     }
     else
     {
