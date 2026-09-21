@@ -741,6 +741,7 @@ void SV_OpenRead(char *fileName);
 void SV_OpenMemoryRead(byte *data, size_t len);
 void SV_OpenMemoryWrite(void);
 void SV_WriteSaveGameEOF(void);
+int  SV_SavegameSize(void);
 void SV_Close(void);
 boolean SV_CloseMemoryWrite(byte **data, size_t *len);
 void SV_Write(void *buffer, int size);

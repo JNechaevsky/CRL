@@ -4036,11 +4036,27 @@ void MN_DrTextA (const char *text, int x, int y, byte *table)
     char c;
     patch_t *p;
 
+    // [PN] The caller centered the first line at the target center, so
+    // x + (first line width)/2 recovers it; keep it for the lines after \r.
+    const int center = x + MN_TextAWidth(text) / 2;
+
     dp_translation = table;
 
     while ((c = *text++) != 0)
     {
         c = MN_CheckValidChar(c, small_font); // [crispy] check for valid characters
+
+        // [PN] CRL - by providing \r symbol ("Carriage Return"), lesser vertical
+        // spacing will be applied. Needed for nicer spacing in critical messages.
+        // https://en.wikipedia.org/wiki/Escape_sequences_in_C
+        // MN_TextAWidth stops at \r, so this measures the next line and
+        // re-centers it around the same target center.
+        if (c == '\r')
+        {
+            y += 10;
+            x = center - MN_TextAWidth(text) / 2;
+            continue;
+        }
 
         if (c < 33)
         {
@@ -4062,6 +4078,8 @@ void MN_DrTextA (const char *text, int x, int y, byte *table)
 // FUNC MN_TextAWidth
 //
 // Returns the pixel width of a string using font A.
+// [PN] Up to a \r line break or the end, so it doubles as the per-line
+// width for MN_DrTextA wrapping.
 //
 //---------------------------------------------------------------------------
 
@@ -4074,6 +4092,11 @@ int MN_TextAWidth(const char *text)
     width = 0;
     while ((c = *text++) != 0)
     {
+        if (c == '\r')
+        {
+            break;
+        }
+
         c = MN_CheckValidChar(c, small_font); // [crispy] check for valid characters
 
         if (c < 33)

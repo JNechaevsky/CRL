@@ -241,8 +241,25 @@ void SV_WriteSaveGameEOF(void)
      && ftell(SaveGameFP) > SAVEGAMESIZE)
     {
         // [JN] CRL - print a warnings instead of quit with an error.
-        CRL_SetMessageCritical("SV[CLOSE:", "SAVEGAME OVERFLOW (VANILLA CRASHES HERE)", MESSAGETICS);
+        CRL_SetMessageCritical("\r", "SAVEGAME OVERFLOW (VANILLA CRASHES HERE)", MESSAGETICS);
     }
+}
+
+//==========================================================================
+//
+// SV_SavegameSize
+//
+//==========================================================================
+
+int SV_SavegameSize(void)
+{
+    // [PN] Bytes written so far; G_DoSaveGame may run in file or memory mode.
+    if (SaveGameMemWriteActive)
+    {
+        return SaveGameMemBufPos;
+    }
+
+    return SaveGameFP != NULL ? ftell(SaveGameFP) : 0;
 }
 
 //==========================================================================

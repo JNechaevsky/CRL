@@ -2814,6 +2814,7 @@ void G_DoSaveGame (void)
     // Enforce the same savegame size limit as in Vanilla Doom,
     // except if the vanilla_savegame_limit setting is turned off.
 
+    // [PN] Size of the vanilla part (before CRL tails).
     const int savegamelength = ftell(save_stream);
 
     if (vanilla_savegame_limit && savegamelength > SAVEGAMESIZE)

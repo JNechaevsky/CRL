@@ -3285,6 +3285,9 @@ void G_DoSaveGame(void)
     P_ArchiveSpecials();
     SV_WriteSaveGameEOF();
 
+    // [PN] Size of the vanilla part (before CRL tails).
+    const int savegamelength = SV_SavegameSize();
+
     // [JN] Write KIS kills counter.
     SV_WriteLong(totalkilled);
 
@@ -3308,7 +3311,27 @@ void G_DoSaveGame(void)
     gameaction = ga_nothing;
     savedescription[0] = 0;
     M_StringCopy(savename, filename, sizeof(savename));
-    CT_SetMessage(&players[consoleplayer], DEH_String(TXT_GAMESAVED), true, NULL);
+
+    if (vanilla_savegame_limit)
+    {
+        // [JN] CRL - report how full the save is against the vanilla SAVEGAMESIZE limit.
+        // If save game limit warning is disabled, then regular message will be used.
+        static char savemsg[80];
+        M_snprintf(savemsg, sizeof(savemsg),
+                   "%s\r(%i of %i bytes)",
+                   DEH_String(TXT_GAMESAVED), savegamelength, SAVEGAMESIZE);
+        CT_SetMessage(&players[consoleplayer], savemsg, true, NULL);
+
+        // Also print to console. Red on overflow, normal (not yellow) otherwise.
+        if (savegamelength > SAVEGAMESIZE)
+        CRL_printf(savemsg, savegamelength > SAVEGAMESIZE);
+        else
+        printf(savemsg, savegamelength > SAVEGAMESIZE);
+    }
+    else
+    {
+        CT_SetMessage(&players[consoleplayer], DEH_String(TXT_GAMESAVED), true, NULL);
+    }
 
     free(filename);
 
