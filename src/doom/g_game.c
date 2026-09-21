@@ -2814,14 +2814,16 @@ void G_DoSaveGame (void)
     // Enforce the same savegame size limit as in Vanilla Doom,
     // except if the vanilla_savegame_limit setting is turned off.
 
-    if (vanilla_savegame_limit && ftell(save_stream) > SAVEGAMESIZE)
+    const int savegamelength = ftell(save_stream);
+
+    if (vanilla_savegame_limit && savegamelength > SAVEGAMESIZE)
     {
         char *message = "Savegame overflow (vanilla crashes here)";
 
         // [JN] CRL - print a warnings instead of quit with an error.
         // I_Error("Savegame buffer overrun");
         CRL_printf(message, true);
-        CRL_SetMessageCritical("G_DoSaveGame:", message, MESSAGETICS);
+        CRL_SetMessageCritical("", message, MESSAGETICS);
     }
 
     // [JN] Write KIS kills counter.
@@ -2865,7 +2867,26 @@ void G_DoSaveGame (void)
     M_StringCopy(savedescription, "", sizeof(savedescription));
     M_StringCopy(savename, savegame_file, sizeof(savename));
 
-    CRL_SetMessage(&players[consoleplayer], DEH_String(GGSAVED), false, NULL);
+    if (vanilla_savegame_limit)
+    {
+        // [JN] CRL - report how full the save is against the vanilla SAVEGAMESIZE limit.
+        // If save game limit warning is disabled, then regular message will be used.
+        static char savemsg[80];
+        M_snprintf(savemsg, sizeof(savemsg),
+                   "%s\rsize: %i of %i bytes",
+                   DEH_String(GGSAVED), savegamelength, SAVEGAMESIZE);
+        CRL_SetMessage(&players[consoleplayer], savemsg, false, NULL);
+
+        // Also print to console. Red on overflow, normal (not yellow) otherwise.
+        if (savegamelength > SAVEGAMESIZE)
+        CRL_printf(savemsg, savegamelength > SAVEGAMESIZE);
+        else
+        printf(savemsg, savegamelength > SAVEGAMESIZE);
+    }
+    else
+    {
+        CRL_SetMessage(&players[consoleplayer], DEH_String(GGSAVED), false, NULL);
+    }
 
     // draw the pattern into the back screen
     R_FillBackScreen ();
