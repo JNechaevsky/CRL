@@ -31,10 +31,6 @@ char *screenshots_format = "png";     // "png" or "jpg"
 int screenshots_png_compression = 6;  // 0 ... 10
 int screenshots_jpg_quality = 90;     // 1 ... 100
 
-// Compatibility
-int vanilla_savegame_limit = 1;
-int vanilla_savegame_size = 1;
-
 // System and video
 int crl_startup_delay = 35;
 int crl_resize_delay = 35;
@@ -139,6 +135,10 @@ int crl_hom_effect = 2;
 // Static limits
 int crl_unknown_linedefs = 1;
 int crl_vanilla_limits = 1;
+int vanilla_savegame_limit = 1;
+int vanilla_savegame_print_size = 1;
+int vanilla_savegame_max_size = 180224;     // Doom:    0x2c000 bytes
+int vanilla_savegame_max_size_hr = 196608;  // Heretic: 0x30000 bytes
 
 // Mouse look
 int crl_mouselook = 0;
@@ -147,7 +147,7 @@ int crl_mouselook = 0;
 // [JN] CRL-specific config variables binding function.
 // -----------------------------------------------------------------------------
 
-void CRL_BindVariables (void)
+void CRL_BindVariables (GameMission_t mission)
 {
     //
     // Screenshots
@@ -156,10 +156,6 @@ void CRL_BindVariables (void)
     M_BindStringVariable("screenshots_format",          &screenshots_format);
     M_BindIntVariable("screenshots_png_compression",    &screenshots_png_compression);
     M_BindIntVariable("screenshots_jpg_quality",        &screenshots_jpg_quality);
-
-    // Compatibility
-    M_BindIntVariable("vanilla_savegame_limit",         &vanilla_savegame_limit);
-    M_BindIntVariable("vanilla_savegame_size",          &vanilla_savegame_size);
 
     // System and video
     M_BindIntVariable("crl_startup_delay",              &crl_startup_delay);
@@ -262,7 +258,20 @@ void CRL_BindVariables (void)
     // Limits and Warnings
     M_BindIntVariable("crl_unknown_linedefs",           &crl_unknown_linedefs);
     M_BindIntVariable("crl_vanilla_limits",             &crl_vanilla_limits);
+    M_BindIntVariable("vanilla_savegame_limit",         &vanilla_savegame_limit);
+    M_BindIntVariable("vanilla_savegame_print_size",    &vanilla_savegame_print_size);
+    if (mission == doom)
+    {
+        M_BindIntVariable("vanilla_savegame_max_size",  &vanilla_savegame_max_size);
+    }
+    else
+    {
+        M_BindIntVariable("vanilla_savegame_max_size",  &vanilla_savegame_max_size_hr);
+    }
 
     // Mouse look
-    M_BindIntVariable("crl_mouselook",                  &crl_mouselook);
+    if (mission == heretic)
+    {
+        M_BindIntVariable("crl_mouselook",              &crl_mouselook);
+    }
 }

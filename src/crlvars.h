@@ -16,6 +16,9 @@
 //
 
 
+#include "d_mode.h"  // [JN] M_BindIntVariable
+
+
 #pragma once
 
 
@@ -30,10 +33,6 @@
 extern char *screenshots_format;
 extern int screenshots_png_compression;
 extern int screenshots_jpg_quality;
-
-// Compatibility
-extern int vanilla_savegame_limit;
-extern int vanilla_savegame_size;
 
 // System and video
 extern int crl_startup_delay;
@@ -139,8 +138,12 @@ extern int crl_hom_effect;
 // Limits and Warnings
 extern int crl_unknown_linedefs;
 extern int crl_vanilla_limits;
+extern int vanilla_savegame_limit;
+extern int vanilla_savegame_print_size;
+extern int vanilla_savegame_max_size;
+extern int vanilla_savegame_max_size_hr;
 
 // Mouse look
 extern int crl_mouselook;
 
-extern void CRL_BindVariables (void);
+extern void CRL_BindVariables (GameMission_t mission);

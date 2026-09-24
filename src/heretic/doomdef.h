@@ -606,7 +606,6 @@ extern boolean finalintermission; // [crispy] track intermission at end of episo
 
 extern ticcmd_t *netcmds;
 
-#define SAVEGAMESIZE 0x30000
 #define SAVESTRINGSIZE 24
 
 extern mapthing_t *deathmatch_p;

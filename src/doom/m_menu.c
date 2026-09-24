@@ -3772,10 +3772,10 @@ static void M_DrawCRL_Limits (void)
 
     // - Print save game size
     sprintf(str, !vanilla_savegame_limit ? "N/A" :
-                  vanilla_savegame_size  ? "ON" : "OFF");
+                  vanilla_savegame_print_size  ? "ON" : "OFF");
     M_WriteText (M_ItemRightAlign(str), 34, str,
                  M_Item_Glow(2, !vanilla_savegame_limit ? GLOW_DARKRED :
-                                 vanilla_savegame_size  ? GLOW_GREEN : GLOW_DARKRED));
+                                 vanilla_savegame_print_size ? GLOW_GREEN : GLOW_DARKRED));
 
     M_WriteTextCentered(43, "ENGINE LIMITS", cr[CR_YELLOW]);
 
@@ -3826,7 +3826,7 @@ static void M_CRL_SaveSizePrint (int choice)
     if (!vanilla_savegame_limit)
         return;
 
-    vanilla_savegame_size ^= 1;
+    vanilla_savegame_print_size ^= 1;
 }
 
 static void M_CRL_Limits (int choice)

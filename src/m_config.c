@@ -703,9 +703,13 @@ static default_t	doom_defaults_list[] =
     // Static limits
     CONFIG_VARIABLE_COMMENT("Static engine limits"),
     CONFIG_VARIABLE_INT(crl_unknown_linedefs),
-    CONFIG_VARIABLE_INT(vanilla_savegame_limit),
-    CONFIG_VARIABLE_INT(vanilla_savegame_size),
     CONFIG_VARIABLE_INT(crl_vanilla_limits),
+    CONFIG_VARIABLE_COMMENT(""),
+    CONFIG_VARIABLE_COMMENT("Save games"),
+    CONFIG_VARIABLE_INT(vanilla_savegame_limit),
+    CONFIG_VARIABLE_INT(vanilla_savegame_print_size),
+    CONFIG_VARIABLE_COMMENT("Maximum save game file size in bytes: 180224 for Doom, 196608 for Heretic"),
+    CONFIG_VARIABLE_INT(vanilla_savegame_max_size),
 };
 
 static default_collection_t doom_defaults =

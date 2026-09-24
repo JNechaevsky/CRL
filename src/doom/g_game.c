@@ -79,7 +79,6 @@
 #include "deh_main.h" // [crispy] for demo footer
 #include "memio.h"
 
-#define SAVEGAMESIZE	0x2c000
 
  
 // Gamestate the last time G_Ticker was called.
@@ -2817,14 +2816,14 @@ void G_DoSaveGame (void)
     // [PN] Size of the vanilla part (before CRL tails).
     const int savegamelength = ftell(save_stream);
 
-    if (vanilla_savegame_limit && savegamelength > SAVEGAMESIZE)
+    if (vanilla_savegame_limit && savegamelength > vanilla_savegame_max_size)
     {
         char *message = "Savegame overflow (vanilla crashes here)";
 
         // [JN] CRL - print a warnings instead of quit with an error.
         // I_Error("Savegame buffer overrun");
         CRL_printf(message, true);
-        CRL_SetMessageCritical(vanilla_savegame_size ? "" : "G_DoSaveGame:", message, MESSAGETICS);
+        CRL_SetMessageCritical(vanilla_savegame_print_size ? "" : "G_DoSaveGame:", message, MESSAGETICS);
     }
 
     // [JN] Write KIS kills counter.
@@ -2868,18 +2867,18 @@ void G_DoSaveGame (void)
     M_StringCopy(savedescription, "", sizeof(savedescription));
     M_StringCopy(savename, savegame_file, sizeof(savename));
 
-    if (vanilla_savegame_limit && vanilla_savegame_size)
+    if (vanilla_savegame_limit && vanilla_savegame_print_size)
     {
-        // [JN] CRL - report how full the save is against the vanilla SAVEGAMESIZE limit.
+        // [JN] CRL - report how full the save is against the vanilla vanilla_savegame_max_size limit.
         // If save game limit warning is disabled, then regular message will be used.
         static char savemsg[80];
         M_snprintf(savemsg, sizeof(savemsg),
-                   "%s\rsize: %i of %i bytes",
-                   DEH_String(GGSAVED), savegamelength, SAVEGAMESIZE);
+                   "%s\rsize: %i / %i bytes",
+                   DEH_String(GGSAVED), savegamelength, vanilla_savegame_max_size);
         CRL_SetMessage(&players[consoleplayer], savemsg, false, NULL);
 
         // Also print to console. Red on overflow, yellow otherwise.
-        CRL_printf(savemsg, savegamelength > SAVEGAMESIZE);
+        CRL_printf(savemsg, savegamelength > vanilla_savegame_max_size);
     }
     else
     {

@@ -1003,7 +1003,7 @@ static void D_BindVariables(void)
     }
 
     // [JN] Bind CRL-specific config variables.
-    CRL_BindVariables();
+    CRL_BindVariables(heretic);
 }
 
 // 

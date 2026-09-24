@@ -238,10 +238,10 @@ void SV_WriteSaveGameEOF(void)
     // [PN] Only check file size when writing to a file, not to memory buffer.
     // ftell(NULL) is UB and crashes MSVC CRT on rewind keyframe saves.
     if (vanilla_savegame_limit && SaveGameFP != NULL
-     && ftell(SaveGameFP) > SAVEGAMESIZE)
+     && ftell(SaveGameFP) > vanilla_savegame_max_size_hr)
     {
         // [JN] CRL - print a warnings instead of quit with an error.
-        CRL_SetMessageCritical(vanilla_savegame_size ? "\r" : "SV[CLOSE:",
+        CRL_SetMessageCritical(vanilla_savegame_print_size ? "\r" : "SV[CLOSE:",
                                "SAVEGAME OVERFLOW (VANILLA CRASHES HERE)", MESSAGETICS);
     }
 }
