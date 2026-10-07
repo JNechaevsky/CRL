@@ -18,14 +18,10 @@ CRL is maintained by [Julia Nechaevskaya](https://jnechaevsky.github.io/author.h
 
 ## Download
 
-CRL Doom, version 2.0 (released: July 7, 2026):
-* &nbsp;<img src="https://jnechaevsky.github.io/assets/img/icon_win64.png" width="16" height="16" />&nbsp;&nbsp;[Windows (64-bit)](https://github.com/JNechaevsky/CRL/releases/download/crl-2.0/crl-2.0-win64.zip)
-* &nbsp;<img src="https://jnechaevsky.github.io/assets/img/icon_win32.png" width="16" height="16" />&nbsp;&nbsp;[Windows (32-bit)](https://github.com/JNechaevsky/CRL/releases/download/crl-2.0/crl-2.0-win32.zip)
-* &nbsp;<img src="https://jnechaevsky.github.io/assets/img/icon_linux64.png" width="16" height="16" />&nbsp;&nbsp;[Linux AppImage (64-bit)](https://github.com/JNechaevsky/CRL/releases/download/crl-2.0/crl-2.0-linux64.zip)
-
-CRL Heretic, version 1.0 (released: June 12, 2023):
-* &nbsp;<img src="https://jnechaevsky.github.io/assets/img/icon_win64.png" width="16" height="16" />&nbsp;&nbsp;[Windows (64-bit)](https://github.com/JNechaevsky/CRL/releases/download/crl-hr-1.0/crl-heretic-1.0-win64.zip)
-* &nbsp;<img src="https://jnechaevsky.github.io/assets/img/icon_win32.png" width="16" height="16" />&nbsp;&nbsp;[Windows (32-bit)](https://github.com/JNechaevsky/CRL/releases/download/crl-hr-1.0/crl-heretic-1.0-win32.zip)
+CRL Doom and Heretic, version 2.1 (released: October 7, 2026):
+* &nbsp;<img src="https://jnechaevsky.github.io/assets/img/icon_win64.png" width="16" height="16" />&nbsp;&nbsp;[Windows (64-bit)](https://github.com/JNechaevsky/CRL/releases/download/crl-2.1/crl-2.1-win64.zip)
+* &nbsp;<img src="https://jnechaevsky.github.io/assets/img/icon_win32.png" width="16" height="16" />&nbsp;&nbsp;[Windows (32-bit)](https://github.com/JNechaevsky/CRL/releases/download/crl-2.1/crl-2.1-win32.zip)
+* &nbsp;<img src="https://jnechaevsky.github.io/assets/img/icon_linux64.png" width="16" height="16" />&nbsp;&nbsp;[Linux AppImage (64-bit)](https://github.com/JNechaevsky/CRL/releases/download/crl-2.1/crl-2.1-linux64.zip)
 
 <img src="https://jnechaevsky.github.io/assets/img/icon_nightly.png" width="16" height="16" />&nbsp;&nbsp;You can also download regular [Nightly Builds](https://github.com/JNechaevsky/CRL/releases/tag/nightly/).
 
