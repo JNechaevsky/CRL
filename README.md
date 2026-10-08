@@ -1,24 +1,20 @@
-# CRL
+# Chocorenderlmits/CRL
 
 [![CRL icon](https://github.com/JNechaevsky/CRL/blob/main/data/doom.png)](https://github.com/JNechaevsky/CRL)
 
-**CRL** is a continuation of the [Chocorenderlimits](https://doomwiki.org/wiki/Chocorenderlimits) source port originally developed by [RestlessRodent](https://doomwiki.org/wiki/RestlessRodent).
+**Chocorenderlimits** (**CRL** for short) is a Doom and Heretic source port designed for vanilla map authors and modders. It provides real-time display of the original engine’s rendering and gameplay limits, includes in-game warnings for potential map issues and errors, offers additional testing modes for various scenarios, and incorporates numerous QoL improvements for more comfortable testing.
 
-Building upon the original, CRL introduces a range of new features, quality-of-life improvements, and technical refinements aimed at assisting mappers in creating vanilla-compatible maps. It also includes additional in-game modes for testing specific scenarios. The in-game menu, accessible via the grave/tilde key **[~]**, allows quick access to various settings and features.
-
-The core concept remains unchanged: CRL is a crash-prone source port that warns you instead of crashing. Rather than removing engine limits, it highlights them through visual and runtime cues to mimic real vanilla behavior as closely as possible. To preserve the original DOS executable’s behavior and look, no modifications have been made to the rendering code. Known bugs like Tutti-Frutti and Medusa are still present by design. However, Medusa is no longer critical and does not crash Windows-based executables.
-
-CRL is not a limit-removing port, and therefore cannot load overly complex or oversized maps. It is intended strictly for vanilla-compatibility testing.
-
-Several important code fragments were ported from [International Doom](https://github.com/jnechaevsky/inter-doom), [Crispy Doom](http://github.com/fabiangreffrath/crispy-doom) and [DOOM Retro](https://github.com/bradharding/doomretro).
-
-You can follow the official development thread on the [Doom World](https://www.doomworld.com/forum/topic/134756-chocorenderlimitscrl-16-september-7-2023/) forum.
+The in-game CRL Control Panel can be accessed by pressing the grave/tilde key [**~**], and many additional actions can also be bound to custom keys directly within the port.
 
 CRL is maintained by [Julia Nechaevskaya](https://jnechaevsky.github.io/author.html) and Polina "Aura" N.
 
+You can follow the official development thread on the [Doom World](https://www.doomworld.com/forum/topic/134756-chocorenderlimitscrl-16-september-7-2023/) forum.
+
+This is the official continuation of the original [Chocorenderlimits](https://doomwiki.org/wiki/Chocorenderlimits) created by [RestlessRodent](https://doomwiki.org/wiki/RestlessRodent).
+
 ## Download
 
-CRL Doom and Heretic, version 2.1 (released: October 7, 2026):
+CRL version 2.1 (released: October 7, 2026):
 * &nbsp;<img src="https://jnechaevsky.github.io/assets/img/icon_win64.png" width="16" height="16" />&nbsp;&nbsp;[Windows (64-bit)](https://github.com/JNechaevsky/CRL/releases/download/crl-2.1/crl-2.1-win64.zip)
 * &nbsp;<img src="https://jnechaevsky.github.io/assets/img/icon_win32.png" width="16" height="16" />&nbsp;&nbsp;[Windows (32-bit)](https://github.com/JNechaevsky/CRL/releases/download/crl-2.1/crl-2.1-win32.zip)
 * &nbsp;<img src="https://jnechaevsky.github.io/assets/img/icon_linux64.png" width="16" height="16" />&nbsp;&nbsp;[Linux AppImage (64-bit)](https://github.com/JNechaevsky/CRL/releases/download/crl-2.1/crl-2.1-linux64.zip)
