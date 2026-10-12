@@ -24,8 +24,6 @@
 #include "net_packet.h"
 #include "z_zone.h"
 
-static int total_packet_memory = 0;
-
 net_packet_t *NET_NewPacket(int initial_size)
 {
     net_packet_t *packet;
@@ -39,11 +37,6 @@ net_packet_t *NET_NewPacket(int initial_size)
     packet->data = Z_Malloc(initial_size, PU_STATIC, 0);
     packet->len = 0;
     packet->pos = 0;
-
-    total_packet_memory += sizeof(net_packet_t) + initial_size;
-
-    //printf("total packet memory: %i bytes\n", total_packet_memory);
-    //printf("%p: allocated\n", packet);
 
     return packet;
 }
@@ -63,9 +56,6 @@ net_packet_t *NET_PacketDup(const net_packet_t *packet)
 
 void NET_FreePacket(net_packet_t *packet)
 {
-    //printf("%p: destroyed\n", packet);
-    
-    total_packet_memory -= sizeof(net_packet_t) + packet->alloced;
     Z_Free(packet->data);
     Z_Free(packet);
 }
@@ -243,8 +233,6 @@ static void NET_IncreasePacket(net_packet_t *packet)
 {
     byte *newdata;
 
-    total_packet_memory -= packet->alloced;
-   
     packet->alloced *= 2;
 
     newdata = Z_Malloc(packet->alloced, PU_STATIC, 0);
@@ -253,8 +241,6 @@ static void NET_IncreasePacket(net_packet_t *packet)
 
     Z_Free(packet->data);
     packet->data = newdata;
-
-    total_packet_memory += packet->alloced;
 }
 
 // Write a single byte to the packet
