@@ -917,6 +917,9 @@ static boolean P_ThingHeightClip(mobj_t * thing)
 
     onfloor = (thing->z == thing->floorz);
 
+    // [PN] Capture interp baseline before the clip (fixes lift-item z jitter).
+    P_MobjInterpolation(thing);
+
     P_CheckPosition(thing, thing->x, thing->y);
     // what about stranding a monster partially off an edge?
 

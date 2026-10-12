@@ -456,6 +456,27 @@ P_NightmareRespawn (mobj_t* mobj)
 }
 
 
+// -----------------------------------------------------------------------------
+// P_MobjInterpolation
+//  [PN] Capture old positions at most once per tic (leveltime), so it does not
+//  matter whether the mobj thinker or a lift's height clip samples first.
+// -----------------------------------------------------------------------------
+
+void P_MobjInterpolation (mobj_t *const mobj)
+{
+    if (mobj->player != NULL && mobj == mobj->player->mo)
+        return; // players are interpolated in p_user
+
+    if (mobj->oldtic == leveltime)
+        return; // already captured this tic
+
+    mobj->oldtic = leveltime;
+    mobj->oldx = mobj->x;
+    mobj->oldy = mobj->y;
+    mobj->oldz = mobj->z;
+    mobj->oldangle = mobj->angle;
+}
+
 //
 // P_MobjThinker
 //
@@ -474,11 +495,9 @@ void P_MobjThinker (mobj_t* mobj)
         // of the tic.
         mobj->interp = true;
 
-        // Store starting position for mobj interpolation.
-        mobj->oldx = mobj->x;
-        mobj->oldy = mobj->y;
-        mobj->oldz = mobj->z;
-        mobj->oldangle = mobj->angle;
+        // [PN] Capture the full interpolation baseline once per tic
+        // (shared with the height clip, so lift order doesn't matter).
+        P_MobjInterpolation(mobj);
     }
 
     // momentum movement
@@ -638,6 +657,7 @@ P_SpawnMobj
     mobj->oldy = mobj->y;
     mobj->oldz = mobj->z;
     mobj->oldangle = mobj->angle;
+    mobj->oldtic = leveltime;
 
     P_AddThinker (&mobj->thinker);
 

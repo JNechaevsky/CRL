@@ -488,6 +488,7 @@ extern mobj_t *P_SpawnMissile (mobj_t *source, mobj_t *dest, mobjtype_t type);
 extern mobj_t *P_SpawnMobj (fixed_t x, fixed_t y, fixed_t z, mobjtype_t type);
 extern mobj_t *P_SubstNullMobj (mobj_t *mobj);
 extern void    P_MobjThinker (mobj_t *mobj);
+extern void    P_MobjInterpolation (mobj_t *const mobj);
 extern void    P_RemoveMobj (mobj_t *mobj);
 extern void    P_SpawnBlood (fixed_t x, fixed_t y, fixed_t z, int damage);
 extern void    P_SpawnMapThing (mapthing_t *mthing);

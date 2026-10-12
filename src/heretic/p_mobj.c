@@ -756,6 +756,27 @@ void P_BlasterMobjThinker(thinker_t *thinker)
     }
 }
 
+// -----------------------------------------------------------------------------
+// P_MobjInterpolation
+//  [PN] Capture old positions at most once per tic (leveltime), so it does not
+//  matter whether the mobj thinker or a lift's height clip samples first.
+// -----------------------------------------------------------------------------
+
+void P_MobjInterpolation (mobj_t *const mobj)
+{
+    if (mobj->player != NULL && mobj == mobj->player->mo)
+        return; // players are interpolated in p_user
+
+    if (mobj->oldtic == leveltime)
+        return; // already captured this tic
+
+    mobj->oldtic = leveltime;
+    mobj->oldx = mobj->x;
+    mobj->oldy = mobj->y;
+    mobj->oldz = mobj->z;
+    mobj->oldangle = mobj->angle;
+}
+
 //----------------------------------------------------------------------------
 //
 // PROC P_MobjThinker
@@ -780,11 +801,8 @@ void P_MobjThinker(thinker_t *thinker)
         // of the tic.
         mobj->interp = true;
 
-        // Store starting position for mobj interpolation.
-        mobj->oldx = mobj->x;
-        mobj->oldy = mobj->y;
-        mobj->oldz = mobj->z;
-        mobj->oldangle = mobj->angle;
+        // [PN] Capture the full interpolation baseline once per tic.
+        P_MobjInterpolation(mobj);
     }
 
     // Handle X and Y momentums
@@ -1018,6 +1036,7 @@ mobj_t *P_SpawnMobj(fixed_t x, fixed_t y, fixed_t z, mobjtype_t type)
     mobj->oldy = mobj->y;
     mobj->oldz = mobj->z;
     mobj->oldangle = mobj->angle;
+    mobj->oldtic = leveltime;
 
     P_AddThinker(&mobj->thinker);
     return (mobj);
