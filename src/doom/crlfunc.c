@@ -26,7 +26,7 @@
 #include "v_video.h"
 #include "doomstat.h"
 #include "d_englsh.h"
-#include "m_menu.h"
+#include "mn_menu.h"
 #include "m_misc.h"
 #include "p_local.h"
 

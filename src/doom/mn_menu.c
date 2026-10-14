@@ -48,7 +48,7 @@
 #include "s_sound.h"
 #include "doomstat.h"
 #include "sounds.h"
-#include "m_menu.h"
+#include "mn_menu.h"
 #include "p_local.h"
 #include "v_savepreview.h"
 #include "v_trans.h"
@@ -618,147 +618,6 @@ static void M_CRL_Controls_Threshold (int choice);
 static void M_CRL_Controls_NoVert (int choice);
 static void M_CRL_Controls_DblClck (int choice);
 
-static void M_DrawCRL_Keybinds_1 (void);
-static void M_Bind_MoveForward (int choice);
-static void M_Bind_MoveBackward (int choice);
-static void M_Bind_TurnLeft (int choice);
-static void M_Bind_TurnRight (int choice);
-static void M_Bind_StrafeLeft (int choice);
-static void M_Bind_StrafeRight (int choice);
-static void M_Bind_SpeedOn (int choice);
-static void M_Bind_StrafeOn (int choice);
-static void M_Bind_180Turn (int choice);
-static void M_Bind_FireAttack (int choice);
-static void M_Bind_Use (int choice);
-
-static void M_DrawCRL_Keybinds_2 (void);
-static void M_Bind_RestartLevel (int choice);
-static void M_Bind_NextLevel (int choice);
-static void M_Bind_FastForward (int choice);
-static void M_Bind_ExtendedHUD (int choice);
-static void M_Bind_IncreaseGameSpeed (int choice);
-static void M_Bind_DecreaseGameSpeed (int choice);
-static void M_Bind_ResetGameSpeed (int choice);
-static void M_Bind_Rewind (int choice);
-static void M_Bind_SpectatorMode (int choice);
-static void M_Bind_CameraUp (int choice);
-static void M_Bind_CameraDown (int choice);
-static void M_Bind_CameraMoveTo (int choice);
-static void M_Bind_SneakingMode (int choice);
-static void M_Bind_FreezeMode (int choice);
-static void M_Bind_BuddhaMode (int choice);
-static void M_Bind_NotargetMode (int choice);
-static void M_Bind_NomomentumMode (int choice);
-
-static void M_DrawCRL_Keybinds_3 (void);
-static void M_Bind_AlwaysRun (int choice);
-static void M_Bind_NoVert (int choice);
-static void M_Bind_PrevLevel (int choice);
-static void M_Bind_VileBomb (int choice);
-static void M_Bind_VileFly (int choice);
-static void M_Bind_IDDQD (int choice);
-static void M_Bind_IDKFA (int choice);
-static void M_Bind_IDFA (int choice);
-static void M_Bind_IDCLIP (int choice);
-static void M_Bind_IDDT (int choice);
-static void M_Bind_MDK (int choice);
-static void M_Bind_SPECHITS (int choice);
-
-static void M_DrawCRL_Keybinds_4 (void);
-static void M_Bind_HEALTH (int choice);
-static void M_Bind_ARMOR (int choice);
-static void M_Bind_RESHEALTH (int choice);
-static void M_Bind_RESARMOR (int choice);
-static void M_Bind_INVUL (int choice);
-static void M_Bind_BERSERK (int choice);
-static void M_Bind_INVIS (int choice);
-static void M_Bind_RADSUIT (int choice);
-static void M_Bind_AUTOMAP (int choice);
-static void M_Bind_LIGHT (int choice);
-static void M_Bind_MYPOS (int choice);
-
-static void M_DrawCRL_Keybinds_5 (void);
-static void M_Bind_CRLmenu (int choice);
-static void M_Bind_MoveToSSG (int choice);
-static void M_Bind_ClearSSG (int choice);
-static void M_Bind_MoveToSEG (int choice);
-static void M_Bind_ClearSEG (int choice);
-static void M_Bind_MoveToOPN (int choice);
-static void M_Bind_ClearOPN (int choice);
-static void M_Bind_MoveToPLN (int choice);
-static void M_Bind_ClearPLN (int choice);
-static void M_Bind_ClearAllMAX (int choice);
-
-static void M_DrawCRL_Keybinds_6 (void);
-static void M_Bind_Weapon1 (int choice);
-static void M_Bind_Weapon2 (int choice);
-static void M_Bind_Weapon3 (int choice);
-static void M_Bind_Weapon4 (int choice);
-static void M_Bind_Weapon5 (int choice);
-static void M_Bind_Weapon6 (int choice);
-static void M_Bind_Weapon7 (int choice);
-static void M_Bind_Weapon8 (int choice);
-static void M_Bind_PrevWeapon (int choice);
-static void M_Bind_NextWeapon (int choice);
-
-static void M_DrawCRL_Keybinds_7 (void);
-static void M_Bind_ToggleMap (int choice);
-static void M_Bind_ZoomIn (int choice);
-static void M_Bind_ZoomOut (int choice);
-static void M_Bind_MaxZoom (int choice);
-static void M_Bind_FollowMode (int choice);
-static void M_Bind_RotateMode (int choice);
-static void M_Bind_OverlayMode (int choice);
-static void M_Bind_PanMode (int choice);
-static void M_Bind_SndPropMode (int choice);
-static void M_Bind_AM_Teleport (int choice);
-static void M_Bind_AM_Highlight (int choice);
-static void M_Bind_ToggleGrid (int choice);
-static void M_Bind_AddMark (int choice);
-static void M_Bind_ClearMarks (int choice);
-
-static void M_DrawCRL_Keybinds_8 (void);
-static void M_Bind_HelpScreen (int choice);
-static void M_Bind_SaveGame (int choice);
-static void M_Bind_LoadGame (int choice);
-static void M_Bind_SoundVolume (int choice);
-static void M_Bind_ToggleDetail (int choice);
-static void M_Bind_QuickSave (int choice);
-static void M_Bind_EndGame (int choice);
-static void M_Bind_ToggleMessages (int choice);
-static void M_Bind_QuickLoad (int choice);
-static void M_Bind_QuitGame (int choice);
-static void M_Bind_DecreaseGamma (int choice);
-static void M_Bind_IncreaseGamma (int choice);
-static void M_Bind_MultiplayerSpy (int choice);
-
-static void M_DrawCRL_Keybinds_9 (void);
-static void M_Bind_Pause (int choice);
-static void M_Bind_SaveScreenshot (int choice);
-static void M_Bind_SaveCleanshot (int choice);
-static void M_Bind_LastMessage (int choice);
-static void M_Bind_FinishDemo (int choice);
-static void M_Bind_SendMessage (int choice);
-static void M_Bind_ToPlayer1 (int choice);
-static void M_Bind_ToPlayer2 (int choice);
-static void M_Bind_ToPlayer3 (int choice);
-static void M_Bind_ToPlayer4 (int choice);
-static void M_Bind_Reset (int choice);
-
-static void M_ChooseCRL_MouseBinds (int choice);
-static void M_DrawCRL_MouseBinds (void);
-static void M_Bind_M_FireAttack (int choice);
-static void M_Bind_M_MoveForward (int choice);
-static void M_Bind_M_MoveBackward (int choice);
-static void M_Bind_M_Use (int choice);
-static void M_Bind_M_SpeedOn (int choice);
-static void M_Bind_M_StrafeOn (int choice);
-static void M_Bind_M_StrafeLeft (int choice);
-static void M_Bind_M_StrafeRight (int choice);
-static void M_Bind_M_PrevWeapon (int choice);
-static void M_Bind_M_NextWeapon (int choice);
-static void M_Bind_M_Reset (int choice);
-
 static void M_ChooseCRL_Widgets (int choice);
 static void M_DrawCRL_Widgets (void);
 static void M_CRL_Widget_Font (int choice);
@@ -906,13 +765,14 @@ static menu_t CRLDef_Keybinds_6;
 static menu_t CRLDef_Keybinds_7;
 static menu_t CRLDef_Keybinds_8;
 static menu_t CRLDef_Keybinds_9;
+static menu_t CRLDef_MouseBinds;
 static menu_t CRLDef_Misc_1;
 static menu_t CRLDef_Misc_2;
 static menu_t CRLDef_Panel_1;
 static menu_t CRLDef_Panel_2;
 static menu_t CRLDef_Panel_3;
 
-// Remember last keybindings page.
+// Remember last bindings page.
 static int Keybinds_Cur;
 
 static menu_t *KeybindsMenus[] =
@@ -931,6 +791,11 @@ static menu_t *KeybindsMenus[] =
 static void M_Choose_CRL_Keybinds (int choice)
 {
     M_SetupNextMenu(KeybindsMenus[Keybinds_Cur]);
+}
+
+static void M_ChooseCRL_MouseBinds (int choice)
+{
+    M_SetupNextMenu (&CRLDef_MouseBinds);
 }
 
 // Remember last misc settings page.
@@ -2036,32 +1901,17 @@ static void M_CRL_Controls_DblClck (int choice)
 // Keybinds 1
 // -----------------------------------------------------------------------------
 
-static menuitem_t CRLMenu_Keybinds_1[]=
-{
-    { M_SWTC, "MOVE FORWARD",   M_Bind_MoveForward,   'm' },
-    { M_SWTC, "MOVE BACKWARD",  M_Bind_MoveBackward,  'm' },
-    { M_SWTC, "TURN LEFT",      M_Bind_TurnLeft,      't' },
-    { M_SWTC, "TURN RIGHT",     M_Bind_TurnRight,     't' },
-    { M_SWTC, "STRAFE LEFT",    M_Bind_StrafeLeft,    's' },
-    { M_SWTC, "STRAFE RIGHT",   M_Bind_StrafeRight,   's' },
-    { M_SWTC, "SPEED ON",       M_Bind_SpeedOn,       's' },
-    { M_SWTC, "STRAFE ON",      M_Bind_StrafeOn,      's' },
-    { M_SWTC, "180 DEGREE TURN",M_Bind_180Turn,       '1' },
-    { M_SKIP, "", 0, '\0' },
-    { M_SWTC, "FIRE/ATTACK",    M_Bind_FireAttack,    'f' },
-    { M_SWTC, "USE",            M_Bind_Use,           'u' },
-};
-
-static menu_t CRLDef_Keybinds_1 =
-{
-    ITEMCOUNT(CRLMenu_Keybinds_1),
-    &CRLDef_Controls,
-    CRLMenu_Keybinds_1,
-    M_DrawCRL_Keybinds_1,
-    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
-    0,
-    true, true, true,
-};
+static void M_Bind_MoveForward (int choice)  { M_StartBind(100); } // key_up
+static void M_Bind_MoveBackward (int choice) { M_StartBind(101); } // key_down
+static void M_Bind_TurnLeft (int choice)     { M_StartBind(102); } // key_left
+static void M_Bind_TurnRight (int choice)    { M_StartBind(103); } // key_right
+static void M_Bind_StrafeLeft (int choice)   { M_StartBind(104); } // key_strafeleft
+static void M_Bind_StrafeRight (int choice)  { M_StartBind(105); } // key_straferight
+static void M_Bind_SpeedOn (int choice)      { M_StartBind(106); } // key_speed
+static void M_Bind_StrafeOn (int choice)     { M_StartBind(107); } // key_strafe
+static void M_Bind_180Turn (int choice)      { M_StartBind(108); } // key_180turn
+static void M_Bind_FireAttack (int choice)   { M_StartBind(109); } // key_fire
+static void M_Bind_Use (int choice)          { M_StartBind(110); } // key_use
 
 static void M_DrawCRL_Keybinds_1 (void)
 {
@@ -2090,53 +1940,53 @@ static void M_DrawCRL_Keybinds_1 (void)
     M_DrawBindFooter("1", true);
 }
 
-static void M_Bind_MoveForward (int choice)  { M_StartBind(100); } // key_up
-static void M_Bind_MoveBackward (int choice) { M_StartBind(101); } // key_down
-static void M_Bind_TurnLeft (int choice)     { M_StartBind(102); } // key_left
-static void M_Bind_TurnRight (int choice)    { M_StartBind(103); } // key_right
-static void M_Bind_StrafeLeft (int choice)   { M_StartBind(104); } // key_strafeleft
-static void M_Bind_StrafeRight (int choice)  { M_StartBind(105); } // key_straferight
-static void M_Bind_SpeedOn (int choice)      { M_StartBind(106); } // key_speed
-static void M_Bind_StrafeOn (int choice)     { M_StartBind(107); } // key_strafe
-static void M_Bind_180Turn (int choice)      { M_StartBind(108); } // key_180turn
-static void M_Bind_FireAttack (int choice)   { M_StartBind(109); } // key_fire
-static void M_Bind_Use (int choice)          { M_StartBind(110); } // key_use
+static menuitem_t CRLMenu_Keybinds_1[]=
+{
+    { M_SWTC, "MOVE FORWARD",   M_Bind_MoveForward,   'm' },
+    { M_SWTC, "MOVE BACKWARD",  M_Bind_MoveBackward,  'm' },
+    { M_SWTC, "TURN LEFT",      M_Bind_TurnLeft,      't' },
+    { M_SWTC, "TURN RIGHT",     M_Bind_TurnRight,     't' },
+    { M_SWTC, "STRAFE LEFT",    M_Bind_StrafeLeft,    's' },
+    { M_SWTC, "STRAFE RIGHT",   M_Bind_StrafeRight,   's' },
+    { M_SWTC, "SPEED ON",       M_Bind_SpeedOn,       's' },
+    { M_SWTC, "STRAFE ON",      M_Bind_StrafeOn,      's' },
+    { M_SWTC, "180 DEGREE TURN",M_Bind_180Turn,       '1' },
+    { M_SKIP, "", 0, '\0' },
+    { M_SWTC, "FIRE/ATTACK",    M_Bind_FireAttack,    'f' },
+    { M_SWTC, "USE",            M_Bind_Use,           'u' },
+};
+
+static menu_t CRLDef_Keybinds_1 =
+{
+    ITEMCOUNT(CRLMenu_Keybinds_1),
+    &CRLDef_Controls,
+    CRLMenu_Keybinds_1,
+    M_DrawCRL_Keybinds_1,
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    0,
+    true, true, true,
+};
 
 // -----------------------------------------------------------------------------
 // Keybinds 2
 // -----------------------------------------------------------------------------
 
-static menuitem_t CRLMenu_Keybinds_2[]=
-{
-    { M_SWTC, "GO TO PREVIOUS LEVEL",  M_Bind_PrevLevel,      'g' },
-    { M_SWTC, "RESTART LEVEL/DEMO",    M_Bind_RestartLevel,   'r' },
-    { M_SWTC, "GO TO NEXT LEVEL",      M_Bind_NextLevel,      'g' },
-    { M_SWTC, "DEMO FAST-FORWARD",     M_Bind_FastForward,    'd' },
-    { M_SWTC, "TOGGLE EXTENDED HUD",   M_Bind_ExtendedHUD,    't' },
-    { M_SWTC, "INCREASE GAME SPEED",   M_Bind_IncreaseGameSpeed, 'i' },
-    { M_SWTC, "DECREASE GAME SPEED",   M_Bind_DecreaseGameSpeed, 'd' },
-    { M_SWTC, "RESET GAME SPEED",      M_Bind_ResetGameSpeed, 'r' },
-    { M_SWTC, "REWIND",                M_Bind_Rewind,         'r' },
-    { M_SKIP, "", 0, '\0' },
-    { M_SWTC, "SPECTATOR MODE",        M_Bind_SpectatorMode,  's' },
-    { M_SWTC, "- MOVE CAMERA UP",      M_Bind_CameraUp,       'm' },
-    { M_SWTC, "- MOVE CAMERA DOWN",    M_Bind_CameraDown,     'm' },
-    { M_SWTC, "- GO TO CAMERA COORDS", M_Bind_CameraMoveTo,   'm' },
-    { M_SWTC, "SNEAKING MODE",         M_Bind_SneakingMode,   's' },
-    { M_SWTC, "FREEZE MODE",           M_Bind_FreezeMode,     'f' },
-    { M_SWTC, "BUDDHA MODE",           M_Bind_BuddhaMode,     'b' },
-};
-
-static menu_t CRLDef_Keybinds_2 =
-{
-    ITEMCOUNT(CRLMenu_Keybinds_2),
-    &CRLDef_Controls,
-    CRLMenu_Keybinds_2,
-    M_DrawCRL_Keybinds_2,
-    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
-    0,
-    true, true, true,
-};
+static void M_Bind_PrevLevel (int choice)      { M_StartBind(200); } // key_crl_prevlevel
+static void M_Bind_RestartLevel (int choice)   { M_StartBind(201); } // key_crl_reloadlevel
+static void M_Bind_NextLevel (int choice)      { M_StartBind(202); } // key_crl_nextlevel
+static void M_Bind_FastForward (int choice)    { M_StartBind(203); } // key_crl_demospeed
+static void M_Bind_ExtendedHUD (int choice)    { M_StartBind(204); } // key_crl_extendedhud
+static void M_Bind_IncGameSpeed (int choice)   { M_StartBind(205); } // key_crl_speed_up
+static void M_Bind_DecGameSpeed (int choice)   { M_StartBind(206); } // key_crl_speed_down
+static void M_Bind_ResetGameSpeed (int choice) { M_StartBind(207); } // key_crl_speed_reset
+static void M_Bind_Rewind (int choice)         { M_StartBind(208); } // key_crl_rewind
+static void M_Bind_SpectatorMode (int choice)  { M_StartBind(209); } // key_crl_spectator
+static void M_Bind_CameraUp (int choice)       { M_StartBind(210); } // key_crl_cameraup
+static void M_Bind_CameraDown (int choice)     { M_StartBind(211); } // key_crl_cameradown
+static void M_Bind_CameraMoveTo (int choice)   { M_StartBind(212); } // key_crl_cameramoveto
+static void M_Bind_SneakingMode (int choice)   { M_StartBind(213); } // key_crl_sneaking
+static void M_Bind_FreezeMode (int choice)     { M_StartBind(214); } // key_crl_freeze
+static void M_Bind_BuddhaMode (int choice)     { M_StartBind(215); } // key_crl_buddha
 
 static void M_DrawCRL_Keybinds_2 (void)
 {
@@ -2170,56 +2020,55 @@ static void M_DrawCRL_Keybinds_2 (void)
     M_DrawBindFooter("2", true);
 }
 
-static void M_Bind_PrevLevel (int choice)         { M_StartBind(200); } // key_crl_prevlevel
-static void M_Bind_RestartLevel (int choice)      { M_StartBind(201); } // key_crl_reloadlevel
-static void M_Bind_NextLevel (int choice)         { M_StartBind(202); } // key_crl_nextlevel
-static void M_Bind_FastForward (int choice)       { M_StartBind(203); } // key_crl_demospeed
-static void M_Bind_ExtendedHUD (int choice)       { M_StartBind(204); } // key_crl_extendedhud
-static void M_Bind_IncreaseGameSpeed (int choice) { M_StartBind(205); } // key_crl_speed_up
-static void M_Bind_DecreaseGameSpeed (int choice) { M_StartBind(206); } // key_crl_speed_down
-static void M_Bind_ResetGameSpeed (int choice)    { M_StartBind(207); } // key_crl_speed_reset
-static void M_Bind_Rewind (int choice)            { M_StartBind(208); } // key_crl_rewind
-static void M_Bind_SpectatorMode (int choice)     { M_StartBind(209); } // key_crl_spectator
-static void M_Bind_CameraUp (int choice)          { M_StartBind(210); } // key_crl_cameraup
-static void M_Bind_CameraDown (int choice)        { M_StartBind(211); } // key_crl_cameradown
-static void M_Bind_CameraMoveTo (int choice)      { M_StartBind(212); } // key_crl_cameramoveto
-static void M_Bind_SneakingMode (int choice)      { M_StartBind(213); } // key_crl_sneaking
-static void M_Bind_FreezeMode (int choice)        { M_StartBind(214); } // key_crl_freeze
-static void M_Bind_BuddhaMode (int choice)        { M_StartBind(215); } // key_crl_buddha
+static menuitem_t CRLMenu_Keybinds_2[]=
+{
+    { M_SWTC, "GO TO PREVIOUS LEVEL",  M_Bind_PrevLevel,      'g' },
+    { M_SWTC, "RESTART LEVEL/DEMO",    M_Bind_RestartLevel,   'r' },
+    { M_SWTC, "GO TO NEXT LEVEL",      M_Bind_NextLevel,      'g' },
+    { M_SWTC, "DEMO FAST-FORWARD",     M_Bind_FastForward,    'd' },
+    { M_SWTC, "TOGGLE EXTENDED HUD",   M_Bind_ExtendedHUD,    't' },
+    { M_SWTC, "INCREASE GAME SPEED",   M_Bind_IncGameSpeed,   'i' },
+    { M_SWTC, "DECREASE GAME SPEED",   M_Bind_DecGameSpeed,   'd' },
+    { M_SWTC, "RESET GAME SPEED",      M_Bind_ResetGameSpeed, 'r' },
+    { M_SWTC, "REWIND",                M_Bind_Rewind,         'r' },
+    { M_SKIP, "", 0, '\0' },
+    { M_SWTC, "SPECTATOR MODE",        M_Bind_SpectatorMode,  's' },
+    { M_SWTC, "- MOVE CAMERA UP",      M_Bind_CameraUp,       'm' },
+    { M_SWTC, "- MOVE CAMERA DOWN",    M_Bind_CameraDown,     'm' },
+    { M_SWTC, "- GO TO CAMERA COORDS", M_Bind_CameraMoveTo,   'm' },
+    { M_SWTC, "SNEAKING MODE",         M_Bind_SneakingMode,   's' },
+    { M_SWTC, "FREEZE MODE",           M_Bind_FreezeMode,     'f' },
+    { M_SWTC, "BUDDHA MODE",           M_Bind_BuddhaMode,     'b' },
+};
+
+static menu_t CRLDef_Keybinds_2 =
+{
+    ITEMCOUNT(CRLMenu_Keybinds_2),
+    &CRLDef_Controls,
+    CRLMenu_Keybinds_2,
+    M_DrawCRL_Keybinds_2,
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    0,
+    true, true, true,
+};
 
 // -----------------------------------------------------------------------------
 // Keybinds 3
 // -----------------------------------------------------------------------------
 
-static menuitem_t CRLMenu_Keybinds_3[]=
-{
-    { M_SWTC, "NO TARGET MODE",          M_Bind_NotargetMode,   'n' },
-    { M_SWTC, "NO MOMENTUM MODE",        M_Bind_NomomentumMode, 'n' },
-    { M_SKIP, "", 0, '\0' },
-    { M_SWTC, "ALWAYS RUN",              M_Bind_AlwaysRun,  'a' },
-    { M_SWTC, "VERTICAL MOUSE MOVEMENT", M_Bind_NoVert,     'v' },
-    { M_SWTC, "ARCH-VILE JUMP (PRESS)",  M_Bind_VileBomb,   'a' },
-    { M_SWTC, "ARCH-VILE FLY (HOLD)",    M_Bind_VileFly,    'a' },
-    { M_SKIP, "", 0, '\0' },
-    { M_SWTC, "IDDQD",                   M_Bind_IDDQD,      'i' },
-    { M_SWTC, "IDKFA",                   M_Bind_IDKFA,      'i' },
-    { M_SWTC, "IDFA",                    M_Bind_IDFA,       'i' },
-    { M_SWTC, "IDCLIP",                  M_Bind_IDCLIP,     'i' },
-    { M_SWTC, "IDDT",                    M_Bind_IDDT,       'i' },
-    { M_SWTC, "MDK",                     M_Bind_MDK,        'm' },
-    { M_SWTC, "SPECHITS",                M_Bind_SPECHITS,   's' },
-};
-
-static menu_t CRLDef_Keybinds_3 =
-{
-    ITEMCOUNT(CRLMenu_Keybinds_3),
-    &CRLDef_Controls,
-    CRLMenu_Keybinds_3,
-    M_DrawCRL_Keybinds_3,
-    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
-    0,
-    true, true, true,
-};
+static void M_Bind_Notarget (int choice)   { M_StartBind(300); } // key_crl_notarget
+static void M_Bind_Nomomentum (int choice) { M_StartBind(301); } // key_crl_nomomentum
+static void M_Bind_AlwaysRun (int choice)  { M_StartBind(302); } // key_crl_autorun
+static void M_Bind_NoVert (int choice)     { M_StartBind(303); } // key_crl_novert
+static void M_Bind_VileBomb (int choice)   { M_StartBind(304); } // key_crl_vilebomb
+static void M_Bind_VileFly (int choice)    { M_StartBind(305); } // key_crl_vilefly
+static void M_Bind_IDDQD (int choice)      { M_StartBind(306); } // key_crl_iddqd
+static void M_Bind_IDKFA (int choice)      { M_StartBind(307); } // key_crl_idkfa
+static void M_Bind_IDFA (int choice)       { M_StartBind(308); } // key_crl_idfa
+static void M_Bind_IDCLIP (int choice)     { M_StartBind(309); } // key_crl_idclip
+static void M_Bind_IDDT (int choice)       { M_StartBind(310); } // key_crl_iddt
+static void M_Bind_MDK (int choice)        { M_StartBind(311); } // key_crl_mdk
+static void M_Bind_SPECHITS (int choice)   { M_StartBind(312); } // key_crl_spechits
 
 static void M_DrawCRL_Keybinds_3 (void)
 {
@@ -2253,50 +2102,51 @@ static void M_DrawCRL_Keybinds_3 (void)
     M_DrawBindFooter("3", true);
 }
 
-static void M_Bind_NotargetMode (int choice)   { M_StartBind(300); } // key_crl_notarget
-static void M_Bind_NomomentumMode (int choice) { M_StartBind(301); } // key_crl_nomomentum
-static void M_Bind_AlwaysRun (int choice)      { M_StartBind(302); } // key_crl_autorun
-static void M_Bind_NoVert (int choice)         { M_StartBind(303); } // key_crl_novert
-static void M_Bind_VileBomb (int choice)       { M_StartBind(304); } // key_crl_vilebomb
-static void M_Bind_VileFly (int choice)        { M_StartBind(305); } // key_crl_vilefly
-static void M_Bind_IDDQD (int choice)          { M_StartBind(306); } // key_crl_iddqd
-static void M_Bind_IDKFA (int choice)          { M_StartBind(307); } // key_crl_idkfa
-static void M_Bind_IDFA (int choice)           { M_StartBind(308); } // key_crl_idfa
-static void M_Bind_IDCLIP (int choice)         { M_StartBind(309); } // key_crl_idclip
-static void M_Bind_IDDT (int choice)           { M_StartBind(310); } // key_crl_iddt
-static void M_Bind_MDK (int choice)            { M_StartBind(311); } // key_crl_mdk
-static void M_Bind_SPECHITS (int choice)       { M_StartBind(312); } // key_crl_spechits
+static menuitem_t CRLMenu_Keybinds_3[]=
+{
+    { M_SWTC, "NO TARGET MODE",          M_Bind_Notarget,   'n' },
+    { M_SWTC, "NO MOMENTUM MODE",        M_Bind_Nomomentum, 'n' },
+    { M_SKIP, "", 0, '\0' },
+    { M_SWTC, "ALWAYS RUN",              M_Bind_AlwaysRun,  'a' },
+    { M_SWTC, "VERTICAL MOUSE MOVEMENT", M_Bind_NoVert,     'v' },
+    { M_SWTC, "ARCH-VILE JUMP (PRESS)",  M_Bind_VileBomb,   'a' },
+    { M_SWTC, "ARCH-VILE FLY (HOLD)",    M_Bind_VileFly,    'a' },
+    { M_SKIP, "", 0, '\0' },
+    { M_SWTC, "IDDQD",                   M_Bind_IDDQD,      'i' },
+    { M_SWTC, "IDKFA",                   M_Bind_IDKFA,      'i' },
+    { M_SWTC, "IDFA",                    M_Bind_IDFA,       'i' },
+    { M_SWTC, "IDCLIP",                  M_Bind_IDCLIP,     'i' },
+    { M_SWTC, "IDDT",                    M_Bind_IDDT,       'i' },
+    { M_SWTC, "MDK",                     M_Bind_MDK,        'm' },
+    { M_SWTC, "SPECHITS",                M_Bind_SPECHITS,   's' },
+};
+
+static menu_t CRLDef_Keybinds_3 =
+{
+    ITEMCOUNT(CRLMenu_Keybinds_3),
+    &CRLDef_Controls,
+    CRLMenu_Keybinds_3,
+    M_DrawCRL_Keybinds_3,
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    0,
+    true, true, true,
+};
 
 // -----------------------------------------------------------------------------
 // Keybinds 4
 // -----------------------------------------------------------------------------
 
-static menuitem_t CRLMenu_Keybinds_4[]=
-{
-    { M_SWTC, "200% HEALTH",          M_Bind_HEALTH,    'h' },
-    { M_SWTC, "200% ARMOR",           M_Bind_ARMOR,     'a' },
-    { M_SWTC, "RESET HEALTH",         M_Bind_RESHEALTH, 'r' },
-    { M_SWTC, "RESET ARMOR",          M_Bind_RESARMOR,  'r' },
-    { M_SKIP, "", 0, '\0' },
-    { M_SWTC, "INVULNERABILITY",      M_Bind_INVUL,     'i' },
-    { M_SWTC, "BERSERK",              M_Bind_BERSERK,   'b' },
-    { M_SWTC, "PARTIAL INVISIBILITY", M_Bind_INVIS,     'p' },
-    { M_SWTC, "RADIATION SUIT",       M_Bind_RADSUIT,   'r' },
-    { M_SWTC, "COMPUTER AREA MAP",    M_Bind_AUTOMAP,   'c' },
-    { M_SWTC, "LIGHT AMPLIFICATION",  M_Bind_LIGHT,     'l' },
-    { M_SWTC, "SHOW POSITION",        M_Bind_MYPOS,     's' },
-};
-
-static menu_t CRLDef_Keybinds_4 =
-{
-    ITEMCOUNT(CRLMenu_Keybinds_4),
-    &CRLDef_Controls,
-    CRLMenu_Keybinds_4,
-    M_DrawCRL_Keybinds_4,
-    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
-    0,
-    true, true, true,
-};
+static void M_Bind_HEALTH (int choice)    { M_StartBind(400); } // key_crl_health
+static void M_Bind_ARMOR (int choice)     { M_StartBind(401); } // key_crl_armor
+static void M_Bind_RESHEALTH (int choice) { M_StartBind(402); } // key_crl_reshealth
+static void M_Bind_RESARMOR (int choice)  { M_StartBind(403); } // key_crl_resarmor
+static void M_Bind_INVUL (int choice)     { M_StartBind(405); } // key_crl_invul
+static void M_Bind_BERSERK (int choice)   { M_StartBind(406); } // key_crl_berserk
+static void M_Bind_INVIS (int choice)     { M_StartBind(407); } // key_crl_invis
+static void M_Bind_RADSUIT (int choice)   { M_StartBind(408); } // key_crl_radsuit
+static void M_Bind_AUTOMAP (int choice)   { M_StartBind(409); } // key_crl_automap
+static void M_Bind_LIGHT (int choice)     { M_StartBind(410); } // key_crl_light
+static void M_Bind_MYPOS (int choice)     { M_StartBind(411); } // key_crl_mypos
 
 static void M_DrawCRL_Keybinds_4 (void)
 {
@@ -2325,21 +2175,70 @@ static void M_DrawCRL_Keybinds_4 (void)
     M_DrawBindFooter("4", true);
 }
 
-static void M_Bind_HEALTH (int choice)    { M_StartBind(400); } // key_crl_health
-static void M_Bind_ARMOR (int choice)     { M_StartBind(401); } // key_crl_armor
-static void M_Bind_RESHEALTH (int choice) { M_StartBind(402); } // key_crl_reshealth
-static void M_Bind_RESARMOR (int choice)  { M_StartBind(403); } // key_crl_resarmor
-static void M_Bind_INVUL (int choice)     { M_StartBind(405); } // key_crl_invul
-static void M_Bind_BERSERK (int choice)   { M_StartBind(406); } // key_crl_berserk
-static void M_Bind_INVIS (int choice)     { M_StartBind(407); } // key_crl_invis
-static void M_Bind_RADSUIT (int choice)   { M_StartBind(408); } // key_crl_radsuit
-static void M_Bind_AUTOMAP (int choice)   { M_StartBind(409); } // key_crl_automap
-static void M_Bind_LIGHT (int choice)     { M_StartBind(410); } // key_crl_light
-static void M_Bind_MYPOS (int choice)     { M_StartBind(411); } // key_crl_mypos
+static menuitem_t CRLMenu_Keybinds_4[]=
+{
+    { M_SWTC, "200% HEALTH",          M_Bind_HEALTH,    'h' },
+    { M_SWTC, "200% ARMOR",           M_Bind_ARMOR,     'a' },
+    { M_SWTC, "RESET HEALTH",         M_Bind_RESHEALTH, 'r' },
+    { M_SWTC, "RESET ARMOR",          M_Bind_RESARMOR,  'r' },
+    { M_SKIP, "", 0, '\0' },
+    { M_SWTC, "INVULNERABILITY",      M_Bind_INVUL,     'i' },
+    { M_SWTC, "BERSERK",              M_Bind_BERSERK,   'b' },
+    { M_SWTC, "PARTIAL INVISIBILITY", M_Bind_INVIS,     'p' },
+    { M_SWTC, "RADIATION SUIT",       M_Bind_RADSUIT,   'r' },
+    { M_SWTC, "COMPUTER AREA MAP",    M_Bind_AUTOMAP,   'c' },
+    { M_SWTC, "LIGHT AMPLIFICATION",  M_Bind_LIGHT,     'l' },
+    { M_SWTC, "SHOW POSITION",        M_Bind_MYPOS,     's' },
+};
+
+static menu_t CRLDef_Keybinds_4 =
+{
+    ITEMCOUNT(CRLMenu_Keybinds_4),
+    &CRLDef_Controls,
+    CRLMenu_Keybinds_4,
+    M_DrawCRL_Keybinds_4,
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    0,
+    true, true, true,
+};
 
 // -----------------------------------------------------------------------------
 // Keybinds 5
 // -----------------------------------------------------------------------------
+
+static void M_Bind_CRLmenu (int choice)     { M_StartBind(500); } // key_crl_menu
+static void M_Bind_MoveToSSG (int choice)   { M_StartBind(501); } // key_crl_moveto_ssg_max
+static void M_Bind_ClearSSG (int choice)    { M_StartBind(502); } // key_crl_clear_ssg_max
+static void M_Bind_MoveToSEG (int choice)   { M_StartBind(503); } // key_crl_moveto_seg_max
+static void M_Bind_ClearSEG (int choice)    { M_StartBind(504); } // key_crl_clear_seg_max
+static void M_Bind_MoveToOPN (int choice)   { M_StartBind(505); } // key_crl_moveto_opn_max
+static void M_Bind_ClearOPN (int choice)    { M_StartBind(506); } // key_crl_clear_opn_max
+static void M_Bind_MoveToPLN (int choice)   { M_StartBind(507); } // key_crl_moveto_pln_max
+static void M_Bind_ClearPLN (int choice)    { M_StartBind(508); } // key_crl_clear_pln_max
+static void M_Bind_ClearAllMAX (int choice) { M_StartBind(509); } // key_crl_clear_all_max
+
+static void M_DrawCRL_Keybinds_5 (void)
+{
+    st_fullupdate = true;
+    Keybinds_Cur = 4;
+
+    M_FillBackground();
+
+    M_WriteTextCentered(7, "CRL CONTROL PANEL", cr[CR_YELLOW]);
+
+    M_DrawBindKey(0, 16, key_crl_menu, key_crl_menu2);
+    M_DrawBindKey(1, 25, key_crl_moveto_ssg_max, key_crl_moveto_ssg_max2);
+    M_DrawBindKey(2, 34, key_crl_clear_ssg_max, key_crl_clear_ssg_max2);
+    M_DrawBindKey(3, 43, key_crl_moveto_seg_max, key_crl_moveto_seg_max2);
+    M_DrawBindKey(4, 52, key_crl_clear_seg_max, key_crl_clear_seg_max2);
+    M_DrawBindKey(5, 61, key_crl_moveto_opn_max, key_crl_moveto_opn_max2);
+    M_DrawBindKey(6, 70, key_crl_clear_opn_max, key_crl_clear_opn_max2);
+    M_DrawBindKey(7, 79, key_crl_moveto_pln_max, key_crl_moveto_pln_max2);
+    M_DrawBindKey(8, 88, key_crl_clear_pln_max, key_crl_clear_pln_max2);
+    M_DrawBindKey(9, 97, key_crl_clear_all_max, key_crl_clear_all_max2);
+
+    M_DrawBindFooter("5", true);
+}
 
 static menuitem_t CRLMenu_Keybinds_5[]=
 {
@@ -2366,43 +2265,43 @@ static menu_t CRLDef_Keybinds_5 =
     true, true, true,
 };
 
-static void M_DrawCRL_Keybinds_5 (void)
-{
-    st_fullupdate = true;
-    Keybinds_Cur = 4;
-
-    M_FillBackground();
-
-    M_WriteTextCentered(7, "CRL CONTROL PANEL", cr[CR_YELLOW]);
-
-    M_DrawBindKey(0, 16, key_crl_menu, key_crl_menu2);
-    M_DrawBindKey(1, 25, key_crl_moveto_ssg_max, key_crl_moveto_ssg_max2);
-    M_DrawBindKey(2, 34, key_crl_clear_ssg_max, key_crl_clear_ssg_max2);
-    M_DrawBindKey(3, 43, key_crl_moveto_seg_max, key_crl_moveto_seg_max2);
-    M_DrawBindKey(4, 52, key_crl_clear_seg_max, key_crl_clear_seg_max2);
-    M_DrawBindKey(5, 61, key_crl_moveto_opn_max, key_crl_moveto_opn_max2);
-    M_DrawBindKey(6, 70, key_crl_clear_opn_max, key_crl_clear_opn_max2);
-    M_DrawBindKey(7, 79, key_crl_moveto_pln_max, key_crl_moveto_pln_max2);
-    M_DrawBindKey(8, 88, key_crl_clear_pln_max, key_crl_clear_pln_max2);
-    M_DrawBindKey(9, 97, key_crl_clear_all_max, key_crl_clear_all_max2);
-
-    M_DrawBindFooter("5", true);
-}
-
-static void M_Bind_CRLmenu (int choice)     { M_StartBind(500); } // key_crl_menu
-static void M_Bind_MoveToSSG (int choice)   { M_StartBind(501); } // key_crl_moveto_ssg_max
-static void M_Bind_ClearSSG (int choice)    { M_StartBind(502); } // key_crl_clear_ssg_max
-static void M_Bind_MoveToSEG (int choice)   { M_StartBind(503); } // key_crl_moveto_seg_max
-static void M_Bind_ClearSEG (int choice)    { M_StartBind(504); } // key_crl_clear_seg_max
-static void M_Bind_MoveToOPN (int choice)   { M_StartBind(505); } // key_crl_moveto_opn_max
-static void M_Bind_ClearOPN (int choice)    { M_StartBind(506); } // key_crl_clear_opn_max
-static void M_Bind_MoveToPLN (int choice)   { M_StartBind(507); } // key_crl_moveto_pln_max
-static void M_Bind_ClearPLN (int choice)    { M_StartBind(508); } // key_crl_clear_pln_max
-static void M_Bind_ClearAllMAX (int choice) { M_StartBind(509); } // key_crl_clear_all_max
-
 // -----------------------------------------------------------------------------
 // Keybinds 6
 // -----------------------------------------------------------------------------
+
+static void M_Bind_Weapon1 (int choice)    { M_StartBind(600); } // key_weapon1
+static void M_Bind_Weapon2 (int choice)    { M_StartBind(601); } // key_weapon2
+static void M_Bind_Weapon3 (int choice)    { M_StartBind(602); } // key_weapon3
+static void M_Bind_Weapon4 (int choice)    { M_StartBind(603); } // key_weapon4
+static void M_Bind_Weapon5 (int choice)    { M_StartBind(604); } // key_weapon5
+static void M_Bind_Weapon6 (int choice)    { M_StartBind(605); } // key_weapon6
+static void M_Bind_Weapon7 (int choice)    { M_StartBind(606); } // key_weapon7
+static void M_Bind_Weapon8 (int choice)    { M_StartBind(607); } // key_weapon8
+static void M_Bind_PrevWeapon (int choice) { M_StartBind(608); } // key_prevweapon
+static void M_Bind_NextWeapon (int choice) { M_StartBind(609); } // key_nextweapon
+
+static void M_DrawCRL_Keybinds_6 (void)
+{
+    st_fullupdate = true;
+    Keybinds_Cur = 5;
+
+    M_FillBackground();
+
+    M_WriteTextCentered(7, "WEAPONS", cr[CR_YELLOW]);
+
+    M_DrawBindKey(0, 16, key_weapon1, key_weapon1_2);
+    M_DrawBindKey(1, 25, key_weapon2, key_weapon2_2);
+    M_DrawBindKey(2, 34, key_weapon3, key_weapon3_2);
+    M_DrawBindKey(3, 43, key_weapon4, key_weapon4_2);
+    M_DrawBindKey(4, 52, key_weapon5, key_weapon5_2);
+    M_DrawBindKey(5, 61, key_weapon6, key_weapon6_2);
+    M_DrawBindKey(6, 70, key_weapon7, key_weapon7_2);
+    M_DrawBindKey(7, 79, key_weapon8, key_weapon8_2);
+    M_DrawBindKey(8, 88, key_prevweapon, key_prevweapon2);
+    M_DrawBindKey(9, 97, key_nextweapon, key_nextweapon2);
+
+    M_DrawBindFooter("6", true);
+}
 
 static menuitem_t CRLMenu_Keybinds_6[]=
 {
@@ -2429,43 +2328,51 @@ static menu_t CRLDef_Keybinds_6 =
     true, true, true,
 };
 
-static void M_DrawCRL_Keybinds_6 (void)
-{
-    st_fullupdate = true;
-    Keybinds_Cur = 5;
-
-    M_FillBackground();
-
-    M_WriteTextCentered(7, "WEAPONS", cr[CR_YELLOW]);
-
-    M_DrawBindKey(0, 16, key_weapon1, key_weapon1_2);
-    M_DrawBindKey(1, 25, key_weapon2, key_weapon2_2);
-    M_DrawBindKey(2, 34, key_weapon3, key_weapon3_2);
-    M_DrawBindKey(3, 43, key_weapon4, key_weapon4_2);
-    M_DrawBindKey(4, 52, key_weapon5, key_weapon5_2);
-    M_DrawBindKey(5, 61, key_weapon6, key_weapon6_2);
-    M_DrawBindKey(6, 70, key_weapon7, key_weapon7_2);
-    M_DrawBindKey(7, 79, key_weapon8, key_weapon8_2);
-    M_DrawBindKey(8, 88, key_prevweapon, key_prevweapon2);
-    M_DrawBindKey(9, 97, key_nextweapon, key_nextweapon2);
-
-    M_DrawBindFooter("6", true);
-}
-
-static void M_Bind_Weapon1 (int choice)    { M_StartBind(600); } // key_weapon1
-static void M_Bind_Weapon2 (int choice)    { M_StartBind(601); } // key_weapon2
-static void M_Bind_Weapon3 (int choice)    { M_StartBind(602); } // key_weapon3
-static void M_Bind_Weapon4 (int choice)    { M_StartBind(603); } // key_weapon4
-static void M_Bind_Weapon5 (int choice)    { M_StartBind(604); } // key_weapon5
-static void M_Bind_Weapon6 (int choice)    { M_StartBind(605); } // key_weapon6
-static void M_Bind_Weapon7 (int choice)    { M_StartBind(606); } // key_weapon7
-static void M_Bind_Weapon8 (int choice)    { M_StartBind(607); } // key_weapon8
-static void M_Bind_PrevWeapon (int choice) { M_StartBind(608); } // key_prevweapon
-static void M_Bind_NextWeapon (int choice) { M_StartBind(609); } // key_nextweapon
-
 // -----------------------------------------------------------------------------
 // Keybinds 7
 // -----------------------------------------------------------------------------
+
+static void M_Bind_ToggleMap (int choice)    { M_StartBind(700); } // key_map_toggle
+static void M_Bind_ZoomIn (int choice)       { M_StartBind(701); } // key_map_zoomin
+static void M_Bind_ZoomOut (int choice)      { M_StartBind(702); } // key_map_zoomout
+static void M_Bind_MaxZoom (int choice)      { M_StartBind(703); } // key_map_maxzoom
+static void M_Bind_FollowMode (int choice)   { M_StartBind(704); } // key_map_follow
+static void M_Bind_RotateMode (int choice)   { M_StartBind(705); } // key_crl_map_rotate
+static void M_Bind_OverlayMode (int choice)  { M_StartBind(706); } // key_crl_map_overlay
+static void M_Bind_PanMode (int choice)      { M_StartBind(707); } // key_crl_map_mousepan
+static void M_Bind_SndPropMode (int choice)  { M_StartBind(708); } // key_crl_map_sndprop
+static void M_Bind_AM_Teleport (int choice)  { M_StartBind(709); } // key_crl_map_teleport
+static void M_Bind_AM_Highlight (int choice) { M_StartBind(710); } // key_crl_map_highlight
+static void M_Bind_ToggleGrid (int choice)   { M_StartBind(711); } // key_map_grid
+static void M_Bind_AddMark (int choice)      { M_StartBind(712); } // key_map_mark
+static void M_Bind_ClearMarks (int choice)   { M_StartBind(713); } // key_map_clearmark
+
+static void M_DrawCRL_Keybinds_7 (void)
+{
+    st_fullupdate = true;
+    Keybinds_Cur = 6;
+
+    M_FillBackground();
+
+    M_WriteTextCentered(7, "AUTOMAP", cr[CR_YELLOW]);
+
+    M_DrawBindKey(0, 16, key_map_toggle, key_map_toggle2);
+    M_DrawBindKey(1, 25, key_map_zoomin, key_map_zoomin2);
+    M_DrawBindKey(2, 34, key_map_zoomout, key_map_zoomout2);
+    M_DrawBindKey(3, 43, key_map_maxzoom, key_map_maxzoom2);
+    M_DrawBindKey(4, 52, key_map_follow, key_map_follow2);
+    M_DrawBindKey(5, 61, key_crl_map_rotate, key_crl_map_rotate2);
+    M_DrawBindKey(6, 70, key_crl_map_overlay, key_crl_map_overlay2);
+    M_DrawBindKey(7, 79, key_crl_map_mousepan, key_crl_map_mousepan2);
+    M_DrawBindKey(8, 88, key_crl_map_sndprop, key_crl_map_sndprop2);
+    M_DrawBindKey(9, 97, key_crl_map_teleport, key_crl_map_teleport2);
+    M_DrawBindKey(10, 106, key_crl_map_highlight, key_crl_map_highlight2);
+    M_DrawBindKey(12, 115, key_map_grid, key_map_grid2);
+    M_DrawBindKey(12, 124, key_map_mark, key_map_mark2);
+    M_DrawBindKey(13, 133, key_map_clearmark, key_map_clearmark2);
+
+    M_DrawBindFooter("7", true);
+}
 
 static menuitem_t CRLMenu_Keybinds_7[]=
 {
@@ -2496,51 +2403,49 @@ static menu_t CRLDef_Keybinds_7 =
     true, true, true,
 };
 
-static void M_DrawCRL_Keybinds_7 (void)
+// -----------------------------------------------------------------------------
+// Keybinds 8
+// -----------------------------------------------------------------------------
+
+static void M_Bind_HelpScreen (int choice)     { M_StartBind(800); } // key_menu_help
+static void M_Bind_SaveGame (int choice)       { M_StartBind(801); } // key_menu_save
+static void M_Bind_LoadGame (int choice)       { M_StartBind(802); } // key_menu_load
+static void M_Bind_SoundVolume (int choice)    { M_StartBind(803); } // key_menu_volume
+static void M_Bind_ToggleDetail (int choice)   { M_StartBind(804); } // key_menu_detail
+static void M_Bind_QuickSave (int choice)      { M_StartBind(805); } // key_menu_qsave
+static void M_Bind_EndGame (int choice)        { M_StartBind(806); } // key_menu_endgame
+static void M_Bind_ToggleMessages (int choice) { M_StartBind(807); } // key_menu_messages
+static void M_Bind_QuickLoad (int choice)      { M_StartBind(808); } // key_menu_qload
+static void M_Bind_QuitGame (int choice)       { M_StartBind(809); } // key_menu_quit
+static void M_Bind_DecreaseGamma (int choice)  { M_StartBind(810); } // key_menu_gammad
+static void M_Bind_IncreaseGamma (int choice)  { M_StartBind(811); } // key_menu_gamma
+static void M_Bind_MultiplayerSpy (int choice) { M_StartBind(812); } // key_spy
+
+static void M_DrawCRL_Keybinds_8 (void)
 {
     st_fullupdate = true;
-    Keybinds_Cur = 6;
+    Keybinds_Cur = 8;
 
     M_FillBackground();
 
-    M_WriteTextCentered(7, "AUTOMAP", cr[CR_YELLOW]);
+    M_WriteTextCentered(7, "FUNCTION KEYS", cr[CR_YELLOW]);
 
-    M_DrawBindKey(0, 16, key_map_toggle, key_map_toggle2);
-    M_DrawBindKey(1, 25, key_map_zoomin, key_map_zoomin2);
-    M_DrawBindKey(2, 34, key_map_zoomout, key_map_zoomout2);
-    M_DrawBindKey(3, 43, key_map_maxzoom, key_map_maxzoom2);
-    M_DrawBindKey(4, 52, key_map_follow, key_map_follow2);
-    M_DrawBindKey(5, 61, key_crl_map_rotate, key_crl_map_rotate2);
-    M_DrawBindKey(6, 70, key_crl_map_overlay, key_crl_map_overlay2);
-    M_DrawBindKey(7, 79, key_crl_map_mousepan, key_crl_map_mousepan2);
-    M_DrawBindKey(8, 88, key_crl_map_sndprop, key_crl_map_sndprop2);
-    M_DrawBindKey(9, 97, key_crl_map_teleport, key_crl_map_teleport2);
-    M_DrawBindKey(10, 106, key_crl_map_highlight, key_crl_map_highlight2);
-    M_DrawBindKey(12, 115, key_map_grid, key_map_grid2);
-    M_DrawBindKey(12, 124, key_map_mark, key_map_mark2);
-    M_DrawBindKey(13, 133, key_map_clearmark, key_map_clearmark2);
+    M_DrawBindKey(0, 16, key_menu_help, key_menu_help2);
+    M_DrawBindKey(1, 25, key_menu_save, key_menu_save2);
+    M_DrawBindKey(2, 34, key_menu_load, key_menu_load2);
+    M_DrawBindKey(3, 43, key_menu_volume, key_menu_volume2);
+    M_DrawBindKey(4, 52, key_menu_detail, key_menu_detail2);
+    M_DrawBindKey(5, 61, key_menu_qsave, key_menu_qsave2);
+    M_DrawBindKey(6, 70, key_menu_endgame, key_menu_endgame2);
+    M_DrawBindKey(7, 79, key_menu_messages, key_menu_messages2);
+    M_DrawBindKey(8, 88, key_menu_qload, key_menu_qload2);
+    M_DrawBindKey(9, 97, key_menu_quit, key_menu_quit2);
+    M_DrawBindKey(10, 106, key_menu_gammad, key_menu_gammad2);
+    M_DrawBindKey(11, 115, key_menu_gamma, key_menu_gamma2);
+    M_DrawBindKey(12, 124, key_spy, key_spy2);
 
-    M_DrawBindFooter("7", true);
+    M_DrawBindFooter("8", true);
 }
-
-static void M_Bind_ToggleMap (int choice)    { M_StartBind(700); } // key_map_toggle
-static void M_Bind_ZoomIn (int choice)       { M_StartBind(701); } // key_map_zoomin
-static void M_Bind_ZoomOut (int choice)      { M_StartBind(702); } // key_map_zoomout
-static void M_Bind_MaxZoom (int choice)      { M_StartBind(703); } // key_map_maxzoom
-static void M_Bind_FollowMode (int choice)   { M_StartBind(704); } // key_map_follow
-static void M_Bind_RotateMode (int choice)   { M_StartBind(705); } // key_crl_map_rotate
-static void M_Bind_OverlayMode (int choice)  { M_StartBind(706); } // key_crl_map_overlay
-static void M_Bind_PanMode (int choice)      { M_StartBind(707); } // key_crl_map_mousepan
-static void M_Bind_SndPropMode (int choice)  { M_StartBind(708); } // key_crl_map_sndprop
-static void M_Bind_AM_Teleport (int choice)  { M_StartBind(709); } // key_crl_map_teleport
-static void M_Bind_AM_Highlight (int choice) { M_StartBind(710); } // key_crl_map_highlight
-static void M_Bind_ToggleGrid (int choice)   { M_StartBind(711); } // key_map_grid
-static void M_Bind_AddMark (int choice)      { M_StartBind(712); } // key_map_mark
-static void M_Bind_ClearMarks (int choice)   { M_StartBind(713); } // key_map_clearmark
-
-// -----------------------------------------------------------------------------
-// Keybinds 7
-// -----------------------------------------------------------------------------
 
 static menuitem_t CRLMenu_Keybinds_8[]=
 {
@@ -2570,77 +2475,37 @@ static menu_t CRLDef_Keybinds_8 =
     true, true, true,
 };
 
-static void M_DrawCRL_Keybinds_8 (void)
-{
-    st_fullupdate = true;
-    Keybinds_Cur = 8;
-
-    M_FillBackground();
-
-    M_WriteTextCentered(7, "FUNCTION KEYS", cr[CR_YELLOW]);
-
-    M_DrawBindKey(0, 16, key_menu_help, key_menu_help2);
-    M_DrawBindKey(1, 25, key_menu_save, key_menu_save2);
-    M_DrawBindKey(2, 34, key_menu_load, key_menu_load2);
-    M_DrawBindKey(3, 43, key_menu_volume, key_menu_volume2);
-    M_DrawBindKey(4, 52, key_menu_detail, key_menu_detail2);
-    M_DrawBindKey(5, 61, key_menu_qsave, key_menu_qsave2);
-    M_DrawBindKey(6, 70, key_menu_endgame, key_menu_endgame2);
-    M_DrawBindKey(7, 79, key_menu_messages, key_menu_messages2);
-    M_DrawBindKey(8, 88, key_menu_qload, key_menu_qload2);
-    M_DrawBindKey(9, 97, key_menu_quit, key_menu_quit2);
-    M_DrawBindKey(10, 106, key_menu_gammad, key_menu_gammad2);
-    M_DrawBindKey(11, 115, key_menu_gamma, key_menu_gamma2);
-    M_DrawBindKey(12, 124, key_spy, key_spy2);
-
-    M_DrawBindFooter("8", true);
-}
-
-static void M_Bind_HelpScreen (int choice)     { M_StartBind(800); } // key_menu_help
-static void M_Bind_SaveGame (int choice)       { M_StartBind(801); } // key_menu_save
-static void M_Bind_LoadGame (int choice)       { M_StartBind(802); } // key_menu_load
-static void M_Bind_SoundVolume (int choice)    { M_StartBind(803); } // key_menu_volume
-static void M_Bind_ToggleDetail (int choice)   { M_StartBind(804); } // key_menu_detail
-static void M_Bind_QuickSave (int choice)      { M_StartBind(805); } // key_menu_qsave
-static void M_Bind_EndGame (int choice)        { M_StartBind(806); } // key_menu_endgame
-static void M_Bind_ToggleMessages (int choice) { M_StartBind(807); } // key_menu_messages
-static void M_Bind_QuickLoad (int choice)      { M_StartBind(808); } // key_menu_qload
-static void M_Bind_QuitGame (int choice)       { M_StartBind(809); } // key_menu_quit
-static void M_Bind_DecreaseGamma (int choice)  { M_StartBind(810); } // key_menu_gammad
-static void M_Bind_IncreaseGamma (int choice)  { M_StartBind(811); } // key_menu_gamma
-static void M_Bind_MultiplayerSpy (int choice) { M_StartBind(812); } // key_spy
-
 // -----------------------------------------------------------------------------
 // Keybinds 9
 // -----------------------------------------------------------------------------
 
-static menuitem_t CRLMenu_Keybinds_9[]=
-{
-    { M_SWTC, "PAUSE GAME",             M_Bind_Pause,           'p'  },
-    { M_SWTC, "SAVE A SCREENSHOT",      M_Bind_SaveScreenshot,  's'  },
-    { M_SWTC, "SAVE A CLEAN SCREENSHOT", M_Bind_SaveCleanshot,  's'  },
-    { M_SWTC, "DISPLAY LAST MESSAGE",   M_Bind_LastMessage,     'd'  },
-    { M_SWTC, "FINISH DEMO RECORDING",  M_Bind_FinishDemo,      'f'  },
-    { M_SKIP, "",                       0,                      '\0' },  // MULTIPLAYER
-    { M_SWTC, "SEND MESSAGE",           M_Bind_SendMessage,     's'  },
-    { M_SWTC, "- TO PLAYER 1",          M_Bind_ToPlayer1,       '1'  },
-    { M_SWTC, "- TO PLAYER 2",          M_Bind_ToPlayer2,       '2'  },
-    { M_SWTC, "- TO PLAYER 3",          M_Bind_ToPlayer3,       '3'  },
-    { M_SWTC, "- TO PLAYER 4",          M_Bind_ToPlayer4,       '4'  },
-    { M_SKIP, "",                       0,                      '\0' },
-    { M_SWTC, "RESET BINDINGS TO DEFAULT", M_Bind_Reset,        'r'  },
-};
+static void M_Bind_Pause (int choice)       { M_StartBind(900); } // key_pause
+static void M_Bind_Screenshot (int choice)  { M_StartBind(901); } // key_menu_screenshot
+static void M_Bind_Cleanshot (int choice)   { M_StartBind(902); } // key_menu_cleanshot
+static void M_Bind_LastMessage (int choice) { M_StartBind(903); } // key_message_refresh
+static void M_Bind_FinishDemo (int choice)  { M_StartBind(904); } // key_demo_quit
+static void M_Bind_SendMessage (int choice) { M_StartBind(905); } // key_multi_msg
+static void M_Bind_ToPlayer1 (int choice)   { M_StartBind(906); } // key_multi_msgplayer1
+static void M_Bind_ToPlayer2 (int choice)   { M_StartBind(907); } // key_multi_msgplayer2
+static void M_Bind_ToPlayer3 (int choice)   { M_StartBind(908); } // key_multi_msgplayer3
+static void M_Bind_ToPlayer4 (int choice)   { M_StartBind(909); } // key_multi_msgplayer4
 
-static menu_t CRLDef_Keybinds_9 =
+static void M_Bind_ResetResponse (int key)
 {
-    ITEMCOUNT(CRLMenu_Keybinds_9),
-    &CRLDef_Controls,
-    CRLMenu_Keybinds_9,
-    M_DrawCRL_Keybinds_9,
-    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
-    0,
-    true, true, true,
-};
+    if (key != key_menu_confirm)
+        return;
+
+    M_ResetBinds();
+}
+
+static void M_Bind_Reset (int choice)
+{
+    const char *const resetwarning =
+        M_StringJoin("RESET KEYBOARD BINDINGS TO DEFAULT VALUES?", "\n\n", PRESSYN, NULL);
+
+    messageFillBG = true;
+    M_StartMessage(resetwarning, M_Bind_ResetResponse, true);
+}
 
 static void M_DrawCRL_Keybinds_9 (void)
 {
@@ -2670,40 +2535,89 @@ static void M_DrawCRL_Keybinds_9 (void)
     M_DrawBindFooter("9", true);
 }
 
-static void M_Bind_Pause (int choice)          { M_StartBind(900); } // key_pause
-static void M_Bind_SaveScreenshot (int choice) { M_StartBind(901); } // key_menu_screenshot
-static void M_Bind_SaveCleanshot (int choice)  { M_StartBind(902); } // key_menu_cleanshot
-static void M_Bind_LastMessage (int choice)    { M_StartBind(903); } // key_message_refresh
-static void M_Bind_FinishDemo (int choice)     { M_StartBind(904); } // key_demo_quit
-static void M_Bind_SendMessage (int choice)    { M_StartBind(905); } // key_multi_msg
-static void M_Bind_ToPlayer1 (int choice)      { M_StartBind(906); } // key_multi_msgplayer1
-static void M_Bind_ToPlayer2 (int choice)      { M_StartBind(907); } // key_multi_msgplayer2
-static void M_Bind_ToPlayer3 (int choice)      { M_StartBind(908); } // key_multi_msgplayer3
-static void M_Bind_ToPlayer4 (int choice)      { M_StartBind(909); } // key_multi_msgplayer4
-
-static void M_Bind_ResetResponse (int key)
+static menuitem_t CRLMenu_Keybinds_9[]=
 {
-    if (key != key_menu_confirm)
-    {
-        return;
-    }
+    { M_SWTC, "PAUSE GAME",                M_Bind_Pause,       'p'  },
+    { M_SWTC, "SAVE A SCREENSHOT",         M_Bind_Screenshot,  's'  },
+    { M_SWTC, "SAVE A CLEAN SCREENSHOT",   M_Bind_Cleanshot,   's'  },
+    { M_SWTC, "DISPLAY LAST MESSAGE",      M_Bind_LastMessage, 'd'  },
+    { M_SWTC, "FINISH DEMO RECORDING",     M_Bind_FinishDemo,  'f'  },
+    { M_SKIP, "", 0, '\0' },
+    { M_SWTC, "SEND MESSAGE",              M_Bind_SendMessage, 's'  },
+    { M_SWTC, "- TO PLAYER 1",             M_Bind_ToPlayer1,   '1'  },
+    { M_SWTC, "- TO PLAYER 2",             M_Bind_ToPlayer2,   '2'  },
+    { M_SWTC, "- TO PLAYER 3",             M_Bind_ToPlayer3,   '3'  },
+    { M_SWTC, "- TO PLAYER 4",             M_Bind_ToPlayer4,   '4'  },
+    { M_SKIP, "", 0, '\0' },
+    { M_SWTC, "RESET BINDINGS TO DEFAULT", M_Bind_Reset,       'r'  },
+};
 
-    M_ResetBinds();
-}
-
-static void M_Bind_Reset (int choice)
+static menu_t CRLDef_Keybinds_9 =
 {
-    const char *resetwarning =
-	    M_StringJoin("RESET KEYBOARD BINDINGS TO DEFAULT VALUES?",
-                     "\n\n", PRESSYN, NULL);
-
-    messageFillBG = true;
-    M_StartMessage(resetwarning, M_Bind_ResetResponse, true);
-}
+    ITEMCOUNT(CRLMenu_Keybinds_9),
+    &CRLDef_Controls,
+    CRLMenu_Keybinds_9,
+    M_DrawCRL_Keybinds_9,
+    CRL_MENU_LEFTOFFSET, CRL_MENU_TOPOFFSET,
+    0,
+    true, true, true,
+};
 
 // -----------------------------------------------------------------------------
 // Mouse bindings
 // -----------------------------------------------------------------------------
+
+static void M_Bind_M_FireAttack (int choice)   { M_StartMouseBind(1000); } // mousebfire
+static void M_Bind_M_MoveForward (int choice)  { M_StartMouseBind(1001); } // mousebforward
+static void M_Bind_M_MoveBackward (int choice) { M_StartMouseBind(1002); } // mousebbackward
+static void M_Bind_M_Use (int choice)          { M_StartMouseBind(1003); } // mousebuse
+static void M_Bind_M_SpeedOn (int choice)      { M_StartMouseBind(1004); } // mousebspeed
+static void M_Bind_M_StrafeOn (int choice)     { M_StartMouseBind(1005); } // mousebstrafe
+static void M_Bind_M_StrafeLeft (int choice)   { M_StartMouseBind(1006); } // mousebstrafeleft
+static void M_Bind_M_StrafeRight (int choice)  { M_StartMouseBind(1007); } // mousebstraferight
+static void M_Bind_M_PrevWeapon (int choice)   { M_StartMouseBind(1008); } // mousebprevweapon
+static void M_Bind_M_NextWeapon (int choice)   { M_StartMouseBind(1009); } // mousebnextweapon
+
+static void M_Bind_M_ResetResponse (int key)
+{
+    if (key != key_menu_confirm)
+        return;
+
+    M_ResetMouseBinds();
+}
+
+static void M_Bind_M_Reset (int choice)
+{
+    const char *const resetwarning =
+        M_StringJoin("RESET MOUSE BINDINGS TO DEFAULT VALUES?", "\n\n", PRESSYN, NULL);
+
+    messageFillBG = true;
+    M_StartMessage(resetwarning, M_Bind_M_ResetResponse, true);
+}
+
+static void M_DrawCRL_MouseBinds (void)
+{
+    st_fullupdate = true;
+
+    M_FillBackground();
+
+    M_WriteTextCentered(7, "MOUSE BINDINGS", cr[CR_YELLOW]);
+
+    M_DrawBindButton(0, 16, mousebfire, mousebfire2);
+    M_DrawBindButton(1, 25, mousebforward, mousebforward2);
+    M_DrawBindButton(2, 34, mousebbackward, mousebbackward2);
+    M_DrawBindButton(3, 43, mousebuse, mousebuse2);
+    M_DrawBindButton(4, 52, mousebspeed, mousebspeed2);
+    M_DrawBindButton(5, 61, mousebstrafe, mousebstrafe2);
+    M_DrawBindButton(6, 70, mousebstrafeleft, mousebstrafeleft2);
+    M_DrawBindButton(7, 79, mousebstraferight, mousebstraferight2);
+    M_DrawBindButton(8, 88, mousebprevweapon, mousebprevweapon2);
+    M_DrawBindButton(9, 97, mousebnextweapon, mousebnextweapon2);
+
+    M_WriteTextCentered(106, "RESET", cr[CR_YELLOW]);
+
+    M_DrawBindFooter(NULL, false);
+}
 
 static menuitem_t CRLMenu_MouseBinds[]=
 {
@@ -2731,105 +2645,6 @@ static menu_t CRLDef_MouseBinds =
     0,
     true, false, false,
 };
-
-static void M_DrawCRL_MouseBinds (void)
-{
-    st_fullupdate = true;
-
-    M_FillBackground();
-
-    M_WriteTextCentered(7, "MOUSE BINDINGS", cr[CR_YELLOW]);
-
-    M_DrawBindButton(0, 16, mousebfire, mousebfire2);
-    M_DrawBindButton(1, 25, mousebforward, mousebforward2);
-    M_DrawBindButton(2, 34, mousebbackward, mousebbackward2);
-    M_DrawBindButton(3, 43, mousebuse, mousebuse2);
-    M_DrawBindButton(4, 52, mousebspeed, mousebspeed2);
-    M_DrawBindButton(5, 61, mousebstrafe, mousebstrafe2);
-    M_DrawBindButton(6, 70, mousebstrafeleft, mousebstrafeleft2);
-    M_DrawBindButton(7, 79, mousebstraferight, mousebstraferight2);
-    M_DrawBindButton(8, 88, mousebprevweapon, mousebprevweapon2);
-    M_DrawBindButton(9, 97, mousebnextweapon, mousebnextweapon2);
-
-    M_WriteTextCentered(106, "RESET", cr[CR_YELLOW]);
-
-    M_DrawBindFooter(NULL, false);
-}
-
-static void M_ChooseCRL_MouseBinds (int choice)
-{
-    M_SetupNextMenu (&CRLDef_MouseBinds);
-}
-
-static void M_Bind_M_FireAttack (int choice)
-{
-    M_StartMouseBind(1000);  // mousebfire
-}
-
-static void M_Bind_M_MoveForward (int choice)
-{
-    M_StartMouseBind(1001);  // mousebforward
-}
-
-static void M_Bind_M_MoveBackward (int choice)
-{
-    M_StartMouseBind(1002);  // mousebbackward
-}
-
-static void M_Bind_M_Use (int choice)
-{
-    M_StartMouseBind(1003);  // mousebuse
-}
-
-static void M_Bind_M_SpeedOn (int choice)
-{
-    M_StartMouseBind(1004);  // mousebspeed
-}
-
-static void M_Bind_M_StrafeOn (int choice)
-{
-    M_StartMouseBind(1005);  // mousebstrafe
-}
-
-static void M_Bind_M_StrafeLeft (int choice)
-{
-    M_StartMouseBind(1006);  // mousebstrafeleft
-}
-
-static void M_Bind_M_StrafeRight (int choice)
-{
-    M_StartMouseBind(1007);  // mousebstraferight
-}
-
-static void M_Bind_M_PrevWeapon (int choice)
-{
-    M_StartMouseBind(1008);  // mousebprevweapon
-}
-
-static void M_Bind_M_NextWeapon (int choice)
-{
-    M_StartMouseBind(1009);  // mousebnextweapon
-}
-
-static void M_Bind_M_ResetResponse (int key)
-{
-    if (key != key_menu_confirm)
-    {
-        return;
-    }
-
-    M_ResetMouseBinds();
-}
-
-static void M_Bind_M_Reset (int choice)
-{
-    const char *resetwarning =
-	    M_StringJoin("RESET MOUSE BINDINGS TO DEFAULT VALUES?",
-                     "\n\n", PRESSYN, NULL);
-
-    messageFillBG = true;
-    M_StartMessage(resetwarning, M_Bind_M_ResetResponse, true);
-}
 
 // -----------------------------------------------------------------------------
 // Widgets settings

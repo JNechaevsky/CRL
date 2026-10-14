@@ -31,7 +31,7 @@
 #include "doomstat.h"
 #include "g_game.h"
 #include "m_misc.h"
-#include "m_menu.h"
+#include "mn_menu.h"
 #include "am_map.h"
 #include "r_local.h"
 #include "v_savepreview.h"

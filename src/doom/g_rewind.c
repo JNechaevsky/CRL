@@ -21,7 +21,7 @@
 #include "g_rewind.h"
 #include "i_system.h"
 #include "i_timer.h"
-#include "m_menu.h"
+#include "mn_menu.h"
 #include "p_local.h"
 #include "s_sound.h"
 

@@ -26,8 +26,8 @@ add_library(doom STATIC
             g_game.c        g_game.h
             g_rewind.c      g_rewind.h
             info.c          info.h
-            m_menu.c        m_menu.h
             m_random.c      m_random.h
+            mn_menu.c       mn_menu.h
             p_ceilng.c
             p_blocktrail.c  p_blocktrail.h
             p_doors.c
