@@ -657,6 +657,36 @@ void D_StartTitle(void)
     D_AdvanceDemo();
 }
 
+// -----------------------------------------------------------------------------
+// D_SetSavegameDirectory
+//  [PN] "Organize save files": with "organize_savefiles" on, savegames are
+//  stored in a savegames subfolder named after the WAD the maps load from.
+//  Re-callable so a menu toggle can reapply the setting at runtime.
+// -----------------------------------------------------------------------------
+
+void D_SetSavegameDirectory (void)
+{
+    char *newdir = M_GetSaveGameDir("heretic.wad");
+
+    if (organize_savefiles)
+    {
+        const char *wadname = W_MapsSourceWADName();
+
+        if (wadname != NULL)
+        {
+            char *subdir;
+
+            subdir = M_StringJoin(newdir, wadname, DIR_SEPARATOR_S, NULL);
+            M_MakeDirectory(subdir);
+            free(newdir);
+            newdir = subdir;
+        }
+    }
+
+    free(savegamedir);
+    savegamedir = newdir;
+}
+
 
 /*
 ==============
@@ -991,8 +1021,9 @@ static void D_BindVariables(void)
     M_BindIntVariable("show_endoom",            &show_endoom);
     M_BindIntVariable("graphical_startup",      &graphical_startup);
 
-    M_BindStringVariable("savegames_path",      &SavePathConfig);
     M_BindStringVariable("screenshots_path",    &ShotPathConfig);
+    M_BindStringVariable("savegames_path",      &SavePathConfig);
+    M_BindIntVariable("organize_savefiles",     &organize_savefiles);
 
     for (i=0; i<10; ++i)
     {
@@ -1421,7 +1452,8 @@ void D_DoomMain(void)
 
     I_SetWindowTitle(gamedescription);
 
-    savegamedir = M_GetSaveGameDir("heretic.wad");
+    // [PN] Set the directory where savegames are saved.
+    D_SetSavegameDirectory();
 
     // [JN] Set the default directory where screenshots are saved.
     M_SetScreenshotDir();

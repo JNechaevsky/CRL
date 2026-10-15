@@ -95,6 +95,7 @@ void W_ReleaseLumpName(const char *name);
 
 const char *W_WadNameForLump(const lumpinfo_t *lump);
 boolean W_IsIWADLump(const lumpinfo_t *lump);
+const char *W_MapsSourceWADName(void);
 
 char **W_GetWADFileNames(void);
 

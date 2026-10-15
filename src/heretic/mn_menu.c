@@ -31,6 +31,7 @@
 #include "i_system.h"
 #include "i_swap.h"
 #include "i_timer.h"
+#include "m_config.h"
 #include "m_controls.h"
 #include "m_misc.h"
 #include "p_local.h"
@@ -532,6 +533,7 @@ static void CRL_WeaponBob (int option);
 static void CRL_Colorblind (int option);
 static void CRL_AutoloadWAD (int option);
 static void CRL_AutoloadDEH (int option);
+static void CRL_OrganizeSaves (int choice);
 static void CRL_Hightlight (int option);
 static void CRL_MenuEscKey (int option);
 static void CRL_ConfirmQuit (int option);
@@ -3000,21 +3002,22 @@ static void CRL_InternalDemos (int option)
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLMiscItems_1[] = {
-    { ITT_LRFUNC1, "INVULNERABILITY EFFECT",    CRL_Invul,       0, MENU_NONE },
-    { ITT_LRFUNC2, "PALETTE FLASH EFFECTS",     CRL_PalFlash,    0, MENU_NONE },
-    { ITT_LRFUNC1, "MOVEMENT BOBBING",          CRL_MoveBob,     0, MENU_NONE },
-    { ITT_LRFUNC1, "WEAPON BOBBING",            CRL_WeaponBob,   0, MENU_NONE },
-    { ITT_LRFUNC2, "COLORBLIND",                CRL_Colorblind,  0, MENU_NONE },
-    { ITT_EMPTY,   NULL,                        NULL,            0, MENU_NONE },
-    { ITT_LRFUNC2, "AUTOLOAD WAD FILES",        CRL_AutoloadWAD, 0, MENU_NONE },
-    { ITT_LRFUNC2, "AUTOLOAD DEH FILES",        CRL_AutoloadDEH, 0, MENU_NONE },
-    { ITT_EMPTY,   NULL,                        NULL,            0, MENU_NONE },
-    { ITT_LRFUNC2, "HIGHLIGHTING EFFECT",       CRL_Hightlight,  0, MENU_NONE },
-    { ITT_LRFUNC1, "ESC KEY BEHAVIOUR",         CRL_MenuEscKey,  0, MENU_NONE },
-    { ITT_LRFUNC1, "QUIT CONFIRMATION",         CRL_ConfirmQuit, 0, MENU_NONE },
-    { ITT_LRFUNC1, "CAP FRAMERATE IN THE MENU", CRL_MenuCapFps,  0, MENU_NONE },
-    { ITT_EMPTY,   NULL,                        NULL,            0, MENU_NONE },
-    { ITT_LRFUNC2, "", /* < SCROLL PAGES >*/    M_ScrollMisc,    0, MENU_NONE },
+    { ITT_LRFUNC1, "INVULNERABILITY EFFECT",    CRL_Invul,         0, MENU_NONE },
+    { ITT_LRFUNC2, "PALETTE FLASH EFFECTS",     CRL_PalFlash,      0, MENU_NONE },
+    { ITT_LRFUNC1, "MOVEMENT BOBBING",          CRL_MoveBob,       0, MENU_NONE },
+    { ITT_LRFUNC1, "WEAPON BOBBING",            CRL_WeaponBob,     0, MENU_NONE },
+    { ITT_LRFUNC2, "COLORBLIND",                CRL_Colorblind,    0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                        NULL,              0, MENU_NONE },
+    { ITT_LRFUNC2, "AUTOLOAD WAD FILES",        CRL_AutoloadWAD,   0, MENU_NONE },
+    { ITT_LRFUNC2, "AUTOLOAD DEH FILES",        CRL_AutoloadDEH,   0, MENU_NONE },
+    { ITT_LRFUNC2, "ORGANIZE SAVE FILES",       CRL_OrganizeSaves, 0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                        NULL,              0, MENU_NONE },
+    { ITT_LRFUNC2, "HIGHLIGHTING EFFECT",       CRL_Hightlight,    0, MENU_NONE },
+    { ITT_LRFUNC1, "ESC KEY BEHAVIOUR",         CRL_MenuEscKey,    0, MENU_NONE },
+    { ITT_LRFUNC1, "QUIT CONFIRMATION",         CRL_ConfirmQuit,   0, MENU_NONE },
+    { ITT_LRFUNC1, "CAP FRAMERATE IN THE MENU", CRL_MenuCapFps,    0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                        NULL,              0, MENU_NONE },
+    { ITT_LRFUNC2, "", /* < SCROLL PAGES >*/    M_ScrollMisc,      0, MENU_NONE },
 };
 
 static Menu_t CRLMisc_1 = {
@@ -3072,7 +3075,7 @@ static void DrawCRLMisc_1 (void)
     MN_DrTextA(str, M_ItemRightAlign(str), 60,
                M_Item_Glow(4, crl_colorblind ? GLOW_GREEN : GLOW_DARKRED));
 
-    MN_DrTextACentered("AUTOLOAD", 70, cr[CR_YELLOW]);
+    MN_DrTextACentered("FILES AND FOLDERS", 70, cr[CR_YELLOW]);
 
     // Autoload WAD files
     sprintf(str, crl_autoload_wad == 1 ? "IWAD ONLY" :
@@ -3088,29 +3091,34 @@ static void DrawCRLMisc_1 (void)
                M_Item_Glow(7, crl_autoload_deh == 1 ? GLOW_YELLOW :
                               crl_autoload_deh == 2 ? GLOW_GREEN : GLOW_DARKRED));
 
-    MN_DrTextACentered("MENU SETTINGS", 100, cr[CR_YELLOW]);
+    // Organize save files
+    sprintf(str, organize_savefiles ? "ON" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 100,
+               M_Item_Glow(8, organize_savefiles ? GLOW_GREEN : GLOW_DARKRED));
+
+    MN_DrTextACentered("MENU SETTINGS", 110, cr[CR_YELLOW]);
 
     // Highlighting effect
     sprintf(str, crl_menu_highlight == 1 ? "STATIC" :
                  crl_menu_highlight == 2 ? "ANIMATED" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 110,
-               M_Item_Glow(9, crl_menu_highlight == 1 ? GLOW_YELLOW :
-                              crl_menu_highlight == 2 ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 120,
+               M_Item_Glow(10, crl_menu_highlight == 1 ? GLOW_YELLOW :
+                               crl_menu_highlight == 2 ? GLOW_GREEN : GLOW_DARKRED));
 
     // ESC key behaviour
     sprintf(str, crl_menu_esc_key ? "GO BACK" : "CLOSE MENU" );
-    MN_DrTextA(str, M_ItemRightAlign(str), 120,
-               M_Item_Glow(10, crl_menu_esc_key ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 130,
+               M_Item_Glow(11, crl_menu_esc_key ? GLOW_GREEN : GLOW_DARKRED));
 
     // Quit confirmation
     sprintf(str, crl_confirm_quit ? "ON" : "OFF" );
-    MN_DrTextA(str, M_ItemRightAlign(str), 130,
-               M_Item_Glow(11, crl_confirm_quit ? GLOW_DARKRED : GLOW_GREEN));
+    MN_DrTextA(str, M_ItemRightAlign(str), 140,
+               M_Item_Glow(12, crl_confirm_quit ? GLOW_DARKRED : GLOW_GREEN));
 
     // Cap framerate in the menu
     sprintf(str, crl_menu_cap_fps ? "ON" : "OFF" );
-    MN_DrTextA(str, M_ItemRightAlign(str), 140,
-               M_Item_Glow(12, crl_menu_cap_fps ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 150,
+               M_Item_Glow(13, crl_menu_cap_fps ? GLOW_GREEN : GLOW_DARKRED));
 
     // [PN] Added explanations for colorblind filters
     if (CurrentItPos == 4 && crl_colorblind)
@@ -3120,7 +3128,7 @@ static void DrawCRLMisc_1 (void)
             "BLUE-BLIND","BLUE-WEAK","MONOCHROMACY","BLUE CONE MONOCHROMACY"
         };
 
-        MN_DrTextACentered(colorblind_hint[crl_colorblind], 151, cr[CR_WHITE]);
+        MN_DrTextACentered(colorblind_hint[crl_colorblind], 160, cr[CR_WHITE]);
     }
     // [PN] Added explanations for autoload variables
     if (CurrentItPos == 6 || CurrentItPos == 7)
@@ -3149,9 +3157,29 @@ static void DrawCRLMisc_1 (void)
         }
     }
     else
+    if (CurrentItPos == 8)
+    {
+        const char *first_line;
+        const char *second_line;
+
+        if (organize_savefiles)
+        {
+            first_line = "SAVES GO TO A FOLDER NAMED AFTER";
+            second_line = "THE WAD THE MAPS LOAD FROM";
+        }
+        else
+        {
+            first_line = "SAVE FILES SHARE ONE FOLDER";
+            second_line = "TURN ON TO SORT SAVES BY WAD";
+        }
+
+        MN_DrTextACentered(first_line, 160, cr[CR_GRAY]);
+        MN_DrTextACentered(second_line, 170, cr[CR_GRAY]);
+    }
+    else
     {
         // < Scroll pages >
-        M_DrawScrollPages(CRL_MENU_LEFTOFFSET_BIG, 160, 14, "1/2");
+        M_DrawScrollPages(CRL_MENU_LEFTOFFSET_BIG, 170, 15, "1/2");
     }
 }
 
@@ -3192,6 +3220,13 @@ static void CRL_AutoloadDEH (int option)
     crl_autoload_deh = M_INT_Slider(crl_autoload_deh, 0, 2, option, false);
 }
 
+static void CRL_OrganizeSaves (int choice)
+{
+    organize_savefiles ^= 1;
+    D_SetSavegameDirectory();
+}
+
+
 static void CRL_Hightlight (int option)
 {
     crl_menu_highlight = M_INT_Slider(crl_menu_highlight, 0, 2, option, false);
@@ -3224,6 +3259,7 @@ static MenuItem_t CRLMiscItems_2[] = {
     { ITT_EMPTY,   NULL,                        NULL,                    0, MENU_NONE },
     { ITT_LRFUNC1, "SCREENSHOT FORMAT",         CRL_Misc_ShotFormat,     0, MENU_NONE },
     { ITT_LRFUNC1, "", /* Dynamic string */     CRL_Misc_ShotSetup,      0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                        NULL,                    0, MENU_NONE },
     { ITT_EMPTY,   NULL,                        NULL,                    0, MENU_NONE },
     { ITT_EMPTY,   NULL,                        NULL,                    0, MENU_NONE },
     { ITT_EMPTY,   NULL,                        NULL,                    0, MENU_NONE },
@@ -3312,7 +3348,7 @@ static void DrawCRLMisc_2 (void)
     }
 
     // < Scroll pages >
-    M_DrawScrollPages(CRL_MENU_LEFTOFFSET_BIG, 160, 14, "2/2");
+    M_DrawScrollPages(CRL_MENU_LEFTOFFSET_BIG, 170, 15, "2/2");
 }
 
 static void CRL_Misc_RewindEnable (int option)

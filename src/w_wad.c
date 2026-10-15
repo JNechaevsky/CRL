@@ -687,6 +687,94 @@ boolean W_IsIWADLump(const lumpinfo_t *lump)
 	return lump->wad_file == lumpinfo[0]->wad_file;
 }
 
+// -----------------------------------------------------------------------------
+// W_IsMapHeaderLump
+//  [PN] Does lump 'i' look like a map header (MAPnn or EnMn followed by a
+//  THINGS lump)? On match, writes the looked-up name into 'mapname'.
+// -----------------------------------------------------------------------------
+
+static boolean W_IsMapHeaderLump(lumpindex_t i, char *mapname)
+{
+    const char *name = lumpinfo[i]->name;
+    int len = 0;
+
+    if (toupper((unsigned char)name[0]) == 'M'
+     && toupper((unsigned char)name[1]) == 'A'
+     && toupper((unsigned char)name[2]) == 'P'
+     && isdigit((unsigned char)name[3]) && isdigit((unsigned char)name[4]))
+    {
+        len = 5;
+    }
+    else
+    if (toupper((unsigned char)name[0]) == 'E'
+     && isdigit((unsigned char)name[1])
+     && toupper((unsigned char)name[2]) == 'M'
+     && isdigit((unsigned char)name[3]))
+    {
+        len = 4;
+    }
+
+    if (len == 0)
+    {
+        return false;
+    }
+
+    // A real map header is always followed by its THINGS lump.
+    if (i + 1 >= (lumpindex_t)numlumps
+        || strncasecmp(lumpinfo[i + 1]->name, "THINGS", 6))
+    {
+        return false;
+    }
+
+    memcpy(mapname, name, len);
+    mapname[len] = '\0';
+
+    return true;
+}
+
+// -----------------------------------------------------------------------------
+// W_MapsSourceWADName
+//  [PN] Base filename (with extension) of the WAD the maps are loaded from:
+//  the first file added after the IWAD whose map headers actually win the
+//  name lookup; falls back to the IWAD. Used by crl_organize_savefiles.
+// -----------------------------------------------------------------------------
+
+const char *W_MapsSourceWADName(void)
+{
+    lumpindex_t i;
+
+    if (numlumps == 0)
+    {
+        return NULL;
+    }
+
+    for (i = 0; i < (lumpindex_t)numlumps; ++i)
+    {
+        char mapname[9];
+        const wad_file_t *wad_file;
+
+        if (!W_IsMapHeaderLump(i, mapname))
+        {
+            continue;
+        }
+
+        // Skip headers that are overridden by a later file.
+        if (W_CheckNumForName(mapname) != i)
+        {
+            continue;
+        }
+
+        wad_file = lumpinfo[i]->wad_file;
+
+        if (wad_file != lumpinfo[0]->wad_file)
+        {
+            return M_BaseName(wad_file->path);
+        }
+    }
+
+    return M_BaseName(lumpinfo[0]->wad_file->path);
+}
+
 // [crispy] dump lump data into a new LMP file
 /*
 int W_LumpDump (const char *lumpname)

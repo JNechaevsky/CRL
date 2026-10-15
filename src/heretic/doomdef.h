@@ -758,6 +758,8 @@ int SV_Seek(long position, int whence);
 extern char *savegamedir;
 extern char  savename[256];
 
+void D_SetSavegameDirectory(void);
+
 extern void G_ClearSavename (void);
 
 // [crispy] support up to 16 pages of savegames

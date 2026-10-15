@@ -61,6 +61,10 @@ static const char *default_main_config;
 
 char *SavePathConfig = "";
 
+// [PN] Keep savegames in per-WAD subfolders.
+
+int organize_savefiles = 0;
+
 // [JN] Location where screenshots are saved.
 
 char *screenshotdir;
@@ -226,8 +230,9 @@ static default_t	doom_defaults_list[] =
     CONFIG_VARIABLE_COMMENT("Autoload"),
     CONFIG_VARIABLE_STRING(autoload_path),
     CONFIG_VARIABLE_STRING(music_pack_path),
-    CONFIG_VARIABLE_STRING(savegames_path),
     CONFIG_VARIABLE_STRING(screenshots_path),
+    CONFIG_VARIABLE_STRING(savegames_path),
+    CONFIG_VARIABLE_INT(organize_savefiles),
     CONFIG_VARIABLE_COMMENT(""),
 
     //

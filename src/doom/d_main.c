@@ -544,8 +544,9 @@ static void D_BindVariables(void)
     M_BindIntVariable("show_endoom",            &show_endoom);
     M_BindIntVariable("show_diskicon",          &show_diskicon);
 
-    M_BindStringVariable("savegames_path",      &SavePathConfig);
     M_BindStringVariable("screenshots_path",    &ShotPathConfig);
+    M_BindStringVariable("savegames_path",      &SavePathConfig);
+    M_BindIntVariable("organize_savefiles",     &organize_savefiles);
 
     // Multiplayer chat macros
 
@@ -1081,6 +1082,34 @@ static void D_SetGameDescription(void)
     {
         gamedescription = M_StringDuplicate("Unknown");
     }
+}
+
+// -----------------------------------------------------------------------------
+// D_SetSavegameDirectory
+//  [PN] "Organize save files": with "organize_savefiles" on, savegames are
+//  stored in a savegames subfolder named after the WAD the maps load from.
+//  Re-callable so a menu toggle can reapply the setting at runtime.
+// -----------------------------------------------------------------------------
+
+void D_SetSavegameDirectory (void)
+{
+    char *newdir = M_GetSaveGameDir(D_SaveGameIWADName(gamemission, gamevariant));
+
+    if (organize_savefiles)
+    {
+        const char *wadname = W_MapsSourceWADName();
+
+        if (wadname != NULL)
+        {
+            char *const subdir = M_StringJoin(newdir, wadname, DIR_SEPARATOR_S, NULL);
+            M_MakeDirectory(subdir);
+            free(newdir);
+            newdir = subdir;
+        }
+    }
+
+    free(savegamedir);
+    savegamedir = newdir;
 }
 
 //      print title for every printed line
@@ -2046,7 +2075,7 @@ void D_DoomMain (void)
     D_SetGameDescription();
 
     // [JN] Set the default directory where savegames are saved.
-    savegamedir = M_GetSaveGameDir(D_SaveGameIWADName(gamemission, gamevariant));
+    D_SetSavegameDirectory();
 
     // [JN] Set the default directory where screenshots are saved.
     M_SetScreenshotDir();
