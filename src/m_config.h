@@ -41,12 +41,14 @@ float M_GetFloatVariable(const char *name);
 void M_SetConfigFilenames(const char *main_config);
 char *M_GetSaveGameDir(const char *iwadname);
 char *M_GetAutoloadDir(const char *iwadname);
-void M_SetScreenshotDir (void);
+void M_SetScreenshotDir (const char *wadname);
+char *M_AppendSubdir(const char *basedir, const char *subdir_name);
 
 extern const char *configdir;
 extern char *screenshotdir;
 extern char *ShotPathConfig;
 extern char *SavePathConfig;
+extern int organize_screenshots;
 extern int organize_savefiles;
 
 #endif

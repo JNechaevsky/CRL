@@ -659,7 +659,7 @@ void D_StartTitle(void)
 
 // -----------------------------------------------------------------------------
 // D_SetSavegameDirectory
-//  [PN] "Organize save files": with "organize_savefiles" on, savegames are
+//  [PN] Organize save files: with "organize_savefiles" on, savegames are
 //  stored in a savegames subfolder named after the WAD the maps load from.
 //  Re-callable so a menu toggle can reapply the setting at runtime.
 // -----------------------------------------------------------------------------
@@ -670,14 +670,10 @@ void D_SetSavegameDirectory (void)
 
     if (organize_savefiles)
     {
-        const char *wadname = W_MapsSourceWADName();
+        char *subdir = M_AppendSubdir(newdir, W_MapsSourceWADName());
 
-        if (wadname != NULL)
+        if (subdir != NULL)
         {
-            char *subdir;
-
-            subdir = M_StringJoin(newdir, wadname, DIR_SEPARATOR_S, NULL);
-            M_MakeDirectory(subdir);
             free(newdir);
             newdir = subdir;
         }
@@ -685,6 +681,17 @@ void D_SetSavegameDirectory (void)
 
     free(savegamedir);
     savegamedir = newdir;
+}
+
+// -----------------------------------------------------------------------------
+// D_SetScreenshotDirectory
+//  [PN] Organize screenshots: reapplies the screenshots
+//  directory with the current "organize_screenshots" state.
+// -----------------------------------------------------------------------------
+
+void D_SetScreenshotDirectory (void)
+{
+    M_SetScreenshotDir(W_MapsSourceWADName());
 }
 
 
@@ -1023,6 +1030,7 @@ static void D_BindVariables(void)
 
     M_BindStringVariable("screenshots_path",    &ShotPathConfig);
     M_BindStringVariable("savegames_path",      &SavePathConfig);
+    M_BindIntVariable("organize_screenshots",   &organize_screenshots);
     M_BindIntVariable("organize_savefiles",     &organize_savefiles);
 
     for (i=0; i<10; ++i)
@@ -1456,7 +1464,7 @@ void D_DoomMain(void)
     D_SetSavegameDirectory();
 
     // [JN] Set the default directory where screenshots are saved.
-    M_SetScreenshotDir();
+    D_SetScreenshotDirectory();
 
     I_PrintStartupBanner(gamedescription);
 

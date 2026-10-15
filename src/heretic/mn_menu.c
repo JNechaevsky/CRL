@@ -534,6 +534,7 @@ static void CRL_Colorblind (int option);
 static void CRL_AutoloadWAD (int option);
 static void CRL_AutoloadDEH (int option);
 static void CRL_OrganizeSaves (int choice);
+static void CRL_OrganizeShots (int choice);
 static void CRL_Hightlight (int option);
 static void CRL_MenuEscKey (int option);
 static void CRL_ConfirmQuit (int option);
@@ -3011,6 +3012,7 @@ static MenuItem_t CRLMiscItems_1[] = {
     { ITT_LRFUNC2, "AUTOLOAD WAD FILES",        CRL_AutoloadWAD,   0, MENU_NONE },
     { ITT_LRFUNC2, "AUTOLOAD DEH FILES",        CRL_AutoloadDEH,   0, MENU_NONE },
     { ITT_LRFUNC2, "ORGANIZE SAVE FILES",       CRL_OrganizeSaves, 0, MENU_NONE },
+    { ITT_LRFUNC2, "ORGANIZE SCREENSHOTS",      CRL_OrganizeShots, 0, MENU_NONE },
     { ITT_EMPTY,   NULL,                        NULL,              0, MENU_NONE },
     { ITT_LRFUNC2, "HIGHLIGHTING EFFECT",       CRL_Hightlight,    0, MENU_NONE },
     { ITT_LRFUNC1, "ESC KEY BEHAVIOUR",         CRL_MenuEscKey,    0, MENU_NONE },
@@ -3096,29 +3098,34 @@ static void DrawCRLMisc_1 (void)
     MN_DrTextA(str, M_ItemRightAlign(str), 100,
                M_Item_Glow(8, organize_savefiles ? GLOW_GREEN : GLOW_DARKRED));
 
-    MN_DrTextACentered("MENU SETTINGS", 110, cr[CR_YELLOW]);
+    // Organize screenshots
+    sprintf(str, organize_screenshots ? "ON" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 110,
+               M_Item_Glow(9, organize_screenshots ? GLOW_GREEN : GLOW_DARKRED));
+
+    MN_DrTextACentered("MENU SETTINGS", 120, cr[CR_YELLOW]);
 
     // Highlighting effect
     sprintf(str, crl_menu_highlight == 1 ? "STATIC" :
                  crl_menu_highlight == 2 ? "ANIMATED" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 120,
-               M_Item_Glow(10, crl_menu_highlight == 1 ? GLOW_YELLOW :
+    MN_DrTextA(str, M_ItemRightAlign(str), 130,
+               M_Item_Glow(11, crl_menu_highlight == 1 ? GLOW_YELLOW :
                                crl_menu_highlight == 2 ? GLOW_GREEN : GLOW_DARKRED));
 
     // ESC key behaviour
     sprintf(str, crl_menu_esc_key ? "GO BACK" : "CLOSE MENU" );
-    MN_DrTextA(str, M_ItemRightAlign(str), 130,
-               M_Item_Glow(11, crl_menu_esc_key ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 140,
+               M_Item_Glow(12, crl_menu_esc_key ? GLOW_GREEN : GLOW_DARKRED));
 
     // Quit confirmation
     sprintf(str, crl_confirm_quit ? "ON" : "OFF" );
-    MN_DrTextA(str, M_ItemRightAlign(str), 140,
-               M_Item_Glow(12, crl_confirm_quit ? GLOW_DARKRED : GLOW_GREEN));
+    MN_DrTextA(str, M_ItemRightAlign(str), 150,
+               M_Item_Glow(13, crl_confirm_quit ? GLOW_DARKRED : GLOW_GREEN));
 
     // Cap framerate in the menu
     sprintf(str, crl_menu_cap_fps ? "ON" : "OFF" );
-    MN_DrTextA(str, M_ItemRightAlign(str), 150,
-               M_Item_Glow(13, crl_menu_cap_fps ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 160,
+               M_Item_Glow(14, crl_menu_cap_fps ? GLOW_GREEN : GLOW_DARKRED));
 
     // [PN] Added explanations for colorblind filters
     if (CurrentItPos == 4 && crl_colorblind)
@@ -3128,7 +3135,7 @@ static void DrawCRLMisc_1 (void)
             "BLUE-BLIND","BLUE-WEAK","MONOCHROMACY","BLUE CONE MONOCHROMACY"
         };
 
-        MN_DrTextACentered(colorblind_hint[crl_colorblind], 160, cr[CR_WHITE]);
+        MN_DrTextACentered(colorblind_hint[crl_colorblind], 170, cr[CR_WHITE]);
     }
     // [PN] Added explanations for autoload variables
     if (CurrentItPos == 6 || CurrentItPos == 7)
@@ -3142,44 +3149,46 @@ static void DrawCRLMisc_1 (void)
         switch (autoload_option)
         {
             case 1:
-                MN_DrTextACentered(first_line, 160, cr[CR_GRAY]);
-                MN_DrTextACentered(second_line1, 170, cr[CR_GRAY]);
+                MN_DrTextACentered(first_line, 170, cr[CR_GRAY]);
+                MN_DrTextACentered(second_line1, 180, cr[CR_GRAY]);
                 break;
 
             case 2:
-                MN_DrTextACentered(first_line, 160, cr[CR_GRAY]);
-                MN_DrTextACentered(second_line2, 170, cr[CR_GRAY]);
+                MN_DrTextACentered(first_line, 170, cr[CR_GRAY]);
+                MN_DrTextACentered(second_line2, 180, cr[CR_GRAY]);
                 break;
 
             default:
-                MN_DrTextACentered(off, 160, cr[CR_GRAY]);
+                MN_DrTextACentered(off, 170, cr[CR_GRAY]);
                 break;            
         }
     }
     else
-    if (CurrentItPos == 8)
+    if (CurrentItPos == 8 || CurrentItPos == 9)
     {
-        const char *first_line;
-        const char *second_line;
+        const boolean shots = (CurrentItPos == 9);
+        const char *const what = shots ? "SCREENSHOTS" : "SAVE FILES";
+        char first_line[48];
+        char second_line[48];
 
-        if (organize_savefiles)
+        if (shots ? organize_screenshots : organize_savefiles)
         {
-            first_line = "SAVES GO TO A FOLDER NAMED AFTER";
-            second_line = "THE WAD THE MAPS LOAD FROM";
+            M_snprintf(first_line, sizeof(first_line), "%s GO TO A FOLDER NAMED AFTER", what);
+            M_StringCopy(second_line, "THE WAD THE MAPS LOAD FROM", sizeof(second_line));
         }
         else
         {
-            first_line = "SAVE FILES SHARE ONE FOLDER";
-            second_line = "TURN ON TO SORT SAVES BY WAD";
+            M_snprintf(first_line, sizeof(first_line), "%s SHARE ONE FOLDER", what);
+            M_snprintf(second_line, sizeof(second_line), "TURN ON TO SORT %s BY WAD", what);
         }
 
-        MN_DrTextACentered(first_line, 160, cr[CR_GRAY]);
-        MN_DrTextACentered(second_line, 170, cr[CR_GRAY]);
+        MN_DrTextACentered(first_line, 170, cr[CR_GRAY]);
+        MN_DrTextACentered(second_line, 180, cr[CR_GRAY]);
     }
     else
     {
         // < Scroll pages >
-        M_DrawScrollPages(CRL_MENU_LEFTOFFSET_BIG, 170, 15, "1/2");
+        M_DrawScrollPages(CRL_MENU_LEFTOFFSET_BIG, 180, 16, "1/2");
     }
 }
 
@@ -3226,6 +3235,11 @@ static void CRL_OrganizeSaves (int choice)
     D_SetSavegameDirectory();
 }
 
+static void CRL_OrganizeShots (int choice)
+{
+    organize_screenshots ^= 1;
+    D_SetScreenshotDirectory();
+}
 
 static void CRL_Hightlight (int option)
 {
@@ -3259,6 +3273,7 @@ static MenuItem_t CRLMiscItems_2[] = {
     { ITT_EMPTY,   NULL,                        NULL,                    0, MENU_NONE },
     { ITT_LRFUNC1, "SCREENSHOT FORMAT",         CRL_Misc_ShotFormat,     0, MENU_NONE },
     { ITT_LRFUNC1, "", /* Dynamic string */     CRL_Misc_ShotSetup,      0, MENU_NONE },
+    { ITT_EMPTY,   NULL,                        NULL,                    0, MENU_NONE },
     { ITT_EMPTY,   NULL,                        NULL,                    0, MENU_NONE },
     { ITT_EMPTY,   NULL,                        NULL,                    0, MENU_NONE },
     { ITT_EMPTY,   NULL,                        NULL,                    0, MENU_NONE },
@@ -3348,7 +3363,7 @@ static void DrawCRLMisc_2 (void)
     }
 
     // < Scroll pages >
-    M_DrawScrollPages(CRL_MENU_LEFTOFFSET_BIG, 170, 15, "2/2");
+    M_DrawScrollPages(CRL_MENU_LEFTOFFSET_BIG, 180, 16, "2/2");
 }
 
 static void CRL_Misc_RewindEnable (int option)
@@ -3399,7 +3414,7 @@ static void M_ScrollMisc (int option)
          if (CurrentMenu == &CRLMisc_1) { SetMenu(MENU_MISC_2); }
     else if (CurrentMenu == &CRLMisc_2) { SetMenu(MENU_MISC_1); }
 
-    CurrentItPos = 14;
+    CurrentItPos = 16;
 }
 
 // -----------------------------------------------------------------------------

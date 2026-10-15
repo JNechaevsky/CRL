@@ -73,6 +73,10 @@ char *screenshotdir;
 
 char *ShotPathConfig = "";
 
+// [PN] Keep screenshots in per-WAD subfolders.
+
+int organize_screenshots = 0;
+
 typedef enum 
 {
     DEFAULT_INT,
@@ -224,14 +228,15 @@ static default_t	doom_defaults_list[] =
     // [JN] CRL-specific config variables:
 
     //
-    // Autoload
+    // Files and folders
     //
 
-    CONFIG_VARIABLE_COMMENT("Autoload"),
+    CONFIG_VARIABLE_COMMENT("Files and folders"),
     CONFIG_VARIABLE_STRING(autoload_path),
     CONFIG_VARIABLE_STRING(music_pack_path),
     CONFIG_VARIABLE_STRING(screenshots_path),
     CONFIG_VARIABLE_STRING(savegames_path),
+    CONFIG_VARIABLE_INT(organize_screenshots),
     CONFIG_VARIABLE_INT(organize_savefiles),
     CONFIG_VARIABLE_COMMENT(""),
 
@@ -1378,6 +1383,25 @@ void M_SetMusicPackDir(void)
 #endif
 }
 
+// -----------------------------------------------------------------------------
+// M_AppendSubdir
+//  [PN] Returns a new "<basedir><subdir_name>/" path, creating the folder.
+//  NULL if no subfolder name was given. Caller frees basedir if needed.
+// -----------------------------------------------------------------------------
+
+char *M_AppendSubdir(const char *basedir, const char *subdir_name)
+{
+    if (subdir_name == NULL)
+    {
+        return NULL;
+    }
+
+    char *const subdir = M_StringJoin(basedir, subdir_name, DIR_SEPARATOR_S, NULL);
+    M_MakeDirectory(subdir);
+
+    return subdir;
+}
+
 //
 // Calculate the path to the directory to use to store save games.
 // Creates the directory as necessary.
@@ -1516,9 +1540,13 @@ char *M_GetAutoloadDir(const char *iwadname)
     return result;
 }
 
-void M_SetScreenshotDir (void)
+void M_SetScreenshotDir (const char *wadname)
 {
     int p = M_CheckParmWithArgs("-shotdir", 1);
+
+    // [PN] Re-callable: drop the previous path (always heap or NULL).
+    free(screenshotdir);
+    screenshotdir = NULL;
 
     if (p)
     {
@@ -1566,5 +1594,17 @@ void M_SetScreenshotDir (void)
         ShotPathConfig = screenshotdir;
         // add separator at end just in case
         screenshotdir = M_StringJoin(screenshotdir, DIR_SEPARATOR_S, NULL);
+    }
+
+    // [PN] "Organize screenshots": keep shots in a subfolder named after
+    // the WAD the maps load from.
+    if (organize_screenshots)
+    {
+        char *const subdir = M_AppendSubdir(screenshotdir, wadname);
+
+        if (subdir != NULL)
+        {
+            screenshotdir = subdir;
+        }
     }
 }

@@ -546,6 +546,7 @@ static void D_BindVariables(void)
 
     M_BindStringVariable("screenshots_path",    &ShotPathConfig);
     M_BindStringVariable("savegames_path",      &SavePathConfig);
+    M_BindIntVariable("organize_screenshots",   &organize_screenshots);
     M_BindIntVariable("organize_savefiles",     &organize_savefiles);
 
     // Multiplayer chat macros
@@ -1097,12 +1098,10 @@ void D_SetSavegameDirectory (void)
 
     if (organize_savefiles)
     {
-        const char *wadname = W_MapsSourceWADName();
+        char *subdir = M_AppendSubdir(newdir, W_MapsSourceWADName());
 
-        if (wadname != NULL)
+        if (subdir != NULL)
         {
-            char *const subdir = M_StringJoin(newdir, wadname, DIR_SEPARATOR_S, NULL);
-            M_MakeDirectory(subdir);
             free(newdir);
             newdir = subdir;
         }
@@ -1110,6 +1109,17 @@ void D_SetSavegameDirectory (void)
 
     free(savegamedir);
     savegamedir = newdir;
+}
+
+// -----------------------------------------------------------------------------
+// D_SetScreenshotDirectory
+//  [PN] Organize screenshots: reapplies the screenshots
+//  directory with the current "organize_screenshots" state.
+// -----------------------------------------------------------------------------
+
+void D_SetScreenshotDirectory (void)
+{
+    M_SetScreenshotDir(W_MapsSourceWADName());
 }
 
 //      print title for every printed line
@@ -2078,7 +2088,7 @@ void D_DoomMain (void)
     D_SetSavegameDirectory();
 
     // [JN] Set the default directory where screenshots are saved.
-    M_SetScreenshotDir();
+    D_SetScreenshotDirectory();
 
     // Check for -file in shareware
     if (modifiedgame && (gamevariant != freedoom))
