@@ -688,6 +688,26 @@ boolean W_IsIWADLump(const lumpinfo_t *lump)
 }
 
 // -----------------------------------------------------------------------------
+// W_LumpExistsWithName
+//  [crispy] Check that a lump exists and carries the expected name.
+// -----------------------------------------------------------------------------
+
+boolean W_LumpExistsWithName(int lump, char *name)
+{
+    if (lump < 0 || lump >= numlumps)
+    {
+        return false;
+    }
+
+    if (name && strncasecmp(lumpinfo[lump]->name, name, 8))
+    {
+        return false;
+    }
+
+    return true;
+}
+
+// -----------------------------------------------------------------------------
 // W_IsMapHeaderLump
 //  [PN] Does lump 'i' look like a map header (MAPnn or EnMn followed by a
 //  THINGS lump)? On match, writes the looked-up name into 'mapname'.
@@ -720,8 +740,7 @@ static boolean W_IsMapHeaderLump(lumpindex_t i, char *mapname)
     }
 
     // A real map header is always followed by its THINGS lump.
-    if (i + 1 >= (lumpindex_t)numlumps
-        || strncasecmp(lumpinfo[i + 1]->name, "THINGS", 6))
+    if (!W_LumpExistsWithName(i + 1, "THINGS"))
     {
         return false;
     }
@@ -751,7 +770,6 @@ const char *W_MapsSourceWADName(void)
     for (i = 0; i < (lumpindex_t)numlumps; ++i)
     {
         char mapname[9];
-        const wad_file_t *wad_file;
 
         if (!W_IsMapHeaderLump(i, mapname))
         {
@@ -764,15 +782,13 @@ const char *W_MapsSourceWADName(void)
             continue;
         }
 
-        wad_file = lumpinfo[i]->wad_file;
-
-        if (wad_file != lumpinfo[0]->wad_file)
+        if (!W_IsIWADLump(lumpinfo[i]))
         {
-            return M_BaseName(wad_file->path);
+            return W_WadNameForLump(lumpinfo[i]);
         }
     }
 
-    return M_BaseName(lumpinfo[0]->wad_file->path);
+    return W_WadNameForLump(lumpinfo[0]);
 }
 
 // [crispy] dump lump data into a new LMP file
