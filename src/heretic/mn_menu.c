@@ -547,6 +547,9 @@ static void CRL_Misc_RewindDepth (int option);
 static void CRL_Misc_RewindTimeout (int option);
 static void CRL_Misc_ShotFormat (int option);
 static void CRL_Misc_ShotSetup (int option);
+#if defined(_WIN32) && !defined(_WIN32_WCE)
+static void CRL_Misc_Launcher (int choice);
+#endif
 
 static void M_ScrollMisc (int option);
 
@@ -3274,7 +3277,11 @@ static MenuItem_t CRLMiscItems_2[] = {
     { ITT_LRFUNC1, "SCREENSHOT FORMAT",         CRL_Misc_ShotFormat,     0, MENU_NONE },
     { ITT_LRFUNC1, "", /* Dynamic string */     CRL_Misc_ShotSetup,      0, MENU_NONE },
     { ITT_EMPTY,   NULL,                        NULL,                    0, MENU_NONE },
+#if defined(_WIN32) && !defined(_WIN32_WCE)
+    { ITT_LRFUNC1, "SHOW LAUNCHER AT STARTUP",  CRL_Misc_Launcher,       0, MENU_NONE },
+#else
     { ITT_EMPTY,   NULL,                        NULL,                    0, MENU_NONE },
+#endif
     { ITT_EMPTY,   NULL,                        NULL,                    0, MENU_NONE },
     { ITT_EMPTY,   NULL,                        NULL,                    0, MENU_NONE },
     { ITT_EMPTY,   NULL,                        NULL,                    0, MENU_NONE },
@@ -3343,24 +3350,33 @@ static void DrawCRLMisc_2 (void)
     // Dynamic hints for screenshot settings.
     if (CurrentItPos == 5)
     {
-        MN_DrTextACentered("\"PNG\" PROVIDES LOSSLESS QUALITY,", 100, cr[CR_GRAY]);
-        MN_DrTextACentered("\"JPEG\" OFFERS FASTER SAVING",      110, cr[CR_GRAY]);
+        MN_DrTextACentered("\"PNG\" PROVIDES LOSSLESS QUALITY,", 110, cr[CR_GRAY]);
+        MN_DrTextACentered("\"JPEG\" OFFERS FASTER SAVING",      120, cr[CR_GRAY]);
     }
     if (CurrentItPos == 6)
     {
         if (!strcmp(screenshots_format, "png"))
         {
-            MN_DrTextACentered("HIGHER = SLOWER SAVE, SMALLER FILE", 100, cr[CR_GRAY]);
-            MN_DrTextACentered("LOWER = FASTER SAVE, LARGER FILE",   110, cr[CR_GRAY]);
-            MN_DrTextACentered("DEFAULT LEVEL IS 6",                 120, cr[CR_GRAY]);
+            MN_DrTextACentered("HIGHER = SLOWER SAVE, SMALLER FILE", 110, cr[CR_GRAY]);
+            MN_DrTextACentered("LOWER = FASTER SAVE, LARGER FILE",   120, cr[CR_GRAY]);
+            MN_DrTextACentered("DEFAULT LEVEL IS 6",                 130, cr[CR_GRAY]);
         }
         else
         {
-            MN_DrTextACentered("HIGHER = BETTER QUALITY, LARGER FILE", 100, cr[CR_GRAY]);
-            MN_DrTextACentered("LOWER = WORSE QUALITY, SMALLER FILE",  110, cr[CR_GRAY]);
-            MN_DrTextACentered("DEFAULT LEVEL IS 90",                  120, cr[CR_GRAY]);
+            MN_DrTextACentered("HIGHER = BETTER QUALITY, LARGER FILE", 110, cr[CR_GRAY]);
+            MN_DrTextACentered("LOWER = WORSE QUALITY, SMALLER FILE",  120, cr[CR_GRAY]);
+            MN_DrTextACentered("DEFAULT LEVEL IS 90",                  130, cr[CR_GRAY]);
         }
     }
+
+#if defined(_WIN32) && !defined(_WIN32_WCE)
+    MN_DrTextACentered("LAUNCHER", 90, cr[CR_YELLOW]);
+
+    // Cap framerate in the menu
+    sprintf(str, show_startup_launcher ? "ON" : "OFF" );
+    MN_DrTextA(str, M_ItemRightAlign(str), 100,
+                    M_Item_Glow(8, show_startup_launcher ? GLOW_GREEN : GLOW_DARKRED));
+#endif
 
     // < Scroll pages >
     M_DrawScrollPages(CRL_MENU_LEFTOFFSET_BIG, 180, 16, "2/2");
@@ -3408,6 +3424,13 @@ static void CRL_Misc_ShotSetup (int option)
         screenshots_jpg_quality = M_INT_Slider(screenshots_jpg_quality, 1, 100, option, false);
     }
 }
+
+#if defined(_WIN32) && !defined(_WIN32_WCE)
+static void CRL_Misc_Launcher (int choice)
+{
+    show_startup_launcher ^= 1;
+}
+#endif
 
 static void M_ScrollMisc (int option)
 {

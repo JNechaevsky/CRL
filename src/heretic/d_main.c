@@ -40,6 +40,7 @@
 #include "doomkeys.h"
 #include "deh_main.h"
 #include "d_iwad.h"
+#include "d_launcher.h"
 #include "f_wipe.h"
 #include "i_endoom.h"
 #include "i_input.h"
@@ -1086,7 +1087,6 @@ void D_DoomMain(void)
     int p;
     char file[256];
     char demolumpname[9];
-    const int starttime = SDL_GetTicks();
 
 #ifdef _WIN32
     // [JN] Print colorized title.
@@ -1105,6 +1105,9 @@ void D_DoomMain(void)
 #else
     I_PrintBanner(PACKAGE_STRING);
 #endif
+
+    DEH_printf("Z_Init: Init zone memory allocation daemon.\n");
+    Z_Init();
 
     I_AtExit(I_ShutdownGraphics, true);
     i_error_title = PACKAGE_STRING;
@@ -1262,25 +1265,17 @@ void D_DoomMain(void)
 
     // Load defaults before initing other systems
     DEH_printf("M_LoadDefaults: Load system defaults.\n");
-    D_BindVariables();
     M_SetConfigFilenames("heretic.cfg");
+    D_BindVariables();
     M_LoadDefaults();
-
-#ifdef _WIN32
-    // [JN] Pressing PrintScreen on Windows 11 is opening Snipping Tool.
-    // Re-register PrintScreen key pressing for port needs to avoid this.
-    // Taken from DOOM Retro.
-    if (key_menu_screenshot == KEY_PRTSCR)
-    {
-        RegisterHotKey(NULL, 1, MOD_ALT, VK_SNAPSHOT);
-        RegisterHotKey(NULL, 2, 0, VK_SNAPSHOT);
-    }
-#endif
 
     I_AtExit(M_SaveDefaults, true); // [crispy] always save configuration at exit
 
-    DEH_printf("Z_Init: Init zone memory allocation daemon.\n");
-    Z_Init();
+    // [PN] Show startup launcher.
+    if (show_startup_launcher && !D_MaybeShowIWADLauncher(IWAD_MASK_HERETIC))
+    {
+        I_Quit();
+    }
 
     DEH_printf("W_Init: Init WADfiles.\n");
 
@@ -1636,9 +1631,6 @@ void D_DoomMain(void)
     }
 
     finishStartup();
-
-    // [JN] Show startup process time.
-    printf("Startup process took %d ms.\n", SDL_GetTicks() - starttime);
 
     D_DoomLoop();               // Never returns
 }

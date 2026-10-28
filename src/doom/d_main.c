@@ -46,6 +46,7 @@
 #include "dstrings.h"
 
 #include "d_iwad.h"
+#include "d_launcher.h"
 
 #include "z_zone.h"
 #include "w_main.h"
@@ -1544,13 +1545,6 @@ void D_DoomMain (void)
     int p;
     char file[256];
     char demolumpname[9];
-    const int starttime = SDL_GetTicks();
-
-    // Call I_ShutdownGraphics on quit
-
-    I_AtExit(I_ShutdownGraphics, true);
-
-    I_AtExit(D_Endoom, false);
 
 #ifdef _WIN32
     // [JN] Print colorized title.
@@ -1574,6 +1568,12 @@ void D_DoomMain (void)
 
     DEH_printf("Z_Init: Init zone memory allocation daemon. \n");
     Z_Init ();
+    
+    // Call I_ShutdownGraphics on quit
+
+   	I_AtExit(I_ShutdownGraphics, true);
+
+   	I_AtExit(D_Endoom, false);
 
     //!
     // @category net
@@ -1771,19 +1771,14 @@ void D_DoomMain (void)
     D_BindVariables();
     M_LoadDefaults();
 
-#ifdef _WIN32
-    // [JN] Pressing PrintScreen on Windows 11 is opening Snipping Tool.
-    // Re-register PrintScreen key pressing for port needs to avoid this.
-    // Taken from DOOM Retro.
-    if (key_menu_screenshot == KEY_PRTSCR)
-    {
-        RegisterHotKey(NULL, 1, MOD_ALT, VK_SNAPSHOT);
-        RegisterHotKey(NULL, 2, 0, VK_SNAPSHOT);
-    }
-#endif
-
     // Save configuration at exit.
     I_AtExit(M_SaveDefaults, true); // [crispy] always save configuration at exit
+
+    // [PN] Show startup launcher.
+    if (show_startup_launcher && !D_MaybeShowIWADLauncher(IWAD_MASK_DOOM))
+    {
+        I_Quit();
+    }
 
     // Find main IWAD file and load it.
     iwadfile = D_FindIWAD(IWAD_MASK_DOOM, &gamemission);
@@ -1898,7 +1893,7 @@ void D_DoomMain (void)
 
         // common auto-loaded files for all Doom flavors
 
-        if (gamemission < pack_chex)
+        if (gamemission < pack_chex && gamevariant != freedoom)
         {
             autoload_dir = M_GetAutoloadDir("doom-all");
             if (autoload_dir != NULL)
@@ -2316,9 +2311,6 @@ void D_DoomMain (void)
 
     // [JN] CRL - predefine some automap variables at program startup.
     AM_Init ();
-
-    // [JN] Show startup process time.
-    printf("Startup process took %d ms.\n", SDL_GetTicks() - starttime);
 
     // If Doom II without a MAP01 lump, this is a store demo.
     // Moved this here so that MAP01 isn't constantly looked up

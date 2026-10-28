@@ -44,6 +44,7 @@ int M_CheckParmWithArgs(const char *check, int num_args);
 
 void M_FindResponseFile(void);
 void M_AddLooseFiles(void);
+boolean M_HasLooseFiles(void); // [PN] were loose files dropped on the exe?
 
 // Parameter has been specified?
 

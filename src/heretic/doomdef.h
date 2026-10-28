@@ -759,6 +759,7 @@ extern char *savegamedir;
 extern char  savename[256];
 
 void D_SetSavegameDirectory(void);
+void D_SetScreenshotDirectory (void);
 
 extern void G_ClearSavename (void);
 

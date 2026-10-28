@@ -684,6 +684,9 @@ static void M_CRL_Misc_RewindDepth (int choice);
 static void M_CRL_Misc_RewindTimeout (int choice);
 static void M_CRL_Misc_ShotFormat (int choice);
 static void M_CRL_Misc_ShotSetup (int choice);
+#if defined(_WIN32) && !defined(_WIN32_WCE)
+static void M_CRL_Misc_Launcher (int choice);
+#endif
 
 static void M_ScrollMisc (int choice);
 
@@ -3445,7 +3448,11 @@ static menuitem_t CRLMenu_Misc_2[]=
     { M_MUL1, "SCREENSHOT FORMAT",         M_CRL_Misc_ShotFormat,     's' },
     { M_MUL1, "", /* Dynamic string */     M_CRL_Misc_ShotSetup,      's' },
     { M_SKIP, "", 0, '\0' },
+#if defined(_WIN32) && !defined(_WIN32_WCE)
+    { M_MUL1, "SHOW LAUNCHER AT STARTUP",  M_CRL_Misc_Launcher,       's' },
+#else
     { M_SKIP, "", 0, '\0' },
+#endif
     { M_SKIP, "", 0, '\0' },
     { M_SKIP, "", 0, '\0' },
     { M_SKIP, "", 0, '\0' },
@@ -3473,7 +3480,7 @@ static void M_DrawCRL_Misc_2 (void)
 
     Misc_Cur = 1;
 
-    M_WriteTextCentered(9, "REWIND", cr[CR_YELLOW]);
+    M_WriteTextCentered(7, "REWIND", cr[CR_YELLOW]);
 
     // Enable rewind
     sprintf(str, crl_rewind_enable ? "ON" : "OFF" );
@@ -3517,24 +3524,33 @@ static void M_DrawCRL_Misc_2 (void)
     // Dynamic hints for screenshot settings.
     if (itemOn == 5)
     {
-        M_WriteTextCentered(88, "\"PNG\" PROVIDES LOSSLESS QUALITY,", cr[CR_GRAY]);
-        M_WriteTextCentered(97, "\"JPEG\" OFFERS FASTER SAVING",      cr[CR_GRAY]);
+        M_WriteTextCentered(97,  "\"PNG\" PROVIDES LOSSLESS QUALITY,", cr[CR_GRAY]);
+        M_WriteTextCentered(106, "\"JPEG\" OFFERS FASTER SAVING",      cr[CR_GRAY]);
     }
     if (itemOn == 6)
     {
         if (!strcmp(screenshots_format, "png"))
         {
-            M_WriteTextCentered(88,  "HIGHER = SLOWER SAVE, SMALLER FILE", cr[CR_GRAY]);
-            M_WriteTextCentered(97,  "LOWER = FASTER SAVE, LARGER FILE",   cr[CR_GRAY]);
-            M_WriteTextCentered(106, "DEFAULT LEVEL IS 6",                 cr[CR_GRAY]);
+            M_WriteTextCentered(97,  "HIGHER = SLOWER SAVE, SMALLER FILE", cr[CR_GRAY]);
+            M_WriteTextCentered(106, "LOWER = FASTER SAVE, LARGER FILE",   cr[CR_GRAY]);
+            M_WriteTextCentered(115, "DEFAULT LEVEL IS 6",                 cr[CR_GRAY]);
         }
         else
         {
-            M_WriteTextCentered(88,  "HIGHER = BETTER QUALITY, LARGER FILE", cr[CR_GRAY]);
-            M_WriteTextCentered(97,  "LOWER = WORSE QUALITY, SMALLER FILE",  cr[CR_GRAY]);
-            M_WriteTextCentered(106, "DEFAULT LEVEL IS 90",                  cr[CR_GRAY]);
+            M_WriteTextCentered(97,  "HIGHER = BETTER QUALITY, LARGER FILE", cr[CR_GRAY]);
+            M_WriteTextCentered(106, "LOWER = WORSE QUALITY, SMALLER FILE",  cr[CR_GRAY]);
+            M_WriteTextCentered(115, "DEFAULT LEVEL IS 90",                  cr[CR_GRAY]);
         }
     }
+
+#if defined(_WIN32) && !defined(_WIN32_WCE)
+    M_WriteTextCentered(79, "LAUNCHER", cr[CR_YELLOW]);
+
+    // Show launcher at startup
+    sprintf(str, show_startup_launcher ? "ON" : "OFF" );
+    M_WriteText (M_ItemRightAlign(str), 88, str,
+                 M_Item_Glow(8, show_startup_launcher ? GLOW_GREEN : GLOW_DARKRED));
+#endif
 
     // < Scroll pages >
     M_DrawScrollPages(CRL_MENU_LEFTOFFSET_BIG, 160, 16, "2/2");
@@ -3582,6 +3598,13 @@ static void M_CRL_Misc_ShotSetup (int choice)
         screenshots_jpg_quality = M_INT_Slider(screenshots_jpg_quality, 1, 100, choice, false);
     }
 }
+
+#if defined(_WIN32) && !defined(_WIN32_WCE)
+static void M_CRL_Misc_Launcher (int choice)
+{
+    show_startup_launcher ^= 1;
+}
+#endif
 
 static void M_ScrollMisc (int choice)
 {

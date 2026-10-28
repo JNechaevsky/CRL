@@ -462,6 +462,16 @@ void M_BindControls (void)
     M_BindIntVariableKeybind("key_pause",           &key_pause,           "key_pause2",           &key_pause2);
     M_BindIntVariableKeybind("key_menu_screenshot", &key_menu_screenshot, "key_menu_screenshot2", &key_menu_screenshot2);
     M_BindIntVariableKeybind("key_menu_cleanshot",  &key_menu_cleanshot,  "key_menu_cleanshot2",  &key_menu_cleanshot2);
+#ifdef _WIN32
+    // [JN] Pressing PrintScreen on Windows 11 opens the Snipping Tool.
+    // Re-register PrintScreen key pressing for port needs to avoid this.
+    // Taken from DOOM Retro.
+    if (key_menu_screenshot == KEY_PRTSCR)
+    {
+        RegisterHotKey(NULL, 1, MOD_ALT, VK_SNAPSHOT);
+        RegisterHotKey(NULL, 2, 0, VK_SNAPSHOT);
+    }
+#endif
     M_BindIntVariableKeybind("key_message_refresh", &key_message_refresh, "key_message_refresh2", &key_message_refresh2);
     M_BindIntVariableKeybind("key_demo_quit",       &key_demo_quit,       "key_demo_quit2",       &key_demo_quit2);
 
