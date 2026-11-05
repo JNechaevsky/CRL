@@ -232,7 +232,7 @@ static default_t	doom_defaults_list[] =
     //
 
     CONFIG_VARIABLE_COMMENT("Files and folders"),
-    CONFIG_VARIABLE_COMMENT(" Paths may be absolute (e.g. \"C:\\Games\\Inter-Doom\\autoload\")"),
+    CONFIG_VARIABLE_COMMENT(" Paths may be absolute (e.g. \"C:\\Games\\CRL\\autoload\")"),
     CONFIG_VARIABLE_COMMENT(" or relative to the game folder (e.g. \".\\autoload\")."),
     CONFIG_VARIABLE_STRING(autoload_path),
     CONFIG_VARIABLE_STRING(music_pack_path),
