@@ -300,6 +300,22 @@ static void SetShowCursor(boolean show)
     }
 }
 
+// -----------------------------------------------------------------------------
+// I_ResetCursorPosition
+//  [PN] Return the system cursor into the last known menu position.
+//  Restores the visual pointer after it was hidden and grabbed by
+//  relative mouse mode, without waiting for the next I_FinishUpdate pass.
+// -----------------------------------------------------------------------------
+
+void I_ResetCursorPosition (void)
+{
+    if (!initialized || screensaver_mode)
+        return;
+
+    SDL_WarpMouseInWindow(screen, menu_mouse_x_sdl, menu_mouse_y_sdl);
+    SDL_GetRelativeMouseState(NULL, NULL);
+}
+
 void I_ShutdownGraphics(void)
 {
     if (initialized)
@@ -690,9 +706,7 @@ static void UpdateGrab(void)
         SetShowCursor(true);
 
         // [JN] Restore cursor position.
-        SDL_WarpMouseInWindow(screen, menu_mouse_x_sdl, menu_mouse_y_sdl);
-
-        SDL_GetRelativeMouseState(NULL, NULL);
+        I_ResetCursorPosition();
     }
 
     currently_grabbed = grab;

@@ -137,6 +137,7 @@ extern int crl_a11y_weapon_bob;
 extern int crl_colorblind;
 extern int crl_autoload_wad;
 extern int crl_autoload_deh;
+extern int crl_menu_mouse;
 extern int crl_menu_highlight;
 extern int crl_menu_esc_key;
 extern int crl_confirm_quit;

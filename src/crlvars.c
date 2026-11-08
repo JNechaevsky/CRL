@@ -134,6 +134,7 @@ int crl_a11y_weapon_bob = 20;
 int crl_colorblind = 0;
 int crl_autoload_wad = 1;
 int crl_autoload_deh = 1;
+int crl_menu_mouse = 1;
 int crl_menu_highlight = 2;
 int crl_menu_esc_key = 0;
 int crl_confirm_quit = 1;
@@ -269,6 +270,7 @@ void CRL_BindVariables (GameMission_t mission)
     M_BindIntVariable("crl_colorblind",                 &crl_colorblind);
     M_BindIntVariable("crl_autoload_wad",               &crl_autoload_wad);
     M_BindIntVariable("crl_autoload_deh",               &crl_autoload_deh);
+    M_BindIntVariable("crl_menu_mouse",                 &crl_menu_mouse);
     M_BindIntVariable("crl_menu_highlight",             &crl_menu_highlight);
     M_BindIntVariable("crl_menu_esc_key",               &crl_menu_esc_key);
     M_BindIntVariable("crl_confirm_quit",               &crl_confirm_quit);

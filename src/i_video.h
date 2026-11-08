@@ -119,7 +119,7 @@ extern int usemouse;
 extern int menu_mouse_x;
 extern int menu_mouse_y;
 extern boolean menu_mouse_allow, menu_mouse_allow_click;
-extern void I_ReInitCursorPosition (void);
+extern void I_ResetCursorPosition (void);
 
 extern void I_ToggleVsync (void);
 extern void I_TogglePixelScaling (void);

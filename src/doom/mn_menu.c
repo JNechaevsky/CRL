@@ -268,6 +268,7 @@ static void M_StartMessage(const char *string,void (*routine)(int),boolean input
 static void M_ClearMenus (void);
 
 static void M_ID_MenuMouseControl (void);
+static void M_ID_WheelMenuNavigate (boolean direction);
 static void M_ID_HandleSliderMouseControl (int x, int y, int width, void *value, boolean is_float, float min, float max);
 
 // =============================================================================
@@ -672,6 +673,7 @@ static void M_CRL_AutoloadWAD (int choice);
 static void M_CRL_AutoloadDEH (int choice);
 static void M_CRL_OrganizeSaves (int choice);
 static void M_CRL_OrganizeShots (int choice);
+static void M_CRL_MenuMouse (int choice);
 static void M_CRL_Hightlight (int choice);
 static void M_CRL_MenuEscKey (int choice);
 static void M_CRL_ConfirmQuit (int choice);
@@ -968,7 +970,7 @@ static void M_Reset_Line_Glow (void)
 
     // [JN] If menu is controlled by mouse, reset "last on" position
     // so this item won't blink upon reentering to the current menu.
-    if (menu_mouse_allow)
+    if (menu_mouse_allow && crl_menu_mouse)
     {
         currentMenu->lastOn = -1;
     }
@@ -3188,11 +3190,11 @@ static menuitem_t CRLMenu_Misc_1[]=
     { M_MUL2, "ORGANIZE SAVE FILES",       M_CRL_OrganizeSaves, 'o' },
     { M_MUL2, "ORGANIZE SCREENSHOTS",      M_CRL_OrganizeShots, 'o' },
     { M_SKIP, "", 0, '\0' },
+    { M_MUL1, "ALLOW MOUSE CONTROL",       M_CRL_MenuMouse,     'a' },
     { M_MUL2, "HIGHLIGHTING EFFECT",       M_CRL_Hightlight,    'h' },
     { M_MUL1, "ESC KEY BEHAVIOUR",         M_CRL_MenuEscKey,    'e' },
     { M_MUL1, "QUIT CONFIRMATION",         M_CRL_ConfirmQuit,   'q' },
     { M_MUL1, "CAP FRAMERATE IN THE MENU", M_CRL_MenuCapFps,    'c' },
-    { M_SKIP, "", 0, '\0' },
     { M_MUL2, "", /* < SCROLL PAGES >*/    M_ScrollMisc,        's' },
 };
 
@@ -3282,27 +3284,35 @@ static void M_DrawCRL_Misc_1 (void)
 
     M_WriteTextCentered(106, "MENU SETTINGS", cr[CR_YELLOW]);
 
+    // Allow mouse control
+    sprintf(str, crl_menu_mouse ? "ON" : "OFF");
+    M_WriteText (M_ItemRightAlign(str), 115, str,
+                 M_Item_Glow(11, crl_menu_mouse ? GLOW_GREEN : GLOW_DARKRED));
+
     // Highlighting effect
     sprintf(str, crl_menu_highlight == 1 ? "STATIC" :
                  crl_menu_highlight == 2 ? "ANIMATED" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 115, str,
-                 M_Item_Glow(11, crl_menu_highlight == 1 ? GLOW_YELLOW :
+    M_WriteText (M_ItemRightAlign(str), 124, str,
+                 M_Item_Glow(12, crl_menu_highlight == 1 ? GLOW_YELLOW :
                                  crl_menu_highlight == 2 ? GLOW_GREEN : GLOW_DARKRED));
 
     // ESC key behaviour
     sprintf(str, crl_menu_esc_key ? "GO BACK" : "CLOSE MENU" );
-    M_WriteText (M_ItemRightAlign(str), 124, str,
-                 M_Item_Glow(12, crl_menu_esc_key ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (M_ItemRightAlign(str), 133, str,
+                 M_Item_Glow(13, crl_menu_esc_key ? GLOW_GREEN : GLOW_DARKRED));
 
     // Quit confirmation
     sprintf(str, crl_confirm_quit ? "ON" : "OFF" );
-    M_WriteText (M_ItemRightAlign(str), 133, str,
-                 M_Item_Glow(13, crl_confirm_quit ? GLOW_DARKRED : GLOW_GREEN));
+    M_WriteText (M_ItemRightAlign(str), 142, str,
+                 M_Item_Glow(14, crl_confirm_quit ? GLOW_DARKRED : GLOW_GREEN));
 
     // Cap framerate in the menu
     sprintf(str, crl_menu_cap_fps ? "ON" : "OFF" );
-    M_WriteText (M_ItemRightAlign(str), 142, str,
-                 M_Item_Glow(14, crl_menu_cap_fps ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (M_ItemRightAlign(str), 151, str,
+                 M_Item_Glow(15, crl_menu_cap_fps ? GLOW_GREEN : GLOW_DARKRED));
+
+    // < Scroll pages >
+    M_DrawScrollPages(CRL_MENU_LEFTOFFSET_BIG, 160, 16, "1/2");
 
     // [PN] Added explanations for colorblind filters
     if (itemOn == 4 && crl_colorblind)
@@ -3312,7 +3322,7 @@ static void M_DrawCRL_Misc_1 (void)
             "BLUE-BLIND","BLUE-WEAK","MONOCHROMACY","BLUE CONE MONOCHROMACY"
         };
 
-        M_WriteTextCentered(151, colorblind_hint[crl_colorblind], cr[CR_WHITE]);
+        M_WriteTextCentered(169, colorblind_hint[crl_colorblind], cr[CR_WHITE]);
     }
     // [PN] Added explanations for files and folders variables
     if (itemOn == 6 || itemOn == 7)
@@ -3326,17 +3336,17 @@ static void M_DrawCRL_Misc_1 (void)
         switch (autoload_option)
         {
             case 1:
-                M_WriteTextCentered(151, first_line, cr[CR_GRAY]);
-                M_WriteTextCentered(160, second_line1, cr[CR_GRAY]);
+                M_WriteTextCentered(169, first_line, cr[CR_GRAY]);
+                M_WriteTextCentered(178, second_line1, cr[CR_GRAY]);
                 break;
 
             case 2:
-                M_WriteTextCentered(151, first_line, cr[CR_GRAY]);
-                M_WriteTextCentered(160, second_line2, cr[CR_GRAY]);
+                M_WriteTextCentered(169, first_line, cr[CR_GRAY]);
+                M_WriteTextCentered(178, second_line2, cr[CR_GRAY]);
                 break;
 
             default:
-                M_WriteTextCentered(151, off, cr[CR_GRAY]);
+                M_WriteTextCentered(169, off, cr[CR_GRAY]);
                 break;            
         }
     }
@@ -3359,13 +3369,8 @@ static void M_DrawCRL_Misc_1 (void)
             M_snprintf(second_line, sizeof(second_line), "TURN ON TO SORT %s BY WAD", what);
         }
 
-        M_WriteTextCentered(151, first_line, cr[CR_GRAY]);
-        M_WriteTextCentered(160, second_line, cr[CR_GRAY]);
-    }
-    else
-    {
-        // < Scroll pages >
-        M_DrawScrollPages(CRL_MENU_LEFTOFFSET_BIG, 160, 16, "1/2");
+        M_WriteTextCentered(169, first_line, cr[CR_GRAY]);
+        M_WriteTextCentered(178, second_line, cr[CR_GRAY]);
     }
 }
 
@@ -3416,6 +3421,35 @@ static void M_CRL_OrganizeShots (int choice)
 {
     organize_screenshots ^= 1;
     D_SetScreenshotDirectory();
+}
+
+static void M_CRL_MenuMouse (int choice)
+{
+    crl_menu_mouse ^= 1;
+
+    if (crl_menu_mouse)
+    {
+        // [PN] Show the cursor and hand the menu over to the mouse.
+        // Position is unknown until the first motion, so keep the
+        // current item highlighted instead of dropping it to -1.
+        menu_mouse_x = menu_mouse_y = -1;
+
+        if (itemOn == -1)
+        {
+            itemOn = currentMenu->lastOn;
+        }
+
+        menu_mouse_allow_click = false;
+        I_ResetCursorPosition();
+    }
+    else
+    {
+        // [PN] Hide the cursor and stop the mouse from driving the menu.
+        // Clear both states, otherwise the selection stays stuck
+        // wherever the cursor happened to be.
+        menu_mouse_allow = false;
+        menu_mouse_allow_click = false;
+    }
 }
 
 static void M_CRL_Hightlight (int choice)
@@ -5819,7 +5853,7 @@ boolean M_Responder (event_t* ev)
     else
     {
         // [JN] Shows the mouse cursor when moved.
-        if (ev->data2 || ev->data3)
+        if ((ev->data2 || ev->data3) && crl_menu_mouse)
         {
             menu_mouse_allow = true;
             menu_mouse_allow_click = false;
@@ -5885,7 +5919,8 @@ boolean M_Responder (event_t* ev)
                     return false;
                 }
 
-                if (menuactive && currentMenu->menuitems[itemOn].status == STS_SLDR)
+                if (menuactive && currentMenu->menuitems[itemOn].status == STS_SLDR
+                &&  crl_menu_mouse)
                 {
                     // [JN] Allow repetitive on sliders to move it while mouse movement.
                     menu_mouse_allow_click = true;
@@ -5939,6 +5974,13 @@ boolean M_Responder (event_t* ev)
             // [JN] Scrolls through menu item values or navigates between pages.
             if (ev->data1 & (1 << 4) && menuactive)  // Wheel down
             {
+                if (!crl_menu_mouse)
+                {
+                    // [PN] Mouse control is off, so move the cursor down
+                    // one line instead of adjusting the value under cursor.
+                    M_ID_WheelMenuNavigate(true);
+                }
+                else
                 if (itemOn == -1
                 || (currentMenu->ScrollAR && !saveStringEnter && !KbdIsBinding))
                 {
@@ -5956,6 +5998,13 @@ boolean M_Responder (event_t* ev)
             else
             if (ev->data1 & (1 << 3) && menuactive)  // Wheel up
             {
+                if (!crl_menu_mouse)
+                {
+                    // [PN] Mouse control is off, so move the cursor up
+                    // one line instead of adjusting the value under cursor.
+                    M_ID_WheelMenuNavigate(false);
+                }
+                else
                 if (itemOn == -1
                 || (currentMenu->ScrollAR && !saveStringEnter && !KbdIsBinding))
                 {
@@ -6620,6 +6669,46 @@ static void M_ID_MenuMouseControl (void)
             break; // Found the topmost item under cursor (items don't overlap vertically)
         }
     }
+}
+
+// -----------------------------------------------------------------------------
+// M_ID_WheelMenuNavigate
+//  [PN] Step the menu cursor by one line with the mouse wheel.
+//  Used when mouse menu control is disabled, so the wheel can't
+//  adjust values by position (it operates on the cursor instead).
+// -----------------------------------------------------------------------------
+
+static void M_ID_WheelMenuNavigate (boolean direction)
+{
+    // Same as pressing "down" or "up" key.
+    const int key = direction ? key_menu_down : key_menu_up;
+
+    if (key == key_menu_down)
+    {
+        do
+        {
+            itemOn = (itemOn + 1) % currentMenu->numitems;
+        } while (currentMenu->menuitems[itemOn].status == STS_SKIP);
+    }
+    else
+    {
+        // [JN] Current menu item was hidden while mouse controls,
+        // so move cursor to last one menu item by pressing "up" key.
+        if (itemOn == -1)
+        {
+            itemOn = currentMenu->numitems;
+        }
+
+        do
+        {
+            itemOn = (itemOn == 0) ? currentMenu->numitems - 1 : itemOn - 1;
+        } while (currentMenu->menuitems[itemOn].status == STS_SKIP);
+    }
+
+    // Restart the cursor glow animation, so the move is visible.
+    skullAnimCounter = 10;
+
+    S_StartSound(NULL, sfx_pstop);
 }
 
 // -----------------------------------------------------------------------------

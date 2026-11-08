@@ -187,6 +187,7 @@ static void MN_DeactivateMenu(void);
 static void MN_LoadSlotText(void);
 
 inline static void M_ID_MenuMouseControl (void);
+inline static void M_ID_WheelMenuNavigate (boolean direction);
 inline static void M_ID_HandleSliderMouseControl (int x, int y, int width, void *value, boolean is_float, float min, float max);
 
 // Public Data
@@ -535,6 +536,7 @@ static void CRL_AutoloadWAD (int option);
 static void CRL_AutoloadDEH (int option);
 static void CRL_OrganizeSaves (int choice);
 static void CRL_OrganizeShots (int choice);
+static void CRL_MenuMouse (int option);
 static void CRL_Hightlight (int option);
 static void CRL_MenuEscKey (int option);
 static void CRL_ConfirmQuit (int option);
@@ -789,7 +791,7 @@ static void M_Reset_Line_Glow (void)
 
     // [JN] If menu is controlled by mouse, reset "last on" position
     // so this item won't blink upon reentering to the current menu.
-    if (menu_mouse_allow)
+    if (menu_mouse_allow && crl_menu_mouse)
     {
         CurrentMenu->oldItPos = -1;
     }
@@ -3017,11 +3019,11 @@ static MenuItem_t CRLMiscItems_1[] = {
     { ITT_LRFUNC2, "ORGANIZE SAVE FILES",       CRL_OrganizeSaves, 0, MENU_NONE },
     { ITT_LRFUNC2, "ORGANIZE SCREENSHOTS",      CRL_OrganizeShots, 0, MENU_NONE },
     { ITT_EMPTY,   NULL,                        NULL,              0, MENU_NONE },
+    { ITT_LRFUNC2, "ALLOW MOUSE CONTROL",       CRL_MenuMouse,     0, MENU_NONE },
     { ITT_LRFUNC2, "HIGHLIGHTING EFFECT",       CRL_Hightlight,    0, MENU_NONE },
     { ITT_LRFUNC1, "ESC KEY BEHAVIOUR",         CRL_MenuEscKey,    0, MENU_NONE },
     { ITT_LRFUNC1, "QUIT CONFIRMATION",         CRL_ConfirmQuit,   0, MENU_NONE },
     { ITT_LRFUNC1, "CAP FRAMERATE IN THE MENU", CRL_MenuCapFps,    0, MENU_NONE },
-    { ITT_EMPTY,   NULL,                        NULL,              0, MENU_NONE },
     { ITT_LRFUNC2, "", /* < SCROLL PAGES >*/    M_ScrollMisc,      0, MENU_NONE },
 };
 
@@ -3108,27 +3110,32 @@ static void DrawCRLMisc_1 (void)
 
     MN_DrTextACentered("MENU SETTINGS", 120, cr[CR_YELLOW]);
 
+    // Allow mouse control
+    sprintf(str, crl_menu_mouse ? "ON" : "OFF");
+    MN_DrTextA(str, M_ItemRightAlign(str), 130,
+               M_Item_Glow(11, crl_menu_mouse ? GLOW_GREEN : GLOW_DARKRED));
+
     // Highlighting effect
     sprintf(str, crl_menu_highlight == 1 ? "STATIC" :
                  crl_menu_highlight == 2 ? "ANIMATED" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 130,
-               M_Item_Glow(11, crl_menu_highlight == 1 ? GLOW_YELLOW :
+    MN_DrTextA(str, M_ItemRightAlign(str), 140,
+               M_Item_Glow(12, crl_menu_highlight == 1 ? GLOW_YELLOW :
                                crl_menu_highlight == 2 ? GLOW_GREEN : GLOW_DARKRED));
 
     // ESC key behaviour
     sprintf(str, crl_menu_esc_key ? "GO BACK" : "CLOSE MENU" );
-    MN_DrTextA(str, M_ItemRightAlign(str), 140,
-               M_Item_Glow(12, crl_menu_esc_key ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 150,
+               M_Item_Glow(13, crl_menu_esc_key ? GLOW_GREEN : GLOW_DARKRED));
 
     // Quit confirmation
     sprintf(str, crl_confirm_quit ? "ON" : "OFF" );
-    MN_DrTextA(str, M_ItemRightAlign(str), 150,
-               M_Item_Glow(13, crl_confirm_quit ? GLOW_DARKRED : GLOW_GREEN));
+    MN_DrTextA(str, M_ItemRightAlign(str), 160,
+               M_Item_Glow(14, crl_confirm_quit ? GLOW_DARKRED : GLOW_GREEN));
 
     // Cap framerate in the menu
     sprintf(str, crl_menu_cap_fps ? "ON" : "OFF" );
-    MN_DrTextA(str, M_ItemRightAlign(str), 160,
-               M_Item_Glow(14, crl_menu_cap_fps ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 170,
+               M_Item_Glow(15, crl_menu_cap_fps ? GLOW_GREEN : GLOW_DARKRED));
 
     // [PN] Added explanations for colorblind filters
     if (CurrentItPos == 4 && crl_colorblind)
@@ -3138,7 +3145,7 @@ static void DrawCRLMisc_1 (void)
             "BLUE-BLIND","BLUE-WEAK","MONOCHROMACY","BLUE CONE MONOCHROMACY"
         };
 
-        MN_DrTextACentered(colorblind_hint[crl_colorblind], 170, cr[CR_WHITE]);
+        MN_DrTextACentered(colorblind_hint[crl_colorblind], 189, cr[CR_WHITE]);
     }
     // [PN] Added explanations for autoload variables
     if (CurrentItPos == 6 || CurrentItPos == 7)
@@ -3152,17 +3159,17 @@ static void DrawCRLMisc_1 (void)
         switch (autoload_option)
         {
             case 1:
-                MN_DrTextACentered(first_line, 170, cr[CR_GRAY]);
-                MN_DrTextACentered(second_line1, 180, cr[CR_GRAY]);
+                MN_DrTextACentered(first_line, 180, cr[CR_GRAY]);
+                MN_DrTextACentered(second_line1, 189, cr[CR_GRAY]);
                 break;
 
             case 2:
-                MN_DrTextACentered(first_line, 170, cr[CR_GRAY]);
-                MN_DrTextACentered(second_line2, 180, cr[CR_GRAY]);
+                MN_DrTextACentered(first_line, 180, cr[CR_GRAY]);
+                MN_DrTextACentered(second_line2, 189, cr[CR_GRAY]);
                 break;
 
             default:
-                MN_DrTextACentered(off, 170, cr[CR_GRAY]);
+                MN_DrTextACentered(off, 180, cr[CR_GRAY]);
                 break;            
         }
     }
@@ -3185,8 +3192,8 @@ static void DrawCRLMisc_1 (void)
             M_snprintf(second_line, sizeof(second_line), "TURN ON TO SORT %s BY WAD", what);
         }
 
-        MN_DrTextACentered(first_line, 170, cr[CR_GRAY]);
-        MN_DrTextACentered(second_line, 180, cr[CR_GRAY]);
+        MN_DrTextACentered(first_line, 180, cr[CR_GRAY]);
+        MN_DrTextACentered(second_line, 189, cr[CR_GRAY]);
     }
     else
     {
@@ -3242,6 +3249,35 @@ static void CRL_OrganizeShots (int choice)
 {
     organize_screenshots ^= 1;
     D_SetScreenshotDirectory();
+}
+
+static void CRL_MenuMouse (int choice)
+{
+    crl_menu_mouse ^= 1;
+
+    if (crl_menu_mouse)
+    {
+        // [PN] Show the cursor and hand the menu over to the mouse.
+        // Position is unknown until the first motion, so keep the
+        // current item highlighted instead of dropping it to -1.
+        menu_mouse_x = menu_mouse_y = -1;
+
+        if (CurrentItPos == -1)
+        {
+            CurrentItPos = CurrentMenu->oldItPos;
+        }
+
+        menu_mouse_allow_click = false;
+        I_ResetCursorPosition();
+    }
+    else
+    {
+        // [PN] Hide the cursor and stop the mouse from driving the menu.
+        // Clear both states, otherwise the selection stays stuck
+        // wherever the cursor happened to be.
+        menu_mouse_allow = false;
+        menu_mouse_allow_click = false;
+    }
 }
 
 static void CRL_Hightlight (int option)
@@ -4389,6 +4425,56 @@ inline static void M_ID_MenuMouseControl (void)
             break; // Found the topmost item under cursor
         }
     }
+}
+
+// -----------------------------------------------------------------------------
+// M_ID_WheelMenuNavigate
+//  [PN] Step the menu cursor by one line with the mouse wheel.
+//  Used when mouse menu control is disabled, so the wheel can't
+//  adjust values by position (it operates on the cursor instead).
+// -----------------------------------------------------------------------------
+
+inline static void M_ID_WheelMenuNavigate (boolean direction)
+{
+    if (direction)   // Next menu item
+    {
+        do
+        {
+            if (CurrentItPos + 1 > CurrentMenu->itemCount - 1)
+            {
+                CurrentItPos = 0;
+            }
+            else
+            {
+                CurrentItPos++;
+            }
+        }
+        while (CurrentMenu->items[CurrentItPos].type == ITT_EMPTY);
+    }
+    else             // Previous menu item
+    {
+        // [JN] Current menu item was hidden while mouse controls,
+        // so move cursor to last one menu item by pressing "up" key.
+        if (CurrentItPos == -1)
+        {
+            CurrentItPos = CurrentMenu->itemCount;
+        }
+
+        do
+        {
+            if (CurrentItPos == 0)
+            {
+                CurrentItPos = CurrentMenu->itemCount - 1;
+            }
+            else
+            {
+                CurrentItPos--;
+            }
+        }
+        while (CurrentMenu->items[CurrentItPos].type == ITT_EMPTY);
+    }
+
+    S_StartSound(NULL, sfx_switch);
 }
 
 // -----------------------------------------------------------------------------
@@ -5629,7 +5715,7 @@ boolean MN_Responder(event_t * event)
     else
     {
         // [JN] Shows the mouse cursor when moved.
-        if (event->data2 || event->data3)
+        if ((event->data2 || event->data3) && crl_menu_mouse)
         {
         menu_mouse_allow = true;
         menu_mouse_allow_click = false;
@@ -5680,7 +5766,8 @@ boolean MN_Responder(event_t * event)
                     return false;
                 }
                 
-                if (MenuActive && CurrentMenu->items[CurrentItPos].type == ITT_SLDR)
+                if (MenuActive && CurrentMenu->items[CurrentItPos].type == ITT_SLDR
+                &&  crl_menu_mouse)
                 {
                     // [JN] Allow repetitive on sliders to move it while mouse movement.
                     menu_mouse_allow_click = true;      
@@ -5743,6 +5830,13 @@ boolean MN_Responder(event_t * event)
             // [JN] Scrolls through menu item values or navigates between pages.
             if (event->data1 & (1 << 4) && MenuActive)  // Wheel down
             {
+                if (!crl_menu_mouse)
+                {
+                    // [PN] Mouse control is off, so move the cursor down
+                    // one line instead of adjusting the value under cursor.
+                    M_ID_WheelMenuNavigate(true);
+                }
+                else
                 if (CurrentItPos == -1
                 || (CurrentMenu->ScrollAR && !FileMenuKeySteal && !KbdIsBinding))
                 {
@@ -5766,6 +5860,13 @@ boolean MN_Responder(event_t * event)
             else
             if (event->data1 & (1 << 3) && MenuActive)  // Wheel up
             {
+                if (!crl_menu_mouse)
+                {
+                    // [PN] Mouse control is off, so move the cursor up
+                    // one line instead of adjusting the value under cursor.
+                    M_ID_WheelMenuNavigate(false);
+                }
+                else
                 if (CurrentItPos == -1
                 || (CurrentMenu->ScrollAR && !FileMenuKeySteal && !KbdIsBinding))
                 {

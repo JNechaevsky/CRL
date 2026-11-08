@@ -457,6 +457,13 @@ static void D_Display(void)
 
 static boolean D_GrabMouseCallback(void)
 {
+    // [PN] Keep the OS cursor hidden in fullscreen while mouse menu
+    // control is off - there's nothing to point at. Do not check
+    // MenuActive here: on closing the menu a frame may pass, and the
+    // cursor would flash until the next UpdateGrab pass.
+    if (fullscreen && !crl_menu_mouse)
+        return true;
+
     // [JN] CRL - always grab mouse in spectator mode.
     // It's supposed to be controlled by hand, even while pause.
     // However, do not grab mouse while active game menu.

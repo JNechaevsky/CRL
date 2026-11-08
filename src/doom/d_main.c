@@ -572,6 +572,13 @@ static void D_BindVariables(void)
 
 static boolean D_GrabMouseCallback(void)
 {
+    // [PN] Keep the OS cursor hidden in fullscreen while mouse menu
+    // control is off - there's nothing to point at. Do not check
+    // menuactive here: on closing the menu a frame may pass, and the
+    // cursor would flash until the next UpdateGrab pass.
+    if (fullscreen && !crl_menu_mouse)
+        return true;
+
     // Drone players don't need mouse focus
 
     if (drone)
