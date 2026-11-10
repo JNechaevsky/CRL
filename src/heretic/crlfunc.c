@@ -39,6 +39,7 @@
 
 // [JN] Widget anchor helpers, defined below with the widget text drawers.
 static void CRL_WidgetTextPair (int x_game, int y_game, int right_anchored,
+                                int bottom_anchor,
                                 const char *s1, byte *c1,
                                 const char *s2, byte *c2);
 static void CRL_WidgetTextColumns (int label_right, int y_game,
@@ -737,19 +738,21 @@ void CRL_DrawFPS (void)
     int yy = 10;
 
     // [JN] If demo timer is active and running, shift FPS widget one line down.
+    // [PN] The drop is scaled with the widget size, so FPS always sits exactly
+    // one shrunken line below the timer instead of drifting away from it.
     if ((demoplayback && (crl_demo_timer == 1 || crl_demo_timer == 3))
     ||  (demorecording && (crl_demo_timer == 2 || crl_demo_timer == 3)))
     {
-        yy += 10;
+        const int k = I_WidgetPixelScale();
+        yy += k ? 10 * k / WIDGET_CANVAS_FACTOR : 10;
     }
 
     sprintf(fps, "%d", CRL_fps);
     sprintf(fps_str, "FPS");
 
-    fontfunc(fps, SCREENWIDTH - 11 - widthfunc(fps) 
-                                     - widthfunc(fps_str), yy, cr[CR_GRAY]);
-
-    fontfunc(fps_str, SCREENWIDTH - 7 - widthfunc(fps_str), yy, cr[CR_GRAY]);
+    // [PN] One shrink-locked pair pinned to its right edge.
+    CRL_WidgetTextPair(SCREENWIDTH - 7, yy, 1, 0, fps, cr[CR_GRAY],
+                       fps_str, cr[CR_GRAY]);
 }
 
 
@@ -794,7 +797,9 @@ void CRL_DemoTimer (const int time)
 
     const int x = crl_widget_font ? 15 : 0;
     const int xx = 237 + x + (hours > 0 ? 0 : 20);
-    fontfunc(n, xx, 10, cr[CR_LIGHTGRAY]);
+
+    // [PN] Right edge pinned, so the timer stays put at any widget scale.
+    CRL_WidgetTextPair(xx + widthfunc(n), 10, 1, 0, n, cr[CR_LIGHTGRAY], NULL, NULL);
 }
 
 // -----------------------------------------------------------------------------
@@ -907,7 +912,7 @@ void CRL_DrawPlayerSpeed (void)
     M_snprintf(val, sizeof(val), " %.0f", speed);
 
     // [JN] One shrink-locked pair, centered at any widget scale.
-    CRL_WidgetTextPair(160 /*SCREENWIDTH / 2*/, 145, 0, str,
+    CRL_WidgetTextPair(160 /*SCREENWIDTH / 2*/, 145, 0, 1, str,
                        CRL_WidgetColor(widget_speed_str),
                        val, CRL_WidgetColor(widget_speed_val));
 
@@ -1116,12 +1121,13 @@ void CRL_WidgetTextDSDACentered (const char *text, int y, byte *table)
 // -----------------------------------------------------------------------------
 
 static void CRL_WidgetTextPair (int x_game, int y_game, int right_anchored,
+                                int bottom_anchor,
                                 const char *s1, byte *c1,
                                 const char *s2, byte *c2)
 {
     const int k = I_WidgetPixelScale();
     const int w1 = widthfunc(s1);
-    const int total = w1 + widthfunc(s2);
+    const int total = w1 + (s2 ? widthfunc(s2) : 0);
 
     if (k == 0)
     {
@@ -1129,23 +1135,38 @@ static void CRL_WidgetTextPair (int x_game, int y_game, int right_anchored,
                                      : x_game - total / 2;
 
         fontfunc(s1, x, y_game, c1);
-        fontfunc(s2, x + w1, y_game, c2);
+
+        if (s2)
+        {
+            fontfunc(s2, x + w1, y_game, c2);
+        }
         return;
     }
 
     const int cx = right_anchored ? x_game * WIDGET_CANVAS_FACTOR - total * k
                                   : x_game * WIDGET_CANVAS_FACTOR - total * k / 2;
-    const int cy = CRL_WidgetRowY(y_game);
+    // [PN] Top-pinned widgets (FPS, demo timer) keep their absolute y;
+    // block widgets shrink toward the bottom anchor like the rest.
+    const int cy = bottom_anchor ? CRL_WidgetRowY(y_game)
+                                 : y_game * WIDGET_CANVAS_FACTOR;
 
     if (crl_widget_font)
     {
         WidgetTextDSDAAt(cx, cy, s1, c1);
-        WidgetTextDSDAAt(cx + w1 * k, cy, s2, c2);
+
+        if (s2)
+        {
+            WidgetTextDSDAAt(cx + w1 * k, cy, s2, c2);
+        }
     }
     else
     {
         WidgetTextPatchAt(cx, cy, s1, c1);
-        WidgetTextPatchAt(cx + w1 * k, cy, s2, c2);
+
+        if (s2)
+        {
+            WidgetTextPatchAt(cx + w1 * k, cy, s2, c2);
+        }
     }
 }
 
