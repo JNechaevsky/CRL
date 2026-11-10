@@ -734,7 +734,7 @@ void CRL_StatDrawer (void)
 void CRL_DrawFPS (void)
 {
     char fps[8];
-    char fps_str[4];
+    char fps_str[8];
     int yy = 10;
 
     // [JN] If demo timer is active and running, shift FPS widget one line down.
@@ -748,11 +748,10 @@ void CRL_DrawFPS (void)
     }
 
     sprintf(fps, "%d", CRL_fps);
-    sprintf(fps_str, "FPS");
+    sprintf(fps_str, " FPS");
 
     // [PN] One shrink-locked pair pinned to its right edge.
-    CRL_WidgetTextPair(SCREENWIDTH - 7, yy, 1, 0, fps, cr[CR_GRAY],
-                       fps_str, cr[CR_GRAY]);
+    CRL_WidgetTextPair(SCREENWIDTH - 7, yy, 1, 0, fps, cr[CR_GRAY], fps_str, cr[CR_GRAY]);
 }
 
 
