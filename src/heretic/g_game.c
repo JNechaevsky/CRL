@@ -21,6 +21,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
+
 #include "ct_chat.h"
 #include "doomdef.h"
 #include "doomkeys.h"

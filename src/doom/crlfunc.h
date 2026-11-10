@@ -68,6 +68,12 @@ extern int  defdemotics, deftotaldemotics;
 extern void CRL_DrawTargetsHealth (void);
 extern void CRL_DrawPlayerSpeed (void);
 
+// [PN] Widget-overlay text drawers (crl_widget_size):
+extern void CRL_WidgetTextPatch (int x, int y, const char *string, byte *table);
+extern void CRL_WidgetTextPatchCentered (int y, const char *string, byte *table);
+extern void CRL_WidgetTextDSDA (int x, int y, const char *text, byte *table);
+extern void CRL_WidgetTextDSDACentered (int y, const char *text, byte *table);
+
 // Power-up counters:
 extern int CRL_invul_counter;
 extern int CRL_invis_counter;

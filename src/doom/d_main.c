@@ -332,6 +332,9 @@ static void D_Display (void)
             // [PN] Skip all HUD overlays for clean screenshot.
             if (!cleanshot_pending)
             {
+                // [PN] Refresh widget canvas each frame.
+                I_ClearWidgetCanvas();
+
                 // [JN] CRL - Draw automap on top of player view and view border,
                 // and update while playing. This also needed for render counters update.
                 if (automapactive)

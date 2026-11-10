@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <time.h>
+#include <math.h>
 
 #include "ct_chat.h"
 #include "deh_str.h"
@@ -153,7 +154,6 @@ typedef struct
 
 // Private Functions
 
-static void InitFonts(void);
 static void SetMenu(MenuType_t menu);
 static boolean SCNetCheck(int option);
 static void SCNetCheck2(int option);
@@ -197,8 +197,6 @@ int InfoType;
 
 // Private Data
 
-static int FontABaseLump;
-static int FontBBaseLump;
 static int SkullBaseLump;
 static Menu_t *CurrentMenu;
 static int CurrentItPos;    // -1 = no selection
@@ -484,6 +482,7 @@ static void M_Bind_M_Reset (int option);
 
 static void DrawCRLWidgets (void);
 static void CRL_Widget_Font (int option);
+static void CRL_Widget_FontSize (int option);
 static void CRL_Widget_Render (int option);
 static void CRL_Widget_MAX (int option);
 static void CRL_Widget_Playstate (int option);
@@ -2475,19 +2474,20 @@ static Menu_t CRLMouseBinds2 = {
 // -----------------------------------------------------------------------------
 
 static MenuItem_t CRLWidgetsItems[] = {
-    { ITT_LRFUNC2, "WIDGETS FONT",           CRL_Widget_Font,      0, MENU_NONE },
-    { ITT_LRFUNC2, "RENDER COUNTERS",        CRL_Widget_Render,    0, MENU_NONE },
-    { ITT_LRFUNC2, "MAX OVERFLOW STYLE",     CRL_Widget_MAX,       0, MENU_NONE },
-    { ITT_LRFUNC2, "PLAYSTATE COUNTERS",     CRL_Widget_Playstate, 0, MENU_NONE },
-    { ITT_LRFUNC2, "KIS STATS",              CRL_Widget_KIS,       0, MENU_NONE },
-    { ITT_LRFUNC2, "- STATS FORMAT",         CRL_Widget_KIS_Format,0, MENU_NONE },
-    { ITT_LRFUNC2, "- SHOW ITEMS",           CRL_Widget_KIS_Items, 0, MENU_NONE },
-    { ITT_LRFUNC2, "LEVEL TIME",             CRL_Widget_Time,      0, MENU_NONE },
-    { ITT_LRFUNC2, "PLAYER COORDS",          CRL_Widget_Coords,    0, MENU_NONE },
-    { ITT_LRFUNC2, "- SHOW FRACTIONS",       CRL_Widget_CoordsFrac,0, MENU_NONE },
-    { ITT_LRFUNC2, "PLAYER SPEED",           CRL_Widget_Speed,     0, MENU_NONE },
-    { ITT_LRFUNC2, "POWERUP TIMERS",         CRL_Widget_Powerups,  0, MENU_NONE },
-    { ITT_LRFUNC2, "TARGET'S HEALTH",        CRL_Widget_Health,    0, MENU_NONE },
+    { ITT_LRFUNC2, "WIDGETS FONT",           CRL_Widget_Font,       0, MENU_NONE },
+    { ITT_LRFUNC2, "FONT SIZE",              CRL_Widget_FontSize,   0, MENU_NONE },
+    { ITT_LRFUNC2, "RENDER COUNTERS",        CRL_Widget_Render,     0, MENU_NONE },
+    { ITT_LRFUNC2, "MAX OVERFLOW STYLE",     CRL_Widget_MAX,        0, MENU_NONE },
+    { ITT_LRFUNC2, "PLAYSTATE COUNTERS",     CRL_Widget_Playstate,  0, MENU_NONE },
+    { ITT_LRFUNC2, "KIS STATS",              CRL_Widget_KIS,        0, MENU_NONE },
+    { ITT_LRFUNC2, "- STATS FORMAT",         CRL_Widget_KIS_Format, 0, MENU_NONE },
+    { ITT_LRFUNC2, "- SHOW ITEMS",           CRL_Widget_KIS_Items,  0, MENU_NONE },
+    { ITT_LRFUNC2, "LEVEL TIME",             CRL_Widget_Time,       0, MENU_NONE },
+    { ITT_LRFUNC2, "PLAYER COORDS",          CRL_Widget_Coords,     0, MENU_NONE },
+    { ITT_LRFUNC2, "- SHOW FRACTIONS",       CRL_Widget_CoordsFrac, 0, MENU_NONE },
+    { ITT_LRFUNC2, "PLAYER SPEED",           CRL_Widget_Speed,      0, MENU_NONE },
+    { ITT_LRFUNC2, "POWERUP TIMERS",         CRL_Widget_Powerups,   0, MENU_NONE },
+    { ITT_LRFUNC2, "TARGET'S HEALTH",        CRL_Widget_Health,     0, MENU_NONE },
 };
 
 static Menu_t CRLWidgetsMenu = {
@@ -2506,88 +2506,103 @@ static void DrawCRLWidgets (void)
     MN_DrTextACentered("WIDGETS", 10, cr[CR_YELLOW]);
 
     // Widgets font
-    sprintf(str, crl_widget_font ? "DSDA" : "DEFAULT");
+    sprintf(str, crl_widget_font ? "DSDA" : "ORIGINAL");
     MN_DrTextA(str, M_ItemRightAlign(str), 20,
                M_Item_Glow(0, crl_widget_font ? GLOW_GREEN : GLOW_DARKRED));
+
+    // Font size
+    sprintf(str, crl_widget_size == 1 ? "DEFAULT" :
+                 crl_widget_size == 2 ? "75%%" :
+                 crl_widget_size == 3 ? "50%%" : "25%%");
+    MN_DrTextA(str, M_ItemRightAlign(str), 30,
+                 M_Item_Glow(1, crl_widget_size == 2 ? GLOW_GREEN :
+                                crl_widget_size == 3 ? GLOW_YELLOW :
+                                crl_widget_size == 4 ? GLOW_ORANGE : GLOW_DARKRED));
 
     // Render counters
     sprintf(str, crl_widget_render == 1 ? "ON" :
                  crl_widget_render == 2 ? "OVERFLOWS" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 30,
-               M_Item_Glow(1, crl_widget_render == 1 ? GLOW_GREEN :
+    MN_DrTextA(str, M_ItemRightAlign(str), 40,
+               M_Item_Glow(2, crl_widget_render == 1 ? GLOW_GREEN :
                               crl_widget_render == 2 ? GLOW_DARKGREEN : GLOW_DARKRED));
 
     // MAX overflow style
     sprintf(str, crl_widget_maxblink == 1 ? "BLINKING 1" :
                  crl_widget_maxblink == 2 ? "BLINKING 2" : "STATIC");
-    MN_DrTextA(str, M_ItemRightAlign(str), 40,
-               M_Item_Glow(2, crl_widget_maxblink == 1 ? (gametic &  8 ? GLOW_YELLOW : GLOW_GREEN) :
+    MN_DrTextA(str, M_ItemRightAlign(str), 50,
+               M_Item_Glow(3, crl_widget_maxblink == 1 ? (gametic &  8 ? GLOW_YELLOW : GLOW_GREEN) :
                               crl_widget_maxblink == 2 ? (gametic & 16 ? GLOW_YELLOW : GLOW_GREEN) : GLOW_YELLOW));
 
     // Playstate counters
     sprintf(str, crl_widget_playstate == 1 ? "ON" :
                  crl_widget_playstate == 2 ? "OVERFLOWS" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 50,
-               M_Item_Glow(3, crl_widget_playstate == 1 ? GLOW_GREEN :
+    MN_DrTextA(str, M_ItemRightAlign(str), 60,
+               M_Item_Glow(4, crl_widget_playstate == 1 ? GLOW_GREEN :
                               crl_widget_playstate == 2 ? GLOW_DARKGREEN : GLOW_DARKRED));
 
     // K/I/S stats
     sprintf(str, crl_widget_kis == 1 ? "ON" :
                  crl_widget_kis == 2 ? "AUTOMAP" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 60,
-               M_Item_Glow(4, crl_widget_kis ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 70,
+               M_Item_Glow(5, crl_widget_kis ? GLOW_GREEN : GLOW_DARKRED));
 
     // Stats format
     sprintf(str, crl_widget_kis_format == 1 ? "REMAINING" :
                  crl_widget_kis_format == 2 ? "PERCENT" : "RATIO");
-    MN_DrTextA(str, M_ItemRightAlign(str), 70,
-                M_Item_Glow(5, crl_widget_kis_format ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 80,
+                M_Item_Glow(6, crl_widget_kis_format ? GLOW_GREEN : GLOW_DARKRED));
 
     // Show items
     sprintf(str, crl_widget_kis_items == 1 ? "ON" :
                  crl_widget_kis_items == 2 ? "AUTOMAP" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 80,
-               M_Item_Glow(6, crl_widget_kis_items ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 90,
+               M_Item_Glow(7, crl_widget_kis_items ? GLOW_GREEN : GLOW_DARKRED));
 
     // Level time
     sprintf(str, crl_widget_time == 1 ? "ON" : 
                  crl_widget_time == 2 ? "AUTOMAP" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 90,
-               M_Item_Glow(7, crl_widget_time ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 100,
+               M_Item_Glow(8, crl_widget_time ? GLOW_GREEN : GLOW_DARKRED));
 
     // Player coords
     sprintf(str, crl_widget_coords == 1 ? "ON" :
                  crl_widget_coords == 2 ? "AUTOMAP" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 100,
-               M_Item_Glow(8, crl_widget_coords ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 110,
+               M_Item_Glow(9, crl_widget_coords ? GLOW_GREEN : GLOW_DARKRED));
 
     // Show fractions
     sprintf(str, crl_widget_coordsfrac ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 110,
-               M_Item_Glow(9, crl_widget_coordsfrac ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 120,
+               M_Item_Glow(10, crl_widget_coordsfrac ? GLOW_GREEN : GLOW_DARKRED));
 
     // Player speed
     sprintf(str, crl_widget_speed ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 120,
-               M_Item_Glow(10, crl_widget_speed ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 130,
+               M_Item_Glow(11, crl_widget_speed ? GLOW_GREEN : GLOW_DARKRED));
 
     // Powerup timers
     sprintf(str, crl_widget_powerups ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 130,
-               M_Item_Glow(11, crl_widget_powerups ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 140,
+               M_Item_Glow(12, crl_widget_powerups ? GLOW_GREEN : GLOW_DARKRED));
 
     // Target's health
     sprintf(str, crl_widget_health == 1 ? "TOP" :
                  crl_widget_health == 2 ? "TOP+NAME" :
                  crl_widget_health == 3 ? "BOTTOM" :
                  crl_widget_health == 4 ? "BOTTOM+NAME" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 140,
-               M_Item_Glow(12, crl_widget_health ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 150,
+               M_Item_Glow(13, crl_widget_health ? GLOW_GREEN : GLOW_DARKRED));
 }
 
 static void CRL_Widget_Font (int choice)
 {
     crl_widget_font ^= 1;
+    CT_InitWidgetDrawingFuncs();
+}
+
+static void CRL_Widget_FontSize (int option)
+{
+    crl_widget_size = M_INT_Slider(crl_widget_size, 1, 4, option, false);
     CT_InitWidgetDrawingFuncs();
 }
 
@@ -3948,7 +3963,6 @@ static Menu_t *Menus[] = {
 
 void MN_Init(void)
 {
-    InitFonts();
     // [JN] Initialize to prevent crashing on pressing "back".
     CurrentMenu = &MainMenu;
     MenuActive = false;
@@ -3974,18 +3988,6 @@ void MN_Init(void)
 
     // [JN] Initialize cursor position with hidden, will be set on menu opening.
     CurrentItPos = -1;
-}
-
-//---------------------------------------------------------------------------
-//
-// PROC InitFonts
-//
-//---------------------------------------------------------------------------
-
-static void InitFonts(void)
-{
-    FontABaseLump = W_GetNumForName(DEH_String("FONTA_S")) + 1;
-    FontBBaseLump = W_GetNumForName(DEH_String("FONTB_S")) + 1;
 }
 
 // [crispy] Check if printable character is existing in FONTA/FONTB sets

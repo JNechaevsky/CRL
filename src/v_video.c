@@ -345,6 +345,80 @@ void V_DrawShadowedPatch (int x, int y, const patch_t *patch)
 }
 
 // -----------------------------------------------------------------------------
+// V_DrawPatchWidget
+//  [PN] Draw a patch into the widget overlay canvas (fixed 4x screen size).
+//  (cx, cy) are canvas coordinates of the glyph origin; each source pixel
+//  becomes a k x k block of canvas pixels, k = I_WidgetPixelScale():
+//  4 = 100%, 3 = 75%, 2 = 50%, 1 = 25%. No-op when the overlay is off.
+// -----------------------------------------------------------------------------
+
+void V_DrawPatchWidget (int cx, int cy, const patch_t *patch, boolean shadow)
+{
+    unsigned int shadow_argb = 0;
+    unsigned int *canvas;
+    int w, h, k, ox, oy, col, cols;
+
+    if (patch == NULL || (k = I_WidgetPixelScale()) == 0)
+        return;
+
+    if ((canvas = I_WidgetCanvas(&w, &h)) == NULL)
+        return;
+
+    // [PN] The canvas cannot sample the background below, so the shadow
+    // uses the darkest color of the active palette, like tintmap does.
+    if (shadow && crl_text_shadows)
+        shadow_argb = (I_GetPaletteRGB(0) & 0x00FFFFFF) | 0xA0000000;
+
+    ox = cx - SHORT(patch->leftoffset) * k;
+    oy = cy - SHORT(patch->topoffset) * k;
+    cols = SHORT(patch->width);
+
+    for (col = 0; col < cols; ++col)
+    {
+        const column_t *column = (const column_t *)
+            ((const byte *)patch + LONG(patch->columnofs[col]));
+        int px = ox + col * k;
+
+        while (column->topdelta != 0xff)
+        {
+            const byte *source = (const byte *)column + 3;
+            int py = oy + column->topdelta * k;
+            int count = column->length;
+
+            while (count--)
+            {
+                byte idx = *source++;
+                unsigned int argb;
+                int dy, dx;
+
+                if (dp_translation)
+                    idx = dp_translation[idx];
+
+                argb = I_GetPaletteRGB(idx);
+                if (dp_translucent)
+                    argb = (argb & 0x00FFFFFF) | 0x80000000;
+
+                if (px >= 0 && px + k <= w && py >= 0 && py + k <= h)
+                {
+                    if (shadow_argb != 0 && px + 2*k <= w && py + 2*k <= h)
+                        for (dy = 0; dy < k; ++dy)
+                            for (dx = 0; dx < k; ++dx)
+                                canvas[(py + k + dy) * w + px + k + dx] = shadow_argb;
+
+                    for (dy = 0; dy < k; ++dy)
+                        for (dx = 0; dx < k; ++dx)
+                            canvas[(py + dy) * w + px + dx] = argb;
+                }
+
+                py += k;
+            }
+
+            column = (const column_t *)((const byte *)column + column->length + 4);
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------
 // V_DrawShadowedPatchRaven
 // Masks a column based masked pic to the screen.
 // -----------------------------------------------------------------------------

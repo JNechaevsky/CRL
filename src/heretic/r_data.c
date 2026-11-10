@@ -17,6 +17,7 @@
 //
 
 // R_data.c
+#include <stdlib.h>
 
 #include "doomdef.h"
 #include "deh_str.h"

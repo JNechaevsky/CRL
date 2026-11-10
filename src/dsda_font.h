@@ -2,7 +2,6 @@
 // Copyright(C) 2023 by Ryan Krafnick
 // Copyright(C) 2018-2026 Julia Nechaevskaya
 // Copyright(C) 2024-2026 Polina "Aura" N.
-// Copyright(C) 2024-2026 Polina "Aura" N.
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,9 +18,11 @@
 //
 
 #include "doomtype.h"
+#include "v_patch.h"
 
 
 extern const byte *const dsda_font_lut[];
+extern patch_t *dsda_font[];
 
 extern void DSDA_FontInit(void);
 extern void DSDA_DrawText(int x, int y, const char *const text, byte *const table);

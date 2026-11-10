@@ -26,6 +26,7 @@
 #include "s_sound.h"
 #include "v_video.h"
 #include "am_map.h"
+#include "ct_chat.h"
 
 #include "crlcore.h"
 
@@ -42,8 +43,6 @@ static boolean finale_wipe_done;
 
 static const char *finaletext;
 static const char *finaleflat;
-
-static int FontABaseLump;
 
 // [JN] Externalized F_DemonScroll variables to allow repeated scrolling.
 static int yval = 0;
@@ -100,7 +99,6 @@ void F_StartFinale(void)
     // [JN] Count intermission/finale text lenght. Once it's fully printed, 
     // no extra "attack/use" button pressing is needed for skipping.
     finaleendcount = strlen(finaletext) * TEXTSPEED + TEXTEND;
-    FontABaseLump = W_GetNumForName(DEH_String("FONTA_S")) + 1;
     // [JN] Reset F_DemonScroll variables.
     yval = 0;
     nextscroll = 0;

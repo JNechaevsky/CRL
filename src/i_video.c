@@ -22,6 +22,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "SDL.h"
 #include "SDL_opengl.h"
@@ -91,6 +92,122 @@ static SDL_Rect blit_rect = {
 
 static SDL_Color palette[256];
 static boolean palette_to_set;
+
+// [PN] Widget overlay canvas: widgets are drawn into a separate ARGB buffer
+// of a fixed 4x screen resolution. crl_widget_size 2/3/4 set how many
+// canvas pixels one source glyph pixel becomes (3 = 75%, 2 = 50%, 1 = 25%),
+// so widgets shrink without ever being resampled. 0 and 1 keep the legacy
+// in-buffer path (1 = 100% through the normal drawers).
+
+static int widget_w, widget_h;
+static unsigned int *widget_pixels;
+static SDL_Texture *widget_texture;
+
+int I_WidgetPixelScale(void)
+{
+    if (crl_widget_size < 2 || crl_widget_size > 4)
+    {
+        return 0;
+    }
+
+    return WIDGET_CANVAS_FACTOR + 1 - crl_widget_size;
+}
+
+static void I_DestroyWidgetCanvas(void)
+{
+    if (widget_texture != NULL)
+    {
+        SDL_DestroyTexture(widget_texture);
+        widget_texture = NULL;
+    }
+
+    free(widget_pixels);
+    widget_pixels = NULL;
+}
+
+unsigned int *I_WidgetCanvas(int *w, int *h)
+{
+    if (I_WidgetPixelScale() == 0 || renderer == NULL)
+    {
+        I_DestroyWidgetCanvas(); // [PN] release memory while overlay is off
+        return NULL;
+    }
+
+    if (widget_texture == NULL)
+    {
+        widget_w = SCREENWIDTH * WIDGET_CANVAS_FACTOR;
+        widget_h = SCREENHEIGHT * WIDGET_CANVAS_FACTOR;
+        widget_pixels = calloc(widget_w * widget_h, sizeof(*widget_pixels));
+
+        if (widget_pixels == NULL)
+        {
+            I_Error("I_WidgetCanvas: out of memory");
+        }
+
+        widget_texture = SDL_CreateTexture(renderer,
+                                           SDL_PIXELFORMAT_ARGB8888,
+                                           SDL_TEXTUREACCESS_STREAMING,
+                                           widget_w, widget_h);
+
+        if (widget_texture == NULL)
+        {
+            free(widget_pixels);
+            widget_pixels = NULL;
+            I_Error("I_WidgetCanvas: failed to create overlay texture");
+        }
+
+        SDL_SetTextureBlendMode(widget_texture, SDL_BLENDMODE_BLEND);
+    }
+
+    if (w != NULL)
+    {
+        *w = widget_w;
+    }
+
+    if (h != NULL)
+    {
+        *h = widget_h;
+    }
+
+    return widget_pixels;
+}
+
+void I_ClearWidgetCanvas(void)
+{
+    if (widget_pixels != NULL)
+    {
+        memset(widget_pixels, 0, (size_t) widget_w * widget_h * sizeof(*widget_pixels));
+    }
+}
+
+static void I_PresentWidgetCanvas(void)
+{
+    if (I_WidgetPixelScale() == 0)
+    {
+        // [PN] Overlay switched off at runtime: free the canvas once,
+        // then every later frame exits here without per-frame work.
+        I_DestroyWidgetCanvas();
+        return;
+    }
+
+    if (widget_texture == NULL)
+    {
+        return;
+    }
+
+    SDL_UpdateTexture(widget_texture, NULL, widget_pixels,
+                      widget_w * (int) sizeof(*widget_pixels));
+    SDL_SetRenderTarget(renderer, NULL);
+    SDL_RenderCopy(renderer, widget_texture, NULL, NULL);
+}
+
+unsigned int I_GetPaletteRGB(int index)
+{
+    return ((unsigned int) palette[index].a << 24)
+         | ((unsigned int) palette[index].r << 16)
+         | ((unsigned int) palette[index].g << 8)
+         |  (unsigned int) palette[index].b;
+}
 
 // display has been set up?
 
@@ -324,6 +441,8 @@ void I_ShutdownGraphics(void)
 
         SDL_FreeSurface(argbbuffer);
         SDL_FreeSurface(screenbuffer);
+        // [PN] Widget overlay, tied to renderer.
+        I_DestroyWidgetCanvas();
         SDL_DestroyTexture(texture_upscaled);
         SDL_DestroyTexture(texture);
         SDL_DestroyRenderer(renderer);
@@ -1007,6 +1126,9 @@ void I_FinishUpdate (void)
     SDL_SetRenderTarget(renderer, NULL);
     SDL_RenderCopy(renderer, texture, NULL, NULL);
     }
+
+    // [PN] Widget overlay on top.
+    I_PresentWidgetCanvas();
 
     // Draw!
 
@@ -1832,6 +1954,8 @@ void I_RenderReadPixels (byte **data, int *w, int *h)
         if (post_rendering_hook)
         {
             SDL_RenderCopy(renderer, smooth_scaling ? texture_upscaled : texture, NULL, NULL);
+            // [PN] Keep scaled widgets in screenshots.
+            I_PresentWidgetCanvas();
             SDL_RenderPresent(renderer);
         }
 
