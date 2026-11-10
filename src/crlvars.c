@@ -74,7 +74,7 @@ int crl_rewind_timeout = 10;
 // Widgets
 int crl_extended_hud = 1;
 int crl_widget_font = 1;
-int crl_widget_size = 0;
+int crl_widget_size = 1;
 int crl_widget_playstate = 2;
 int crl_widget_render = 1;
 int crl_widget_maxblink = 1;
