@@ -65,6 +65,9 @@ int I_WidgetPixelScale(void); // [PN] canvas px per glyph px: 3/2/1, 0 = off
 void I_ClearWidgetCanvas(void);
 unsigned int I_GetPaletteRGB(int index);
 
+// [PN] Overlay opacity, so lower layers can be covered by the menu.
+void I_SetWidgetCanvasAlpha(int alpha);
+
 void I_FinishUpdate (void);
 
 void I_ReadScreen (pixel_t* scr);

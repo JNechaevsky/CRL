@@ -103,6 +103,10 @@ static int widget_w, widget_h;
 static unsigned int *widget_pixels;
 static SDL_Texture *widget_texture;
 
+// [PN] Overlay opacity. The overlay is composited last, so it has to fade
+// out when a higher layer (the menu) is open on top of the game.
+static int widget_alpha = 255;
+
 int I_WidgetPixelScale(void)
 {
     if (crl_widget_size < 2 || crl_widget_size > 4)
@@ -123,6 +127,36 @@ static void I_DestroyWidgetCanvas(void)
 
     free(widget_pixels);
     widget_pixels = NULL;
+}
+
+// -----------------------------------------------------------------------------
+// I_ApplyWidgetScaleMode
+//  [PN] The overlay lives outside the 320x200 canvas, so it does not get the
+//  upscale treatment of the main texture. Mirror the user's scaling choice
+//  explicitly: "nearest" keeps glyph pixels square, "linear" is needed when
+//  the window is smaller than the overlay and pixels would otherwise be
+//  dropped, which is what makes the reduced font look broken.
+// -----------------------------------------------------------------------------
+
+static void I_ApplyWidgetScaleMode(void)
+{
+    if (widget_texture != NULL)
+    {
+        SDL_SetTextureScaleMode(widget_texture,
+                                smooth_scaling ? SDL_ScaleModeLinear
+                                               : SDL_ScaleModeNearest);
+                                               printf (".");
+    }
+}
+
+// -----------------------------------------------------------------------------
+// I_SetWidgetCanvasAlpha
+//  [PN] Fade the overlay out while a higher layer is drawn on top.
+// -----------------------------------------------------------------------------
+
+void I_SetWidgetCanvasAlpha(int alpha)
+{
+    widget_alpha = alpha;
 }
 
 unsigned int *I_WidgetCanvas(int *w, int *h)
@@ -157,6 +191,7 @@ unsigned int *I_WidgetCanvas(int *w, int *h)
         }
 
         SDL_SetTextureBlendMode(widget_texture, SDL_BLENDMODE_BLEND);
+        I_ApplyWidgetScaleMode();
     }
 
     if (w != NULL)
@@ -197,6 +232,10 @@ static void I_PresentWidgetCanvas(void)
 
     SDL_UpdateTexture(widget_texture, NULL, widget_pixels,
                       widget_w * (int) sizeof(*widget_pixels));
+
+    // [PN] Fade out when the menu is drawn on top of the game.
+    SDL_SetTextureAlphaMod(widget_texture, (Uint8) widget_alpha);
+
     SDL_SetRenderTarget(renderer, NULL);
     SDL_RenderCopy(renderer, widget_texture, NULL, NULL);
 }
@@ -1637,6 +1676,10 @@ static void SetVideoMode(void)
 
     if (renderer != NULL)
     {
+        // [PN] The overlay texture belongs to the old renderer, release it
+        // before the renderer (and every texture it owns) goes away.
+        I_DestroyWidgetCanvas();
+
         SDL_DestroyRenderer(renderer);
         // all associated textures get destroyed
         texture = NULL;
@@ -1977,6 +2020,9 @@ void I_RenderReadPixels (byte **data, int *w, int *h)
 void I_TogglePixelScaling (void)
 {
     CreateUpscaledTexture(true);
+
+    // [PN] The overlay is filtered independently of the main texture.
+    I_ApplyWidgetScaleMode();
 }
 
 // Bind all variables controlling video options into the configuration
