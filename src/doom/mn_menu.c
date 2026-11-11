@@ -6977,12 +6977,6 @@ static void M_SetupNextMenu(menu_t *menudef)
 //
 void M_Ticker (void)
 {
-    // [JN] Make widgets translucent while in active Save/Load/CRL Control Panel menu.
-    savemenuactive = (menuactive && !messageToPrint
-                  && (currentMenu == &SaveDef        || currentMenu == &LoadDef
-                  ||  currentMenu == &CRLDef_Panel_1 || currentMenu == &CRLDef_Panel_2
-                  ||  currentMenu == &CRLDef_Panel_3));
-
     if (menuactive == false)
     {
         return;

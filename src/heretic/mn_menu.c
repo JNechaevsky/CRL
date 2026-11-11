@@ -4316,11 +4316,6 @@ int MN_TextBWidth(const char *text)
 
 void MN_Ticker(void)
 {
-    // [JN] Make widgets translucent while in active Save/Load/CRL Control Panel menu.
-    savemenuactive = (MenuActive && !askforquit
-                  && (CurrentMenu == &SaveMenu   || CurrentMenu == &LoadMenu
-                  ||  CurrentMenu == &CRLPanel_1 || CurrentMenu == &CRLPanel_2));
-
     if (MenuActive == false)
     {
         return;

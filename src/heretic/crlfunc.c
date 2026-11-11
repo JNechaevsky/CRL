@@ -503,9 +503,6 @@ void CRL_StatDrawer (void)
     if (!crl_extended_hud)
         return;
 
-    // Apply translucency while Save/Load menu is active.
-    dp_translucent = savemenuactive;
-
     // Player coords
     if (crl_widget_coords == 1
     || (crl_widget_coords == 2 && automapactive))
@@ -720,8 +717,6 @@ void CRL_StatDrawer (void)
             }
         }
     }
-
-    dp_translucent = false;
 }
 
 // -----------------------------------------------------------------------------
@@ -850,9 +845,6 @@ void CRL_DrawTargetsHealth (void)
         return;  // No tics or target is dead, nothing to display.
     }
 
-    // Apply translucency while Save/Load menu is active.
-    dp_translucent = savemenuactive;
-
     const int yy = crl_widget_speed ? 10 : 0;
     // [JN] Row gap shrinks with the widget scale, like the stat block rows.
     const int k = I_WidgetPixelScale();
@@ -877,8 +869,6 @@ void CRL_DrawTargetsHealth (void)
             fontcenteredfunc(str, 145 - yy, color);
             break;
     }
-
-    dp_translucent = false;
 }
 
 // -----------------------------------------------------------------------------
@@ -893,9 +883,6 @@ void CRL_DrawPlayerSpeed (void)
     static char val[16];
     static double speed = 0;
     const player_t *player = &players[displayplayer];
-
-    // Apply translucency while Save/Load menu is active.
-    dp_translucent = savemenuactive;
 
     // Calculating speed only every game tic (not every frame)
     // is not possible while D_Display is called after S_UpdateSounds in D_DoomLoop.
@@ -914,8 +901,6 @@ void CRL_DrawPlayerSpeed (void)
     CRL_WidgetTextPair(160 /*SCREENWIDTH / 2*/, 145, 0, 1, str,
                        CRL_WidgetColor(widget_speed_str),
                        val, CRL_WidgetColor(widget_speed_val));
-
-    dp_translucent = false;
 }
 
 // -----------------------------------------------------------------------------

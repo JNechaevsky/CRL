@@ -145,7 +145,6 @@ static void I_ApplyWidgetScaleMode(void)
         SDL_SetTextureScaleMode(widget_texture,
                                 smooth_scaling ? SDL_ScaleModeLinear
                                                : SDL_ScaleModeNearest);
-                                               printf (".");
     }
 }
 
