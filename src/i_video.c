@@ -67,36 +67,37 @@ static SDL_Window *screen;
 static SDL_Renderer *renderer;
 
 #ifdef _WIN32
-// [PN] Windows paints the title bar light unless the app opts in, even with a
-// dark system theme. SDL2 has no API for that, so DWM is asked directly:
-// dwmapi is resolved at runtime, and the theme is read with the XP-safe
-// RegOpenKeyEx (RegGetValue is Vista+).
-static void I_ApplyDarkTitleBar (void)
+// [PN] Windows paints the title bar light unless the app opts in.
+// SDL2 has no API for it, so DWM is asked directly; on Windows 10 the caption
+// does not repaint on its own, hence the WM_NCACTIVATE pair at the end.
+static void I_ApplyTitleBarColor (void)
 {
     typedef HRESULT (WINAPI *dwm_set_t)(HWND, DWORD, LPCVOID, DWORD);
     static dwm_set_t set_attr;
-    static boolean tried;
     SDL_SysWMinfo info;
     HKEY key;
     DWORD light = 1, size = sizeof(light);
-
-    if (screen == NULL)
-        return;
-
-    if (!tried)
-    {
-        tried = true;
-        const HMODULE lib = LoadLibraryA("dwmapi.dll");
-        set_attr = lib ? (dwm_set_t) GetProcAddress(lib, "DwmSetWindowAttribute") : NULL;
-    }
-
-    if (set_attr == NULL)
-        return;
+    HWND hwnd;
 
     SDL_VERSION(&info.version);
 
-    if (!SDL_GetWindowWMInfo(screen, &info))
+    if (screen == NULL || !SDL_GetWindowWMInfo(screen, &info))
         return;
+
+    if (set_attr == NULL)
+    {
+        const HMODULE dwmapi = LoadLibraryA("dwmapi.dll");
+
+        if (dwmapi == NULL)
+            return;
+
+        set_attr = (dwm_set_t) GetProcAddress(dwmapi, "DwmSetWindowAttribute");
+
+        if (set_attr == NULL)
+            return;
+    }
+
+    hwnd = info.info.win.window;
 
     // AppsUseLightTheme: 1 = light, 0 = dark. Missing key (XP) keeps it light.
     if (RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\"
@@ -111,8 +112,12 @@ static void I_ApplyDarkTitleBar (void)
     const BOOL dark = (light == 0);
 
     // 20 on Windows 10 2004 and later, 19 on older builds.
-    if (FAILED(set_attr(info.info.win.window, 20, &dark, sizeof(dark))))
-        set_attr(info.info.win.window, 19, &dark, sizeof(dark));
+    if (FAILED(set_attr(hwnd, 20, &dark, sizeof(dark))))
+        set_attr(hwnd, 19, &dark, sizeof(dark));
+
+    // The caption does not repaint on its own, so flip activation once.
+    SendMessageW(hwnd, WM_NCACTIVATE, FALSE, 0);
+    SendMessageW(hwnd, WM_NCACTIVATE, TRUE, 0);
 }
 #endif
 
@@ -783,9 +788,6 @@ static void HandleWindowEvent(const SDL_WindowEvent *event)
 
         case SDL_WINDOWEVENT_FOCUS_GAINED:
             window_focused = true;
-#ifdef _WIN32
-            I_ApplyDarkTitleBar();
-#endif
             volume_needs_update = true;
             break;
 
@@ -1851,7 +1853,7 @@ static void SetVideoMode(void)
         I_InitWindowTitle();
         I_InitWindowIcon();
 #ifdef _WIN32
-        I_ApplyDarkTitleBar();
+        I_ApplyTitleBarColor();
 #endif
     }
 
