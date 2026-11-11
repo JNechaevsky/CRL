@@ -1170,9 +1170,13 @@ void CRL_Give_Powerup (const powertype_t power)
 
 // [JN] Bottom edge of the widget block in 320-space: the K/I/S line
 // (or TIME when K is off) sits here, 9 px higher while automap is active.
+// [PN] Anchored to the last row, so TIME and K/I/S stay just above the
+// status bar at any widget size.
+#define CRL_WIDGET_GLYPH_H 7
+
 static int CRL_WidgetAnchorY (void)
 {
-    return 160 - (automapactive ? 9 : 0);
+    return 160 - (automapactive ? 9 : 0) + CRL_WIDGET_GLYPH_H;
 }
 
 // [JN] Canvas y for a left-column widget row: rows at or above the block
