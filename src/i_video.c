@@ -99,7 +99,9 @@ static boolean palette_to_set;
 // so widgets shrink without ever being resampled. 0 and 1 keep the legacy
 // in-buffer path (1 = 100% through the normal drawers).
 
-static int widget_w, widget_h;
+#define WIDGET_CANVAS_W  (SCREENWIDTH * WIDGET_CANVAS_FACTOR)
+#define WIDGET_CANVAS_H  (SCREENHEIGHT * WIDGET_CANVAS_FACTOR)
+
 static unsigned int *widget_pixels;
 static SDL_Texture *widget_texture;
 
@@ -188,23 +190,11 @@ static int I_WidgetCollectRuns(const byte *tiles, SDL_Rect *rects)
 
             rects[n].x = start * WIDGET_TILE_SIZE;
             rects[n].y = ty * WIDGET_TILE_SIZE;
+            // The canvas is exactly WIDGET_TILES_X x WIDGET_TILES_Y tiles,
+            // so a run never needs clipping.
             rects[n].w = (tx - start) * WIDGET_TILE_SIZE;
             rects[n].h = WIDGET_TILE_SIZE;
-
-            // Clip to the canvas, which may not be a whole number of tiles.
-            if (rects[n].x + rects[n].w > widget_w)
-            {
-                rects[n].w = widget_w - rects[n].x;
-            }
-            if (rects[n].y + rects[n].h > widget_h)
-            {
-                rects[n].h = widget_h - rects[n].y;
-            }
-
-            if (rects[n].w > 0 && rects[n].h > 0)
-            {
-                n++;
-            }
+            n++;
         }
     }
 
@@ -285,9 +275,7 @@ unsigned int *I_WidgetCanvas(int *w, int *h)
 
     if (widget_texture == NULL)
     {
-        widget_w = SCREENWIDTH * WIDGET_CANVAS_FACTOR;
-        widget_h = SCREENHEIGHT * WIDGET_CANVAS_FACTOR;
-        widget_pixels = calloc(widget_w * widget_h, sizeof(*widget_pixels));
+        widget_pixels = calloc(WIDGET_CANVAS_W * WIDGET_CANVAS_H, sizeof(*widget_pixels));
 
         if (widget_pixels == NULL)
         {
@@ -297,7 +285,7 @@ unsigned int *I_WidgetCanvas(int *w, int *h)
         widget_texture = SDL_CreateTexture(renderer,
                                            SDL_PIXELFORMAT_ARGB8888,
                                            SDL_TEXTUREACCESS_STREAMING,
-                                           widget_w, widget_h);
+                                           WIDGET_CANVAS_W, WIDGET_CANVAS_H);
 
         if (widget_texture == NULL)
         {
@@ -311,19 +299,19 @@ unsigned int *I_WidgetCanvas(int *w, int *h)
 
         // [PN] A freshly created texture holds garbage, so upload all of it
         // once. Every later frame only sends the tiles that changed.
-        memset(widget_pixels, 0, (size_t) widget_w * widget_h * sizeof(*widget_pixels));
+        memset(widget_pixels, 0, (size_t) WIDGET_CANVAS_W * WIDGET_CANVAS_H * sizeof(*widget_pixels));
         memset(widget_tiles_dirty, 1, sizeof(widget_tiles_dirty));
         memset(widget_tiles_used, 0, sizeof(widget_tiles_used));
     }
 
     if (w != NULL)
     {
-        *w = widget_w;
+        *w = WIDGET_CANVAS_W;
     }
 
     if (h != NULL)
     {
-        *h = widget_h;
+        *h = WIDGET_CANVAS_H;
     }
 
     return widget_pixels;
@@ -345,25 +333,23 @@ void I_ClearWidgetCanvas(void)
         return;
     }
 
+    // [PN] Whatever gets erased must reach the texture too.
+    for (int i = 0 ; i < WIDGET_TILES_X * WIDGET_TILES_Y ; i++)
+    {
+        if (widget_tiles_used[i])
+        {
+            widget_tiles_dirty[i] = 1;
+        }
+    }
+
     const int n = I_WidgetCollectRuns(widget_tiles_used, runs);
 
     for (int i = 0 ; i < n ; i++)
     {
         for (int y = 0 ; y < runs[i].h ; y++)
         {
-            memset(widget_pixels + (runs[i].y + y) * widget_w + runs[i].x, 0,
+            memset(widget_pixels + (runs[i].y + y) * WIDGET_CANVAS_W + runs[i].x, 0,
                    (size_t) runs[i].w * sizeof(*widget_pixels));
-        }
-
-        // Mark the erased area as dirty, tile by tile.
-        for (int ty = runs[i].y / WIDGET_TILE_SIZE ;
-             ty <= (runs[i].y + runs[i].h - 1) / WIDGET_TILE_SIZE ; ty++)
-        {
-            for (int tx = runs[i].x / WIDGET_TILE_SIZE ;
-                 tx <= (runs[i].x + runs[i].w - 1) / WIDGET_TILE_SIZE ; tx++)
-            {
-                widget_tiles_dirty[ty * WIDGET_TILES_X + tx] = 1;
-            }
         }
     }
 
@@ -392,8 +378,8 @@ static void I_PresentWidgetCanvas(void)
     for (int i = 0 ; i < n ; i++)
     {
         SDL_UpdateTexture(widget_texture, &runs[i],
-                          widget_pixels + runs[i].y * widget_w + runs[i].x,
-                          widget_w * (int) sizeof(*widget_pixels));
+                          widget_pixels + runs[i].y * WIDGET_CANVAS_W + runs[i].x,
+                          WIDGET_CANVAS_W * (int) sizeof(*widget_pixels));
     }
 
     memset(widget_tiles_dirty, 0, sizeof(widget_tiles_dirty));

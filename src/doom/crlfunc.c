@@ -38,6 +38,8 @@
 #include "crlfunc.h"
 
 // [JN] Widget anchor helpers, defined below with the widget text drawers.
+static void WidgetTextPatchAt (int cx, int cy, const char *string, byte *table);
+static void WidgetTextDSDAAt (int cx, int cy, const char *text, byte *table);
 static void CRL_WidgetTextPair (int x_game, int y_game, int right_anchored,
                                 int bottom_anchor,
                                 const char *s1, byte *c1,
@@ -1184,26 +1186,32 @@ static int CRL_WidgetRowY (int y_game)
                          : y_game * WIDGET_CANVAS_FACTOR;
 }
 
+// [PN] Draw a widget string in canvas coordinates with the active font.
+static void WidgetTextAt (int cx, int cy, const char *s, byte *table)
+{
+    if (crl_widget_font)
+    {
+        WidgetTextDSDAAt(cx, cy, s, table);
+    }
+    else
+    {
+        WidgetTextPatchAt(cx, cy, s, table);
+    }
+}
+
 static void WidgetTextPatchAt (int cx, int cy, const char *string, byte *table)
 {
-    const char *ch = string;
-    int canvas_w, canvas_h;
     const int k = I_WidgetPixelScale();
     const int start_cx = cx; // [PN] line start for CR and LF
-    int w, c;
+    int canvas_w;
 
-    I_WidgetCanvas(&canvas_w, &canvas_h);
+    I_WidgetCanvas(&canvas_w, NULL);
 
     dp_translation = table;
 
-    while (ch)
+    for ( ; *string ; string++)
     {
-        c = *ch++;
-
-        if (!c)
-        {
-            break;
-        }
+        int c = *string;
 
         if (c == '\n')
         {
@@ -1227,7 +1235,7 @@ static void WidgetTextPatchAt (int cx, int cy, const char *string, byte *table)
             continue;
         }
 
-        w = SHORT (hu_font[c]->width);
+        const int w = SHORT (hu_font[c]->width);
 
         if (cx + w * k > canvas_w)
         {
@@ -1256,25 +1264,16 @@ void CRL_WidgetTextPatch (int x, int y, const char *string, byte *table)
 
 void CRL_WidgetTextPatchCentered (int y, const char *string, byte *table)
 {
-    int canvas_w, canvas_h;
-    int total = 0;
-    const int k = I_WidgetPixelScale();
-    const char *ch;
+    int canvas_w;
 
-    if (k == 0 || I_WidgetCanvas(&canvas_w, &canvas_h) == NULL)
+    if (I_WidgetPixelScale() == 0 || I_WidgetCanvas(&canvas_w, NULL) == NULL)
     {
         M_WriteTextCentered(y, string, table);
         return;
     }
 
-    for (ch = string; *ch; ch++)
-    {
-        int c = toupper((unsigned char) *ch) - HU_FONTSTART;
-
-        total += (c >= 0 && c < HU_FONTSIZE) ? SHORT(hu_font[c]->width) : 4;
-    }
-
-    WidgetTextPatchAt((canvas_w - total * k) / 2, y * WIDGET_CANVAS_FACTOR, string, table);
+    WidgetTextPatchAt((canvas_w - widthfunc(string) * I_WidgetPixelScale()) / 2,
+                      y * WIDGET_CANVAS_FACTOR, string, table);
 }
 
 static void WidgetTextDSDAAt (int cx, int cy, const char *text, byte *table)
@@ -1318,32 +1317,16 @@ void CRL_WidgetTextDSDA (int x, int y, const char *text, byte *table)
 
 void CRL_WidgetTextDSDACentered (int y, const char *text, byte *table)
 {
-    int canvas_w, canvas_h;
-    int total = 0;
-    const int k = I_WidgetPixelScale();
-    const char *ch;
+    int canvas_w;
 
-    if (k == 0 || I_WidgetCanvas(&canvas_w, &canvas_h) == NULL)
+    if (I_WidgetPixelScale() == 0 || I_WidgetCanvas(&canvas_w, NULL) == NULL)
     {
         DSDA_DrawTextCentered(y, text, table);
         return;
     }
 
-    for (ch = text; *ch; ch++)
-    {
-        const int c = toupper((unsigned char) *ch);
-
-        if (c >= 33 && c <= 126)
-        {
-            total += dsda_font[c - HU_FONTSTART]->width;
-        }
-        else
-        {
-            total += 4;
-        }
-    }
-
-    WidgetTextDSDAAt((canvas_w - total * k) / 2, y * WIDGET_CANVAS_FACTOR, text, table);
+    WidgetTextDSDAAt((canvas_w - DSDA_StringWidth(text) * I_WidgetPixelScale()) / 2,
+                     y * WIDGET_CANVAS_FACTOR, text, table);
 }
 
 // -----------------------------------------------------------------------------
@@ -1383,23 +1366,11 @@ static void CRL_WidgetTextPair (int x_game, int y_game, int right_anchored,
     const int cy = bottom_anchor ? CRL_WidgetRowY(y_game)
                                  : y_game * WIDGET_CANVAS_FACTOR;
 
-    if (crl_widget_font)
-    {
-        WidgetTextDSDAAt(cx, cy, s1, c1);
+    WidgetTextAt(cx, cy, s1, c1);
 
-        if (s2)
-        {
-            WidgetTextDSDAAt(cx + w1 * k, cy, s2, c2);
-        }
-    }
-    else
+    if (s2)
     {
-        WidgetTextPatchAt(cx, cy, s1, c1);
-
-        if (s2)
-        {
-            WidgetTextPatchAt(cx + w1 * k, cy, s2, c2);
-        }
+        WidgetTextAt(cx + w1 * k, cy, s2, c2);
     }
 }
 
@@ -1428,14 +1399,6 @@ static void CRL_WidgetTextColumns (int label_right, int y_game,
     const int lx = label_right * WIDGET_CANVAS_FACTOR - w1 * k;
     const int rx = (label_right + 4) * WIDGET_CANVAS_FACTOR;
 
-    if (crl_widget_font)
-    {
-        WidgetTextDSDAAt(lx, cy, s1, c1);
-        WidgetTextDSDAAt(rx, cy, s2, c2);
-    }
-    else
-    {
-        WidgetTextPatchAt(lx, cy, s1, c1);
-        WidgetTextPatchAt(rx, cy, s2, c2);
-    }
+    WidgetTextAt(lx, cy, s1, c1);
+    WidgetTextAt(rx, cy, s2, c2);
 }
