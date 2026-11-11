@@ -17,6 +17,8 @@
 //  DSDA Font, embedded into CRL executable.
 //
 
+#pragma once
+
 #include "doomtype.h"
 #include "v_patch.h"
 
