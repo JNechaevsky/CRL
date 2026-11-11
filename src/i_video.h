@@ -65,6 +65,10 @@ int I_WidgetPixelScale(void); // [PN] canvas px per glyph px: 3/2/1, 0 = off
 void I_ClearWidgetCanvas(void);
 unsigned int I_GetPaletteRGB(int index);
 
+// [PN] Mark the canvas area a glyph occupies, so only changed tiles are
+// cleared and uploaded instead of the whole 4x overlay canvas.
+void I_MarkWidgetTiles(int x, int y, int w, int h);
+
 // [PN] Overlay opacity, so lower layers can be covered by the menu.
 void I_SetWidgetCanvasAlpha(int alpha);
 

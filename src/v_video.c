@@ -373,6 +373,12 @@ void V_DrawPatchWidget (int cx, int cy, const patch_t *patch, boolean shadow)
     oy = cy - SHORT(patch->topoffset) * k;
     cols = SHORT(patch->width);
 
+    // [PN] Tell the overlay which tiles this glyph touches. One call per
+    // glyph, so the per-frame clear and texture upload stay limited to the
+    // few small areas the widgets actually occupy. The extra k on width and
+    // height covers the one-glyph-pixel shadow offset.
+    I_MarkWidgetTiles(ox, oy, cols * k + k, SHORT(patch->height) * k + k);
+
     for (col = 0; col < cols; ++col)
     {
         const column_t *column = (const column_t *)

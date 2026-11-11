@@ -107,6 +107,26 @@ static SDL_Texture *widget_texture;
 // out when a higher layer (the menu) is open on top of the game.
 static int widget_alpha = 255;
 
+// [PN] Dirty-region tracking for the overlay canvas.
+//
+// The canvas is 1280x800, so clearing and re-uploading all of it every
+// frame costs a fixed ~4 MB memset plus a ~4 MB texture upload - about
+// 0.5 ms per frame, which is nothing at 165 fps and half the frame budget
+// in an uncapped benchmark. Widget text only ever occupies a few small
+// clusters in the corners, so the canvas is divided into a coarse tile
+// grid and only the tiles that actually changed are cleared and uploaded.
+//
+// Tiles are 32x32 canvas pixels (40x25 grid). Marking a glyph is a handful
+// of byte writes; adjacent dirty tiles are merged into horizontal strips,
+// so a frame usually uploads 5-10 rectangles of text instead of 4 MB.
+#define WIDGET_TILE_SIZE  32
+#define WIDGET_TILES_X    ((SCREENWIDTH * WIDGET_CANVAS_FACTOR + WIDGET_TILE_SIZE - 1) / WIDGET_TILE_SIZE)
+#define WIDGET_TILES_Y    ((SCREENHEIGHT * WIDGET_CANVAS_FACTOR + WIDGET_TILE_SIZE - 1) / WIDGET_TILE_SIZE)
+#define WIDGET_MAX_RUNS   64
+
+static byte widget_tiles_dirty[WIDGET_TILES_X * WIDGET_TILES_Y];
+static byte widget_tiles_used[WIDGET_TILES_X * WIDGET_TILES_Y];
+
 int I_WidgetPixelScale(void)
 {
     if (crl_widget_size < 2 || crl_widget_size > 4)
@@ -127,6 +147,103 @@ static void I_DestroyWidgetCanvas(void)
 
     free(widget_pixels);
     widget_pixels = NULL;
+
+    memset(widget_tiles_dirty, 0, sizeof(widget_tiles_dirty));
+    memset(widget_tiles_used, 0, sizeof(widget_tiles_used));
+}
+
+// -----------------------------------------------------------------------------
+// I_WidgetCollectRuns
+//  [PN] Merge a tile set into horizontal strips. Returns the number of
+//  rectangles written to rects[]; strips are clipped to the canvas.
+// -----------------------------------------------------------------------------
+
+static int I_WidgetCollectRuns(const byte *tiles, SDL_Rect *rects)
+{
+    int n = 0;
+
+    for (int ty = 0 ; ty < WIDGET_TILES_Y ; ty++)
+    {
+        int tx = 0;
+
+        while (tx < WIDGET_TILES_X)
+        {
+            if (!tiles[ty * WIDGET_TILES_X + tx])
+            {
+                tx++;
+                continue;
+            }
+
+            const int start = tx;
+
+            while (tx < WIDGET_TILES_X && tiles[ty * WIDGET_TILES_X + tx])
+            {
+                tx++;
+            }
+
+            if (n >= WIDGET_MAX_RUNS)
+            {
+                return n;
+            }
+
+            rects[n].x = start * WIDGET_TILE_SIZE;
+            rects[n].y = ty * WIDGET_TILE_SIZE;
+            rects[n].w = (tx - start) * WIDGET_TILE_SIZE;
+            rects[n].h = WIDGET_TILE_SIZE;
+
+            // Clip to the canvas, which may not be a whole number of tiles.
+            if (rects[n].x + rects[n].w > widget_w)
+            {
+                rects[n].w = widget_w - rects[n].x;
+            }
+            if (rects[n].y + rects[n].h > widget_h)
+            {
+                rects[n].h = widget_h - rects[n].y;
+            }
+
+            if (rects[n].w > 0 && rects[n].h > 0)
+            {
+                n++;
+            }
+        }
+    }
+
+    return n;
+}
+
+// -----------------------------------------------------------------------------
+// I_MarkWidgetTiles
+//  [PN] Mark the canvas area a glyph occupies as drawn. Called by the
+//  overlay patch drawer; (x, y) is the top-left corner in canvas pixels.
+// -----------------------------------------------------------------------------
+
+void I_MarkWidgetTiles(int x, int y, int w, int h)
+{
+    if (w <= 0 || h <= 0)
+    {
+        return;
+    }
+
+    int tx0 = x / WIDGET_TILE_SIZE;
+    int ty0 = y / WIDGET_TILE_SIZE;
+    int tx1 = (x + w - 1) / WIDGET_TILE_SIZE;
+    int ty1 = (y + h - 1) / WIDGET_TILE_SIZE;
+
+    if (tx0 < 0) tx0 = 0;
+    if (ty0 < 0) ty0 = 0;
+    if (tx1 >= WIDGET_TILES_X) tx1 = WIDGET_TILES_X - 1;
+    if (ty1 >= WIDGET_TILES_Y) ty1 = WIDGET_TILES_Y - 1;
+
+    for (int ty = ty0 ; ty <= ty1 ; ty++)
+    {
+        for (int tx = tx0 ; tx <= tx1 ; tx++)
+        {
+            const int idx = ty * WIDGET_TILES_X + tx;
+
+            widget_tiles_used[idx] = 1;
+            widget_tiles_dirty[idx] = 1;
+        }
+    }
 }
 
 // -----------------------------------------------------------------------------
@@ -191,6 +308,12 @@ unsigned int *I_WidgetCanvas(int *w, int *h)
 
         SDL_SetTextureBlendMode(widget_texture, SDL_BLENDMODE_BLEND);
         I_ApplyWidgetScaleMode();
+
+        // [PN] A freshly created texture holds garbage, so upload all of it
+        // once. Every later frame only sends the tiles that changed.
+        memset(widget_pixels, 0, (size_t) widget_w * widget_h * sizeof(*widget_pixels));
+        memset(widget_tiles_dirty, 1, sizeof(widget_tiles_dirty));
+        memset(widget_tiles_used, 0, sizeof(widget_tiles_used));
     }
 
     if (w != NULL)
@@ -206,12 +329,45 @@ unsigned int *I_WidgetCanvas(int *w, int *h)
     return widget_pixels;
 }
 
+// -----------------------------------------------------------------------------
+// I_ClearWidgetCanvas
+//  [PN] Erase last frame's widget text, touching only the tiles that were
+//  actually drawn into. Cleared tiles are marked dirty so the erase reaches
+//  the texture as well - otherwise old glyphs would stay on screen.
+// -----------------------------------------------------------------------------
+
 void I_ClearWidgetCanvas(void)
 {
-    if (widget_pixels != NULL)
+    SDL_Rect runs[WIDGET_MAX_RUNS];
+
+    if (widget_pixels == NULL)
     {
-        memset(widget_pixels, 0, (size_t) widget_w * widget_h * sizeof(*widget_pixels));
+        return;
     }
+
+    const int n = I_WidgetCollectRuns(widget_tiles_used, runs);
+
+    for (int i = 0 ; i < n ; i++)
+    {
+        for (int y = 0 ; y < runs[i].h ; y++)
+        {
+            memset(widget_pixels + (runs[i].y + y) * widget_w + runs[i].x, 0,
+                   (size_t) runs[i].w * sizeof(*widget_pixels));
+        }
+
+        // Mark the erased area as dirty, tile by tile.
+        for (int ty = runs[i].y / WIDGET_TILE_SIZE ;
+             ty <= (runs[i].y + runs[i].h - 1) / WIDGET_TILE_SIZE ; ty++)
+        {
+            for (int tx = runs[i].x / WIDGET_TILE_SIZE ;
+                 tx <= (runs[i].x + runs[i].w - 1) / WIDGET_TILE_SIZE ; tx++)
+            {
+                widget_tiles_dirty[ty * WIDGET_TILES_X + tx] = 1;
+            }
+        }
+    }
+
+    memset(widget_tiles_used, 0, sizeof(widget_tiles_used));
 }
 
 static void I_PresentWidgetCanvas(void)
@@ -229,8 +385,18 @@ static void I_PresentWidgetCanvas(void)
         return;
     }
 
-    SDL_UpdateTexture(widget_texture, NULL, widget_pixels,
-                      widget_w * (int) sizeof(*widget_pixels));
+    // [PN] Upload only the tiles that changed since the last present.
+    SDL_Rect runs[WIDGET_MAX_RUNS];
+    const int n = I_WidgetCollectRuns(widget_tiles_dirty, runs);
+
+    for (int i = 0 ; i < n ; i++)
+    {
+        SDL_UpdateTexture(widget_texture, &runs[i],
+                          widget_pixels + runs[i].y * widget_w + runs[i].x,
+                          widget_w * (int) sizeof(*widget_pixels));
+    }
+
+    memset(widget_tiles_dirty, 0, sizeof(widget_tiles_dirty));
 
     // [PN] Fade out when the menu is drawn on top of the game.
     SDL_SetTextureAlphaMod(widget_texture, (Uint8) widget_alpha);
