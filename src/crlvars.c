@@ -74,6 +74,7 @@ int crl_rewind_timeout = 10;
 // Widgets
 int crl_extended_hud = 1;
 int crl_widget_font = 1;
+int crl_widget_size = 1;
 int crl_widget_playstate = 2;
 int crl_widget_render = 1;
 int crl_widget_maxblink = 1;
@@ -210,6 +211,7 @@ void CRL_BindVariables (GameMission_t mission)
     // Widgets
     M_BindIntVariable("crl_extended_hud",               &crl_extended_hud);
     M_BindIntVariable("crl_widget_font",                &crl_widget_font);
+    M_BindIntVariable("crl_widget_size",                &crl_widget_size);
     M_BindIntVariable("crl_widget_playstate",           &crl_widget_playstate);
     M_BindIntVariable("crl_widget_render",              &crl_widget_render);
     M_BindIntVariable("crl_widget_maxblink",            &crl_widget_maxblink);

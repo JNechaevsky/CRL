@@ -51,3 +51,6 @@ extern const char *lastmessage;
 extern void (*fontfunc) (const char *text, int x, int y, byte *table);
 extern void (*fontcenteredfunc) (const char *text, int y, byte *table);
 extern int (*widthfunc) (const char *string);
+
+extern int FontABaseLump;
+extern int FontBBaseLump;

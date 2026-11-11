@@ -37,6 +37,7 @@
 
 #include "crlcore.h"
 #include "crlvars.h"
+#include "crlfunc.h"
 
 
 #define QUEUESIZE		128
@@ -65,7 +66,8 @@ static char chat_msg[MAXPLAYERS][MESSAGESIZE];
 static char plr_lastmsg[MAXPLAYERS][MESSAGESIZE + 9];  // add in the length of the pre-string
 static byte ChatQueue[QUEUESIZE];
 
-static int FontABaseLump;
+int FontABaseLump;
+int FontBBaseLump;
 
 char *CT_FromPlrText[MAXPLAYERS] = {
     "GREEN:  ",
@@ -128,6 +130,7 @@ void CT_Init (void)
     CT_InitWidgetDrawingFuncs();
 
     FontABaseLump = W_GetNumForName(DEH_String("FONTA_S")) + 1;
+    FontBBaseLump = W_GetNumForName(DEH_String("FONTB_S")) + 1;
 }
 
 // -----------------------------------------------------------------------------
@@ -141,17 +144,19 @@ inline static int  M_StringWidth (const char *text) { return DSDA_StringWidth(te
 
 void CT_InitWidgetDrawingFuncs (void)
 {
+    const int widget = (crl_widget_size >= 2);
+
     if (crl_widget_font)
     {
-        fontfunc = M_WriteText;
-        fontcenteredfunc = M_WriteTextCentered;
-        widthfunc = M_StringWidth;
+        fontfunc         = widget ? CRL_WidgetTextDSDA         : M_WriteText;
+        fontcenteredfunc = widget ? CRL_WidgetTextDSDACentered : M_WriteTextCentered;
+        widthfunc        = M_StringWidth;
     }
     else
     {
-        fontfunc = MN_DrTextA;
-        fontcenteredfunc = MN_DrTextACentered;
-        widthfunc = MN_TextAWidth;
+        fontfunc         = widget ? CRL_WidgetTextPatch         : MN_DrTextA;
+        fontcenteredfunc = widget ? CRL_WidgetTextPatchCentered : MN_DrTextACentered;
+        widthfunc        = MN_TextAWidth;
     }
 }
 

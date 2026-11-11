@@ -93,10 +93,6 @@ boolean CRL_aircontrol = false;
 // [JN] Demo warp from Crispy Doom.
 int demowarp;
 
-// [JN] Make KIS/time widgets translucent while in active Save/Load menu.
-// Primary needed for nicer drawing below save page and date/time lines.
-boolean savemenuactive = false;
-
 
 // =============================================================================
 //

@@ -15,6 +15,7 @@
 // DESCRIPTION:
 //      FluidSynth backend
 
+#include <stdlib.h>
 #include "config.h"
 
 #if !defined(_WIN32) && !defined(__MACOSX__)

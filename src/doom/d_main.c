@@ -302,6 +302,10 @@ static void D_Display (void)
     if (cleanshot_pending)
     post_rendering_hook = R_CleanShotHook;
 
+    // [PN] Refresh widget canvas once per frame, before anything is drawn into it.
+    if (!cleanshot_pending)
+    I_ClearWidgetCanvas();
+
     // do buffered drawing
     switch (gamestate)
     {
@@ -343,16 +347,6 @@ static void D_Display (void)
                 // [JN] Do not draw any CRL widgets if not in game level.
                 if (crl_extended_hud)
                 {
-                    // [crispy] demo timer widget
-                    if (demoplayback && (crl_demo_timer == 1 || crl_demo_timer == 3))
-                    {
-                        CRL_DemoTimer(crl_demo_timerdir ? (deftotaldemotics - defdemotics) : defdemotics);
-                    }
-                    else if (demorecording && (crl_demo_timer == 2 || crl_demo_timer == 3))
-                    {
-                        CRL_DemoTimer(leveltime);
-                    }
-
                     // [JN] Target's health widget.
                     // Actual health values are gathered in G_Ticker.
                     if (crl_widget_health)
@@ -424,6 +418,20 @@ static void D_Display (void)
             if (demoplayback && crl_demo_bar)
             CRL_DemoBar();
 
+            // [crispy] demo timer widget. Lives here rather than in the
+            // GS_LEVEL branch, so it also shows over the intermission.
+            if (gamestate != GS_FINALE)
+            {
+                if (demoplayback && (crl_demo_timer == 1 || crl_demo_timer == 3))
+                {
+                    CRL_DemoTimer(crl_demo_timerdir ? (deftotaldemotics - defdemotics) : defdemotics);
+                }
+                else if (demorecording && (crl_demo_timer == 2 || crl_demo_timer == 3))
+                {
+                    CRL_DemoTimer(leveltime);
+                }
+            }
+
             // [JN] Draw FPS counter, except on finale/text screens.
             if (crl_showfps && gamestate != GS_FINALE)
             CRL_DrawFPS();
@@ -438,6 +446,10 @@ static void D_Display (void)
         // menu is drawn even on top of everything
         M_Drawer();
     }
+
+    // [PN] The widget overlay is composited last, so it has to fade out
+    // while the menu covers the game - otherwise HUD text floats above it.
+    I_SetWidgetCanvasAlpha(menuactive ? 80 : 255);
 
     // send out any new accumulation
     NetUpdate();

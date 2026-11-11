@@ -143,17 +143,19 @@ void CT_Init (void)
 
 void CT_InitWidgetDrawingFuncs (void)
 {
+    const int widget = (crl_widget_size >= 2);
+
     if (crl_widget_font)
     {
-        fontfunc = DSDA_DrawText;
-        fontcenteredfunc = DSDA_DrawTextCentered;
-        widthfunc = DSDA_StringWidth;
+        fontfunc         = widget ? CRL_WidgetTextDSDA         : DSDA_DrawText;
+        fontcenteredfunc = widget ? CRL_WidgetTextDSDACentered : DSDA_DrawTextCentered;
+        widthfunc        = DSDA_StringWidth;
     }
     else
     {
-        fontfunc = M_WriteText;
-        fontcenteredfunc = M_WriteTextCentered;
-        widthfunc = M_StringWidth;
+        fontfunc         = widget ? CRL_WidgetTextPatch         : M_WriteText;
+        fontcenteredfunc = widget ? CRL_WidgetTextPatchCentered : M_WriteTextCentered;
+        widthfunc        = M_StringWidth;
     }
 }
 

@@ -57,6 +57,21 @@ void I_RenderReadPixels (byte **data, int *w, int *h);
 void I_SetPalette (const byte* doompalette);
 int I_GetPaletteIndex(int r, int g, int b);
 
+// [PN] Widget overlay canvas (crl_widget_size 2..4 = 75/50/25 percent):
+// fixed 4x screen ARGB buffer, NULL when off. 0/1 = legacy in-buffer path.
+#define WIDGET_CANVAS_FACTOR 4
+unsigned int *I_WidgetCanvas(int *w, int *h);
+int I_WidgetPixelScale(void); // [PN] canvas px per glyph px: 3/2/1, 0 = off
+void I_ClearWidgetCanvas(void);
+unsigned int I_GetPaletteRGB(int index);
+
+// [PN] Mark the canvas area a glyph occupies, so only changed tiles are
+// cleared and uploaded instead of the whole 4x overlay canvas.
+void I_MarkWidgetTiles(int x, int y, int w, int h);
+
+// [PN] Overlay opacity, so lower layers can be covered by the menu.
+void I_SetWidgetCanvasAlpha(int alpha);
+
 void I_FinishUpdate (void);
 
 void I_ReadScreen (pixel_t* scr);

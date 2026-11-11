@@ -20,18 +20,33 @@
 
 #include <stdio.h>
 #include <math.h>
+#include <ctype.h>
 
 #include "i_timer.h"
+#include "i_swap.h"
+#include "i_video.h"
 #include "v_trans.h"
 #include "v_video.h"
 #include "doomstat.h"
 #include "d_englsh.h"
+#include "dsda_font.h"
 #include "mn_menu.h"
 #include "m_misc.h"
 #include "p_local.h"
 
 #include "crlvars.h"
 #include "crlfunc.h"
+
+// [JN] Widget anchor helpers, defined below with the widget text drawers.
+static void WidgetTextPatchAt (int cx, int cy, const char *string, byte *table);
+static void WidgetTextDSDAAt (int cx, int cy, const char *text, byte *table);
+static void CRL_WidgetTextPair (int x_game, int y_game, int right_anchored,
+                                int bottom_anchor,
+                                const char *s1, byte *c1,
+                                const char *s2, byte *c2);
+static void CRL_WidgetTextColumns (int label_right, int y_game,
+                                   const char *s1, byte *c1,
+                                   const char *s2, byte *c2);
 
 
 // =============================================================================
@@ -517,9 +532,6 @@ void CRL_StatDrawer (void)
     if (!crl_extended_hud)
         return;
 
-    // Apply translucency while Save/Load menu is active.
-    dp_translucent = savemenuactive;
-
     // Player coords
     if (crl_widget_coords == 1
     || (crl_widget_coords == 2 && automapactive))
@@ -822,40 +834,38 @@ void CRL_StatDrawer (void)
         {
             char invl[4];
 
-            fontfunc(292 - widthfunc("INVL:"), 106, "INVL:", cr[CR_GRAY]);
             M_snprintf(invl, 4, "%d", CRL_invul_counter);
-            fontfunc(296, 106, invl, CRL_PowerupColor(CRL_invul_counter, 30));
+            CRL_WidgetTextColumns(292, 106, "INVL:", cr[CR_GRAY],
+                                  invl, CRL_PowerupColor(CRL_invul_counter, 30));
         }
 
         if (CRL_invis_counter)
         {
             char invs[4];
 
-            fontfunc(292 - widthfunc("INVS:"), 115, "INVS:", cr[CR_GRAY]);
             M_snprintf(invs, 4, "%d", CRL_invis_counter);
-            fontfunc(296, 115, invs, CRL_PowerupColor(CRL_invis_counter, 60));
+            CRL_WidgetTextColumns(292, 115, "INVS:", cr[CR_GRAY],
+                                  invs, CRL_PowerupColor(CRL_invis_counter, 60));
         }
 
         if (CRL_rad_counter)
         {
             char rad[4];
 
-            fontfunc(292 - widthfunc("RAD:"), 124, "RAD:", cr[CR_GRAY]);
             M_snprintf(rad, 4, "%d", CRL_rad_counter);
-            fontfunc(296, 124, rad, CRL_PowerupColor(CRL_rad_counter, 60));
+            CRL_WidgetTextColumns(292, 124, "RAD:", cr[CR_GRAY],
+                                  rad, CRL_PowerupColor(CRL_rad_counter, 60));
         }
 
         if (CRL_amp_counter)
         {
             char amp[4];
 
-            fontfunc(292 - widthfunc("AMP:"), 133, "AMP:", cr[CR_GRAY]);
             M_snprintf(amp, 4, "%d", CRL_amp_counter);
-            fontfunc(296, 133, amp, CRL_PowerupColor(CRL_amp_counter, 120));
+            CRL_WidgetTextColumns(292, 133, "AMP:", cr[CR_GRAY],
+                                  amp, CRL_PowerupColor(CRL_amp_counter, 120));
         }
     }
-
-    dp_translucent = false;
 }
 
 // -----------------------------------------------------------------------------
@@ -868,23 +878,24 @@ void CRL_StatDrawer (void)
 void CRL_DrawFPS (void)
 {
     char fps[8];
-    char fps_str[4];
+    char fps_str[8];
     int yy = 9;
 
     // [JN] If demo timer is active and running, shift FPS widget one line down.
+    // [PN] The drop is scaled with the widget size, so FPS always sits exactly
+    // one shrunken line below the timer instead of drifting away from it.
     if ((demoplayback && (crl_demo_timer == 1 || crl_demo_timer == 3))
     ||  (demorecording && (crl_demo_timer == 2 || crl_demo_timer == 3)))
     {
-        yy += 9;
+        const int k = I_WidgetPixelScale();
+        yy += k ? 9 * k / WIDGET_CANVAS_FACTOR : 9;
     }
 
     sprintf(fps, "%d", CRL_fps);
-    sprintf(fps_str, "FPS");
+    sprintf(fps_str, " FPS");
 
-    fontfunc(SCREENWIDTH - 11 - widthfunc(fps) 
-                              - widthfunc(fps_str), yy, fps, cr[CR_GRAY]);
-
-    fontfunc(SCREENWIDTH - 7 - widthfunc(fps_str), yy, "FPS", cr[CR_GRAY]);
+    // [PN] One shrink-locked pair pinned to its right edge.
+    CRL_WidgetTextPair(SCREENWIDTH - 7, yy, 1, 0, fps, cr[CR_GRAY], fps_str, cr[CR_GRAY]);
 }
 
 // =============================================================================
@@ -925,7 +936,9 @@ void CRL_DemoTimer (const int time)
 
     const int x = crl_widget_font ? 15 : 0;
     const int xx = 237 + x + (hours > 0 ? 0 : 20);
-    fontfunc(xx, 9, n, cr[CR_LIGHTGRAY]);
+
+    // [PN] Right edge pinned, so the timer stays put at any widget scale.
+    CRL_WidgetTextPair(xx + widthfunc(n), 9, 1, 0, n, cr[CR_LIGHTGRAY], NULL, NULL);
 }
 
 // -----------------------------------------------------------------------------
@@ -977,10 +990,10 @@ void CRL_DrawTargetsHealth (void)
         return;  // No tics or target is dead, nothing to display.
     }
 
-    // Apply translucency while Save/Load menu is active.
-    dp_translucent = savemenuactive;
-
     const int yy = crl_widget_speed ? 9 : 0;
+    // [JN] Row gap shrinks with the widget scale, like the stat block rows.
+    const int k = I_WidgetPixelScale();
+    const int gap = k ? 9 * k / WIDGET_CANVAS_FACTOR : 9;
     sprintf(str, "%d/%d", player->targetsheath, player->targetsmaxheath);
     color = CRL_HealthColor(player->targetsheath, player->targetsmaxheath);
 
@@ -991,18 +1004,16 @@ void CRL_DrawTargetsHealth (void)
             break;
         case 2:  // Top + name
             fontcenteredfunc(9, player->targetsname, color);
-            fontcenteredfunc(18, str, color);
+            fontcenteredfunc(9 + gap, str, color);
             break;
         case 3:  // Bottom
             fontcenteredfunc(152 - yy, str, color);
             break;
         case 4:  // Bottom + name
-            fontcenteredfunc(144 - yy, player->targetsname, color);
+            fontcenteredfunc(152 - yy - gap, player->targetsname, color);
             fontcenteredfunc(152 - yy, str, color);
             break;
     }
-
-    dp_translucent = false;
 }
 
 // -----------------------------------------------------------------------------
@@ -1018,9 +1029,6 @@ void CRL_DrawPlayerSpeed (void)
     static double speed = 0;
     const player_t *player = &players[displayplayer];
 
-    // Apply translucency while Save/Load menu is active.
-    dp_translucent = savemenuactive;
-
     // Calculate speed only every game tic, not every frame.
     if (oldgametic < gametic)
     {
@@ -1033,13 +1041,10 @@ void CRL_DrawPlayerSpeed (void)
     M_snprintf(str, sizeof(str), "SPD:");
     M_snprintf(val, sizeof(val), " %.0f", speed);
 
-    const int x_val = (SCREENWIDTH / 2);
-    const int x_str = x_val - widthfunc(str);
-
-    fontfunc(x_str, 151, str, CRL_WidgetColor(widget_speed_str));
-    fontfunc(x_val, 151, val, CRL_WidgetColor(widget_speed_val));
-
-    dp_translucent = false;
+    // [JN] One shrink-locked pair, centered at any widget scale.
+    CRL_WidgetTextPair(160 /*SCREENWIDTH / 2*/, 151, 0, 1, str,
+                       CRL_WidgetColor(widget_speed_str),
+                       val, CRL_WidgetColor(widget_speed_val));
 }
 
 // =============================================================================
@@ -1152,4 +1157,252 @@ void CRL_Give_Powerup (const powertype_t power)
         default:
             break;
     }
+}
+
+// -----------------------------------------------------------------------------
+// [PN] Widget-overlay text drawers. The canvas is a fixed 4x screen size and
+// I_WidgetPixelScale() picks how many canvas pixels one glyph pixel becomes
+// (2/3/4 options = 75/50/25 percent; 0/1 keep the legacy in-buffer path).
+// Origins and advances use that same scale, so the full-size layout is
+// reproduced as one proportionally smaller whole, anchored bottom-left:
+// the widget block keeps its full-size bottom edge while shrinking.
+// -----------------------------------------------------------------------------
+
+// [JN] Bottom edge of the widget block in 320-space: the K/I/S line
+// (or TIME when K is off) sits here, 9 px higher while automap is active.
+// [PN] Anchored to the last row, so TIME and K/I/S stay just above the
+// status bar at any widget size.
+#define CRL_WIDGET_GLYPH_H 7
+
+static int CRL_WidgetAnchorY (void)
+{
+    return 160 - (automapactive ? 9 : 0) + CRL_WIDGET_GLYPH_H;
+}
+
+// [JN] Canvas y for a left-column widget row: rows at or above the block
+// anchor shrink up to it, rows below (chat lines) keep their absolute spot.
+static int CRL_WidgetRowY (int y_game)
+{
+    const int k = I_WidgetPixelScale();
+    const int a = CRL_WidgetAnchorY();
+
+    return (y_game <= a) ? y_game * k + (WIDGET_CANVAS_FACTOR - k) * a
+                         : y_game * WIDGET_CANVAS_FACTOR;
+}
+
+// [PN] Draw a widget string in canvas coordinates with the active font.
+static void WidgetTextAt (int cx, int cy, const char *s, byte *table)
+{
+    if (crl_widget_font)
+    {
+        WidgetTextDSDAAt(cx, cy, s, table);
+    }
+    else
+    {
+        WidgetTextPatchAt(cx, cy, s, table);
+    }
+}
+
+static void WidgetTextPatchAt (int cx, int cy, const char *string, byte *table)
+{
+    const int k = I_WidgetPixelScale();
+    const int start_cx = cx; // [PN] line start for CR and LF
+    int canvas_w;
+
+    I_WidgetCanvas(&canvas_w, NULL);
+
+    dp_translation = table;
+
+    for ( ; *string ; string++)
+    {
+        int c = *string;
+
+        if (c == '\n')
+        {
+            cx = start_cx;
+            cy += 12 * k;
+            continue;
+        }
+
+        if (c == '\r')
+        {
+            cx = start_cx;
+            cy += 9 * k;
+            continue;
+        }
+
+        c = toupper(c) - HU_FONTSTART;
+
+        if (c < 0 || c >= HU_FONTSIZE)
+        {
+            cx += 4 * k;
+            continue;
+        }
+
+        const int w = SHORT (hu_font[c]->width);
+
+        if (cx + w * k > canvas_w)
+        {
+            break;
+        }
+
+        V_DrawPatchWidget (cx, cy, hu_font[c], true);
+        cx += w * k;
+    }
+
+    dp_translation = NULL;
+}
+
+void CRL_WidgetTextPatch (int x, int y, const char *string, byte *table)
+{
+    const int k = I_WidgetPixelScale();
+
+    if (k == 0)
+    {
+        M_WriteText(x, y, string, table); // [PN] overlay off: legacy path
+        return;
+    }
+
+    WidgetTextPatchAt(x * k, CRL_WidgetRowY(y), string, table);
+}
+
+void CRL_WidgetTextPatchCentered (int y, const char *string, byte *table)
+{
+    int canvas_w;
+
+    if (I_WidgetPixelScale() == 0 || I_WidgetCanvas(&canvas_w, NULL) == NULL)
+    {
+        M_WriteTextCentered(y, string, table);
+        return;
+    }
+
+    WidgetTextPatchAt((canvas_w - widthfunc(string) * I_WidgetPixelScale()) / 2,
+                      y * WIDGET_CANVAS_FACTOR, string, table);
+}
+
+static void WidgetTextDSDAAt (int cx, int cy, const char *text, byte *table)
+{
+    const int k = I_WidgetPixelScale();
+
+    dp_translation = table;
+
+    for (const char *ch = text; *ch; ch++)
+    {
+        const int c = toupper((unsigned char) *ch);
+        const patch_t *patch;
+
+        if (c < 33 || c > 126)
+        {
+            cx += 4 * k;  // Space or non-printable character
+            continue;
+        }
+
+        patch = dsda_font[c - HU_FONTSTART];
+
+        V_DrawPatchWidget (cx, cy, patch, false);
+        cx += patch->width * k;
+    }
+
+    dp_translation = NULL;
+}
+
+void CRL_WidgetTextDSDA (int x, int y, const char *text, byte *table)
+{
+    const int k = I_WidgetPixelScale();
+
+    if (k == 0)
+    {
+        DSDA_DrawText(x, y, text, table); // [PN] overlay off: legacy path
+        return;
+    }
+
+    WidgetTextDSDAAt(x * k, CRL_WidgetRowY(y), text, table);
+}
+
+void CRL_WidgetTextDSDACentered (int y, const char *text, byte *table)
+{
+    int canvas_w;
+
+    if (I_WidgetPixelScale() == 0 || I_WidgetCanvas(&canvas_w, NULL) == NULL)
+    {
+        DSDA_DrawTextCentered(y, text, table);
+        return;
+    }
+
+    WidgetTextDSDAAt((canvas_w - DSDA_StringWidth(text) * I_WidgetPixelScale()) / 2,
+                     y * WIDGET_CANVAS_FACTOR, text, table);
+}
+
+// -----------------------------------------------------------------------------
+// CRL_WidgetTextPair
+//  [JN] Draw "label value" as one shrink-locked widget: the value follows
+//  the label at the scaled advance, so the pair never scatters. x_game is
+//  the pair center, or its right edge when right_anchored.
+// -----------------------------------------------------------------------------
+
+static void CRL_WidgetTextPair (int x_game, int y_game, int right_anchored,
+                                int bottom_anchor,
+                                const char *s1, byte *c1,
+                                const char *s2, byte *c2)
+{
+    const int k = I_WidgetPixelScale();
+    const int w1 = widthfunc(s1);
+    const int total = w1 + (s2 ? widthfunc(s2) : 0);
+
+    if (k == 0)
+    {
+        const int x = right_anchored ? x_game - total
+                                     : x_game - total / 2;
+
+        fontfunc(x, y_game, s1, c1);
+
+        if (s2)
+        {
+            fontfunc(x + w1, y_game, s2, c2);
+        }
+        return;
+    }
+
+    const int cx = right_anchored ? x_game * WIDGET_CANVAS_FACTOR - total * k
+                                  : x_game * WIDGET_CANVAS_FACTOR - total * k / 2;
+    // [PN] Top-pinned widgets (FPS, demo timer) keep their absolute y;
+    // block widgets shrink toward the bottom anchor like the rest.
+    const int cy = bottom_anchor ? CRL_WidgetRowY(y_game)
+                                 : y_game * WIDGET_CANVAS_FACTOR;
+
+    WidgetTextAt(cx, cy, s1, c1);
+
+    if (s2)
+    {
+        WidgetTextAt(cx + w1 * k, cy, s2, c2);
+    }
+}
+
+// -----------------------------------------------------------------------------
+// CRL_WidgetTextColumns
+//  [JN] Two-column widget:
+//   s1 right-aligns its edge to label_right,
+//   s2 left-aligns 4 px later; both columns stay pinned at any widget scale.
+// -----------------------------------------------------------------------------
+
+static void CRL_WidgetTextColumns (int label_right, int y_game,
+                                   const char *s1, byte *c1,
+                                   const char *s2, byte *c2)
+{
+    const int k = I_WidgetPixelScale();
+    const int w1 = widthfunc(s1);
+
+    if (k == 0)
+    {
+        fontfunc(label_right - w1, y_game, s1, c1);
+        fontfunc(label_right + 4, y_game, s2, c2);
+        return;
+    }
+
+    const int cy = CRL_WidgetRowY(y_game);
+    const int lx = label_right * WIDGET_CANVAS_FACTOR - w1 * k;
+    const int rx = (label_right + 4) * WIDGET_CANVAS_FACTOR;
+
+    WidgetTextAt(lx, cy, s1, c1);
+    WidgetTextAt(rx, cy, s2, c2);
 }
