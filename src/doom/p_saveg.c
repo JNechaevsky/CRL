@@ -2435,7 +2435,7 @@ void P_ArchiveAutomap (void)
     saveg_write8(AUTOMAP_SAVE_VERSION);
 
     saveg_write8(automapactive);
-    saveg_write32(followplayer);
+    saveg_write32(am_followplayer);
     saveg_write64(m_x);
     saveg_write64(m_y);
     saveg_write32(AM_UnArchiveScaleMtof());
@@ -2531,7 +2531,7 @@ void P_UnArchiveAutomap (void)
         AM_Start();
     }
 
-    followplayer = saveg_read32();
+    am_followplayer = saveg_read32();
     m_x = saveg_read64();
     m_y = saveg_read64();
     AM_ArchiveScaleMtof(saveg_read32());

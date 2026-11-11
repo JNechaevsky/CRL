@@ -270,7 +270,7 @@ static void D_Display (void)
         I_UpdateFracTic();
 
         // [JN] Prevent player rotation while automap panning by mouse.
-        if (!automapactive || !crl_automap_mouse_pan || followplayer)
+        if (!automapactive || !crl_automap_mouse_pan || am_followplayer)
         {
             I_StartDisplay();
             G_FastResponder();
@@ -606,7 +606,7 @@ static boolean D_GrabMouseCallback(void)
     // [JN] CRL - ensure that cursor won't appear while
     // active automap paining by mouse. But still show in menu, though,
     // since it will overtako mouse contols.
-    if (!menuactive && automapactive && !followplayer && crl_automap_mouse_pan)
+    if (!menuactive && automapactive && !am_followplayer && crl_automap_mouse_pan)
         return true;
 
     // when menu is active or game is paused, release the mouse 

@@ -293,7 +293,7 @@ static patch_t *marknums[10]; // numbers used for marking by the automap
 mpoint_t markpoints[AM_NUMMARKPOINTS]; // where the points are
 int markpointnum = 0; // next point to be assigned
 
-int followplayer = 1; // specifies whether to follow the player around
+int am_followplayer = 1; // specifies whether to follow the player around
 // [PN] Accumulated automap pan delta from mouse movement
 static int mouse_pan_x = 0;
 static int mouse_pan_y = 0;
@@ -421,7 +421,7 @@ static void AM_restoreScaleAndLoc (void)
     m_w = old_m_w;
     m_h = old_m_h;
 
-    if (!followplayer)
+    if (!am_followplayer)
     {
         m_x = old_m_x;
         m_y = old_m_y;
@@ -471,7 +471,7 @@ fixed_t AM_UnArchiveScaleMtof (void)
 
 static void AM_addMark (void)
 {
-    if (!followplayer)
+    if (!am_followplayer)
     {
         markpoints[markpointnum].x = m_x + m_w/2;
         markpoints[markpointnum].y = m_y + m_h/2;
@@ -541,7 +541,7 @@ static void AM_changeWindowLoc (void)
     static fixed_t prev_frac = 0;
 
     if (m_paninc.x || m_paninc.y)
-        followplayer = 0;
+        am_followplayer = 0;
 
     // Compute frame delta
     const fixed_t delta = (crl_uncapped_fps && realleveltime > oldleveltime)
@@ -1173,7 +1173,7 @@ boolean AM_Responder (const event_t *ev)
             rc = true;
         }
         else // [PN] Move the map window by using the mouse
-        if (!followplayer && crl_automap_mouse_pan && (ev->data2 || ev->data3))
+        if (!am_followplayer && crl_automap_mouse_pan && (ev->data2 || ev->data3))
         {
             // [PN] Accumulate raw screen-space movement with a sub-pixel
             // carry: slow, smooth motion used to floor to 0 through the
@@ -1201,7 +1201,7 @@ boolean AM_Responder (const event_t *ev)
 
         if (key == key_map_east)          // pan right
         {
-            if (!followplayer)
+            if (!am_followplayer)
             {
                 m_paninc.x = FTOM(f_paninc);
             }
@@ -1212,7 +1212,7 @@ boolean AM_Responder (const event_t *ev)
         }
         else if (key == key_map_west)     // pan left
         {
-            if (!followplayer)
+            if (!am_followplayer)
             {
                 m_paninc.x = -FTOM(f_paninc);
             }
@@ -1223,7 +1223,7 @@ boolean AM_Responder (const event_t *ev)
         }
         else if (key == key_map_north)    // pan up
         {
-            if (!followplayer)
+            if (!am_followplayer)
             {
                 m_paninc.y = FTOM(f_paninc);
             }
@@ -1234,7 +1234,7 @@ boolean AM_Responder (const event_t *ev)
         }
         else if (key == key_map_south)    // pan down
         {
-            if (!followplayer)
+            if (!am_followplayer)
             {
                 m_paninc.y = -FTOM(f_paninc);
             }
@@ -1276,9 +1276,9 @@ boolean AM_Responder (const event_t *ev)
         }
         else if (key == key_map_follow || key == key_map_follow2)
         {
-            followplayer = !followplayer;
+            am_followplayer = !am_followplayer;
 
-            CRL_SetMessage(plr, DEH_String(followplayer ?
+            CRL_SetMessage(plr, DEH_String(am_followplayer ?
                            AMSTR_FOLLOWON : AMSTR_FOLLOWOFF), false, NULL);
         }
         else if (key == key_map_grid || key == key_map_grid2)
@@ -1357,7 +1357,7 @@ boolean AM_Responder (const event_t *ev)
                 CRL_SetMessage(plr, CRL_MAPTELEPORT_NA_R, false, NULL);
             }
             
-            if (followplayer)
+            if (am_followplayer)
             {
                 // [JN] No cursor in follow mode, so inform that teleport is not possible.
                 CRL_SetMessage(plr, CRL_MAPTELEPORT_NA_F, false, NULL);
@@ -1411,28 +1411,28 @@ boolean AM_Responder (const event_t *ev)
 
         if (key == key_map_east)
         {
-            if (!followplayer)
+            if (!am_followplayer)
             {
                 m_paninc.x = 0;
             }
         }
         else if (key == key_map_west)
         {
-            if (!followplayer)
+            if (!am_followplayer)
             {
                 m_paninc.x = 0;
             }
         }
         else if (key == key_map_north)
         {
-            if (!followplayer)
+            if (!am_followplayer)
             {
                 m_paninc.y = 0;
             }
         }
         else if (key == key_map_south)
         {
-            if (!followplayer)
+            if (!am_followplayer)
             {
                 m_paninc.y = 0;
             }
@@ -1504,11 +1504,11 @@ static void AM_changeWindowScale (void)
 }
 
 // -----------------------------------------------------------------------------
-// AM_doFollowPlayer
+// am_AM_doFollowPlayer
 // Turn on follow mode - the map scrolls opposite to player motion.
 // -----------------------------------------------------------------------------
 
-static void AM_doFollowPlayer (void)
+static void am_AM_doFollowPlayer (void)
 {
     m_x = FTOM(MTOF(viewx >> FRACTOMAPBITS)) - m_w/2;
     m_y = FTOM(MTOF(viewy >> FRACTOMAPBITS)) - m_h/2;
@@ -2388,7 +2388,7 @@ static void AM_rotate (int64_t *x, int64_t *y, angle_t a)
 static void AM_rotatePoint (mpoint_t *pt)
 {
     int64_t tmpx;
-    const angle_t actualangle = ((!(!followplayer && crl_automap_overlay)) ?
+    const angle_t actualangle = ((!(!am_followplayer && crl_automap_overlay)) ?
                                  ANG90 - viewangle : mapangle) >> ANGLETOFINESHIFT;
 
     pt->x -= mapcenter.x;
@@ -2486,14 +2486,21 @@ static void AM_drawPlayers (void)
                                      crl_automap_rotate ? plr->mo->angle : viewangle;
 
         // [JN] Interpolate player arrow.
-        pt.x = viewx >> FRACTOMAPBITS;
-        pt.y = viewy >> FRACTOMAPBITS;
-
-        // [JN] Prevent arrow jitter.
-        if (curr_mtof_zoommul != mtof_zoommul)
+        if (am_followplayer)
         {
-            pt.x = FTOM(MTOF(pt.x));
-            pt.y = FTOM(MTOF(pt.y));
+            // [PN] Use the centre the map lines are drawn from. Taken from
+            // viewx/viewy, the arrow is re-quantised through a newer scale
+            // than am_AM_doFollowPlayer used, and twitches while zooming.
+            pt.x = m_x + m_w/2;
+            pt.y = m_y + m_h/2;
+        }
+        else
+        {
+            // [PN] Free-pan mode: the arrow is a plain map-space point. The
+            // old MTOF/FTOM round-trip re-quantised it to the current scale
+            // grid, and while zooming that rounding error swings by a pixel.
+            pt.x = viewx >> FRACTOMAPBITS;
+            pt.y = viewy >> FRACTOMAPBITS;
         }
 
         if (crl_automap_rotate)
@@ -2866,9 +2873,9 @@ void AM_Drawer (void)
     }
 
     // [JN] Moved from AM_Ticker for drawing interpolation.
-    if (followplayer)
+    if (am_followplayer)
     {
-        AM_doFollowPlayer();
+        am_AM_doFollowPlayer();
     }
 
     // Change the zoom if necessary.
@@ -2898,7 +2905,7 @@ void AM_Drawer (void)
         mapcenter.y = m_y + m_h / 2;
         // [crispy] keep the map static in overlay mode
         // if not following the player
-        if (!(!followplayer && crl_automap_overlay))
+        if (!(!am_followplayer && crl_automap_overlay))
         {
             mapangle = ANG90 - plr->mo->angle;
         }
@@ -2939,7 +2946,7 @@ void AM_Drawer (void)
     }
 
     // [JN] Do not draw in following mode.
-    if (!followplayer)
+    if (!am_followplayer)
     {
         AM_drawCrosshair();
     }

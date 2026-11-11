@@ -2696,14 +2696,21 @@ static void AM_drawPlayers (void)
                                      crl_automap_rotate ? plr->mo->angle : viewangle;
 
         // [JN] Interpolate player arrow.
-        pt.x = viewx >> FRACTOMAPBITS;
-        pt.y = viewy >> FRACTOMAPBITS;
-
-        // [JN] Prevent arrow jitter.
-        if (curr_mtof_zoommul != mtof_zoommul)
+        if (am_followplayer)
         {
-            pt.x = FTOM(MTOF(pt.x));
-            pt.y = FTOM(MTOF(pt.y));
+            // [PN] Use the centre the map lines are drawn from. Taken from
+            // viewx/viewy, the arrow is re-quantised through a newer scale
+            // than AM_doFollowPlayer used, and twitches while zooming.
+            pt.x = m_x + m_w/2;
+            pt.y = m_y + m_h/2;
+        }
+        else
+        {
+            // [PN] Free-pan mode: the arrow is a plain map-space point. The
+            // old MTOF/FTOM round-trip re-quantised it to the current scale
+            // grid, and while zooming that rounding error swings by a pixel.
+            pt.x = viewx >> FRACTOMAPBITS;
+            pt.y = viewy >> FRACTOMAPBITS;
         }
 
         if (crl_automap_rotate)

@@ -303,7 +303,7 @@ static void ST_CheatRevealThing (const int flags, const boolean alive_only, int 
 
     if (selected)
     {
-        followplayer = 0;
+        am_followplayer = 0;
         AM_SetMapCenter(selected->x, selected->y);
         *last_index = selected_index;
     }
@@ -399,7 +399,7 @@ static void ST_CheatRevealSecret (void)
         && sectors[i].lines[0] != NULL
         && sectors[i].lines[0]->v1 != NULL)
         {
-            followplayer = 0;
+            am_followplayer = 0;
             AM_SetMapCenter(sectors[i].lines[0]->v1->x, sectors[i].lines[0]->v1->y);
             last_secret = i;
             break;
