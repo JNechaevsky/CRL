@@ -75,8 +75,6 @@ static void I_ApplyTitleBarColor (void)
     typedef HRESULT (WINAPI *dwm_set_t)(HWND, DWORD, LPCVOID, DWORD);
     static dwm_set_t set_attr;
     SDL_SysWMinfo info;
-    HKEY key;
-    DWORD light = 1, size = sizeof(light);
     HWND hwnd;
 
     SDL_VERSION(&info.version);
@@ -99,17 +97,7 @@ static void I_ApplyTitleBarColor (void)
 
     hwnd = info.info.win.window;
 
-    // AppsUseLightTheme: 1 = light, 0 = dark. Missing key (XP) keeps it light.
-    if (RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\"
-                      L"CurrentVersion\\Themes\\Personalize", 0,
-                      KEY_QUERY_VALUE, &key) == ERROR_SUCCESS)
-    {
-        RegQueryValueExW(key, L"AppsUseLightTheme", NULL, NULL,
-                         (LPBYTE) &light, &size);
-        RegCloseKey(key);
-    }
-
-    const BOOL dark = (light == 0);
+    const BOOL dark = I_SystemUsesDarkTheme();
 
     // 20 on Windows 10 2004 and later, 19 on older builds.
     if (FAILED(set_attr(hwnd, 20, &dark, sizeof(dark))))
