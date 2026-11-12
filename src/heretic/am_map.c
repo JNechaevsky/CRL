@@ -1608,8 +1608,12 @@ static void AM_changeWindowScale (void)
 
 static void AM_doFollowPlayer (void)
 {
-    m_x = FTOM(MTOF(viewx >> FRACTOMAPBITS)) - m_w/2;
-    m_y = FTOM(MTOF(viewy >> FRACTOMAPBITS)) - m_h/2;
+    // [PN] Follow the interpolated view directly. The old MTOF/FTOM round
+    // trip re-quantised the centre to whole screen pixels on every frame,
+    // and since that rounding shifts as the scale changes, the whole map
+    // trembled by a pixel while zooming.
+    m_x = (viewx >> FRACTOMAPBITS) - m_w/2;
+    m_y = (viewy >> FRACTOMAPBITS) - m_h/2;
 
     m_x2 = m_x + m_w;
     m_y2 = m_y + m_h;
