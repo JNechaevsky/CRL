@@ -37,6 +37,7 @@ extern int mouse_threshold;
 extern float mouse_acceleration_y; // [crispy]
 extern int mouse_threshold_y; // [crispy]
 extern int mouse_y_invert; // [crispy]
+extern int mouse_strafe_divisor;
 //extern int novert; // [crispy]
 extern int SDL_mouseButton; // [JN] Catch mouse button number to provide into mouse binding menu.
 extern int runcentering; // [crispy]
@@ -44,6 +45,7 @@ extern int runcentering; // [crispy]
 // [crispy]
 double I_AccelerateMouse(int val);
 double I_AccelerateMouseY(int val);
+int I_MouseStrafeDivisor(void);
 
 void I_BindStrifeInputVariables(void); // [crispy]
 void I_BindInputVariables(void);

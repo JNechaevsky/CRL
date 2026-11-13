@@ -619,6 +619,7 @@ static void M_CRL_Controls_Sensitivity (int choice);
 static void M_CRL_Controls_Sensitivity_y (int choice);
 static void M_CRL_Controls_Acceleration (int choice);
 static void M_CRL_Controls_Threshold (int choice);
+static void M_CRL_Controls_StrafeDivisor (int choice);
 static void M_CRL_Controls_NoVert (int choice);
 static void M_CRL_Controls_DblClck (int choice);
 
@@ -1826,6 +1827,7 @@ static menuitem_t CRLMenu_Controls[]=
     { M_SKIP, "", 0, '\0' },
     { M_MUL1, "ACCELERATION",                 M_CRL_Controls_Acceleration, 'a'},
     { M_MUL1, "ACCELERATION THRESHOLD",       M_CRL_Controls_Threshold,    'a'},
+    { M_MUL1, "MOUSE STRAFE DIVISOR",         M_CRL_Controls_StrafeDivisor, 'm'},
     { M_MUL1, "VERTICAL MOUSE MOVEMENT",      M_CRL_Controls_NoVert,       'v'},
     { M_MUL1, "DOUBLE CLICK ACTS AS \"USE\"", M_CRL_Controls_DblClck,      'd'},
 };
@@ -1876,15 +1878,20 @@ static void M_DrawCRL_Controls (void)
     M_WriteText (M_ItemRightAlign(str), 106, str,
                  M_Item_Glow(10, mouse_threshold == 0 ? GLOW_DARKRED : GLOW_UNCOLORED));
 
+    // Mouse strafe divisor
+    sprintf(str,"%d", mouse_strafe_divisor);
+    M_WriteText (M_ItemRightAlign(str), 115, str,
+                 M_Item_Glow(11, mouse_strafe_divisor == 1 ? GLOW_DARKRED : GLOW_UNCOLORED));
+
     // Vertical mouse movement
     sprintf(str, novert ? "OFF" : "ON");
-    M_WriteText (M_ItemRightAlign(str), 115, str,
-                 M_Item_Glow(11, novert ? GLOW_DARKRED : GLOW_GREEN));
+    M_WriteText (M_ItemRightAlign(str), 124, str,
+                 M_Item_Glow(12, novert ? GLOW_DARKRED : GLOW_GREEN));
 
     // Double click acts as "use"
     sprintf(str, dclick_use ? "ON" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 124, str,
-                 M_Item_Glow(12, dclick_use ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (M_ItemRightAlign(str), 133, str,
+                 M_Item_Glow(13, dclick_use ? GLOW_GREEN : GLOW_DARKRED));
 }
 
 static void M_CRL_Controls_Sensitivity (int choice)
@@ -1907,6 +1914,11 @@ static void M_CRL_Controls_Acceleration (int choice)
 static void M_CRL_Controls_Threshold (int choice)
 {
     mouse_threshold = M_INT_Slider(mouse_threshold, 0, 32, choice, true);
+}
+
+static void M_CRL_Controls_StrafeDivisor (int choice)
+{
+    mouse_strafe_divisor = M_INT_Slider(mouse_strafe_divisor, 1, 255, choice, true);
 }
 
 static void M_CRL_Controls_NoVert (int choice)

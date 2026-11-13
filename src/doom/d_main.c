@@ -548,6 +548,7 @@ static void D_BindVariables(void)
 
     M_BindIntVariable("mouse_sensitivity",      &mouseSensitivity);
     M_BindIntVariable("mouse_sensitivity_y",    &mouse_sensitivity_y);
+    M_BindIntVariable("mouse_strafe_divisor",   &mouse_strafe_divisor);
     M_BindIntVariable("sfx_volume",             &sfxVolume);
     M_BindIntVariable("music_volume",           &musicVolume);
     M_BindIntVariable("show_messages",          &showMessages);

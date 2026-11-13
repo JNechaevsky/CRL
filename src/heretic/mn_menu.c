@@ -448,6 +448,7 @@ static void DrawCRLControls (void);
 static void CRL_Controls_Sensivity_y(int option);
 static void CRL_Controls_Acceleration (int option);
 static void CRL_Controls_Threshold (int option);
+static void CRL_Controls_StrafeDivisor (int option);
 static void CRL_Controls_MLook (int option);
 static void CRL_Controls_NoVert (int option);
 
@@ -1564,12 +1565,9 @@ static MenuItem_t CRLControlsItems[] = {
     {ITT_SLDR,    "VERTICAL SENSITIVITY",    CRL_Controls_Sensivity_y,  0, MENU_NONE},
     {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
     {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
-    {ITT_SLDR,    "ACCELERATION",            CRL_Controls_Acceleration, 0, MENU_NONE},
-    {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
-    {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
-    {ITT_SLDR,    "ACCELERATION THRESHOLD",  CRL_Controls_Threshold,    0, MENU_NONE},
-    {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
-    {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
+    {ITT_LRFUNC1, "ACCELERATION",            CRL_Controls_Acceleration, 0, MENU_NONE},
+    {ITT_LRFUNC1, "ACCELERATION THRESHOLD",  CRL_Controls_Threshold,    0, MENU_NONE},
+    {ITT_LRFUNC1, "MOUSE STRAFE DIVISOR",    CRL_Controls_StrafeDivisor, 0, MENU_NONE},
     {ITT_LRFUNC1, "MOUSE LOOK",              CRL_Controls_MLook,        0, MENU_NONE},
     {ITT_LRFUNC1, "VERTICAL MOUSE MOVEMENT", CRL_Controls_NoVert,       0, MENU_NONE}
 };
@@ -1605,25 +1603,30 @@ static void DrawCRLControls (void)
     MN_DrTextA(str, 227, 95, M_Item_Glow(6, mouse_sensitivity_y == 255 ? GLOW_YELLOW :
                                             mouse_sensitivity_y  >  15 ? GLOW_GREEN : GLOW_LIGHTGRAY));
 
-    DrawSlider(10, 7, (mouse_acceleration * 1.8f) - 2, false, 9);
-    M_ID_HandleSliderMouseControl(66, 120, 60, &mouse_acceleration, true, 0, 6);
+    // Acceleration
     sprintf(str,"%.1f", mouse_acceleration);
-    MN_DrTextA(str, 155, 125, M_Item_Glow(9, GLOW_LIGHTGRAY));
+    MN_DrTextA(str, M_ItemRightAlign(str), 110,
+               M_Item_Glow(9, mouse_acceleration == 2.0f ? GLOW_DARKRED : GLOW_GREEN));
 
-    DrawSlider(13, 15, mouse_threshold / 2.2f, false, 12);
-    M_ID_HandleSliderMouseControl(66, 150, 124, &mouse_threshold, false, 0, 32);
+    // Acceleration threshold
     sprintf(str,"%d", mouse_threshold);
-    MN_DrTextA(str, 219, 155, M_Item_Glow(12, GLOW_LIGHTGRAY));
+    MN_DrTextA(str, M_ItemRightAlign(str), 120,
+               M_Item_Glow(10, mouse_threshold == 10 ? GLOW_DARKRED : GLOW_GREEN));
+
+    // Mouse strafe divisor
+    sprintf(str,"%d", mouse_strafe_divisor);
+    MN_DrTextA(str, M_ItemRightAlign(str), 130,
+               M_Item_Glow(11, mouse_strafe_divisor == 1 ? GLOW_DARKRED : GLOW_GREEN));
 
     // Mouse look
     sprintf(str, crl_mouselook ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 170,
-               M_Item_Glow(15, crl_mouselook ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 140,
+               M_Item_Glow(12, crl_mouselook ? GLOW_GREEN : GLOW_DARKRED));
 
     // Vertical mouse movement
     sprintf(str, novert ? "OFF" : "ON");
-    MN_DrTextA(str, M_ItemRightAlign(str), 180,
-               M_Item_Glow(16, novert ? GLOW_DARKRED : GLOW_GREEN));
+    MN_DrTextA(str, M_ItemRightAlign(str), 150,
+               M_Item_Glow(13, novert ? GLOW_DARKRED : GLOW_GREEN));
 }
 
 static void CRL_Controls_Sensivity_y (int choice)
@@ -1640,6 +1643,11 @@ static void CRL_Controls_Acceleration (int option)
 static void CRL_Controls_Threshold (int option)
 {
     mouse_threshold = M_INT_Slider(mouse_threshold, 0, 32, option, true);
+}
+
+static void CRL_Controls_StrafeDivisor (int choice)
+{
+    mouse_strafe_divisor = M_INT_Slider(mouse_strafe_divisor, 1, 255, choice, true);
 }
 
 static void CRL_Controls_MLook (int option)

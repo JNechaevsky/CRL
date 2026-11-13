@@ -92,6 +92,7 @@ static unsigned int mouse_button_state = 0;
 // [JN] Default mouse sensitivity.
 int mouseSensitivity = 5;
 int mouse_sensitivity_y = 5; // [crispy]
+int mouse_strafe_divisor = 1;
 
 // Disallow mouse and joystick movement to cause forward/backward
 // motion.  Specified with the '-novert' command line parameter.
@@ -554,6 +555,12 @@ double I_AccelerateMouseY(int val)
     {
         return val;
     }
+}
+
+// [JN] Never zero, so strafing cannot divide by it!
+int I_MouseStrafeDivisor(void)
+{
+    return mouse_strafe_divisor > 0 ? mouse_strafe_divisor : 1;
 }
 
 //
