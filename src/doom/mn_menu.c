@@ -616,6 +616,7 @@ static void M_CRL_PitchShift (int choice);
 static void M_ChooseCRL_Controls (int choice);
 static void M_DrawCRL_Controls (void);
 static void M_CRL_Controls_Sensitivity (int choice);
+static void M_CRL_Controls_Sensitivity_y (int choice);
 static void M_CRL_Controls_Acceleration (int choice);
 static void M_CRL_Controls_Threshold (int choice);
 static void M_CRL_Controls_NoVert (int choice);
@@ -1817,15 +1818,14 @@ static menuitem_t CRLMenu_Controls[]=
     { M_SWTC, "KEYBOARD BINDINGS",            M_Choose_CRL_Keybinds,       'k'},
     { M_SWTC, "MOUSE BINDINGS",               M_ChooseCRL_MouseBinds,      'm'},
     { M_SKIP, "", 0, '\0'},
-    { M_SLDR, "SENSITIVITY",                  M_CRL_Controls_Sensitivity,  's'},
+    { M_SLDR, "HORIZONTAL SENSITIVITY",       M_CRL_Controls_Sensitivity,  's'},
     { M_SKIP, "", 0, '\0'},
     { M_SKIP, "", 0, '\0'},
-    { M_SLDR, "ACCELERATION",                 M_CRL_Controls_Acceleration, 'a'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SLDR, "ACCELERATION THRESHOLD",       M_CRL_Controls_Threshold,    'a'},
-    { M_SKIP, "", 0, '\0'},
-    { M_SKIP, "", 0, '\0'},
+    { M_SLDR, "VERTICAL SENSITIVITY",         M_CRL_Controls_Sensitivity_y,'v'},
+    { M_SKIP, "", 0, '\0' },
+    { M_SKIP, "", 0, '\0' },
+    { M_MUL1, "ACCELERATION",                 M_CRL_Controls_Acceleration, 'a'},
+    { M_MUL1, "ACCELERATION THRESHOLD",       M_CRL_Controls_Threshold,    'a'},
     { M_MUL1, "VERTICAL MOUSE MOVEMENT",      M_CRL_Controls_NoVert,       'v'},
     { M_MUL1, "DOUBLE CLICK ACTS AS \"USE\"", M_CRL_Controls_DblClck,      'd'},
 };
@@ -1860,31 +1860,43 @@ static void M_DrawCRL_Controls (void)
     M_WriteText (184, 57, str, M_Item_Glow(3, mouseSensitivity == 255 ? GLOW_YELLOW :
                                               mouseSensitivity > 14 ? GLOW_GREEN : GLOW_UNCOLORED));
 
-    M_DrawThermo(46, 81, 8, (mouse_acceleration * 1.8f) - 2, 6);
-    M_ID_HandleSliderMouseControl(52, 81, 100, &mouse_acceleration, true, 0, 9);
-    sprintf(str,"%.1f", mouse_acceleration);
-    M_WriteText (128, 83, str, M_Item_Glow(6, GLOW_UNCOLORED));
+    M_DrawThermo(46, 81, 15, mouse_sensitivity_y, 6);
+    M_ID_HandleSliderMouseControl(52, 81, 124, &mouse_sensitivity_y, false, 0, 14);
+    sprintf(str,"%d", mouse_sensitivity_y);
+    M_WriteText (184, 84, str, M_Item_Glow(5, mouse_sensitivity_y == 255 ? GLOW_YELLOW :
+                                              mouse_sensitivity_y > 14 ? GLOW_GREEN : GLOW_UNCOLORED));
 
-    M_DrawThermo(46, 108, 15, mouse_threshold / 2.2f, 9);
-    M_ID_HandleSliderMouseControl(52, 108, 124, &mouse_threshold, false, 0, 32);
+    // Acceleration
+    sprintf(str,"%.1f", mouse_acceleration);
+    M_WriteText (M_ItemRightAlign(str), 97, str,
+                 M_Item_Glow(9, GLOW_UNCOLORED));
+
+    // Acceleration threshold
     sprintf(str,"%d", mouse_threshold);
-    M_WriteText (184, 110, str, M_Item_Glow(9, mouse_threshold == 0 ? GLOW_DARKRED : GLOW_UNCOLORED));
+    M_WriteText (M_ItemRightAlign(str), 106, str,
+                 M_Item_Glow(10, mouse_threshold == 0 ? GLOW_DARKRED : GLOW_UNCOLORED));
 
     // Vertical mouse movement
     sprintf(str, novert ? "OFF" : "ON");
-    M_WriteText (M_ItemRightAlign(str), 124, str,
-                 M_Item_Glow(12, novert ? GLOW_DARKRED : GLOW_GREEN));
+    M_WriteText (M_ItemRightAlign(str), 115, str,
+                 M_Item_Glow(11, novert ? GLOW_DARKRED : GLOW_GREEN));
 
     // Double click acts as "use"
     sprintf(str, dclick_use ? "ON" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 133, str,
-                 M_Item_Glow(13, dclick_use ? GLOW_GREEN : GLOW_DARKRED));
+    M_WriteText (M_ItemRightAlign(str), 124, str,
+                 M_Item_Glow(12, dclick_use ? GLOW_GREEN : GLOW_DARKRED));
 }
 
 static void M_CRL_Controls_Sensitivity (int choice)
 {
     // [crispy] extended range
     mouseSensitivity = M_INT_Slider(mouseSensitivity, 0, 255, choice, true);
+}
+
+static void M_CRL_Controls_Sensitivity_y (int choice)
+{
+    // [crispy] extended range
+    mouse_sensitivity_y = M_INT_Slider(mouse_sensitivity_y, 0, 255, choice, true);
 }
 
 static void M_CRL_Controls_Acceleration (int choice)

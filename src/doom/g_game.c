@@ -467,6 +467,13 @@ static double CalcMouseAngle(int mouse_x)
     return (I_AccelerateMouse(mouse_x) * (mouseSensitivity + 5) * 8 / 10);
 }
 
+static double CalcMouseVert(int mouse_y)
+{
+    if (!mouse_sensitivity_y)
+        return 0.0;
+
+    return (I_AccelerateMouseY(mouse_y) * (mouse_sensitivity_y + 5) * 2 / 10);
+}
 
 //
 // G_BuildTiccmd
@@ -942,7 +949,7 @@ void G_BuildTiccmd (ticcmd_t* cmd, int maketic)
 
     if (!novert)
     {
-    forward += CarryMouseVert(mousey);
+    forward += CarryMouseVert(CalcMouseVert(mousey));
     }
 
     if (strafe) 
