@@ -619,7 +619,6 @@ extern boolean playerstartsingame[MAXPLAYERS];
 //  to force a wipe on the next draw
 extern gamestate_t wipegamestate;
 
-extern int mouseSensitivity;
 
 extern boolean precache;        // if true, load all graphics at level load
 

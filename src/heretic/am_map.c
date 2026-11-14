@@ -28,6 +28,7 @@
 #include "deh_str.h"
 #include "i_swap.h"
 #include "i_timer.h"
+#include "i_input.h"
 #include "i_video.h"
 #include "v_trans.h"
 #include "m_controls.h"
@@ -1272,8 +1273,8 @@ boolean AM_Responder (const event_t *ev)
             // carry: slow, smooth motion used to floor to 0 through the
             // per-event >> 5. Rotate-mode conversion into map axes happens
             // at consumption, in AM_MousePanning().
-            mouse_pan_sub_x += (int64_t) ev->data2 * mouseSensitivity;
-            mouse_pan_sub_y += (int64_t) ev->data3 * mouseSensitivity;
+            mouse_pan_sub_x += (int64_t) ev->data2 * mouse_x_sensitivity;
+            mouse_pan_sub_y += (int64_t) ev->data3 * mouse_x_sensitivity;
 
             const int pan_x = (int) (mouse_pan_sub_x >> 5);
             const int pan_y = (int) (mouse_pan_sub_y >> 5);
