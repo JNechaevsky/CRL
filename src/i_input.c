@@ -109,8 +109,6 @@ int novert = 1;
 
 int vanilla_keyboard_mapping = true;
 
-// Mouse acceleration
-//
 // [crispy]
 int mouse_y_invert = 0;
 
