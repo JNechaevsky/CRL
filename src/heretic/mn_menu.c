@@ -447,7 +447,6 @@ static void M_CRL_MuteInactive (int choice);
 static void DrawCRLControls (void);
 static void CRL_Controls_Sensivity_y(int option);
 static void CRL_Controls_Acceleration (int option);
-static void CRL_Controls_Threshold (int option);
 static void CRL_Controls_StrafeDivisor (int option);
 static void CRL_Controls_MLook (int option);
 static void CRL_Controls_NoVert (int option);
@@ -996,41 +995,6 @@ static int M_INT_Slider (int val, int min, int max, int direction, boolean cappe
     return val;
 }
 
-static float M_FLOAT_Slider (float val, float min, float max, float step,
-                             int direction, boolean capped)
-{
-    const float old_val = val;
-
-    // [PN] Adjust value based on direction
-    val += (direction == -1) ? 0 :            // [JN] Routine "-1" just reintializes value.
-           (direction ==  0) ? -step : step;  // Otherwise, move either left "0" or right "1".
-
-    // [PN] Handle min/max limits
-    if (val < min)
-        val = capped ? min : max;
-    else
-    if (val > max)
-        val = capped ? max : min;
-
-    // [PN/JN] Do a float correction to get x.xxx000 values
-    val = roundf(val * 1000.0f) / 1000.0f;
-
-    // [JN] Play sound only if value was really changed.
-    // [PN] For line items (ITT_LRFUNC1/2), sound is handled in MN_Responder
-    // to keep keyboard/mouse/wheel behavior consistent and avoid doubles.
-    if (old_val != val)
-    {
-        if (!(MenuActive && CurrentMenu != NULL
-        && CurrentItPos >= 0 && CurrentItPos < CurrentMenu->itemCount
-        && (CurrentMenu->items[CurrentItPos].type == ITT_LRFUNC1
-        ||  CurrentMenu->items[CurrentItPos].type == ITT_LRFUNC2)))
-        {
-            S_StartSound(NULL, sfx_keyup);
-        }
-    }
-
-    return val;
-}
 
 static void M_DrawScrollPages (int x, int y, int itemOnGlow, const char *pagenum)
 {
@@ -1566,7 +1530,6 @@ static MenuItem_t CRLControlsItems[] = {
     {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
     {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
     {ITT_LRFUNC1, "ACCELERATION",            CRL_Controls_Acceleration, 0, MENU_NONE},
-    {ITT_LRFUNC1, "ACCELERATION THRESHOLD",  CRL_Controls_Threshold,    0, MENU_NONE},
     {ITT_LRFUNC1, "MOUSE STRAFE DIVISOR",    CRL_Controls_StrafeDivisor, 0, MENU_NONE},
     {ITT_LRFUNC1, "MOUSE LOOK",              CRL_Controls_MLook,        0, MENU_NONE},
     {ITT_LRFUNC1, "VERTICAL MOUSE MOVEMENT", CRL_Controls_NoVert,       0, MENU_NONE}
@@ -1591,58 +1554,48 @@ static void DrawCRLControls (void)
 
     MN_DrTextACentered("MOUSE CONFIGURATION", 40, cr[CR_YELLOW]);
 
-    DrawSlider(4, 16, mouseSensitivity, false, 3);
-    M_ID_HandleSliderMouseControl(66, 60, 132, &mouseSensitivity, false, 0, 15);
-    sprintf(str,"%d", mouseSensitivity);
-    MN_DrTextA(str, 227, 65, M_Item_Glow(3, mouseSensitivity == 255 ? GLOW_YELLOW :
-                                            mouseSensitivity  >  15 ? GLOW_GREEN : GLOW_LIGHTGRAY));
+    DrawSlider(4, 16, mouse_x_sensitivity, false, 3);
+    M_ID_HandleSliderMouseControl(66, 60, 132, &mouse_x_sensitivity, false, 0, 15);
+    sprintf(str,"%d", mouse_x_sensitivity);
+    MN_DrTextA(str, 227, 65, M_Item_Glow(3, mouse_x_sensitivity == 255 ? GLOW_YELLOW :
+                                            mouse_x_sensitivity  >  15 ? GLOW_GREEN : GLOW_LIGHTGRAY));
 
-    DrawSlider(7, 16, mouse_sensitivity_y, false, 6);
-    M_ID_HandleSliderMouseControl(66, 90, 132, &mouse_sensitivity_y, false, 0, 15);
-    sprintf(str,"%d", mouse_sensitivity_y);
-    MN_DrTextA(str, 227, 95, M_Item_Glow(6, mouse_sensitivity_y == 255 ? GLOW_YELLOW :
-                                            mouse_sensitivity_y  >  15 ? GLOW_GREEN : GLOW_LIGHTGRAY));
+    DrawSlider(7, 16, mouse_y_sensitivity, false, 6);
+    M_ID_HandleSliderMouseControl(66, 90, 132, &mouse_y_sensitivity, false, 0, 15);
+    sprintf(str,"%d", mouse_y_sensitivity);
+    MN_DrTextA(str, 227, 95, M_Item_Glow(6, mouse_y_sensitivity == 255 ? GLOW_YELLOW :
+                                            mouse_y_sensitivity  >  15 ? GLOW_GREEN : GLOW_LIGHTGRAY));
 
     // Acceleration
-    sprintf(str,"%.1f", mouse_acceleration);
+    sprintf(str,"%d", mouse_xy_acceleration);
     MN_DrTextA(str, M_ItemRightAlign(str), 110,
-               M_Item_Glow(9, mouse_acceleration == 2.0f ? GLOW_DARKRED : GLOW_GREEN));
-
-    // Acceleration threshold
-    sprintf(str,"%d", mouse_threshold);
-    MN_DrTextA(str, M_ItemRightAlign(str), 120,
-               M_Item_Glow(10, mouse_threshold == 10 ? GLOW_DARKRED : GLOW_GREEN));
+               M_Item_Glow(9, mouse_xy_acceleration == 0 ? GLOW_DARKRED : GLOW_GREEN));
 
     // Mouse strafe divisor
     sprintf(str,"%d", mouse_strafe_divisor);
-    MN_DrTextA(str, M_ItemRightAlign(str), 130,
-               M_Item_Glow(11, mouse_strafe_divisor == 1 ? GLOW_DARKRED : GLOW_GREEN));
+    MN_DrTextA(str, M_ItemRightAlign(str), 120,
+               M_Item_Glow(10, mouse_strafe_divisor == 1 ? GLOW_DARKRED : GLOW_GREEN));
 
     // Mouse look
     sprintf(str, crl_mouselook ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 140,
-               M_Item_Glow(12, crl_mouselook ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 130,
+               M_Item_Glow(11, crl_mouselook ? GLOW_GREEN : GLOW_DARKRED));
 
     // Vertical mouse movement
     sprintf(str, novert ? "OFF" : "ON");
-    MN_DrTextA(str, M_ItemRightAlign(str), 150,
-               M_Item_Glow(13, novert ? GLOW_DARKRED : GLOW_GREEN));
+    MN_DrTextA(str, M_ItemRightAlign(str), 140,
+               M_Item_Glow(12, novert ? GLOW_DARKRED : GLOW_GREEN));
 }
 
 static void CRL_Controls_Sensivity_y (int choice)
 {
     // [crispy] extended range
-    mouse_sensitivity_y = M_INT_Slider(mouse_sensitivity_y, 0, 255, choice, true);
+    mouse_y_sensitivity = M_INT_Slider(mouse_y_sensitivity, 0, 255, choice, true);
 }
 
 static void CRL_Controls_Acceleration (int option)
 {
-    mouse_acceleration = M_FLOAT_Slider(mouse_acceleration, 1.000000f, 5.000000f, 0.100000f, option, true);
-}
-
-static void CRL_Controls_Threshold (int option)
-{
-    mouse_threshold = M_INT_Slider(mouse_threshold, 0, 32, option, true);
+    mouse_xy_acceleration = M_INT_Slider(mouse_xy_acceleration, 0, 100, option, true);
 }
 
 static void CRL_Controls_StrafeDivisor (int choice)
@@ -5081,8 +5034,8 @@ static void DrawOptionsMenu(void)
 {
     MN_DrTextB(DEH_String(showMessages ? "ON" : "OFF"), 196, 50,
                    M_Big_Line_Glow(CurrentMenu->items[1].tics));
-    DrawSlider(3, 10, mouseSensitivity, true, 2);
-    M_ID_HandleSliderMouseControl(110, 90, 84, &mouseSensitivity, false, 0, 10);
+    DrawSlider(3, 10, mouse_x_sensitivity, true, 2);
+    M_ID_HandleSliderMouseControl(110, 90, 84, &mouse_x_sensitivity, false, 0, 10);
 }
 
 //---------------------------------------------------------------------------
@@ -5377,7 +5330,7 @@ static void SCSkill(int option)
 static void SCMouseSensi(int option)
 {
     // [crispy] extended range
-    mouseSensitivity = M_INT_Slider(mouseSensitivity, 0, 255, option, true);
+    mouse_x_sensitivity = M_INT_Slider(mouse_x_sensitivity, 0, 255, option, true);
 }
 
 //---------------------------------------------------------------------------

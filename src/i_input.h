@@ -30,21 +30,21 @@
 
 #define MAX_MOUSE_BUTTONS 8
 
+// [PN] legacy, bound for config compatibility only
 extern int mouse_sensitivity;
-extern int mouse_sensitivity_y; // [crispy]
-extern float mouse_acceleration;
-extern int mouse_threshold;
-extern float mouse_acceleration_y; // [crispy]
-extern int mouse_threshold_y; // [crispy]
-extern int mouse_y_invert; // [crispy]
+extern int mouseSensitivity;
+// [PN] DSDA-Doom style sensitivity and acceleration
+extern int mouse_x_sensitivity;
+extern int mouse_y_sensitivity;
+extern int mouse_xy_acceleration;
 extern int mouse_strafe_divisor;
-//extern int novert; // [crispy]
+
+extern int mouse_y_invert; // [crispy]
 extern int SDL_mouseButton; // [JN] Catch mouse button number to provide into mouse binding menu.
 extern int runcentering; // [crispy]
 
 // [crispy]
 double I_AccelerateMouse(int val);
-double I_AccelerateMouseY(int val);
 int I_MouseStrafeDivisor(void);
 
 void I_BindStrifeInputVariables(void); // [crispy]

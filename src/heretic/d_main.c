@@ -1039,7 +1039,9 @@ static void D_BindVariables(void)
     NET_BindVariables();
 
     M_BindIntVariable("mouse_sensitivity",      &mouseSensitivity);
-    M_BindIntVariable("mouse_sensitivity_y",    &mouse_sensitivity_y);
+    M_BindIntVariable("mouse_x_sensitivity",    &mouse_x_sensitivity);
+    M_BindIntVariable("mouse_y_sensitivity",    &mouse_y_sensitivity);
+    M_BindIntVariable("mouse_xy_acceleration",  &mouse_xy_acceleration);
     M_BindIntVariable("mouse_strafe_divisor",   &mouse_strafe_divisor);
     M_BindIntVariable("sfx_volume",             &snd_MaxVolume);
     M_BindIntVariable("music_volume",           &snd_MusicVolume);

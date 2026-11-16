@@ -924,20 +924,16 @@ static int linelen_multiplier = 1;
 
 void V_DrawMouseSpeedBox(int speed)
 {
-    int bgcolor, bordercolor, red, black, white, yellow;
+    int bgcolor, bordercolor, black, white, yellow;
     int box_x, box_y;
-    int original_speed;
-    int redline_x;
     int linelen;
     int i;
-    boolean draw_acceleration = false;
 
     // Get palette indices for colors for widget. These depend on the
     // palette of the game being played.
 
     bgcolor = I_GetPaletteIndex(0x77, 0x77, 0x77);
     bordercolor = I_GetPaletteIndex(0x55, 0x55, 0x55);
-    red = I_GetPaletteIndex(0xff, 0x00, 0x00);
     black = I_GetPaletteIndex(0x00, 0x00, 0x00);
     yellow = I_GetPaletteIndex(0xff, 0xff, 0x00);
     white = I_GetPaletteIndex(0xff, 0xff, 0xff);
@@ -946,13 +942,6 @@ void V_DrawMouseSpeedBox(int speed)
     if (!usemouse)
     {
         return;
-    }
-
-    // If acceleration is used, draw a box that helps to calibrate the
-    // threshold point.
-    if (mouse_threshold > 0 && fabs(mouse_acceleration - 1) > 0.01)
-    {
-        draw_acceleration = true;
     }
 
     // Calculate box position
@@ -965,67 +954,28 @@ void V_DrawMouseSpeedBox(int speed)
     V_DrawBox(box_x, box_y,
               MOUSE_SPEED_BOX_WIDTH, MOUSE_SPEED_BOX_HEIGHT, bordercolor);
 
-    // Calculate the position of the red threshold line when calibrating
-    // acceleration.  This is 1/3 of the way along the box.
-
-    redline_x = MOUSE_SPEED_BOX_WIDTH / 3;
-
     // Calculate line length
 
-    if (draw_acceleration && speed >= mouse_threshold)
-    {
-        // Undo acceleration and get back the original mouse speed
-        original_speed = speed - mouse_threshold;
-        original_speed = (int) (original_speed / mouse_acceleration);
-        original_speed += mouse_threshold;
-
-        linelen = (original_speed * redline_x) / mouse_threshold;
-    }
-    else
-    {
-        linelen = speed / linelen_multiplier;
-    }
+    linelen = speed / linelen_multiplier;
 
     // Draw horizontal "thermometer" 
 
     if (linelen > MOUSE_SPEED_BOX_WIDTH - 1)
     {
         linelen = MOUSE_SPEED_BOX_WIDTH - 1;
-        if (!draw_acceleration)
-        {
-            linelen_multiplier++;
-        }
+        linelen_multiplier++;
     }
 
     V_DrawHorizLine(box_x + 1, box_y + 4, MOUSE_SPEED_BOX_WIDTH - 2, black);
 
-    if (!draw_acceleration || linelen < redline_x)
-    {
-        V_DrawHorizLine(box_x + 1, box_y + MOUSE_SPEED_BOX_HEIGHT / 2,
-                        linelen, white);
-    }
-    else
-    {
-        V_DrawHorizLine(box_x + 1, box_y + MOUSE_SPEED_BOX_HEIGHT / 2,
-                        redline_x, white);
-        V_DrawHorizLine(box_x + redline_x, box_y + MOUSE_SPEED_BOX_HEIGHT / 2,
-                        linelen - redline_x, yellow);
-    }
+    V_DrawHorizLine(box_x + 1, box_y + MOUSE_SPEED_BOX_HEIGHT / 2,
+                    linelen, white);
 
-    if (draw_acceleration)
+    // Draw multiplier lines to indicate current resolution
+    for (i = 1; i < linelen_multiplier; i++)
     {
-        // Draw acceleration threshold line
-        V_DrawVertLine(box_x + redline_x, box_y + 1,
-                       MOUSE_SPEED_BOX_HEIGHT - 2, red);
-    }
-    else
-    {
-        // Draw multiplier lines to indicate current resolution
-        for (i = 1; i < linelen_multiplier; i++)
-        {
-            V_DrawVertLine(
-                box_x + (i * MOUSE_SPEED_BOX_WIDTH / linelen_multiplier),
-                box_y + 1, MOUSE_SPEED_BOX_HEIGHT - 2, yellow);
-        }
+        V_DrawVertLine(
+            box_x + (i * MOUSE_SPEED_BOX_WIDTH / linelen_multiplier),
+            box_y + 1, MOUSE_SPEED_BOX_HEIGHT - 2, yellow);
     }
 }
