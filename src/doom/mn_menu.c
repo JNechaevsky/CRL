@@ -264,6 +264,7 @@ static void M_FormatSaveTime(char *buf, size_t buflen, int tics);
 static void M_DrawSaveLoadBorder(int x,int y);
 static void M_SetupNextMenu(menu_t *menudef);
 static void M_DrawThermo(int x,int y,int thermWidth,int thermDot,int itemPos);
+static void M_DrawThermoFine(int x,int y,int thermWidth,int thermDot,int step,int itemPos);
 static int  M_StringHeight(const char *string);
 static void M_StartMessage(const char *string,void (*routine)(int),boolean input);
 static void M_ClearMenus (void);
@@ -1793,8 +1794,12 @@ static menuitem_t CRLMenu_Controls[]=
     { M_SWTC, "KEYBOARD BINDINGS",            M_Choose_CRL_Keybinds,       'k'},
     { M_SWTC, "MOUSE BINDINGS",               M_ChooseCRL_MouseBinds,      'm'},
     { M_SKIP, "", 0, '\0'},
-    { M_MUL1, "HORIZONTAL SENSITIVITY",       M_CRL_Controls_Sensitivity,  's'},
-    { M_MUL1, "VERTICAL SENSITIVITY",         M_CRL_Controls_Sensitivity_y,'v'},
+    { M_SLDR, "HORIZONTAL SENSITIVITY",       M_CRL_Controls_Sensitivity,  's'},
+    { M_SKIP, "", 0, '\0'},
+    { M_SKIP, "", 0, '\0'},
+    { M_SLDR, "VERTICAL SENSITIVITY",         M_CRL_Controls_Sensitivity_y,'v'},
+    { M_SKIP, "", 0, '\0'},
+    { M_SKIP, "", 0, '\0'},
     { M_MUL1, "ACCELERATION",                 M_CRL_Controls_Acceleration, 'a'},
     { M_MUL1, "MOUSE STRAFE DIVISOR",         M_CRL_Controls_StrafeDivisor, 'm'},
     { M_MUL1, "VERTICAL MOUSE MOVEMENT",      M_CRL_Controls_NoVert,       'v'},
@@ -1822,38 +1827,38 @@ static void M_DrawCRL_Controls (void)
     char str[32];
 
     M_WriteTextCentered(7, "BINDINGS", cr[CR_YELLOW]);
-
+    
     M_WriteTextCentered(34, "MOUSE CONFIGURATION", cr[CR_YELLOW]);
 
-    // Horizontal sensitivity
+    M_DrawThermoFine(46, 54, 15, mouse_x_sensitivity, 4, 3);
+    M_ID_HandleSliderMouseControl(54, 54, 116, &mouse_x_sensitivity, false, 0, 28);
     sprintf(str,"%d", mouse_x_sensitivity);
-    M_WriteText (M_ItemRightAlign(str), 43, str,
-                 M_Item_Glow(3, mouse_x_sensitivity == 10 ? GLOW_DARKRED : GLOW_GREEN));
+    M_WriteText (184, 57, str, M_Item_Glow(3, mouse_x_sensitivity > 28 ? GLOW_GREEN : GLOW_UNCOLORED));
 
-    // Vertical sensitivity
+    M_DrawThermoFine(46, 81, 15, mouse_y_sensitivity, 4, 6);
+    M_ID_HandleSliderMouseControl(54, 81, 116, &mouse_y_sensitivity, false, 0, 28);
     sprintf(str,"%d", mouse_y_sensitivity);
-    M_WriteText (M_ItemRightAlign(str), 52, str,
-                 M_Item_Glow(4, mouse_y_sensitivity == 10 ? GLOW_DARKRED : GLOW_GREEN));
+    M_WriteText (184, 84, str, M_Item_Glow(6, mouse_y_sensitivity > 28 ? GLOW_GREEN : GLOW_UNCOLORED));
 
     // Acceleration
     sprintf(str,"%d", mouse_xy_acceleration);
-    M_WriteText (M_ItemRightAlign(str), 61, str,
-                 M_Item_Glow(5, mouse_xy_acceleration == 0 ? GLOW_DARKRED : GLOW_GREEN));
+    M_WriteText (M_ItemRightAlign(str), 97, str,
+                 M_Item_Glow(9, mouse_xy_acceleration == 0 ? GLOW_DARKRED : GLOW_GREEN));
 
     // Mouse strafe divisor
     sprintf(str,"%d", mouse_strafe_divisor);
-    M_WriteText (M_ItemRightAlign(str), 70, str,
-                 M_Item_Glow(6, mouse_strafe_divisor == 4 ? GLOW_DARKRED : GLOW_UNCOLORED));
+    M_WriteText (M_ItemRightAlign(str), 106, str,
+                 M_Item_Glow(10, mouse_strafe_divisor == 4 ? GLOW_DARKRED : GLOW_UNCOLORED));
 
     // Vertical mouse movement
     sprintf(str, novert ? "OFF" : "ON");
-    M_WriteText (M_ItemRightAlign(str), 79, str,
-                 M_Item_Glow(7, novert ? GLOW_DARKRED : GLOW_GREEN));
+    M_WriteText (M_ItemRightAlign(str), 115, str,
+                 M_Item_Glow(11, novert ? GLOW_DARKRED : GLOW_GREEN));
 
     // Double click acts as "use"
     sprintf(str, dclick_use ? "ON" : "OFF");
-    M_WriteText (M_ItemRightAlign(str), 88, str,
-                 M_Item_Glow(8, dclick_use ? GLOW_DARKRED : GLOW_GREEN));
+    M_WriteText (M_ItemRightAlign(str), 124, str,
+                 M_Item_Glow(12, dclick_use ? GLOW_DARKRED : GLOW_GREEN));
 }
 
 static void M_CRL_Controls_Sensitivity (int choice)
@@ -5226,6 +5231,53 @@ M_DrawThermo
     dp_translation = NULL;
 }
 
+// [PN] Same thermometer, but the dot advances in smaller steps, so a 15 cell
+// widget can offer twice as many positions.
+static void
+M_DrawThermoFine
+( int	x,
+  int	y,
+  int	thermWidth,
+  int	thermDot,
+  int	step,
+  int	itemPos )
+{
+    int		xx;
+    int		i;
+    const char	*m_therml = DEH_String("M_THERML");
+    const char	*m_thermm = DEH_String("M_THERMM");
+    const char	*m_thermr = DEH_String("M_THERMR");
+    const char	*m_thermo = DEH_String("M_THERMO");
+
+    // [JN] Highlight active slider and gem.
+    dp_translation = M_SaveLoad_Glow(itemPos == itemOn, 0, saveload_slider);
+
+    xx = x;
+    V_DrawShadowedPatch(xx, y, W_CacheLumpName(m_therml, PU_CACHE));
+    xx += 8;
+    for (i=0;i<thermWidth;i++)
+    {
+	V_DrawShadowedPatch(xx, y, W_CacheLumpName(m_thermm, PU_CACHE));
+	xx += 8;
+    }
+    V_DrawShadowedPatch(xx, y, W_CacheLumpName(m_thermr, PU_CACHE));
+
+    // [PN] Clamp to the range the widget can show.
+    const int maxdot = (thermWidth * 8) / step - 2;
+
+    if (thermDot <= 0)
+    {
+        thermDot = 0;
+    }
+    if (thermDot > maxdot)
+    {
+        thermDot = maxdot;
+    }
+
+    V_DrawPatch((x + 8) + thermDot * step, y, W_CacheLumpName(m_thermo, PU_CACHE));
+    dp_translation = NULL;
+}
+
 static void
 M_StartMessage
 ( const char*	string,
@@ -6755,7 +6807,10 @@ inline static void M_ID_HandleSliderMouseControl (int x, int y, int width, void 
     {
         int *v = (int *)value;
         const int old_value = *v;
-        *v = (int)(min + normalized * range);
+
+        // [PN] Snap to the nearest slider cell, so the dot lands where the
+        // cursor points instead of trailing half a cell behind it.
+        *v = min + (int) (normalized * range + 0.5f);
         if (*v < (int) min) *v = (int) min;
         if (*v > (int) max) *v = (int) max;
         value_changed = (old_value != *v);

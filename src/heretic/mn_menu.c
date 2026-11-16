@@ -183,6 +183,7 @@ static void DrawSaveMenu(void);
 static void DrawSavePreview(const Menu_t *menu);
 static void DrawSavePreviewBorder(int x, int y, int w, int h);
 static void DrawSlider(int item, int width, int slot, boolean bigspacing, int itemPos);
+static void DrawSliderFine(int item, int width, int slot, int step, boolean bigspacing, int itemPos);
 static void MN_DeactivateMenu(void);
 static void MN_LoadSlotText(void);
 
@@ -1523,8 +1524,12 @@ static MenuItem_t CRLControlsItems[] = {
     {ITT_EFUNC,   "KEYBOARD BINDINGS",       CRL_Choose_Keybinds,       0, MENU_NONE},
     {ITT_EFUNC,   "MOUSE BINDINGS",          CRL_Choose_Mousebinds,     0, MENU_NONE},
     {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
-    {ITT_LRFUNC1, "HORIZONTAL SENSITIVITY",  SCMouseSensi,              0, MENU_NONE},
-    {ITT_LRFUNC1, "VERTICAL SENSITIVITY",    CRL_Controls_Sensivity_y,  0, MENU_NONE},
+    {ITT_SLDR,    "HORIZONTAL SENSITIVITY",  SCMouseSensi,              0, MENU_NONE},
+    {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
+    {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
+    {ITT_SLDR,    "VERTICAL SENSITIVITY",    CRL_Controls_Sensivity_y,  0, MENU_NONE},
+    {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
+    {ITT_EMPTY,   NULL,                      NULL,                      0, MENU_NONE},
     {ITT_LRFUNC1, "ACCELERATION",            CRL_Controls_Acceleration, 0, MENU_NONE},
     {ITT_LRFUNC1, "MOUSE STRAFE DIVISOR",    CRL_Controls_StrafeDivisor, 0, MENU_NONE},
     {ITT_LRFUNC1, "MOUSE LOOK",              CRL_Controls_MLook,        0, MENU_NONE},
@@ -1550,37 +1555,37 @@ static void DrawCRLControls (void)
 
     MN_DrTextACentered("MOUSE CONFIGURATION", 40, cr[CR_YELLOW]);
 
-    // Horizontal sensitivity
+    DrawSliderFine(4, 16, mouse_x_sensitivity, 4, false, 3);
+    M_ID_HandleSliderMouseControl(76, 60, 112, &mouse_x_sensitivity, false, 0, 30);
     sprintf(str,"%d", mouse_x_sensitivity);
-    MN_DrTextA(str, M_ItemRightAlign(str), 50,
-               M_Item_Glow(3, mouse_x_sensitivity ==  0 ? GLOW_YELLOW :
-                              mouse_x_sensitivity == 10 ? GLOW_DARKRED : GLOW_GREEN));
+    MN_DrTextA(str, 227, 65,
+               M_Item_Glow(3, mouse_x_sensitivity > 30 ? GLOW_GREEN : GLOW_LIGHTGRAY));
 
-    // Vertical sensitivity
+    DrawSliderFine(7, 16, mouse_y_sensitivity, 4, false, 6);
+    M_ID_HandleSliderMouseControl(76, 90, 112, &mouse_y_sensitivity, false, 0, 30);
     sprintf(str,"%d", mouse_y_sensitivity);
-    MN_DrTextA(str, M_ItemRightAlign(str), 60,
-               M_Item_Glow(4, mouse_y_sensitivity ==  0 ? GLOW_YELLOW :
-                              mouse_y_sensitivity == 10 ? GLOW_DARKRED : GLOW_GREEN));
+    MN_DrTextA(str, 227, 95,
+               M_Item_Glow(6, mouse_y_sensitivity > 30 ? GLOW_GREEN : GLOW_LIGHTGRAY));
 
     // Acceleration
     sprintf(str,"%d", mouse_xy_acceleration);
-    MN_DrTextA(str, M_ItemRightAlign(str), 70,
-               M_Item_Glow(5, mouse_xy_acceleration == 0 ? GLOW_DARKRED : GLOW_GREEN));
+    MN_DrTextA(str, M_ItemRightAlign(str), 110,
+               M_Item_Glow(9, mouse_xy_acceleration == 0 ? GLOW_DARKRED : GLOW_GREEN));
 
     // Mouse strafe divisor
     sprintf(str,"%d", mouse_strafe_divisor);
-    MN_DrTextA(str, M_ItemRightAlign(str), 80,
-               M_Item_Glow(6, mouse_strafe_divisor == 1 ? GLOW_DARKRED : GLOW_GREEN));
+    MN_DrTextA(str, M_ItemRightAlign(str), 120,
+               M_Item_Glow(10, mouse_strafe_divisor == 4 ? GLOW_DARKRED : GLOW_GREEN));
 
     // Mouse look
     sprintf(str, crl_mouselook ? "ON" : "OFF");
-    MN_DrTextA(str, M_ItemRightAlign(str), 90,
-               M_Item_Glow(7, crl_mouselook ? GLOW_GREEN : GLOW_DARKRED));
+    MN_DrTextA(str, M_ItemRightAlign(str), 130,
+               M_Item_Glow(11, crl_mouselook ? GLOW_GREEN : GLOW_DARKRED));
 
     // Vertical mouse movement
     sprintf(str, novert ? "OFF" : "ON");
-    MN_DrTextA(str, M_ItemRightAlign(str), 100,
-               M_Item_Glow(8, novert ? GLOW_DARKRED : GLOW_GREEN));
+    MN_DrTextA(str, M_ItemRightAlign(str), 140,
+               M_Item_Glow(12, novert ? GLOW_DARKRED : GLOW_GREEN));
 }
 
 static void CRL_Controls_Sensivity_y (int choice)
@@ -5063,7 +5068,7 @@ static void DrawOptions2Menu(void)
     // Screen Size
     sprintf(str, "%d", crl_screen_size);
     DrawSlider(5, 9, crl_screen_size - 3, true, 4);
-    M_ID_HandleSliderMouseControl(100, 120, 64, &crl_screen_size, false, 3, 11);
+    M_ID_HandleSliderMouseControl(100, 120, 64, &crl_screen_size, false, 3, 12);
     MN_DrTextA(str, 196, 125, M_Item_Glow(4, GLOW_LIGHTGRAY));
 }
 
@@ -6678,6 +6683,49 @@ static void DrawSlider(int item, int width, int slot, boolean bigspacing, int it
     }
 
     V_DrawPatch(x + 4 + slot * 8, y + 7,
+                W_CacheLumpName(DEH_String("M_SLDKB"), PU_CACHE));
+
+    dp_translation = NULL;
+}
+
+// [PN] Same slider, but the gem advances in smaller steps, so a 16 cell
+// widget can offer more positions than it has cells.
+static void DrawSliderFine(int item, int width, int slot, int step, boolean bigspacing, int itemPos)
+{
+    int x;
+    int y;
+    int x2;
+    int count;
+
+    x = CurrentMenu->x + 24;
+    y = CurrentMenu->y + 2 + (item * (bigspacing ? ITEM_HEIGHT : ID_MENU_LINEHEIGHT_SMALL));
+
+    // [JN] Highlight active slider and gem.
+    if (itemPos == CurrentItPos)
+    {
+        dp_translation = cr[CR_MENU_BRIGHT2];
+    }
+
+    V_DrawShadowedPatchRavenOptional(x - 32, y, W_CacheLumpName(DEH_String("M_SLDLT"), PU_CACHE));
+    for (x2 = x, count = width; count--; x2 += 8)
+    {
+        V_DrawShadowedPatchRavenOptional(x2, y, W_CacheLumpName(DEH_String(count & 1 ? "M_SLDMD1" : "M_SLDMD2"), PU_CACHE));
+    }
+    V_DrawShadowedPatchRavenOptional(x2, y, W_CacheLumpName(DEH_String("M_SLDRT"), PU_CACHE));
+
+    // [PN] Prevent gem go out of slider bounds.
+    const int maxslot = (width * 8) / step - 1;
+
+    if (slot < 0)
+    {
+        slot = 0;
+    }
+    if (slot > maxslot)
+    {
+        slot = maxslot;
+    }
+
+    V_DrawPatch(x + 4 + slot * step, y + 7,
                 W_CacheLumpName(DEH_String("M_SLDKB"), PU_CACHE));
 
     dp_translation = NULL;
