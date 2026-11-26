@@ -672,7 +672,7 @@ static void R_SetupFrame(player_t * player)
             viewy = LerpFixed(CRL_camera_oldy, by);
             viewz = LerpFixed(CRL_camera_oldz, bz);
             viewangle = LerpAngle(CRL_camera_oldang, ba);
-            pitch = LerpFixed(CRL_camera_oldlookdir, CRL_camera_lookdir) / MLOOKUNIT;
+            pitch = LerpFixed(CRL_camera_oldlookdir, CRL_camera_lookdir);
         }
         else
         {
@@ -680,7 +680,7 @@ static void R_SetupFrame(player_t * player)
             viewy = by;
             viewz = bz;
             viewangle = ba;
-            pitch = CRL_camera_lookdir / MLOOKUNIT;
+            pitch = CRL_camera_lookdir;
         }
     }
     else
@@ -707,12 +707,12 @@ static void R_SetupFrame(player_t * player)
                 viewangle = (player->mo->angle + localview.angle -
                             localview.ticangle + LerpAngle(localview.oldticangle,
                                                            localview.ticangle));
-                pitch = LerpInt(player->r_oldlookdir, player->r_lookdir) / MLOOKUNIT;
+                pitch = LerpInt(player->r_oldlookdir, player->r_lookdir);
             }
             else
             {
                 viewangle = LerpAngle(player->mo->oldangle, player->mo->angle);
-                pitch = LerpInt(player->oldlookdir, player->lookdir);
+                pitch = LerpInt(player->oldlookdir, player->lookdir) * MLOOKUNIT;
             }
         }
         else
@@ -721,8 +721,8 @@ static void R_SetupFrame(player_t * player)
             viewy = player->mo->y;
             viewz = player->viewz;
             viewangle = player->mo->angle;
-            pitch = use_localview ? player->r_lookdir / MLOOKUNIT : // [JN] Precise vertical mouse look.
-                                    player->lookdir; // [crispy]
+            pitch = use_localview ? player->r_lookdir : // [JN] Precise vertical mouse look.
+                                    player->lookdir * MLOOKUNIT; // [crispy]
         }
     }
     
@@ -743,7 +743,12 @@ static void R_SetupFrame(player_t * player)
     // [PN] Keep spectator pitch history in sync with position history.
     CRL_ReportLookdir(CRL_camera_lookdir);
 
-    tempCentery = viewheight / 2 + pitch * crl_screen_size / 10;
+    // [PN] pitch is kept in MLOOKUNIT units: the horizon then moves in one
+    // pixel steps instead of vid_resolution * crl_screen_size / 10.
+    pitch = BETWEEN(-LOOKDIRMIN * MLOOKUNIT, LOOKDIRMAX * MLOOKUNIT, pitch);
+
+    tempCentery = viewheight / 2 + (int) (((int64_t) pitch
+                * crl_screen_size) / (10 * MLOOKUNIT));
     if (centery != tempCentery)
     {
         centery = tempCentery;
